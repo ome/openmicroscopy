@@ -34,6 +34,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ome.formats.model.UnitsFactory;
+import omero.model.PlateAnnotationLink;
 import ome.model.units.BigResult;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.Request;
@@ -61,14 +62,17 @@ import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.Pressure;
 import omero.model.ProjectAnnotationLink;
+import omero.model.ScreenAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.Temperature;
 import omero.model.TermAnnotation;
+import omero.model.WellAnnotationLink;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
@@ -2380,6 +2384,22 @@ class OmeroMetadataServiceImpl
 					nodes.add(PojoMapper.asDataObject(
 							((ImageAnnotationLink) o).getParent()));
 				}
+				else if (o instanceof PlateAnnotationLink) {
+                    nodes.add(PojoMapper.asDataObject(
+                            ((PlateAnnotationLink) o).getParent()));
+                }
+				else if (o instanceof ScreenAnnotationLink) {
+                    nodes.add(PojoMapper.asDataObject(
+                            ((ScreenAnnotationLink) o).getParent()));
+                }
+				else if (o instanceof WellAnnotationLink) {
+                    nodes.add(PojoMapper.asDataObject(
+                            ((WellAnnotationLink) o).getParent()));
+                }
+				else if (o instanceof PlateAcquisitionAnnotationLink) {
+                    nodes.add(PojoMapper.asDataObject(
+                            ((PlateAcquisitionAnnotationLink) o).getParent()));
+                }
 			}
 		}
 		return nodes;

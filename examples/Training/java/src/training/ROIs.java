@@ -56,8 +56,8 @@ import omero.model.Polygon;
 import omero.model.PolygonI;
 import omero.model.Polyline;
 import omero.model.PolylineI;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
@@ -125,7 +125,7 @@ public class ROIs
         
         Roi roi = new RoiI();
         roi.setImage(image.asImage());
-        Rect rect = new RectI();
+        Rectangle rect = new RectangleI();
         rect.setX(omero.rtypes.rdouble(10));
         rect.setY(omero.rtypes.rdouble(10));
         rect.setWidth(omero.rtypes.rdouble(10));
@@ -135,7 +135,7 @@ public class ROIs
         roi.addShape(rect);
 
         //Create a rectangular shape
-        rect = new RectI();
+        rect = new RectangleI();
         rect.setX(omero.rtypes.rdouble(10));
         rect.setY(omero.rtypes.rdouble(10));
         rect.setWidth(omero.rtypes.rdouble(10));

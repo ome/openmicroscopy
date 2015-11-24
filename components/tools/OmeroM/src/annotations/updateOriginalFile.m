@@ -58,7 +58,7 @@ context = java.util.HashMap;
 % Check if the Annotation exists on the server
 try
     group = fileAnnotation.getDetails().getGroup().getId().getValue();
-    context.put('omero.group', num2str(group));
+    context.put('omero.group', java.lang.String(num2str(group)));
 catch
 end
 % If exists only client side accept omero.group parameter

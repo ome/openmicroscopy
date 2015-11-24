@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.Browser
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -157,11 +158,12 @@ public interface Browser
     public void setUnitBar(boolean b);
 
     /**
-     * Sets the size of the unit bar in microns.
+     * Sets the size of the unit bar.
      * 
-     * @param size The size of the unit bar in microns.
+     * @param size The size of the unit bar.
+     * @param unit The unit
      */
-    public void setUnitBarSize(double size);
+    public void setUnitBarSize(double size, UnitsLength unit);
 
     /**
      * Returns <code>true</code> if the unit bar is displayed, 

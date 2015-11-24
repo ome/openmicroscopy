@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.IQuery;
+import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.model.meta.Experimenter;
 import ome.services.sessions.SessionManager;
@@ -166,6 +167,9 @@ public class PermissionsVerifierI extends _PermissionsVerifierDisp {
                 return false;
             }
 
+        } catch (SecurityViolation sv) {
+            reason.value = sv.getMessage();
+            return false;
         } catch (Throwable t) {
             reason.value = "Internal error. Please contact your administrator:\n"
                     + t.getMessage();

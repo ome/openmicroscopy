@@ -113,18 +113,33 @@ public class SecurityContext {
         return groupID;
     }
 
+    /**
+     * @return The {@link ServerInformation} 
+     */
     public ServerInformation getServerInformation() {
         return serverInformation;
     }
 
+    /**
+     * Sets the {@link ServerInformation} 
+     * @param serverInformation The {@link ServerInformation} 
+     */
     public void setServerInformation(ServerInformation serverInformation) {
         this.serverInformation = serverInformation;
     }
 
+    /**
+     * Get the compression level
+     * @return See above.
+     */
     public float getCompression() {
         return compression;
     }
 
+    /**
+     * Set the compression level
+     * @param compression
+     */
     public void setCompression(float compression) {
         this.compression = compression;
     }

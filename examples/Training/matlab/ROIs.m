@@ -107,7 +107,7 @@ try
     fprintf(1, 'Found %g shapes\n', nShapes);
     for i = 1 : nShapes
         shape = roi.getShape(i - 1);
-        if (isa(shape, 'omero.model.Rect'))
+        if (isa(shape, 'omero.model.Rectangle'))
             %handle rectangle
             x = shape.getX().getValue();
             y = shape.getY().getValue();

@@ -250,6 +250,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <!-- Parts of build-dist -->
         <antcall target="copy-etc" inheritRefs="true" inheritAll="true"/>
+        <antcall target="copy-web-requirements" inheritRefs="true" inheritAll="true"/>
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
@@ -456,7 +457,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
-                includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**" excludes="bin/omero"/>
+                includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**,share/web/**" excludes="bin/omero"/>
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
                 includes="bin/omero" filemode="755"/>
         </zip>
@@ -592,10 +593,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 breakiterator="true"
                 encoding="UTF-8"
                 docencoding="UTF-8"
-                windowtitle="OMERO (OME Remote Objects) Server"
+                windowtitle="OMERO API"
                 overview="target/docs/overview.html"
-                stylesheetfile="docs/javadocsstyle.css"
-                useexternalfile="true"
                 additionalparam="${javadoc.doclint}">
 
                 <classpath>
@@ -629,9 +628,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     <patternset refid="all.java.files"/>
                 </fileset>
 
-                <doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
+                <doctitle><![CDATA[<h1> OMERO API </h1>]]></doctitle>
                 <bottom><![CDATA[
-                <div id="ome-logo-for-top" style="display:none"><div id="ome-logo-inner"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME Docs"></div></div>
+                <div id="ome-logo-for-top" style="display:none"><div id="ome-logo-inner"><img src="http://downloads.openmicroscopy.org/resources/ome_docs_trac_banner.png" alt="OME Docs"></div></div>
                 <div id="doc-name-right" style="position: absolute;top: 90px;right: 20px;"><b>OmeroJava API</b></div>
                 <p><i>Version: ${omero.version}</i></p>
                 <p><b><i>Copyright &#169; @@YEAR@@ The University of Dundee &amp; Open Microscopy Environment. All Rights Reserved.</i></b></p>
@@ -656,8 +655,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <group title="I. Deprecated"
                         packages="ome.dynamic*:ome.rules*"/>
 
-                <link href="http://docs.oracle.com/javase/6/docs/api/"/>
-                <link href="http://www.springframework.org/docs/api/"/>
+                <link href="http://docs.oracle.com/javase/8/docs/api/"/>
+                <link href="http://docs.spring.io/spring/docs/${versions.spring}/api/"/>
                 <link href="http://aopalliance.sourceforge.net/doc/"/>
 
             </javadoc>
@@ -679,7 +678,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <replacevalue><![CDATA[<HEAD profile="http://www.w3.org/2005/10/profile">
 <link rel="icon"
       type="image/vnd.microsoft.icon"
-      href="http://hudson.openmicroscopy.org.uk/userContent/favicon.ico">]]></replacevalue>
+      href="http://downloads.openmicroscopy.org/resources/favicon.ico">]]></replacevalue>
         </replace>
         <tstamp>
             <format property="yearvalue" pattern="yyyy"/>
@@ -705,7 +704,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     Top-level helpers (shared helpers are in components/antlib/resources)
     =====================================================================
     -->
-    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,update-version,create-workdirs"
+    <target name="build-dist" depends="init,copy-licenses,copy-history,copy-etc,copy-sql,copy-server,copy-client,copy-web-requirements,update-version,create-workdirs"
         description="Copy all components to dist/; called at the end of build-* targets"/>
 
     <target name="copy-licenses" depends="init">
@@ -723,12 +722,22 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="copy-etc" depends="init">
             <copy todir="${dist.dir}/etc">
                 <fileset dir="${omero.home}/etc">
-                    <exclude name="local.properties"/>
+                    <exclude name="local.properties*"/>
+                    <exclude name="ivysettings.xml"/>
                 </fileset>
             </copy>
             <copy file="${omero.home}/components/tests/ui/resources/robot.template" todir="${dist.dir}/etc/templates"/>
 
             <replace dir="${dist.dir}/etc" token="@ICE_LIB_VERSION@" value="${versions.ice_lib}"/>
+    </target>
+
+    <target name="copy-web-requirements" depends="init">
+        <mkdir dir="${dist.dir}/share/web"/>
+        <copy todir="${dist.dir}/share/web">
+            <fileset dir="components/tools/OmeroWeb">
+                <include name="requirements*.txt"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="copy-sql" depends="init">
@@ -762,6 +771,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="create-workdirs" depends="init">
+        <mkdir dir="${dist.dir}/etc/grid"/>
         <mkdir dir="${dist.dir}/var"/>
     </target>
 

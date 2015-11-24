@@ -696,15 +696,22 @@ public interface MetadataViewer
 	ExperimenterData getCurrentUser();
 	
 	/**
-         * Applies the settings of a previous set image to
-         * the renderer (does not save them).
-         */
+	 * Applies the settings of a previous set image to
+	 * the renderer (does not save them).
+	 */
 	void applyCopiedRndSettings();
-	
-        /**
-         * Returns if there are copied rendering settings which could be pasted.
-         * 
-         * @return See above.
-         */
-        boolean hasRndSettingsCopied();
+
+	/**
+	 * Returns if there are copied rendering settings which could be pasted.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasRndSettingsCopied();
+
+	/**
+	 * Returns the alternative rendering settings.
+	 *
+	 * @return See above.
+	 */
+	RndProxyDef getAlternativeRenderingSettings();
 }

@@ -49,13 +49,6 @@
     <dependency org="freemarker" name="freemarker" rev="${versions.freemarker}" conf="build->default"/>
     <dependency org="org.hibernate" name="jtidy" rev="${versions.jtidy}" conf="build->default"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="org.springframework.beans" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.context" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.jdbc" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.transaction" rev="${versions.spring}"/>
-    <!-- also spring; added here instead of in server to make tests pass -->
-    <dependency org="org.springframework" name="org.springframework.asm" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.expression" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="spring-orm" rev="${versions.spring}"/>
   </dependencies>
 </ivy-module>

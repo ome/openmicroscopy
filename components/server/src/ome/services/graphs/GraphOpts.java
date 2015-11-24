@@ -18,7 +18,7 @@ import ome.system.EventContext;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
  * @deprecated will be removed in OMERO 5.3, so use the
- * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.2/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
 @SuppressWarnings("deprecation")

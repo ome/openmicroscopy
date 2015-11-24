@@ -190,7 +190,7 @@ import omero.model.PolygonI;
 import omero.model.PolylineI;
 import omero.model.Project;
 import omero.model.ProjectI;
-import omero.model.RectI;
+import omero.model.RectangleI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -975,7 +975,7 @@ class OMEROGateway
 		        WellSampleI.class.equals(klass) ||
 				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
-		else if (RectangleData.class.equals(klass) || RectI.class.equals(klass) ||
+		else if (RectangleData.class.equals(klass) || RectangleI.class.equals(klass) ||
 		        EllipseData.class.equals(klass) ||  EllipseI.class.equals(klass) ||
 		        PointData.class.equals(klass) || PointI.class.equals(klass) ||
 		        PolygonData.class.equals(klass) || PolygonI.class.equals(klass) ||
@@ -1442,16 +1442,16 @@ class OMEROGateway
 	
     /**
      * Get the omero client properties from the server
-     * 
+     * @param The groupId for the {@link SecurityContext}
      * @return See above.
      * @throws DSAccessException
      * @throws DSOutOfServiceException
      */
-    Map<String, String> getOmeroClientProperties()
+    Map<String, String> getOmeroClientProperties(long groupId)
             throws DSOutOfServiceException, DSAccessException {
         if (isConnected()) {
             try {
-                return gw.getConfigService(new SecurityContext(-1)).getClientConfigValues();
+                return gw.getConfigService(new SecurityContext(groupId)).getClientConfigValues();
             } catch (Exception e) {
                 handleException(e, "Cannot access config service. ");
             }
@@ -2801,6 +2801,14 @@ class OMEROGateway
 					userID));
 			results.addAll(loadLinks(ctx, "ImageAnnotationLink", childID,
 					userID));
+			results.addAll(loadLinks(ctx, "ScreenAnnotationLink", childID,
+                    userID));
+			results.addAll(loadLinks(ctx, "PlateAnnotationLink", childID,
+                    userID));
+			results.addAll(loadLinks(ctx, "WellAnnotationLink", childID,
+                    userID));
+			results.addAll(loadLinks(ctx, "PlateAcquisitionAnnotationLink", childID,
+                    userID));
 			return results;
 		}
 		return loadLinks(ctx, getTableForLink(parentClass), childID, userID);

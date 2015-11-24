@@ -905,8 +905,11 @@ class MetadataViewerComponent
 	 */
 	public void onRndLoaded(boolean reload)
 	{
-		getRenderer().addPropertyChangeListener(controller);
-		firePropertyChange(RND_LOADED_PROPERTY, Boolean.valueOf(!reload), 
+	    Renderer rnd = getRenderer();
+	    if (rnd != null) {
+	        rnd.addPropertyChangeListener(controller);
+	    }
+		firePropertyChange(RND_LOADED_PROPERTY, Boolean.valueOf(!reload),
 				Boolean.valueOf(reload));
 	}
 
@@ -1322,23 +1325,31 @@ class MetadataViewerComponent
 	 * @see #toString()
 	 */
 	public String toString() { return model.getInstanceToSave(); }
-	
+
 	/**
-         * Implemented as specified by the {@link MetadataViewer} interface.
-         * @see MetadataViewer#hasRndSettingsCopied()
-         */
-        public boolean hasRndSettingsCopied() {
-            return model.hasRndSettingsCopied();
-        }
-	
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#hasRndSettingsCopied()
+	 */
+	public boolean hasRndSettingsCopied() {
+	    return model.hasRndSettingsCopied();
+	}
+
 	/**
-         * Implemented as specified by the {@link MetadataViewer} interface.
-         * @see MetadataViewer#applyCopiedRndSettings()
-         */
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#applyCopiedRndSettings()
+	 */
 	public void applyCopiedRndSettings() {
 	    if(getRenderer()==null)
 	        return;
-	    
+
 	    model.fireLoadRndSettings();
+	}
+
+	/**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#getAlternativeRenderingSettings()
+     */
+	public RndProxyDef getAlternativeRenderingSettings() {
+	    return model.getAlternativeRenderingSettings();
 	}
 }

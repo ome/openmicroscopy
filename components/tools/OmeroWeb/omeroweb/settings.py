@@ -37,6 +37,8 @@ import omero.clients
 import tempfile
 import re
 import json
+import random
+import string
 
 from omero_ext import portalocker
 
@@ -52,11 +54,6 @@ if 'OMERO_HOME' in os.environ:
 else:
     OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
     OMERO_HOME = os.path.normpath(OMERO_HOME)
-
-INSIGHT_JARS = os.path.join(OMERO_HOME, "lib", "insight").replace('\\', '/')
-WEBSTART = False
-if os.path.isdir(INSIGHT_JARS):
-    WEBSTART = True
 
 # Logging
 LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\', '/')
@@ -76,11 +73,11 @@ if not os.path.isdir(LOGDIR):
 
 STANDARD_LOGFORMAT = (
     '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
-    ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d %(message)s')
+    ' (proc.%(process)5.5d) %(funcName)s():%(lineno)d %(message)s')
 
 FULL_REQUEST_LOGFORMAT = (
     '%(asctime)s %(levelname)5.5s [%(name)40.40s]'
-    ' (proc.%(process)5.5d) %(funcName)s:%(lineno)d'
+    ' (proc.%(process)5.5d) %(funcName)s():%(lineno)d'
     ' HTTP %(status_code)d %(request)s')
 
 if platform.system() in ("Windows",):
@@ -199,11 +196,9 @@ del get_event
 WSGI = "wsgi"
 WSGITCP = "wsgi-tcp"
 WSGI_TYPES = (WSGI, WSGITCP)
-FASTCGITCP = "fastcgi-tcp"
-FASTCGI_TYPES = (FASTCGITCP, )
 DEVELOPMENT = "development"
-DEFAULT_SERVER_TYPE = FASTCGITCP
-ALL_SERVER_TYPES = (WSGI, WSGITCP, FASTCGITCP, DEVELOPMENT)
+DEFAULT_SERVER_TYPE = WSGITCP
+ALL_SERVER_TYPES = (WSGI, WSGITCP, DEVELOPMENT)
 
 DEFAULT_SESSION_ENGINE = 'omeroweb.filesessionstore'
 SESSION_ENGINE_VALUES = ('omeroweb.filesessionstore',
@@ -282,29 +277,13 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.allowed_hosts":
         ["ALLOWED_HOSTS", '["*"]', json.loads, None],
 
-    # WEBSTART
-    "omero.web.webstart_template":
-        ["WEBSTART_TEMPLATE", None, identity, None],
-    "omero.web.webstart_jar":
-        ["WEBSTART_JAR", "omero.insight.jar", str, None],
-    "omero.web.webstart_icon":
-        ["WEBSTART_ICON", "webstart/img/icon-omero-insight.png", str, None],
-    "omero.web.webstart_heap":
-        ["WEBSTART_HEAP", "1024m", str, None],
-    "omero.web.webstart_host":
-        ["WEBSTART_HOST", CUSTOM_HOST, str, None],
-    "omero.web.webstart_port":
-        ["WEBSTART_PORT", "4064", str, None],
-    "omero.web.webstart_class":
-        ["WEBSTART_CLASS", "org.openmicroscopy.shoola.Main", str, None],
-    "omero.web.webstart_title":
-        ["WEBSTART_TITLE", "OMERO.insight", str, None],
-    "omero.web.webstart_vendor":
-        ["WEBSTART_VENDOR", "The Open Microscopy Environment", str, None],
-    "omero.web.webstart_homepage":
-        ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str, None],
-    "omero.web.webstart_admins_only":
-        ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
+    # Do not show WARNING (1_8.W001): The standalone TEMPLATE_* settings
+    # were deprecated in Django 1.8 and the TEMPLATES dictionary takes
+    # precedence. You must put the values of the following settings
+    # into your default TEMPLATES dict:
+    # TEMPLATE_DIRS, TEMPLATE_CONTEXT_PROCESSORS.
+    "omero.web.system_checks":
+        ["SILENCED_SYSTEM_CHECKS", '["1_8.W001"]', json.loads, None],
 
     # Internal email notification for omero.web.admins,
     # loaded from config.xml directly
@@ -355,6 +334,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "false",
          parse_boolean,
          "A boolean that turns on/off debug mode."],
+    "omero.web.secret_key":
+        ["SECRET_KEY",
+         None,
+         leave_none_unset,
+         ("A boolean that sets SECRET_KEY for a particular Django "
+          "installation.")],
     "omero.web.admins":
         ["ADMINS",
          '[]',
@@ -369,10 +354,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER",
          DEFAULT_SERVER_TYPE,
          check_server_type,
-         ("OMERO.web is configured to use FastCGI TCP by default. If you are "
-          "using a non-standard web server configuration you may wish to "
-          "change this before generating your web server configuration. "
-          "Available options: \"fastcgi-tcp\", \"wsgi-tcp\", \"wsgi\"")],
+         ("OMERO.web is configured to run in Gunicorn as a generic WSGI "
+          "application by default. If you are using Apache change this "
+          "to \"wsgi\" before generating your web server configuration. "
+          "Available options: \"wsgi-tcp\" (Gunicorn), \"wsgi\" (Apache)")],
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
          "127.0.0.1",
@@ -447,6 +432,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "The name to use for session cookies"],
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
+    "omero.web.secure_proxy_ssl_header":
+        ["SECURE_PROXY_SSL_HEADER",
+         '[]',
+         json.loads,
+         ("A tuple representing a HTTP header/value combination that "
+          "signifies a request is secure. Example "
+          "``'[\"HTTP_X_FORWARDED_PROTO_OMERO_WEB\", \"https\"]'``. "
+          "For more details see :djangodoc:`secure proxy ssl header <ref/"
+          "settings/#secure-proxy-ssl-header>`.")],
 
     # Public user
     "omero.web.public.enabled":
@@ -561,7 +555,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          identity,
          ("Define template used as an index page ``http://your_host/omero/``."
           "If None user is automatically redirected to the login page."
-          "For example use 'webstart/start.html'. ")],
+          "For example use 'webclient/index.html'. ")],
     "omero.web.login_redirect":
         ["LOGIN_REDIRECT",
          '{}',
@@ -756,7 +750,8 @@ def process_custom_settings(
             setattr(module, global_name, mapping(global_value))
         except ValueError:
             raise ValueError(
-                "Invalid %s JSON: %r" % (global_name, global_value))
+                "Invalid %s (%s = %r) %s" % (global_name, key, global_value,
+                                             description))
         except LeaveUnset:
             pass
 
@@ -769,16 +764,6 @@ if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
     LOGGING['loggers']['django.request']['level'] = 'INFO'
     LOGGING['loggers']['django']['level'] = 'INFO'
     LOGGING['loggers']['']['level'] = 'INFO'
-
-# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is
-# True, the fancy error page will display a detailed report for any
-# TemplateSyntaxError. This report contains
-# the relevant snippet of the template, with the appropriate line highlighted.
-# Note that Django only displays fancy error pages if DEBUG is True,
-# alternatively error is handled by:
-#    handler404 = "omeroweb.feedback.views.handler404"
-#    handler500 = "omeroweb.feedback.views.handler500"
-TEMPLATE_DEBUG = DEBUG  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 
 def report_settings(module):
@@ -824,11 +809,34 @@ FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 LANGUAGE_CODE = 'en-gb'
 
 # SECRET_KEY: A secret key for this particular Django installation. Used to
-# provide a seed in secret-key hashing algorithms. Set this to a random string
-# -- the longer, the better. django-admin.py startproject creates one
-# automatically.
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'
+# provide a seed in secret-key hashing algorithms. Set this to a random string,
+# the longer, the better. Make this unique, and don't share it with anybody.
+try:
+    SECRET_KEY
+except NameError:
+    secret_path = os.path.join(OMERO_HOME, 'var',
+                               'django_secret_key').replace('\\', '/')
+    if not os.path.isfile(secret_path):
+        try:
+            secret_key = ''.join(
+                [random.SystemRandom()
+                 .choice("{0}{1}{2}"
+                 .format(string.ascii_letters,
+                         string.digits,
+                         string.punctuation)) for i in range(50)]
+            )
+            with os.fdopen(os.open(secret_path,
+                                   os.O_WRONLY | os.O_CREAT,
+                                   0600), 'w') as secret_file:
+                secret_file.write(secret_key)
+        except IOError, e:
+            raise IOError("Please create a %s file with random characters"
+                          " to generate your secret key!" % secret_path)
+    try:
+        with open(secret_path, 'r') as secret_file:
+            SECRET_KEY = secret_file.read().strip()
+    except IOError, e:
+        raise IOError("Could not find secret key in %s!" % secret_path)
 
 # USE_I18N: A boolean that specifies whether Django's internationalization
 # system should be enabled.
@@ -883,10 +891,47 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__),
 # staticfiles app will traverse if the FileSystemFinder finder is enabled,
 # e.g. if you use the collectstatic or findstatic management command or use
 # the static file serving view.
-if WEBSTART:
-    # from CUSTOM_SETTINGS_MAPPINGS
-    STATICFILES_DIRS += (("webstart/jars", INSIGHT_JARS),)  # noqa
+# from CUSTOM_SETTINGS_MAPPINGS
+# STATICFILES_DIRS += (("webapp/custom_static", path/to/statics),)  # noqa
 
+# TEMPLATES: A list containing the settings for all template engines
+# to be used with Django. Each item of the list is a dictionary containing
+# the options for an individual engine.
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': TEMPLATE_DIRS,  # noqa
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'debug': DEBUG,  # noqa
+            'context_processors': [
+                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+                # list if you haven't customized them:
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'omeroweb.custom_context_processor.url_suffix',
+            ],
+        },
+    },
+]
+
+# Django 1.6 only
+# TEMPLATE_DEBUG: A boolean that turns on/off template debug mode. If this is
+# True, the fancy error page will display a detailed report for any
+# TemplateSyntaxError. This report contains
+# the relevant snippet of the template, with the appropriate line highlighted.
+# Note that Django only displays fancy error pages if DEBUG is True,
+# alternatively error is handled by:
+#    handler404 = "omeroweb.feedback.views.handler404"
+#    handler500 = "omeroweb.feedback.views.handler500"
+TEMPLATE_DEBUG = DEBUG  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
+
+# Django 1.6 only
 # TEMPLATE_CONTEXT_PROCESSORS: A tuple of callables that are used to populate
 # the context in RequestContext. These callables take a request object as
 # their argument and return a dictionary of items to be merged into the
@@ -898,16 +943,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.contrib.messages.context_processors.messages",
     "omeroweb.custom_context_processor.url_suffix"
-)
-
-# TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings.
-# Each Loader class knows how to import templates from a particular source.
-# Optionally, a tuple can be used instead of a string. The first item in the
-# tuple should be the Loader's module, subsequent items are passed to the
-# Loader during initialization.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
 )
 
 # INSTALLED_APPS: A tuple of strings designating all applications that are
@@ -925,7 +960,6 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
     'omeroweb.webgateway',
     'omeroweb.webredirect',
-    'omeroweb.webstart',
     'pipeline',
 )
 
@@ -1010,6 +1044,7 @@ PIPELINE_JS = {
             'webgateway/js/ome.roidisplay.js',
             'webgateway/js/ome.scalebardisplay.js',
             'webgateway/js/ome.smartdialog.js',
+            'webgateway/js/ome.roiutils.js',
             '3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.js',
             'webgateway/js/ome.colorbtn.js',
             'webgateway/js/ome.postit.js',

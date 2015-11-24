@@ -43,7 +43,7 @@ classdef TestRectangle < TestShape
         end
         
         function testValidRectangle(self)
-            assertTrue(isa(self.shape, 'omero.model.RectI'));
+            assertTrue(isa(self.shape, 'omero.model.RectangleI'));
             assertEqual(self.shape.getX().getValue(), self.x);
             assertEqual(self.shape.getY().getValue(), self.y);
             assertEqual(self.shape.getWidth().getValue(), self.w);

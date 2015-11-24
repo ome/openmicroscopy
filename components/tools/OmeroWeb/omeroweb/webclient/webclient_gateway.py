@@ -39,7 +39,7 @@ import omero.scripts
 
 from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import ExperimenterI, ExperimenterGroupI
-from omero.cmd import Chmod2
+from omero.cmd import Chmod2, Chgrp2, DoAll
 
 from omero.gateway import AnnotationWrapper
 from omero.gateway import OmeroGatewaySafeCallWrapper
@@ -202,6 +202,25 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 self.getConfigService().getConfigValue(
                     "omero.client.ui.menu.dropdown.everyone")
         return dropdown_menu
+
+    def chgrpDryRun(self, targetObjects, group_id):
+        """
+        Submits a 'dryRun' chgrp to test for links that would be broken.
+        Returns a handle.
+
+        :param targetObjects:   Dict of dtype: [ids]. E.g. {'Dataset': [1,2]}
+        :param group_id:        The group to move the data to.
+        """
+
+        chgrp = Chgrp2(targetObjects=targetObjects, groupId=group_id)
+        chgrp.dryRun = True
+
+        da = DoAll()
+        da.requests = [chgrp]
+
+        ctx = self.SERVICE_OPTS.copy()
+        prx = self.c.sf.submit(da, ctx)
+        return prx
 
     ##############################################
     #   IAdmin                                  ##
@@ -577,7 +596,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             ds.description = rstring(str(description))
         dsid = self.saveAndReturnId(ds)
         if img_ids is not None:
-            iids = [int(i) for i in img_ids.split(",")]
+            iids = [int(i) for i in img_ids]
             links = []
             for iid in iids:
                 link = omero.model.DatasetImageLinkI()
@@ -819,10 +838,11 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             links = exp._getAnnotationLinks()
             # there should be only one ExperimenterAnnotationLink
             # but if there is more then one all of them should be deleted.
-            for l in links:
-                self.deleteObjectDirect(l)
+            linkIds = [l.id.val for l in links]
+            self.deleteObjects(
+                "ExperimenterAnnotationLink", linkIds, wait=True)
             # No error handling?
-            self.deleteObjects("/Annotation", [ann.id.val])
+            self.deleteObject(ann)
 
     def cropExperimenterPhoto(self, box, oid=None):
         """
@@ -1780,121 +1800,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         return share_id
 
     ##############################################
-    # History methods                        ##
-
-    # def getLastAcquiredImages (self):
-    #    tm = self.getTimelineService()
-    #    p = omero.sys.Parameters()
-    #    p.map = {}
-    #    f = omero.sys.Filter()
-    #    f.ownerId = rlong(self.getEventContext().userId)
-    #    f.groupId = rlong(self.getEventContext().groupId)
-    #    f.limit = rint(6)
-    #    p.theFilter = f
-    #    for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
-    #        yield ImageWrapper(self, e)
-
-    def listLastImportedImages(self):
-        """
-        Retrieve most recent imported images
-        controlled by the security system.
-
-        @return:            Generator yielding Images
-        @rtype:             L{ImageWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(10)
-        p.theFilter = f
-        for e in tm.getMostRecentObjects(
-                ['Image'], p, False, self.SERVICE_OPTS)["Image"]:
-            yield ImageWrapper(self, e)
-
-    def listMostRecentShares(self):
-        """
-        Retrieve most recent shares
-        controlled by the security system.
-
-        @return:    Generator yielding SessionAnnotationLink
-        @rtype:     L{ShareWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.limit = rint(10)
-        p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p, self.SERVICE_OPTS):
-            yield ShareWrapper(self, e.parent)
-
-    def listMostRecentShareComments(self):
-        """
-        Retrieve most recent share comments
-        controlled by the security system.
-
-        @return:    Generator yielding SessionAnnotationLink
-        @rtype:     L{SessionCommentWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.limit = rint(10)
-        p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p, self.SERVICE_OPTS):
-            yield AnnotationWrapper(
-                self, e.child, link=ShareWrapper(self, e.parent))
-
-    def listMostRecentComments(self):
-        """
-        Retrieve most recent comment annotations
-        controlled by the security system.
-
-        @return:    Generator yielding BlitzObjectWrapper
-        @rtype:     L{BlitzObjectWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(10)
-        p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(
-                None, ['CommentAnnotation'], None, p, self.SERVICE_OPTS):
-            yield omero.gateway.BlitzObjectWrapper(self, e)
-
-    def listMostRecentTags(self):
-        """
-        Retrieve most recent tag annotations
-        controlled by the security system.
-
-        @return:    Generator yielding BlitzObjectWrapper
-        @rtype:     L{BlitzObjectWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        # f.ownerId = rlong(self.getEventContext().userId)
-        f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(200)
-        p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(
-                None, ['TagAnnotation'], None, p, self.SERVICE_OPTS):
-            yield omero.gateway.BlitzObjectWrapper(self, e.child)
+    # History                                   ##
 
     def getDataByPeriod(self, start, end, eid, otype=None, page=None):
         """
@@ -2048,7 +1954,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 correct_dataset = False
                 for plink in i.getParentLinks():
                     if plink.parent.id != target_ds:
-                        self.deleteObjectDirect(plink._obj)
+                        self.deleteObject(plink._obj)
                     else:
                         correct_dataset = True
                 if not correct_dataset:
@@ -2224,11 +2130,11 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.setLongValue(rlong(rating))
                     ratingAnn.save()
                 else:
-                    self._conn.deleteObjectDirect(ratingLink._obj)
-                    self._conn.deleteObjectDirect(ratingAnn._obj)
+                    self._conn.deleteObject(ratingLink._obj)
+                    self._conn.deleteObject(ratingAnn._obj)
             # otherwise, unlink and create a new rating
             else:
-                self._conn.deleteObjectDirect(ratingLink._obj)
+                self._conn.deleteObject(ratingLink._obj)
                 addRating(rating)
         else:
             addRating(rating)
@@ -2549,15 +2455,6 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
             self.link = 'link' in kwargs and kwargs['link'] or None
 
 omero.gateway.WellWrapper = WellWrapper
-
-
-class TagWrapper(OmeroWebObjectWrapper, omero.gateway.TagAnnotationWrapper):
-    """
-    omero_model_TagAnnotationI class wrapper overwrite
-    omero.gateway.TagAnnotationWrapper and extends OmeroWebObjectWrapper.
-    """
-
-omero.gateway.TagAnnotationWrapper = TagWrapper
 
 
 class PlateAcquisitionWrapper(OmeroWebObjectWrapper,

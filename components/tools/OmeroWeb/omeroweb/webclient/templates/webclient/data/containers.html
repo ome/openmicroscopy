@@ -37,7 +37,7 @@
 {% block script %}
     {{ block.super }}
 
-    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree/jstree.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-3.0.8/jstree.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.pagination_plugin.js" %}"></script>
@@ -331,59 +331,118 @@
             }
         };
 
+
+        // Helper method used by linkNode and unlinkNode below.
+        // Simply adds parent_type, parent_id, child_type & child_id to payload object
+        // e.g. {"dataset":{"10":{"image":[1,2,3]}}}:
+        function addDataToPayload(payload, node, parent) {
+            var parent_id = parent.data.obj.id,
+                parent_type = parent.type,
+                child_id = node.data.obj.id,
+                child_type = node.type;
+            // payload is payload.parent_type.parent_id.child_type: [child_ids]
+            if (!(parent_type in payload)) payload[parent_type] = {};
+            if (!(parent_id in payload[parent_type])) {
+                payload[parent_type][parent_id] = {};
+            }
+            if (!(child_type in payload[parent_type][parent_id])) {
+                payload[parent_type][parent_id][child_type] = [];
+            }
+            payload[parent_type][parent_id][child_type].push(child_id);
+        }
+
+        // linkNode and unlinkNode (below) use a 'debounce' timeout to collect
+        // many link or unlink calls into a single AJAX call.
+        // On each call to linkNode or unlinkNode, we add the data from node & parent
+        // to the payload that we submit. This is sent once the timeout expires.
+        // linkNode and unlinkNode both return a deferred promise that will be
+        // resolved when the AJAX call returns.
+        var linkNodeTimeout,
+            linkPayload = {},
+            deferredLink = jQuery.Deferred();
         function linkNode(inst, node, parent) {
 
-            var payload = {
-                'parent_id': parent.data.obj.id,
-                'parent_type': parent.type,
-                'child_id': node.data.obj.id,
-                'child_type': node.type
+            // doLink is called on timeout to submit AJAX call
+            var doLink = function() {
+                // we send a reference to the deferred...
+                var dd = deferredLink;
+                // ...and create a new deferred to handle subsequent calls to linkNode
+                deferredLink = jQuery.Deferred();
+
+                // Do the call, and resolve the deferred when done
+                $.ajax({
+                    url: "{% url 'api_links' %}",
+                    type: "POST",
+                    data: JSON.stringify(linkPayload),
+                    dataType: 'json'
+                })
+                .done(function(data){
+                    dd.resolve(data);
+                });
+
+                // empty the payload, ready for sebsequent calls
+                linkPayload = {};
             };
 
-            // Return a promise
-            return $.ajax({
-                url: "{% url 'api_link' %}",
-                type: 'POST',
-                data: JSON.stringify(payload),
-                dataType: 'json'
-            });
+            // build up an object with all the links we want to create
+            addDataToPayload(linkPayload, node, parent)       
 
-        };
+            // if we're waiting on timeout, clear this...
+            if (linkNodeTimeout) {
+                clearTimeout(linkNodeTimeout);
+            }
+            // ...start new timeout
+            linkNodeTimeout = setTimeout(doLink, 10);
 
-        function unlinkNode(inst, node, parent, callback) {
-            var payload = {
-                'parent_id': parent.data.obj.id,
-                'parent_type': parent.type,
-                'child_id': node.data.obj.id,
-                'child_type': node.type
+            // return a promise (cannot call resolve() on it elsewhere)
+            return deferredLink.promise();
+
+        }
+
+        // See docs above for linkNode (works the same as unlinkNode)
+        var unlinkNodeTimeout,
+            unlinkPayload = {},
+            deferredUnlink = jQuery.Deferred();
+        function unlinkNode(inst, node, parent) {
+            var doUnlink = function() {
+                var dd = deferredUnlink;
+                deferredUnlink = jQuery.Deferred();
+                $.ajax({
+                    url: "{% url 'api_links' %}",
+                    type: "DELETE",
+                    data: JSON.stringify(unlinkPayload),
+                    dataType: 'json'
+                })
+                .done(function(data){
+                    dd.resolve(data);
+                });
+                unlinkPayload = {};
             };
-
-            // Return a promise
-            return $.ajax({
-                url: "{% url 'api_link' %}",
-                type: 'DELETE',
-                data: JSON.stringify(payload),
-                dataType: 'json'
-            });
-
-
-
+            addDataToPayload(unlinkPayload, node, parent)       
+            if (unlinkNodeTimeout) {
+                clearTimeout(unlinkNodeTimeout);
+            }
+            unlinkNodeTimeout = setTimeout(doUnlink, 10);
+            return deferredUnlink.promise();
         };
 
         // Remove duplicate nodes, normally as a result of copy_node
         // or move_node
         function removeDuplicate(inst, node, parentId) {
-            var parent = inst.get_node(parentId);
+            var parent = inst.get_node(parentId),
+                found = false;
             $.each(parent.children, function(index, childId) {
                 var child = inst.get_node(childId);
                 if (child.type === node.type &&
                     child.data.obj.id === node.data.obj.id &&
                     child.id != node.id) {
                     inst.delete_node(child);
+                    found = true;
                     // Break out of $.each
                     return false;
                 }
             });
+            return found;
         };
 
         // Stuff to do on load...
@@ -540,7 +599,6 @@
                                 return false;
                              }
                         });
-
                     }
 
                     var ajax_data = {
@@ -549,13 +607,14 @@
                             "description" : new_container_desc
                         }
                     if (img_ids.length > 0){
-                        ajax_data['img_ids'] = img_ids.join(",");
+                        ajax_data['image'] = img_ids;
                     }
                     $.ajax({
                         url: url,
                         data: ajax_data,
                         dataType: "json",
                         type: "POST",
+                        traditional: true,
                         success: function(r){
 
                             var data = {
@@ -631,7 +690,7 @@
                 })
                 .on('copy_node.jstree', function(e, data) {
                     /**
-                    * Fired when a node is copied
+                    * Fired when a node is copied and paste_rdef
                     * Updates the server, adding the new link
                     */
                     var inst = data.instance;
@@ -647,12 +706,16 @@
                     }
 
                     // Remove potential duplicate node
-                    removeDuplicate(inst, data.node, data.parent);
+                    var childExists = removeDuplicate(inst, data.node, data.parent);
 
                     // Persist
-                    $.when(linkNode(inst, data.node, inst.get_node(data.parent))).done(function() {
+                    if (!childExists) {
+                        $.when(linkNode(inst, data.node, inst.get_node(data.parent))).done(function() {
+                            update_thumbnails_panel(e, data);
+                        });
+                    } else {
                         update_thumbnails_panel(e, data);
-                    });
+                    }
 
                     // Update the child count
                     OME.updateNodeChildCount(inst, data.parent);
@@ -667,7 +730,7 @@
                     */
                     var inst = data.instance;
                     // Remove potential duplicate node
-                    removeDuplicate(inst, data.node, data.parent);
+                    var childExists = removeDuplicate(inst, data.node, data.parent);
 
                     // trigger ome remove
                     $("body").trigger('removed_node.jstree.ome', data.node.data.obj);
@@ -676,7 +739,7 @@
                     var linkPromise;
                     // If the move is orphaning an object, do not persist the link
                     if (data.parent.type !== 'experimenter' &&
-                        data.parent.type !== 'orphaned') {
+                        data.parent.type !== 'orphaned' && !childExists) {
                         linkPromise = linkNode(inst, data.node, inst.get_node(data.parent));
                     }
                     var unlinkPromise = unlinkNode(inst, data.node, inst.get_node(data.old_parent));
@@ -764,7 +827,7 @@
 
                                     // If at any point the node doesn't exist, simply give up as the path has
                                     // become invalid
-                                    if (node === false) {
+                                    if (!node) {
                                         return;
                                     }
 
@@ -775,6 +838,9 @@
                                     // Otherwise select it
                                     } else {
                                         inst.select_node(node);
+                                        inst.open_node(node);
+                                        // we also focus the node, to scroll to it and setup hotkey events
+                                        $("#" + node.id).children('.jstree-anchor').focus();
                                         // Handle multiple selection. E.g. extra images in same dataset
                                         for(var n=1; n<nodeIds.length; n++) {
                                             node = inst.locate_node(nodeIds[n], parentNode)[0];
@@ -1002,6 +1068,13 @@
                             // Specify that orphans are specifically sought
                             if (node.type === 'orphaned') {
                                 payload['orphaned'] = true;
+                            }
+
+                            // Extra data needed for showing thumbs in centre panel
+                            if (node.type === 'dataset' || node.type === 'orphaned') {
+                                payload['sizeXYZ'] = true;
+                                payload['date'] = true;
+                                payload['thumbVersion'] = true;
                             }
 
                             // Always add the group_id from the current context
@@ -1264,8 +1337,23 @@
                                 return true;
                             // For dnd checking if it can copy/move
                             } else if (operation === 'copy_node' || operation === 'move_node') {
-                                if (!OME.nodeHasPermission(node_parent, 'canLink')) {
+                                // Only allow 'drop' if we 'canLink' or target is 'experimenter'
+                                if (!OME.nodeHasPermission(node_parent, 'canLink') &&
+                                        node_parent.type !== 'experimenter') {
                                     return false;
+                                }
+                                // If we are about to make object an orphan, don't allow to
+                                // drop while dragging over parent, or between parent and it's children
+                                if (node_parent.type === 'experimenter') {
+                                    if (oldParent && more) {
+                                        var pIdx = $("#"+oldParent.id).index();
+                                        if (pIdx === node_position && more.pos === "b") {
+                                            return false;
+                                        }
+                                        if (pIdx + 1 === node_position && more.pos === "a") {
+                                            return false;
+                                        }
+                                    }
                                 }
 
                                 var nodeRules = inst.get_rules(node);
@@ -1759,7 +1847,7 @@
 			
 	        <li id="explore_tab" class="ui-state-default ui-tabs-active"><a class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a></li>
 	        <li id="tags_tab" class="ui-state-default"><a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a></li>
-	        <li id="public_tab" class="ui-state-default"><a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Public" %}</a></li>
+	        <li id="public_tab" class="ui-state-default"><a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Shares" %}</a></li>
        
 	    </ul>
 		

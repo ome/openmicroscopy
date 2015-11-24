@@ -283,7 +283,7 @@
         </condition>
 
         <!-- See reading of etc/local.properties above -->
-        <property file="${root.dir}/etc/local.properties.example" />
+        <property file="${root.dir}/etc/build.properties" />
         <property file="${root.dir}/etc/profiles/${omero.db.profile}" />
         <property file="${root.dir}/etc/omero.properties" />
         <property file="${root.dir}/etc/hibernate.properties" />

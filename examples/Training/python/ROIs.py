@@ -16,6 +16,7 @@ from omero.rtypes import rdouble, rint, rstring
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
+imageId = int(imageId)
 
 
 # Create a connection
@@ -48,7 +49,7 @@ roi = omero.model.RoiI()
 roi.setImage(image._obj)
 
 # create a rectangle shape and add to ROI
-rect = omero.model.RectI()
+rect = omero.model.RectangleI()
 rect.x = rdouble(x)
 rect.y = rdouble(y)
 rect.width = rdouble(width)
@@ -82,11 +83,12 @@ roi.addShape(line)
 
 # create a point shape and add to ROI
 point = omero.model.PointI()
-point.x = rdouble(x)
-point.y = rdouble(y)
+point.cx = rdouble(x)
+point.cy = rdouble(y)
 point.theZ = rint(theZ)
 point.theT = rint(theT)
 point.textValue = rstring("test-Point")
+roi.addShape(point)
 
 
 # Save the ROI (saves any linked shapes too)
@@ -106,7 +108,7 @@ for roi in result.rois:
         shape['theZ'] = s.getTheZ().getValue()
         if s.getTextValue():
             shape['textValue'] = s.getTextValue().getValue()
-        if type(s) == omero.model.RectI:
+        if type(s) == omero.model.RectangleI:
             shape['type'] = 'Rectangle'
             shape['x'] = s.getX().getValue()
             shape['y'] = s.getY().getValue()

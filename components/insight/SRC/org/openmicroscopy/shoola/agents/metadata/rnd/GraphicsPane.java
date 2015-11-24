@@ -133,7 +133,10 @@ class GraphicsPane
 
     /** The items shown in the 'saved by' taskpane */
     private List<ViewedByItem> viewedByItems;
-    
+
+    /** The selected item.*/
+    private RndProxyDef selectedDef;
+
     /**
      * Formats the specified value.
      * 
@@ -513,6 +516,15 @@ class GraphicsPane
         repaint();
     }
 
+    /**
+     * Resets the display of the selected thumbanils under User Settings.
+     * @param activeRndDef The rendering setting which is currently used
+     */
+    void resetViewedBy(RndProxyDef activeRndDef)
+    {
+        displayViewedBy(viewedByItems, activeRndDef);
+    }
+
     /** 
      * Builds and lays out the images as seen by other experimenters.
      *  
@@ -525,10 +537,10 @@ class GraphicsPane
             viewedBy.removeAll();
             return;
         }
-         
+
         this.viewedByItems = results;
         Collections.sort(this.viewedByItems, new ViewedByItemComparator());
-        
+
         JPanel p = new JPanel();
         p.setLayout(new WrapLayout(WrapLayout.LEFT));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -537,15 +549,15 @@ class GraphicsPane
         while (i.hasNext()) {
             item = i.next();
             item.addPropertyChangeListener(this);
-            p.add(createViewedByPanel(item));       
+            p.add(createViewedByPanel(item));
         }
-        
-        if(activeRndDef!=null) {
+
+        if (activeRndDef != null) {
             highlight(activeRndDef);
         }
-        
+
         p.setSize(viewedBy.getSize());
-        
+
         viewedBy.removeAll();
         viewedBy.add(p, BorderLayout.CENTER);
         viewedBy.validate();
@@ -564,21 +576,31 @@ class GraphicsPane
     }
     
     /**
-     * Draws a border around the ViewedByItem whichs represents
+     * Draws a border around the ViewedByItem which represents
      * the given RndProxyDef
      * @param def The RndProxyDef to highlight
      */
     void highlight(RndProxyDef def) {
+        selectedDef = def;
         for(ViewedByItem item : viewedByItems) {
-            if(item.getRndDef().getData().getId().getValue()==def.getData().getId().getValue()) {
-                ((JPanel)item.getParent()).setBorder(BorderFactory.createLineBorder(UIUtilities.STEELBLUE, 2));
+            JPanel p = (JPanel) item.getParent();
+            if (item.getRndDef().getDataID() == def.getDataID()) {
+                p.setBorder(BorderFactory.createLineBorder(
+                        UIUtilities.STEELBLUE, 2));
             }
             else {
-                ((JPanel)item.getParent()).setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+                p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
             }
         }
     }
-    
+
+    /**
+     * Returns the selected rendering settings if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef() { return selectedDef; }
+
     /**
      * Returns the slider used to set the codomain interval.
      * 

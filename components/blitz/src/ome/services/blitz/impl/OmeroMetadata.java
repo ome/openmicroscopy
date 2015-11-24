@@ -77,7 +77,7 @@ import omero.model.Line;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.XmlAnnotation;
 import omero.model.LongAnnotation;
 import omero.model.BooleanAnnotation;
@@ -108,7 +108,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An implementation for {@link MetadataStore} and {@link MetadataRetrieve} that
  * knows how to read and write the OMERO object model.
- * 
+ *
  * @author Josh Moore josh at glencoesoftware.com
  * @author Chris Allan callan at blackcat.ca
  * @author Curtis Rueden ctrueden at wisc.edu
@@ -130,21 +130,21 @@ public class OmeroMetadata extends DummyMetadata {
     private final List<Image> imageList = new ArrayList<Image>();
 
     // Annotations
-    private final List<XmlAnnotation> xmlAnnotationList = 
+    private final List<XmlAnnotation> xmlAnnotationList =
         new ArrayList<XmlAnnotation>();
-    private final List<LongAnnotation> longAnnotationList = 
+    private final List<LongAnnotation> longAnnotationList =
         new ArrayList<LongAnnotation>();
-    private final List<BooleanAnnotation> booleanAnnotationList = 
+    private final List<BooleanAnnotation> booleanAnnotationList =
         new ArrayList<BooleanAnnotation>();
-    private final List<DoubleAnnotation> doubleAnnotationList = 
+    private final List<DoubleAnnotation> doubleAnnotationList =
         new ArrayList<DoubleAnnotation>();
-    private final List<CommentAnnotation> commentAnnotationList = 
+    private final List<CommentAnnotation> commentAnnotationList =
         new ArrayList<CommentAnnotation>();
-    private final List<TimestampAnnotation> timestampAnnotationList = 
+    private final List<TimestampAnnotation> timestampAnnotationList =
         new ArrayList<TimestampAnnotation>();
-    private final List<TagAnnotation> tagAnnotationList = 
+    private final List<TagAnnotation> tagAnnotationList =
         new ArrayList<TagAnnotation>();
-    private final List<TermAnnotation> termAnnotationList = 
+    private final List<TermAnnotation> termAnnotationList =
         new ArrayList<TermAnnotation>();
 
     // ROIs
@@ -245,7 +245,7 @@ public class OmeroMetadata extends DummyMetadata {
         for (Image image : imageList) {
             if (!image.isLoaded()) {
 
-                final long id = image.getId().getValue(); 
+                final long id = image.getId().getValue();
                 QueryBuilder qb = new QueryBuilder();
                 qb.select("i");
                 qb.from("Image", "i");
@@ -301,13 +301,13 @@ public class OmeroMetadata extends DummyMetadata {
             }
         }
         session.clear();
-        
+
         IceMapper mapper = new IceMapper();
         for (Image image : lookups.keySet()) {
             Image replacement = (Image) mapper.map(new ProxyCleanupFilter().filter("", lookups.get(image)));
             replacements.put(image, replacement);
         }
-        
+
         List<Image> newImages = new ArrayList<Image>();
         for (int i = 0; i < imageList.size(); i++) {
             Image image = imageList.get(i);
@@ -525,7 +525,7 @@ public class OmeroMetadata extends DummyMetadata {
         }
         try
         {
-            Annotation annotation = 
+            Annotation annotation =
                 o.linkedAnnotationList().get(annotationRefIndex);
             return handleLsid(annotation);
         }
@@ -698,7 +698,7 @@ public class OmeroMetadata extends DummyMetadata {
         omero.model.PixelsType e = o.getPrimaryPixels().getPixelsType();
         try
         {
-            return e != null? 
+            return e != null?
                     PixelType.fromString(fromRType(e.getValue()))
                     : null;
         }
@@ -730,7 +730,7 @@ public class OmeroMetadata extends DummyMetadata {
             return null;
         }
     }
-    
+
     @Override
     public AcquisitionMode getChannelAcquisitionMode(int imageIndex,
             int channelIndex)
@@ -743,7 +743,7 @@ public class OmeroMetadata extends DummyMetadata {
         omero.model.AcquisitionMode e = o.getLogicalChannel().getMode();
         try
         {
-            return e != null? 
+            return e != null?
                     AcquisitionMode.fromString(fromRType(e.getValue()))
                     : null;
         }
@@ -786,7 +786,7 @@ public class OmeroMetadata extends DummyMetadata {
         omero.model.ContrastMethod e = o.getLogicalChannel().getContrastMethod();
         try
         {
-            return e != null? 
+            return e != null?
                     ContrastMethod.fromString(fromRType(e.getValue()))
                     : null;
         }
@@ -850,7 +850,7 @@ public class OmeroMetadata extends DummyMetadata {
         omero.model.Illumination e = o.getLogicalChannel().getIllumination();
         try
         {
-            return e != null? 
+            return e != null?
                     IlluminationType.fromString(fromRType(e.getValue()))
                     : null;
         }
@@ -1404,7 +1404,7 @@ public class OmeroMetadata extends DummyMetadata {
             shapeClass = currentClass;
             currentClass = currentClass.getSuperclass().asSubclass(Shape.class);
         }
-        if (shapeClass == Rect.class) {
+        if (shapeClass == Rectangle.class) {
             return "Rectangle";
         } else {
             return shapeClass.getSimpleName();
@@ -2267,87 +2267,87 @@ public class OmeroMetadata extends DummyMetadata {
 
     @Override
     public String getRectangleAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Rect.class);
+        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Rectangle.class);
     }
 
     @Override
     public Color getRectangleFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Rect.class);
+        return getShapeFillColor(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public FillRule getRectangleFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Rect.class);
+        return getShapeFillRule(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public FontFamily getRectangleFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Rect.class);
+        return getShapeFontFamily(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public Length getRectangleFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Rect.class);
+        return getShapeFontSize(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public FontStyle getRectangleFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Rect.class);
+        return getShapeFontStyle(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public String getRectangleID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Rect.class);
+        return getShapeID(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public LineCap getRectangleLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Rect.class);
+        return getShapeLineCap(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public Boolean getRectangleLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Rect.class);
+        return getShapeLocked(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public Color getRectangleStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Rect.class);
+        return getShapeStrokeColor(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public String getRectangleStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Rect.class);
+        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public Length getRectangleStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Rect.class);
+        return getShapeStrokeWidth(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public NonNegativeInteger getRectangleTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Rect.class);
+        return getShapeTheC(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public NonNegativeInteger getRectangleTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Rect.class);
+        return getShapeTheT(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public NonNegativeInteger getRectangleTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Rect.class);
+        return getShapeTheZ(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public AffineTransform getRectangleTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Rect.class);
+        return getShapeTransform(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
     public String getRectangleText(int ROIIndex, int shapeIndex) {
-        final Rect rectangle = getShape(ROIIndex, shapeIndex, Rect.class);
+        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }
@@ -2356,7 +2356,7 @@ public class OmeroMetadata extends DummyMetadata {
 
     @Override
     public Double getRectangleHeight(int ROIIndex, int shapeIndex) {
-        final Rect rectangle = getShape(ROIIndex, shapeIndex, Rect.class);
+        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }
@@ -2365,7 +2365,7 @@ public class OmeroMetadata extends DummyMetadata {
 
     @Override
     public Double getRectangleWidth(int ROIIndex, int shapeIndex) {
-        final Rect rectangle = getShape(ROIIndex, shapeIndex, Rect.class);
+        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }
@@ -2374,7 +2374,7 @@ public class OmeroMetadata extends DummyMetadata {
 
     @Override
     public Double getRectangleX(int ROIIndex, int shapeIndex) {
-        final Rect rectangle = getShape(ROIIndex, shapeIndex, Rect.class);
+        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }
@@ -2383,7 +2383,7 @@ public class OmeroMetadata extends DummyMetadata {
 
     @Override
     public Double getRectangleY(int ROIIndex, int shapeIndex) {
-        final Rect rectangle = getShape(ROIIndex, shapeIndex, Rect.class);
+        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }

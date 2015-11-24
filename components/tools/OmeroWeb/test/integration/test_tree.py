@@ -169,7 +169,7 @@ def expected_datasets(user, datasets):
 
 # TODO Is there a way to test load_pixels when these fake images don't
 # actually have any pixels?
-def expected_images(user, images, shareId=None):
+def expected_images(user, images, extraValues=None):
     expected = []
     for image in images:
         i = {
@@ -178,8 +178,8 @@ def expected_images(user, images, shareId=None):
             'ownerId': image.details.owner.id.val,
             'permsCss': get_perms(user, image, "Image"),
         }
-        if shareId is not None:
-            i['shareId'] = shareId
+        if extraValues is not None:
+            i.update(extraValues)
         if image.fileset is not None:
             i['filesetId'] = image.fileset.id.val
         expected.append(i)
@@ -1685,6 +1685,19 @@ class TestTree(lib.ITest):
                                    experimenter_id=userA[1].id.val)
         assert marshaled == expected
 
+    def test_marshal_images_thumb_version(self, userA, image_pixels_userA):
+        """
+        Test marshalling image, loading thumbnail version
+        """
+        conn = get_connection(userA)
+        # Thumbnail not yet created: version will be -1
+        expected = expected_images(userA, [image_pixels_userA],
+                                   extraValues={'thumbVersion': -1})
+        marshaled = marshal_images(conn=conn,
+                                   thumb_version=True,
+                                   experimenter_id=userA[1].id.val)
+        assert marshaled == expected
+
     def test_marshal_images_another_user(self, userA, userB,
                                          images_userB_groupA):
         """
@@ -1752,6 +1765,51 @@ class TestTree(lib.ITest):
                                    dataset_id=dataset.id.val)
         assert marshaled == expected
 
+    def test_marshal_images_dataset_no_pixels(self, userA,
+                                              project_hierarchy_userA_groupA):
+        """
+        Test marshalling images for userA, groupA, datasetA
+        Images have no pixels, so should load with 'null' sizeX/Y/Z
+        """
+        conn = get_connection(userA)
+        dataset = project_hierarchy_userA_groupA[2]
+        images = project_hierarchy_userA_groupA[4:6]
+        expected = expected_images(userA, images,
+                                   extraValues={'sizeX': None,
+                                                'sizeY': None,
+                                                'sizeZ': None})
+        marshaled = marshal_images(conn=conn,
+                                   dataset_id=dataset.id.val,
+                                   load_pixels=True)
+        assert marshaled == expected
+
+    def test_marshal_images_dataset_date(self, userA,
+                                         project_hierarchy_userA_groupA):
+        """
+        Test marshalling dates for images in datasetA
+        Images have creation Date and Acquisition Dates set
+        """
+        conn = get_connection(userA)
+        dataset = project_hierarchy_userA_groupA[2]
+        images = project_hierarchy_userA_groupA[4:6]
+        utcAcq = 1444129810716
+        acqDate = '2015-10-06T12:10:10Z'
+        for i in images:
+            # get Creation date and set Acquisition Date.
+            utcCreate = i.details.creationEvent._time.val
+            i.setAcquisitionDate(rtime(utcAcq))
+        images = conn.getUpdateService().saveAndReturnArray(images)
+        # All images created at same time
+        utcCreate = datetime.fromtimestamp(utcCreate/1000).isoformat() + 'Z'
+        extraValues = {'acqDate': acqDate,
+                       'date': utcCreate}
+        expected = expected_images(userA, images,
+                                   extraValues=extraValues)
+        marshaled = marshal_images(conn=conn,
+                                   dataset_id=dataset.id.val,
+                                   date=True)
+        assert marshaled == expected
+
     def test_marshal_images_dataset_crosslink(self, userC,
                                               project_hierarchy_crosslink):
         """
@@ -1773,7 +1831,8 @@ class TestTree(lib.ITest):
         conn = get_connection(userA)
         share = shares_userA_owned[0]
         images = images_userA_groupA
-        expected = expected_images(userA, images, share.id.val)
+        expected = expected_images(userA, images,
+                                   extraValues={'shareId': share.id.val})
         marshaled = marshal_images(conn=conn,
                                    share_id=share.id.val)
         assert marshaled == expected

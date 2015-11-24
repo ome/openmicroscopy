@@ -196,7 +196,7 @@ import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Pulse;
 import omero.model.Reagent;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -248,6 +248,9 @@ public class OMEROMetadataStoreClient
     /** Our LSID reference cache. */
     private Map<LSID, List<LSID>> referenceCache =
         new HashMap<LSID, List<LSID>>();
+
+    private Map<LSID, Set<LSID>> referenceCacheCheck =
+        new HashMap<LSID, Set<LSID>>();
 
     /** Our authoritative LSID container cache. */
     private Map<Class<? extends IObject>, Map<String, IObjectContainer>>
@@ -319,7 +322,7 @@ public class OMEROMetadataStoreClient
     /** Executor that will run our keep alive task. */
     private ScheduledThreadPoolExecutor executor;
 
-    /** Emission filter LSID suffix. 
+    /** Emission filter LSID suffix.
      * See {@link #setFilterSetEmissionFilterRef(String, int, int, int)}
      * for an explanation of its usage.
      */
@@ -1189,6 +1192,7 @@ public class OMEROMetadataStoreClient
             containerCache =
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
             referenceCache = new HashMap<LSID, List<LSID>>();
+            referenceCacheCheck = new HashMap<LSID, Set<LSID>>();
             referenceStringCache = null;
             imageChannelGlobalMinMax = null;
             userSpecifiedAnnotations = null;
@@ -1440,7 +1444,7 @@ public class OMEROMetadataStoreClient
      */
     public Map<LSID, List<LSID>> getReferenceCache()
     {
-        return referenceCache;
+        return Collections.unmodifiableMap(referenceCache);
     }
 
     /* (non-Javadoc)
@@ -1481,17 +1485,23 @@ public class OMEROMetadataStoreClient
     public void addReference(LSID source, LSID target)
     {
         List<LSID> targets = null;
+        Set<LSID> targetsCheck = null;
         if (referenceCache.containsKey(source))
         {
             targets = referenceCache.get(source);
+            targetsCheck = referenceCacheCheck.get(source);
         }
         else
         {
             targets = new ArrayList<LSID>();
+            targetsCheck = new HashSet<LSID>();
             referenceCache.put(source, targets);
+            referenceCacheCheck.put(source, targetsCheck);
         }
-        if (!targets.contains(target))
+        // Adding to a list is VERY slow.
+        if (!targetsCheck.contains(target))
         {
+            targetsCheck.add(target);
             targets.add(target);
         }
     }
@@ -2157,7 +2167,7 @@ public class OMEROMetadataStoreClient
      * The call to close on the RawPixelsStorePrx may throw, in which case
      * the current import should be considered failed, since the saving of
      * the pixels server-side will have not completed successfully.
-     * 
+     *
      * @throws ServerError if the pixel store could not be finalized or a new one created
      * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5594">Trac ticket #5594</a>
      */
@@ -6542,18 +6552,18 @@ public class OMEROMetadataStoreClient
     //////// Rectangle /////////
 
     /**
-     * Retrieve the Rectangle object (as a Rect object)
+     * Retrieve the Rectangle object.
      * @param ROIIndex the index of the ROI
      * @param shapeIndex the index of the shape within the ROI
      * @return the rectangle
      */
-    private Rect getRectangle(int ROIIndex, int shapeIndex)
+    private Rectangle getRectangle(int ROIIndex, int shapeIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.ROI_INDEX, ROIIndex);
         indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        return getSourceObject(Rect.class, indexes);
+        return getSourceObject(Rectangle.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -6562,14 +6572,14 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleID(String id, int ROIIndex, int shapeIndex)
     {
-        checkDuplicateLSID(Rect.class, id);
+        checkDuplicateLSID(Rectangle.class, id);
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.ROI_INDEX, ROIIndex);
         indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        IObjectContainer o = getIObjectContainer(Rect.class, indexes);
+        IObjectContainer o = getIObjectContainer(Rectangle.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(Rect.class, id, o);
+        addAuthoritativeContainer(Rectangle.class, id, o);
     }
 
     /* (non-Javadoc)
@@ -6579,7 +6589,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleText(String description, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTextValue(toRType(description));
     }
 
@@ -6589,7 +6599,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleFillColor(Color fill, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFillColor(toRType(fill));
     }
 
@@ -6600,7 +6610,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFontSize(Length fontSize, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFontSize(convertLength(fontSize));
     }
 
@@ -6610,7 +6620,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleHeight(Double height, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setHeight(toRType(height));
     }
 
@@ -6620,7 +6630,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleStrokeColor(Color stroke, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setStrokeColor(toRType(stroke));
     }
 
@@ -6631,7 +6641,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleStrokeDashArray(String strokeDashArray,
             int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setStrokeDashArray(toRType(strokeDashArray));
     }
 
@@ -6642,7 +6652,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setStrokeWidth(convertLength(strokeWidth));
     }
 
@@ -6652,7 +6662,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
     }
 
@@ -6662,7 +6672,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
     }
 
@@ -6672,7 +6682,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
     }
 
@@ -6683,7 +6693,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleTransform(AffineTransform transform, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTransform(toRType(transform));
     }
 
@@ -6693,7 +6703,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleWidth(Double width, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setWidth(toRType(width));
     }
 
@@ -6703,7 +6713,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleX(Double x, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setX(toRType(x));
     }
 
@@ -6713,7 +6723,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleY(Double y, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setY(toRType(y));
     }
 
@@ -8649,7 +8659,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFillRule(FillRule fillRule, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFillRule(toRType(fillRule.getValue()));
     }
 
@@ -8660,7 +8670,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFontFamily(FontFamily fontFamily, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFontFamily(toRType(fontFamily.getValue()));
     }
 
@@ -8671,7 +8681,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFontStyle(FontStyle fontStyle, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFontStyle(toRType(fontStyle.getValue()));
     }
 
@@ -8691,7 +8701,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleLocked(Boolean locked, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
     }
 
@@ -8883,7 +8893,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setRectangleAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Rect.class, ROIIndex, shapeIndex);
+        LSID key = new LSID(Rectangle.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 

@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -1377,11 +1378,7 @@ class TreeViewerComponent
 		
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
-			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified " +
-					"data \n before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-			else mv.clearDataToSave();
+		    mv.saveData();
 		}
 		boolean sameSelection = false;
 		if (view.getDisplayMode() != SEARCH_MODE) {
@@ -1465,11 +1462,7 @@ class TreeViewerComponent
         }
         MetadataViewer mv = model.getMetadataViewer();
         if (hasDataToSave()) {
-            MessageBox dialog = new MessageBox(view, "Save data",
-                    "Do you want to save the modified " +
-                    "data \n before selecting a new item?");
-            if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-            else mv.clearDataToSave();
+            mv.saveData();
         }
         List<Object> siblings = (List<Object>) l.get(0);
         int size = siblings.size();
@@ -1657,11 +1650,7 @@ class TreeViewerComponent
 		}
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
-			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified \n" +
-					"data before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-			else mv.clearDataToSave();
+			mv.saveData();
 		}
 		Browser browser = model.getSelectedBrowser();
 		ExperimenterData exp = null;
@@ -2457,6 +2446,15 @@ class TreeViewerComponent
 		}
 	}
 
+    public void saveMetadata() {
+        MetadataViewer metadata = model.getMetadataViewer();
+        if (metadata == null)
+            return;
+        if (!(metadata.hasDataToSave()))
+            return;
+        model.getMetadataViewer().saveData();
+    }
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#retrieveUserGroups(Point, GroupData)
@@ -2657,7 +2655,7 @@ class TreeViewerComponent
 			"paste. \n Please first copy settings.");
 			return;
 		}
-		if (ids == null || ids.size() == 0) {
+		if (CollectionUtils.isEmpty(ids)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "Please select the nodes \n" +
 			"you wish to apply the settings to.");
@@ -3561,9 +3559,9 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#onNodesMoved()
+	 * @see TreeViewer#onNodesMoved(DataObject)
 	 */
-	public void onNodesMoved()
+	public void onNodesMoved(DataObject target)
 	{
 		if (model.getState() != SAVE) return;
 		model.setState(READY);
@@ -3574,7 +3572,7 @@ class TreeViewerComponent
 		DataBrowserFactory.discardAll();
 		
 		Browser browser = model.getSelectedBrowser();
-		browser.refreshTree(null, null);
+		browser.refreshTree(null, target);
 		model.getMetadataViewer().setRootObject(null, -1, null);
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -3587,13 +3585,13 @@ class TreeViewerComponent
 	public void onNodesDeleted(Collection<DataObject> deleted)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (deleted == null || deleted.size() == 0) {
-			onNodesMoved();
+		if (CollectionUtils.isEmpty(deleted)) {
+			onNodesMoved(null);
 			return;
 		}
 		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, deleted);
 		if (nd.centerAndShow() == NotDeletedObjectDialog.CLOSE)
-			onNodesMoved();
+			onNodesMoved(null);
 	}
 
 	/**
@@ -4937,4 +4935,43 @@ class TreeViewerComponent
         }
         return null;
     }
+    
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#resetRndSettings(long, RndProxyDef)
+     */
+   public void resetRndSettings(long imageID, RndProxyDef settings)
+   {
+       MetadataViewer viewer = model.getMetadataViewer();
+       if (viewer == null) return;
+       Object ho = viewer.getRefObject();
+       ImageData img = null;
+       if (ho instanceof ImageData) {
+           img = (ImageData) ho;
+       } else if (ho instanceof WellSampleData) {
+           img = ((WellSampleData) ho).getImage();
+       }
+       if (img == null || img.getId() != imageID) return;
+       Renderer rnd = viewer.getRenderer();
+       if (rnd != null) {
+           rnd.resetSettings(settings, true);
+       }
+   }
+
+   public RndProxyDef getSelectedViewedBy()
+   {
+       MetadataViewer viewer = model.getMetadataViewer();
+       if (viewer == null) return null;
+       Object ho = viewer.getRefObject();
+       ImageData img = null;
+       if (ho instanceof ImageData) {
+           img = (ImageData) ho;
+       } else if (ho instanceof WellSampleData) {
+           img = ((WellSampleData) ho).getImage();
+       }
+       if (img == null) return null;
+       Renderer rnd = viewer.getRenderer();
+       if (rnd == null) return null;
+       return rnd.getSelectedDef();
+   }
 }

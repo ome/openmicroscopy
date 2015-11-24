@@ -23,8 +23,8 @@ package omero.gateway.model;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Shape;
 
 /**
@@ -67,7 +67,7 @@ public class RectangleData
      */
     public RectangleData(double x, double y, double width, double height)
     {
-        super(new RectI(), true);
+        super(new RectangleI(), true);
         setX(x);
         setY(y);
         setWidth(width);
@@ -81,7 +81,7 @@ public class RectangleData
      */
     public String getText()
     {
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         RString value = shape.getTextValue();
         if (value == null) return "";
         return value.getValue();
@@ -96,7 +96,7 @@ public class RectangleData
     {
         if (isReadOnly())
             throw new IllegalArgumentException("Shape ReadOnly");
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setTextValue(rtypes.rstring(text));
@@ -110,7 +110,7 @@ public class RectangleData
      */
     public double getX()
     {
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         RDouble value = shape.getX();
         if (value == null) return 0;
         return value.getValue();
@@ -126,7 +126,7 @@ public class RectangleData
     {
         if(isReadOnly())
             throw new IllegalArgumentException("Shape ReadOnly");
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setX(rtypes.rdouble(x));
@@ -140,7 +140,7 @@ public class RectangleData
      */
     public double getY()
     {
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         RDouble value = shape.getY();
         if (value == null) return 0;
         return value.getValue();
@@ -156,7 +156,7 @@ public class RectangleData
     {
         if (isReadOnly())
             throw new IllegalArgumentException("Shape ReadOnly");
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setY(rtypes.rdouble(y));
@@ -169,7 +169,7 @@ public class RectangleData
      */
     public double getWidth()
     {
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         RDouble value = shape.getWidth();
         if (value == null) return 0;
         return value.getValue();
@@ -184,7 +184,7 @@ public class RectangleData
     {
         if (isReadOnly())
             throw new IllegalArgumentException("Shape ReadOnly");
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setWidth(rtypes.rdouble(width));
@@ -197,7 +197,7 @@ public class RectangleData
      */
     public double getHeight()
     {
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         RDouble value = shape.getHeight();
         if (value == null) return 0;
         return value.getValue();
@@ -212,7 +212,7 @@ public class RectangleData
     {
         if (isReadOnly())
             throw new IllegalArgumentException("Shape ReadOnly");
-        Rect shape = (Rect) asIObject();
+        Rectangle shape = (Rectangle) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setHeight(rtypes.rdouble(height));

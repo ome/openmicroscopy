@@ -8,9 +8,13 @@ package ome.util.utests;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import junit.framework.TestCase;
 import ome.model.acquisition.DetectorSettings;
 import ome.model.acquisition.FilterSet;
 import ome.model.acquisition.ObjectiveSettings;
@@ -18,8 +22,10 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.screen.Plate;
 import ome.util.LSID;
-import junit.framework.TestCase;
 
+import org.testng.annotations.Test;
+
+@Test
 public class LSIDEquivilenceTest extends TestCase
 {
 	public void testStringHashMapContainsKey()
@@ -145,5 +151,40 @@ public class LSIDEquivilenceTest extends TestCase
         assertEquals(a, b);
         assertEquals(a.getJavaClass(), b.getJavaClass());
         assertEquals(a.getIndexes()[0], b.getIndexes()[0]);
+    }
+
+    public void testBigListsWithSet()
+    {
+        Set<LSID> set = new HashSet<LSID>();
+        for (int i = 0; i < 100000; i++)
+        {
+            set.add(new LSID(Plate.class, i));
+        }
+    }
+
+    public void testBigListsWithSetAndList()
+    {
+        Set<LSID> found = new HashSet<LSID>();
+        List<LSID> list = new ArrayList<LSID>();
+        for (int i = 0; i < 100000; i++)
+        {
+            LSID lsid = new LSID(Plate.class, i);
+            if (!found.contains(lsid)) {
+                found.add(lsid);
+                list.add(lsid);
+            }
+        }
+    }
+
+    public void testBigListsWithLinkedHashSet()
+    {
+        LinkedHashSet<LSID> set = new LinkedHashSet<LSID>();
+        for (int i = 0; i < 100000; i++)
+        {
+            LSID lsid = new LSID(Plate.class, i);
+            if (!set.contains(lsid)) {
+                set.add(lsid);
+            }
+        }
     }
 }

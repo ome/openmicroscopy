@@ -16,6 +16,7 @@
 import time
 import datetime
 import os
+from tempfile import NamedTemporaryFile
 
 import omero.gateway
 
@@ -306,6 +307,34 @@ def testFileAnnotation(author_testimg_generated, gatewaywrapper):
     handle = gateway.deleteObjects("Annotation", [annId])
     gateway._waitOnCmd(handle)
     assert gateway.getObject("Annotation", annId) is None
+
+
+def testFileAnnotationSpeed(author_testimg_generated, gatewaywrapper):
+    """ Tests speed of loading file annotations. See PR: 4176 """
+    try:
+        f = NamedTemporaryFile()
+        f.write("testFileAnnotationSpeed text")
+        ns = TESTANN_NS
+        image = author_testimg_generated
+
+        # use the same file to create many file annotations
+        for i in range(20):
+            fileAnn = gatewaywrapper.gateway.createFileAnnfromLocalFile(
+                f.name, mimetype='text/plain', ns=ns)
+            image.linkAnnotation(fileAnn)
+    finally:
+        f.close()
+
+    now = time.time()
+    for ann in image.listAnnotations():
+        if ann._obj.__class__ == omero.model.FileAnnotationI:
+            # mimmic behaviour of templates which call multiple times
+            print ann.getId()
+            print ann.getFileName()
+            print ann.getFileName()
+            print ann.getFileSize()
+            print ann.getFileSize()
+    print time.time() - now
 
 
 def testFileAnnNonDefaultGroup(author_testimg_generated, gatewaywrapper):

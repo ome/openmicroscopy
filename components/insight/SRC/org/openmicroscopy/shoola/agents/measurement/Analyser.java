@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import omero.gateway.model.PixelsData;
 
@@ -63,6 +63,9 @@ public class Analyser
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
    
+    /** The plane to analyze the shapes for */
+    private Coord3D plane;
+    
     /**
      * Creates a new instance. 
      * 
@@ -74,9 +77,10 @@ public class Analyser
      * 					Mustn't be <code>null</code>.
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
+     * @param plane     The plane to analyze the shapes for, can be <code>null</code>
      */
 	public Analyser(MeasurementViewer viewer, SecurityContext ctx,
-			PixelsData pixels, Collection channels, List shapes)
+			PixelsData pixels, Collection channels, List shapes, Coord3D plane)
 	{
 		super(viewer, ctx);
 		if (CollectionUtils.isEmpty(channels))
@@ -86,6 +90,7 @@ public class Analyser
 		this.pixels = pixels;
 		this.channels = channels;
 		this.shapes = shapes;
+		this.plane = plane;
 	}
 	
 	/**
@@ -94,7 +99,7 @@ public class Analyser
      */
     public void load()
     {
-    	handle = idView.analyseShapes(ctx, pixels, channels, shapes, this);
+    	handle = idView.analyseShapes(ctx, pixels, channels, shapes, plane, this);
     }
     
     /**

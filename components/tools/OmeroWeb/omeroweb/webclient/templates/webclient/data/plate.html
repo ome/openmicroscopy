@@ -102,10 +102,9 @@
             var syncTreeSelection = function(selected, idx, perms) {
                 // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
                 var datatree = $.jstree.reference('#dataTree');
-                datatree.deselect_all(true);
-                // Update the buttons in the jstree
+                // Update the buttons in the jstree as if nothing selected.
                 if (buttonsShowHide) {
-                    buttonsShowHide(datatree.get_selected(true), datatree);
+                    buttonsShowHide([], datatree);
                 }
                 // Calls to ome.webclient.actions.js
                 OME.well_selection_changed(selected, idx, perms);

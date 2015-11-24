@@ -22,18 +22,13 @@
     <dependency org="ch.qos.logback" name="logback-classic" rev="${versions.logback}" conf="runtime->default"/>
     <dependency org="janino" name="janino" rev="${versions.janino}" conf="runtime->default"/>
     <dependency org="org.perf4j" name="perf4j" rev="${versions.perf4j}" conf="build,runtime->default"/>
-    <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,runtime->default"/>
-    <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build,runtime->default"/>
     <!-- build requirements -->
     <dependency org="org.apache.ant" name="ant" rev="${versions.ant}"/>
     <dependency org="velocity-tools" name="velocity-tools-generic" rev="${versions.velocity-tools}"/>
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,runtime->default"/>
+    <dependency org="org.springframework" name="spring-core" rev="${versions.spring}" conf="build,runtime->default"/>
     <!-- Moving all testing dependencies back to "build" for eclipse .classpath generation-->
-    <dependency org="org.springframework" name="org.springframework.test" rev="${versions.spring}" conf="build->*"/>
-    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
-    <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0"/>
     <dependency org="antlr" name="antlr" rev="${versions.antlr}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="jmock" name="jmock" rev="1.0.1"/>

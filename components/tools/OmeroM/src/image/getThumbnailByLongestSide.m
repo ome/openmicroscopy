@@ -63,7 +63,7 @@ end
 % Create store to retrieve thumbnails and set pixels Id
 context = java.util.HashMap;
 group = image.getDetails().getGroup().getId().getValue();
-context.put('omero.group', num2str(group));
+context.put('omero.group', java.lang.String(num2str(group)));
 store = session.createThumbnailStore();
 store.setPixelsId(image.getPrimaryPixels().getId().getValue(), context);
 

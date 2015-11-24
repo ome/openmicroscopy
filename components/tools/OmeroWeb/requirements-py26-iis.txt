@@ -1,0 +1,9 @@
+# Python installation requirements for OMERO.web
+# ==============================================
+#
+# This is a work in progress, filenames may change in the next version
+# This file is meant to be consumed by pip
+#
+#     pip install -r requirements-py26-iis.txt
+#
+Django==1.6.11

@@ -227,7 +227,7 @@ class ToolBar
         JMenuItem item;
         Object ho = model.getRefObject();
         boolean enabled = (ho instanceof ImageData ||
-                ho instanceof WellSampleData || ho instanceof DatasetData);
+                ho instanceof WellSampleData || ho instanceof DatasetData) && model.isExportable();
         while (i.hasNext()) {
             e = i.next();
             item = new JMenuItem(icons.getIcon(

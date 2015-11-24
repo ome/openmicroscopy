@@ -98,7 +98,7 @@ class ShareForm(NonASCIIForm):
         label="Expire date",
         help_text=help_expire,
         required=False)
-    enable = ssl = forms.BooleanField(required=False, help_text=help_enable)
+    enable = forms.BooleanField(required=False, help_text=help_enable)
     # guests = MultiEmailField(required=False,
     # widget=forms.TextInput(attrs={'size':75}))
 

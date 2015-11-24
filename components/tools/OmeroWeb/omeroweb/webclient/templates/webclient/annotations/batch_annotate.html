@@ -309,7 +309,11 @@
                         // update summary
                         $("#ratingsAverage").text(data.average);
                         $("#ratingsCount").text(data.count);
-                        $("#ratingsSummary").show();
+                        if (data.count > 0) {
+                            $("#ratingsSummary").show();
+                        } else {
+                            $("#ratingsSummary").hide();
+                        }
                     });
                 }
 

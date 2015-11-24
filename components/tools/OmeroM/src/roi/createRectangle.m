@@ -34,7 +34,7 @@ ip.addRequired('h', ispositivescalar);
 ip.parse(x, y, w, h)
 
 % Create a Rectangle shape
-rectangle = omero.model.RectI;
+rectangle = omero.model.RectangleI;
 rectangle.setX(rdouble(x));
 rectangle.setY(rdouble(y));
 rectangle.setWidth(rdouble(w));

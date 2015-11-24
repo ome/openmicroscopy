@@ -45,6 +45,9 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
 import omero.log.LogMessage;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -173,6 +176,9 @@ class RendererModel
     /** Map hosting the extra dimension if available.*/
     private Map<Integer, ModuloInfo> modulo;
 
+    /** he alternative rendering settings if any.*/
+    private RndProxyDef def;
+
 	/**
 	 * Creates a new instance.
 	 *
@@ -180,9 +186,10 @@ class RendererModel
 	 * @param rndControl Reference to the component that controls the
 	 *                   rendering settings. Mustn't be <code>null</code>.
 	 * @param rndIndex The index associated to the renderer.
+	 * @param def The alternative rendering settings if any.
 	 */
 	RendererModel(SecurityContext ctx, RenderingControl rndControl,
-			int rndIndex)
+			int rndIndex, RndProxyDef def)
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
@@ -194,6 +201,7 @@ class RendererModel
 		globalMinChannels = null;
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
+		this.def = def;
 	}
 
 	/**
@@ -1093,9 +1101,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeY()
+	Length getPixelsSizeY()
 	{ 
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeY();
 	}
 
@@ -1104,9 +1113,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeX()
+	Length getPixelsSizeX()
 	{
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeX();
 	}
 	
@@ -1115,9 +1125,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeZ()
+	Length getPixelsSizeZ()
 	{
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeZ();
 	}
 
@@ -1131,6 +1142,13 @@ class RendererModel
 		if (rndControl == null) return null;
 		return rndControl.getRndSettingsCopy();
 	}
+
+	/**
+     * Returns the alternative rendering settings.
+     *
+     * @return See above.
+     */
+    RndProxyDef getAlternativeRndSettings() { return def; }
 
     /**
      * Returns the initial rendering settings.

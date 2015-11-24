@@ -1339,7 +1339,7 @@ class MeasurementViewerModel
             }
         }
 		currentLoader = new Analyser(component, getSecurityContext(), pixels,
-				activeChannels.keySet(), l);
+				activeChannels.keySet(), l, currentPlane);
 		currentLoader.load();
 	}
 

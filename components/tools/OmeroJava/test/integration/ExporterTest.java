@@ -1226,11 +1226,7 @@ public class ExporterTest extends AbstractServerTest {
             while (resultClass.getSuperclass() != Shape.class) {
                 resultClass = resultClass.getSuperclass().asSubclass(IObject.class);
             }
-            String resultClassName = resultClass.getSimpleName();
-            if ("Rect".equals(resultClassName)) {
-                resultClassName = "Rectangle";  /* the OME-XML name differs */
-            }
-            assertTrue(remainingClasses.remove(resultClassName));
+            assertTrue(remainingClasses.remove(resultClass.getSimpleName()));
         }
         assertTrue(remainingClasses.isEmpty());
     }

@@ -376,7 +376,7 @@
 
         <!-- EXPERIMENT -->
 
-        <!-- Delete an experiment if the last image or microbeam manipulation to use it is deleted. -->
+        <!-- Delete an experiment if the last image to use it is deleted. -->
 
         <bean parent="graphPolicyRule" p:matches="Image[D].experiment = E:[E]{i}/d" p:changes="E:{r}"/>
         <bean parent="graphPolicyRule" p:matches="Image[E]{ia}.experiment = E:[E]{r}" p:changes="E:{a}"/>

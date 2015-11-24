@@ -25,7 +25,24 @@
             ccp_node = false;
             ccp_mode = false;
             ccp_inst = false;
-        }
+        };
+
+        this._get_node_data = function(node) {
+            var new_node_data = {
+                // Clone the data
+                'data': JSON.parse(JSON.stringify(node.data)),
+                'text': node.text,
+                'type': node.type,
+                // If it has children, we wish it to be loadable, but not loaded
+                // so just give it boolean instead of actual nodes
+                'children': this.is_parent(node),
+                'li_attr': {
+                    'class': node.type,
+                    'data-id': node.data.obj.id
+                }
+            };
+            return new_node_data;
+        };
 
         // Save to special variable on cut, mutually exclusive with standard paste buffer
         this.cut = function (obj) {
@@ -51,19 +68,7 @@
             // Get the contents of the nodes for storage
             // These are stored as the objects jstree will need to create new nodes
             $.each(tmp, function(index, node) {
-                var new_node_data = {
-                    // Clone the data
-                    'data': JSON.parse(JSON.stringify(node.data)),
-                    'text': node.text,
-                    'type': node.type,
-                    // If it has children, we wish it to be loadable, but not loaded
-                    // so just give it boolean instead of actual nodes
-                    'children': inst.is_parent(node),
-                    'li_attr': {
-                        'class': node.type,
-                        'data-id': node.data.obj.id
-                    }
-                };
+                var new_node_data = inst._get_node_data(node);
 
                 omecut_buffer.push(new_node_data);
             });
@@ -88,75 +93,58 @@
             // Handle this as a separate each for now
             $.each(tmp, function(index, node) {
                 var parent = inst.get_node(inst.get_parent(node));
-                var payload = {};
-                payload[node.type] = node.data.obj.id;
-                // AJAX Query to get the paths of the items we are cutting
-                $.ajax({
-                    url: inst.settings.omecut.path_url,
-                    data : payload,
-                    dataType: "json",
-                    type: "GET",
-                    success: function(json) {
-                        // Find the objects that might need to be rendered as orphaned
-                        // Objects which return only one path are orphans unless they were already
-                        // which is indicated by this node's parent being an experimenter or the orphaned directory
-                        // Objects which were already orphaned require no action except to be added to the paste buffer
-                        if (parent.type !== 'experimenter' &&
-                            parent.type !== 'orphaned') {
+                // remove node...
+                inst.delete_node(node);
+                
 
-                            // If an object has multiple paths, but they share a common immediate parent
-                            // then that needs to be discounted as that will also get deleted
-                            var unique = [];
-                            $.each(json.paths, function(index, path) {
-                                var immediateParent = path[path.length - 2];
-                                 if (unique.indexOf(immediateParent.type + '-' + immediateParent.id) === -1) {
-                                    unique.push(immediateParent.type + '-' + immediateParent.id);
-                                 }
-                            });
+                // Objects which were already orphaned require no action except to be added to the paste buffer
+                if (parent.type !== 'experimenter' &&
+                    parent.type !== 'orphaned') {
 
-                            if (unique.length === 1) {
-                                // Get the experimenter that owns this object
-                                // This handles the multi-experimenters shown case
-                                // var ownerExperimenter = inst.locate_node('experimenter-' + node.data.obj.ownerId)[0];
-                                var ownerExperimenter = inst.locate_node('experimenter-' + activeUserId())[0];
-                                // Newly orphaned objects get moved to the appropriate location
-                                if (node.type === 'dataset' ||
-                                    node.type === 'plate') {
-                                    inst.move_node(node, ownerExperimenter);
+                    // Do the unlinking. Result will tell us whether object is orphaned
+                    // If orphaned, move object under 'orphaned' or 'experimenter'
+                    $.when(unlinkNode(inst, node, parent)).done(function(rsp) {
 
-                                } else if (node.type === 'image') {
-                                    // Get the orphaned directory for this experimenter
-                                    var orphaned = inst.locate_node('orphaned-' + ownerExperimenter.data.obj.id)[0];
-                                    // TODO Could optimize by only moving if orphans is loaded. Instead just
-                                    // update its child count
-                                    inst.move_node(node, orphaned);
+                        // Response contains any remaining parent links in the form
+                        // e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+                        var orphaned = true;
+                        if (parent.type in rsp) {
+                            for (var pid in rsp[parent.type]) {
+                                var children = rsp[parent.type][pid];
+                                if (node.type in children && children[node.type].indexOf(node.data.obj.id) > -1) {
+                                    orphaned = false;
                                 }
-
-                            // Anything which has not become an orphan (and wasn't one to begin with)
-                            // is simply unlinked and then deleted
-                            } else {
-                                $.when(unlinkNode(inst, node, parent)).done(function() {
-                                    // Update the central panel
-                                    var e = {'type': 'delete_node'};
-                                    var data = {'node': node,
-                                                'old_parent': parent};
-                                    update_thumbnails_panel(e, data);
-                                });
-
-                                inst.delete_node(node);
-                                // Remove node from other identical nodes as well
-                                updateParentRemoveNode(inst, node, parent);
-
-                                // Update the child counts
-                                OME.updateNodeChildCount(inst, parent);
                             }
                         }
-                    },
-                    error: function(json) {
-                        console.log('failure');
-                    }
-                });
+                        if (orphaned) {
+                            // Get the experimenter that owns this object
+                            // This handles the multi-experimenters shown case
+                            var ownerExperimenter = inst.locate_node('experimenter-' + activeUserId())[0],
+                                newParent;
+                            var new_node_data = inst._get_node_data(node);
+                            // Newly orphaned objects get moved to the appropriate location
 
+                            if (node.type === 'dataset' || node.type === 'plate') {
+                                newParent = ownerExperimenter;
+                            } else if (node.type === 'image') {
+                                // Get the orphaned directory for this experimenter
+                                newParent = inst.locate_node('orphaned-' + ownerExperimenter.data.obj.id)[0];
+                            }
+                            inst.create_node(newParent, new_node_data);
+                        } else {
+                            // Remove node from other identical nodes as well
+                            updateParentRemoveNode(inst, node, parent);
+
+                            // Update the child counts
+                            OME.updateNodeChildCount(inst, parent);
+                        }
+                        // Remove thumbs from the central panel
+                        var e = {'type': 'delete_node'};
+                        var data = {'node': node,
+                                    'old_parent': parent};
+                        update_thumbnails_panel(e, data);
+                    });
+                }
             });
 
             // TODO Probably should be called inside success of ajax success function, but do it here for now
@@ -185,7 +173,7 @@
         this.paste = function (obj, pos) {
             var inst = this;
 
-            // It's a special cut
+            // If we've just done an 'omecut' (above), then custom paste ONLY creates new links
             if (omecut && ccp_node.length > 0) {
                 obj = this.get_node(obj);
                 var newNodes = [];
@@ -249,7 +237,7 @@
                 return { 'mode' : ccp_mode, 'node' : ccp_node, 'inst' : ccp_inst };
             }
             return parent.get_buffer.call(this);
-        }
+        };
 
         // Types plugin does not work unless the nodes really exist so
         // we have to manually check in the case of this being an omecut
@@ -261,7 +249,7 @@
                 !('inst' in obj)) {
 
                 var inst = this;
-                var par = inst.get_node(par);
+                par = inst.get_node(par);
                 var rules = inst.get_rules(par);
                 if (rules.valid_children != -1) {
                     var validChildren = rules.valid_children;
@@ -273,7 +261,7 @@
                 return false;
             }
             return parent.check.call(this, chk, obj, par, pos, more);
-        }
+        };
     };
 
     // you can include the plugin in all instances by default

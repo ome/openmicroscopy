@@ -650,7 +650,7 @@ class TestRecursiveDelete(AbstractRepoTest):
         id = self.dir_map[self.dir_key]["id"]
 
         gateway = BlitzGateway(client_obj=self.client)
-        handle = gateway.deleteObjects("/OriginalFile", [id])
+        handle = gateway.deleteObjects("OriginalFile", [id])
         try:
             with pytest.raises(CmdError):
                 gateway._waitOnCmd(handle, failonerror=True)
@@ -688,7 +688,7 @@ class TestDeleteLog(AbstractRepoTest):
         finally:
             rfs.close()
 
-        handle = gateway.deleteObjects("/OriginalFile", [ofile.id.val])
+        handle = gateway.deleteObjects("OriginalFile", [ofile.id.val])
         try:
             gateway._waitOnCmd(handle)
         finally:

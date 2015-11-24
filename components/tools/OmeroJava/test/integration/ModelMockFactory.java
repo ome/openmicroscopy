@@ -1068,11 +1068,11 @@ public class ModelMockFactory {
     }
 
     /**
-     * Returns an Image with a Roi and one Rect attached.
+     * Returns an Image with a Roi and one Rectangle attached.
      */
     public Image createImageWithRoi() throws Exception {
         Roi roi = new RoiI();
-        roi.addShape(new RectI());
+        roi.addShape(new RectangleI());
         Image image = createImage();
         image.addRoi(roi);
         return image;

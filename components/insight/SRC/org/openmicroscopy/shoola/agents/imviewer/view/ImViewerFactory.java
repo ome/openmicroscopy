@@ -100,7 +100,7 @@ public class ImViewerFactory
 	 * Adds all the {@link ImViewer} components that this factory is
 	 * currently tracking to the passed menu.
 	 * 
-	 * @param menu The menu to add the components to. 
+	 * @param menu The menu to add the components to.
 	 */
 	static void register(JMenu menu)
 	{ 
@@ -178,12 +178,12 @@ public class ImViewerFactory
 
 	/**
 	 * Returns a viewer to display the image corresponding to the specified id.
-	 * 
-	 * @param imageID  	The image to view.
-	 * @param bounds    The bounds of the component invoking the 
-	 *                  {@link ImViewer}.
-	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
-	 * 						 separate window, <code>false</code> otherwise. 
+	 *
+	 * @param ctx The security context.
+	 * @param imageID The image to view.
+	 * @param bounds The bounds of the component invoking the {@link ImViewer}.
+	 * @param separateWindow Pass <code>true</code> to open the viewer in a
+	 *                       separate window, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static ImViewer getImageViewer(SecurityContext ctx,
@@ -196,7 +196,8 @@ public class ImViewerFactory
 	
 	/**
 	 * Returns the viewer if any, identified by the passed pixels ID.
-	 * 
+	 *
+	 * @param ctx The security context.
 	 * @param pixelsID The Identifier of the pixels set.
 	 * @return See above.
 	 */
@@ -213,7 +214,8 @@ public class ImViewerFactory
 
 	/**
 	 * Returns the viewer if any, identified by the passed image's ID.
-	 * 
+	 *
+	 * @param ctx The security context.
 	 * @param imageID The Identifier of the image.
 	 * @return See above.
 	 */
@@ -251,8 +253,8 @@ public class ImViewerFactory
 	/**
 	 * Copies the rendering settings.
 	 * 
-	 * @param image	The image to copy the rendering settings from.
-         * @param refRndDef 'Pending' rendering settings to copy (can be null)
+	 * @param image The image to copy the rendering settings from.
+	 * @param refRndDef 'Pending' rendering settings to copy (can be null)
 	 */
 	public static void copyRndSettings(ImageData image, RndProxyDef refRndDef)
 	{
@@ -284,6 +286,23 @@ public class ImViewerFactory
 			
 			comp.reloadRenderingThumbs();
 		}
+	}
+
+	/**
+	 * Indicates that rendering settings have been modified.
+	 * 
+	 * @param imageID The Identifier of the pixels set.
+	 */
+	public static void rndSettingsChanged(long imageID)
+	{
+	    Iterator<ImViewer> v = singleton.viewers.iterator();
+	    ImViewerComponent comp;
+	    while (v.hasNext()) {
+	        comp = (ImViewerComponent) v.next();
+	        if (comp.getModel().getImageID() == imageID) {
+	            comp.onSettingsChanged();
+	        }
+	    }
 	}
 
 	/**

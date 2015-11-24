@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -39,9 +39,12 @@ import omero.LockTimeout;
 import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
 import omero.model.Family;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
+import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -1340,30 +1343,33 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeX()
      */
-    public double getPixelsPhysicalSizeX()
+    public Length getPixelsPhysicalSizeX()
     {
-        if (pixs.getPhysicalSizeX() == null) return 1;
-        return pixs.getPhysicalSizeX().getValue();
+        if (pixs.getPhysicalSizeX() == null) 
+            return new LengthI(1, UnitsLength.PIXEL);
+        return pixs.getPhysicalSizeX();
     }
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeY()
      */
-    public double getPixelsPhysicalSizeY()
+    public Length getPixelsPhysicalSizeY()
     {
-        if (pixs.getPhysicalSizeY() == null) return 1;
-        return pixs.getPhysicalSizeY().getValue();
+        if (pixs.getPhysicalSizeY() == null) 
+            return new LengthI(1, UnitsLength.PIXEL);
+        return pixs.getPhysicalSizeY();
     }
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeZ()
      */
-    public double getPixelsPhysicalSizeZ()
+    public Length getPixelsPhysicalSizeZ()
     {
-        if (pixs.getPhysicalSizeZ() == null) return 1;
-        return pixs.getPhysicalSizeZ().getValue();
+        if (pixs.getPhysicalSizeZ() == null) 
+            return new LengthI(1, UnitsLength.PIXEL);
+        return pixs.getPhysicalSizeZ();
     }
 
     /** 

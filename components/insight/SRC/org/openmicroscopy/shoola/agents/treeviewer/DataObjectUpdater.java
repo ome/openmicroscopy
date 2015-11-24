@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import omero.gateway.SecurityContext;
+import omero.gateway.model.DataObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 
@@ -173,8 +174,18 @@ public class DataObjectUpdater
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.onNodesMoved();
+        if (viewer.getState() == TreeViewer.DISCARDED)
+            return; // Async cancel.
+        DataObject target = null;
+        if (Map.class.isAssignableFrom(result.getClass())) {
+            Map m = (Map) result;
+            if (m.size() == 1) {
+                Object obj = m.keySet().iterator().next();
+                if (DataObject.class.isAssignableFrom(obj.getClass()))
+                    target = (DataObject) obj;
+            }
+        }
+        viewer.onNodesMoved(target);
     }
     
 }

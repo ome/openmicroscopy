@@ -79,19 +79,15 @@ class UrlField(forms.Field):
 
 
 class MetadataQuerySetIterator(object):
-    def __init__(self, queryset, empty_label, cache_choices):
+    def __init__(self, queryset, empty_label):
         self.queryset = queryset
         self.empty_label = empty_label
-        self.cache_choices = cache_choices
 
     def __iter__(self):
         if self.empty_label is not None:
             yield (u"", self.empty_label)
         for obj in self.queryset:
             yield (obj.value, smart_unicode(obj.value))
-        # Clear the QuerySet cache if required.
-        # if not self.cache_choices:
-        #     self.queryset._result_cache = None
 
 
 class MetadataModelChoiceField(ModelChoiceField):
@@ -107,8 +103,7 @@ class MetadataModelChoiceField(ModelChoiceField):
         # *each* time _get_choices() is called (and, thus, each time
         # self.choices is accessed) so that we can ensure the QuerySet has not
         # been consumed.
-        return MetadataQuerySetIterator(self.queryset, self.empty_label,
-                                        self.cache_choices)
+        return MetadataQuerySetIterator(self.queryset, self.empty_label)
 
     def _set_choices(self, value):
         # This method is copied from ChoiceField._set_choices(). It's necessary
@@ -133,10 +128,9 @@ class MetadataModelChoiceField(ModelChoiceField):
 
 class AnnotationQuerySetIterator(object):
 
-    def __init__(self, queryset, empty_label, cache_choices):
+    def __init__(self, queryset, empty_label):
         self.queryset = queryset
         self.empty_label = empty_label
-        self.cache_choices = cache_choices
 
     def __iter__(self):
         if self.empty_label is not None:
@@ -169,9 +163,6 @@ class AnnotationQuerySetIterator(object):
                     textValue = "%s..." % textValue[:55]
             oid = obj.id
             yield (oid, smart_unicode(textValue))
-        # Clear the QuerySet cache if required.
-        # if not self.cache_choices:
-        #       self.queryset._result_cache = None
 
 
 class AnnotationModelChoiceField(ModelChoiceField):
@@ -187,8 +178,7 @@ class AnnotationModelChoiceField(ModelChoiceField):
         # *each* time _get_choices() is called (and, thus, each time
         # self.choices is accessed) so that we can ensure the QuerySet has not
         # been consumed.
-        return AnnotationQuerySetIterator(self.queryset, self.empty_label,
-                                          self.cache_choices)
+        return AnnotationQuerySetIterator(self.queryset, self.empty_label)
 
     def _set_choices(self, value):
         # This method is copied from ChoiceField._set_choices(). It's
@@ -219,12 +209,13 @@ class AnnotationModelMultipleChoiceField(AnnotationModelChoiceField):
         'invalid_choice': _(u'Select a valid choice. That choice is not one'
                             u' of the available choices.')}
 
-    def __init__(self, queryset, cache_choices=False, required=True,
+    def __init__(self, queryset, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
         super(AnnotationModelMultipleChoiceField, self).__init__(
-            queryset,  None, cache_choices, required, widget, label, initial,
-            help_text, *args, **kwargs)
+            queryset=queryset, empty_label=None, required=required,
+            widget=widget, label=label, initial=initial,
+            help_text=help_text, *args, **kwargs)
 
     def clean(self, value):
         if self.required and not value:
@@ -254,10 +245,9 @@ class AnnotationModelMultipleChoiceField(AnnotationModelChoiceField):
 
 # Object queryset iterator for group form
 class ObjectQuerySetIterator(object):
-    def __init__(self, queryset, empty_label, cache_choices):
+    def __init__(self, queryset, empty_label):
         self.queryset = queryset
         self.empty_label = empty_label
-        self.cache_choices = cache_choices
 
     def __iter__(self):
         if self.empty_label is not None:
@@ -267,9 +257,6 @@ class ObjectQuerySetIterator(object):
                 yield (obj.id.val, smart_unicode(obj.id.val))
             else:
                 yield (obj.id, smart_unicode(obj.id))
-        # Clear the QuerySet cache if required.
-        # if not self.cache_choices:
-        #     self.queryset._result_cache = None
 
 
 class ObjectModelChoiceField(ModelChoiceField):
@@ -285,8 +272,7 @@ class ObjectModelChoiceField(ModelChoiceField):
         # *each* time _get_choices() is called (and, thus, each time
         # self.choices is accessed) so that we can ensure the QuerySet has not
         # been consumed.
-        return ObjectQuerySetIterator(self.queryset, self.empty_label,
-                                      self.cache_choices)
+        return ObjectQuerySetIterator(self.queryset, self.empty_label)
 
     def _set_choices(self, value):
         # This method is copied from ChoiceField._set_choices(). It's
@@ -322,12 +308,13 @@ class ObjectModelMultipleChoiceField(ObjectModelChoiceField):
                             u' of the available choices.'),
     }
 
-    def __init__(self, queryset, cache_choices=False, required=True,
+    def __init__(self, queryset, required=True,
                  widget=SelectMultiple, label=None, initial=None,
                  help_text=None, *args, **kwargs):
         super(ObjectModelMultipleChoiceField, self).__init__(
-            queryset, None, cache_choices, required, widget, label, initial,
-            help_text, *args, **kwargs)
+            queryset=queryset, empty_label=None, required=required,
+            widget=widget, label=label, initial=initial,
+            help_text=help_text, *args, **kwargs)
 
     def clean(self, value):
         if self.required and not value:

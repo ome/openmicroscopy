@@ -337,6 +337,16 @@ public class RndProxyDef
     }
 
     /**
+     * Returns the identifier of the settings.
+     *
+     * @return See above.
+     */
+    public long getDataID()
+    {
+        return data.getId().getValue();
+    }
+
+    /**
      * Returns the data hosted by this class.
      *
      * @return See above.

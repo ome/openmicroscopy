@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -44,12 +45,22 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
+
+import ome.model.units.BigResult;
 import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.LookupNames;
+
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
+
+import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -110,9 +121,8 @@ class BrowserModel
      */
     private boolean         	unitBar;
     
-    /** The value of the unit bar in the units matching the size of the pixels
-     * e.g. microns, mm, etc. */
-    private double          	unitInRefUnits;
+    /** The length of the unit bar */
+    private Length          	unitBarLength;
     
     /** The default color of the unit bar. */
     private Color				unitBarColor;
@@ -371,18 +381,25 @@ class BrowserModel
     }
     
     /**
-     * Calculates the size of the unit bar.
+     * Calculates the length of the unit bar.
      * 
      * @param ratio The ratio to multiple the value by.
-     * @return
+     * @return The unit bar length in pixels
      */
-    private double getBarSize(double ratio)
+    private double getBarSizeInPx(double ratio)
     {
-    	double v = unitInRefUnits;
-        double t = UIUtilities.transformSize(getPixelsSizeX()).getValue();
-        if (t > 0) v = unitInRefUnits/t;
-        v *= ratio;
-        return v;
+        if(unitBarLength == null)
+            return 1;
+        
+        try {
+            double v = unitBarLength.getValue()
+                    / (new LengthI(getPixelsSizeX(), unitBarLength.getUnit()))
+                            .getValue();
+            v *= ratio;
+            return v;
+        } catch (BigResult e) {
+        }
+        return 1;
     }
     
     /** 
@@ -402,7 +419,6 @@ class BrowserModel
         ratio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         gridRatio = ZoomGridAction.DEFAULT_ZOOM_FACTOR;
         init = true;
-        unitInRefUnits = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
@@ -427,7 +443,9 @@ class BrowserModel
      * 
      * @param component The embedding component.
      */
-    void initialize(Browser component) { this.component = component; }
+    void initialize(Browser component) { 
+        this.component = component; 
+    }
     
     /** 
      * Returns <code>true</code> if the rendered image has been set,
@@ -484,8 +502,41 @@ class BrowserModel
      * 
      * @return See above.
      */
-    BufferedImage getDisplayedImage() { return displayedImage; }
-    
+    BufferedImage getDisplayedImage() {
+        if (displayedImage == null && isBigImage()) {
+            BufferedImage bi = new BufferedImage(getTiledImageSizeX(),
+                    getTiledImageSizeY(), BufferedImage.TYPE_INT_RGB);
+            //build it from the tiles.
+           // Create a graphics which can be used to draw into the buffered image
+            Graphics2D g2D = bi.createGraphics();
+            ImagePaintingFactory.setGraphicRenderingSettings(g2D,
+                    isInterpolation());
+            Map<Integer, Tile> tiles = getTiles();
+            //Check the size of the tiles
+            int rows = getRows();
+            int columns = getColumns();
+            Tile tile;
+            int index;
+            Object img;
+            Region region;
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < columns; j++) {
+                    index = i*columns+j;
+                    tile = tiles.get(index);
+                    region = tile.getRegion();
+                    img = tile.getImage();
+                    if (img != null) {
+                        g2D.drawImage((BufferedImage) img,
+                                region.getX(), region.getY(), null);
+                    }
+                }
+            }
+            g2D.dispose();
+            return bi;
+        }
+        return displayedImage;
+    }
+
     /**
      * Returns the image to paint on screen. This image is a transformed 
      * version of the projected image. We apply several transformations to the
@@ -595,11 +646,11 @@ class BrowserModel
     int getMaxT() { return parent.getRealT(); }
     
     /**
-     * The size in microns of a pixel along the X-axis.
+     * The size of a pixel along the X-axis.
      * 
      * @return See above.
      */
-    double getPixelsSizeX() { return parent.getPixelsSizeX(); }
+    Length getPixelsSizeX() { return parent.getPixelsSizeX(); }
     
     /**
      * Returns <code>true</code> if the unit bar is painted on top of 
@@ -617,47 +668,71 @@ class BrowserModel
      */
     void setUnitBar(boolean unitBar)
     {
-    	double v = UIUtilities.transformSize(parent.getPixelsSizeX()).getValue();
-    	if (v == 0 || v == 1) unitBar = false;
+        if (unitBar) {
+            int unitBarLenghtValue = UnitBarSizeAction.getDefaultValue();
+            // Guess the unit to use by assuming a 100px wide scalebar
+            Length tmp = new LengthI(getPixelsSizeX().getValue() * 100,
+                    getPixelsSizeX().getUnit());
+            tmp = UIUtilities.transformSize(tmp);
+            this.unitBarLength = new LengthI(unitBarLenghtValue, tmp.getUnit());
+        }
     	this.unitBar = unitBar;
     }
     
     /**
      * Sets the size of the unit bar.
      * 
-     * @param size The size of the unit bar.
+     * @param size
+     *            The size of the unit bar.
+     * @param unit The unit
      */
-    void setUnitBarSize(double size) { unitInRefUnits = size; }
+    void setUnitBarSize(double size, UnitsLength unit) {
+        if (unitBarLength != null) {
+            try {
+                LengthI tmp = new LengthI(size, unit);
+                tmp = new LengthI(tmp, unitBarLength.getUnit());
+                unitBarLength.setValue(tmp.getValue());
+            } catch (BigResult e) {
+            }
+        }
+        else {
+            unitBarLength = new LengthI(size, unit);
+        }
+    }
     
     /**
-     * Returns the unit used to determine the size of the unit bar.
-     * The unit depends on the size stored. The unit of reference in the
-     * OME model is in microns, but this is a transformed unit.
+     * Returns the unit used to determine the size of the unit bar. The unit
+     * depends on the size stored. The unit of reference in the OME model is in
+     * microns, but this is a transformed unit.
      * 
      * @return See above.
      */
-    double getUnitInRefUnits() { return unitInRefUnits; }
+    double getUnitInRefUnits() {
+        return unitBarLength != null ? unitBarLength.getValue() : 1;
+    }
     
     /**
-     * Returns the size of the unit bar.
+     * Returns the original (non-scaled) length of the unit bar in pixels
      * 
      * @return See above.
      */
-    double getOriginalUnitBarSize() { return getBarSize(1); }
+    double getOriginalUnitBarSize() {
+        return getBarSizeInPx(1);
+    }
     
     /**
-     * Returns the size of the unit bar.
+     * Returns the length of the unit bar in pixels
      * 
      * @return See above.
      */
-    double getUnitBarSize() { return getBarSize(zoomFactor); }
+    double getUnitBarSize() { return getBarSizeInPx(zoomFactor); }
   
     /**
-     * Returns the size of the unit bar for an image composing the grid.
+     * Returns the length of the unit bar (in pixels) for an image composing the grid.
      * 
      * @return See above.
      */
-    double getGridBarSize() { return getBarSize(gridRatio); }
+    double getGridBarSize() { return getBarSizeInPx(gridRatio); }
     
     /**
      * Returns the unit bar value.
@@ -666,7 +741,15 @@ class BrowserModel
      */
     String getUnitBarValue()
     {
-    	return UIUtilities.twoDecimalPlaces(unitInRefUnits);
+    	return UIUtilities.twoDecimalPlaces(unitBarLength.getValue());
+    }
+    
+    /**
+     * Returns the unit of the scalebar 
+     * @return See above.
+     */
+    String getUnitBarUnit() {
+        return LengthI.lookupSymbol(unitBarLength.getUnit());
     }
     
     /**
@@ -791,19 +874,23 @@ class BrowserModel
 	int getMaxY() { return parent.getMaxY(); }
 
     /**
-     * Returns the size in microns of a pixel along the Y-axis.
+     * Returns the size of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-	double getPixelsSizeY() { return parent.getPixelsSizeY(); }
+	Length getPixelsSizeY() { return parent.getPixelsSizeY(); }
 
     /**
-     * Returns the size in microns of a pixel along the Y-axis.
+     * Returns the size of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-	double getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
+	Length getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
    
+	Length getUnitBarLength() {
+	    return unitBarLength;
+	}
+	
     /** 
      * Returns the number of column for the grid.
      * 

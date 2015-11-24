@@ -18,7 +18,7 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/IUpdate.html">IUpdate.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.2/api/ome/api/IUpdate.html">IUpdate.html</a>
          **/
         ["ami", "amd"] interface IUpdate extends ServiceInterface
             {

@@ -48,14 +48,16 @@ def redirect_urlpatterns():
         return patterns(
             '',
             url(r'^$', never_cache(
-                RedirectView.as_view(url=reverse_lazy('webindex'))),
+                RedirectView.as_view(url=reverse_lazy('webindex'),
+                                     permanent=True)),
                 name="index")
             )
     else:
         return patterns(
             '',
             url(r'^$', never_cache(
-                RedirectView.as_view(url=reverse_lazy('webindex_custom'))),
+                RedirectView.as_view(url=reverse_lazy('webindex_custom'),
+                                     permanent=True)),
                 name="index"),
             )
 
@@ -71,12 +73,11 @@ urlpatterns = patterns(
     (r'^(?i)webgateway/', include('omeroweb.webgateway.urls')),
     (r'^(?i)webadmin/', include('omeroweb.webadmin.urls')),
     (r'^(?i)webclient/', include('omeroweb.webclient.urls')),
-    (r'^(?i)webstart/', include('omeroweb.webstart.urls')),
 
     (r'^(?i)url/', include('omeroweb.webredirect.urls')),
     (r'^(?i)feedback/', include('omeroweb.feedback.urls')),
 
-    url(r'^index/$', 'omeroweb.webstart.views.custom_index',
+    url(r'^index/$', 'omeroweb.webclient.views.custom_index',
         name="webindex_custom"),
 )
 

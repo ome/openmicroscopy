@@ -45,6 +45,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
+import omero.model.Length;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -264,9 +265,12 @@ public interface ImViewer
 	 * 
 	 * @param settings The settings set by another user.
 	 * @param userID   The id of the user who set the settings.
-	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
+	 * @param displayMode The mode used.
+	 * @param selectedSettingsID Settings used
+	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.
 	 */
-	public void activate(RndProxyDef settings, long userID, int displayMode);
+	public void activate(RndProxyDef settings, long userID, int displayMode,
+	        long selectedSettingsID);
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -471,25 +475,25 @@ public interface ImViewer
 	public int getDefaultT();
 
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeX();
+	public Length getPixelsSizeX();
 
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeY();
+	public Length getPixelsSizeY();
 
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeZ();
+	public Length getPixelsSizeZ();
 
 	/**
 	 * Returns the title of the viewer.
@@ -1014,13 +1018,6 @@ public interface ImViewer
 
 	/** Loads all the datasets available. */
 	public void loadAllContainers();
-	
-	/**
-	 * Returns the unit in microns.
-	 * 
-	 * @return See above.
-	 */
-	public double getUnitInRefUnits();
 
 	/** Makes a movie. */
 	public void makeMovie();
@@ -1104,6 +1101,14 @@ public interface ImViewer
 	 */
 	public boolean isBigImage();
 
+	/**
+     * Checks if the image can be exported, i. e. it does not exceed the maximum
+     * size for being able to get exported as jpg, png or tif
+     * 
+     * @return See above
+     */
+	public boolean isExportable();
+	
 	/** Refreshes the view. */
 	public void refresh();
 
@@ -1299,30 +1304,31 @@ public interface ImViewer
     /**
      * Reloads the 'saved by' thumbnails of the the rendering panel
      */
-    public void reloadRenderingThumbs();
+    void reloadRenderingThumbs();
     
     /**
      * Returns if interpolation is enabled or not
      * @return See above.
      */
-    public boolean isInterpolation();
+    boolean isInterpolation();
 
     /**
      * En-/Disables interpolation
      * 
      * @param interpolation
      */
-    public void setInterpolation(boolean interpolation);
+    void setInterpolation(boolean interpolation);
     
     /**
      * Set the {@link ImageAcquisitionData}
      * @param data The {@link ImageAcquisitionData}
      */
-    public void setImageAcquisitionData(ImageAcquisitionData data);
+    void setImageAcquisitionData(ImageAcquisitionData data);
     
     /**
      * Get the {@link ImageAcquisitionData}
      * @return See above
      */
-    public ImageAcquisitionData getImageAcquisitionData();
+    ImageAcquisitionData getImageAcquisitionData();
+
 }
