@@ -45,6 +45,7 @@ Check Right And Center Panels For Active Container
 Create Project Using Icon and Check If It Exists
     ${projectId}=                           Create Project                      ${CtxProjectName}
     Project Should Exist                    ${projectId}
+    Delete Container
     [Return]                                ${projectId}
 
 Create Project Using Right Click and Check If It Exists
@@ -52,6 +53,7 @@ Create Project Using Right Click and Check If It Exists
     Right Click Create P/D/S                ${RootId}       Project             ${ProjectName}
     ${projectId}=                           Check Right And Center Panels For Active Container                      Project             ${ProjectName}
     Project Should Exist                    ${projectId}
+    Delete Container
     [Return]                                ${projectId}
 
 Project Should Exist
@@ -65,6 +67,7 @@ Create Dataset Using Icon and Check If Orphaned
     ${datasetId}=                           Create Dataset                          ${CtxDatasetName}
     Run Keyword If                          '${isOrphaned}' == '${orphaned}'        Dataset Exists and Is Orphaned      ${datasetId}
     Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'     Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
+    Delete Container
     [Return]                                ${datasetId} 
 
 Create Dataset Using Right Click and Check If Orphaned
@@ -90,6 +93,7 @@ Dataset Exists and Is Not Orphaned
 Create Screen Using Icon and Check If It Exists
     ${screenId}=                            Create Screen                       ${CtxScreenName}
     Screen Should Exist                     ${screenId}
+    Delete Container
     [Return]                                ${screenId}
 
 Create Screen Using Right Click and Check If It Exists
@@ -97,6 +101,7 @@ Create Screen Using Right Click and Check If It Exists
     Right Click Create P/D/S                ${RootId}       Screen              ${ScreenName}
     ${screenId}=                            Check Right And Center Panels For Active Container      Screen          ${ScreenName}
     Screen Should Exist                     ${screenId}
+    Delete Container
     [Return]                                ${screenId}
 
 Screen Should Exist
@@ -227,25 +232,31 @@ Test Create Dataset Using Right Click
 
     Select Experimenter
     Create Dataset Using Right Click and Check If Orphaned      ${treeRootId}               ${CtxDatasetName}               ${orphaned}
+    Delete Container
 
     ${treeId}=                                                  Select First Project With Name                              ${CtxProjectName}
     Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${notOrphaned}
+    Delete Container
 
     ${imageId}=                                                 Select And Expand Image
     ${treeId}=                                                  Wait For Image Node         ${imageId}
     Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
+    Delete Container
 
     ${screenId}=                                                Select First Screen
     ${treeId}=                                                  Wait For Screen Node        ${screenId}
     Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
+    Delete Container
                                             
     ${treeId}=                                                  Select Orphaned Images Section
     Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
+    Delete Container
 
     ${imageId}=                                                 Select First Orphaned Image 
     ${treeId}=                                                  Wait For Image Node         ${imageId}
     ${datasetId}=                                               Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
     Dataset Should Contain Image                                ${imageId}                  ${datasetId}
+    Delete Container
 
 
 Test Create Screen Using Icon
