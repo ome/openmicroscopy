@@ -454,12 +454,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx) {
         try {
-            ParametersI param = new ParametersI();
-            param.leaves();
-
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(DatasetData.class).getName(), null, param);
+                    .getModelType(DatasetData.class).getName(), null, null);
 
             Collection<DatasetData> result = new ArrayList<DatasetData>(
                     datasets.size());
@@ -527,8 +524,7 @@ public class BrowseFacility extends Facility {
         try {
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
-            param.leaves();
-
+            
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
                     .getModelType(DatasetData.class).getName(), null, param);
