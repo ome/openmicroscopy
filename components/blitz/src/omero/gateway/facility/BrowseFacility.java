@@ -84,7 +84,7 @@ public class BrowseFacility extends Facility {
      * @return See above.
      * @throws DSOutOfServiceException  If the connection is broken, or logged in.
      */
-    public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
+    public Collection<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
         ParametersI param = new ParametersI();
         if (userId >= 0) {
@@ -105,7 +105,7 @@ public class BrowseFacility extends Facility {
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in.
      */
-    public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
+    public Collection<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
             throws DSOutOfServiceException {
         try {
