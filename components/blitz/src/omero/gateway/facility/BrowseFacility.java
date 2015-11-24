@@ -108,7 +108,6 @@ public class BrowseFacility extends Facility {
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
             throws DSOutOfServiceException {
-
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             return PojoMapper.asDataObjects(service.loadContainerHierarchy(
@@ -345,6 +344,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -412,6 +414,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             long ownerId, Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -480,6 +485,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             ParametersI param = new ParametersI();
             param.leaves();
@@ -551,6 +559,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             long ownerId, Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -617,6 +628,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx,
             Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -684,6 +698,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
             Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -749,6 +766,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx,
             Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -816,6 +836,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
             Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
 
@@ -965,6 +988,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids, ParametersI params) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             List<Long> idsList = new ArrayList<Long>(ids.size());
             for (long id : ids)
@@ -1000,6 +1026,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
             Collection<Long> ids) {
+        if (ids == null)
+            return Collections.emptyList();
+        
         try {
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
@@ -1037,6 +1066,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImagesForDatasets(SecurityContext ctx,
             Collection<Long> datasetIds) {
+        if (datasetIds == null)
+            return Collections.emptyList();
+        
         try {
             Collection<ImageData> result = new ArrayList<ImageData>();
 
@@ -1067,6 +1099,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImagesForProjects(SecurityContext ctx,
             Collection<Long> projectIds) {
+        if (projectIds == null)
+            return Collections.emptyList();
+        
         try {
             Collection<ProjectData> projects = getProjects(ctx, projectIds);
             Collection<Long> dsIds = new ArrayList<Long>();
