@@ -483,6 +483,10 @@ class WebControl(BaseControl):
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
                 pass
+            try:
+                wsgiargs = settings.GUNICORN_WSGI_ARGS
+            except:
+                wsgiargs = args.wsgi_args
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " --bind %(host)s:%(port)d"
             cmd += " --workers %(workers)d "
@@ -497,7 +501,7 @@ class WebControl(BaseControl):
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
                 'workers': args.workers,
                 'worker_conn': args.worker_connections,
-                'wsgi_args': args.wsgi_args}).split()
+                'wsgi_args': wsgiargs}).split()
             rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,
