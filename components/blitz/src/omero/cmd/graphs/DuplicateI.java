@@ -277,7 +277,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                         /* note which of the objects to which the original links should be ignored */
                         final Set<Long> linkedToIdsToIgnore = new HashSet<Long>();
                         for (final Entry<String, Collection<Long>> linkedToClassIds :
-                            graphTraversal.getLinkeds(linkedClassName, property, original.getId()).asMap().entrySet()) {
+                            graphTraversal.getLinkeds(superclassName, property, original.getId()).asMap().entrySet()) {
                             final String linkedToClass = linkedToClassIds.getKey();
                             final Collection<Long> linkedToIds = linkedToClassIds.getValue();
                             if (classifier.getClass(Class.forName(linkedToClass).asSubclass(IObject.class)) == Inclusion.IGNORE) {
