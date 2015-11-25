@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
@@ -118,6 +120,9 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
      * @return the named classes
      */
     private Set<Class<? extends IObject>> getClassesFromNames(Collection<String> classNames) {
+        if (CollectionUtils.isEmpty(classNames)) {
+            return Collections.emptySet();
+        }
         final Set<Class<? extends IObject>> classes = new HashSet<Class<? extends IObject>>();
         for (String className : classNames) {
             final int lastDot = className.lastIndexOf('.');
