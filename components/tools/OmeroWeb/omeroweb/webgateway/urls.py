@@ -14,6 +14,7 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 from django.conf.urls import url, patterns
+from omeroweb.webgateway import views
 
 webgateway = url(r'^$', 'webgateway.views.index', name="webgateway")
 """
@@ -399,6 +400,11 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+# Generic container list. This is necessary as an experimenter may have
+# datasets/etc which do not belong to any project
+api_container_list = url(r'^api/containers/$', views.api_container_list,
+                         name='api_containers')
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -446,6 +452,9 @@ urlpatterns = patterns(
     annotations,
     table_query,
     object_table_query,
+
+    # api
+    api_container_list,
 
     # Debug stuff
 

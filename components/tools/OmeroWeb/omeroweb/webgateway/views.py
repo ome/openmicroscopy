@@ -18,8 +18,10 @@ import json
 import omero
 import omero.clients
 
+from Ice import Exception as IceException
 from django.http import HttpResponse, HttpResponseServerError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
+from django.http import HttpResponseBadRequest
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse
@@ -32,6 +34,7 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
+from api_marshal import marshal_projects
 
 try:
     from hashlib import md5
@@ -41,7 +44,7 @@ except:
 from cStringIO import StringIO
 import tempfile
 
-from omero import ApiUsageException
+from omero import ApiUsageException, ServerError
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError
@@ -1243,6 +1246,76 @@ def render_col_plot(request, iid, z, t, x, w=1, conn=None, **kwargs):
         raise Http404
     rsp = HttpResponse(gif_data, content_type='image/gif')
     return rsp
+
+
+@login_required()
+@jsonp
+def api_container_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'id', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # While this interface does support paging, it does so in a
+    # very odd way. The results per page is enforced per query so this
+    # will actually get the limit for projects, datasets (without
+    # parents), screens and plates (without parents). This is fine for
+    # the first page, but the second page may not be what is expected.
+
+    try:
+        # Get the projects
+        projects = marshal_projects(conn=conn,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    page=page,
+                                    limit=limit)
+
+        # Get the orphaned datasets (without project parents)
+        # datasets = tree.marshal_datasets(conn=conn,
+        #                                  orphaned=True,
+        #                                  group_id=group_id,
+        #                                  experimenter_id=experimenter_id,
+        #                                  page=page,
+        #                                  limit=limit)
+
+        # # Get the screens for the current user
+        # screens = tree.marshal_screens(conn=conn,
+        #                                group_id=group_id,
+        #                                experimenter_id=experimenter_id,
+        #                                page=page,
+        #                                limit=limit)
+
+        # # Get the orphaned plates (without project parents)
+        # plates = tree.marshal_plates(conn=conn,
+        #                              orphaned=True,
+        #                              group_id=group_id,
+        #                              experimenter_id=experimenter_id,
+        #                              page=page,
+        #                              limit=limit)
+
+        # # Get the orphaned images container
+        # orphaned = tree.marshal_orphaned(conn=conn,
+        #                                  group_id=group_id,
+        #                                  experimenter_id=experimenter_id,
+        #                                  page=page,
+        #                                  limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'projects': projects,
+                             # 'datasets': datasets,
+                             # 'screens': screens,
+                             # 'plates': plates,
+                             # 'orphaned': orphaned
+                             })
 
 
 @login_required()
