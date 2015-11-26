@@ -56,7 +56,6 @@ export CFLAGS="-I/usr/X11/include -I/usr/X11/include/freetype2 -I/usr/X11/includ
 install matplotlib
 
 # PyTables requirements ===========================================
-export HDF5_DIR=`pwd`
 install Cython
 install numexpr
 install tables
