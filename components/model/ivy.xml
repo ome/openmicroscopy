@@ -27,8 +27,7 @@
     <!-- Hibernate server -->
     <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build,server->default"/>
     <dependency org="asm" name="asm-attrs" rev="${versions.asm}" conf="build,server->default"/>
-    <dependency org="asm" name="asm" rev="${versions.asm}" conf="build,server->default"/>
-    <dependency org="cglib" name="cglib-nodep" rev="${versions.cglib}" conf="build,server->default"/>
+    <dependency org="cglib" name="cglib" rev="${versions.cglib}" conf="build,server->default"/>
     <dependency org="dom4j" name="dom4j" rev="${versions.dom4j}" conf="build,server->default"/>
     <dependency org="javassist" name="javassist" rev="${versions.javassist}" conf="build,server->default"/>
     <!-- Hibernate -->
