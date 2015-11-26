@@ -119,8 +119,7 @@ Delete Container
     Click Dialog Button                     Yes
     # Wait for activities to show job done, then refresh tree...
     Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus']
-    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Click Element                   refreshButton
-    User Should Be Selected
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
 
 Key Down
     [Arguments]    ${keyCode}    ${cssSelector}=body
