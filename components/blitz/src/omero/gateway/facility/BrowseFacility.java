@@ -84,14 +84,14 @@ public class BrowseFacility extends Facility {
      * @return See above.
      * @throws DSOutOfServiceException  If the connection is broken, or logged in.
      */
-    public Collection<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
+    public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
         ParametersI param = new ParametersI();
         if (userId >= 0) {
             param.exp(omero.rtypes.rlong(userId));
         }
         param.orphan();
-        return loadHierarchy(ctx, rootType, null, param);
+        return getHierarchy(ctx, rootType, null, param);
     }
 
     /**
@@ -105,7 +105,59 @@ public class BrowseFacility extends Facility {
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in.
      */
-    public Collection<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
+    public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
+            List<Long> rootIDs, Parameters options)
+            throws DSOutOfServiceException {
+        try {
+            IContainerPrx service = gateway.getPojosService(ctx);
+            return PojoMapper.asDataObjects(service.loadContainerHierarchy(
+                    PojoMapper.getModelType(rootType).getName(), rootIDs,
+                    options));
+        } catch (Throwable t) {
+            logError(this, "Could not load hierarchy", t);
+        }
+
+        return Collections.emptySet();
+    }
+    
+    /**
+     * Retrieves hierarchy trees rooted by a given node.
+     * i.e. the requested node as root and all of its descendants.
+     *
+     * @deprecated Please use the more generic method 
+     *          {@link #getHierarchy(SecurityContext, Class, List, Parameters)}
+     *          
+     * @param ctx The security context.
+     * @param rootType The type of node to handle.
+     * @param userId The user's to retrieve the data to handle.
+     * @return See above.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged in.
+     */
+    public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
+            long userId) throws DSOutOfServiceException {
+        ParametersI param = new ParametersI();
+        if (userId >= 0) {
+            param.exp(omero.rtypes.rlong(userId));
+        }
+        param.orphan();
+        return loadHierarchy(ctx, rootType, null, param);
+    }
+
+    /**
+     * Retrieves hierarchy trees rooted by a given node.
+     * i.e. the requested node as root and all of its descendants.
+     *
+     * @deprecated Please use the more generic method 
+     *          {@link #getHierarchy(SecurityContext, Class, long)}
+     *          
+     * @param ctx The security context.
+     * @param rootType The type of node to handle.
+     * @param rootIDs The node's id.
+     * @param options The retrieval options.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     */
+    public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
             throws DSOutOfServiceException {
         try {
