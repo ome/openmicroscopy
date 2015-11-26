@@ -53,6 +53,7 @@ import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
+import omero.ValidationException;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
@@ -1656,7 +1657,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#uploadScript(SecurityContext, ScriptObject)
 	 */
 	public Object uploadScript(SecurityContext ctx, ScriptObject script)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, ValidationException
 	{
 		if (script == null)
 			throw new IllegalArgumentException("No script to upload.");
