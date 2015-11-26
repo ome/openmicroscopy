@@ -26,14 +26,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# helper method
 def getIntOrDefault(request, name, default):
-    try:
-        index = request.GET.get(name, request.POST.get(name, default))
-        if index is not None:
-            index = int(index)
-    except ValueError:
-        index = 0
+    """
+    Helper method for parsing query string parameters from http request.
+    Returns the named value or a default value or None.
+
+    @param request:     http request
+    @param name:        name of parameter
+    @param default:     value to return if not found in request
+    @return:            Integer or None
+    """
+
+    index = request.GET.get(name, request.POST.get(name, default))
+    if index is not None:
+        index = int(index)
     return index
 
 
