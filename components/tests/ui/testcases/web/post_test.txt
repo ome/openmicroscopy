@@ -8,19 +8,6 @@ Resource          ../../resources/web/tree.txt
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
 Suite Teardown      Close all browsers
 
-*** Keywords ***
-
-Delete Container
-
-    Click Element                           id=deleteButton
-    Wait Until Element Is Visible           id=delete-dialog-form
-    Click Dialog Button                     Yes
-    # Wait for activities to show job done, then refresh tree...
-    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus']
-    Click Element                           refreshButton
-
-Refresh Page
-
 *** Test Cases ***
 
 Test Cut Paste Image
@@ -248,9 +235,11 @@ Test Drag And Drop Image
     Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
 
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
-    ${datasetNode}=                             Wait For Dataset Node                                             ${datasetId}
-    
-    ${datasetNode1}=                            Wait For Dataset Node                                             ${did}                                
+    ${datasetNode}=                             Wait For Dataset Node                                             ${datasetId}    
+    ${datasetNode1}=                            Wait For Dataset Node                                             ${did}
+
+    Select Image By Id                          ${imageId}
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a                                
     Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
@@ -311,12 +300,12 @@ Test Drag and Drop Plate
 
     ${screenId1}                                Select First Screen With Children
     ${plateId}                                  Select First Plate
+    ${screenNode}                               Wait For Screen Node                                            ${screenId}
     ${plateNode}                                Wait For Plate Node                                             ${plateId}
 
     Wait Until Element is Visible               xpath=//li[@id='${plateNode}']/a
-    ${screenNode}                               Wait For Screen Node                                            ${screenId}
     Drag And Drop                               xpath=//li[@id='${plateNode}']/a                                xpath=//li[@id='${screenNode}']/a
-    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                     refreshButton
     
     ${screenNode}                               Wait For Screen Node                                            ${screenId}
     Click Node                                  ${screenNode}
