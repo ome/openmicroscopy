@@ -121,7 +121,7 @@ public class ScriptUploader
         if (exc instanceof ValidationException) {
             ValidationException e = (ValidationException) exc;
             StringBuilder sb = new StringBuilder();
-            sb.append("The script could not be validated, details:\n\n");
+            sb.append("Script was rejected because its validation failed, details:\n\n");
             Boolean read = null;
             BufferedReader in = new BufferedReader(new StringReader(e.message));
             String line = null;
