@@ -332,8 +332,8 @@ Image Should Not Exist In Tree
 
 Dataset Should Contain Image 
     [Arguments]                             ${imageId}      ${datasetId}
-    Wait Until Page Contains Element        css=tr.data_heading_id strong
     Select Dataset By Id                    ${datasetId}
+    Wait Until Page Contains Element        css=tr.data_heading_id strong
     ${nodeId}=                              Wait For Dataset Node               ${datasetId}
     Wait Until Element Is Visible           xpath=//li[@id='${nodeId}']/ul/li[@data-id='${imageId}']
 
