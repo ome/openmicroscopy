@@ -1310,15 +1310,16 @@ def api_container_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'projects': projects,
-                             'datasets': datasets,
-                             # 'screens': screens,
-                             # 'plates': plates,
-                             # 'orphaned': orphaned
-                             })
+    return {'projects': projects,
+            'datasets': datasets,
+            # 'screens': screens,
+            # 'plates': plates,
+            # 'orphaned': orphaned
+            }
 
 
 @login_required()
+@jsonp
 def api_dataset_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -1343,7 +1344,7 @@ def api_dataset_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'datasets': datasets})
+    return {'datasets': datasets}
 
 
 @login_required()
