@@ -34,13 +34,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -51,7 +49,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXTaskPane;
 
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -204,8 +201,7 @@ public class ScriptUploaderDialog
 			}
 		}
 		chooser = new GenericFileChooser();
-		chooser.setAcceptAllFileFilterUsed(false);
-		chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+		chooser.setAcceptAllFileFilterUsed(true);
 		Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 		while (i.hasNext()) {
 			chooser.addChoosableFileFilter(i.next());
@@ -260,9 +256,9 @@ public class ScriptUploaderDialog
 		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 			TableLayout.PREFERRED, TableLayout.PREFERRED, 50}};
-		JPanel details = new JPanel();
-		details.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-		details.setLayout(new TableLayout(size));
+//		JPanel details = new JPanel();
+//		details.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+//		details.setLayout(new TableLayout(size));
 		int row = 0;
 		/*
 		JLabel l = UIUtilities.setTextFont("Author (First, Last):");
@@ -285,19 +281,19 @@ public class ScriptUploaderDialog
 		details.add(l, "0, "+row+", LEFT, TOP");
 		details.add(description, "2, "+row);
 		*/
-		JLabel l = UIUtilities.setTextFont("Folder:");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(location, "2, "+row);
-		row++;
-		details.add(locationFinder, "0, "+row+", LEFT, CENTER");
-		JXTaskPane pane = new JXTaskPane();
-		pane.setCollapsed(true);
-		pane.setTitle("Script details");
-		pane.add(details);
+//		JLabel l = UIUtilities.setTextFont("Folder:");
+//		details.add(l, "0, "+row+", LEFT, CENTER");
+//		details.add(location, "2, "+row);
+//		row++;
+//		details.add(locationFinder, "0, "+row+", LEFT, CENTER");
+//		JXTaskPane pane = new JXTaskPane();
+//		pane.setCollapsed(true);
+//		pane.setTitle("Script details");
+//		pane.add(details);
 		JPanel controls = new JPanel();
     	controls.setLayout(new BorderLayout(0, 0));
     	//controls.add(pane, BorderLayout.NORTH);
-    	controls.add(details, BorderLayout.NORTH);
+//    	controls.add(details, BorderLayout.NORTH);
     	controls.add(buildToolbar(), BorderLayout.CENTER);
     	
     	JPanel p = new JPanel();
