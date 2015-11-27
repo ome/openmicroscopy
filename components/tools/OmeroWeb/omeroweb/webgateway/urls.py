@@ -405,6 +405,12 @@ Get a json dict of original file paths.
 api_container_list = url(r'^api/containers/$', views.api_container_list,
                          name='api_containers')
 
+"""
+List all datasets.  To list datasets within a Project, use ?id=projectId
+"""
+api_dataset_list = url(r'^api/datasets/$', views.api_dataset_list,
+                       name='api_datasets')
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -455,6 +461,7 @@ urlpatterns = patterns(
 
     # api
     api_container_list,
+    api_dataset_list,
 
     # Debug stuff
 

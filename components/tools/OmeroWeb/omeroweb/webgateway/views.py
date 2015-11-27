@@ -1319,6 +1319,34 @@ def api_container_list(request, conn=None, **kwargs):
 
 
 @login_required()
+def api_dataset_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        project_id = getIntOrDefault(request, 'id', None)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the datasets
+        datasets = marshal_datasets(conn=conn,
+                                    project_id=project_id,
+                                    group_id=group_id,
+                                    page=page,
+                                    limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'datasets': datasets})
+
+
+@login_required()
 @jsonp
 def imageData_json(request, conn=None, _internal=False, **kwargs):
     """
