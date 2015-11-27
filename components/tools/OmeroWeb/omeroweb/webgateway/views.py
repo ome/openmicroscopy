@@ -34,7 +34,7 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
-from api_marshal import marshal_projects
+from api_marshal import marshal_projects, marshal_datasets
 
 try:
     from hashlib import md5
@@ -1275,12 +1275,12 @@ def api_container_list(request, conn=None, **kwargs):
                                     limit=limit)
 
         # Get the orphaned datasets (without project parents)
-        # datasets = tree.marshal_datasets(conn=conn,
-        #                                  orphaned=True,
-        #                                  group_id=group_id,
-        #                                  experimenter_id=experimenter_id,
-        #                                  page=page,
-        #                                  limit=limit)
+        datasets = marshal_datasets(conn=conn,
+                                    orphaned=True,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    page=page,
+                                    limit=limit)
 
         # # Get the screens for the current user
         # screens = tree.marshal_screens(conn=conn,
@@ -1311,7 +1311,7 @@ def api_container_list(request, conn=None, **kwargs):
         return HttpResponseServerError(e.message)
 
     return HttpJsonResponse({'projects': projects,
-                             # 'datasets': datasets,
+                             'datasets': datasets,
                              # 'screens': screens,
                              # 'plates': plates,
                              # 'orphaned': orphaned
