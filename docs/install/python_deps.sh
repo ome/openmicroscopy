@@ -58,7 +58,7 @@ install matplotlib
 # PyTables requirements ===========================================
 install Cython
 install numexpr
-install tables
+install tables==2.4
 
 echo "Done."
 
