@@ -1257,8 +1257,8 @@ def api_container_list(request, conn=None, **kwargs):
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
         experimenter_id = getIntOrDefault(request, 'id', -1)
-    except ValueError:
-        return HttpResponseBadRequest('Invalid parameter value')
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
 
     # While this interface does support paging, it does so in a
     # very odd way. The results per page is enforced per query so this

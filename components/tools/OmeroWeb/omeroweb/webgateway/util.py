@@ -37,9 +37,12 @@ def getIntOrDefault(request, name, default):
     @return:            Integer or None
     """
 
-    index = request.GET.get(name, request.POST.get(name, default))
-    if index is not None:
-        index = int(index)
+    try:
+        index = request.GET.get(name, request.POST.get(name, default))
+        if index is not None:
+            index = int(index)
+    except ValueError:
+        raise ValueError("Invalid value '%s' for parameter '%s'" % (index, name))
     return index
 
 
