@@ -83,9 +83,8 @@ public class MetadataFacility extends Facility {
      * @param imageId
      *            The imageId to get the ChannelData for
      * @return List of ChannelData
-     * @throws DSOutOfServiceException If the connection is broken, or logged in.
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException 
      */
     public List<ChannelData> getChannelData(SecurityContext ctx, long imageId)
             throws DSOutOfServiceException, DSAccessException {

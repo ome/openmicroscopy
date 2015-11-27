@@ -82,7 +82,7 @@ public class BrowseFacility extends Facility {
      * @param rootType The type of node to handle.
      * @param userId The user's to retrieve the data to handle.
      * @return See above.
-     * @throws DSOutOfServiceException  If the connection is broken, or logged in.
+     * @throws DSOutOfServiceException
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
@@ -103,7 +103,7 @@ public class BrowseFacility extends Facility {
      * @param rootIDs The node's id.
      * @param options The retrieval options.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     * @throws DSOutOfServiceException
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
@@ -131,7 +131,7 @@ public class BrowseFacility extends Facility {
      * @param rootType The type of node to handle.
      * @param userId The user's to retrieve the data to handle.
      * @return See above.
-     * @throws DSOutOfServiceException  If the connection is broken, or logged in.
+     * @throws DSOutOfServiceException
      */
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
@@ -155,7 +155,7 @@ public class BrowseFacility extends Facility {
      * @param rootIDs The node's id.
      * @param options The retrieval options.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in.
+     * @throws DSOutOfServiceException
      */
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
@@ -183,10 +183,7 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @return The last version of the object.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
      */
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id) throws DSOutOfServiceException,
@@ -208,10 +205,7 @@ public class BrowseFacility extends Facility {
      *            <code>false</code> to only use ctx's group
      * @return The last version of the object.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
      */
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id, boolean allGroups)
@@ -232,10 +226,7 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @return The last version of the object.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id)
             throws DSOutOfServiceException, DSAccessException {
@@ -254,10 +245,7 @@ public class BrowseFacility extends Facility {
      * @param allGroups Pass <code>true</code> to look for all groups
      * @return The last version of the object.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id,
             boolean allGroups) throws DSOutOfServiceException,
@@ -289,10 +277,7 @@ public class BrowseFacility extends Facility {
      *            The object to retrieve.
      * @return The last version of the object.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
      */
     public IObject findIObject(SecurityContext ctx, IObject o)
             throws DSOutOfServiceException, DSAccessException {
@@ -318,10 +303,7 @@ public class BrowseFacility extends Facility {
      *            The user currently logged in.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
      */
     public Set<GroupData> getAvailableGroups(SecurityContext ctx,
             ExperimenterData user) throws DSOutOfServiceException,
