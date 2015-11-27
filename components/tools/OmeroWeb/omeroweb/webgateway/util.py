@@ -42,7 +42,8 @@ def getIntOrDefault(request, name, default):
         if index is not None:
             index = int(index)
     except ValueError:
-        raise ValueError("Invalid value '%s' for parameter '%s'" % (index, name))
+        msg = "Invalid value '%s' for parameter '%s'" % (index, name)
+        raise ValueError(msg)
     return index
 
 
