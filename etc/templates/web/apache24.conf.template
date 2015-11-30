@@ -10,6 +10,8 @@
 
   WSGIProcessGroup omeroweb%(PREFIX_NAME)s
 
+  WSGIApplicationGroup %%{GLOBAL}
+
   WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py
 
   <Directory "%(OMEROWEBROOT)s">
