@@ -484,7 +484,7 @@ class WebControl(BaseControl):
             except:
                 pass
             try:
-                wsgiargs = settings.GUNICORN_WSGI_ARGS
+                wsgiargs = settings.WSGI_ARGS
             except:
                 wsgiargs = args.wsgi_args
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
