@@ -88,9 +88,9 @@ module omero {
         };
 
         /**
-         * Delete requests will return a [omero::cmd::DeleteRsp]
+         * Delete requests will return a {@link omero.cmd.DeleteRsp}
          * unless an error has occurred in which case a standard
-         * [omero::cmd::ERR] may be returned.
+         * {@link omero.cmd.ERR} may be returned.
          **/
         ["deprecated:use omero::cmd::Delete2 instead"]
         class Delete extends GraphModify {
@@ -122,12 +122,12 @@ module omero {
             omero::api::IdListMap undeletedFiles;
 
             /**
-             * Number of steps that this [DeleteCommand] requires.
+             * Number of steps that this {@link DeleteCommand} requires.
              **/
             int steps;
 
             /**
-             * Number of objects that this [DeleteCommand] will attempt
+             * Number of objects that this {@link DeleteCommand} will attempt
              * to delete.
              **/
             long scheduledDeletes;
