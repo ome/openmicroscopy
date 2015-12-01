@@ -52,12 +52,13 @@
             $.ajax({
                 type: "GET",
                 url: form_url,
-                success: function(html) {                
+                success: function(html) {
+                    html = $.trim(html);
                     $( self ).parent().fadeOut('fast', function(){                    
                         
                         $( self ).parent().hide();
                         $("#"+field_id).append($(html)).fadeIn();
-                        $("#"+field_id).find("form").attr('id', "form-"+field_id)
+                        $("#"+field_id).find("form").attr('id', "form-"+field_id);
                                                 
                         $('<input id="save-'+field_id+'" type="submit" value="Save" />')
                         /*.bind( "click", function( e ) {
