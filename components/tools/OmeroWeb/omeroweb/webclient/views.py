@@ -3610,9 +3610,19 @@ def activities(request, conn=None, **kwargs):
                 continue  # ignore
             if status not in ("failed", "finished"):
                 logger.info("Check callback on script: %s" % cbString)
-                proc = omero.grid.ScriptProcessPrx.checkedCast(
-                    conn.c.ic.stringToProxy(cbString))
-                cb = omero.scripts.ProcessCallbackI(conn.c, proc)
+                try:
+                    proc = omero.grid.ScriptProcessPrx.checkedCast(
+                        conn.c.ic.stringToProxy(cbString))
+                    cb = omero.scripts.ProcessCallbackI(conn.c, proc)
+                except Exception, x:
+                    logger.error(traceback.format_exc())
+                    logger.error("Status job '%s'error:" % cbString)
+                    update_callback(
+                        request, cbString,
+                        error=1,
+                        status="failed",
+                        dreport=str(x))
+                    failure += 1
                 # check if we get something back from the handle...
                 if cb.block(0):  # ms.
                     cb.close()
