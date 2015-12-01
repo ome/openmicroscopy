@@ -57,6 +57,9 @@ import omero.gateway.util.PojoMapper;
 
 public class DataManagerFacility extends Facility {
 
+    /** Maximum time in ms to wait for a request to be completed */
+    private static final int REQUEST_TIMEOUT_MS = 25000;
+    
     /** Reference to the {@link BrowseFacility} */
     private BrowseFacility browse;
 
@@ -135,7 +138,9 @@ public class DataManagerFacility extends Facility {
             }
             /* now delete the objects */
             final Request request = Requests.delete(objectIds);
-            return gateway.submit(ctx, request).loop(50, 250);
+            int loops = 50;
+            int loopTimeout = REQUEST_TIMEOUT_MS / loops;
+            return gateway.submit(ctx, request).loop(loops, loopTimeout);
         } catch (Throwable t) {
             handleException(this, t, "Cannot delete the object.");
         }
