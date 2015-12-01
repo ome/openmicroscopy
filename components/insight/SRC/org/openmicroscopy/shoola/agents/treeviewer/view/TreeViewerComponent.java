@@ -169,10 +169,11 @@ class TreeViewerComponent
  	extends AbstractComponent
  	implements TreeViewer
 {
-  
-        /** Warning message shown when the rendering settings are to be reset */
-        private static final String RENDERINGSETTINGS_WARNING = "This will save new rendering settings and cannot be undone.";
     
+    /** Warning message shown when the rendering settings are to be reset */
+    public static final String RENDERINGSETTINGS_WARNING = "This will change the "
+            + " rendering settings of all images in the dataset. Proceed?";
+  
 	/** The Model sub-component. */
 	private TreeViewerModel     model;
 
@@ -2662,12 +2663,15 @@ class TreeViewerComponent
 			return;
 		}
 		
-        MessageBox box = new MessageBox(getUI(), "Save rendering settings",
-                RENDERINGSETTINGS_WARNING);
-        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-            model.firePasteRenderingSettings(ids, klass);
-            fireStateChange();
+		if (DatasetData.class.equals(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
         }
+		
+		model.firePasteRenderingSettings(ids, klass);
+        fireStateChange();
 	}
 
 	
@@ -2721,12 +2725,15 @@ class TreeViewerComponent
 			return;
 		}
 		
-		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
-	                RENDERINGSETTINGS_WARNING);
-	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-	            model.fireResetRenderingSettings(ids, klass);
-	            fireStateChange();
-	        }
+		if (DatasetData.class.equals(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
+        }
+		
+		model.fireResetRenderingSettings(ids, klass);
+        fireStateChange();
 	}
 
 	/**
@@ -3051,12 +3058,15 @@ class TreeViewerComponent
 			return;
 		}
 		
-		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
-	                RENDERINGSETTINGS_WARNING);
-	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-	            model.fireSetOwnerRenderingSettings(ids, klass);
-	            fireStateChange();
-	        }
+		if (DatasetData.class.equals(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
+        }
+		
+		model.fireSetOwnerRenderingSettings(ids, klass);
+        fireStateChange();
 	}
 
 	/**
