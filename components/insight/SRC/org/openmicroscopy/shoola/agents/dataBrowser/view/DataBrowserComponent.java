@@ -1600,6 +1600,9 @@ class DataBrowserComponent
 		//depends on the view.
 		WellsModel wm = (WellsModel) model;
 		
+        if (wm.getSelectedWell() == null)
+            return;
+		
 		int index = view.getSelectedView();
 		
 		if (index == DataBrowserUI.FIELDS_VIEW) {
