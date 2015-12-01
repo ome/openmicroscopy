@@ -32,7 +32,7 @@
     }
 
     // this is called by the setInterval loop below
-    OME.activitiesUpdate = function(i) {
+    OME.activitiesUpdate = function(recursive) {
         $.get("{% url 'activities' %}", function(data) {
             $('#activities_spinner').hide();
             var inprogress = $("#inprogress", data).text();
@@ -41,13 +41,13 @@
             
             // if we've got no jobs still running, stop checking
             if ((typeof inprogress == 'undefined') || (inprogress.length == 0)) {
-                if (i) clearInterval(i);
+                recursive = false;
                 showJobCount(0);
                 //return;
             }
             inprogress = parseInt( inprogress );
-            if (inprogress==0) {
-                if (i != undefined) clearInterval(i);
+            if (inprogress === 0) {
+                recursive = false;
             }
             
             // display what we recieved, bind events etc
@@ -77,10 +77,14 @@
                 new_results = -1;   // hide notification number
             }
             OME.displayStatus(new_results, inprogress);
+            if (recursive) {
+                setTimeout(function(){
+                    OME.activitiesUpdate(true);
+                }, 5000);
+            }
 
         }).error(function() {
             // this requires jQuery 1.5 or later
-            clearInterval(i);
         });
     }
 
@@ -120,10 +124,7 @@
     }
 
     OME.refreshActivities = function() {
-        var i = setInterval(function (){
-                OME.activitiesUpdate(i);
-        }, 5000);
-        OME.activitiesUpdate(i);
+        OME.activitiesUpdate(true);
     }
     $(document).ready(function() {
         OME.displayStatus(-1);  // reset new_results
