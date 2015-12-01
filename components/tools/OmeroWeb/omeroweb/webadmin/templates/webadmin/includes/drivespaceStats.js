@@ -71,7 +71,6 @@
                             pie: {
                                 show: true,
                                 radius: 1,
-                                tilt: 0.7,
                                 label: {
                                     show: true,
                                     radius: 0.9,
