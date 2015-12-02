@@ -34,7 +34,8 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
-from api_marshal import marshal_projects, marshal_datasets
+from api_marshal import marshal_projects, marshal_datasets, \
+    marshal_images
 
 try:
     from hashlib import md5
@@ -67,7 +68,8 @@ import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
-from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
+from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault, \
+    getBoolOrDefault
 
 logger = logging.getLogger(__name__)
 
@@ -1345,6 +1347,61 @@ def api_dataset_list(request, conn=None, **kwargs):
         return HttpResponseServerError(e.message)
 
     return {'datasets': datasets}
+
+
+@login_required()
+@jsonp
+def api_image_list(request, conn=None, **kwargs):
+    ''' Get a list of images
+        Specifiying dataset_id will return only images in that dataset
+        Specifying experimenter_id will return orpahned images for that
+        user
+        The orphaned images will include images which belong to the user
+        but are not in any dataset belonging to the user
+        Currently specifying both, experimenter_id will be ignored
+
+    '''
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        dataset_id = getIntOrDefault(request, 'id', None)
+        orphaned = getBoolOrDefault(request, 'orphaned', False)
+        load_pixels = getBoolOrDefault(request, 'sizeXYZ', False)
+        thumb_version = getBoolOrDefault(request, 'thumbVersion', False)
+        date = getBoolOrDefault(request, 'date', False)
+        experimenter_id = getIntOrDefault(request, 'experimenter_id', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    # Share ID is in kwargs from api/share_images/<id>/ which will create
+    # a share connection in @login_required.
+    # We don't support ?share_id in query string since this would allow a
+    # share connection to be created for ALL urls, instead of just this one.
+    share_id = 'share_id' in kwargs and long(kwargs['share_id']) or None
+
+    try:
+        # Get the images
+        images = marshal_images(conn=conn,
+                                orphaned=orphaned,
+                                experimenter_id=experimenter_id,
+                                dataset_id=dataset_id,
+                                share_id=share_id,
+                                load_pixels=load_pixels,
+                                group_id=group_id,
+                                page=page,
+                                date=date,
+                                thumb_version=thumb_version,
+                                limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'images': images}
 
 
 @login_required()

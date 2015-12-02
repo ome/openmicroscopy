@@ -411,6 +411,12 @@ List all datasets.  To list datasets within a Project, use ?id=projectId
 api_dataset_list = url(r'^api/datasets/$', views.api_dataset_list,
                        name='api_datasets')
 
+"""
+List all images.  To list images within a Dataset, use ?id=datasetId
+"""
+api_image_list = url(r'^api/images/$', views.api_image_list,
+                     name='api_images')
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -462,6 +468,7 @@ urlpatterns = patterns(
     # api
     api_container_list,
     api_dataset_list,
+    api_image_list,
 
     # Debug stuff
 

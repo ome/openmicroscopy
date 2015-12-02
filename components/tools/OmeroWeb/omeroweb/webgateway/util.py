@@ -47,6 +47,31 @@ def getIntOrDefault(request, name, default):
     return index
 
 
+def getBoolOrDefault(request, name, default):
+    """
+    Helper method for parsing query string parameters from http request.
+    Returns the named value as a boolean.
+
+    @param request:     http request
+    @param name:        name of parameter
+    @param default:     value to return if not found in request
+    @return:            Boolean
+    """
+
+    rv = default
+    try:
+        value = request.GET.get(name, request.POST.get(name, None))
+        if value is not None:
+            if value.lower() == 'true':
+                rv = True
+            elif value.lower() != 'false' and int(value) == 1:
+                rv = True
+    except ValueError:
+        msg = "Invalid value '%s' for parameter '%s'" % (value, name)
+        raise ValueError(msg)
+    return rv
+
+
 def zip_archived_files(images, temp, zipName):
     """
     Util function to download original files from a list of images
