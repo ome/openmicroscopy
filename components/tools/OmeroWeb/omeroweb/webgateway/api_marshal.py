@@ -22,11 +22,12 @@
 # import time
 import omero
 
-from omero.rtypes import unwrap, rlong   # wrap   # rlong
+from omero.rtypes import unwrap, rlong, wrap
 from django.conf import settings
 # from django.http import Http404
 # from datetime import datetime
 from copy import deepcopy
+from datetime import datetime
 
 
 def build_clause(components, name='', join=','):
@@ -258,3 +259,278 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
              e[0]["childCount"]]
         datasets.append(_marshal_dataset(conn, e[0:5]))
     return datasets
+
+
+def _marshal_date(time):
+    d = datetime.fromtimestamp(time/1000)
+    return d.isoformat() + 'Z'
+
+
+def _marshal_image(conn, row, row_pixels=None, share_id=None,
+                   date=None, acqDate=None, thumbVersion=None):
+    ''' Given an Image row (list) marshals it into a dictionary.  Order
+        and type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * details.owner.id (rlong)
+          * details.permissions (dict)
+          * fileset_id (rlong)
+
+        May also take a row_pixels (list) if X,Y,Z dimensions are loaded
+          * pixels.sizeX (rlong)
+          * pixels.sizeY (rlong)
+          * pixels.sizeZ (rlong)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Image row to marshal
+        @type row L{list}
+        @param row_pixels The Image row pixels data to marshal
+        @type row_pixels L{list}
+    '''
+    image_id, name, owner_id, permissions, fileset_id = row
+    image = dict()
+    image['id'] = unwrap(image_id)
+    image['name'] = unwrap(name)
+    image['ownerId'] = unwrap(owner_id)
+    image['permsCss'] = parse_permissions_css(permissions,
+                                              unwrap(owner_id), conn)
+    fileset_id_val = unwrap(fileset_id)
+    if fileset_id_val is not None:
+        image['filesetId'] = fileset_id_val
+    if row_pixels:
+        sizeX, sizeY, sizeZ = row_pixels
+        image['sizeX'] = unwrap(sizeX)
+        image['sizeY'] = unwrap(sizeY)
+        image['sizeZ'] = unwrap(sizeZ)
+    if share_id is not None:
+        image['shareId'] = share_id
+    if date is not None:
+        image['date'] = _marshal_date(unwrap(date))
+    if acqDate is not None:
+        image['acqDate'] = _marshal_date(unwrap(acqDate))
+    if thumbVersion is not None:
+        image['thumbVersion'] = thumbVersion
+    return image
+
+
+def _marshal_image_deleted(conn, image_id):
+    ''' Given an Image id and marshals it into a dictionary.
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param image_id The image id to marshal
+        @type image_id L{long}
+    '''
+    return {
+        'id': unwrap(image_id),
+        'deleted': True
+    }
+
+
+def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
+                   load_pixels=False, group_id=-1, experimenter_id=-1,
+                   page=1, date=False, thumb_version=False,
+                   limit=settings.PAGE):
+
+    ''' Marshals images
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param dataset_id The Dataset ID to filter by or `None` to
+        not filter by a specific dataset.
+        defaults to `None`
+        @type dataset_id L{long}
+        @param orphaned If this is to filter by orphaned data. Overridden
+        by dataset_id.
+        defaults to False
+        @type orphaned Boolean
+        @param share_id The Share ID to filter by or `None` to
+        not filter by a specific share.
+        defaults to `None`
+        @type share_id L{long}
+        @param load_pixels Whether to load the X,Y,Z dimensions
+        @type load_pixels Boolean
+        @param group_id The Group ID to filter by or -1 for all groups,
+        defaults to -1
+        @type group_id L{long}
+        @param experimenter_id The Experimenter (user) ID to filter by
+        or -1 for all experimenters
+        @type experimenter_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+
+    '''
+    images = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    from_join_clauses = []
+    where_clause = []
+    if experimenter_id is not None and experimenter_id != -1:
+        params.addId(experimenter_id)
+        where_clause.append('image.details.owner.id = :id')
+    qs = conn.getQueryService()
+
+    extraValues = ""
+    if load_pixels:
+        extraValues = """
+             ,
+             pix.sizeX as sizeX,
+             pix.sizeY as sizeY,
+             pix.sizeZ as sizeZ
+             """
+
+    if date:
+        extraValues += """,
+            image.details.creationEvent.time as date,
+            image.acquisitionDate as acqDate
+            """
+
+    q = """
+        select new map(image.id as id,
+               image.name as name,
+               image.details.owner.id as ownerId,
+               image as image_details_permissions,
+               image.fileset.id as filesetId %s)
+        """ % extraValues
+
+    from_join_clauses.append('Image image')
+
+    if load_pixels:
+        # We use 'left outer join', since we still want images if no pixels
+        from_join_clauses.append('left outer join image.pixels pix')
+
+    # If this is a query to get images from a parent dataset
+    if dataset_id is not None:
+        params.add('did', rlong(dataset_id))
+        from_join_clauses.append('join image.datasetLinks dlink')
+        where_clause.append('dlink.parent.id = :did')
+
+    # If this is a query to get images with no parent datasets (orphans)
+    # At the moment the implementation assumes that a cross-linked
+    # object is not an orphan. We may need to change that so that a user
+    # see all the data that belongs to them that is not assigned to a container
+    # that they own.
+    elif orphaned:
+        orphan_where = """
+                        not exists (
+                            select dilink from DatasetImageLink as dilink
+                            where dilink.child = image.id
+
+                        """
+        # This is what is necessary if an orphan means that it has no
+        # container that belongs to the image owner. This corresponds
+        # to marshal_orphaned as well because of the child count
+        # if experimenter_id is not None and experimenter_id != -1:
+        #     orphan_where += ' and dilink.parent.details.owner.id = :id '
+
+        orphan_where += ') '
+        where_clause.append(orphan_where)
+
+        # Also discount any images which are part of a screen. No need to
+        # take owner into account on this because we don't want them in
+        # orphans either way
+        where_clause.append(
+            """
+            not exists (
+                select ws from WellSample ws
+                where ws.image.id = image.id
+            )
+            """
+        )
+
+    # If this is a query to get images in a share
+    if share_id is not None:
+        # Get the contents of the blob which contains the images in the share
+        # Would be nice to do this without the ShareService, preferably as part
+        # of the single query
+        image_rids = [image_rid.getId().val
+                      for image_rid
+                      in conn.getShareService().getContents(share_id)
+                      if isinstance(image_rid, omero.model.ImageI)]
+
+        # If there are no images in the share, don't bother querying
+        if not image_rids:
+            return images
+
+        params.add('iids', wrap(image_rids))
+        where_clause.append('image.id in (:iids)')
+
+    q += """
+        %s %s
+        order by lower(image.name), image.id
+        """ % (' from ' + ' '.join(from_join_clauses),
+               build_clause(where_clause, 'where', 'and'))
+
+    for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)[0]
+        d = [e["id"],
+             e["name"],
+             e["ownerId"],
+             e["image_details_permissions"],
+             e["filesetId"]]
+        kwargs = {'conn': conn, 'row': d[0:5]}
+        if load_pixels:
+            d = [e["sizeX"], e["sizeY"], e["sizeZ"]]
+            kwargs['row_pixels'] = d
+        if date:
+            kwargs['acqDate'] = e['acqDate']
+            kwargs['date'] = e['date']
+
+        # While marshalling the images, determine if there are any
+        # images mentioned in shares that are not in the results
+        # because they have been deleted
+        if share_id is not None and image_rids and e["id"] in image_rids:
+            image_rids.remove(e["id"])
+            kwargs['share_id'] = share_id
+
+        images.append(_marshal_image(**kwargs))
+
+    # Load thumbnails separately
+    # We want version of most recent thumbnail (max thumbId) owned by user
+    if thumb_version:
+        userId = conn.getUserId()
+        iids = [i['id'] for i in images]
+        params = omero.sys.ParametersI()
+        params.addIds(iids)
+        params.add('thumbOwner', wrap(userId))
+        q = """select image.id, thumbs.version from Image image
+            join image.pixels pix join pix.thumbnails thumbs
+            where image.id in (:ids)
+            and thumbs.id = (
+                select max(t.id)
+                from Thumbnail t
+                where t.pixels = pix.id
+                and t.details.owner.id = :thumbOwner
+            )
+            """
+        thumbVersions = {}
+        for t in qs.projection(q, params, service_opts):
+            iid, tv = unwrap(t)
+            thumbVersions[iid] = tv
+        # For all images, set thumb version if we have it...
+        for i in images:
+            if i['id'] in thumbVersions:
+                i['thumbVersion'] = thumbVersions[i['id']]
+
+    # If there were any deleted images in the share, marshal and return
+    # those
+    if share_id is not None and image_rids:
+        for image_rid in image_rids:
+            images.append(_marshal_image_deleted(conn, image_rid))
+
+    return images
