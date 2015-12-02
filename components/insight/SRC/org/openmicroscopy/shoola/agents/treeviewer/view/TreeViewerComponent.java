@@ -124,6 +124,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.PojosUtil;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -172,7 +173,8 @@ class TreeViewerComponent
     
     /** Warning message shown when the rendering settings are to be reset */
     public static final String RENDERINGSETTINGS_WARNING = "This will change the "
-            + " rendering settings of all images in the dataset. Proceed?";
+            + "rendering settings of all images\nin the dataset/screen and cannot be undone.\n"
+            + "Proceed?";
   
 	/** The Model sub-component. */
 	private TreeViewerModel     model;
@@ -2663,7 +2665,7 @@ class TreeViewerComponent
 			return;
 		}
 		
-		if (DatasetData.class.equals(klass)) {
+		if (PojosUtil.isContainerClass(klass)) {
             MessageBox box = new MessageBox(getUI(),
                     "Save rendering settings", RENDERINGSETTINGS_WARNING);
             if (box.centerMsgBox() != MessageBox.YES_OPTION)
@@ -2673,7 +2675,6 @@ class TreeViewerComponent
 		model.firePasteRenderingSettings(ids, klass);
         fireStateChange();
 	}
-
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
@@ -2725,7 +2726,7 @@ class TreeViewerComponent
 			return;
 		}
 		
-		if (DatasetData.class.equals(klass)) {
+		if (PojosUtil.isContainerClass(klass)) {
             MessageBox box = new MessageBox(getUI(),
                     "Save rendering settings", RENDERINGSETTINGS_WARNING);
             if (box.centerMsgBox() != MessageBox.YES_OPTION)
@@ -3058,7 +3059,7 @@ class TreeViewerComponent
 			return;
 		}
 		
-		if (DatasetData.class.equals(klass)) {
+		if (PojosUtil.isContainerClass(klass)) {
             MessageBox box = new MessageBox(getUI(),
                     "Save rendering settings", RENDERINGSETTINGS_WARNING);
             if (box.centerMsgBox() != MessageBox.YES_OPTION)
@@ -4984,4 +4985,5 @@ class TreeViewerComponent
        if (rnd == null) return null;
        return rnd.getSelectedDef();
    }
+   
 }

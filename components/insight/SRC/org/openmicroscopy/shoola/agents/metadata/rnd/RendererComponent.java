@@ -89,8 +89,9 @@ class RendererComponent
     		"the rendering settings.";
     
     /** Warning message shown when the rendering settings are to be reset */
-    private static final String RENDERINGSETTINGS_WARNING = "This will change the "
-            + " rendering settings of all images in the dataset. Proceed?";
+    public static final String RENDERINGSETTINGS_WARNING = "This will change the "
+            + "rendering settings of all images\nin the dataset/screen and cannot be undone.\n"
+            + "Proceed?";
     
     /** The number of attempts to reload the rendering control. */
     private static final int MAX_RETRY = 1;
