@@ -85,6 +85,8 @@
 
         }).error(function() {
             // this requires jQuery 1.5 or later
+            $('#activities_spinner').hide();
+            $("#activities_content").html("<table><tbody><tr><td><span>Activity unavailable - timeout</span></td></tr></tbody></table>");
         });
     }
 
