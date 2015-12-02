@@ -144,6 +144,20 @@ public class AdditionalDeleteTest extends AbstractServerTest {
     }
 
     /**
+     * Deletes the whole image using the subclass name {@link ImageI}.
+     */
+    public void testImageI() throws Exception {
+        final long imageId = iUpdate.saveAndReturnObject(mmFactory.createImage()).getId().getValue();
+        final Delete2 dc = Requests.delete("ImageI", imageId);
+        callback(true, client, dc);
+
+        // Check that data is gone
+        List<?> l = iQuery.projection("select i.id from Image i where i.id = "
+                + imageId, null);
+        Assert.assertTrue(l.isEmpty());
+    }
+
+    /**
      * Uses the /Image delete specification to remove an Image and its
      * annotations simply linked annotation. This is the most basic case.
      */
