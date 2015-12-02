@@ -793,18 +793,16 @@ public class CommandLineImporter {
             }
             case 'd': {
                 String datasetString = g.getOptarg();
-                if (datasetString.startsWith("Dataset:")) {
-                    datasetString = datasetString.substring(
-                            "Dataset:".length());
+                if (!datasetString.startsWith("Dataset:")) {
+                    datasetString = "Dataset:" + Long.valueOf(datasetString).toString();
                 }
                 config.target.set(datasetString);
                 break;
             }
             case 'r': {
                 String screenString = g.getOptarg();
-                if (screenString.startsWith("Screen:")) {
-                    screenString = screenString.substring(
-                            "Screen:".length());
+                if (!screenString.startsWith("Screen:")) {
+                    screenString = "Screen:" + Long.valueOf(screenString).toString();
                 }
                 config.target.set(screenString);
                 break;
