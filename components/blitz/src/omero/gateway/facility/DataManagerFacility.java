@@ -138,8 +138,8 @@ public class DataManagerFacility extends Facility {
             }
             /* now delete the objects */
             final Request request = Requests.delete(objectIds);
-            int loops = 50;
-            int loopTimeout = REQUEST_TIMEOUT_MS / loops;
+            int loopTimeout = 250;
+            int loops = REQUEST_TIMEOUT_MS / loopTimeout;
             return gateway.submit(ctx, request).loop(loops, loopTimeout);
         } catch (Throwable t) {
             handleException(this, t, "Cannot delete the object.");
