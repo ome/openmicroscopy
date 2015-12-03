@@ -23,10 +23,10 @@
 import os
 import sys
 CWD = os.path.dirname(__file__)
-OMERO_HOME = os.path.join(CWD, os.path.pardir, os.path.pardir)
-CONFIG = os.path.join(OMERO_HOME, "etc", "grid", "config.xml")
-LOGS = os.path.join(OMERO_HOME, "var", "log")
-STATICS = os.path.join(OMERO_HOME, "lib", "python", "omeroweb", "static")
+OMERO_BASE_DIR = os.path.join(CWD, os.path.pardir, os.path.pardir)
+CONFIG = os.path.join(OMERO_BASE_DIR, "etc", "grid", "config.xml")
+LOGS = os.path.join(OMERO_BASE_DIR, "var", "log")
+STATICS = os.path.join(OMERO_BASE_DIR, "lib", "python", "omeroweb", "static")
 STATICS = os.path.realpath(STATICS)
 
 sys.path.append(str(CWD))
