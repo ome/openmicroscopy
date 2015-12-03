@@ -154,6 +154,7 @@ import omero.model.FilesetJobLink;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.FilterType;
+import omero.model.Folder;
 import omero.model.Format;
 import omero.model.GenericExcitationSource;
 import omero.model.IObject;
@@ -4054,6 +4055,114 @@ public class OMEROMetadataStoreClient
         return getSourceObject(GenericExcitationSource.class, indexes);
     }
 
+    /**
+     * @param folderIndex the index of a folder
+     * @return the corresponding folder
+     */
+    private Folder getFolder(int folderIndex) {
+        final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.FOLDER_INDEX, folderIndex);
+        return getSourceObject(Folder.class, indexes);
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the AnnotationRef property of Folder.
+     *
+     * @param annotation AnnotationRef to set.
+     * @param folderIndex the Folder index.
+     * @param annotationRefIndex AnnotationRef index (unused).
+     */
+    @Override
+    public void setFolderAnnotationRef(String annotation, int folderIndex, int annotationRefIndex) {
+        final LSID key = new LSID(Folder.class, folderIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the Description property of Folder.
+     *
+     * @param description Description to set.
+     * @param folderIndex the Folder index.
+     */
+    @Override
+    public void setFolderDescription(String description, int folderIndex) {
+        final Folder folder = getFolder(folderIndex);
+        folder.setDescription(toRType(description));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the FolderRef property of Folder.
+     *
+     * @param folder FolderRef to set.
+     * @param folderIndex the Folder index.
+     * @param folderRefIndex FolderRef index (unused).
+     */
+    @Override
+    public void setFolderFolderRef(String folder, int folderIndex, int folderRefIndex) {
+        final LSID key = new LSID(Folder.class, folderIndex);
+        addReference(key, new LSID(folder));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the ID property of Folder.
+     *
+     * @param id ID to set.
+     * @param folderIndex the Folder index.
+     */
+    @Override
+    public void setFolderID(String id, int folderIndex) {
+        checkDuplicateLSID(Folder.class, id);
+        final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.FOLDER_INDEX, folderIndex);
+        final IObjectContainer newFolder = getIObjectContainer(Folder.class, indexes);
+        newFolder.LSID = id;
+        addAuthoritativeContainer(Folder.class, id, newFolder);
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the ImageRef property of Folder.
+     *
+     * @param roi ImageRef to set.
+     * @param folderIndex the Folder index.
+     * @param imageRefIndex ImageRef index (unused).
+     */
+    @Override
+    public void setFolderImageRef(String image, int folderIndex, int imageRefIndex) {
+        final LSID key = new LSID(Folder.class, folderIndex);
+        addReference(key, new LSID(image));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the Name property of Folder.
+     *
+     * @param name Name to set.
+     * @param folderIndex the Folder index.
+     */
+    @Override
+    public void setFolderName(String name, int folderIndex) {
+        final Folder folder = getFolder(folderIndex);
+        folder.setName(toRType(name));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the ROIRef property of Folder.
+     *
+     * @param roi ROIRef to set.
+     * @param folderIndex the Folder index.
+     * @param ROIRefIndex ROIRef index (unused).
+     */
+    @Override
+    public void setFolderROIRef(String roi, int folderIndex, int ROIRefIndex) {
+        final LSID key = new LSID(Folder.class, folderIndex);
+        addReference(key, new LSID(roi));
+    }
 
     // ID accessor from parent LightSource
     // @Override

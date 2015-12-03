@@ -2,7 +2,7 @@
  * ome.formats.Index
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -45,6 +45,7 @@ public enum Index implements StringEnumeration
     FILE_ANNOTATION_INDEX("fileAnnotationIndex"),
     FILTER_INDEX("filterIndex"),
     FILTER_SET_INDEX("filterSetIndex"),
+    FOLDER_INDEX("folderIndex"),
     GROUP_INDEX("groupIndex"),
     IMAGE_INDEX("imageIndex"),
     INSTRUMENT_INDEX("instrumentIndex"),
