@@ -355,7 +355,7 @@ CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
 
     DECLARE
         curs CURSOR FOR SELECT * FROM _updated_annotations ORDER BY event_id LIMIT 100000 FOR UPDATE;
-        row _updated_annotations%rowtype;
+        row _updated_annotations%%rowtype;
 
     BEGIN
         FOR row IN curs
