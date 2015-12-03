@@ -3408,8 +3408,9 @@ def getObjectUrl(conn, obj):
 # Activities window & Progressbar
 def update_callback(request, cbString, **kwargs):
     """Update a callback handle with  key/value pairs"""
-    for key, value in kwargs.iteritems():
-        request.session['callback'][cbString][key] = value
+    if cbString in request.session['callback']:
+        for key, value in kwargs.iteritems():
+            request.session['callback'][cbString][key] = value
 
 
 @login_required()
@@ -3429,12 +3430,45 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
+    def getResponse(cbString, jobType):
+        cb = None
+        rsp = None
+        close_handle = False
+        try:
+            handle = omero.cmd.HandlePrx.checkedCast(
+                conn.c.ic.stringToProxy(cbString))
+            cb = omero.callbacks.CmdCallbackI(
+                conn.c, handle, foreground_poll=True)
+            rsp = cb.getResponse()
+            if rsp:
+                close_handle = True
+            else:  # Response not available
+                update_callback(request, cbString, status="in progress")
+        except Ice.ObjectNotExistException as x:
+            # only expect this with Delete
+            update_callback(request, cbString, status="finished")
+        except Exception as x:
+            logger.error(traceback.format_exc())
+            logger.error("Activities %s handle not found: %s" % (
+                jobType, cbString))
+            update_callback(request, cbString, error=1, status="failed",
+                            dreport=str(x))
+        finally:
+            if cb:
+                cb.close(close_handle)
+        if isinstance(rsp, omero.cmd.ERR):
+            rsp_params = ["%s: %s" % (k, v) for k, v in rsp.parameters.items()]
+            rsp_params = ", ".join(rsp_params)
+            logger.error("%s failed with: %s" % (jobType, rsp_params))
+            update_callback(request, cbString, status="failed",
+                            report={'error': rsp_params}, error=1)
+        return rsp
+
     # If we have a jobId, just process that (Only chgrp supported)
     jobId = request.GET.get('jobId', None)
     if jobId is not None:
         jobId = str(jobId)
-        prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(jobId))
-        rsp = prx.getResponse()
+        rsp = getResponse(jobId, 'chgrp dryrun')
         if rsp is not None:
             rv = chgrpMarshal(conn, rsp)
             rv['finished'] = True
@@ -3451,158 +3485,59 @@ def activities(request, conn=None, **kwargs):
         if status == "failed":
             failure += 1
 
+        # can ignore jobs that are done
+        if status in ("failed", "finished"):
+            continue
+
         request.session.modified = True
 
         # update chgrp
         if job_type == 'chgrp':
-            if status not in ("failed", "finished"):
-                rsp = None
-                try:
-                    prx = omero.cmd.HandlePrx.checkedCast(
-                        conn.c.ic.stringToProxy(cbString))
-                    rsp = prx.getResponse()
-                    close_handle = False
-                    try:
-                        # if response is None, then we're still in progress,
-                        # otherwise...
-                        if rsp is not None:
-                            close_handle = True
-                            new_results.append(cbString)
-                            if isinstance(rsp, omero.cmd.ERR):
-                                rsp_params = ", ".join(
-                                    ["%s: %s" % (k, v) for k, v in
-                                     rsp.parameters.items()])
-                                logger.error("chgrp failed with: %s"
-                                             % rsp_params)
-                                update_callback(
-                                    request, cbString,
-                                    status="failed",
-                                    report="%s %s" % (rsp.name, rsp_params),
-                                    error=1)
-                            elif isinstance(rsp, omero.cmd.OK):
-                                update_callback(
-                                    request, cbString,
-                                    status="finished")
-                        else:
-                            in_progress += 1
-                    finally:
-                        prx.close(close_handle)
-                except:
-                    logger.info(
-                        "Activities chgrp handle not found: %s" % cbString)
-                    continue
-        elif job_type == 'send_email':
-            if status not in ("failed", "finished"):
-                rsp = None
-                try:
-                    prx = omero.cmd.HandlePrx.checkedCast(
-                        conn.c.ic.stringToProxy(cbString))
-                    callback = omero.callbacks.CmdCallbackI(
-                        conn.c, prx, foreground_poll=True)
-                    rsp = callback.getResponse()
-                    close_handle = False
-                    try:
-                        # if response is None, then we're still in progress,
-                        # otherwise...
-                        if rsp is not None:
-                            close_handle = True
-                            new_results.append(cbString)
+            rsp = getResponse(cbString, job_type)
+            # if response is None, then we're still in progress,
+            # otherwise...
+            if rsp is not None:
+                new_results.append(cbString)
+                if isinstance(rsp, omero.cmd.OK):
+                    update_callback(request, cbString, status="finished")
+            else:
+                in_progress += 1
 
-                            if isinstance(rsp, omero.cmd.ERR):
-                                rsp_params = ", ".join(
-                                    ["%s: %s" % (k, v)
-                                     for k, v in rsp.parameters.items()])
-                                logger.error("send_email failed with: %s"
-                                             % rsp_params)
-                                update_callback(
-                                    request, cbString,
-                                    status="failed",
-                                    report={'error': rsp_params},
-                                    error=1)
-                            else:
-                                total = (rsp.success + len(rsp.invalidusers) +
-                                         len(rsp.invalidemails))
-                                update_callback(
-                                    request, cbString,
-                                    status="finished",
+        elif job_type == 'send_email':
+            rsp = getResponse(cbString, job_type)
+            if rsp is not None:
+                new_results.append(cbString)
+                if isinstance(rsp, omero.cmd.OK):
+                    invUsers = len(rsp.invalidusers)
+                    invEmails = len(rsp.invalidemails)
+                    total = (rsp.success + invUsers + invEmails)
+                    update_callback(request, cbString, status="finished",
                                     rsp={'success': rsp.success,
                                          'total': total})
-                                if (len(rsp.invalidusers) > 0 or
-                                        len(rsp.invalidemails) > 0):
-                                    invalidusers = [
-                                        e.getFullName() for e in list(
-                                            conn.getObjects(
-                                                "Experimenter",
-                                                rsp.invalidusers))]
-                                    update_callback(
-                                        request, cbString,
-                                        report={
-                                            'invalidusers': invalidusers,
-                                            'invalidemails': rsp.invalidemails
-                                        })
-                        else:
-                            in_progress += 1
-                    finally:
-                        callback.close(close_handle)
-                except:
-                    logger.error(traceback.format_exc())
-                    logger.info("Activities send_email handle not found: %s"
-                                % cbString)
+                    if (invUsers > 0 or invEmails > 0):
+                        invalidusers = [
+                            e.getFullName() for e in list(
+                                conn.getObjects(
+                                    "Experimenter",
+                                    rsp.invalidusers))]
+                        update_callback(
+                            request, cbString,
+                            report={
+                                'invalidusers': invalidusers,
+                                'invalidemails': rsp.invalidemails
+                            })
+            else:
+                in_progress += 1
 
         # update delete
         elif job_type == 'delete':
-            if status not in ("failed", "finished"):
-                try:
-                    handle = omero.cmd.HandlePrx.checkedCast(
-                        conn.c.ic.stringToProxy(cbString))
-                    cb = omero.callbacks.CmdCallbackI(
-                        conn.c, handle, foreground_poll=True)
-                    rsp = cb.getResponse()
-                    close_handle = False
-                    try:
-                        if not rsp:  # Response not available
-                            update_callback(
-                                request, cbString,
-                                error=0,
-                                status="in progress",
-                                dreport=_formatReport(handle))
-                            in_progress += 1
-                        else:  # Response available
-                            close_handle = True
-                            new_results.append(cbString)
-                            rsp = cb.getResponse()
-                            err = isinstance(rsp, omero.cmd.ERR)
-                            if err:
-                                update_callback(
-                                    request, cbString,
-                                    error=1,
-                                    status="failed",
-                                    dreport=_formatReport(handle))
-                                failure += 1
-                            else:
-                                update_callback(
-                                    request, cbString,
-                                    error=0,
-                                    status="finished",
-                                    dreport=_formatReport(handle))
-                    finally:
-                        cb.close(close_handle)
-                except Ice.ObjectNotExistException:
-                    update_callback(
-                        request, cbString,
-                        error=0,
-                        status="finished",
-                        dreport=None)
-                except Exception, x:
-                    logger.error(traceback.format_exc())
-                    logger.error("Status job '%s'error:" % cbString)
-                    update_callback(
-                        request, cbString,
-                        error=1,
-                        status="failed",
-                        dreport=str(x))
-                    failure += 1
-
+            rsp = getResponse(cbString, job_type)
+            if rsp is not None:
+                new_results.append(cbString)
+                if isinstance(rsp, omero.cmd.OK):
+                    update_callback(request, cbString, status="finished")
+            else:
+                in_progress += 1
         # update scripts
         elif job_type == 'script':
             # if error on runScript, the cbString is not a ProcessCallback...
