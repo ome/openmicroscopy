@@ -430,22 +430,24 @@ class TestWeb(object):
         # Note: the differences between the generated apache22 and apache24
         # configurations are in unchanged parts of the template
         if python_path:
+            pp = os.pathsep.join([icepath, pythondir,
+                                  python_path, fallbackdir])
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (80)),
                 ('WSGIDaemonProcess omeroweb ' +
                  'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
-                 'python-path=%s:%s:%s:%s' % (icepath, pythondir,
-                                              python_path, fallbackdir),
+                 'python-path=%s' % pp,
                  'lib/python/omeroweb'),
                 ], lines)
         else:
+            pp = os.pathsep.join([icepath, pythondir, fallbackdir])
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (80)),
                 ('WSGIDaemonProcess omeroweb ' +
                  'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
-                 'python-path=%s:%s:%s:' % (icepath, pythondir, fallbackdir),
+                 'python-path=%s' % pp,
                  'lib/python/omeroweb'),
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
