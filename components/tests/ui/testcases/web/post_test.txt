@@ -236,18 +236,16 @@ Test Drag And Drop Image
     ${pId}    ${datasetId}    ${imageId}        Select And Expand Project Dataset Image
     ${datasetNode}=                             Wait For Dataset Node                                             ${datasetId}    
     ${datasetNode1}=                            Wait For Dataset Node                                             ${did}
-    ${imageNode}=                               Wait For Image Node                                               ${imageId}
 
-    Select Image By Id                          ${imageId}
-    Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@id='${imageNode}']/a                                
-    Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@id='${imageNode}']/a     xpath=//li[@id='${datasetNode1}']
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a                                
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
     Select Dataset By Id                        ${did}
     Dataset Should Contain Image                ${imageId}     ${did} 
 
     #Bring database state back to original
     Select Image By Id                          ${imageId}
-    Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@id='${imageNode}']/a
-    Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@id='${imageNode}']/a    xpath=//li[@id='${datasetNode}']/a
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a
+    Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a    xpath=//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${datasetId}
     Dataset Should Contain Image                ${imageId}     ${datasetId}                           
 
@@ -308,9 +306,8 @@ Test Drag and Drop Plate
     Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Click Element                     refreshButton
     
     ${screenNode}                               Wait For Screen Node                                            ${screenId}
-    ${plateNode}                                Wait For Plate Node                                             ${plateId}
     Click Node                                  ${screenNode}
-    Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@id='${plateNode}']
+    Wait Until Element is Visible               xpath=//li[@id='${screenNode}']//li[@data-id='${plateId}']
 
 Test Drag and Drop Dataset On Experimenter
     [Documentation]                             This test will currently fail on 5.1 Series
