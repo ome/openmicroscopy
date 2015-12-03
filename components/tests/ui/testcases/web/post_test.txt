@@ -453,4 +453,13 @@ Test Drag and Drop Negative Tests
     Drag And Drop                               xpath=//li[@id='${plateNode1}']/a                                xpath=//li[@id='${imageNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${plateNode1}']
 
+    Select Dataset By Id                    ${pid}
+    Delete Container
+
+    Select Project By Id                    ${pid}
+    Delete Container
+
+    Select Screen By id                     ${screenId}
+    Delete Container
+
 [Teardown]    Close Browser
