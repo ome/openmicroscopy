@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,12 +28,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -45,12 +48,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
-import info.clearthought.layout.TableLayout;
-
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -65,9 +63,6 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
 
-import omero.gateway.model.ExperimenterData;
-
-
 /** 
  * Dialog used to select the scripts to upload to the server.
  *
@@ -80,14 +75,14 @@ import omero.gateway.model.ExperimenterData;
  */
 public class ScriptUploaderDialog 
 	extends JDialog
-	implements ActionListener, DocumentListener
+	implements ActionListener
 {
 
 	/** Bound property indicating to upload the script. */
 	public static final String	UPLOAD_SCRIPT_PROPERTY = "uploadScript";
 	
-	/** The separator between first and last names. */
-	private static final String	SEPARATOR = ", ";
+	/** Property name  for file selection change */
+	public static final String FILESELECTION_PROPERTY = "SelectedFileChangedProperty";
 	
     /** 
      * The size of the invisible components used to separate buttons
@@ -132,25 +127,6 @@ public class ScriptUploaderDialog
      * {@link JFileChooser} class. 
      */
     private JButton		cancelButton;
-
-    /** Component used to enter the author of the script. */
-    private JTextField	author;
-    
-    /** Component used to enter the author's e-mail address. */
-    private JTextField	eMail;
-    
-    /** Component used to enter the author's institution. */
-    private JTextField	institution;
-    
-    /** Component used to enter the description of the script. */
-    private JTextField	description;
-    
-    /** Component used to enter where the script was published if 
-     * published. */
-    private JTextField	journalRef;
-    
-    /** The text area where to enter the name of the file to save. */
-    private JTextField	scriptArea;
    
     /** The location of the script. */
     private JTextField location;
@@ -169,17 +145,6 @@ public class ScriptUploaderDialog
     
     /** Helper reference.*/
     private Registry context;
-    
-    /**
-	 * Helper method returning the current user's details.
-	 * 
-	 * @return See above.
-	 */
-    private ExperimenterData getUserDetails()
-    {
-    	return (ExperimenterData) context.lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-    }
     
 	/** Initializes the components. */
 	private void initComponents()
@@ -200,13 +165,25 @@ public class ScriptUploaderDialog
 				}
 			}
 		}
-		chooser = new GenericFileChooser();
-		chooser.setAcceptAllFileFilterUsed(true);
-		Iterator<CustomizedFileFilter> i = FILTERS.iterator();
-		while (i.hasNext()) {
-			chooser.addChoosableFileFilter(i.next());
-		}
-		chooser.setControlButtonsAreShown(false);
+		
+        chooser = new GenericFileChooser();
+        chooser.setAcceptAllFileFilterUsed(true);
+        Iterator<CustomizedFileFilter> i = FILTERS.iterator();
+        while (i.hasNext()) {
+            chooser.addChoosableFileFilter(i.next());
+        }
+        chooser.setControlButtonsAreShown(false);
+        chooser.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (FILESELECTION_PROPERTY.equals(evt.getPropertyName())) {
+                    File f = chooser.getSelectedFile();
+                    saveButton.setEnabled(f != null && f.isFile());
+                }
+            }
+        });
+		
 		saveButton = new JButton("Upload");
 		saveButton.setToolTipText(
 				UIUtilities.formatToolTipText("Upload the selected script " +
@@ -218,13 +195,7 @@ public class ScriptUploaderDialog
 				UIUtilities.formatToolTipText("Closes the dialog."));
         cancelButton.addActionListener(this);
         cancelButton.setActionCommand(""+CANCEL);
-        ExperimenterData exp = getUserDetails();
-        author = new JTextField(exp.getFirstName()+", "+exp.getLastName());
-        eMail = new JTextField(exp.getEmail());
-        institution = new JTextField(exp.getInstitution());
-        journalRef = new JTextField(); 
-        description = new JTextField();
-        
+
         location = new JTextField();
         locationFinder = new JButton("Find Folder");
         locationFinder.setToolTipText("List the existing folders.");
@@ -237,13 +208,8 @@ public class ScriptUploaderDialog
 			}
 
 		});
-        scriptArea = (JTextField) UIUtilities.findComponent(chooser, 
-				JTextField.class);
-		if (scriptArea != null) {
-			scriptArea.setEnabled(false);
-			scriptArea.getDocument().addDocumentListener(this);
-		}
-		saveButton.setEnabled(scriptArea == null);
+        
+		saveButton.setEnabled(false);
 	}
 	
 	/**
@@ -253,47 +219,8 @@ public class ScriptUploaderDialog
 	 */
 	private JPanel buildControls()
 	{
-		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-			TableLayout.PREFERRED, TableLayout.PREFERRED, 50}};
-//		JPanel details = new JPanel();
-//		details.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-//		details.setLayout(new TableLayout(size));
-		int row = 0;
-		/*
-		JLabel l = UIUtilities.setTextFont("Author (First, Last):");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(author, "2, "+row);
-		row++;
-		l = UIUtilities.setTextFont("E-mail:");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(eMail, "2, "+row);
-		row++;
-		l = UIUtilities.setTextFont("Institution:");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(institution, "2, "+row);
-		row++;
-		l = UIUtilities.setTextFont("Journal Ref:");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(journalRef, "2, "+row);
-		row++;
-		l = UIUtilities.setTextFont("Script's Description:");
-		details.add(l, "0, "+row+", LEFT, TOP");
-		details.add(description, "2, "+row);
-		*/
-//		JLabel l = UIUtilities.setTextFont("Folder:");
-//		details.add(l, "0, "+row+", LEFT, CENTER");
-//		details.add(location, "2, "+row);
-//		row++;
-//		details.add(locationFinder, "0, "+row+", LEFT, CENTER");
-//		JXTaskPane pane = new JXTaskPane();
-//		pane.setCollapsed(true);
-//		pane.setTitle("Script details");
-//		pane.add(details);
 		JPanel controls = new JPanel();
     	controls.setLayout(new BorderLayout(0, 0));
-    	//controls.add(pane, BorderLayout.NORTH);
-//    	controls.add(details, BorderLayout.NORTH);
     	controls.add(buildToolbar(), BorderLayout.CENTER);
     	
     	JPanel p = new JPanel();
@@ -349,11 +276,7 @@ public class ScriptUploaderDialog
 	/** Uploads the script to the server. */
 	private void upload()
 	{
-		File f;
-		if (scriptArea != null)
-			f = new File(chooser.getCurrentDirectory().toString(), 
-					scriptArea.getText());
-		else f = chooser.getSelectedFile();
+		File f = chooser.getSelectedFile();
 
 		Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 		boolean supported = false;
@@ -401,32 +324,7 @@ public class ScriptUploaderDialog
 		ScriptObject script = new ScriptObject(-1, f.getAbsolutePath(), 
 				f.getName());
 		script.setMIMEType(mimeType);
-		
-		//Set info about the script.
-		String value = journalRef.getText();
-		if (value != null) script.setJournalRef(value.trim());
-		value = description.getText();
-		if (value != null) script.setDescription(value.trim());
-		
-		ExperimenterData exp = new ExperimenterData();
-		value = author.getText();
-		if (value == null) exp = getUserDetails();
-		else {
-			String[] v = value.split(SEPARATOR);
-			if (v != null && v.length == 2) {
-				exp.setFirstName(v[0].trim());
-				exp.setLastName(v[1].trim());
-			} else exp = getUserDetails(); 
-		}
-		value = eMail.getText();
-		if (value != null) exp.setEmail(value.trim());
-		value = institution.getText();
-		if (value != null) exp.setInstitution(value.trim());
-		
-		value = location.getText();
-		if (value != null) script.setFolder(value.trim());
-		IconManager icons = IconManager.getInstance();
-		script.setIcon(icons.getIcon(IconManager.UPLOAD_SCRIPT));
+
 		firePropertyChange(UPLOAD_SCRIPT_PROPERTY, null, script);
 		close();
 	}
@@ -436,40 +334,6 @@ public class ScriptUploaderDialog
     {
     	setTitle(TITLE);
         setModal(true);
-    }
-    
-    /**
-     * Sets the <code>enabled</code> flag of not the <code>Save</code> option 
-     * depending on the length of the text entered in the {@link #scriptArea}.
-     */
-    private void handleTextUpdate()
-    {
-    	if (scriptArea == null) return; //should happen
-    	String text = scriptArea.getText();
-    	boolean b = false;
-    	String value = "";
-    	if (text != null && text.trim().length() > 0) {
-    		b = true;
-    		Iterator<CustomizedFileFilter> i = FILTERS.iterator();
-    		boolean supported = false;
-    		CustomizedFileFilter filter;
-    		while (i.hasNext()) {
-    			filter = i.next();
-    			if (filter.accept(text)) {
-    				supported = true;
-    				break;
-    			}
-    		}
-    		if (!supported) {
-    			location.setText(value);
-    			saveButton.setEnabled(false);
-    			return;
-    		}
-    		File f = chooser.getCurrentDirectory();
-    		if (f != null) value = f.getName();
-     	}
-    	location.setText(value);
-    	saveButton.setEnabled(b);
     }
     
     /** 
@@ -534,26 +398,5 @@ public class ScriptUploaderDialog
 					}
 		}
 	}
-	
-    /**
-	 * Enables or not the <code>Save</code> option depending on the text 
-	 * entered in the {@link #scriptArea}.
-	 * @see DocumentListener#insertUpdate(DocumentEvent)
-	 */
-	public void insertUpdate(DocumentEvent e) { handleTextUpdate(); }
-
-	/**
-	 * Enables or not the <code>Save</code> option depending on the text 
-	 * entered in the {@link #scriptArea}.
-	 * @see DocumentListener#removeUpdate(DocumentEvent)
-	 */
-	public void removeUpdate(DocumentEvent e) { handleTextUpdate(); }
-    
-	/**
-	 * Required by the {@link DocumentListener} I/F but no-operation
-	 * implementation in our case.
-	 * @see DocumentListener#changedUpdate(DocumentEvent)
-	 */
-	public void changedUpdate(DocumentEvent e) {}
 	
 }
