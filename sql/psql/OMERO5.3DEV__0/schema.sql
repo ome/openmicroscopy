@@ -298,6 +298,27 @@
         primary key (Filter_id, owner_id)
     );;
 
+    create table count_Folder_annotationLinks_by_owner (
+        Folder_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Folder_id, owner_id)
+    );;
+
+    create table count_Folder_imageLinks_by_owner (
+        Folder_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Folder_id, owner_id)
+    );;
+
+    create table count_Folder_roiLinks_by_owner (
+        Folder_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Folder_id, owner_id)
+    );;
+
     create table count_Image_annotationLinks_by_owner (
         Image_id int8 not null,
         count int8 not null,
@@ -306,6 +327,13 @@
     );;
 
     create table count_Image_datasetLinks_by_owner (
+        Image_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Image_id, owner_id)
+    );;
+
+    create table count_Image_folderLinks_by_owner (
         Image_id int8 not null,
         count int8 not null,
         owner_id int8 not null,
@@ -453,6 +481,13 @@
     );;
 
     create table count_Roi_annotationLinks_by_owner (
+        Roi_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Roi_id, owner_id)
+    );;
+
+    create table count_Roi_folderLinks_by_owner (
         Roi_id int8 not null,
         count int8 not null,
         owner_id int8 not null,
@@ -973,6 +1008,66 @@
         value varchar(255) not null unique,
         external_id int8 unique,
         primary key (id)
+    );;
+
+    create table folder (
+        id int8 not null,
+        description text,
+        permissions int8 not null,
+        name varchar(255) not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parentFolder int8,
+        primary key (id)
+    );;
+
+    create table folderannotationlink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table folderimagelink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
+    );;
+
+    create table folderroilink (
+        id int8 not null,
+        permissions int8 not null,
+        version int4,
+        child int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        parent int8 not null,
+        primary key (id),
+        unique (parent, child, owner_id)
     );;
 
     create table format (
@@ -2651,6 +2746,21 @@
         foreign key (Filter_id) 
         references filter  ;;
 
+    alter table count_Folder_annotationLinks_by_owner 
+        add constraint FK_count_to_Folder_annotationLinks 
+        foreign key (Folder_id) 
+        references folder  ;;
+
+    alter table count_Folder_imageLinks_by_owner 
+        add constraint FK_count_to_Folder_imageLinks 
+        foreign key (Folder_id) 
+        references folder  ;;
+
+    alter table count_Folder_roiLinks_by_owner 
+        add constraint FK_count_to_Folder_roiLinks 
+        foreign key (Folder_id) 
+        references folder  ;;
+
     alter table count_Image_annotationLinks_by_owner 
         add constraint FK_count_to_Image_annotationLinks 
         foreign key (Image_id) 
@@ -2658,6 +2768,11 @@
 
     alter table count_Image_datasetLinks_by_owner 
         add constraint FK_count_to_Image_datasetLinks 
+        foreign key (Image_id) 
+        references image  ;;
+
+    alter table count_Image_folderLinks_by_owner 
+        add constraint FK_count_to_Image_folderLinks 
         foreign key (Image_id) 
         references image  ;;
 
@@ -2763,6 +2878,11 @@
 
     alter table count_Roi_annotationLinks_by_owner 
         add constraint FK_count_to_Roi_annotationLinks 
+        foreign key (Roi_id) 
+        references roi  ;;
+
+    alter table count_Roi_folderLinks_by_owner 
+        add constraint FK_count_to_Roi_folderLinks 
         foreign key (Roi_id) 
         references roi  ;;
 
@@ -3595,6 +3715,141 @@
         add constraint FKfiltertype_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table folder 
+        add constraint FKfolder_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table folder 
+        add constraint FKfolder_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table folder 
+        add constraint FKfolder_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table folder 
+        add constraint FKfolder_parentFolder_folder 
+        foreign key (parentFolder) 
+        references folder  ;;
+
+    alter table folder 
+        add constraint FKfolder_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table folder 
+        add constraint FKfolder_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_parent_folder 
+        foreign key (parent) 
+        references folder  ;;
+
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_child_image 
+        foreign key (child) 
+        references image  ;;
+
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_parent_folder 
+        foreign key (parent) 
+        references folder  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_child_roi 
+        foreign key (child) 
+        references roi  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_parent_folder 
+        foreign key (parent) 
+        references folder  ;;
 
     alter table format 
         add constraint FKformat_external_id_externalinfo 
