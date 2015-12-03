@@ -4,6 +4,6 @@
 # This is a work in progress, filenames may change in the next version
 # This file is meant to be consumed by pip
 #
-#     pip install -r requirements-py27-iis.txt
+#     pip install -r requirements-py27-win.txt
 #
 Django>=1.8,<1.9
