@@ -1,0 +1,16 @@
+*** Settings ***
+Documentation     Tests ajax 'POST' updates.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Test Cases ***
+
+Select First Dataset
+    ${datasetId}=                   Select Node By Icon      ${datasetIcon}
+    Wait Until Right Panel Loads    Dataset                  ${datasetId}
+    Wait Until Center Panel Loads 	Dataset

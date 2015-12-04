@@ -198,6 +198,7 @@ Select First Orphaned Image
     Click Element                   xpath=//li[@id='${nodeId}']/ul/li[1]/a
     Wait Until Page Contains Element                        xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'Image ID:')]
     ${newId}                        Get Text                css=tr.data_heading_id strong
+    Wait Until Right Panel Loads    Image                   ${newId}
     [Return]                        ${newId}
 
 Select First Share
@@ -224,6 +225,16 @@ Wait Until Right Panel Loads
     [Arguments]                     ${containerType}         ${containerId}
     Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${containerType} ID:')]
     Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]/td/strong[(text() = '${containerId}')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/h1[1][contains(text(),'Image Details')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element
+
+Wait Until Center Panel Loads
+    [Arguments]                     ${containerType}
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     //*[@id="content_details"]/div[1]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     xpath=//*[@id="filtersearch"]/div/label[contains(text(),'Filter Images')]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     xpath=//*[@id="icon_layout"][contains(@title,"View as Thumbnails")][contains(@class,"checked")]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     //*[@id="table_layout"][contains(@title,"View as List")]    
+    
 
 # Methods for querying nodes by TEXT
 
