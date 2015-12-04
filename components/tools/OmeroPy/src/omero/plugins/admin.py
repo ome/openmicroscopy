@@ -900,7 +900,8 @@ present, the user will enter a console""")
         Returns true if the server was already stopped
         """
         self.check_node(args)
-        if args.force_rewrite:
+        internal_cfg = self._cfglist()[0]
+        if args.force_rewrite or not os.path.exists(internal_cfg):
             self.rewrite(args, config, force=True)
         if 0 != self.status(args, node_only=True):
             self.ctx.err("Server not running")
