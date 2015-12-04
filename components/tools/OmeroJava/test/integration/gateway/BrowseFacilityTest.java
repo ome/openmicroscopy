@@ -76,7 +76,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetDatasets() {
+    public void testGetDatasets() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get datasets of the group
@@ -106,7 +106,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetProjects() {
+    public void testGetProjects() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get projects of the group
@@ -144,7 +144,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetScreens() {
+    public void testGetScreens() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get screens of the group
@@ -174,7 +174,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetPlates() {
+    public void testGetPlates() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get plates of the group
@@ -204,7 +204,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetImages() {
+    public void testGetImages() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get images of the root user

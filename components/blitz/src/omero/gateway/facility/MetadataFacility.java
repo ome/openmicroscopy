@@ -66,9 +66,11 @@ public class MetadataFacility extends Facility {
      * @param imageId
      *            The imageId
      * @return See above
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public ImageAcquisitionData getImageAcquisitionData(SecurityContext ctx,
-            long imageId) {
+            long imageId) throws DSOutOfServiceException, DSAccessException {
         ParametersI params = new ParametersI();
         params.acquisitionData();
         ImageData img = browse.getImage(ctx, imageId, params);

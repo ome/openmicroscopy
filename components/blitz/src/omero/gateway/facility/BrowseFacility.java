@@ -83,9 +83,10 @@ public class BrowseFacility extends Facility {
      * @param userId The user's to retrieve the data to handle.
      * @return See above.
      * @throws DSOutOfServiceException
+     * @throws DSAccessException 
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
-            long userId) throws DSOutOfServiceException {
+            long userId) throws DSOutOfServiceException, DSAccessException {
         ParametersI param = new ParametersI();
         if (userId >= 0) {
             param.exp(omero.rtypes.rlong(userId));
@@ -104,17 +105,18 @@ public class BrowseFacility extends Facility {
      * @param options The retrieval options.
      * @return See above.
      * @throws DSOutOfServiceException
+     * @throws DSAccessException 
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
-            throws DSOutOfServiceException {
+            throws DSOutOfServiceException, DSAccessException {
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             return PojoMapper.asDataObjects(service.loadContainerHierarchy(
                     PojoMapper.getModelType(rootType).getName(), rootIDs,
                     options));
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load hierarchy");
         }
 
         return Collections.emptySet();
@@ -347,8 +349,10 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ProjectData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<ProjectData> getProjects(SecurityContext ctx) {
+    public Collection<ProjectData> getProjects(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> projects = service.loadContainerHierarchy(PojoMapper
@@ -361,7 +365,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load projects");
         }
 
         return Collections.emptyList();
@@ -375,9 +379,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the projects to fetch
      * @return A collection of {@link ProjectData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
-            Collection<Long> ids) {
+            Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -398,7 +404,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load projects");
         }
 
         return Collections.emptyList();
@@ -412,8 +418,10 @@ public class BrowseFacility extends Facility {
      * @param ownerId
      *            The id of the owner
      * @return A collection of {@link ProjectData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<ProjectData> getProjects(SecurityContext ctx, long ownerId) {
+    public Collection<ProjectData> getProjects(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
@@ -429,7 +437,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load projects");
         }
 
         return Collections.emptyList();
@@ -445,9 +453,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the projects to fetch
      * @return A collection of {@link ProjectData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
-            long ownerId, Collection<Long> ids) {
+            long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -471,7 +481,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load projects");
         }
 
         return Collections.emptyList();
@@ -485,8 +495,10 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link DatasetData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<DatasetData> getDatasets(SecurityContext ctx) {
+    public Collection<DatasetData> getDatasets(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
@@ -499,7 +511,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load datasets");
         }
 
         return Collections.emptyList();
@@ -513,9 +525,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the datasets to load
      * @return A collection of {@link DatasetData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
-            Collection<Long> ids) {
+            Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -539,7 +553,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load datasets");
         }
 
         return Collections.emptyList();
@@ -553,8 +567,10 @@ public class BrowseFacility extends Facility {
      * @param ownerId
      *            The id of the user
      * @return A collection of {@link DatasetData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) {
+    public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
@@ -570,7 +586,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load datasets");
         }
 
         return Collections.emptyList();
@@ -586,9 +602,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the datasets to load
      * @return A collection of {@link DatasetData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
-            long ownerId, Collection<Long> ids) {
+            long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -613,7 +631,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load datasets");
         }
 
         return Collections.emptyList();
@@ -627,8 +645,10 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ScreenData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<ScreenData> getScreens(SecurityContext ctx) {
+    public Collection<ScreenData> getScreens(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> screens = service.loadContainerHierarchy(PojoMapper
@@ -641,7 +661,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load screens");
         }
 
         return Collections.emptyList();
@@ -655,9 +675,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link ScreenData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx,
-            Collection<Long> ids) {
+            Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -678,7 +700,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load screens");
         }
 
         return Collections.emptyList();
@@ -692,8 +714,10 @@ public class BrowseFacility extends Facility {
      * @param ownerId
      *            The id of the user
      * @return A collection of {@link ScreenData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) {
+    public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
@@ -709,7 +733,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load screens");
         }
 
         return Collections.emptyList();
@@ -725,9 +749,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link ScreenData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
-            Collection<Long> ids) {
+            Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -751,7 +777,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load screens");
         }
 
         return Collections.emptyList();
@@ -765,8 +791,10 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link PlateData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<PlateData> getPlates(SecurityContext ctx) {
+    public Collection<PlateData> getPlates(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
@@ -779,7 +807,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load plates");
         }
 
         return Collections.emptyList();
@@ -793,9 +821,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link PlateData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<PlateData> getPlates(SecurityContext ctx,
-            Collection<Long> ids) {
+            Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -816,7 +846,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load plates");
         }
 
         return Collections.emptyList();
@@ -830,8 +860,10 @@ public class BrowseFacility extends Facility {
      * @param ownerId
      *            The id of the user
      * @return A collection of {@link PlateData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) {
+    public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
@@ -847,7 +879,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load plates");
         }
 
         return Collections.emptyList();
@@ -863,9 +895,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the plates to load
      * @return A collection of {@link PlateData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
-            Collection<Long> ids) {
+            Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -889,7 +923,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load plates");
         }
 
         return Collections.emptyList();
@@ -900,8 +934,10 @@ public class BrowseFacility extends Facility {
      * @param ctx The {@link SecurityContext}
      * @param plateId The ID of the plate
      * @return A collection of {@link WellData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<WellData> getWells(SecurityContext ctx, long plateId) {
+    public Collection<WellData> getWells(SecurityContext ctx, long plateId) throws DSOutOfServiceException, DSAccessException {
         Collection<WellData> result = new ArrayList<WellData>();
         try {
             IQueryPrx proxy = gateway.getQueryService(ctx);
@@ -925,7 +961,7 @@ public class BrowseFacility extends Facility {
                 result.add(well);
             }
         } catch (Throwable t) {
-            logError(this, "Could not load wells", t);
+            handleException(this, t, "Could not load wells");
         }
         return result;
     }
@@ -938,8 +974,10 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ImageData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public Collection<ImageData> getUserImages(SecurityContext ctx) {
+    public Collection<ImageData> getUserImages(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
             ParametersI param = new ParametersI();
             param.grp(omero.rtypes.rlong(ctx.getGroupID()));
@@ -956,7 +994,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not images");
         }
 
         return Collections.emptyList();
@@ -970,8 +1008,10 @@ public class BrowseFacility extends Facility {
      * @param id
      *            The ids of the image to load
      * @return The {@link ImageData}
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public ImageData getImage(SecurityContext ctx, long id) {
+    public ImageData getImage(SecurityContext ctx, long id) throws DSOutOfServiceException, DSAccessException {
         return getImages(ctx, Collections.singleton(id)).iterator().next();
     }
     
@@ -985,8 +1025,10 @@ public class BrowseFacility extends Facility {
      * @param params
      *            Custom parameters, can be <code>null</code>
      * @return The {@link ImageData}
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
-    public ImageData getImage(SecurityContext ctx, long id, ParametersI params) {
+    public ImageData getImage(SecurityContext ctx, long id, ParametersI params) throws DSOutOfServiceException, DSAccessException {
         return getImages(ctx, Collections.singleton(id), params).iterator()
                 .next();
     }
@@ -999,9 +1041,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the images to load
      * @return A collection of {@link ImageData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
-            Collection<Long> ids) {
+            Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         return getImages(ctx, ids, null);
     }
     
@@ -1015,9 +1059,11 @@ public class BrowseFacility extends Facility {
      * @param params
      *            Custom parameters, can be <code>null</code>
      * @return A collection of {@link ImageData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
-            Collection<Long> ids, ParametersI params) {
+            Collection<Long> ids, ParametersI params) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -1038,7 +1084,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load images");
         }
 
         return Collections.emptyList();
@@ -1053,9 +1099,11 @@ public class BrowseFacility extends Facility {
      *            The id of the user
      * @param ids The image ids
      * @return A collection of {@link ImageData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
-            Collection<Long> ids) {
+            Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
         if (ids == null)
             return Collections.emptyList();
         
@@ -1079,7 +1127,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load images");
         }
 
         return Collections.emptyList();
@@ -1093,9 +1141,11 @@ public class BrowseFacility extends Facility {
      * @param datasetIds
      *            The ids of the datasets
      * @return A collection of {@link ImageData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ImageData> getImagesForDatasets(SecurityContext ctx,
-            Collection<Long> datasetIds) {
+            Collection<Long> datasetIds) throws DSOutOfServiceException, DSAccessException {
         if (datasetIds == null)
             return Collections.emptyList();
         
@@ -1112,7 +1162,7 @@ public class BrowseFacility extends Facility {
 
             return result;
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load images");
         }
 
         return Collections.emptyList();
@@ -1126,9 +1176,11 @@ public class BrowseFacility extends Facility {
      * @param projectIds
      *            The ids of the projects
      * @return A collection of {@link ImageData}s
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public Collection<ImageData> getImagesForProjects(SecurityContext ctx,
-            Collection<Long> projectIds) {
+            Collection<Long> projectIds) throws DSOutOfServiceException, DSAccessException {
         if (projectIds == null)
             return Collections.emptyList();
         
@@ -1141,7 +1193,7 @@ public class BrowseFacility extends Facility {
             }
             return getImagesForDatasets(ctx, dsIds);
         } catch (Throwable t) {
-            logError(this, "Could not load hierarchy", t);
+            handleException(this, t, "Could not load images");
         }
 
         return Collections.emptyList();
