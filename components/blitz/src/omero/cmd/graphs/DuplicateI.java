@@ -167,6 +167,17 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("typesToDuplicate", typesToDuplicate);
+            arguments.addParameter("typesToReference", typesToReference);
+            arguments.addParameter("typesToIgnore", typesToIgnore);
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
         helper.setSteps(dryRun ? 3 : 6);
 
@@ -527,6 +538,12 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
             final DuplicateResponse response = new DuplicateResponse(duplicatedObjects);
             helper.setResponseIfNull(response);
             helper.info("in duplication of " + targetObjectCount + ", duplicated " + duplicatedObjectCount + " in total");
+
+            if (LOGGER.isDebugEnabled()) {
+                final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+                arguments.addParameter("duplicates", response.duplicates);
+                LOGGER.debug("response: " + arguments);
+            }
         }
     }
 

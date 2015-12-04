@@ -68,6 +68,8 @@ import omero.cmd.Response;
  */
 public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Chown2I.class);
+
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
@@ -123,6 +125,15 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("userId", userId);
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
 
@@ -265,6 +276,13 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             helper.setResponseIfNull(response);
             helper.info("in " + (dryRun ? "mock " : "") + "chown to " + userId + " of " + targetObjectCount +
                     ", gave " + givenObjectCount + " and deleted " + deletedObjectCount + " in total");
+
+            if (LOGGER.isDebugEnabled()) {
+                final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+                arguments.addParameter("includedObjects", response.includedObjects);
+                arguments.addParameter("deletedObjects", response.deletedObjects);
+                LOGGER.debug("response: " + arguments);
+            }
         }
     }
 
