@@ -145,8 +145,9 @@ class WebControl(BaseControl):
                 help="NGINX only: the maximum number of simultaneous clients.")
             x.add_argument(
                 "--wsgi-args", type=str, default="",
-                help=("NGINX only: additional arguments. "
-                      "Check Gunicorn Documentation"
+                help=("NGINX only: additional arguments overwritten by "
+                      "`bin/omero config set omero.web.wsgi_args`. "
+                      "Check Gunicorn Documentation "
                       "http://docs.gunicorn.org/en/latest/settings.html"))
 
         #
