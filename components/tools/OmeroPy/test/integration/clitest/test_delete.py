@@ -26,6 +26,7 @@ from test.integration.clitest.test_tag import AbstractTagTest
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
+model = ["", "I"]
 ordered = [True, False]
 
 
@@ -36,12 +37,13 @@ class TestDelete(CLITest):
         self.cli.register("delete", DeleteControl, "TEST")
         self.args += ["delete"]
 
+    @pytest.mark.parametrize("model", model)
     @pytest.mark.parametrize("object_type", object_types)
-    def testDeleteMyData(self, object_type):
+    def testDeleteMyData(self, object_type, model):
         oid = self.create_object(object_type)
 
         # Delete the object
-        self.args += ['/%s:%s' % (object_type, oid)]
+        self.args += ['/%s%s:%s' % (object_type, model, oid)]
         self.cli.invoke(self.args, strict=True)
 
         # Check the object has been deleted
