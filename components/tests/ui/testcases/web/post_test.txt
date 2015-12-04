@@ -240,14 +240,14 @@ Test Drag And Drop Image
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a                                
     Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
     Select Dataset By Id                        ${did}
-    Dataset Should Contain Image                ${imageId}     ${did} 
+    Wait Until Element is Visible               xpath=//li[@id='${did}']//li[@data-id='${imageId}'] 
 
     #Bring database state back to original
     Select Image By Id                          ${imageId}
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a
     Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a    xpath=//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${datasetId}
-    Dataset Should Contain Image                ${imageId}     ${datasetId}                           
+    Wait Until Element is Visible               xpath=//li[@id='${datasetId}']//li[@data-id='${imageId}']                          
 
 Test Drag and Drop Orphaned Image
     
@@ -453,7 +453,7 @@ Test Drag and Drop Negative Tests
     Drag And Drop                               xpath=//li[@id='${plateNode1}']/a                                xpath=//li[@id='${imageNode1}']/a
     Page Should Not Contain Element             xpath=//li[@id='${imageNode1}']//li[@id='${plateNode1}']
 
-    Select Dataset By Id                    ${pid}
+    Select Dataset By Id                    ${did}
     Delete Container
 
     Select Project By Id                    ${pid}
