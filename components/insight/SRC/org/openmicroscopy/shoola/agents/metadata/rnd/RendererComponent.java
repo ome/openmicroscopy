@@ -90,7 +90,7 @@ class RendererComponent
     
     /** Warning message shown when the rendering settings are to be reset */
     public static final String RENDERINGSETTINGS_WARNING = "This will change the "
-            + "rendering settings of all images\nin the dataset/screen and cannot be undone.\n"
+            + "rendering settings of all images\nin the dataset/plate and cannot be undone.\n"
             + "Proceed?";
     
     /** The number of attempts to reload the rendering control. */
