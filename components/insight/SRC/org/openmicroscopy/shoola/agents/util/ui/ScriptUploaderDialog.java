@@ -218,7 +218,7 @@ public class ScriptUploaderDialog
     	
     	JPanel folder = new JPanel();
     	folder.setLayout(new BorderLayout());
-    	JLabel l = UIUtilities.setTextFont("Upload into Folder:");
+    	JLabel l = new JLabel("Upload into Folder:");
     	folder.add(l, BorderLayout.WEST);
     	folder.add(location, BorderLayout.CENTER);
     	folder.add(locationFinder, BorderLayout.EAST);
