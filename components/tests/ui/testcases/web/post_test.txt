@@ -238,7 +238,7 @@ Test Drag And Drop Image
     ${datasetNode1}=                            Wait For Dataset Node                                             ${did}
 
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a                                
-    Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
+    Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']/a
     Select Dataset By Id                        ${did}
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}'] 
 
