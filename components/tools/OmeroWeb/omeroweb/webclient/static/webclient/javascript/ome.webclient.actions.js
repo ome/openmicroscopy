@@ -459,7 +459,7 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     var datatree = $.jstree.reference($('#dataTree'));
     var selected = datatree.get_selected(true);
 
-    var del_form = $( "#delete-dialog-form" );
+    var del_form = $("#delete-dialog-form");
     del_form.dialog( "open" )
         .removeData("clicked_button");
     // clear previous stuff from form
@@ -592,6 +592,7 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     var $deleteYesBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(1)'),
         $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
     $.get(filesetCheckUrl + OME.get_tree_selection(), function(html){
+        html = $.trim(html);
         if($('div.split_fileset', html).length > 0) {
             var $del_form_content = del_form.children().hide();
             del_form.append(html);
