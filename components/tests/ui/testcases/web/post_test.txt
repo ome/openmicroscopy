@@ -240,14 +240,14 @@ Test Drag And Drop Image
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a                                
     Drag And Drop                               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']/a     xpath=//li[@id='${datasetNode1}']
     Select Dataset By Id                        ${did}
-    Wait Until Element is Visible               xpath=//li[@id='${did}']//li[@data-id='${imageId}'] 
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}'] 
 
     #Bring database state back to original
     Select Image By Id                          ${imageId}
     Wait Until Element is Visible               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a
     Drag And Drop                               xpath=//li[@id='${datasetNode1}']//li[@data-id='${imageId}']/a    xpath=//li[@id='${datasetNode}']/a
     Select Dataset By Id                        ${datasetId}
-    Wait Until Element is Visible               xpath=//li[@id='${datasetId}']//li[@data-id='${imageId}']                          
+    Wait Until Element is Visible               xpath=//li[@id='${datasetNode}']//li[@data-id='${imageId}']                          
 
 Test Drag and Drop Orphaned Image
     
