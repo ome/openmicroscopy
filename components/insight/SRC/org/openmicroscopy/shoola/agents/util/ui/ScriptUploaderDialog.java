@@ -23,6 +23,8 @@ package org.openmicroscopy.shoola.agents.util.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,24 +36,30 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import omero.gateway.SecurityContext;
+import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
@@ -134,8 +142,8 @@ public class ScriptUploaderDialog
     /** Display the available location. */
     private JButton		locationFinder;
     
-    /** The available scripts. */
-    private Map<Long, String> scripts;
+    /** Existing scripts */
+    private List<ScriptObject> scripts;
     
     /** The available folders. */
     private List<String> folders;
@@ -150,21 +158,6 @@ public class ScriptUploaderDialog
 	private void initComponents()
 	{
 		folders = new ArrayList<String>();
-		if (scripts != null) {
-			Entry entry;
-			Iterator i = scripts.entrySet().iterator();
-			String[] values;
-			String value;
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				values = UIUtilities.splitString((String) entry.getValue());
-				if (values != null && values.length > 1) {
-					value = values[values.length-2];
-					if (!folders.contains(value))
-						folders.add(value);
-				}
-			}
-		}
 		
         chooser = new GenericFileChooser();
         chooser.setAcceptAllFileFilterUsed(true);
@@ -220,13 +213,34 @@ public class ScriptUploaderDialog
 	private JPanel buildControls()
 	{
 		JPanel controls = new JPanel();
-    	controls.setLayout(new BorderLayout(0, 0));
+    	controls.setLayout(new BorderLayout());
     	controls.add(buildToolbar(), BorderLayout.CENTER);
     	
+    	JPanel folder = new JPanel();
+    	folder.setLayout(new BorderLayout());
+    	JLabel l = UIUtilities.setTextFont("Upload into Folder:");
+    	folder.add(l, BorderLayout.WEST);
+    	folder.add(location, BorderLayout.CENTER);
+    	folder.add(locationFinder, BorderLayout.EAST);
+    	
     	JPanel p = new JPanel();
-    	p.setLayout(new BorderLayout(0, 0));
-    	p.add(chooser, BorderLayout.CENTER);
-    	p.add(controls, BorderLayout.SOUTH);
+    	p.setLayout(new GridBagLayout());
+    	p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+    	GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        p.add(chooser, c);
+        c.gridy++;
+        
+        c.weighty = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+    	p.add(folder, c);
+    	c.gridy++;
+    	
+    	p.add(controls, c);
 		return p;
 	}
 	
@@ -298,21 +312,17 @@ public class ScriptUploaderDialog
 		}
 		
 		if (scripts != null) {
-			//File should not be null.
-			String name = f.getName();
-			Entry entry;
-			Iterator j = scripts.entrySet().iterator();
-			String value;
-			supported = false;
-			while (j.hasNext()) {
-				entry = (Entry) j.next();
-				value = (String) entry.getValue();
+		    boolean exists = false;
+		    ScriptObject tmp = new ScriptObject(-1, "", f.getName());
+			String name = tmp.getDisplayedName();
+			for(ScriptObject s : scripts) {
+				String value = s.getDisplayedName();
 				if (value.equals(name)) {
-					supported = true;
+				    exists = true;
 					break;
 				}
 			}
-			if (supported) {
+			if (exists) {
 				MessageBox box = new MessageBox((JFrame) getOwner(), TITLE, 
 						"A script with the same name already exists in " +
 						"the system.\n" +
@@ -324,6 +334,16 @@ public class ScriptUploaderDialog
 		ScriptObject script = new ScriptObject(-1, f.getAbsolutePath(), 
 				f.getName());
 		script.setMIMEType(mimeType);
+		
+		String value = location.getText();
+		if (CommonsLangUtils.isNotEmpty(value)) 
+		    script.setFolder(value.trim());
+		else 
+		    script.setFolder(f.getParentFile().getName());
+		
+		IconManager icons = IconManager.getInstance();
+		script.setIcon(icons.getIcon(IconManager.UPLOAD_SCRIPT));
+		
 
 		firePropertyChange(UPLOAD_SCRIPT_PROPERTY, null, script);
 		close();
@@ -353,6 +373,7 @@ public class ScriptUploaderDialog
 				item.setActionCommand(""+index);
 				item.addActionListener(this);
 				index++;
+				menu.add(item);
 			}
     	}
     	menu.show(locationFinder, p.x, p.y);
@@ -364,18 +385,68 @@ public class ScriptUploaderDialog
 	 * @param owner The owner of the dialog.
 	 * @param scripts The scripts already uploaded.
 	 * @param context Reference to the context.
+	 * @param ctx The {@link SecurityContext}
 	 */
-	public ScriptUploaderDialog(JFrame owner, Map<Long, String> scripts, 
-			Registry context)
+	public ScriptUploaderDialog(JFrame owner,
+			Registry context, SecurityContext ctx)
 	{
 		super(owner);
-		this.scripts = scripts;
 		this.context = context;
 		setProperties();
 		initComponents();
 		buildGUI();
+		loadScripts(ctx);
 		pack();
 	}
+
+	/**
+	 * Set the scripts which already exist on the server
+	 * @param scripts The List of {@link ScriptObject}s
+	 */
+    void setScripts(List<ScriptObject> scripts) {
+        this.scripts = scripts;
+        
+        for (ScriptObject s : scripts) {
+            String folder = s.getFolder();
+            if(folder.startsWith("/"))
+                 folder = folder.replaceFirst("/", "");
+            if(folder.endsWith("/"))
+                folder = folder.substring(0, folder.length()-1);
+            if (!folders.contains(folder))
+                folders.add(folder);
+        }
+        locationFinder.setEnabled(!folders.isEmpty());
+    }
+	
+    /**
+     * Starts an async call to load the existing scripts
+     * from the server
+     * @param The {@link SecurityContext}
+     */
+    private void loadScripts(final SecurityContext ctx) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    OmeroImageService svc = context.getImageService();
+                    final List<ScriptObject> scripts = svc
+                            .loadAvailableScripts(ctx, -1);
+                    
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            ScriptUploaderDialog.this.setScripts(scripts);
+                        }
+                    });
+
+                } catch (Exception e) {
+                    LogMessage m = new LogMessage("Couldn't load scripts", e);
+                    context.getLogger().error(ScriptUploaderDialog.this, m);
+                }
+            }
+        };
+        new Thread(r).start();
+    }
 
 	/**
 	 * Uploads the script or closes the dialog.
