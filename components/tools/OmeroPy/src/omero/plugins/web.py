@@ -487,6 +487,10 @@ class WebControl(BaseControl):
                 wsgiargs = settings.WSGI_ARGS
             except:
                 wsgiargs = args.wsgi_args
+            else:
+                if args.wsgi_args:
+                    self.ctx.out(" `--wsgi-args` is ovewritten by"
+                                 " `omero.web.wsgi_args`. ", newline=False)
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " --bind %(host)s:%(port)d"
             cmd += " --workers %(workers)d "
