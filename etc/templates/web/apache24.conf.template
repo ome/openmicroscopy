@@ -2,6 +2,11 @@
 ### Apache 2.4+ stanza for OMERO.web created %(NOW)s
 ###
 
+# when using virtual env. remove comment
+# and replace by the path to the virtualenv
+#WSGIPythonHome pathToVirtualenv
+#WSGIPythonPath pathToVirtualenv/lib64/python2.7/site-packages
+
 <VirtualHost _default_:%(HTTPPORT)d>
 
   DocumentRoot %(OMEROWEBROOT)s
