@@ -31,6 +31,14 @@ from omero.model import NamedValue as NV
 from omero.gateway import BlitzGateway
 
 
+# TODO: rdefid, tbid
+SUPPORTED = {
+    "idonly": "-1",
+    "imageid": "Image:-1",
+    "plateid": "Plate:-1",
+    "screenid": "Screen:-1",
+}
+
 class TestRender(CLITest):
 
     def setup_method(self, method):
@@ -48,26 +56,37 @@ class TestRender(CLITest):
         self.idonly = "%s" % self.imgobj.id
         self.imageid = "Image:%s" % self.imgobj.id
         self.plateid = "Plate:%s" % self.plates[0].id
+        self.screenid = "Screen:%s" % self.plates[0].getParent().id
+        # And another one as the source for copies
+        self.source = list(self.plates[0].listChildren())[0].getImage(index=1)
+        self.source = "Image:%s" % self.source.id
+        # And for all the images, pre-load a thumbnail
+        for p in self.plates:
+            for w in p.listChildren():
+                for i in range(w.countWellSample()):
+                    w.getImage(index=i).getThumbnail(
+                        size=(96,), direct=False)
 
     # rendering tests
     # ========================================================================
 
-    # TODO: rdefid, tbid
-    @pytest.mark.parametrize('targetName', ['idonly', 'imageid', 'plateid'])
+    @pytest.mark.parametrize('targetName', sorted(SUPPORTED.keys()))
     def testNonExistingImage(self, targetName, tmpdir):
-        lookup = {
-            "idonly": "-1",
-            "imageid": "Image:-1",
-            "plateid": "Plate:-1",
-        }
-        target = lookup[targetName]
+        target = SUPPORTED[targetName]
         self.args += ["info", target]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('targetName', ['idonly', 'imageid', 'plateid'])
+    @pytest.mark.parametrize('targetName', sorted(SUPPORTED.keys()))
     def testInfo(self, targetName, tmpdir):
         self.create_image()
         target = getattr(self, targetName)
         self.args += ["info", target]
+        self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.parametrize('targetName', sorted(SUPPORTED.keys()))
+    def testCopy(self, targetName, tmpdir):
+        self.create_image()
+        target = getattr(self, targetName)
+        self.args += ["copy", self.source, target]
         self.cli.invoke(self.args, strict=True)
