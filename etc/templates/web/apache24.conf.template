@@ -12,7 +12,7 @@
 
   WSGIApplicationGroup %%{GLOBAL}
 
-  WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py
+  WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py process-group=omeroweb%(PREFIX_NAME)s
 
   <Directory "%(OMEROWEBROOT)s">
     Require all granted

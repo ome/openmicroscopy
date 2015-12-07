@@ -384,7 +384,8 @@ class TestWeb(object):
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % icepath, 'lib/python/omeroweb'),
                 ('WSGIScriptAlias %s ' % prefix,
-                 'lib/python/omeroweb/wsgi.py'),
+                 'lib/python/omeroweb/wsgi.py ' +
+                 'process-group=omeroweb_%s' % prefix.strip("/")),
                 ('Alias %s ' % static_prefix[:-1],
                  'lib/python/omeroweb/static'),
                 ], lines)
@@ -396,7 +397,8 @@ class TestWeb(object):
                  'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % icepath, 'lib/python/omeroweb'),
-                ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py'),
+                ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py ' +
+                 'process-group=omeroweb'),
                 ('Alias /static ', 'lib/python/omeroweb/static'),
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
