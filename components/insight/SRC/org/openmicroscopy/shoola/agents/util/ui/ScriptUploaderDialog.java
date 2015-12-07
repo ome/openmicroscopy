@@ -383,7 +383,6 @@ public class ScriptUploaderDialog
 	 * Creates a new instance.
 	 * 
 	 * @param owner The owner of the dialog.
-	 * @param scripts The scripts already uploaded.
 	 * @param context Reference to the context.
 	 * @param ctx The {@link SecurityContext}
 	 */
