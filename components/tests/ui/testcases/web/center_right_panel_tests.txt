@@ -8,9 +8,40 @@ Resource          ../../resources/web/tree.txt
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
 Suite Teardown      Close all browsers
 
+*** Keywords ***
+
+Get Id From Selected Item In Tree
+
+	${dataId}=                      Get Element Attribute    xpath=//li::a[contains(@class, 'jstree-clicked')]@data-id
+	[return]						${dataId}
+
+Get Id From Selected Thumbnail
+
+	${dataId}=						Get Element Attribute    xpath=//li[contains(@class,'ui-selected')]@data-id
+	[return]						${dataId}
+
+Get Id From Right Panel
+
+	${dataId}= 						Get Text                css=tr.data_heading_id strong
+	[return]						${dataId}
+
 *** Test Cases ***
 
 Select First Dataset
     ${datasetId}=                   Select Node By Icon      ${datasetIcon}
     Wait Until Right Panel Loads    Dataset                  ${datasetId}
     Wait Until Center Panel Loads 	Dataset
+
+Check Center and Right Panel Sync For Image
+	${imageId}						Select First Image
+	Wait Until Right Panel Loads	Image 					 ${imageId}
+	
+	${imageId1}						Get Id From Selected Item In Tree
+
+
+	${imageId2}						Get Id From Selected Thumbnail
+	${imageId3}						Get Id From Right Panel
+
+	Should Be Equal 				${imageId1}		${imageId}
+	Should Be Equal					${imageId2}		${imageId}
+	Should Be Equal 				${imageId3}		${imageId}
