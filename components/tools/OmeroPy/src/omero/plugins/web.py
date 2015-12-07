@@ -255,7 +255,13 @@ class WebControl(BaseControl):
             print traceback.print_exc()
             self.ctx.err(
                 "Cannot import Ice.")
-        d["OMEROPYTHONROOT"] = self._get_python_dir()
+        try:
+            pythonpath = os.pathsep.join([
+                self._get_python_dir(),
+                os.environ.get("PYTHONPATH", None)])
+        except:
+            pythonpath = self._get_python_dir()
+        d["OMEROPYTHONROOT"] = pythonpath
         d["OMEROFALLBACKROOT"] = self._get_fallback_dir()
 
     @config_required

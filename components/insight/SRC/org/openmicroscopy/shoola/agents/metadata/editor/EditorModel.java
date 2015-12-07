@@ -151,7 +151,7 @@ class EditorModel
 {
 	
     /** Default maximum export size, 12kx12kx image */
-    static int DEFAULT_MAX_EXPORT_SIZE = 144000000;
+    static long DEFAULT_MAX_EXPORT_SIZE = 144000000;
     
 	/** Identifies <code>all</code> the objects.*/
 	static final int ALL = PermissionMenu.ALL;
@@ -4579,13 +4579,13 @@ class EditorModel
         if (getPixels() == null)
             return false;
 
-        int imgSize = getPixels().getSizeX() * getPixels().getSizeY();
-        int maxSize = DEFAULT_MAX_EXPORT_SIZE;
+        long imgSize = (long)getPixels().getSizeX() * (long)getPixels().getSizeY();
+        long maxSize = DEFAULT_MAX_EXPORT_SIZE;
         String tmp = (String) MetadataViewerAgent.getRegistry().lookup(
                 LookupNames.MAX_EXPORT_SIZE);
         if (tmp != null) {
             try {
-                maxSize = Integer.parseInt(tmp);
+                maxSize = Long.parseLong(tmp);
             } catch (NumberFormatException e) {
                 MetadataViewerAgent
                         .getRegistry()

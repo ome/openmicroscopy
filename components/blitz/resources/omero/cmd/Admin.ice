@@ -34,9 +34,9 @@ module omero {
          };
 
          /**
-          * Successful response for [ResetPasswordRequest].
+          * Successful response for {@link ResetPasswordRequest}.
           * If no valid user with matching email is found,
-          * an [ERR] will be returned.
+          * an {@link ERR} will be returned.
           **/
          class ResetPasswordResponse extends Response {
          };
@@ -49,7 +49,7 @@ module omero {
          * interpreted as the the millisecond value which should
          * be set. Non-administrators will not be able to reduce
          * current values. No special response is returned, but
-         * an [omero::cmd::OK] counts as success.
+         * an {@link omero.cmd.OK} counts as success.
          **/
         class UpdateSessionTimeoutRequest extends Request {
             string session;
@@ -59,33 +59,34 @@ module omero {
 
         /**
          * Argument-less request that will produce a
-         * [CurrentSessionsResponse] if no [omero::cmd::ERR] occurs.
+         * {@link CurrentSessionsResponse} if no {@link omero.cmd.ERR} occurs.
          **/
         class CurrentSessionsRequest extends Request {
         };
 
         /**
-         * Return value from [omero::cmd::CurrentSessionsRequest] consisting of
-         * two ordered lists of matching length. The sessions field
-         * contains a list of the OMERO [omero::model::Session] objects
-         * that are currently active *after* all timeouts have been applied.
+         * Return value from {@link omero.cmd.CurrentSessionsRequest}
+         * consisting of two ordered lists of matching length. The sessions
+         * field contains a list of the OMERO {@link omero.model.Session}
+         * objects that are currently active *after* all timeouts have been
+         * applied.
          * This is the value that would be returned by
-         * [omero::api::ISession::getSession] when joined to that session.
+         * {@link omero.api.ISession#getSession} when joined to that session.
          * Similarly, the contexts field contains the value that would be
-         * returned by a call to [omero::api::IAdmin::getEventContext].
+         * returned by a call to {@link omero.api.IAdmin#getEventContext}.
          * For non-administrators, most values for all sessions other than
          * those belonging to that user will be nulled.
          **/
         class CurrentSessionsResponse extends Response {
 
             /**
-             * [omero::model::Session] objects loaded from
+             * {@link omero.model.Session} objects loaded from
              * the database.
              **/
             omero::api::SessionList sessions;
 
             /**
-             * [omero::sys::EventContext] objects stored in
+             * {@link omero.sys.EventContext} objects stored in
              * memory by the server.
              **/
             omero::api::EventContextList contexts;

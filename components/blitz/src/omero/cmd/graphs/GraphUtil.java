@@ -27,8 +27,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.hibernate.Session;
 
 import ome.model.core.OriginalFile;
@@ -42,6 +45,7 @@ import omero.cmd.GraphModify2;
 import omero.cmd.Request;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -372,6 +376,124 @@ public class GraphUtil {
         } else {
             final Object mapped = mapping.apply(value);
             return mapped == null ? value : mapped;
+        }
+    }
+
+    /**
+     * Create a human-readable view of graph request parameters and results to be logged for debugging.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.2.1
+     */
+    static class ParameterReporter {
+
+        private final List<String> parameters = new ArrayList<String>();
+
+        /**
+         * Sort a collection only if it is a {@link List} of {@link Comparable} elements.
+         * @param collection the collection to sort
+         */
+        private static void possiblySort(Collection<Object> collection) {
+            if (!(collection instanceof List)) {
+                return;
+            }
+            final List<Comparable<Object>> comparableElements = new ArrayList<Comparable<Object>>(collection.size());
+            for (Object element : collection) {
+                if (element instanceof Comparable) {
+                    comparableElements.add((Comparable<Object>) element);
+                } else {
+                    return;
+                }
+            }
+            Collections.sort(comparableElements);
+            collection.clear();
+            for (final Comparable<Object> comparableElement : comparableElements) {
+                collection.add(comparableElement);
+            }
+        }
+
+        /**
+         * Add a parameter to those to be reported.
+         * @param name the parameter name
+         * @param values the parameter value
+         */
+        void addParameter(String name, Collection<Object> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return;
+            }
+            possiblySort(values);
+            final List<String> elements = new ArrayList<String>();
+            for (Object element : values) {
+                if (element instanceof ChildOption) {
+                    final ChildOption childOption = (ChildOption) element;
+                    final StringBuilder sb =  new StringBuilder();
+                    sb.append('<');
+                    final ParameterReporter arguments = new ParameterReporter();
+                    arguments.addParameter("includeType", childOption.includeType);
+                    arguments.addParameter("excludeType", childOption.excludeType);
+                    arguments.addParameter("includeNs", childOption.includeNs);
+                    arguments.addParameter("excludeNs", childOption.excludeNs);
+                    sb.append(arguments);
+                    sb.append('>');
+                    element = sb;
+                }
+                elements.add(element.toString());
+            }
+            parameters.add(name + " = [" + Joiner.on(',').join(elements) + "]");
+        }
+
+        /**
+         * Add a parameter to those to be reported.
+         * @param name the parameter name
+         * @param values the parameter value
+         */
+        void addParameter(String name, Map<String, List<Long>> values) {
+            if (MapUtils.isEmpty(values)) {
+                return;
+            }
+            final StringBuilder sb =  new StringBuilder();
+            sb.append(name);
+            sb.append(" = ");
+            sb.append('{');
+            boolean needComma = false;
+            if (!(values instanceof SortedMap)) {
+                values = new TreeMap<String, List<Long>>(values);
+            }
+            for (final Map.Entry<String, List<Long>> oneClass : values.entrySet()) {
+                if (needComma) {
+                    sb.append(',');
+                } else {
+                    needComma = true;
+                }
+                sb.append(oneClass.getKey());
+                sb.append(':');
+                final List<Long> ids = oneClass.getValue();
+                Collections.sort(ids);
+                sb.append('[');
+                sb.append(Joiner.on(',').join(ids));
+                sb.append(']');
+            }
+            sb.append('}');
+            parameters.add(sb.toString());
+        }
+
+        /**
+         * Add a parameter to those to be reported.
+         * @param name the parameter name
+         * @param values the parameter value
+         */
+        void addParameter(String name, Object value) {
+            if (value instanceof Collection) {
+                addParameter(name, (Collection<Object>) value);
+            } else if (value instanceof Map) {
+                this.addParameter(name, (Map<String, List<Long>>) value);
+            } else if (value != null) {
+                parameters.add(name + " = " + value);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return Joiner.on(", ").join(parameters);
         }
     }
 }
