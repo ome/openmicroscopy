@@ -378,7 +378,6 @@ class TestWeb(object):
         if prefix:
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
-                ('DocumentRoot ', 'lib/python/omeroweb'),
                 ('WSGIDaemonProcess %s ' % upstream_name +
                  'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
@@ -393,7 +392,6 @@ class TestWeb(object):
         else:
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
-                ('DocumentRoot ', 'lib/python/omeroweb'),
                 ('WSGIDaemonProcess %s ' % upstream_name +
                  'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
