@@ -60,6 +60,8 @@
   
   WSGIProcessGroup omeroweb%(PREFIX_NAME)s
 
+  WSGIApplicationGroup %%{GLOBAL}
+
   WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py
 
   <Directory "%(OMEROWEBROOT)s">
@@ -78,6 +80,5 @@
 
 # see https://code.google.com/p/modwsgi/wiki/ConfigurationIssues
 WSGISocketPrefix run/wsgi
+# Use this on Ubuntu/Debian/MacOSX systems:
 # WSGISocketPrefix /var/run/wsgi
-
-
