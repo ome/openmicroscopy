@@ -440,7 +440,7 @@ class TestImport(CLITest):
     SOURCES = (
         IdModelTargetSource(),
         NameModelTargetSource(),
-        TemplateTargetSource("(?<C1>.*)"),
+        TemplateTargetSource("(?<Container1>.*)"),
         # ClassTargetSource(),
     )
 
