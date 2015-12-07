@@ -70,6 +70,12 @@ Test Cut Paste Dataset
     Wait Until Element Is Visible           xpath=//li[@id='${projectNode1}']/ul/li[@data-id='${did}']     ${WAIT}
     Page Should Not Contain Element         xpath=//li[@id='${projectNode2}']/ul/li[@data-id='${did}']
 
+    Select Project By Id                    ${p1id}
+    Delete Container
+
+    Select Project By Id                    ${p1id}
+    Delete Container
+
 Test Cut Paste Plate
     [Documentation]    Cut a Plate and paste it onto another screen
 
@@ -89,6 +95,9 @@ Test Cut Paste Plate
     Click Element                           id=pasteButton
     Click Node                              ${screenNode1}                     
     Wait Until Page Contains Element        xpath=//li[@id='${screenNode1}']//li[@data-id='${plateId}']
+
+    Select Screen By Id                     ${s1id}
+    Delete Container
 
 Test Edit Project
     [Documentation]     Create a Project and edit its name and description
@@ -329,6 +338,12 @@ Test Drag and Drop Dataset On Experimenter
     Select Experimenter
     ${datasetNode}                              Wait For Dataset Node                                           ${did}
     Wait Until Element is Visible               xpath=//li[@id='${treeRootId}']/ul/li[@id='${datasetNode}']
+
+    Select Dataset By Id                        ${did}
+    Delete Container
+
+    Select Project By Id                        ${pid}
+    Delete Container
 
 Test Drag and Drop Negative Tests
 
