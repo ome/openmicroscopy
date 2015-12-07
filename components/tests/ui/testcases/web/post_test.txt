@@ -73,7 +73,7 @@ Test Cut Paste Dataset
     Select Project By Id                    ${p1id}
     Delete Container
 
-    Select Project By Id                    ${p1id}
+    Select Project By Id                    ${p2id}
     Delete Container
 
 Test Cut Paste Plate
