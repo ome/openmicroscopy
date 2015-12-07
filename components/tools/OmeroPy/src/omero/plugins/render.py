@@ -27,6 +27,7 @@ from omero.cli import ProxyStringType
 from omero.gateway import BlitzGateway
 from omero.model import Image
 from omero.model import Plate
+from omero.model import Screen
 
 
 DESC = {
@@ -195,6 +196,11 @@ class RenderControl(BaseControl):
             for x in object:
                 for rv in self.render_images(gateway, x, batch):
                     yield rv
+        elif isinstance(object, Screen):
+            scr = self._lookup(gateway, "Screen", object.id)
+            for plate in scr.listChildren():
+                for rv in self.render_images(gateway, plate._obj, batch):
+                    yield rv
         elif isinstance(object, Plate):
             plt = self._lookup(gateway, "Plate", object.id)
             rv = []
@@ -210,7 +216,6 @@ class RenderControl(BaseControl):
                             rv = []
             if rv:
                 yield rv
-
         elif isinstance(object, Image):
             img = self._lookup(gateway, "Image", object.id)
             if batch == 1:
@@ -237,6 +242,10 @@ class RenderControl(BaseControl):
                         self.ctx.err("Skipping: Image:%s itself" % target.id)
                     else:
                         batch[target.id] = target
+
+                if not batch:
+                    continue
+
                 rv = gateway.applySettingsToSet(src_img.id, "Image",
                                                 batch.keys())
                 for missing in rv[False]:
