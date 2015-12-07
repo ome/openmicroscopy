@@ -59,7 +59,7 @@ public class ServerTemplateImportTarget extends TemplateImportTarget {
             return null;
         }
 
-        String name = m.group("C1");
+        String name = m.group("Container1");
         if (name == null || name.trim().length() == 0) {
             log.warn("Empty name");
             return null;
