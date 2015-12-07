@@ -18,7 +18,7 @@ USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-robot_ice.config}
 IMAGE_NAME=${IMAGE_NAME:-test&sizeZ=3&sizeT=10.fake}
 TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test.fake}
-PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1.fake}
+PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake}
 
 # Create robot user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
