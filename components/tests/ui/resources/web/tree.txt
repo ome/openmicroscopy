@@ -225,8 +225,23 @@ Wait Until Right Panel Loads
     [Arguments]                     ${containerType}         ${containerId}
     Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${containerType} ID:')]
     Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]/td/strong[(text() = '${containerId}')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/h1[1][contains(text(),'Image Details')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element
+    
+    Wait Until Page Contains Element                         xpath=//*[@id="general_tab"]/h1[1][contains(text(),'${containerType} Details')]
+    Run Keyword If                  '${containerType}' == 'Project'        Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[1]/th[contains(text(),'Creation Date:')]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[1]/th[contains(text(),'Creation Date:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[1]/th[contains(text(),'Acquisition Date:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[2]/th[contains(text(),'Import Date:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[3]/th[contains(text(),'Dimensions (XY):')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[4]/th[contains(text(),'Pixels Type:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[5]/th[contains(text(),'Pixels Size (XYZ) (µm):')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[6]/th[contains(text(),'Z-sections/Timepoints:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[7]/th[contains(text(),'Channels:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[8]/th[contains(text(),'ROI Count:')]
+    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[2][contains(text(),'Tags')]
+    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[3][contains(text(),'Key-Value Pairs')]
+    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[4][contains(text(),'Attachments')]
+    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[5][contains(text(),'Ratings')]
+    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[6][contains(text(),'Comments')]
 
 Wait Until Center Panel Loads
     [Arguments]                     ${containerType}
