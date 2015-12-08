@@ -22,6 +22,8 @@ package ome.formats.importer.targets;
 import static omero.rtypes.rstring;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportContainer;
@@ -34,6 +36,12 @@ import omero.model.IObject;
  * @since 5.1.2
  */
 public class ModelImportTarget implements ImportTarget {
+
+    /**
+     * Valid omero.model classes for model import target.
+     */
+    private static final List<String> VALID_TYPES = Arrays.asList(
+            "omero.model.Dataset", "omero.model.Screen");
 
     /**
      * omero.model class which can be used for instantiation.
@@ -71,12 +79,15 @@ public class ModelImportTarget implements ImportTarget {
         Class<? extends IObject> klass = null;
         try {
             klass = (Class<? extends IObject>) Class.forName(prefix);
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             try {
                 klass = (Class<? extends IObject>) Class.forName("omero.model."+prefix);
-            } catch (ClassNotFoundException e1) {
+            } catch (Exception e1) {
                 throw new RuntimeException("Unknown class:" + prefix);
             }
+        }
+        if (!VALID_TYPES.contains(klass.getName())) {
+            throw new RuntimeException("Not a valid container class:" + klass.getName());
         }
         return klass;
     }
