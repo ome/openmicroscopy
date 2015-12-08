@@ -508,6 +508,22 @@ class TestImport(CLITest):
         found2 = parse_containers()
         source.verify_containers(found1, found2)
 
+    @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
+    def testBadTargetArgument(self, kls, tmpdir):
+
+        subdir = tmpdir
+        fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        name = "BadNameModelTargetSource-Test"
+        target = "%s:name:%s" % (kls, name)
+
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     @pytest.mark.parametrize("level", debug_levels)
     @pytest.mark.parametrize("prefix", [None, '--'])
     def testDebugArgument(self, tmpdir, capfd, level, prefix):
