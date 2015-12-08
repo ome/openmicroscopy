@@ -31,21 +31,22 @@ import java.util.concurrent.ExecutionException;
 
 import omero.api.IContainerPrx;
 import omero.api.IUpdatePrx;
+import omero.cmd.CmdCallbackI;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.util.PojoMapper;
 import omero.gateway.util.Requests;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.sys.Parameters;
-import omero.gateway.model.DataObject;
-import omero.gateway.model.DatasetData;
-import omero.gateway.model.ImageData;
-import omero.gateway.util.PojoMapper;
 
 /**
  * A {@link Facility} for saving, deleting and updating data objects
@@ -57,9 +58,6 @@ import omero.gateway.util.PojoMapper;
 
 public class DataManagerFacility extends Facility {
 
-    /** Maximum time in ms to wait for a request to be completed */
-    private static final int REQUEST_TIMEOUT_MS = 25000;
-    
     /** Reference to the {@link BrowseFacility} */
     private BrowseFacility browse;
 
@@ -77,6 +75,8 @@ public class DataManagerFacility extends Facility {
     /**
      * Deletes the specified object.
      *
+     * @deprecated Use the asynchronous method
+     *             {@link #delete(SecurityContext, IObject)} instead
      * @param ctx
      *            The security context.
      * @param object
@@ -94,8 +94,82 @@ public class DataManagerFacility extends Facility {
     }
 
     /**
+     * Deletes the specified object asynchronously
+     * 
+     * @param ctx
+     *            The security context.
+     * @param object
+     *            The object to delete.
+     * @return The {@link CmdCallbackI}
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public CmdCallbackI delete(SecurityContext ctx, IObject object)
+            throws DSOutOfServiceException, DSAccessException {
+        return delete(ctx, Collections.singletonList(object));
+    }
+
+    /**
+     * Deletes the specified objects asynchronously
+     *
+     * @param ctx
+     *            The security context.
+     * @param objects
+     *            The objects to delete.
+     * @return The {@link CmdCallbackI}
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public CmdCallbackI delete(SecurityContext ctx, List<IObject> objects)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            /*
+             * convert the list of objects to lists of IDs by OMERO model class
+             * name
+             */
+            final Map<String, List<Long>> objectIds = new HashMap<String, List<Long>>();
+            for (final IObject object : objects) {
+                /* determine actual model class name for this object */
+                Class<? extends IObject> objectClass = object.getClass();
+                while (true) {
+                    final Class<?> superclass = objectClass.getSuperclass();
+                    if (IObject.class == superclass) {
+                        break;
+                    } else {
+                        objectClass = superclass.asSubclass(IObject.class);
+                    }
+                }
+                final String objectClassName = objectClass.getSimpleName();
+                /* then add the object's ID to the list for that class name */
+                final Long objectId = object.getId().getValue();
+                List<Long> idsThisClass = objectIds.get(objectClassName);
+                if (idsThisClass == null) {
+                    idsThisClass = new ArrayList<Long>();
+                    objectIds.put(objectClassName, idsThisClass);
+                }
+                idsThisClass.add(objectId);
+            }
+            /* now delete the objects */
+            final Request request = Requests.delete(objectIds);
+            return gateway.submit(ctx, request);
+        } catch (Throwable t) {
+            handleException(this, t, "Cannot delete the object.");
+        }
+        return null;
+    }
+
+    /**
      * Deletes the specified objects.
      *
+     * @deprecated Use the asynchronous method
+     *             {@link #delete(SecurityContext, List)} instead
+     * 
      * @param ctx
      *            The security context.
      * @param objects
@@ -138,9 +212,7 @@ public class DataManagerFacility extends Facility {
             }
             /* now delete the objects */
             final Request request = Requests.delete(objectIds);
-            int loopTimeout = 250;
-            int loops = REQUEST_TIMEOUT_MS / loopTimeout;
-            return gateway.submit(ctx, request).loop(loops, loopTimeout);
+            return gateway.submit(ctx, request).loop(50, 250);
         } catch (Throwable t) {
             handleException(this, t, "Cannot delete the object.");
         }
@@ -194,9 +266,10 @@ public class DataManagerFacility extends Facility {
      */
     public DataObject saveAndReturnObject(SecurityContext ctx, DataObject object)
             throws DSOutOfServiceException, DSAccessException {
-        return PojoMapper.asDataObject(saveAndReturnObject(ctx, object.asIObject()));
+        return PojoMapper.asDataObject(saveAndReturnObject(ctx,
+                object.asIObject()));
     }
-    
+
     /**
      * Updates the specified object.
      *
@@ -278,7 +351,8 @@ public class DataManagerFacility extends Facility {
     public DataObject saveAndReturnObject(SecurityContext ctx,
             DataObject object, String userName) throws DSOutOfServiceException,
             DSAccessException {
-        return PojoMapper.asDataObject(saveAndReturnObject(ctx, object.asIObject(), userName));
+        return PojoMapper.asDataObject(saveAndReturnObject(ctx,
+                object.asIObject(), userName));
     }
 
     /**
@@ -298,9 +372,8 @@ public class DataManagerFacility extends Facility {
      *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
-    public IObject saveAndReturnObject(SecurityContext ctx,
-            IObject object, String userName) throws DSOutOfServiceException,
-            DSAccessException {
+    public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
+            String userName) throws DSOutOfServiceException, DSAccessException {
         try {
             IUpdatePrx service = gateway.getUpdateService(ctx, userName);
             IObject result = service.saveAndReturnObject(object);
@@ -320,7 +393,8 @@ public class DataManagerFacility extends Facility {
      *            The objects to update.
      * @param options
      *            Options to update the data.
-     * @param userName The username
+     * @param userName
+     *            The username
      * @return The updated object.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or logged in

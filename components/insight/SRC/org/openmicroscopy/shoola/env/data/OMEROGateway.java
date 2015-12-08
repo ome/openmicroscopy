@@ -135,6 +135,7 @@ import omero.api.SearchPrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chmod2;
+import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -2024,7 +2025,8 @@ class OMEROGateway
 	{
         try {
             DataManagerFacility dmf = gw.getFacility(DataManagerFacility.class);
-            dmf.deleteObjects(ctx, objects);
+            CmdCallbackI cb = dmf.delete(ctx, objects);
+            cb.loop(100, 250);
         } catch (Throwable t) {
             handleException(t, "Cannot delete the object.");
         }
