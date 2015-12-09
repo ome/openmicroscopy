@@ -519,6 +519,52 @@ class TestImport(CLITest):
         found2 = parse_containers()
         source.verify_containers(found1, found2)
 
+    @pytest.mark.parametrize("spw", (True, False))
+    def testMultipleNameModelTargets(self, spw, tmpdir, capfd):
+        """ Test importing into a named target when Multiple targets exist """
+
+        name = "MultipleNameModelTargetSource-Test"
+        oids = []
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            oid = self.create_object(kls, name=name)
+            oids.append(oid)
+
+        subdir = tmpdir
+        if spw:
+            fakefile = subdir.join((
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake"))
+        else:
+            fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        target = "%s:name:%s" % (kls, name)
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+        try:
+            self.cli.invoke(self.args, strict=True)
+        except NonZeroReturnCode:
+            o, e = capfd.readouterr()
+            print "O" * 40
+            print o
+            print "E" * 40
+            print e
+            raise
+        o, e = capfd.readouterr()
+
+        if spw:
+            obj = self.get_object(e, 'Plate')
+            container = self.get_screen(obj.id.val)
+        else:
+            obj = self.get_object(e, 'Image')
+            container = self.get_dataset(obj.id.val)
+
+        assert container.id.val in oids
+
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
     def testBadTargetArgument(self, kls, tmpdir):
 
