@@ -432,6 +432,29 @@ class TestImport(CLITest):
         # ClassTargetSource(),
     )
 
+    def parse_container(self, spw, capfd):
+        try:
+            self.cli.invoke(self.args, strict=True)
+        except NonZeroReturnCode:
+            o, e = capfd.readouterr()
+            print "O" * 40
+            print o
+            print "E" * 40
+            print e
+            raise
+        o, e = capfd.readouterr()
+
+        if spw:
+            obj = self.get_object(e, 'Plate')
+            container = self.get_screen(obj.id.val)
+        else:
+            obj = self.get_object(e, 'Image')
+            container = self.get_dataset(obj.id.val)
+
+        assert container
+        found = container.id.val
+        return found
+
     @pytest.mark.parametrize("spw", (True, False))
     @pytest.mark.parametrize("source", SOURCES)
     def testTargetArgument(self, spw, source, tmpdir, capfd):
@@ -453,34 +476,11 @@ class TestImport(CLITest):
         self.args += ['-T', target]
         self.args += [str(tmpdir)]
 
-        def parse_containers():
-            try:
-                self.cli.invoke(self.args, strict=True)
-            except NonZeroReturnCode:
-                o, e = capfd.readouterr()
-                print "O" * 40
-                print o
-                print "E" * 40
-                print e
-                raise
-            o, e = capfd.readouterr()
-
-            if spw:
-                obj = self.get_object(e, 'Plate')
-                containers = self.get_screens(obj.id.val)
-            else:
-                obj = self.get_object(e, 'Image')
-                containers = (self.get_dataset(obj.id.val),)
-
-            assert containers
-            found = [x.id.val for x in containers]
-            return found
-
         # Now, run the import twice and check that the
         # pre and post container IDs match the sources'
         # assumptions
-        found1 = parse_containers()
-        found2 = parse_containers()
+        found1 = self.parse_container(spw, capfd)
+        found2 = self.parse_container(spw, capfd)
         source.verify_containers(found1, found2)
 
     @pytest.mark.parametrize("spw", (True, False))
@@ -509,25 +509,10 @@ class TestImport(CLITest):
         target = "%s:name:%s" % (kls, name)
         self.args += ['-T', target]
         self.args += [str(tmpdir)]
-        try:
-            self.cli.invoke(self.args, strict=True)
-        except NonZeroReturnCode:
-            o, e = capfd.readouterr()
-            print "O" * 40
-            print o
-            print "E" * 40
-            print e
-            raise
-        o, e = capfd.readouterr()
 
-        if spw:
-            obj = self.get_object(e, 'Plate')
-            container = self.get_screen(obj.id.val)
-        else:
-            obj = self.get_object(e, 'Image')
-            container = self.get_dataset(obj.id.val)
-
-        assert container.id.val == max(oids)
+        # Run the import and get the container id
+        found = self.parse_container(spw, capfd)
+        assert found == max(oids)
 
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
     def testBadTargetArgument(self, kls, tmpdir):
