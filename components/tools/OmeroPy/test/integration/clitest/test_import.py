@@ -388,14 +388,8 @@ class TestImport(CLITest):
             return "%s:%s" % (self.kls, self.oid)
 
         def verify_containers(self, found1, found2):
-            if self.spw:
-                # Since fake files generate their own screen
-                # this is necessary.
-                assert self.oid in found1
-                assert self.oid in found2
-            else:
-                assert (self.oid,) == tuple(found1)
-                assert (self.oid,) == tuple(found2)
+            assert self.oid == found1
+            assert self.oid == found2
 
     class NameModelTargetSource(TargetSource):
 
@@ -411,21 +405,8 @@ class TestImport(CLITest):
             return "%s:name:%s" % (self.kls, self.name)
 
         def verify_containers(self, found1, found2):
-            if self.spw:
-                # Since fake files generate their own screen
-                # this is necessary.
-                for attempt in (found1, found2):
-                    found = 0
-                    for a in attempt:
-                        if self.name == \
-                                self.query.get("Screen", a).name.val:
-                            found += 1
-                    assert found
-            else:
-                for attempt in (found1, found2):
-                    assert len(attempt) == 1
-                    assert self.name == \
-                        self.query.get("Dataset", attempt[0]).name.val
+            for attempt in (found1, found2):
+                assert self.name == self.query.get(self.kls, attempt).name.val
 
     class TemplateTargetSource(TargetSource):
 
@@ -440,10 +421,6 @@ class TestImport(CLITest):
             return self.template
 
         def verify_containers(self, found1, found2):
-            if self.spw:
-                # Again, we have extra screens here!
-                pass
-            else:
                 assert found1
                 assert found2
                 assert found1 == found2
@@ -465,22 +442,9 @@ class TestImport(CLITest):
             subdir.mkdir()
 
         if spw:
-            fakefile = subdir.join("spw.fake")
-            fakefile.mkdir()
-            for x in ("Plate000", "Run000", "WellA000"):
-                fakefile = fakefile.join(x)
-                fakefile.mkdir()
-            fakefile = fakefile.join("Field000.fake")
-            # Note: a fake a la:
-            #
-            #   "SPW&plates=1&plateRows=1&plateCols=1&"
-            #   "fields=1&plateAcqs=1.fake")
-            #
-            # generates its own Screen and is so not
-            # appropriate for this test.
-            fakefile = subdir.join((
-                "SPW&plates=1&plateRows=1&plateCols=1&"
-                "fields=1&plateAcqs=1.fake"))
+            fakefile = subdir.join(
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake")
         else:
             fakefile = subdir.join("test.fake")
         fakefile.write('')
