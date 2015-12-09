@@ -30,8 +30,7 @@ import ome.formats.importer.ImportContainer;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.model.IObject;
-import omero.sys.Filter;
-
+import omero.sys.ParametersI;
 
 /**
  * @since 5.1.2
@@ -54,6 +53,8 @@ public class ModelImportTarget implements ImportTarget {
      */
     private String typeName;
 
+    private String simpleName;
+
     private String prefix; 
 
     private String rest;
@@ -71,6 +72,7 @@ public class ModelImportTarget implements ImportTarget {
         type = tryClass(prefix);
         Class<?> k = omero.util.IceMap.OMEROtoOME.get(type);
         typeName = k.getName();
+        simpleName = k.getSimpleName();
         // Reversing will take us from an abstract type to one constructible.
         type = omero.util.IceMap.OMEtoOMERO.get(k);
     }
@@ -103,15 +105,14 @@ public class ModelImportTarget implements ImportTarget {
 
     @Override
     public IObject load(OMEROMetadataStoreClient client, ImportContainer ic) throws Exception {
-        final boolean caseSensitive = true;
-        final Filter filter = new Filter();
         IObject obj;
         IQueryPrx query = client.getServiceFactory().getQueryService();
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
         if (rest.startsWith("name:")) {
             String name = rest.substring(5);
-            List<IObject> objs = (List<IObject>) query.findAllByString(
-                    typeName, "name", name, caseSensitive, filter);
+            List<IObject> objs = (List<IObject>) query.findAllByQuery(
+                "select o from "+simpleName+" as o where o.name = :name",
+                new ParametersI().add("name", rstring(name)));
             if (objs.size() == 0) {
                 obj = type.newInstance();
                 Method m = type.getMethod("setName", omero.RString.class);
