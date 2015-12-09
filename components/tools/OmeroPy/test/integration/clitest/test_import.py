@@ -166,6 +166,17 @@ class TestImport(CLITest):
         query += " where l.child.id=:id and l.parent=d.id) "
         return self.query.findByQuery(query, params)
 
+    def get_screen(self, pid):
+        """Retrieve the single screen linked to the plate"""
+
+        params = omero.sys.ParametersI()
+        params.addId(pid)
+        query = "select d from Screen as d"
+        query += " where exists ("
+        query += " select l from ScreenPlateLink as l"
+        query += " where l.child.id=:id and l.parent=d.id) "
+        return self.query.findByQuery(query, params)
+
     def get_screens(self, pid):
         """Retrieve the screens linked to the plate"""
 
