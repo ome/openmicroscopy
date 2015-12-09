@@ -166,6 +166,17 @@ class TestImport(CLITest):
         query += " where l.child.id=:id and l.parent=d.id) "
         return self.query.findByQuery(query, params)
 
+    def get_screen(self, pid):
+        """Retrieve the single screen linked to the plate"""
+
+        params = omero.sys.ParametersI()
+        params.addId(pid)
+        query = "select d from Screen as d"
+        query += " where exists ("
+        query += " select l from ScreenPlateLink as l"
+        query += " where l.child.id=:id and l.parent=d.id) "
+        return self.query.findByQuery(query, params)
+
     def get_screens(self, pid):
         """Retrieve the screens linked to the plate"""
 
@@ -299,50 +310,204 @@ class TestImport(CLITest):
         assert len(annotations) == fixture.n
         assert set([x.id.val for x in annotations]) == set(comment_ids)
 
-    def testDatasetArgument(self, tmpdir, capfd):
-        """Test argument linking imported image to a dataset"""
+    class TargetSource(object):
 
-        fakefile = tmpdir.join("test.fake")
+        def get_prefixes(self):
+            return ()
+
+        def get_arg(self, client, spw=False):
+            raise NotImplemented()
+
+        def verify_containers(self, found1, found2):
+            raise NotImplemented()
+
+    class ClassTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            pass
+
+    class AbstractIdTargetSource(TargetSource):
+
+        def create_container(self, client, name="", spw=False):
+            update = client.sf.getUpdateService()
+            if spw:
+                self.kls = "Screen"
+                self.obj = omero.model.ScreenI()
+            else:
+                self.kls = "Dataset"
+                self.obj = omero.model.DatasetI()
+            self.obj.name = rstring(name+"TargetSource-Test")
+            self.obj = update.saveAndReturnObject(self.obj)
+            self.oid = self.obj.id.val
+
+        def verify_containers(self, found1, found2):
+            assert self.oid == found1
+            assert self.oid == found2
+
+    class IdModelTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, name="IdModel", spw=spw)
+            return ("-T", "%s:%s" % (self.kls, self.oid))
+
+    class LegacyIdModelTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, name="LegacyIdModel", spw=spw)
+            if spw:
+                flag = "-r"
+            else:
+                flag = "-d"
+            return (flag, "%s:%s" % (self.kls, self.oid))
+
+    class LegacyIdOnlyTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, name="LegacyIdOnly", spw=spw)
+            if spw:
+                flag = "-r"
+            else:
+                flag = "-d"
+            return (flag, "%s" % self.oid)
+
+    class NameModelTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            # For later
+            self.query = client.sf.getQueryService()
+            if spw:
+                self.kls = "Screen"
+            else:
+                self.kls = "Dataset"
+            self.name = "NameModelTargetSource-Test"
+            return ("-T", "%s:name:%s" % (self.kls, self.name))
+
+        def verify_containers(self, found1, found2):
+            for attempt in (found1, found2):
+                assert self.name == self.query.get(self.kls, attempt).name.val
+
+    class TemplateTargetSource(TargetSource):
+
+        def __init__(self, template):
+            self.template = template
+
+        def get_prefixes(self):
+            return ("a", "b")
+
+        def get_arg(self, client, spw=False):
+            self.spw = spw
+            return ("-T", self.template)
+
+        def verify_containers(self, found1, found2):
+                assert found1
+                assert found2
+                assert found1 == found2
+
+    SOURCES = (
+        LegacyIdOnlyTargetSource(),
+        LegacyIdModelTargetSource(),
+        IdModelTargetSource(),
+        NameModelTargetSource(),
+        TemplateTargetSource("(?<Container1>.*)"),
+        # ClassTargetSource(),
+    )
+
+    def parse_container(self, spw, capfd):
+        try:
+            self.cli.invoke(self.args, strict=True)
+        except NonZeroReturnCode:
+            o, e = capfd.readouterr()
+            print "O" * 40
+            print o
+            print "E" * 40
+            print e
+            raise
+        o, e = capfd.readouterr()
+
+        if spw:
+            obj = self.get_object(e, 'Plate')
+            container = self.get_screen(obj.id.val)
+        else:
+            obj = self.get_object(e, 'Image')
+            container = self.get_dataset(obj.id.val)
+
+        assert container
+        found = container.id.val
+        return found
+
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("source", SOURCES)
+    def testTargetArgument(self, spw, source, tmpdir, capfd):
+
+        subdir = tmpdir
+        for x in source.get_prefixes():
+            subdir = subdir.join(x)
+            subdir.mkdir()
+
+        if spw:
+            fakefile = subdir.join(
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake")
+        else:
+            fakefile = subdir.join("test.fake")
         fakefile.write('')
 
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring('dataset')
-        dataset = self.update.saveAndReturnObject(dataset)
+        self.args += source.get_arg(self.client, spw)
+        self.args += [str(tmpdir)]
 
-        self.args += [str(fakefile)]
-        self.args += ['-d', '%s' % dataset.id.val]
+        # Now, run the import twice and check that the
+        # pre and post container IDs match the sources'
+        # assumptions
+        found1 = self.parse_container(spw, capfd)
+        found2 = self.parse_container(spw, capfd)
+        source.verify_containers(found1, found2)
 
-        # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, 'Image')
-        d = self.get_dataset(obj.id.val)
+    @pytest.mark.parametrize("spw", (True, False))
+    def testMultipleNameModelTargets(self, spw, tmpdir, capfd):
+        """ Test importing into a named target when Multiple targets exist """
 
-        assert d
-        assert d.id.val == dataset.id.val
+        name = "MultipleNameModelTargetSource-Test"
+        oids = []
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            oid = self.create_object(kls, name=name)
+            oids.append(oid)
 
-    def testScreenArgument(self, tmpdir, capfd):
-        """Test argument linking imported plate to a screen"""
-
-        fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
-                               "fields=1&plateAcqs=1.fake")
+        subdir = tmpdir
+        if spw:
+            fakefile = subdir.join((
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake"))
+        else:
+            fakefile = subdir.join("test.fake")
         fakefile.write('')
 
-        screen = omero.model.ScreenI()
-        screen.name = rstring('screen')
-        screen = self.update.saveAndReturnObject(screen)
+        target = "%s:name:%s" % (kls, name)
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
 
-        self.args += [str(fakefile)]
-        self.args += ['-r', '%s' % screen.id.val]
+        # Run the import and get the container id
+        found = self.parse_container(spw, capfd)
+        assert found == max(oids)
 
-        # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, 'Plate')
-        screens = self.get_screens(obj.id.val)
+    @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
+    def testBadTargetArgument(self, kls, tmpdir):
 
-        assert screens
-        assert screen.id.val in [s.id.val for s in screens]
+        subdir = tmpdir
+        fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        name = "BadNameModelTargetSource-Test"
+        target = "%s:name:%s" % (kls, name)
+
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize("level", debug_levels)
     @pytest.mark.parametrize("prefix", [None, '--'])
@@ -567,15 +732,10 @@ class TestImport(CLITest):
          "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake",
          "-r")]
 
+    @pytest.mark.broken(reason="needs omero.group setting")
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
     def testTargetInDifferentGroup(self, container, filename, arg,
                                    tmpdir, capfd):
-        """
-        The workflow this test exercises is currently broken. Until
-        it is investigated and fixed the error is trapped early and
-        an exception is raised. The test is modified to test for this
-        fail case. See ticket 12781 (and 11539).
-        """
         new_group = self.new_group(experimenters=[self.user])
         self.sf.getAdminService().getEventContext()  # Refresh
         target = eval("omero.model."+container+"I")()
@@ -590,13 +750,10 @@ class TestImport(CLITest):
         self.args += [arg, '%s' % target.id.val]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
-
-        # o, e = capfd.readouterr()
-        # obj = self.get_object(e, 'Image')
-
-        # assert obj.details.id.val == new_group.id.val
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image')
+        assert obj.details.group.id.val == new_group.id.val
 
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
     def testUnknownTarget(self, container, filename, arg, tmpdir):

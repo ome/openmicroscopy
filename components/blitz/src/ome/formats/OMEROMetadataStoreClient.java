@@ -1923,8 +1923,8 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param projectId the ID of the project
-     * @return the project
+     * @param projectId
+     * @return project with given id
      */
     public Project getProject(long projectId)
     {
