@@ -430,3 +430,28 @@ Thumbnail Should Be Selected
 Thumbnail Should Not Be Selected
     [Arguments]                     ${imageId}
     Thumbnail Should Be Selected    ${imageId}    ${false}
+
+Shift Click Node
+    [Arguments]                     ${nodeId}
+    Shift Click Element             "#${nodeId}>a"
+
+Shift Click Thumbnail
+    [Arguments]                     ${iid}
+    Shift Click Element             "#image_icon-${iid}"
+
+Shift Click Element
+    [Arguments]                     ${elementSelector}
+    Execute Javascript              $("${elementSelector}").trigger(jQuery.Event( "click", { shiftKey: true } ));
+
+Meta Click Node
+    [Arguments]                     ${nodeId}
+    Meta Click Element              "#${nodeId}>a"
+
+Meta Click Thumbnail                
+    [Arguments]                     ${iid}
+    Meta Click Element              "#image_icon-${iid}"
+
+Meta Click Element
+    [Arguments]                     ${elementSelector}
+     Execute Javascript             $("${elementSelector}").trigger(jQuery.Event( "click", { metaKey: true } ));
+
