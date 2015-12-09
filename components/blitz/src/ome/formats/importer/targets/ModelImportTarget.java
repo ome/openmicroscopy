@@ -30,6 +30,7 @@ import ome.formats.importer.ImportContainer;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.model.IObject;
+import omero.sys.Filter;
 
 
 /**
@@ -102,16 +103,22 @@ public class ModelImportTarget implements ImportTarget {
 
     @Override
     public IObject load(OMEROMetadataStoreClient client, ImportContainer ic) throws Exception {
+        final boolean caseSensitive = true;
+        final Filter filter = new Filter();
+        IObject obj;
         IQueryPrx query = client.getServiceFactory().getQueryService();
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
         if (rest.startsWith("name:")) {
             String name = rest.substring(5);
-            IObject obj = query.findByString(typeName, "name", name);
-            if (obj == null) {
+            List<IObject> objs = (List<IObject>) query.findAllByString(
+                    typeName, "name", name, caseSensitive, filter);
+            if (objs.size() == 0) {
                 obj = type.newInstance();
                 Method m = type.getMethod("setName", omero.RString.class);
                 m.invoke(obj, rstring(name));
                 obj = update.saveAndReturnObject(obj);
+            } else {
+                obj = objs.get(0);
             }
             id = obj.getId().getValue();
         } else {
