@@ -385,7 +385,7 @@ class TestImport(CLITest):
             self.obj = update.saveAndReturnObject(self.obj)
             self.oid = self.obj.id.val
             self.spw = spw
-            return "%s:%s" % (self.kls, self.oid)
+            return ("-T", "%s:%s" % (self.kls, self.oid))
 
         def verify_containers(self, found1, found2):
             assert self.oid == found1
@@ -402,7 +402,7 @@ class TestImport(CLITest):
                 self.kls = "Dataset"
             self.name = "NameModelTargetSource-Test"
             self.spw = spw
-            return "%s:name:%s" % (self.kls, self.name)
+            return ("-T", "%s:name:%s" % (self.kls, self.name))
 
         def verify_containers(self, found1, found2):
             for attempt in (found1, found2):
@@ -418,7 +418,7 @@ class TestImport(CLITest):
 
         def get_arg(self, client, spw=False):
             self.spw = spw
-            return self.template
+            return ("-T", self.template)
 
         def verify_containers(self, found1, found2):
                 assert found1
@@ -472,8 +472,7 @@ class TestImport(CLITest):
             fakefile = subdir.join("test.fake")
         fakefile.write('')
 
-        target = source.get_arg(self.client, spw)
-        self.args += ['-T', target]
+        self.args += source.get_arg(self.client, spw)
         self.args += [str(tmpdir)]
 
         # Now, run the import twice and check that the
