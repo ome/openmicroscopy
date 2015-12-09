@@ -307,7 +307,7 @@ Test Drag and Drop Plate
 
     ${screenId1}                                Select First Screen With Children
     ${plateId}                                  Select First Plate
-    ${screenNode1}                              Wait For Screen Node                                            ${screenId}
+    ${screenNode1}                              Wait For Screen Node                                            ${screenId1}
     ${screenNode}                               Wait For Screen Node                                            ${screenId}
 
     Wait Until Element is Visible               xpath=//li[@id='${screenNode1}']//li[@data-id='${plateId}']/a
