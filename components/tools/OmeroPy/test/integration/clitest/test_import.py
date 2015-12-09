@@ -326,9 +326,9 @@ class TestImport(CLITest):
         def get_arg(self, client, spw=False):
             pass
 
-    class IdModelTargetSource(TargetSource):
+    class AbstractIdTargetSource(TargetSource):
 
-        def get_arg(self, client, spw=False):
+        def create_container(self, client, name="", spw=False):
             update = client.sf.getUpdateService()
             if spw:
                 self.kls = "Screen"
@@ -336,59 +336,39 @@ class TestImport(CLITest):
             else:
                 self.kls = "Dataset"
                 self.obj = omero.model.DatasetI()
-            self.obj.name = rstring("IdModelTargetSource-Test")
+            self.obj.name = rstring(name+"TargetSource-Test")
             self.obj = update.saveAndReturnObject(self.obj)
             self.oid = self.obj.id.val
-            self.spw = spw
+
+        def verify_containers(self, found1, found2):
+            assert self.oid == found1
+            assert self.oid == found2
+
+    class IdModelTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, name="IdModel", spw=spw)
             return ("-T", "%s:%s" % (self.kls, self.oid))
 
-        def verify_containers(self, found1, found2):
-            assert self.oid == found1
-            assert self.oid == found2
-
-    class LegacyIdModelTargetSource(TargetSource):
+    class LegacyIdModelTargetSource(AbstractIdTargetSource):
 
         def get_arg(self, client, spw=False):
-            update = client.sf.getUpdateService()
+            self.create_container(client, name="LegacyIdModel", spw=spw)
             if spw:
-                self.kls = "Screen"
-                self.obj = omero.model.ScreenI()
                 flag = "-r"
             else:
-                self.kls = "Dataset"
-                self.obj = omero.model.DatasetI()
                 flag = "-d"
-            self.obj.name = rstring("LegacyIdModleTargetSource")
-            self.obj = update.saveAndReturnObject(self.obj)
-            self.oid = self.obj.id.val
-            self.spw = spw
             return (flag, "%s:%s" % (self.kls, self.oid))
 
-        def verify_containers(self, found1, found2):
-            assert self.oid == found1
-            assert self.oid == found2
-
-    class LegacyIdOnlyTargetSource(TargetSource):
+    class LegacyIdOnlyTargetSource(AbstractIdTargetSource):
 
         def get_arg(self, client, spw=False):
-            update = client.sf.getUpdateService()
+            self.create_container(client, name="LegacyIdOnly", spw=spw)
             if spw:
-                self.kls = "Screen"
-                self.obj = omero.model.ScreenI()
                 flag = "-r"
             else:
-                self.kls = "Dataset"
-                self.obj = omero.model.DatasetI()
                 flag = "-d"
-            self.obj.name = rstring("LegacyIdOnlyTargetSource")
-            self.obj = update.saveAndReturnObject(self.obj)
-            self.oid = self.obj.id.val
-            self.spw = spw
             return (flag, "%s" % self.oid)
-
-        def verify_containers(self, found1, found2):
-            assert self.oid == found1
-            assert self.oid == found2
 
     class NameModelTargetSource(TargetSource):
 
@@ -400,7 +380,6 @@ class TestImport(CLITest):
             else:
                 self.kls = "Dataset"
             self.name = "NameModelTargetSource-Test"
-            self.spw = spw
             return ("-T", "%s:name:%s" % (self.kls, self.name))
 
         def verify_containers(self, found1, found2):
