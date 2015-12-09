@@ -563,7 +563,7 @@ class TestImport(CLITest):
             obj = self.get_object(e, 'Image')
             container = self.get_dataset(obj.id.val)
 
-        assert container.id.val in oids
+        assert container.id.val == max(oids)
 
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
     def testBadTargetArgument(self, kls, tmpdir):

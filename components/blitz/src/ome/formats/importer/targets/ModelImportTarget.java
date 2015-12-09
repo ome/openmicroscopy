@@ -108,10 +108,12 @@ public class ModelImportTarget implements ImportTarget {
         IObject obj;
         IQueryPrx query = client.getServiceFactory().getQueryService();
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
+        String order = "desc";
         if (rest.startsWith("name:")) {
             String name = rest.substring(5);
             List<IObject> objs = (List<IObject>) query.findAllByQuery(
-                "select o from "+simpleName+" as o where o.name = :name",
+                "select o from "+simpleName+" as o where o.name = :name"
+                + " order by o.id " + order,
                 new ParametersI().add("name", rstring(name)));
             if (objs.size() == 0) {
                 obj = type.newInstance();
