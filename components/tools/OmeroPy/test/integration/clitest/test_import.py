@@ -310,51 +310,6 @@ class TestImport(CLITest):
         assert len(annotations) == fixture.n
         assert set([x.id.val for x in annotations]) == set(comment_ids)
 
-    def testDatasetArgument(self, tmpdir, capfd):
-        """Test argument linking imported image to a dataset"""
-
-        fakefile = tmpdir.join("test.fake")
-        fakefile.write('')
-
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring('dataset')
-        dataset = self.update.saveAndReturnObject(dataset)
-
-        self.args += [str(fakefile)]
-        self.args += ['-d', '%s' % dataset.id.val]
-
-        # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, 'Image')
-        d = self.get_dataset(obj.id.val)
-
-        assert d
-        assert d.id.val == dataset.id.val
-
-    def testScreenArgument(self, tmpdir, capfd):
-        """Test argument linking imported plate to a screen"""
-
-        fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
-                               "fields=1&plateAcqs=1.fake")
-        fakefile.write('')
-
-        screen = omero.model.ScreenI()
-        screen.name = rstring('screen')
-        screen = self.update.saveAndReturnObject(screen)
-
-        self.args += [str(fakefile)]
-        self.args += ['-r', '%s' % screen.id.val]
-
-        # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, 'Plate')
-        screens = self.get_screens(obj.id.val)
-
-        assert screens
-        assert screen.id.val in [s.id.val for s in screens]
-
     class TargetSource(object):
 
         def get_prefixes(self):
@@ -386,6 +341,50 @@ class TestImport(CLITest):
             self.oid = self.obj.id.val
             self.spw = spw
             return ("-T", "%s:%s" % (self.kls, self.oid))
+
+        def verify_containers(self, found1, found2):
+            assert self.oid == found1
+            assert self.oid == found2
+
+    class LegacyIdModelTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            update = client.sf.getUpdateService()
+            if spw:
+                self.kls = "Screen"
+                self.obj = omero.model.ScreenI()
+                flag = "-r"
+            else:
+                self.kls = "Dataset"
+                self.obj = omero.model.DatasetI()
+                flag = "-d"
+            self.obj.name = rstring("LegacyIdModleTargetSource")
+            self.obj = update.saveAndReturnObject(self.obj)
+            self.oid = self.obj.id.val
+            self.spw = spw
+            return (flag, "%s:%s" % (self.kls, self.oid))
+
+        def verify_containers(self, found1, found2):
+            assert self.oid == found1
+            assert self.oid == found2
+
+    class LegacyIdOnlyTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            update = client.sf.getUpdateService()
+            if spw:
+                self.kls = "Screen"
+                self.obj = omero.model.ScreenI()
+                flag = "-r"
+            else:
+                self.kls = "Dataset"
+                self.obj = omero.model.DatasetI()
+                flag = "-d"
+            self.obj.name = rstring("LegacyIdOnlyTargetSource")
+            self.obj = update.saveAndReturnObject(self.obj)
+            self.oid = self.obj.id.val
+            self.spw = spw
+            return (flag, "%s" % self.oid)
 
         def verify_containers(self, found1, found2):
             assert self.oid == found1
@@ -426,6 +425,8 @@ class TestImport(CLITest):
                 assert found1 == found2
 
     SOURCES = (
+        LegacyIdOnlyTargetSource(),
+        LegacyIdModelTargetSource(),
         IdModelTargetSource(),
         NameModelTargetSource(),
         TemplateTargetSource("(?<Container1>.*)"),
