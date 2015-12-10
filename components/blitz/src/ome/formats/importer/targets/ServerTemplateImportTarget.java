@@ -20,6 +20,9 @@
 
 package ome.formats.importer.targets;
 
+import static omero.rtypes.rstring;
+
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +35,7 @@ import omero.model.DatasetI;
 import omero.model.IObject;
 import omero.model.Screen;
 import omero.model.ScreenI;
+import omero.sys.ParametersI;
 
 public class ServerTemplateImportTarget extends TemplateImportTarget {
 
@@ -66,19 +70,31 @@ public class ServerTemplateImportTarget extends TemplateImportTarget {
         }
 
         if (spw) {
-            Screen screen = (Screen) query.findByString("Screen", "name", name);
-            if (screen == null) {
+            Screen screen;
+            List<IObject> screens = (List<IObject>) query.findAllByQuery(
+                "select o from Screen as o where o.name = :name"
+                + " order by o.id desc",
+                new ParametersI().add("name", rstring(name)));
+            if (screens.size() == 0) {
                 screen = new ScreenI();
                 screen.setName(omero.rtypes.rstring(name));
                 screen = (Screen) update.saveAndReturnObject(screen);
+            } else {
+                screen = (Screen) screens.get(0);
             }
             return screen;
         } else {
-            Dataset dataset = (Dataset) query.findByString("Dataset", "name", name);
-            if (dataset == null) {
+            Dataset dataset;
+            List<IObject> datasets = (List<IObject>) query.findAllByQuery(
+                "select o from Dataset as o where o.name = :name"
+                + " order by o.id desc",
+                new ParametersI().add("name", rstring(name)));
+            if (datasets.size() == 0) {
                 dataset = new DatasetI();
                 dataset.setName(omero.rtypes.rstring(name));
                 dataset = (Dataset) update.saveAndReturnObject(dataset);
+            } else {
+                dataset = (Dataset) datasets.get(0);
             }
             return dataset;
         }
