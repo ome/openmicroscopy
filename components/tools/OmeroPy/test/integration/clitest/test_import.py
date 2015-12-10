@@ -328,7 +328,7 @@ class TestImport(CLITest):
 
     class AbstractIdTargetSource(TargetSource):
 
-        def create_container(self, client, name="", spw=False):
+        def create_container(self, client, spw=False):
             update = client.sf.getUpdateService()
             if spw:
                 self.kls = "Screen"
@@ -336,7 +336,7 @@ class TestImport(CLITest):
             else:
                 self.kls = "Dataset"
                 self.obj = omero.model.DatasetI()
-            self.obj.name = rstring(name+"TargetSource-Test")
+            self.obj.name = rstring(self.__class__.__name__+"-Test")
             self.obj = update.saveAndReturnObject(self.obj)
             self.oid = self.obj.id.val
 
@@ -347,13 +347,13 @@ class TestImport(CLITest):
     class IdModelTargetSource(AbstractIdTargetSource):
 
         def get_arg(self, client, spw=False):
-            self.create_container(client, name="IdModel", spw=spw)
+            self.create_container(client, spw=spw)
             return ("-T", "%s:%s" % (self.kls, self.oid))
 
     class LegacyIdModelTargetSource(AbstractIdTargetSource):
 
         def get_arg(self, client, spw=False):
-            self.create_container(client, name="LegacyIdModel", spw=spw)
+            self.create_container(client, spw=spw)
             if spw:
                 flag = "-r"
             else:
@@ -363,7 +363,7 @@ class TestImport(CLITest):
     class LegacyIdOnlyTargetSource(AbstractIdTargetSource):
 
         def get_arg(self, client, spw=False):
-            self.create_container(client, name="LegacyIdOnly", spw=spw)
+            self.create_container(client, spw=spw)
             if spw:
                 flag = "-r"
             else:
