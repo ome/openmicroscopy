@@ -32,10 +32,15 @@ import omero.api.IUpdatePrx;
 import omero.model.IObject;
 import omero.sys.ParametersI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @since 5.1.2
  */
 public class ModelImportTarget implements ImportTarget {
+
+    private final static Logger log = LoggerFactory.getLogger(ModelImportTarget.class);
 
     /**
      * Valid omero.model classes for model import target.
@@ -125,6 +130,7 @@ public class ModelImportTarget implements ImportTarget {
                 obj = update.saveAndReturnObject(obj);
             } else {
                 if (rest.startsWith("!") && objs.size() > 1) {
+                    log.error("No unique {} called {}", simpleName, name);
                     throw new RuntimeException("No unique "+simpleName+" available");
                 } else {
                     obj = objs.get(0);
