@@ -127,6 +127,18 @@ class TestImport(CLITest):
         self.args = ["import", "-s", host, "-p",  port]
         self.add_client_dir()
 
+    def do_import(self, capfd):
+        try:
+            self.cli.invoke(self.args, strict=True)
+        except NonZeroReturnCode:
+            o, e = capfd.readouterr()
+            print "O" * 40
+            print o
+            print "E" * 40
+            print e
+            raise
+        return capfd.readouterr()
+
     def add_client_dir(self):
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
         client_dir = dist_dir / "lib" / "client"
@@ -225,7 +237,7 @@ class TestImport(CLITest):
 
         self.args += [str(fakefile)]
         self.args += ['--', '--auto_close']
-        self.cli.invoke(self.args, strict=True)
+        self.do_import(capfd)
 
         # Check that there are no servants leftover
         stateful = []
@@ -253,8 +265,8 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
         self.args += ['--', arg, algorithm]
 
-        # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
+        # Invoke CLI import command
+        self.do_import(capfd)
 
     @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
     def testAnnotationText(self, tmpdir, capfd, fixture):
@@ -272,8 +284,7 @@ class TestImport(CLITest):
             self.args += [fixture.annotation_text_arg, text[i]]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
@@ -302,8 +313,7 @@ class TestImport(CLITest):
             self.args += [fixture.annotation_link_arg, '%s' % comment_ids[i]]
         print self.args
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
@@ -413,17 +423,7 @@ class TestImport(CLITest):
     )
 
     def parse_container(self, spw, capfd):
-        try:
-            self.cli.invoke(self.args, strict=True)
-        except NonZeroReturnCode:
-            o, e = capfd.readouterr()
-            print "O" * 40
-            print o
-            print "E" * 40
-            print e
-            raise
-        o, e = capfd.readouterr()
-
+        o, e = self.do_import(capfd)
         if spw:
             obj = self.get_object(e, 'Plate')
             container = self.get_screen(obj.id.val)
@@ -494,7 +494,7 @@ class TestImport(CLITest):
         assert found == max(oids)
 
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
-    def testBadTargetArgument(self, kls, tmpdir):
+    def testBadTargetArgument(self, kls, tmpdir, capfd):
 
         subdir = tmpdir
         fakefile = subdir.join("test.fake")
@@ -507,7 +507,7 @@ class TestImport(CLITest):
         self.args += [str(tmpdir)]
 
         with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+            self.do_import(capfd)
 
     @pytest.mark.parametrize("level", debug_levels)
     @pytest.mark.parametrize("prefix", [None, '--'])
@@ -522,8 +522,7 @@ class TestImport(CLITest):
             self.args += [prefix]
         self.args += ['--debug=%s' % level]
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        out, err = capfd.readouterr()
+        out, err = self.do_import(capfd)
         levels, loggers = self.parse_debug_levels(out)
         expected_levels = debug_levels[debug_levels.index(level):]
         assert set(levels) <= set(expected_levels), out
@@ -534,8 +533,7 @@ class TestImport(CLITest):
         fakefile.write('')
 
         self.args += [str(fakefile)]
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         summary = self.parse_summary(e)
         assert summary
         assert len(summary) == 5
@@ -548,8 +546,7 @@ class TestImport(CLITest):
         fakefile.write('')
 
         self.args += [str(fakefile)]
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         summary = self.parse_summary(e)
         assert summary
         assert len(summary) == 6
@@ -571,8 +568,7 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
 
@@ -594,8 +590,7 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
@@ -618,8 +613,7 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
@@ -641,8 +635,7 @@ class TestImport(CLITest):
             self.args += [fixture.description_arg, 'description']
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, fixture.obj_type)
 
         if fixture.name_arg:
@@ -661,8 +654,7 @@ class TestImport(CLITest):
         self.args += ['--', arg]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        out, err = capfd.readouterr()
+        out, err = self.do_import(capfd)
         image = self.get_object(err, 'Image')
 
         # Check no thumbnails
@@ -681,8 +673,7 @@ class TestImport(CLITest):
             self.args += ['--skip', skiparg]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        out, err = capfd.readouterr()
+        out, err = self.do_import(capfd)
         image = self.get_object(err, 'Image')
 
         # Check min/max calculation
@@ -720,8 +711,7 @@ class TestImport(CLITest):
         self.args += ['--', '--transfer', 'ln_s']
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image')
 
         assert obj
@@ -750,13 +740,12 @@ class TestImport(CLITest):
         self.args += [arg, '%s' % target.id.val]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image')
         assert obj.details.group.id.val == new_group.id.val
 
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
-    def testUnknownTarget(self, container, filename, arg, tmpdir):
+    def testUnknownTarget(self, container, filename, arg, tmpdir, capfd):
         target = eval("omero.model."+container+"I")()
         target.name = rstring('testUnknownTarget')
         target = self.update.saveAndReturnObject(target)
@@ -776,4 +765,4 @@ class TestImport(CLITest):
         self.args += [arg, '%s' % unknown]
 
         with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+            self.do_import(capfd)
