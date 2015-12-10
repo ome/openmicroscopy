@@ -463,10 +463,11 @@ class TestImport(CLITest):
         source.verify_containers(found1, found2)
 
     @pytest.mark.parametrize("spw", (True, False))
-    def testMultipleNameModelTargets(self, spw, tmpdir, capfd):
+    @pytest.mark.parametrize("qualifier", ("", ">", "<"))
+    def testMultipleNameModelTargets(self, spw, qualifier, tmpdir, capfd):
         """ Test importing into a named target when Multiple targets exist """
 
-        name = "MultipleNameModelTargetSource-Test"
+        name = "MultipleNameModelTargetSource-Test-" + self.uuid()
         oids = []
         for i in range(2):
             if spw:
@@ -485,13 +486,16 @@ class TestImport(CLITest):
             fakefile = subdir.join("test.fake")
         fakefile.write('')
 
-        target = "%s:name:%s" % (kls, name)
+        target = "%s:%sname:%s" % (kls, qualifier, name)
         self.args += ['-T', target]
         self.args += [str(tmpdir)]
 
         # Run the import and get the container id
         found = self.parse_container(spw, capfd)
-        assert found == max(oids)
+        if qualifier == "<":
+            assert found == min(oids)
+        else:
+            assert found == max(oids)
 
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
     def testBadTargetArgument(self, kls, tmpdir, capfd):

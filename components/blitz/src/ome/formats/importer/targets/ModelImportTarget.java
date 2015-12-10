@@ -105,12 +105,15 @@ public class ModelImportTarget implements ImportTarget {
 
     @Override
     public IObject load(OMEROMetadataStoreClient client, ImportContainer ic) throws Exception {
-        IObject obj;
         IQueryPrx query = client.getServiceFactory().getQueryService();
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
-        String order = "desc";
-        if (rest.startsWith("name:")) {
-            String name = rest.substring(5);
+        if (rest.matches("^[<>]?name:.*")) {
+            IObject obj;
+            String name = rest.substring(rest.indexOf(":") + 1);
+            String order = "desc";
+            if (rest.startsWith("<")) {
+                order = "asc";
+            }
             List<IObject> objs = (List<IObject>) query.findAllByQuery(
                 "select o from "+simpleName+" as o where o.name = :name"
                 + " order by o.id " + order,
