@@ -107,7 +107,7 @@ public class ModelImportTarget implements ImportTarget {
     public IObject load(OMEROMetadataStoreClient client, ImportContainer ic) throws Exception {
         IQueryPrx query = client.getServiceFactory().getQueryService();
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
-        if (rest.matches("^[<>]?name:.*")) {
+        if (rest.matches("^[<>!]?name:.*")) {
             IObject obj;
             String name = rest.substring(rest.indexOf(":") + 1);
             String order = "desc";
@@ -124,7 +124,11 @@ public class ModelImportTarget implements ImportTarget {
                 m.invoke(obj, rstring(name));
                 obj = update.saveAndReturnObject(obj);
             } else {
-                obj = objs.get(0);
+                if (rest.startsWith("!") && objs.size() > 1) {
+                    throw new RuntimeException("No unique "+simpleName+" available");
+                } else {
+                    obj = objs.get(0);
+                }
             }
             id = obj.getId().getValue();
         } else {

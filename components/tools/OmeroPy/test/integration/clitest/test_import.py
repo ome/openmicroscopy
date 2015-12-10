@@ -382,7 +382,7 @@ class TestImport(CLITest):
 
     class NameModelTargetSource(TargetSource):
 
-        def get_arg(self, client, spw=False):
+        def get_arg(self, client, qualifier, spw=False):
             # For later
             self.query = client.sf.getQueryService()
             if spw:
@@ -390,7 +390,7 @@ class TestImport(CLITest):
             else:
                 self.kls = "Dataset"
             self.name = "NameModelTargetSource-Test"
-            return ("-T", "%s:name:%s" % (self.kls, self.name))
+            return ("-T", "%s:%sname:%s" % (self.kls, qualifier, self.name))
 
         def verify_containers(self, found1, found2):
             for attempt in (found1, found2):
@@ -417,7 +417,6 @@ class TestImport(CLITest):
         LegacyIdOnlyTargetSource(),
         LegacyIdModelTargetSource(),
         IdModelTargetSource(),
-        NameModelTargetSource(),
         TemplateTargetSource("(?<Container1>.*)"),
         # ClassTargetSource(),
     )
@@ -463,6 +462,34 @@ class TestImport(CLITest):
         source.verify_containers(found1, found2)
 
     @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("qualifier", ("", ">", "<", "!"))
+    def testQualifiedNameModelTargetArgument(
+            self, spw, qualifier, tmpdir, capfd):
+        source = self.NameModelTargetSource()
+        subdir = tmpdir
+        for x in source.get_prefixes():
+            subdir = subdir.join(x)
+            subdir.mkdir()
+
+        if spw:
+            fakefile = subdir.join(
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake")
+        else:
+            fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += source.get_arg(self.client, qualifier, spw)
+        self.args += [str(tmpdir)]
+
+        # Now, run the import twice and check that the
+        # pre and post container IDs match the sources'
+        # assumptions
+        found1 = self.parse_container(spw, capfd)
+        found2 = self.parse_container(spw, capfd)
+        source.verify_containers(found1, found2)
+
+    @pytest.mark.parametrize("spw", (True, False))
     @pytest.mark.parametrize("qualifier", ("", ">", "<"))
     def testMultipleNameModelTargets(self, spw, qualifier, tmpdir, capfd):
         """ Test importing into a named target when Multiple targets exist """
@@ -496,6 +523,34 @@ class TestImport(CLITest):
             assert found == min(oids)
         else:
             assert found == max(oids)
+
+    @pytest.mark.parametrize("spw", (True, False))
+    def testUniqueMultipleNameModelTargets(self, spw, tmpdir, capfd):
+        """ Test importing into a named target when Multiple targets exist """
+
+        name = "UniqueMultipleNameModelTargetSource-Test-" + self.uuid()
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            self.create_object(kls, name=name)
+
+        subdir = tmpdir
+        if spw:
+            fakefile = subdir.join((
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake"))
+        else:
+            fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        target = "%s:!name:%s" % (kls, name)
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.do_import(capfd)
 
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
     def testBadTargetArgument(self, kls, tmpdir, capfd):
