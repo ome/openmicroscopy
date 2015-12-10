@@ -465,12 +465,10 @@ class TestImport(CLITest):
     @pytest.mark.parametrize("qualifier", ("", ">", "<", "!"))
     def testQualifiedNameModelTargetArgument(
             self, spw, qualifier, tmpdir, capfd):
-        source = self.NameModelTargetSource()
-        subdir = tmpdir
-        for x in source.get_prefixes():
-            subdir = subdir.join(x)
-            subdir.mkdir()
 
+        source = self.NameModelTargetSource()
+
+        subdir = tmpdir
         if spw:
             fakefile = subdir.join(
                 "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
