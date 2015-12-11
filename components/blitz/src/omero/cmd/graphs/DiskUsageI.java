@@ -79,7 +79,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     private static final ImmutableSet<String> OWNED_OBJECTS;
     private static final ImmutableSet<String> ANNOTATABLE_OBJECTS;
 
-    private static final Map<String, String> classIdProperties = Collections.synchronizedMap(new HashMap<String, String>());
+    private static final Map<String, String> CLASS_ID_PROPERTIES = Collections.synchronizedMap(new HashMap<String, String>());
 
     private final PixelsService pixelsService;
     private final ThumbnailService thumbnailService;
@@ -438,21 +438,23 @@ public class DiskUsageI extends DiskUsage implements IRequest {
      * @throws Cancel if an identifier property could not be found for the given class
      */
     private String getIdPropertyFor(String className) throws Cancel {
-        String idProperty = classIdProperties.get(className);
-        if (idProperty == null) {
-            final Class<? extends IObject> actualClass = graphPathBean.getClassForSimpleName(className);
-            if (actualClass == null) {
-                final Exception e = new IllegalArgumentException("class " + className + " is unknown");
-                throw helper.cancel(new ERR(), e, "bad-class");
-            }
-            idProperty = graphPathBean.getIdentifierProperty(actualClass.getName());
+        synchronized (CLASS_ID_PROPERTIES) {
+            String idProperty = CLASS_ID_PROPERTIES.get(className);
             if (idProperty == null) {
-                final Exception e = new IllegalArgumentException("no identifier property is known for class " + className);
-                throw helper.cancel(new ERR(), e, "bad-class");
+                final Class<? extends IObject> actualClass = graphPathBean.getClassForSimpleName(className);
+                if (actualClass == null) {
+                    final Exception e = new IllegalArgumentException("class " + className + " is unknown");
+                    throw helper.cancel(new ERR(), e, "bad-class");
+                }
+                idProperty = graphPathBean.getIdentifierProperty(actualClass.getName());
+                if (idProperty == null) {
+                    final Exception e = new IllegalArgumentException("no identifier property is known for class " + className);
+                    throw helper.cancel(new ERR(), e, "bad-class");
+                }
+                CLASS_ID_PROPERTIES.put(className, idProperty);
             }
-            classIdProperties.put(className, idProperty);
+            return idProperty;
         }
-        return idProperty;
     }
 
     /**
