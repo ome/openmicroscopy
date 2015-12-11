@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Point;
+import java.awt.event.WindowEvent;
 
 import javax.swing.Icon;
 import javax.swing.JDialog;
@@ -179,6 +180,13 @@ public class MessageBox
      */
     public int showMsgBox(Point location)
     {
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent evt) {
+                MessageBox.this.option = CANCEL;
+            }
+        });
+        
     	setLocation(location);
     	setVisible(true);
     	return option;	
@@ -191,6 +199,13 @@ public class MessageBox
      */
     public int centerMsgBox()
     {
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent evt) {
+                MessageBox.this.option = CANCEL;
+            }
+        });
+        
     	UIUtilities.centerAndShow(this);
     	return option;	
     }
