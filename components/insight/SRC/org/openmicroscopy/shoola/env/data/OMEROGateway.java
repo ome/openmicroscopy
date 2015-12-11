@@ -1634,7 +1634,9 @@ class OMEROGateway
 	{
 	    try {
             BrowseFacility f = gw.getFacility(BrowseFacility.class);
-            return f.loadHierarchy(ctx, rootType, rootIDs, options);
+            // TODO: tmp solution, should be changed to Collection<DataObject> throughout
+           return new HashSet(f.loadHierarchy(ctx, rootType,
+                    rootIDs, options));
         } catch (Throwable e) {
             handleException(e, "Cannot load hierarchy for "+rootType+".");
         }
