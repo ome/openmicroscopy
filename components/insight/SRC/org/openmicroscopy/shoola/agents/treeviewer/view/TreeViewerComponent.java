@@ -124,6 +124,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.PojosUtil;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -169,10 +170,12 @@ class TreeViewerComponent
  	extends AbstractComponent
  	implements TreeViewer
 {
-  
-        /** Warning message shown when the rendering settings are to be reset */
-        private static final String RENDERINGSETTINGS_WARNING = "This will save new rendering settings and cannot be undone.";
     
+    /** Warning message shown when the rendering settings are to be reset */
+    public static final String RENDERINGSETTINGS_WARNING = "This will change the "
+            + "rendering settings of all images\nin the dataset/plate and cannot be undone.\n"
+            + "Proceed?";
+  
 	/** The Model sub-component. */
 	private TreeViewerModel     model;
 
@@ -2662,14 +2665,16 @@ class TreeViewerComponent
 			return;
 		}
 		
-        MessageBox box = new MessageBox(getUI(), "Save rendering settings",
-                RENDERINGSETTINGS_WARNING);
-        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-            model.firePasteRenderingSettings(ids, klass);
-            fireStateChange();
+		if (PojosUtil.isContainerClass(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
         }
+		
+		model.firePasteRenderingSettings(ids, klass);
+        fireStateChange();
 	}
-
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
@@ -2721,12 +2726,15 @@ class TreeViewerComponent
 			return;
 		}
 		
-		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
-	                RENDERINGSETTINGS_WARNING);
-	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-	            model.fireResetRenderingSettings(ids, klass);
-	            fireStateChange();
-	        }
+		if (PojosUtil.isContainerClass(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
+        }
+		
+		model.fireResetRenderingSettings(ids, klass);
+        fireStateChange();
 	}
 
 	/**
@@ -3051,12 +3059,15 @@ class TreeViewerComponent
 			return;
 		}
 		
-		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
-	                RENDERINGSETTINGS_WARNING);
-	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-	            model.fireSetOwnerRenderingSettings(ids, klass);
-	            fireStateChange();
-	        }
+		if (PojosUtil.isContainerClass(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
+        }
+		
+		model.fireSetOwnerRenderingSettings(ids, klass);
+        fireStateChange();
 	}
 
 	/**
@@ -4974,4 +4985,5 @@ class TreeViewerComponent
        if (rnd == null) return null;
        return rnd.getSelectedDef();
    }
+   
 }
