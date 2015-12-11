@@ -924,13 +924,6 @@ public interface TreeViewer
 
 	/** Shows or hides the Metadata View. */
 	void setMetadataVisibility();
-	
-	/**
-	 * Returns all the scripts currently stored into the system.
-	 * 
-	 * @return See above.
-	 */
-	public Map<Long, String> getScriptsAsString();
 
 	/**
 	 * Returns <code>true</code> if the currently logged in user is 

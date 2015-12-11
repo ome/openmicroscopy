@@ -46,6 +46,7 @@ import javax.swing.JFrame;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import omero.log.LogMessage;
 import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -3843,29 +3844,6 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		view.setMetadataVisibility();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#getScriptsAsString()
-	 */
-	public Map<Long, String> getScriptsAsString()
-	{
-		Registry reg = TreeViewerAgent.getRegistry();
-		//TODO: review
-		/*
-		try {
-			//TODO: asynchronous call instead
-			return reg.getImageService().getScriptsAsString();
-		} catch (Exception e) {
-			String s = "Data Retrieval Failure: ";
-	        LogMessage msg = new LogMessage();
-	        msg.print(s);
-	        msg.print(e);
-	        reg.getLogger().error(this, msg);
-		}
-		*/
-		return new HashMap<Long, String>();
 	}
 
 	/** 

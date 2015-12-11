@@ -6315,10 +6315,11 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ValidationException      If the script validation failed
 	 */
 	Object uploadScript(SecurityContext ctx, ScriptObject script,
 			boolean official)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, ValidationException
 	{
 		FileInputStream stream = null;
 		try {
@@ -6367,7 +6368,10 @@ class OMEROGateway
 				return svc.uploadOfficialScript(path, buf.toString());
 			return svc.uploadScript(path, buf.toString());
 		} catch (Exception e) {
-			handleException(e,
+		    if (e instanceof ValidationException) 
+		        throw (ValidationException)e;
+		    else
+		        handleException(e,
 					"Cannot upload the script: "+script.getName()+".");
 		}
 		try {
