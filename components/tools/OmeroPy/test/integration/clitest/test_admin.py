@@ -55,13 +55,13 @@ class TestAdmin(CLITest):
         self.cli.invoke(self.args, strict=True)
 
     def test_checkupgrade0(self, monkeypatch):
-        monkeypatch.setattr(omero.plugins.admin, "UpgradeCheck",
+        monkeypatch.setattr(omero.plugins.prefs, "UpgradeCheck",
                             createUpgradeCheckClass("999999999.0.0"))
         self.args.append("checkupgrade")
         self.go()
 
     def test_checkupgrade1(self, monkeypatch):
-        monkeypatch.setattr(omero.plugins.admin, "UpgradeCheck",
+        monkeypatch.setattr(omero.plugins.prefs, "UpgradeCheck",
                             createUpgradeCheckClass("0.0.0"))
         self.args.append("checkupgrade")
         with pytest.raises(NonZeroReturnCode) as exc:
