@@ -48,7 +48,7 @@
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
     <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
     <dependency org="net.imagej" name="ij" rev="${versions.ij}"/>
-    <dependency org="javax.xml" name="jaxrpc" rev="${versions.jaxrpc}"/>
+    <dependency org="javax.xml" name="jaxrpc-api" rev="${versions.jaxrpc}"/>
     <dependency org="org.jfree" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
     <dependency org="org.apache.poi" name="poi" rev="${versions.poi}"/>
