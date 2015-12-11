@@ -4,17 +4,13 @@
 
 <VirtualHost _default_:%(HTTPPORT)d>
 
-  DocumentRoot %(OMEROWEBROOT)s
-
   WSGIDaemonProcess omeroweb%(PREFIX_NAME)s processes=5 threads=1 display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROFALLBACKROOT)s:%(OMEROWEBROOT)s
 
-  WSGIProcessGroup omeroweb%(PREFIX_NAME)s
-
-  WSGIApplicationGroup %%{GLOBAL}
-
-  WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py
+  WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py process-group=omeroweb%(PREFIX_NAME)s
 
   <Directory "%(OMEROWEBROOT)s">
+    WSGIProcessGroup omeroweb%(PREFIX_NAME)s
+    WSGIApplicationGroup %%{GLOBAL}
     Require all granted
   </Directory>
 
