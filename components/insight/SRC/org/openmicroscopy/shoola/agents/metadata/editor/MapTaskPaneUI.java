@@ -489,8 +489,6 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
             public void tableChanged(TableModelEvent e) {
                 refreshButtonStates();
                 MapTableModel m = (MapTableModel) t.getModel();
-                if (m.isDirty())
-                    view.setDataToSave(true);
                 if (m.isEmpty() && m.getMap().getId() >= 0) {
                     view.deleteAnnotation(m.getMap());
                     view.saveData(true);
