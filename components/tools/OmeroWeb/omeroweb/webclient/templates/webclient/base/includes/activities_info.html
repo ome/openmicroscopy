@@ -33,60 +33,65 @@
 
     // this is called by the setInterval loop below
     OME.activitiesUpdate = function(recursive) {
-        $.get("{% url 'activities' %}", function(data) {
-            $('#activities_spinner').hide();
-            var inprogress = $("#inprogress", data).text();
-            var new_results = $("#new_results", data).text();
-            var failure = $("#failure", data).text();
-            
-            // if we've got no jobs still running, stop checking
-            if ((typeof inprogress == 'undefined') || (inprogress.length == 0)) {
-                recursive = false;
-                showJobCount(0);
-                //return;
-            }
-            inprogress = parseInt( inprogress );
-            if (inprogress === 0) {
-                recursive = false;
-            }
-            
-            // display what we recieved, bind events etc
-            $("#activities_content").empty();
-            $("#activities_content").append( $("#jobsTable", $(data)) );
-            $("#jobsTable").alternateRowColors();
-            
-            // bind events
-            $("#activities_content a").click(function() {
-                var href = $(this).attr('href');
-                if (href) {
-                    window.location.href = href;
+
+        $.ajax({
+            url: "{% url 'activities' %}",
+            dataType: 'html',
+            success: function(data) {
+                $('#activities_spinner').hide();
+                var inprogress = $("#inprogress", data).text();
+                var new_results = $("#new_results", data).text();
+                var failure = $("#failure", data).text();
+
+                // if we've got no jobs still running, stop checking
+                if ((typeof inprogress == 'undefined') || (inprogress.length == 0)) {
+                    recursive = false;
+                    showJobCount(0);
+                    //return;
                 }
-            });
-            // show chgrp errors in new window
-            $(".chgrp_error a").click(function(event) {
-                var error_msg = $(this).next().html();
-                var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
-                newWindow.document.write(error_msg);
-                newWindow.document.close();
-                return false;
-            });
+                inprogress = parseInt( inprogress );
+                if (inprogress === 0) {
+                    recursive = false;
+                }
 
-            // If we've got new errors - show Activities
-            if ($("#new_errors", data).length > 0) {
-                $("#activities_panel").show();
-                new_results = -1;   // hide notification number
-            }
-            OME.displayStatus(new_results, inprogress);
-            if (recursive) {
-                setTimeout(function(){
-                    OME.activitiesUpdate(true);
-                }, 5000);
-            }
+                // display what we recieved, bind events etc
+                $("#activities_content").empty();
+                $("#activities_content").append( $("#jobsTable", $(data)) );
+                $("#jobsTable").alternateRowColors();
 
-        }).error(function() {
-            // this requires jQuery 1.5 or later
-            $('#activities_spinner').hide();
-            $("#activities_content").html("<table id='activitiesTimeoutMsg'><tbody><tr><td><span>Activity unavailable - timeout</span></td></tr></tbody></table>");
+                // bind events
+                $("#activities_content a").click(function() {
+                    var href = $(this).attr('href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+                // show chgrp errors in new window
+                $(".chgrp_error a").click(function(event) {
+                    var error_msg = $(this).next().html();
+                    var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
+                    newWindow.document.write(error_msg);
+                    newWindow.document.close();
+                    return false;
+                });
+
+                // If we've got new errors - show Activities
+                if ($("#new_errors", data).length > 0) {
+                    $("#activities_panel").show();
+                    new_results = -1;   // hide notification number
+                }
+                OME.displayStatus(new_results, inprogress);
+                if (recursive) {
+                    setTimeout(function(){
+                        OME.activitiesUpdate(true);
+                    }, 5000);
+                }
+            },
+            error: function() {
+                // this requires jQuery 1.5 or later
+                $('#activities_spinner').hide();
+                $("#activities_content").html("<table id='activitiesTimeoutMsg'><tbody><tr><td><span>Activity unavailable - timeout</span></td></tr></tbody></table>");
+            }
         });
     }
 
