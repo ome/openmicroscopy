@@ -3507,14 +3507,27 @@ def activities(request, conn=None, **kwargs):
             rsp = getResponse(cbString, job_type)
             if rsp is not None:
                 new_results.append(cbString)
-                if isinstance(rsp, omero.cmd.OK):
-                    invUsers = len(rsp.invalidusers)
-                    invEmails = len(rsp.invalidemails)
-                    total = (rsp.success + invUsers + invEmails)
-                    update_callback(request, cbString, status="finished",
-                                    rsp={'success': rsp.success,
-                                         'total': total})
-                    if (invUsers > 0 or invEmails > 0):
+                if isinstance(rsp, omero.cmd.ERR):
+                    rsp_params = ", ".join(
+                        ["%s: %s" % (k, v)
+                         for k, v in rsp.parameters.items()])
+                    logger.error("send_email failed with: %s"
+                                 % rsp_params)
+                    update_callback(
+                        request, cbString,
+                        status="failed",
+                        report={'error': rsp_params},
+                        error=1)
+                else:
+                    total = (rsp.success + len(rsp.invalidusers) +
+                             len(rsp.invalidemails))
+                    update_callback(
+                        request, cbString,
+                        status="finished",
+                        rsp={'success': rsp.success,
+                             'total': total})
+                    if (len(rsp.invalidusers) > 0 or
+                            len(rsp.invalidemails) > 0):
                         invalidusers = [
                             e.getFullName() for e in list(
                                 conn.getObjects(
