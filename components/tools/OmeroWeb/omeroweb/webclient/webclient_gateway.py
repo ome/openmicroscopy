@@ -2380,16 +2380,7 @@ class ImageWrapper (OmeroWebObjectWrapper,
         convert to more appropriate units & value
         """
         size = self.getPixelSizeX(True)
-        if size is None:
-            return (0, "µm")
-        length = size.getValue()
-        unit = size.getUnit()
-        if unit == "MICROMETER":
-            unit = lengthunit(length)
-            length = lengthformat(length)
-        else:
-            unit = size.getSymbol()
-        return (length, unit)
+        return self.formatPixelSizeWithUnits(size)
 
     def getPixelSizeYWithUnits(self):
         """
@@ -2398,16 +2389,7 @@ class ImageWrapper (OmeroWebObjectWrapper,
         convert to more appropriate units & value
         """
         size = self.getPixelSizeY(True)
-        if size is None:
-            return (0, "µm")
-        length = size.getValue()
-        unit = size.getUnit()
-        if unit == "MICROMETER":
-            unit = lengthunit(length)
-            length = lengthformat(length)
-        else:
-            unit = size.getSymbol()
-        return (length, unit)
+        return self.formatPixelSizeWithUnits(size)
 
     def getPixelSizeZWithUnits(self):
         """
@@ -2416,6 +2398,15 @@ class ImageWrapper (OmeroWebObjectWrapper,
         convert to more appropriate units & value
         """
         size = self.getPixelSizeZ(True)
+        return self.formatPixelSizeWithUnits(size)
+
+    def formatPixelSizeWithUnits(self, size):
+        """
+        Formats the response for methods above.
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
         if size is None:
             return (0, "µm")
         length = size.getValue()
