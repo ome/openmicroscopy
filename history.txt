@@ -1,6 +1,32 @@
 OMERO version history
 =====================
 
+5.2.1 (December 2015)
+---------------------
+
+A bug-fix release focusing on improving installation documentation and
+scripts. Other improvements include:
+
+-  bug fix for missing hierarchy when viewing High Content Screening data
+-  improvements to the right-hand panel in OMERO.insight
+-  measurement tool fixes
+-  OMERO.web fix for displaying size units
+-  OMERO.web fixes for activities panel when running scripts
+
+System administrator updates include:
+
+-  improved installation documentation, including walkthroughs with scripts
+-  OMERO.web deployment fixes
+
+Developer updates include:
+
+-  OMERO Javadocs now link to the relevant version of Bio-Formats Javadocs for
+   inherited methods
+-  Clean-up of server dependencies
+-  jstree clean-up
+-  CLI graph operation improvements for deleting
+-  minimal-omero-client clean-up
+
 5.2.0 (November 2015)
 ----------------------
 
