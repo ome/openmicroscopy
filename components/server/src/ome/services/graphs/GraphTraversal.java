@@ -37,9 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
+import org.hibernate.QueryException;
 import org.hibernate.Session;
 import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.proxy.LazyInitializer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
@@ -76,6 +76,9 @@ public class GraphTraversal {
 
     /* all bulk operations are batched; this size should be suitable for IN (:ids) for HQL */
     private static final int BATCH_SIZE = 256;
+
+    /* the full name of the model object classes for which subclasses need not be queried */
+    private static final Set<String> CLASSES_WITHOUT_SUBCLASSES = Collections.synchronizedSet(new HashSet<String>());
 
     /**
      * A tuple noting the state of a mapped object instance in the current graph traversal.
@@ -740,33 +743,37 @@ public class GraphTraversal {
         }
 
         if (!idsToQuery.isEmpty()) {
-            /* query persisted object instances without loading them */
-            final String rootQuery = "FROM " + className + " WHERE id IN (:ids)";
-            for (final List<Long> idsBatch : Iterables.partition(idsToQuery, BATCH_SIZE)) {
-                final Iterator<Object> objectInstances = session.createQuery(rootQuery).setParameterList("ids", idsBatch).iterate();
-                while (objectInstances.hasNext()) {
-                    /*final*/ Object objectInstance = objectInstances.next();
-                    if (objectInstance instanceof HibernateProxy) {
-                        /* TODO: this is an awkward hack pending Hibernate 4's type() function */
-                       final LazyInitializer initializer = ((HibernateProxy) objectInstance).getHibernateLazyInitializer();
-                       final Long id = (Long) initializer.getIdentifier();
-                       String realClassName = initializer.getEntityName();
-                       boolean lookForSubclass = true;
-                       while (lookForSubclass) {
-                           lookForSubclass = false;
-                           for (final String subclassName : model.getSubclassesOf(realClassName)) {
-                               final String classQuery = "FROM " + subclassName + " WHERE id = :id";
-                               final Iterator<Object> instance = session.createQuery(classQuery).setParameter("id", id).iterate();
-                               if (instance.hasNext()) {
-                                   realClassName = subclassName;
-                                   lookForSubclass = true;
-                                   break;
-                               }
-                           }
-                       }
-                       objectInstance = new CI(realClassName, id).toIObject();
+            boolean tryToQuerySubclasses;
+            boolean subclassesQueried = false;
+
+            synchronized (CLASSES_WITHOUT_SUBCLASSES) {
+                tryToQuerySubclasses = !CLASSES_WITHOUT_SUBCLASSES.contains(className);
+            }
+            if (tryToQuerySubclasses) {
+                try {
+                    /* determine the class of persisted objects without loading them */
+                    final String rootQuery = "SELECT r.id, type(r) FROM " + className + " r WHERE r.id IN (:ids)";
+                    for (final List<Long> idsBatch : Iterables.partition(idsToQuery, BATCH_SIZE)) {
+                        for (final Object[] result :
+                            (List<Object[]>) session.createQuery(rootQuery).setParameterList("ids", idsBatch).list()) {
+                            final Long id = (Long) result[0];
+                            final Class<? extends IObject> objectClass = (Class<? extends IObject>) result[1];
+                            final CI object = new CI(objectClass.getName(), id);
+                            objectsById.put(object.id, object);
+                            planning.aliases.put(new CI(className, object.id), object);
+                        }
                     }
-                    final CI object = new CI((IObject) objectInstance);
+                    subclassesQueried = true;
+                } catch (QueryException e) {
+                    synchronized (CLASSES_WITHOUT_SUBCLASSES) {
+                        CLASSES_WITHOUT_SUBCLASSES.add(className);
+                    }
+                }
+            }
+            if (!subclassesQueried) {
+                /* the class does not have subclasses to determine */
+                for (final Long id : idsToQuery) {
+                    final CI object = new CI(className, id);
                     objectsById.put(object.id, object);
                     planning.aliases.put(new CI(className, object.id), object);
                 }
