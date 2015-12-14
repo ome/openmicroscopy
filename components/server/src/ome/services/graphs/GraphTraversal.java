@@ -1490,7 +1490,7 @@ public class GraphTraversal {
         /* process the targets forward across links */
         while (!planning.blockedBy.isEmpty()) {
             /* determine which objects can be processed in this step */
-            final Collection<CI> nowUnblocked = new ArrayList<CI>();
+            final Collection<CI> nowUnblocked = new HashSet<CI>();
             final Iterator<Entry<CI, Set<CI>>> blocks = planning.blockedBy.entrySet().iterator();
             while (blocks.hasNext()) {
                 final Entry<CI, Set<CI>> block = blocks.next();
