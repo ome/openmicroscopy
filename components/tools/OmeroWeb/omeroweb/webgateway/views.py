@@ -52,6 +52,7 @@ from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, \
     HttpJavascriptResponseServerError
+from connector import Server
 
 import glob
 
@@ -2250,6 +2251,9 @@ def full_viewer(request, iid, conn=None, **kwargs):
     @return:            html page of image and metadata
     """
 
+    server_id = request.session['connector'].server_id
+    server_name = Server.get(server_id).server
+
     rid = getImgDetailsFromReq(request)
     server_settings = request.session.get('server_settings', {}) \
                                      .get('viewer', {})
@@ -2264,8 +2268,8 @@ def full_viewer(request, iid, conn=None, **kwargs):
         twitter = None
         twitter_img = None
 
-        if settings.TWITTER_ENABLED and hasattr(settings, 'TWITTER_SITE_USER'):
-            twitter = settings.TWITTER_SITE_USER
+        if hasattr(settings, 'SHARING_TWITTER'):
+            twitter = settings.SHARING_TWITTER.get(server_name)
         if twitter:
             prefix = kwargs.get(
                 'thumbprefix', 'webgateway.views.render_thumbnail')
@@ -2274,6 +2278,8 @@ def full_viewer(request, iid, conn=None, **kwargs):
                 return reverse(prefix, args=(iid,))
 
             twitter_img = request.build_absolute_uri(urlprefix(iid))
+
+            logger.debug('Twitter enabled: %s %s', twitter, twitter_img)
 
         d = {'blitzcon': conn,
              'image': image,
