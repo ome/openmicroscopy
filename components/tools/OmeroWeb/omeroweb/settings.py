@@ -489,6 +489,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Dictionary of `server-name: @twitter-site-username`, where "
           "server-name matches a name from `omero.web.server_list`. "
           "For example: ``'{\"omero\": \"@openmicroscopy\"}'``")],
+    "omero.web.sharing.opengraph":
+        ["SHARING_OPENGRAPH",
+         {},
+         json.loads,
+         ("Dictionary of `server-name: site-name`, where "
+          "server-name matches a name from `omero.web.server_list`. "
+          "For example: ``'{\"omero\": \"Open Microscopy\"}'``")],
 
     # Application configuration
     "omero.web.server_list":

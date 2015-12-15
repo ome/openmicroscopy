@@ -43,14 +43,24 @@
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.iehacks.css"|add:url_suffix %}" media="all" />
 <![endif]-->
 
+{% if opengraph %}
+    <meta name="og:title" content="{{ image.getName|escape }}">
+    <meta name="og:type" content="website">
+    <meta name="og:site_name" content="{{ opengraph }}">
+    <meta name="og:description" content="{{ image.getDescription|default:image.getOwner.getName|escape }}">
+    <meta name="og:url" content="{{ page_url }}">
+    <meta name="og:image" content="{{ image_preview }}512">
+{% endif %}
+
 {% if twitter %}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="{{ twitter|escape }}">
     <meta name="twitter:title" content="{{ image.getName|truncateafter:'67'|escape }}">
     <meta name="twitter:description" content="{{ image.getDescription|default:image.getOwner.getName|truncateafter:'197'|escape }}">
     <meta name="twitter:creator" content="{{ twitter|escape }}">
-    <meta name="twitter:image" content="{{ twitter_img }}280">
+    <meta name="twitter:image" content="{{ image_preview }}280">
 {% endif %}
+
 {% endblock %}
 
 {% block script %}
