@@ -423,6 +423,18 @@ List all images.  To list images within a Dataset, use ?id=datasetId
 api_image_list = url(r'^api/images/$', views.api_image_list,
                      name='api_images')
 
+"""
+List all screens.
+"""
+api_screen_list = url(r'^api/screens/$', views.api_screen_list,
+                      name='api_screens')
+
+"""
+List all plates.  To list plates within a Screen, use ?id=screenId
+"""
+api_plate_list = url(r'^api/plates/$', views.api_plate_list,
+                     name='api_plates')
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -476,6 +488,8 @@ urlpatterns = patterns(
     api_project_list,
     api_dataset_list,
     api_image_list,
+    api_screen_list,
+    api_plate_list,
 
     # Debug stuff
 

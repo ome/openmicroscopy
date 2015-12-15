@@ -35,7 +35,7 @@ from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
 from api_marshal import marshal_projects, marshal_datasets, \
-    marshal_images
+    marshal_images, marshal_screens, marshal_plates
 
 try:
     from hashlib import md5
@@ -1285,19 +1285,19 @@ def api_container_list(request, conn=None, **kwargs):
                                     limit=limit)
 
         # # Get the screens for the current user
-        # screens = tree.marshal_screens(conn=conn,
-        #                                group_id=group_id,
-        #                                experimenter_id=experimenter_id,
-        #                                page=page,
-        #                                limit=limit)
+        screens = marshal_screens(conn=conn,
+                                  group_id=group_id,
+                                  experimenter_id=experimenter_id,
+                                  page=page,
+                                  limit=limit)
 
         # # Get the orphaned plates (without project parents)
-        # plates = tree.marshal_plates(conn=conn,
-        #                              orphaned=True,
-        #                              group_id=group_id,
-        #                              experimenter_id=experimenter_id,
-        #                              page=page,
-        #                              limit=limit)
+        plates = marshal_plates(conn=conn,
+                                orphaned=True,
+                                group_id=group_id,
+                                experimenter_id=experimenter_id,
+                                page=page,
+                                limit=limit)
 
         # # Get the orphaned images container
         # orphaned = tree.marshal_orphaned(conn=conn,
@@ -1314,8 +1314,8 @@ def api_container_list(request, conn=None, **kwargs):
 
     return {'projects': projects,
             'datasets': datasets,
-            # 'screens': screens,
-            # 'plates': plates,
+            'screens': screens,
+            'plates': plates,
             # 'orphaned': orphaned
             }
 
@@ -1432,6 +1432,66 @@ def api_image_list(request, conn=None, **kwargs):
         return HttpResponseServerError(e.message)
 
     return {'images': images}
+
+
+@login_required()
+@jsonp
+def api_screen_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'user', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the screens
+        screens = marshal_screens(conn=conn,
+                                  group_id=group_id,
+                                  experimenter_id=experimenter_id,
+                                  page=page,
+                                  limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'screens': screens}
+
+
+@login_required()
+@jsonp
+def api_plate_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        screen_id = getIntOrDefault(request, 'id', None)
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'user', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the plates
+        plates = marshal_plates(conn=conn,
+                                screen_id=screen_id,
+                                group_id=group_id,
+                                experimenter_id=experimenter_id,
+                                page=page,
+                                limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'plates': plates}
 
 
 @login_required()
