@@ -11,21 +11,21 @@ scripts. Other improvements include:
 -  improvements to the right-hand panel in OMERO.insight
 -  measurement tool fixes
 -  OMERO.web fix for displaying size units
--  OMERO.web fixes for activities panel when running scripts
 
 System administrator updates include:
 
--  improved installation documentation, including walkthroughs with scripts
+-  improved installation documentation, including detailed walkthroughs for
+   specific OS
 -  OMERO.web deployment fixes
 
 Developer updates include:
 
 -  OMERO Javadocs now link to the relevant version of Bio-Formats Javadocs for
    inherited methods
--  Clean-up of server dependencies
+-  clean-up of server dependencies
 -  jstree clean-up
 -  CLI graph operation improvements for deleting
--  minimal-omero-client clean-up
+-  minimal-omero-client and pom-omero-client clean-up
 
 5.2.0 (November 2015)
 ----------------------
