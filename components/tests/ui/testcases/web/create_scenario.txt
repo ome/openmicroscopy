@@ -5,7 +5,7 @@ Resource          ../../resources/config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
-Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}" 
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
 Suite Teardown      Close all browsers
 
 *** Variables ***
@@ -45,6 +45,7 @@ Check Right And Center Panels For Active Container
 Create Project Using Icon and Check If It Exists
     ${projectId}=                           Create Project                      ${CtxProjectName}
     Project Should Exist                    ${projectId}
+    Delete Container
     [Return]                                ${projectId}
 
 Create Project Using Right Click and Check If It Exists
@@ -52,6 +53,7 @@ Create Project Using Right Click and Check If It Exists
     Right Click Create P/D/S                ${RootId}       Project             ${ProjectName}
     ${projectId}=                           Check Right And Center Panels For Active Container                      Project             ${ProjectName}
     Project Should Exist                    ${projectId}
+    Delete Container
     [Return]                                ${projectId}
 
 Project Should Exist
@@ -65,6 +67,7 @@ Create Dataset Using Icon and Check If Orphaned
     ${datasetId}=                           Create Dataset                          ${CtxDatasetName}
     Run Keyword If                          '${isOrphaned}' == '${orphaned}'        Dataset Exists and Is Orphaned      ${datasetId}
     Run Keyword If                          '${isOrphaned}' == '${notOrphaned}'     Dataset Exists and Is Not Orphaned  ${datasetId}        ${projectId}
+    Delete Container
     [Return]                                ${datasetId} 
 
 Create Dataset Using Right Click and Check If Orphaned
@@ -87,16 +90,10 @@ Dataset Exists and Is Not Orphaned
     ${projectnodeId}=                       Wait for Project Node               ${projectId}
     Wait Until Page Contains Element        xpath=//li[@id='${treeRootId}']/ul/li[@id='${projectnodeId}']/ul/li[@id='${datasetnodeId}']
 
-Dataset Should Contain Image 
-    [Arguments]                             ${imageId}      ${datasetId}
-    Wait Until Page Contains Element        css=tr.data_heading_id strong
-    Select Dataset By Id                    ${datasetId}
-    ${nodeId}=                              Wait For Dataset Node               ${datasetId}
-    Wait Until Element Is Visible           xpath=//li[@id='${nodeId}']/ul/li[@data-id='${imageId}']
-
 Create Screen Using Icon and Check If It Exists
     ${screenId}=                            Create Screen                       ${CtxScreenName}
     Screen Should Exist                     ${screenId}
+    Delete Container
     [Return]                                ${screenId}
 
 Create Screen Using Right Click and Check If It Exists
@@ -104,6 +101,7 @@ Create Screen Using Right Click and Check If It Exists
     Right Click Create P/D/S                ${RootId}       Screen              ${ScreenName}
     ${screenId}=                            Check Right And Center Panels For Active Container      Screen          ${ScreenName}
     Screen Should Exist                     ${screenId}
+    Delete Container
     [Return]                                ${screenId}
 
 Screen Should Exist
@@ -170,6 +168,7 @@ Test Container Creation Enabled
 
 Test Create Project Using Icon
     
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     Create Project Using Icon and Check If It Exists
 
@@ -190,6 +189,7 @@ Test Create Project Using Icon
 
 Test Create Project Using Right Click
     
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     Create Project Using Right Click and Check If It Exists     ${treeRootId}                   ${CtxProjectName}
 
@@ -211,10 +211,11 @@ Test Create Project Using Right Click
 
 Test Create Dataset Using Icon
     
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     Create Dataset Using Icon and Check If Orphaned             ${orphaned}
 
-    Select First Project With Name                              ${CtxProjectName}
+    Select First Project
     Create Dataset Using Icon and Check If Orphaned             ${notOrphaned}
 
     Select First Dataset
@@ -232,31 +233,40 @@ Test Create Dataset Using Icon
 
 Test Create Dataset Using Right Click
 
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     Create Dataset Using Right Click and Check If Orphaned      ${treeRootId}               ${CtxDatasetName}               ${orphaned}
+    Delete Container
 
-    ${treeId}=                                                  Select First Project With Name                              ${CtxProjectName}
+    ${pId}=                                                     Select First Project
+    ${treeId}=                                                  Wait For Project Node       ${pId}
     Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${notOrphaned}
+    Delete Container
 
     ${imageId}=                                                 Select And Expand Image
     ${treeId}=                                                  Wait For Image Node         ${imageId}
     Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
+    Delete Container
 
     ${screenId}=                                                Select First Screen
     ${treeId}=                                                  Wait For Screen Node        ${screenId}
     Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
+    Delete Container
                                             
     ${treeId}=                                                  Select Orphaned Images Section
     Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
+    Delete Container
 
     ${imageId}=                                                 Select First Orphaned Image 
     ${treeId}=                                                  Wait For Image Node         ${imageId}
     ${datasetId}=                                               Create Dataset Using Right Click and Check If Orphaned      ${treeId}                   ${CtxDatasetName}               ${orphaned}
     Dataset Should Contain Image                                ${imageId}                  ${datasetId}
+    Delete Container
 
 
 Test Create Screen Using Icon
     
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     Create Screen Using Icon and Check If It Exists             
 
@@ -277,10 +287,11 @@ Test Create Screen Using Icon
 
 Test Create Screen Using Right Click
 
+    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}     Reload Page
     Select Experimenter
     Create Screen Using Right Click and Check If It Exists      ${treeRootId}               ${CtxScreenName}
 
-    ${imageId}=                                                 Select First Image
+    ${imageId}=                                                 Select And Expand Image
     ${treeId}=                                                  Wait For Image Node         ${imageId}
     Create Screen Using Right Click and Check If It Exists      ${treeId}                   ${CtxScreenName}
 
