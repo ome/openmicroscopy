@@ -1258,7 +1258,7 @@ def api_container_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'id', -1)
+        experimenter_id = getIntOrDefault(request, 'user', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
@@ -1328,12 +1328,14 @@ def api_project_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'user', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
     try:
         projects = marshal_projects(conn=conn,
                                     group_id=group_id,
+                                    experimenter_id=experimenter_id,
                                     page=page,
                                     limit=limit)
     except ApiUsageException as e:
@@ -1354,6 +1356,7 @@ def api_dataset_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'user', -1)
         project_id = getIntOrDefault(request, 'id', None)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
@@ -1363,6 +1366,7 @@ def api_dataset_list(request, conn=None, **kwargs):
         datasets = marshal_datasets(conn=conn,
                                     project_id=project_id,
                                     group_id=group_id,
+                                    experimenter_id=experimenter_id,
                                     page=page,
                                     limit=limit)
     except ApiUsageException as e:
@@ -1391,13 +1395,13 @@ def api_image_list(request, conn=None, **kwargs):
     try:
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
-        group_id = getIntOrDefault(request, 'group', -1)
         dataset_id = getIntOrDefault(request, 'id', None)
         orphaned = getBoolOrDefault(request, 'orphaned', False)
         load_pixels = getBoolOrDefault(request, 'sizeXYZ', False)
         thumb_version = getBoolOrDefault(request, 'thumbVersion', False)
         date = getBoolOrDefault(request, 'date', False)
-        experimenter_id = getIntOrDefault(request, 'experimenter_id', -1)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'user', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
