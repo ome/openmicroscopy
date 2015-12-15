@@ -633,6 +633,7 @@ $(function() {
                 });
             },
             'check_callback': function(operation, node, node_parent, node_position, more) {
+                // This is used to check if we can drag and drop, paste etc.
                 // Before this (and thus before the copy and the paste) the nodes children
                 // are loaded. This is important as it allows us to weed out potential
                 // conflicts in the copy, i.e. where a link to the object already exists
@@ -657,7 +658,7 @@ $(function() {
                 }
 
                 // On actual copy/move allow all valid
-                if (more != undefined && more.core &&
+                if (more && more.core &&
                     (operation === 'copy_node' || operation === 'move_node')) {
                     // Check that the user has permission to list on the new parent
                     // or that their user themselves is the new parent
@@ -1054,7 +1055,7 @@ $(function() {
                 }
             }
             // If the nodes are the same type then just compare lexicographically
-            if (node1.type === node2.type && node1.text != undefined && node2.text != undefined) {
+            if (node1.type === node2.type && node1.text && node2.text) {
                 // Unless they are experimenters and one of them is the current user.
                 if(node1.type === 'experimenter') {
                     if (node1.data.obj.id === WEBCLIENT.USER.id) {

@@ -765,6 +765,8 @@
             });
 
             inst.deselect_all();
+            // NB: the global variable refreshPathsReverse is used in ome.tree.js
+            // after refresh, then set to empty list.
             inst.refresh();
         });
 
