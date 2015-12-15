@@ -1956,21 +1956,30 @@ def full_viewer(request, iid, conn=None, **kwargs):
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404
+
+        opengraph = None
         twitter = None
-        twitter_img = None
+        image_preview = None
+        page_url = None
+
+        if hasattr(settings, 'SHARING_OPENGRAPH'):
+            opengraph = settings.SHARING_OPENGRAPH.get(server_name)
+            logger.debug('Open Graph enabled: %s', twitter)
 
         if hasattr(settings, 'SHARING_TWITTER'):
             twitter = settings.SHARING_TWITTER.get(server_name)
-        if twitter:
+            logger.debug('Twitter enabled: %s', twitter)
+
+        if opengraph or twitter:
             prefix = kwargs.get(
                 'thumbprefix', 'webgateway.views.render_thumbnail')
 
             def urlprefix(iid):
                 return reverse(prefix, args=(iid,))
 
-            twitter_img = request.build_absolute_uri(urlprefix(iid))
-
-            logger.debug('Twitter enabled: %s %s', twitter, twitter_img)
+            image_preview = request.build_absolute_uri(urlprefix(iid))
+            page_url = request.build_absolute_uri(reverse(
+                'webgateway.views.full_viewer', args=(iid,)))
 
         d = {'blitzcon': conn,
              'image': image,
@@ -1983,8 +1992,10 @@ def full_viewer(request, iid, conn=None, **kwargs):
                  # remove any trailing slash
                  'viewport_server', reverse('webgateway')).rstrip('/'),
 
+             'opengraph': opengraph,
              'twitter': twitter,
-             'twitter_img': twitter_img,
+             'image_preview': image_preview,
+             'page_url': page_url,
 
              'object': 'image:%i' % int(iid)}
 
