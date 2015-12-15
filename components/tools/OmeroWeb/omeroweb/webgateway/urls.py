@@ -435,6 +435,14 @@ List all plates.  To list plates within a Screen, use ?id=screenId
 api_plate_list = url(r'^api/plates/$', views.api_plate_list,
                      name='api_plates')
 
+"""
+List Plate Aquisitions (Runs) under a plate.
+Specify Plate in query with ?id=plateId
+"""
+api_plate_acquisition_list = url(r'^api/plate_acquisitions/$',
+                                 views.api_plate_acquisition_list,
+                                 name='api_plate_acquisitions')
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -490,6 +498,7 @@ urlpatterns = patterns(
     api_image_list,
     api_screen_list,
     api_plate_list,
+    api_plate_acquisition_list,
 
     # Debug stuff
 

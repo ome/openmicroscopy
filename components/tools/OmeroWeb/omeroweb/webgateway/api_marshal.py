@@ -737,3 +737,166 @@ def marshal_plates(conn, screen_id=None, orphaned=False, group_id=-1,
         plates.append(_marshal_plate(conn, e[0:5]))
 
     return plates
+
+
+def _marshal_plate_acquisition(conn, row):
+    ''' Given a PlateAcquisition row (list) marshals it into a dictionary.
+        Order and type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * details.owner.id (rlong)
+          * details.permissions (dict)
+          * startTime (rtime)
+          * endTime (rtime)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The PlateAcquisition row to marshal
+        @type row L{list}
+    '''
+
+    pa_id, name, owner_id, permissions, start_time, end_time = row
+    plate_acquisition = dict()
+    plate_acquisition['id'] = unwrap(pa_id)
+
+    # If there is no defined name, base it on the start/end time if that
+    # exists or finally default to an id based name
+    if name is not None:
+        plate_acquisition['name'] = unwrap(name)
+    elif start_time is not None and end_time is not None:
+        start_time = datetime.utcfromtimestamp(unwrap(start_time) / 1000.0)
+        end_time = datetime.utcfromtimestamp(unwrap(end_time) / 1000.0)
+        plate_acquisition['name'] = '%s - %s' % (start_time, end_time)
+    else:
+        plate_acquisition['name'] = 'Run %d' % unwrap(pa_id)
+
+    plate_acquisition['ownerId'] = unwrap(owner_id)
+    plate_acquisition['permsCss'] = \
+        parse_permissions_css(permissions, unwrap(owner_id), conn)
+    return plate_acquisition
+
+
+def marshal_plate_acquisitions(conn, plate_id, page=1, limit=settings.PAGE):
+    ''' Marshals plate acquisitions ('runs')
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param plate_id The Plate ID to filter by
+        @type plate_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+
+    '''
+    plate_acquisitions = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    service_opts.setOmeroGroup(-1)
+
+    # Paging
+    if page:
+        params.page((page-1) * limit, limit)
+
+    params.add('pid', rlong(plate_id))
+    qs = conn.getQueryService()
+    q = """
+        select new map(pa.id as id,
+               pa.name as name,
+               pa.details.owner.id as ownerId,
+               pa as pa_details_permissions,
+               pa.startTime as startTime,
+               pa.endTime as endTime)
+        from PlateAcquisition pa
+        where pa.plate.id = :pid
+        order by pa.id
+        """
+
+    for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["pa_details_permissions"],
+             e[0]["startTime"],
+             e[0]["endTime"]]
+        plate_acquisitions.append(_marshal_plate_acquisition(conn, e[0:6]))
+
+    return plate_acquisitions
+
+
+def marshal_orphaned(conn, group_id=-1, experimenter_id=-1, page=1,
+                     limit=settings.PAGE):
+    ''' Marshals orphaned containers
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param group_id The Group ID to filter by or -1 for all groups,
+        defaults to -1
+        @type group_id L{long}
+        @param experimenter_id The Experimenter (user) ID to filter by
+        or -1 for all experimenters
+        @type experimenter_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+
+    '''
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    # Paging
+    if page:
+        params.page((page-1) * limit, limit)
+
+    if experimenter_id is not None and experimenter_id != -1:
+        params.addId(experimenter_id)
+
+    qs = conn.getQueryService()
+
+    # Count all the images that do not have Datasets as parents or are
+    # not in a WellSample
+    q = '''
+        select count(image.id) from Image image
+        where
+        '''
+    if experimenter_id is not None and experimenter_id != -1:
+        q += '''
+            image.details.owner.id = :id
+            and
+            '''
+
+    q += '''
+        not exists (
+            select dilink from DatasetImageLink as dilink
+            where dilink.child.id = image.id
+        '''
+
+    # This corresponse to the user specific orphan restriction described
+    # in the orphan section of marshal_images
+    # q += ' and dilink.parent.details.owner.id = :id '
+    q += '''
+        )
+        and not exists (
+                select ws from WellSample ws
+                where ws.image.id = image.id
+        )
+        '''
+
+    count = unwrap(qs.projection(q, params, service_opts)[0][0])
+    orphaned = dict()
+    # In orphans, record the id as the experimenter
+    orphaned['id'] = experimenter_id or -1
+    orphaned['childCount'] = count
+    return orphaned

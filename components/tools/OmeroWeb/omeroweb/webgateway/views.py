@@ -35,7 +35,8 @@ from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
 from api_marshal import marshal_projects, marshal_datasets, \
-    marshal_images, marshal_screens, marshal_plates
+    marshal_images, marshal_screens, marshal_plates, \
+    marshal_plate_acquisitions, marshal_orphaned
 
 try:
     from hashlib import md5
@@ -1299,12 +1300,12 @@ def api_container_list(request, conn=None, **kwargs):
                                 page=page,
                                 limit=limit)
 
-        # # Get the orphaned images container
-        # orphaned = tree.marshal_orphaned(conn=conn,
-        #                                  group_id=group_id,
-        #                                  experimenter_id=experimenter_id,
-        #                                  page=page,
-        #                                  limit=limit)
+        # # Get the orphaned images container (just has childCount)
+        orphaned = marshal_orphaned(conn=conn,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    page=page,
+                                    limit=limit)
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
@@ -1316,7 +1317,7 @@ def api_container_list(request, conn=None, **kwargs):
             'datasets': datasets,
             'screens': screens,
             'plates': plates,
-            # 'orphaned': orphaned
+            'orphaned': orphaned
             }
 
 
@@ -1492,6 +1493,39 @@ def api_plate_list(request, conn=None, **kwargs):
         return HttpResponseServerError(e.message)
 
     return {'plates': plates}
+
+
+@login_required()
+@jsonp
+def api_plate_acquisition_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        plate_id = getIntOrDefault(request, 'id', None)
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # Orphaned PlateAcquisitions are not possible so querying without a
+    # plate is an error
+    if plate_id is None:
+        return HttpResponseBadRequest('id (plate) must be specified')
+
+    try:
+        # Get the plate acquisitions
+        plate_acquisitions = marshal_plate_acquisitions(
+            conn=conn,
+            plate_id=plate_id,
+            page=page,
+            limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'acquisitions': plate_acquisitions}
 
 
 @login_required()
