@@ -534,3 +534,206 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
             images.append(_marshal_image_deleted(conn, image_rid))
 
     return images
+
+
+def _marshal_screen(conn, row):
+    ''' Given a Screen row (list) marshals it into a dictionary.  Order and
+        type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * details.owner.id (rlong)
+          * details.permissions (dict)
+          * child_count (rlong)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Screen row to marshal
+        @type row L{list}
+    '''
+
+    screen_id, name, owner_id, permissions, child_count = row
+    screen = dict()
+    screen['id'] = unwrap(screen_id)
+    screen['name'] = unwrap(name)
+    screen['ownerId'] = unwrap(owner_id)
+    screen['childCount'] = unwrap(child_count)
+    screen['permsCss'] = \
+        parse_permissions_css(permissions, unwrap(owner_id), conn)
+    return screen
+
+
+def marshal_screens(conn, group_id=-1, experimenter_id=-1, page=1,
+                    limit=settings.PAGE):
+
+    ''' Marshals screens
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param group_id The Group ID to filter by or -1 for all groups,
+        defaults to -1
+        @type group_id L{long}
+        @param experimenter_id The Experimenter (user) ID to filter by
+        or -1 for all experimenters
+        @type experimenter_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+    '''
+    screens = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    # Paging
+    if page:
+        params.page((page-1) * limit, limit)
+
+    where_clause = ''
+    if experimenter_id is not None and experimenter_id != -1:
+        params.addId(experimenter_id)
+        where_clause = 'where screen.details.owner.id = :id'
+    qs = conn.getQueryService()
+    q = """
+        select new map(screen.id as id,
+               screen.name as name,
+               screen.details.owner.id as ownerId,
+               screen as screen_details_permissions,
+               (select count(spl.id) from ScreenPlateLink spl
+                where spl.parent=screen.id) as childCount)
+               from Screen screen
+               %s
+               order by lower(screen.name), screen.id
+        """ % where_clause
+
+    for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["screen_details_permissions"],
+             e[0]["childCount"]]
+        screens.append(_marshal_screen(conn, e[0:5]))
+
+    return screens
+
+
+def _marshal_plate(conn, row):
+    ''' Given a Plate row (list) marshals it into a dictionary.  Order and
+        type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * details.owner.id (rlong)
+          * details.permissions (dict)
+          * child_count (rlong)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Plate row to marshal
+        @type row L{list}
+    '''
+
+    plate_id, name, owner_id, permissions, child_count = row
+    plate = dict()
+    plate['id'] = unwrap(plate_id)
+    plate['name'] = unwrap(name)
+    plate['ownerId'] = unwrap(owner_id)
+    plate['childCount'] = unwrap(child_count)
+    plate['permsCss'] = \
+        parse_permissions_css(permissions, unwrap(owner_id), conn)
+    return plate
+
+
+def marshal_plates(conn, screen_id=None, orphaned=False, group_id=-1,
+                   experimenter_id=-1, page=1, limit=settings.PAGE):
+    ''' Marshals plates
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param screen_id The Screen ID to filter by or `None` to
+        not filter by a specific screen.
+        defaults to `None`
+        @type screen_id L{long}
+        @param orphaned If this is to filter by orphaned data. Overridden
+        by dataset_id.
+        defaults to False
+        @type orphaned Boolean
+        @param group_id The Group ID to filter by or -1 for all groups,
+        defaults to -1
+        @type group_id L{long}
+        @param experimenter_id The Experimenter (user) ID to filter by
+        or -1 for all experimenters
+        @type experimenter_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+    '''
+    plates = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    # Paging
+    if page:
+        params.page((page-1) * limit, limit)
+
+    where_clause = []
+    if experimenter_id is not None and experimenter_id != -1:
+        params.addId(experimenter_id)
+        where_clause.append('plate.details.owner.id = :id')
+
+    qs = conn.getQueryService()
+    q = """
+        select new map(plate.id as id,
+               plate.name as name,
+               plate.details.owner.id as ownerId,
+               plate as plate_details_permissions,
+               (select count(pa.id) from PlateAcquisition pa
+                where pa.plate.id=plate.id) as childCount)
+        from Plate plate
+        """
+
+    # If this is a query to get plates from a parent screen
+    if screen_id is not None:
+        params.add('sid', rlong(screen_id))
+        q += 'join plate.screenLinks slink'
+        where_clause.append('slink.parent.id = :sid')
+    # If this is a query to get plates with no parent screens
+    elif orphaned:
+        where_clause.append(
+            """
+            not exists (
+                select splink from ScreenPlateLink as splink
+                where splink.child = plate.id
+            )
+            """
+        )
+
+    q += """
+        %s
+        order by lower(plate.name), plate.id
+        """ % build_clause(where_clause, 'where', 'and')
+
+    for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["plate_details_permissions"],
+             e[0]["childCount"]]
+        plates.append(_marshal_plate(conn, e[0:5]))
+
+    return plates

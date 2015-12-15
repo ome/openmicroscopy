@@ -32,12 +32,11 @@ from omero.model import ProjectI, DatasetI, ImageI, ScreenI, PlateI, \
     PlateAnnotationLinkI, PlateAcquisitionAnnotationLinkI
 from omero.rtypes import rstring, rtime
 from omeroweb.webclient.tree import marshal_experimenter, \
-    marshal_plates, \
-    marshal_screens, marshal_plate_acquisitions, marshal_orphaned, \
+    marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, marshal_shares, marshal_discussions
 
 from omeroweb.webgateway.api_marshal import marshal_projects, marshal_datasets, \
-    marshal_images
+    marshal_images, marshal_screens, marshal_plates
 
 from datetime import datetime
 
