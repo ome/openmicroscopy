@@ -27,6 +27,8 @@ import java.util.UUID;
 
 import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.DataSourceException;
 import omero.gateway.rnd.Plane2D;
 import omero.model.IObject;
@@ -61,7 +63,7 @@ public class RawDataFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetPlane() throws DataSourceException {
+    public void testGetPlane() throws DataSourceException, DSOutOfServiceException, DSAccessException {
         ImageData img = browseFacility.getImage(rootCtx, imgId);
         Plane2D plane = rawdataFacility.getPlane(rootCtx, img.getDefaultPixels(), 0, 0, 0);
         byte[] planeData = new byte[100*100];
@@ -72,7 +74,7 @@ public class RawDataFacilityTest extends GatewayTest {
     }
     
     @Test
-    public void testGetTile() throws DataSourceException {
+    public void testGetTile() throws DataSourceException, DSOutOfServiceException, DSAccessException {
         ImageData img = browseFacility.getImage(rootCtx, imgId);
         int x = 0, y=0, w=img.getDefaultPixels().getSizeX(), h=1;
         

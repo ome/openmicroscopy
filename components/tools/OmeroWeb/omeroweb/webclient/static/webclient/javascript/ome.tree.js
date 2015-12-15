@@ -20,7 +20,7 @@ $(function() {
     })
     .on('copy_node.jstree', function(e, data) {
         /**
-        * Fired when a node is copied and paste_rdef
+        * Fired when a node is pasted
         * Updates the server, adding the new link
         */
         var inst = data.instance;

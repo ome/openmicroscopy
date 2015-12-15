@@ -1,7 +1,6 @@
 # Python installation requirements for OMERO.web
 # ==============================================
 #
-#     pip install -r requirements-py27-nginx.txt
+#     pip install -r requirements-py27-win.txt
 #
 Django>=1.8,<1.9
-gunicorn

@@ -1600,6 +1600,9 @@ class DataBrowserComponent
 		//depends on the view.
 		WellsModel wm = (WellsModel) model;
 		
+        if (wm.getSelectedWell() == null)
+            return;
+		
 		int index = view.getSelectedView();
 		
 		if (index == DataBrowserUI.FIELDS_VIEW) {
@@ -1630,6 +1633,8 @@ class DataBrowserComponent
 		WellsModel wm = (WellsModel) model;
 		if (!wm.isSameWell(row, column)) return;
 		WellImageSet well = wm.getSelectedWell();
+		if (well == null)
+		    return;
 		List<WellSampleNode> nodes = well.getWellSamples();
 		Iterator<WellSampleNode> j = nodes.iterator();
 		WellSampleNode n; 

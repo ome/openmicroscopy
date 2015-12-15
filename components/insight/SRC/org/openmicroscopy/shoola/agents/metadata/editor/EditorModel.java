@@ -2548,8 +2548,46 @@ class EditorModel
 	Collection<TextualAnnotationData> getTextualAnnotations()
 	{
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return null;
+		if (data == null) 
+		    return null;
+		
 		return data.getTextualAnnotations();
+	}
+	
+	/**
+	 * Get the comments of all selected objects
+	 * @return See above
+	 */
+	Collection<TextualAnnotationData> getAllTextualAnnotations() {
+	    Map<DataObject, StructuredDataResults> 
+        r = parent.getAllStructuredData();
+        if (r == null) 
+            return new ArrayList<TextualAnnotationData>();
+        
+        Entry<DataObject, StructuredDataResults> e;
+        Iterator<Entry<DataObject, StructuredDataResults>>
+        i = r.entrySet().iterator();
+
+        Collection<TextualAnnotationData> others;
+        List<TextualAnnotationData> results = new ArrayList<TextualAnnotationData>();
+        List<Long> ids = new ArrayList<Long>();
+        Iterator<TextualAnnotationData> k;
+        TextualAnnotationData other;
+        while (i.hasNext()) {
+            e = i.next();
+            others = e.getValue().getTextualAnnotations();
+            if (others != null) {
+                k = others.iterator();
+                while (k.hasNext()) {
+                    other = k.next();
+                    if (!ids.contains(other.getId())) {
+                        results.add(other);
+                        ids.add(other.getId());
+                    }
+                }
+            }
+        }
+        return results;
 	}
 	
 	/**
@@ -2559,9 +2597,10 @@ class EditorModel
 	 */
 	List getTextualAnnotationsByDate()
 	{
-		if (textualAnnotationsByDate != null)
-			return textualAnnotationsByDate;
-		textualAnnotationsByDate = (List) getTextualAnnotations();
+//		if (textualAnnotationsByDate != null)
+//			return textualAnnotationsByDate;
+		textualAnnotationsByDate = (List) 
+		        getAllTextualAnnotations();
 		sortAnnotationByDate(textualAnnotationsByDate);
 		return textualAnnotationsByDate;
 	}
