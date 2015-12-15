@@ -359,7 +359,6 @@ $(function() {
             // Make use of function for 'data' because there are some scenarios in which
             // an ajax call is not used to get the data. Namely, the all-user view
             'data' : function(node, callback) {
-                console.log("data()", node);
                 // Get the data for this query
                 var payload = {};
                 // Exception to this for orphans as in the case of api_images, id is a dataset
@@ -627,7 +626,6 @@ $(function() {
                                 jstree_data.push(node);
                             }
 
-                            console.log('jstree_data', jstree_data);
                             return jstree_data;
                         }
 
