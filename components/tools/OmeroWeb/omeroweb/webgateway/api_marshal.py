@@ -118,7 +118,7 @@ def marshal_projects(conn, group_id=-1, experimenter_id=-1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None and page > 0:
+    if page:
         params.page((page-1) * limit, limit)
 
     where_clause = ''
@@ -209,7 +209,7 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None and page > 0:
+    if page:
         params.page((page-1) * limit, limit)
 
     where_clause = []
@@ -375,7 +375,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     service_opts.setOmeroGroup(group_id)
 
     # Paging
-    if page is not None and page > 0:
+    if page:
         params.page((page-1) * limit, limit)
 
     from_join_clauses = []
