@@ -1322,6 +1322,32 @@ def api_container_list(request, conn=None, **kwargs):
 
 @login_required()
 @jsonp
+def api_project_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        projects = marshal_projects(conn=conn,
+                                    group_id=group_id,
+                                    page=page,
+                                    limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'projects': projects}
+
+
+@login_required()
+@jsonp
 def api_dataset_list(request, conn=None, **kwargs):
     # Get parameters
     try:

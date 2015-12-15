@@ -406,6 +406,12 @@ api_container_list = url(r'^api/containers/$', views.api_container_list,
                          name='api_containers')
 
 """
+List all projects.
+"""
+api_project_list = url(r'^api/projects/$', views.api_project_list,
+                       name='api_projects')
+
+"""
 List all datasets.  To list datasets within a Project, use ?id=projectId
 """
 api_dataset_list = url(r'^api/datasets/$', views.api_dataset_list,
@@ -467,6 +473,7 @@ urlpatterns = patterns(
 
     # api
     api_container_list,
+    api_project_list,
     api_dataset_list,
     api_image_list,
 
