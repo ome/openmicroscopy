@@ -19,7 +19,7 @@
 
 ''' Helper functions for views that handle object trees '''
 
-# import time
+import time
 import omero
 
 from omero.rtypes import unwrap, rlong, wrap
@@ -1255,3 +1255,161 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
     tagged['acquisitions'] = plate_acquisitions
 
     return tagged
+
+
+def _marshal_share(conn, row):
+    ''' Given a Share row (list) marshals it into a dictionary.  Order
+        and type of columns in row is:
+          * id (rlong)
+          * details.owner.id (rlong)
+          * child_count (rlong)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Share row to marshal
+        @type row L{list}
+    '''
+    share_id, active, expired, owner_id, child_count = row
+    share = dict()
+    share['id'] = unwrap(share_id)
+    share['ownerId'] = unwrap(owner_id)
+    share['childCount'] = unwrap(child_count)
+    share['isOwned'] = False
+    if unwrap(owner_id) == conn.getUserId() or conn.isAdmin():
+        share['isOwned'] = True
+    share['expired'] = False
+    if unwrap(expired) < time.time():
+        share['expired'] = True
+    share['active'] = unwrap(active)
+    return share
+
+
+def marshal_shares(conn, member_id=-1, owner_id=-1,
+                   page=1, limit=settings.PAGE):
+    ''' Marshal shares for a given user.
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param member_id The Experimenter (user) ID membership to filter by
+        @type member_id L{long}
+        @param owner_id The Experimenter (user) ID ownership to filter by
+        @type owner_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+    '''
+    shares = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+    where_clause = ''
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    if member_id is not None and member_id != -1:
+        params.add('mid', rlong(member_id))
+        where_clause += ' and mem.child.id=:mid '
+
+    if owner_id is not None and owner_id != -1:
+        params.add('owid', rlong(owner_id))
+        where_clause += ' and mem.parent.owner.id=:owid '
+
+    qs = conn.getQueryService()
+    q = '''
+        select distinct mem.parent.id,
+            mem.parent.active,
+            extract(epoch from mem.parent.started)
+                +(mem.parent.timeToLive/1000),
+            mem.parent.owner.id,
+            mem.parent.itemCount
+        from ShareMember mem
+        where mem.parent.itemCount > 0
+        %s
+        order by mem.parent.id
+        ''' % where_clause
+
+    for e in qs.projection(q, params, service_opts):
+        shares.append(_marshal_share(conn, e[0:5]))
+    return shares
+
+
+def _marshal_discussion(conn, row):
+    ''' Given a Discussion row (list) marshals it into a dictionary.  Order
+        and type of columns in row is:
+          * id (rlong)
+          * details.owner.id (rlong)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Discussion row to marshal
+        @type row L{list}
+    '''
+    discussion_id, active, expired, owner_id = row
+    discussion = dict()
+    discussion['id'] = unwrap(discussion_id)
+    discussion['ownerId'] = unwrap(owner_id)
+    discussion['isOwned'] = False
+    if unwrap(owner_id) == conn.getUserId() or conn.isAdmin():
+        discussion['isOwned'] = True
+    discussion['expired'] = False
+    if unwrap(expired) < time.time():
+        discussion['expired'] = True
+    discussion['active'] = unwrap(active)
+    return discussion
+
+
+def marshal_discussions(conn, member_id=-1, owner_id=-1,
+                        page=1, limit=settings.PAGE):
+    ''' Marshal discussion for a given user.
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param member_id The Experimenter (user) ID membership to filter by
+        @type member_id L{long}
+        @param owner_id The Experimenter (user) ID ownership to filter by
+        @type owner_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+    '''
+    discussions = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+    where_clause = ''
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    if member_id is not None and member_id != -1:
+        params.add('mid', rlong(member_id))
+        where_clause += ' and mem.child.id=:mid '
+
+    if owner_id is not None and owner_id != -1:
+        params.add('owid', rlong(owner_id))
+        where_clause += ' and mem.parent.owner.id=:owid '
+
+    qs = conn.getQueryService()
+    q = '''
+        select distinct mem.parent.id,
+            mem.parent.active,
+            extract(epoch from mem.parent.started)
+                +(mem.parent.timeToLive/1000),
+            mem.parent.owner.id,
+            mem.parent.itemCount
+        from ShareMember mem
+        where mem.parent.itemCount = 0
+        %s
+        order by mem.parent.id
+        ''' % where_clause
+
+    for e in qs.projection(q, params, service_opts):
+        discussions.append(_marshal_discussion(conn, e[0:4]))
+    return discussions

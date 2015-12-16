@@ -37,7 +37,8 @@ from marshal import imageMarshal, shapeMarshal
 from api_marshal import marshal_projects, marshal_datasets, \
     marshal_images, marshal_screens, marshal_plates, \
     marshal_plate_acquisitions, marshal_orphaned, \
-    marshal_tags, marshal_tagged
+    marshal_tags, marshal_tagged, \
+    marshal_shares, marshal_discussions
 
 try:
     from hashlib import md5
@@ -1627,6 +1628,45 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
         return HttpResponseServerError(e.message)
 
     return HttpJsonResponse('')
+
+
+@login_required()
+@jsonp
+def api_share_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        member_id = getIntOrDefault(request, 'member_id', -1)
+        owner_id = getIntOrDefault(request, 'user', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    # Like with api_container_list, this is a combination of
+    # results which will each be able to return up to the limit in page
+    # size
+
+    try:
+        # Get the shares
+        shares = marshal_shares(conn=conn,
+                                member_id=member_id,
+                                owner_id=owner_id,
+                                page=page,
+                                limit=limit)
+        # Get the discussions
+        discussions = marshal_discussions(conn=conn,
+                                          member_id=member_id,
+                                          owner_id=owner_id,
+                                          page=page,
+                                          limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'shares': shares, 'discussions': discussions}
 
 
 @login_required()

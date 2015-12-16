@@ -454,6 +454,16 @@ api_tags_and_tagged = url(r'^api/tags/$',
                           views.api_tags_and_tagged_list,
                           name='api_tags_and_tagged')
 
+"""
+List all shares and discussions.
+To filter by those that you are a member of (including owner)
+use 'member_id'. To list those that you own, use the
+'user' parameter as for other urls. TODO: change this to 'owner'?
+"""
+api_shares = url(r'^api/shares/$',
+                 views.api_share_list,
+                 name='api_shares')
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -511,6 +521,7 @@ urlpatterns = patterns(
     api_plate_list,
     api_plate_acquisition_list,
     api_tags_and_tagged,
+    api_shares,
 
     # Debug stuff
 
