@@ -430,7 +430,7 @@ api_container_list = url(r'^api/containers/$', views.api_container_list,
 """
 List all 'top level' containers: Projects, orphaned Datasets, Screens,
 orphaned Plates and an 'Orphaned' images container with image count.
-Filter by 'group' or 'user' ids in query.
+Filter by 'group' or 'owner' ids in query.
 Also supports 'page' and 'limit' parameters for pagination.
 """
 
@@ -490,7 +490,7 @@ api_shares = url(r'^api/shares/$',
 List all shares and discussions.
 To filter by those that you are a member of (including owner)
 use 'member_id'. To list those that you own, use the
-'user' parameter as for other urls. TODO: change this to 'owner'?
+'owner' parameter as for other urls.
 """
 
 urlpatterns = patterns(

@@ -1341,7 +1341,7 @@ def api_container_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'user', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
@@ -1411,7 +1411,7 @@ def api_project_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'user', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
@@ -1439,7 +1439,7 @@ def api_dataset_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'user', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
         project_id = getIntOrDefault(request, 'id', None)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
@@ -1484,7 +1484,7 @@ def api_image_list(request, conn=None, **kwargs):
         thumb_version = getBoolOrDefault(request, 'thumbVersion', False)
         date = getBoolOrDefault(request, 'date', False)
         group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'user', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
@@ -1525,7 +1525,7 @@ def api_screen_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'user', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
@@ -1555,7 +1555,7 @@ def api_plate_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'user', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
@@ -1631,7 +1631,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'user', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
         tag_id = getIntOrDefault(request, 'id', None)
         orphaned = getBoolOrDefault(request, 'orphaned', False)
         load_pixels = getBoolOrDefault(request, 'sizeXYZ', False)
@@ -1718,7 +1718,7 @@ def api_share_list(request, conn=None, **kwargs):
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         member_id = getIntOrDefault(request, 'member_id', -1)
-        owner_id = getIntOrDefault(request, 'user', -1)
+        owner_id = getIntOrDefault(request, 'owner', -1)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
