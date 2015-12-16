@@ -38,7 +38,8 @@ from api_marshal import marshal_projects, marshal_datasets, \
     marshal_images, marshal_screens, marshal_plates, \
     marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, \
-    marshal_shares, marshal_discussions
+    marshal_shares, marshal_discussions, \
+    marshal_experimenters, marshal_experimenter, marshal_groups
 
 try:
     from hashlib import md5
@@ -1251,6 +1252,85 @@ def render_col_plot(request, iid, z, t, x, w=1, conn=None, **kwargs):
         raise Http404
     rsp = HttpResponse(gif_data, content_type='image/gif')
     return rsp
+
+
+@login_required()
+@jsonp
+def api_group_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        member_id = getIntOrDefault(request, 'member', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the groups
+        groups = marshal_groups(conn=conn,
+                                member_id=member_id,
+                                page=page,
+                                limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'groups': groups}
+
+
+@login_required()
+@jsonp
+def api_experimenter_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the experimenters
+        experimenters = marshal_experimenters(conn=conn,
+                                              group_id=group_id,
+                                              page=page,
+                                              limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'experimenters': experimenters}
+
+
+@login_required()
+@jsonp
+def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
+    # Validate parameter
+    try:
+        experimenter_id = long(experimenter_id)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid experimenter id')
+
+    try:
+        # Get the experimenter
+        experimenter = marshal_experimenter(
+            conn=conn, experimenter_id=experimenter_id)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    if experimenter is None:
+        raise Http404("experimenter not found")
+    return {'experimenter': experimenter}
 
 
 @login_required()

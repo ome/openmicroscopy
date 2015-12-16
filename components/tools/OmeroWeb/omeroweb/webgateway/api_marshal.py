@@ -64,6 +64,199 @@ def parse_permissions_css(permissions, ownerid, conn):
     return ' '.join(permissionsCss)
 
 
+def _marshal_group(conn, row):
+    ''' Given an ExperimenterGroup row (list) marshals it into a dictionary.
+        Order and type of columns in row is:
+          * id (rlong)
+          * name (rstring)
+          * permissions (dict)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Group row to marshal
+        @type row L{list}
+    '''
+    group_id, name, permissions = row
+    group = dict()
+    group['id'] = unwrap(group_id)
+    group['name'] = unwrap(name)
+    group['perm'] = unwrap(unwrap(permissions)['perm'])
+
+    return group
+
+
+def marshal_groups(conn, member_id=-1, page=1, limit=settings.PAGE):
+    ''' Marshals groups
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param member_id The ID of the experimenter to filter by
+        or -1 for all
+        defaults to -1
+        @type member_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+    '''
+    groups = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+    service_opts.setOmeroGroup(-1)
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    join_clause = ''
+    where_clause = ''
+    if member_id != -1:
+        params.add('mid', rlong(member_id))
+        join_clause = ' join grp.groupExperimenterMap grexp '
+        where_clause = ' and grexp.child.id = :mid '
+
+    qs = conn.getQueryService()
+    q = """
+        select grp.id,
+               grp.name,
+               grp.details.permissions
+        from ExperimenterGroup grp
+        %s
+        where grp.name != 'user'
+        %s
+        order by lower(grp.name)
+        """ % (join_clause, where_clause)
+    for e in qs.projection(q, params, service_opts):
+        groups.append(_marshal_group(conn, e[0:3]))
+    return groups
+
+
+def _marshal_experimenter(conn, row):
+    ''' Given an Experimenter row (list) marshals it into a dictionary.  Order
+        and type of columns in row is:
+          * id (rlong)
+          * omeName (rstring)
+          * firstName (rstring)
+          * lastName (rstring)
+          * email (rstring)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Experimenter row to marshal
+        @type row L{list}
+    '''
+
+    experimenter_id, ome_name, first_name, last_name, email = row
+    experimenter = dict()
+    experimenter['id'] = unwrap(experimenter_id)
+    experimenter['omeName'] = unwrap(ome_name)
+    experimenter['firstName'] = unwrap(first_name)
+    experimenter['lastName'] = unwrap(last_name)
+    # Email is not mandatory
+    if email:
+        experimenter['email'] = unwrap(email)
+    return experimenter
+
+
+def marshal_experimenters(conn, group_id=-1, page=1, limit=settings.PAGE):
+    ''' Marshals experimenters, possibly filtered by group.
+
+        To make this consistent with the other tree.py functions
+        this will default to restricting the results by the calling
+        experimenters group membership. e.g. if user is in groupA
+        and groupB, then users from groupA and groupB will be
+        returned.
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param group_id The Group ID to filter by or -1 for all groups,
+        defaults to -1
+        @type group_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+    '''
+    experimenters = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    if group_id is None:
+        group_id = -1
+
+    # This does not actually restrict the results so the restriction to
+    # a certain group is done in the query
+    service_opts.setOmeroGroup(-1)
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    where_clause = ''
+    if group_id != -1:
+        params.add('gid', rlong(group_id))
+        where_clause = '''
+                       join experimenter.groupExperimenterMap grexp
+                       where grexp.parent.id = :gid
+                           '''
+
+    # Don't currently need this filtering
+    # Restrict by the current user's group membership
+    # else:
+    #     params.add('eid', rlong(conn.getUserId()))
+    #     where_clause = '''
+    #                    join experimenter.groupExperimenterMap grexp
+    #                    where grexp.child.id = :eid
+    #                    '''
+
+    qs = conn.getQueryService()
+    q = """
+        select experimenter.id,
+               experimenter.omeName,
+               experimenter.firstName,
+               experimenter.lastName,
+               experimenter.email
+        from Experimenter experimenter %s
+        order by lower(experimenter.omeName), experimenter.id
+        """ % (where_clause)
+    for e in qs.projection(q, params, service_opts):
+        experimenters.append(_marshal_experimenter(conn, e[0:5]))
+    return experimenters
+
+
+def marshal_experimenter(conn, experimenter_id):
+    ''' Marshals experimenter.
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param experimenter_id The Experimenter ID to get details for
+        @type experimenter_id L{long}
+    '''
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+    service_opts.setOmeroGroup(-1)
+
+    params.add('id', rlong(experimenter_id))
+    qs = conn.getQueryService()
+    q = """
+        select experimenter.id,
+               experimenter.omeName,
+               experimenter.firstName,
+               experimenter.lastName,
+               experimenter.email
+        from Experimenter experimenter
+        where experimenter.id = :id
+        """
+    rows = qs.projection(q, params, service_opts)
+    if len(rows) != 1:
+        return None
+    return _marshal_experimenter(conn, rows[0][0:5])
+
+
 def _marshal_project(conn, row):
     ''' Given a Project row (list) marshals it into a dictionary.  Order
         and type of columns in row is:

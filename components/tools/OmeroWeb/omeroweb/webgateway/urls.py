@@ -400,6 +400,28 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+api_group_list = url(r'^api/groups/$', views.api_group_list,
+                     name='api_groups')
+"""
+List all groups.
+To filter groups that a user is member of, use 'member' query parameter.
+"""
+
+api_experimenter_list = url(r'^api/experimenters/$',
+                            views.api_experimenter_list,
+                            name='api_experimenters')
+"""
+List all experimenters
+"""
+
+api_experimenter_detail = url(
+    r'^api/experimenters/(?P<experimenter_id>[0-9]+)/$',
+    views.api_experimenter_detail,
+    name='api_experimenter')
+"""
+Get detail for an experimenter
+"""
+
 # Generic container list. This is necessary as an experimenter may have
 # datasets/etc which do not belong to any project
 api_container_list = url(r'^api/containers/$', views.api_container_list,
@@ -513,6 +535,9 @@ urlpatterns = patterns(
     object_table_query,
 
     # api
+    api_group_list,
+    api_experimenter_list,
+    api_experimenter_detail,
     api_container_list,
     api_project_list,
     api_dataset_list,
