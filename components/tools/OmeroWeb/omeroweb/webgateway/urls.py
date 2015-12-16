@@ -411,7 +411,8 @@ api_experimenter_list = url(r'^api/experimenters/$',
                             views.api_experimenter_list,
                             name='api_experimenters')
 """
-List all experimenters
+List all experimenters.
+To show experimenters in a single group, use 'group' query parameter.
 """
 
 api_experimenter_detail = url(
@@ -426,45 +427,54 @@ Get detail for an experimenter
 # datasets/etc which do not belong to any project
 api_container_list = url(r'^api/containers/$', views.api_container_list,
                          name='api_containers')
+"""
+List all 'top level' containers: Projects, orphaned Datasets, Screens,
+orphaned Plates and an 'Orphaned' images container with image count.
+Filter by 'group' or 'user' ids in query.
+Also supports 'page' and 'limit' parameters for pagination.
+"""
 
+api_project_list = url(r'^api/projects/$', views.api_project_list,
+                       name='api_projects')
 """
 List all projects.
 """
-api_project_list = url(r'^api/projects/$', views.api_project_list,
-                       name='api_projects')
 
+api_dataset_list = url(r'^api/datasets/$', views.api_dataset_list,
+                       name='api_datasets')
 """
 List all datasets.  To list datasets within a Project, use ?id=projectId
 """
-api_dataset_list = url(r'^api/datasets/$', views.api_dataset_list,
-                       name='api_datasets')
 
+api_image_list = url(r'^api/images/$', views.api_image_list,
+                     name='api_images')
 """
 List all images.  To list images within a Dataset, use ?id=datasetId
 """
-api_image_list = url(r'^api/images/$', views.api_image_list,
-                     name='api_images')
 
+api_screen_list = url(r'^api/screens/$', views.api_screen_list,
+                      name='api_screens')
 """
 List all screens.
 """
-api_screen_list = url(r'^api/screens/$', views.api_screen_list,
-                      name='api_screens')
 
+api_plate_list = url(r'^api/plates/$', views.api_plate_list,
+                     name='api_plates')
 """
 List all plates.  To list plates within a Screen, use ?id=screenId
 """
-api_plate_list = url(r'^api/plates/$', views.api_plate_list,
-                     name='api_plates')
 
+api_plate_acquisition_list = url(r'^api/plate_acquisitions/$',
+                                 views.api_plate_acquisition_list,
+                                 name='api_plate_acquisitions')
 """
 List Plate Aquisitions (Runs) under a plate.
 Specify Plate in query with ?id=plateId
 """
-api_plate_acquisition_list = url(r'^api/plate_acquisitions/$',
-                                 views.api_plate_acquisition_list,
-                                 name='api_plate_acquisitions')
 
+api_tags_and_tagged = url(r'^api/tags/$',
+                          views.api_tags_and_tagged_list,
+                          name='api_tags_and_tagged')
 """
 List tags with a GET request or delete specified tags with DELETE.
 For listing tagged data, use 'id' to specify tag. This returns all
@@ -472,19 +482,16 @@ the 'projects', 'datasets' etc as well as any 'tags' (e.g. if the
 tag is a TagSet).
 Or with no id, this will list all tags.
 """
-api_tags_and_tagged = url(r'^api/tags/$',
-                          views.api_tags_and_tagged_list,
-                          name='api_tags_and_tagged')
 
+api_shares = url(r'^api/shares/$',
+                 views.api_share_list,
+                 name='api_shares')
 """
 List all shares and discussions.
 To filter by those that you are a member of (including owner)
 use 'member_id'. To list those that you own, use the
 'user' parameter as for other urls. TODO: change this to 'owner'?
 """
-api_shares = url(r'^api/shares/$',
-                 views.api_share_list,
-                 name='api_shares')
 
 urlpatterns = patterns(
     '',
