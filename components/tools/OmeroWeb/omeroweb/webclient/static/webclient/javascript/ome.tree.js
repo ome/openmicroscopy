@@ -521,36 +521,33 @@ $(function() {
                             //         jstree_data.push(node);
                             //     });
                             // }
-                            if (data.hasOwnProperty('experimenter')) {
-                                var value = data.experimenter;
-                                node = {
+                            function makeNode(value, type) {
+                                var rv = {
                                     'data': {'id': value.id, 'obj': value},
-                                    'text': value.firstName + ' ' + value.lastName,
-                                    'children': true,
-                                    'type': 'experimenter',
-                                    'state': {
-                                        'opened': true
-                                    },
+                                    'text': value.name,
+                                    'children': value.childCount ? true : false,
+                                    'type': type,
                                     'li_attr': {
                                         'data-id': value.id
                                     }
                                 };
+                                if (type === 'experimenter') {
+                                    rv.text = value.firstName + ' ' + value.lastName;
+                                    rv.state = {'opened': true};
+                                    rv.children = true;
+                                }
+                                return rv;
+                            }
 
+                            if (data.hasOwnProperty('experimenter')) {
+                                node = makeNode(data.experimenter, 'experimenter');
                                 jstree_data.push(node);
                             }
 
                             // Add projects to the jstree data structure
                             if (data.hasOwnProperty('projects')) {
                                 $.each(data.projects, function(index, value) {
-                                    var node = {
-                                        'data': {'id': value.id, 'obj': value},
-                                        'text': value.name,
-                                        'children': value.childCount > 0 ? true : false,
-                                        'type': 'project',
-                                        'li_attr': {
-                                            'data-id': value.id
-                                        }
-                                    };
+                                    var node = makeNode(value, 'project');
                                     jstree_data.push(node);
                                 });
                             }
@@ -558,15 +555,7 @@ $(function() {
                             // Add datasets to the jstree data structure
                             if (data.hasOwnProperty('datasets')) {
                                 $.each(data.datasets, function(index, value) {
-                                    var node = {
-                                        'data': {'id': value.id, 'obj': value},
-                                        'text': value.name,
-                                        'children': value.childCount > 0 ? true : false,
-                                        'type': 'dataset',
-                                        'li_attr': {
-                                            'data-id': value.id
-                                        }
-                                    };
+                                    var node = makeNode(value, 'dataset');
                                     jstree_data.push(node);
                                 });
                             }
@@ -574,15 +563,7 @@ $(function() {
                             // Add images to the jstree data structure
                             if (data.hasOwnProperty('images')) {
                                 $.each(data.images, function(index, value) {
-                                    var node = {
-                                        'data': {'id': value.id, 'obj': value},
-                                        'text': value.name,
-                                        'children': false,
-                                        'type': 'image',
-                                        'li_attr': {
-                                            'data-id': value.id
-                                        }
-                                    };
+                                    var node = makeNode(value, 'image');
                                     jstree_data.push(node);
                                 });
                             }
@@ -590,48 +571,24 @@ $(function() {
                             // Add screens to the jstree data structure
                             if (data.hasOwnProperty('screens')) {
                                 $.each(data.screens, function(index, value) {
-                                     var node = {
-                                        'data': {'id': value.id, 'obj': value},
-                                        'text': value.name,
-                                        'children': value.childCount > 0 ? true : false,
-                                        'type': 'screen',
-                                        'li_attr': {
-                                            'data-id': value.id
-                                        }
-                                     };
-                                     jstree_data.push(node);
+                                    var node = makeNode(value, 'screen');
+                                    jstree_data.push(node);
                                 });
                             }
 
                             // Add plates to the jstree data structure
                             if (data.hasOwnProperty('plates')) {
                                 $.each(data.plates, function(index, value) {
-                                     var node = {
-                                        'data': {'id': value.id, 'obj': value},
-                                        'text': value.name,
-                                        'children': value.childCount > 0 ? true : false,
-                                        'type': 'plate',
-                                        'li_attr': {
-                                            'data-id': value.id
-                                        }
-                                     };
-                                     jstree_data.push(node);
+                                    var node = makeNode(value, 'plate');
+                                    jstree_data.push(node);
                                 });
                             }
 
                             // Add plates to the jstree data structure
                             if (data.hasOwnProperty('acquisitions')) {
                                 $.each(data.acquisitions, function(index, value) {
-                                     var node = {
-                                        'data': {'id': value.id, 'obj': value},
-                                        'text': value.name,
-                                        'children': false,
-                                        'type': 'acquisition',
-                                        'li_attr': {
-                                            'data-id': value.id
-                                        }
-                                     };
-                                     jstree_data.push(node);
+                                    var node = makeNode(value, 'acquisition');
+                                    jstree_data.push(node);
                                 });
                             }
 
