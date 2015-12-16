@@ -900,3 +900,358 @@ def marshal_orphaned(conn, group_id=-1, experimenter_id=-1, page=1,
     orphaned['id'] = experimenter_id or -1
     orphaned['childCount'] = count
     return orphaned
+
+
+def _marshal_tag(conn, row):
+    ''' Given a Tag row (list) marshals it into a dictionary.  Order
+        and type of columns in row is:
+          * id (rlong)
+          * text_value (rstring)
+          * description (rstring)
+          * details.owner.id (rlong)
+          * details.permissions (dict)
+          * namespace (rstring)
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Tag row to marshal
+        @type row L{list}
+
+    '''
+    tag_id, text_value, description, owner_id, permissions, namespace, \
+        child_count = row
+
+    tag = dict()
+    tag['id'] = unwrap(tag_id)
+    tag['value'] = unwrap(text_value)
+    desc = unwrap(description)
+    if desc:
+        tag['description'] = desc
+    tag['ownerId'] = unwrap(owner_id)
+    tag['permsCss'] = parse_permissions_css(permissions,
+                                            unwrap(owner_id), conn)
+
+    if namespace and unwrap(namespace) == \
+            omero.constants.metadata.NSINSIGHTTAGSET:
+        tag['set'] = True
+    else:
+        tag['set'] = False
+
+    tag['childCount'] = unwrap(child_count)
+
+    return tag
+
+
+def marshal_tags(conn, tag_id=None, group_id=-1, experimenter_id=-1, page=1,
+                 orphaned=False, limit=settings.PAGE):
+    ''' Marshals tags
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param tag_id The tag ID to filter by
+        @type tag_id L{long}
+        defaults to `None`
+        @param group_id The Group ID to filter by or -1 for all groups,
+        defaults to -1
+        @type group_id L{long}
+        @param experimenter_id The Experimenter (user) ID to filter by
+        or -1 for all experimenters
+        @type experimenter_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+    '''
+    tags = []
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    qs = conn.getQueryService()
+
+    # Restricted by the specified tag set
+    if tag_id is not None:
+        params.add('tid', rlong(tag_id))
+
+        q = '''
+            select new map(aalink.child.id as id,
+                   aalink.child.textValue as textValue,
+                   aalink.child.description as description,
+                   aalink.child.details.owner.id as ownerId,
+                   aalink.child as tag_details_permissions,
+                   aalink.child.ns as ns,
+                   (select count(aalink2)
+                    from AnnotationAnnotationLink aalink2
+                    where aalink2.child.class=TagAnnotation
+                    and aalink2.parent.id=aalink.child.id) as childCount)
+            from AnnotationAnnotationLink aalink
+            where aalink.parent.class=TagAnnotation
+            and aalink.child.class=TagAnnotation
+            and aalink.parent.id=:tid
+            '''
+
+        # Restricted by the specified user
+        if experimenter_id is not None and experimenter_id != -1:
+            params.addId(experimenter_id)
+            q += '''
+                and aalink.child.details.owner.id = :id
+                '''
+        # TODO Is ordering by id here (and below) the right thing to do?
+        q += '''
+            order by aalink.child.id
+            '''
+    # All
+    else:
+        where_clause = []
+        q = '''
+            select new map(tag.id as id,
+                   tag.textValue as textValue,
+                   tag.description as description,
+                   tag.details.owner.id as ownerId,
+                   tag as tag_details_permissions,
+                   tag.ns as ns,
+                   (select count(aalink2)
+                    from AnnotationAnnotationLink aalink2
+                    where aalink2.child.class=TagAnnotation
+                    and aalink2.parent.id=tag.id) as childCount)
+            from TagAnnotation tag
+            '''
+
+        # Orphaned tags are those not tagged by a 'tagset'
+        if orphaned:
+            where_clause.append(
+                '''
+                not exists (
+                    select aalink from AnnotationAnnotationLink as aalink
+                    where aalink.child = tag.id
+                    and aalink.parent.ns = '%s'
+                )
+                ''' % omero.constants.metadata.NSINSIGHTTAGSET
+            )
+        # Restricted by the specified user
+        if experimenter_id is not None and experimenter_id != -1:
+            params.addId(experimenter_id)
+            where_clause.append(
+                '''
+                tag.details.owner.id = :id
+                '''
+            )
+        q += """
+        %s
+        order by tag.id
+        """ % build_clause(where_clause, 'where', 'and')
+
+    for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["textValue"],
+             e[0]["description"],
+             e[0]["ownerId"],
+             e[0]["tag_details_permissions"],
+             e[0]["ns"],
+             e[0]["childCount"]]
+        tags.append(_marshal_tag(conn, e[0:7]))
+
+    return tags
+
+
+# TODO This could be built into the standard container marshalling as a filter
+# as basically this is just the same as running several of those queries. Park
+# this for now, but revisit later
+# This also has a slightly different interface to the other marshals in that it
+# returns a dictionary of the tagged types. This would also disappear if the
+# above marshalling functions had filter functions added as one of those would
+# be called each per object type instead of this one for all
+def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
+                   load_pixels=False, date=False, limit=settings.PAGE):
+    ''' Marshals tagged data
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param tag_id The tag ID to filter by
+        @type tag_id L{long}
+        @param group_id The Group ID to filter by or -1 for all groups,
+        defaults to -1
+        @type group_id L{long}
+        @param experimenter_id The Experimenter (user) ID to filter by
+        or -1 for all experimenters
+        @type experimenter_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+    '''
+    tagged = {}
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    qs = conn.getQueryService()
+
+    common_clause = '''
+                    join obj.annotationLinks alink
+                    where alink.child.id=:tid
+                    '''
+    if experimenter_id is not None and experimenter_id != -1:
+        params.addId(experimenter_id)
+        common_clause += '''
+                        and obj.details.owner.id = :id
+                        '''
+    # NB: Need to add lower(obj.name) to select so we can sort on it
+    common_clause += '''
+                    order by lower(obj.name), obj.id
+                    '''
+
+    params.add('tid', rlong(tag_id))
+
+    # Projects
+    q = '''
+        select distinct obj.id,
+               obj.name,
+               obj.details.owner.id,
+               obj.details.permissions,
+               (select count(id) from ProjectDatasetLink pdl
+                where pdl.parent = obj.id),
+               lower(obj.name)
+        from Project obj
+        %s
+        ''' % common_clause
+
+    projects = []
+    for e in qs.projection(q, params, service_opts):
+        projects.append(_marshal_project(conn, e[0:5]))
+    tagged['projects'] = projects
+
+    # Datasets
+    q = '''
+        select distinct obj.id,
+               obj.name,
+               obj.details.owner.id,
+               obj.details.permissions,
+               (select count(id) from DatasetImageLink dil
+                 where dil.parent=obj.id),
+               lower(obj.name)
+        from Dataset obj
+        %s
+        ''' % common_clause
+
+    datasets = []
+    for e in qs.projection(q, params, service_opts):
+        datasets.append(_marshal_dataset(conn, e[0:5]))
+    tagged['datasets'] = datasets
+
+    # Images
+    extraValues = ""
+    extraObjs = ""
+    if load_pixels:
+        extraValues = """
+             ,
+             pix.sizeX,
+             pix.sizeY,
+             pix.sizeZ
+             """
+        extraObjs = " left outer join obj.pixels pix"
+    if date:
+        extraValues += """,
+            obj.details.creationEvent.time,
+            obj.acquisitionDate
+            """
+    q = '''
+        select distinct obj.id,
+               obj.name,
+               obj.details.owner.id,
+               obj.details.permissions,
+               obj.fileset.id,
+               lower(obj.name)%s
+        from Image obj %s
+        %s
+        ''' % (extraValues, extraObjs, common_clause)
+
+    images = []
+    for e in qs.projection(q, params, service_opts):
+        kwargs = {}
+        nextVal = 6
+        if load_pixels:
+            kwargs['row_pixels'] = (e[6], e[7], e[8])
+            nextVal = 9
+        if date:
+            kwargs['date'] = e[nextVal]
+            kwargs['acqDate'] = e[nextVal + 1]
+        images.append(_marshal_image(conn, e[0:5], **kwargs))
+    tagged['images'] = images
+
+    # Screens
+    q = '''
+        select distinct obj.id,
+               obj.name,
+               obj.details.owner.id,
+               obj.details.permissions,
+               (select count(spl.id) from ScreenPlateLink spl
+                where spl.parent=obj.id),
+               lower(obj.name)
+        from Screen obj
+        %s
+        ''' % common_clause
+
+    screens = []
+    for e in qs.projection(q, params, service_opts):
+        screens.append(_marshal_screen(conn, e[0:5]))
+    tagged['screens'] = screens
+
+    # Plate
+    q = '''
+        select distinct obj.id,
+               obj.name,
+               obj.details.owner.id,
+               obj.details.permissions,
+               (select count(pa.id) from PlateAcquisition pa
+                where pa.plate.id=obj.id),
+               lower(obj.name)
+        from Plate obj
+        %s
+        ''' % common_clause
+
+    plates = []
+    for e in qs.projection(q, params, service_opts):
+        plates.append(_marshal_plate(conn, e[0:5]))
+    tagged['plates'] = plates
+
+    # Plate Acquisitions
+    q = '''
+        select distinct obj.id,
+               obj.name,
+               obj.details.owner.id,
+               obj.details.permissions,
+               obj.startTime,
+               obj.endTime,
+               lower(obj.name)
+        from PlateAcquisition obj
+        %s
+        ''' % common_clause
+
+    plate_acquisitions = []
+    for e in qs.projection(q, params, service_opts):
+        plate_acquisitions.append(_marshal_plate_acquisition(conn, e[0:6]))
+    tagged['acquisitions'] = plate_acquisitions
+
+    return tagged

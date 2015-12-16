@@ -443,6 +443,17 @@ api_plate_acquisition_list = url(r'^api/plate_acquisitions/$',
                                  views.api_plate_acquisition_list,
                                  name='api_plate_acquisitions')
 
+"""
+List tags with a GET request or delete specified tags with DELETE.
+For listing tagged data, use 'id' to specify tag. This returns all
+the 'projects', 'datasets' etc as well as any 'tags' (e.g. if the
+tag is a TagSet).
+Or with no id, this will list all tags.
+"""
+api_tags_and_tagged = url(r'^api/tags/$',
+                          views.api_tags_and_tagged_list,
+                          name='api_tags_and_tagged')
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -499,6 +510,7 @@ urlpatterns = patterns(
     api_screen_list,
     api_plate_list,
     api_plate_acquisition_list,
+    api_tags_and_tagged,
 
     # Debug stuff
 

@@ -36,7 +36,8 @@ from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
 from api_marshal import marshal_projects, marshal_datasets, \
     marshal_images, marshal_screens, marshal_plates, \
-    marshal_plate_acquisitions, marshal_orphaned
+    marshal_plate_acquisitions, marshal_orphaned, \
+    marshal_tags, marshal_tagged
 
 try:
     from hashlib import md5
@@ -46,7 +47,7 @@ except:
 from cStringIO import StringIO
 import tempfile
 
-from omero import ApiUsageException, ServerError
+from omero import ApiUsageException, ServerError, CmdError
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError
@@ -70,7 +71,7 @@ import shutil
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault, \
-    getBoolOrDefault
+    getBoolOrDefault, getLongs
 
 logger = logging.getLogger(__name__)
 
@@ -1503,8 +1504,8 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
         plate_id = getIntOrDefault(request, 'id', None)
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
-    except ValueError:
-        return HttpResponseBadRequest('Invalid parameter value')
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
 
     # Orphaned PlateAcquisitions are not possible so querying without a
     # plate is an error
@@ -1526,6 +1527,106 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
         return HttpResponseServerError(e.message)
 
     return {'acquisitions': plate_acquisitions}
+
+
+@login_required()
+@jsonp
+def api_tags_and_tagged_list(request, conn=None, **kwargs):
+    if request.method == 'GET':
+        return api_tags_and_tagged_list_GET(request, conn, **kwargs)
+    elif request.method == 'DELETE':
+        return api_tags_and_tagged_list_DELETE(request, conn, **kwargs)
+
+
+def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
+    ''' Get a list of tags
+        Specifiying tag_id will return any sub-tags, sub-tagsets and
+        objects tagged with that id
+        If no tagset_id is specifed it will return tags which have no
+        parent
+    '''
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'user', -1)
+        tag_id = getIntOrDefault(request, 'id', None)
+        orphaned = getBoolOrDefault(request, 'orphaned', False)
+        load_pixels = getBoolOrDefault(request, 'sizeXYZ', False)
+        date = getBoolOrDefault(request, 'date', False)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get ALL data (all owners) under specified tags
+        # Projects, Datasets, Images, Screens, Plates etc
+        if tag_id is not None:
+            tagged = marshal_tagged(conn=conn,
+                                    experimenter_id=experimenter_id,
+                                    tag_id=tag_id,
+                                    group_id=group_id,
+                                    page=page,
+                                    load_pixels=load_pixels,
+                                    date=date,
+                                    limit=limit)
+        else:
+            tagged = {}
+
+        # Get orphaned Tags, or Tags under Tagset if tag_id is not None
+        tagged['tags'] = marshal_tags(conn=conn,
+                                      orphaned=orphaned,
+                                      experimenter_id=experimenter_id,
+                                      tag_id=tag_id,
+                                      group_id=group_id,
+                                      page=page,
+                                      limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return tagged
+
+
+def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
+    ''' Delete the listed tags by ids
+
+    '''
+    # Get parameters
+    try:
+        tag_ids = getLongs(request, 'id')
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    if len(tag_ids) == 0:
+        return HttpResponseBadRequest(
+            "Must specify tags to delete with 'id' query parameter")
+    dcs = list()
+
+    handle = None
+    try:
+        for tag_id in tag_ids:
+            dcs.append(omero.cmd.Delete('/Annotation', tag_id))
+        doall = omero.cmd.DoAll()
+        doall.requests = dcs
+        handle = conn.c.sf.submit(doall, conn.SERVICE_OPTS)
+
+        try:
+            conn._waitOnCmd(handle)
+        finally:
+            handle.close()
+
+    except CmdError as e:
+        return HttpResponseBadRequest(e.message)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse('')
 
 
 @login_required()
