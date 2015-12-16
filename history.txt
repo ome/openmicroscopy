@@ -5,7 +5,7 @@ OMERO version history
 ---------------------
 
 A bug-fix release focusing on improving installation documentation and
-scripts. Other improvements include:
+workflows. Other improvements include:
 
 -  bug fix for missing hierarchy when viewing High Content Screening data
 -  improvements to the right-hand panel in OMERO.insight
@@ -26,6 +26,9 @@ Developer updates include:
 -  jstree clean-up
 -  CLI graph operation improvements for deleting
 -  minimal-omero-client and pom-omero-client clean-up
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+5.1.7.
 
 5.2.0 (November 2015)
 ----------------------
