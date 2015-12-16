@@ -38,6 +38,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
@@ -567,6 +568,7 @@ public class UIUtilities
 	{
 		centerOnScreen(window);
 		window.setVisible(true);
+        applyGnome3Workaround((Frame) window);
 	}
     
 	/**
@@ -2934,5 +2936,33 @@ public class UIUtilities
      */
     public static String replaceNonWordCharacters(String name) {
         return name.replaceAll("\\W", "_");
+    }
+    
+    /**
+     * As workaround for https://bugzilla.gnome.org/show_bug.cgi?id=759492 an
+     * internal repaint has to be triggered for undecorated frames in order to
+     * get displayed correctly. This is done by changing (and reverting) the
+     * size of the frame; a simple call to repaint() is not sufficient.
+     * 
+     * @param w
+     *            The {@link Window}
+     */
+    public static void applyGnome3Workaround(Window w) {
+        boolean undecorated = false;
+        if (w instanceof Frame)
+            undecorated = ((Frame) w).isUndecorated();
+        if (w instanceof Dialog)
+            undecorated = ((Dialog) w).isUndecorated();
+
+        if (undecorated) {
+            String desktop = System.getenv("XDG_CURRENT_DESKTOP");
+            if (desktop != null && desktop.toLowerCase().contains("gnome")) {
+                Dimension size = w.getSize();
+                Dimension modSize = new Dimension(size.width + 1,
+                        size.height + 1);
+                w.setSize(modSize);
+                w.setSize(size);
+            }
+        }
     }
 }
