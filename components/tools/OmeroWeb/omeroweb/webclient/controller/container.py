@@ -487,8 +487,7 @@ class BaseContainer(BaseController):
         params = omero.sys.ParametersI()
         if page is not None:
             params.page((int(page)-1)*settings.PAGE, settings.PAGE)
-        im_list = list(self.conn.listOrphans(
-            "Image", eid=eid, params=params, loadPixels=True))
+        im_list = list()
         im_list.sort(key=lambda x: x.getName().lower())
         self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
