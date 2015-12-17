@@ -1336,19 +1336,26 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Datasets
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               (select count(id) from DatasetImageLink dil
-                 where dil.parent=obj.id),
-               lower(obj.name)
-        from Dataset obj
-        %s
-        ''' % common_clause
+        select new map(obj.id as id,
+            obj.name as name,
+            obj.details.owner.id as ownerId,
+            obj as dataset_details_permissions,
+            (select count(id) from DatasetImageLink dil
+                where dil.parent=obj.id) as childCount)
+            from Dataset obj
+            join obj.annotationLinks alink
+            where alink.id = (select max(alink.id) from DatasetAnnotationLink alink
+                where alink.child.id=:tid and alink.parent.id=obj.id)
+        '''
 
     datasets = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["dataset_details_permissions"],
+             e[0]["childCount"]]
         datasets.append(_marshal_dataset(conn, e[0:5]))
     tagged['datasets'] = datasets
 
