@@ -802,6 +802,12 @@ $(function() {
             'items' : function(node){
                 var config = {};
 
+                // Hack to disable context menu for tags tree
+                // Need to fix permissions using map() in api_tagged query first
+                if (WEBCLIENT.URLS.tree_top_level === WEBCLIENT.URLS.api_tags_and_tagged) {
+                    return config;
+                }
+
                 config["create"] = {
                     "label" : "Create new",
                     "_disabled": true,
@@ -809,19 +815,19 @@ $(function() {
                         "project": {
                             "label" : "Project",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/folder16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder16.png" %}',
                             action: function (node) {OME.handleNewContainer("project"); },
                         },
                         "dataset": {
                             "label" : "Dataset",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/folder_image16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder_image16.png" %}',
                             action: function (node) {OME.handleNewContainer("dataset"); },
                           },
                           "screen": {
                             "label" : "Screen",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/folder_screen16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder_screen16.png" %}',
                             action: function (node) {OME.handleNewContainer("screen"); },
                           }
                     }
@@ -835,7 +841,7 @@ $(function() {
                         "cut"   :{
                             "label" : "Cut Link",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/icon_basic_cut_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_cut_16.png" %}',
                             "action": function(data) {
                                 var inst = $.jstree.reference(data.reference);
                                 var objs = inst.get_selected(true);
@@ -847,7 +853,7 @@ $(function() {
                         "copy"  : {
                             "label" : "Copy Link",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_copy_16.png" %}',
 
 
                             "action": function (data) {
@@ -860,7 +866,7 @@ $(function() {
                         "paste": {
                             "label" : "Paste Link",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
                             "action": function(data) {
                                 var inst = $.jstree.reference(data.reference);
                                 var obj = inst.get_node(data.reference);
@@ -876,10 +882,10 @@ $(function() {
                 config["delete"] = {
                     "label" : "Delete",
                     "_disabled": true,
-                    "icon"  : '{% static "webclient/image/icon_basic_delete_16.png" %}',
+                    "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_delete_16.png',
                     "action": function(){
-                        var deleteUrl = "{% url 'manage_action_containers' 'deletemany' %}",
-                            filesetCheckUrl = "{% url 'fileset_check' 'delete' %}?";
+                        var deleteUrl = WEBCLIENT.URLS.deletemany,
+                            filesetCheckUrl = WEBCLIENT.URLS.fileset_check;
                         OME.handleDelete(deleteUrl, filesetCheckUrl, WEBCLIENT.USER.id);
                     }
                 };
@@ -887,7 +893,7 @@ $(function() {
                 config["chgrp"] = {
                     "label" : "Move to Group...",
                     "_disabled": true,
-                    "icon"  : '{% static "webclient/image/icon_basic_user_16.png" %}',
+                    "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_user_16.png" %}',
                     "action": function() {
                         // TODO - make sure this works with new jsTree
                         OME.handleChgrp("{% url 'webindex' %}", "{% static 'webclient' %}");
@@ -897,7 +903,7 @@ $(function() {
                 config["share"] = {
                     "label" : "Create share",
                     "_disabled": true,
-                    "icon"  : '{% static "webclient/image/icon_toolbar_share2.png" %}',
+                    "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_toolbar_share2.png" %}',
                     "action": function(){
                         // We get_selected() within createShare()
                         OME.createShare();
@@ -912,7 +918,7 @@ $(function() {
                         "copy_rdef"  : {
                             "label" : "Copy",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_copy_16.png" %}',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 copyRenderingSettings(inst.get_selected(true));
@@ -921,7 +927,7 @@ $(function() {
                         "paste_rdef": {
                             "label" : "Paste and Save",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 pasteRenderingSettings(inst.get_selected(true));
@@ -930,7 +936,7 @@ $(function() {
                         "reset_rdef": {
                             "label" : "Set Imported and Save",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 resetRenderingSettings(inst.get_selected(true));
@@ -939,7 +945,7 @@ $(function() {
                         "owner_rdef": {
                             "label" : "Set Owner's and Save",
                             "_disabled": true,
-                            "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 applyOwnerRenderingSettings(inst.get_selected(true));

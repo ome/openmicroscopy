@@ -70,6 +70,8 @@
     WEBCLIENT.URLS.api_plate_acquisitions = "{% url 'api_plate_acquisitions' %}";
     WEBCLIENT.URLS.static_webclient = "{% static 'webclient' %}/";
     WEBCLIENT.URLS.api_tags_and_tagged = "{% url 'api_tags_and_tagged' %}";
+    WEBCLIENT.URLS.fileset_check = "{% url 'fileset_check' 'delete' %}";
+    WEBCLIENT.URLS.deletemany = "{% url 'manage_action_containers' 'deletemany' %}";
 
     {% ifequal menu 'usertags' %}
         WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
