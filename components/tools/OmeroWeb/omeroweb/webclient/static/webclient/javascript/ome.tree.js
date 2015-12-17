@@ -396,12 +396,26 @@ $(function() {
             'data' : function(node, callback) {
                 // Get the data for this query
                 var payload = {};
+                // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
-                if (node.hasOwnProperty('data') && node.type != 'orphaned' && node.type != 'experimenter') {
-                    if (node.data.hasOwnProperty('obj')) {
+                if (node.hasOwnProperty('data') && node.type != 'orphaned') {
+
+                    // NB: In case of loading Tags, we don't want to use 'id' for top level
+                    // since that will filter by tag.
+                    // TODO: fix inconsistency between url apis by using 'owner'
+                    var tagroot = (WEBCLIENT.URLS.tree_top_level === WEBCLIENT.URLS.api_tags_and_tagged &&
+                            node.type === 'experimenter');
+
+                    if (!tagroot && node.data.hasOwnProperty('obj')) {
                         payload['id'] = node.data.obj.id;
                     }
+
+                    if (tagroot) {
+                        // Don't show tags that are in tagsets
+                        payload['orphaned'] = true;
+                    }
                 }
+
                 // Work back up the tree to obtain the id of the user we are viewing,
                 // this is useful in the case of orphaned image listing in particular.
                 // It may also be appropriate to use it to filter the queries in other
@@ -415,8 +429,6 @@ $(function() {
                 // orphaned node
                 if (path && (node.type === 'experimenter' || node.type === 'orphaned')) {
                     payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
-                    // TODO - for tags only
-                    payload['orphaned'] = true;     // Don't show tags that are in tagsets
                 }
 
                 // If this is a node which can have paged results then either specify that
