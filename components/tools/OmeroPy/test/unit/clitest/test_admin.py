@@ -14,6 +14,7 @@ import re
 import pytest
 
 from path import path
+from glob import glob
 
 import omero
 import omero.clients
@@ -21,42 +22,40 @@ import omero.clients
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.admin import AdminControl
 from omero.plugins.prefs import PrefsControl
-from omero.util.temp_files import create_path
 
 from mocks import MockCLI
 
 omeroDir = path(os.getcwd()) / "build"
 
+GRID_FILES = ["templates.xml", "default.xml", "windefault.xml"]
+ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
+
+
+@pytest.fixture(autouse=True)
+def tmpadmindir(tmpdir):
+    etc_dir = tmpdir.mkdir('etc')
+    etc_dir.mkdir('grid')
+    tmpdir.mkdir('var')
+    templates_dir = etc_dir.mkdir('templates')
+    templates_dir.mkdir('grid')
+
+    old_templates_dir = path() / ".." / ".." / ".." / "etc" / "templates"
+    for f in glob(old_templates_dir / "*.cfg"):
+        path(f).copy(path(templates_dir))
+    for f in glob(old_templates_dir / "grid" / "*.xml"):
+        path(f).copy(path(templates_dir / "grid"))
+    path(old_templates_dir / "ice.config").copy(path(templates_dir))
+
+    return path(tmpdir)
+
 
 class TestAdmin(object):
 
-    def setup_method(self, method):
-        # Non-temp directories
-        build_dir = path() / "build"
-        top_dir = path() / ".." / ".." / ".."
-        etc_dir = top_dir / "etc"
-
-        # Necessary fiels
-        prefs_file = build_dir / "prefs.class"
-        internal_cfg = etc_dir / "internal.cfg"
-        master_cfg = etc_dir / "master.cfg"
-
-        # Temp directories
-        tmp_dir = create_path(folder=True)
-        tmp_etc_dir = tmp_dir / "etc"
-        tmp_grid_dir = tmp_etc_dir / "grid"
-        tmp_lib_dir = tmp_dir / "lib"
-        tmp_var_dir = tmp_dir / "var"
-
-        # Setup tmp dir
-        [x.makedirs() for x in (tmp_grid_dir, tmp_lib_dir, tmp_var_dir)]
-        prefs_file.copy(tmp_lib_dir)
-        master_cfg.copy(tmp_etc_dir)
-        internal_cfg.copy(tmp_etc_dir)
-
+    @pytest.fixture(autouse=True)
+    def setup_method(self, tmpadmindir):
         # Other setup
         self.cli = MockCLI()
-        self.cli.dir = tmp_dir
+        self.cli.dir = tmpadmindir
         self.cli.register("admin", AdminControl, "TEST")
         self.cli.register("config", PrefsControl, "TEST")
 
@@ -145,7 +144,11 @@ class TestAdmin(object):
         self.cli.mox.ReplayAll()
         pytest.raises(NonZeroReturnCode, self.invoke, "admin status")
 
-    def testStatusPasses(self):
+    def testStatusPasses(self, tmpdir, monkeypatch):
+
+        ice_config = tmpdir / 'ice.config'
+        ice_config.write('omero.host=localhost\nomero.port=4064')
+        monkeypatch.setenv("ICE_CONFIG", ice_config)
 
         # Setup the call to bin/omero admin ice node
         popen = self.cli.createPopen()
@@ -168,217 +171,144 @@ class TestAdmin(object):
         assert 0 == self.cli.rv
 
 
-class TestAdminPorts(object):
+def check_registry(topdir, prefix='', registry=4061, **kwargs):
+    for key in ['master.cfg', 'internal.cfg']:
+        s = path(topdir / "etc" / key).text()
+        assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
 
-    def setup_method(self, method):
-        # # Non-temp directories
-        ctxdir = path() / ".." / ".." / ".." / "dist"
-        etc_dir = ctxdir / "etc"
 
-        # List configuration files to backup
-        self.cfg_files = {}
-        for f in ['internal.cfg', 'master.cfg', 'ice.config']:
-            self.cfg_files[f] = etc_dir / f
-        for f in ['windefault.xml', 'default.xml', 'config.xml']:
-            self.cfg_files[f] = etc_dir / 'grid' / f
+def check_ice_config(topdir, prefix='', ssl=4064, **kwargs):
+    config_text = path(topdir / "etc" / "ice.config").text()
+    pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
+    matches = pattern.findall(config_text)
+    assert matches == ["omero.port=%s%s" % (prefix, ssl)]
 
-        # Create temp files for backup
-        tmp_dir = create_path(folder=True)
-        self.tmp_cfg_files = {}
-        for key in self.cfg_files.keys():
-            if self.cfg_files[key].exists():
-                self.tmp_cfg_files[key] = tmp_dir / key
-                self.cfg_files[key].copy(self.tmp_cfg_files[key])
-            else:
-                self.tmp_cfg_files[key] = None
 
-        # Other setup
+def check_default_xml(topdir, prefix='', tcp=4063, ssl=4064, **kwargs):
+    routerport = (
+        '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
+    insecure_routerport = (
+        '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
+        '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
+    client_endpoints = (
+        'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s%s"'
+        % (prefix, tcp))
+    for key in ['default.xml', 'windefault.xml']:
+        s = path(topdir / "etc" / "grid" / key).text()
+        assert routerport in s
+        assert insecure_routerport in s
+        assert client_endpoints in s
+
+
+class TestJvmCfg(object):
+    """Test template files regeneration"""
+
+    @pytest.fixture(autouse=True)
+    def setup_method(self, tmpadmindir):
         self.cli = CLI()
-        self.cli.dir = ctxdir
         self.cli.register("admin", AdminControl, "TEST")
-        self.args = ["admin", "ports"]
+        self.cli.register("config", PrefsControl, "TEST")
+        self.args = ["admin", "jvmcfg"]
+        self.cli.dir = path(tmpadmindir)
 
-    def teardown_method(self, method):
-        # Restore backups
-        for key in self.cfg_files.keys():
-            if self.tmp_cfg_files[key] is not None:
-                self.tmp_cfg_files[key].copy(self.cfg_files[key])
-            else:
-                self.cfg_files[key].remove()
+    def testNoTemplatesGeneration(self):
+        """Test no template files are generated by the jvmcfg subcommand"""
 
-    def create_new_ice_config(self):
-        with open(self.cfg_files['ice.config'], 'w') as f:
-            f.write('omero.host=localhost')
+        # Test non-existence of configuration files
+        for f in GRID_FILES:
+            assert not os.path.exists(path(self.cli.dir) / "etc" / "grid" / f)
+        for f in ETC_FILES:
+            assert not os.path.exists(path(self.cli.dir) / "etc" / f)
 
-    def check_cfg(self, prefix='', registry=4061, **kwargs):
-        for key in ['master.cfg', 'internal.cfg']:
-            s = self.cfg_files[key].text()
-            assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
-
-    def check_config_xml(self, prefix='', webserver=4080, ssl=4064, **kwargs):
-        config_text = self.cfg_files["config.xml"].text()
-        serverport_property = (
-            '<property name="omero.web.application_server.port"'
-            ' value="%s%s"') % (prefix, webserver)
-        serverlist_property = (
-            '<property name="omero.web.server_list"'
-            ' value="[[&quot;localhost&quot;, %s%s, &quot;omero&quot;]]"'
-            ) % (prefix, ssl)
-        assert serverport_property in config_text
-        assert serverlist_property in config_text
-
-    def check_ice_config(self, prefix='', webserver=4080, ssl=4064, **kwargs):
-        config_text = self.cfg_files["ice.config"].text()
-        pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
-        matches = pattern.findall(config_text)
-        assert matches == ["omero.port=%s%s" % (prefix, ssl)]
-
-    def check_default_xml(self, prefix='', tcp=4063, ssl=4064, **kwargs):
-        routerport = (
-            '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
-        insecure_routerport = (
-            '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
-            '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
-        client_endpoints = (
-            'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s%s"'
-            % (prefix, tcp))
-        for key in ['default.xml', 'windefault.xml']:
-            s = self.cfg_files[key].text()
-            assert routerport in s
-            assert insecure_routerport in s
-            assert client_endpoints in s
-
-    @pytest.mark.parametrize('prefix', [None, 1, 2])
-    @pytest.mark.parametrize('default', [True, False])
-    def testRevert(self, prefix, default):
-
-        if not default:
-            self.create_new_ice_config()
-
-        kwargs = {}
-        if prefix:
-            self.args += ['--prefix', '%s' % prefix]
-            kwargs['prefix'] = prefix
-        self.args += ['--skipcheck']
+        # Call the jvmcf command and test file genearation
         self.cli.invoke(self.args, strict=True)
+        for f in GRID_FILES:
+            assert not os.path.exists(path(self.cli.dir) / "etc" / "grid" / f)
+        for f in ETC_FILES:
+            assert not os.path.exists(path(self.cli.dir) / "etc" / f)
 
-        # Check configuration file ports have been prefixed
-        self.check_ice_config(**kwargs)
-        self.check_cfg(**kwargs)
-        self.check_config_xml(**kwargs)
-        self.check_default_xml(**kwargs)
+    @pytest.mark.parametrize(
+        'suffix', ['', '.blitz', '.indexer', '.pixeldata', '.repository'])
+    def testInvalidJvmCfgStrategy(self, suffix, tmpdir):
+        """Test invalid JVM strategy configuration leads to CLI error"""
 
-        # Check revert argument
-        self.args += ['--revert']
+        key = "omero.jvmcfg.strategy%s" % suffix
+        self.cli.invoke(["config", "set", key, "bad"], strict=True)
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+
+class TestRewrite(object):
+    """Test template files regeneration"""
+
+    @pytest.fixture(autouse=True)
+    def setup_method(self, tmpadmindir):
+        self.cli = CLI()
+        self.cli.register("admin", AdminControl, "TEST")
+        self.cli.register("config", PrefsControl, "TEST")
+        self.args = ["admin", "rewrite"]
+        self.cli.dir = path(tmpadmindir)
+
+    def testTemplatesGeneration(self):
+        """Test template files are generated by the rewrite subcommand"""
+
+        # Test non-existence of configuration files
+        for f in GRID_FILES:
+            assert not os.path.exists(path(self.cli.dir) / "etc" / "grid" / f)
+        for f in ETC_FILES:
+            assert not os.path.exists(path(self.cli.dir) / "etc" / f)
+
+        # Call the jvmcf command and test file genearation
         self.cli.invoke(self.args, strict=True)
+        for f in GRID_FILES:
+            assert os.path.exists(path(self.cli.dir) / "etc" / "grid" / f)
+        for f in ETC_FILES:
+            assert os.path.exists(path(self.cli.dir) / "etc" / f)
 
-        # Check configuration file ports have been deprefixed
-        self.check_ice_config()
-        self.check_cfg()
-        self.check_config_xml()
-        self.check_default_xml()
+    def testForceRewrite(self, monkeypatch):
+        """Test template regeneration while the server is running"""
 
-    @pytest.mark.parametrize('default', [True, False])
-    def testFailingRevert(self, default):
+        # Call the jvmcfg command and test file genearation
+        monkeypatch.setattr(AdminControl, "status", lambda *args, **kwargs: 0)
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
-        if not default:
-            self.create_new_ice_config()
-
-        kwargs = {'prefix': 1}
-        self.args += ['--skipcheck']
-        self.args += ['--prefix', '%s' % kwargs['prefix']]
-        self.cli.invoke(self.args, strict=True)
-
-        # Check configuration file ports
-        self.check_ice_config(**kwargs)
-        self.check_cfg(**kwargs)
-        self.check_config_xml(**kwargs)
-        self.check_default_xml(**kwargs)
-
-        # Test revert with a mismatching prefix
-        self.args[-1] = "2"
-        self.args += ['--revert']
-        self.cli.invoke(self.args, strict=True)
-
-        # Check configuration file ports have not been modified
-        self.check_ice_config(**kwargs)
-        self.check_cfg(**kwargs)
-        self.check_config_xml(**kwargs)
-        self.check_default_xml(**kwargs)
+    def testOldTemplates(self):
+        old_templates = path(__file__).dirname() / ".." / "old_templates.xml"
+        old_templates.copy(
+            path(self.cli.dir) / "etc" / "templates" / "grid" /
+            "templates.xml")
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize('prefix', [None, 1])
     @pytest.mark.parametrize('registry', [None, 111])
     @pytest.mark.parametrize('tcp', [None, 222])
     @pytest.mark.parametrize('ssl', [None, 333])
-    @pytest.mark.parametrize('webserver', [None, 444])
-    def testExplicitPorts(self, registry, ssl, tcp, webserver, prefix):
+    def testExplicitPorts(self, registry, ssl, tcp, prefix, monkeypatch):
+        """
+        Test the omero.ports.xxx configuration properties during the generation
+        of the configuration files
+        """
+
+        # Skip the JVM settings calculation for this test
+        monkeypatch.setattr(omero.install.jvmcfg, "adjust_settings",
+                            lambda x, y: {})
         kwargs = {}
         if prefix:
-            self.args += ['--prefix', '%s' % prefix]
-            kwargs['prefix'] = prefix
+            kwargs["prefix"] = prefix
         if registry:
-            self.args += ['--registry', '%s' % registry]
             kwargs["registry"] = registry
         if tcp:
-            self.args += ['--tcp', '%s' % tcp]
             kwargs["tcp"] = tcp
         if ssl:
-            self.args += ['--ssl', '%s' % ssl]
             kwargs["ssl"] = ssl
-        if webserver:
-            self.args += ['--webserver', '%s' % webserver]
-            kwargs["webserver"] = webserver
-        self.args += ['--skipcheck']
+        for (k, v) in kwargs.iteritems():
+            self.cli.invoke(
+                ["config", "set", "omero.ports.%s" % k, "%s" % v],
+                strict=True)
         self.cli.invoke(self.args, strict=True)
 
-        self.check_ice_config(**kwargs)
-
-
-class TestAdminJvmCfg(object):
-
-    @classmethod
-    def setup_class(cls):
-        # Other setup
-        cls.cli = CLI()
-        cls.cli.register("admin", AdminControl, "TEST")
-        cls.cli.register("config", PrefsControl, "TEST")
-        cls.args = ["admin", "jvmcfg"]
-
-    @pytest.fixture
-    def tmp_grid_dir(self, monkeypatch):
-        # # Non-temp directories
-        ctxdir = path() / ".." / ".." / ".." / "dist"
-        grid_dir = ctxdir / "etc" / "grid"
-        templates_file = grid_dir / "templates.xml"
-
-        # Create temp files for backup
-        self.tmp_grid_dir = create_path(folder=True)
-        templates_file.copy(self.tmp_grid_dir)
-        config_file = self.tmp_grid_dir / "config.xml"
-        open(config_file, 'a').close()
-
-        monkeypatch.setattr(AdminControl, '_get_grid_dir',
-                            lambda x: self.tmp_grid_dir)
-
-    def testDefault(self, tmp_grid_dir):
-
-        self.cli.invoke(self.args, strict=True)
-        assert os.path.exists(self.tmp_grid_dir / "generated.xml")
-
-    @pytest.mark.parametrize(
-        'suffix', ['', '.blitz', '.indexer', '.pixeldata', '.repository'])
-    def testInvalidStrategy(self, suffix, tmp_grid_dir):
-        source_config = "%s" % (self.tmp_grid_dir / "config.xml")
-        key = "omero.jvmcfg.strategy%s" % suffix
-        self.cli.invoke(
-            ["config", "--source", source_config, "set", key, "bad"],
-            strict=True)
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
-
-    def testOldTemplates(self, tmp_grid_dir):
-
-        old_templates = path(__file__).dirname() / ".." / "old_templates.xml"
-        old_templates.copy(self.tmp_grid_dir / "templates.xml")
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+        check_ice_config(self.cli.dir, **kwargs)
+        check_registry(self.cli.dir, **kwargs)
+        check_default_xml(self.cli.dir, **kwargs)

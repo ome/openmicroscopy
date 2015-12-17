@@ -47,11 +47,12 @@
       <copy file="${basedir}/src/omeroVersion.m" tofile="${target.dir}/matlab/omeroVersion.m"/>
       <replace file="${target.dir}/matlab/omeroVersion.m" token="@DEVBUILD@" value="${omero.version}"/>
       <copy todir="${target.dir}/matlab">
-        <fileset dir="${etc.dir}"           includes="ice.config"/>
+        <fileset dir="${etc.dir}/templates" includes="ice.config"/>
         <fileset dir="${basedir}/src"       includes="**/*"/>
         <fileset dir="${target.dir}"        includes="libs/*"/>
         <fileset dir="${target.dir}"        includes="omeroVersion.m"/>
       </copy>
+      <replace file="${target.dir}/matlab/ice.config" token="@omero.ports.prefix@@omero.ports.ssl@" value="4064"/>
       <zip destfile="target/${ivy.module}.zip">
         <zipfileset dir="${target.dir}/matlab" includes="**/*"/>
       </zip>

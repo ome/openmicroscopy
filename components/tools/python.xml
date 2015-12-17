@@ -4,7 +4,7 @@
     <echo>Entering ${basedir}...</echo>
 
     <property name="env.DESTDIR"    value="${up-two}/target/"/>
-    <property name="env.ICE_CONFIG" value="${basedir}/../../../etc/ice.config"/>
+    <property name="env.ICE_CONFIG" value="${basedir}/../../../etc/templates/ice.config"/>
     <property name="MARK" value="not (long_running or broken)"/>
 
     <defineVariables/>
