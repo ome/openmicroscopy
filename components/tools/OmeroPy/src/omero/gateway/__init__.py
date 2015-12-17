@@ -5751,6 +5751,15 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
     def __bstrap__(self):
         self.OMERO_CLASS = 'PlateAcquisition'
 
+    def getDate(self):
+        try:
+            t = self._obj.startTime.val
+            if t > 0:
+                return datetime.fromtimestamp(t / 1000)
+        except:
+            pass
+        return super(_PlateAcquisitionWrapper, self).getDate()
+
     def getName(self):
         name = super(_PlateAcquisitionWrapper, self).getName()
         if name is None:
