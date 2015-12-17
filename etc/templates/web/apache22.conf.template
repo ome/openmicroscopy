@@ -6,7 +6,7 @@
 #  OmeroForceSSL - redirect all http requests to https
 
 ###
-### Example SSL stanza for OMERO.web created 0000-00-00 00:00:00.000000
+### Example SSL stanza for OMERO.web created %(NOW)s
 ###
 
 # Eliminate overlap warnings with the default ssl vhost
@@ -21,8 +21,8 @@
 ## force https/ssl
 #<IfDefine OmeroForceSSL>
 #  RewriteEngine on
-#  RewriteCond %{HTTPS} !on
-#  RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L]
+#  RewriteCond %%{HTTPS} !on
+#  RewriteRule (.*) https://%%{HTTP_HOST}%%{REQUEST_URI} [L]
 #</IfDefine>
 #
 #<VirtualHost _default_:443>
@@ -44,31 +44,29 @@
 #
 #  # Per-Server Logging:
 #  CustomLog logs/ssl_request_log \
-#    "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+#    "%%t %%h %%{SSL_PROTOCOL}x %%{SSL_CIPHER}x \"%%r\" %%b"
 #
 #</VirtualHost>
 
 ###
-### Stanza for OMERO.web created 0000-00-00 00:00:00.000000
+### Stanza for OMERO.web created %(NOW)s
 ###
 
-<VirtualHost _default_:1234>
+<VirtualHost _default_:%(HTTPPORT)d>
 
-  DocumentRoot /home/omero/OMERO.server/lib/python/omeroweb
+  WSGIDaemonProcess omeroweb%(PREFIX_NAME)s processes=5 threads=1 display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROFALLBACKROOT)s:%(OMEROWEBROOT)s
 
-  WSGIDaemonProcess omeroweb_test processes=5 threads=1 display-name=%{GROUP} user=omero python-path=/home/omero/ice/python:/home/omero/OMERO.server/lib/python:/home/omero/OMERO.server/lib/fallback:/home/omero/OMERO.server/lib/python/omeroweb
-  
-  WSGIProcessGroup omeroweb_test
+  WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py process-group=omeroweb%(PREFIX_NAME)s
 
-  WSGIScriptAlias /test /home/omero/OMERO.server/lib/python/omeroweb/wsgi.py
-
-  <Directory "/home/omero/OMERO.server/lib/python/omeroweb">
+  <Directory "%(OMEROWEBROOT)s">
+    WSGIProcessGroup omeroweb%(PREFIX_NAME)s
+    WSGIApplicationGroup %%{GLOBAL}
     Order allow,deny
     Allow from all
   </Directory>
 
-  Alias /test-static /home/omero/OMERO.server/lib/python/omeroweb/static
-  <Directory "/home/omero/OMERO.server/lib/python/omeroweb/static">
+  Alias %(STATIC_URL)s %(STATIC_ROOT)s
+  <Directory "%(STATIC_ROOT)s">
       Options -Indexes FollowSymLinks
       Order allow,deny
       Allow from all
@@ -78,8 +76,5 @@
 
 # see https://code.google.com/p/modwsgi/wiki/ConfigurationIssues
 WSGISocketPrefix run/wsgi
+# Use this on Ubuntu/Debian/MacOSX systems:
 # WSGISocketPrefix /var/run/wsgi
-
-
-
-

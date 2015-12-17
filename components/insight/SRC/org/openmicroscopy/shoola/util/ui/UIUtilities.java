@@ -2916,4 +2916,23 @@ public class UIUtilities
         StringSelection strSel = new StringSelection(value);
         clipboard.setContents(strSel, null);
     }
+    
+    /**
+     * Replaces the Windows backslash path separator with a slash
+     * 
+     * @param path The path
+     * @return See above
+     */
+    public static String replaceWindowsPathSeparator(String path) {
+        return path.replaceAll("\\\\", "/");
+    }
+    
+    /**
+     * Simply replaces all non word characters with underscores.
+     * @param name The original name
+     * @return See above.
+     */
+    public static String replaceNonWordCharacters(String name) {
+        return name.replaceAll("\\W", "_");
+    }
 }

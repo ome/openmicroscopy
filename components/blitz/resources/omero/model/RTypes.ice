@@ -18,7 +18,7 @@
 module omero {
 
   /**
-   * Wrapper for an [omero::model::IObject] instance.
+   * Wrapper for an {@link omero.model.IObject} instance.
    **/
   ["protected"] class RObject extends RType
   {

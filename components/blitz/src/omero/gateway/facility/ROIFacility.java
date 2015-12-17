@@ -87,10 +87,7 @@ public class ROIFacility extends Facility {
      *            The ROI's id.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public ROIResult loadROI(SecurityContext ctx, long roiId)
             throws DSOutOfServiceException, DSAccessException {
@@ -120,10 +117,7 @@ public class ROIFacility extends Facility {
      *          The selection timepoint.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public List<ROIResult> loadROIsByPlane(SecurityContext ctx, long imageID, int z, int t)
             throws DSOutOfServiceException, DSAccessException {
@@ -150,10 +144,7 @@ public class ROIFacility extends Facility {
      *            The image's ID.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public List<ROIResult> loadROIs(SecurityContext ctx, long imageID)
             throws DSOutOfServiceException, DSAccessException {
@@ -193,10 +184,7 @@ public class ROIFacility extends Facility {
      *            The user's ID.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public List<ROIResult> loadROIs(SecurityContext ctx, long imageID,
             List<Long> measurements, long userID)
@@ -253,10 +241,7 @@ public class ROIFacility extends Facility {
      *            The list of ROI to save.
      * @return updated list of ROIData objects.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public Collection<ROIData> saveROIs(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList) throws DSOutOfServiceException,
@@ -278,10 +263,7 @@ public class ROIFacility extends Facility {
      *            The list of ROI to save.
      * @return updated list of ROIData objects.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public Collection<ROIData> saveROIs(SecurityContext ctx, long imageID,
             long userID, Collection<ROIData> roiList) throws DSOutOfServiceException,
@@ -335,12 +317,9 @@ public class ROIFacility extends Facility {
             Map<ROICoordinate, ShapeData> clientCoordMap;
             Roi serverRoi;
             Iterator<List<ShapeData>> shapeIterator;
-            Iterator<ROICoordinate> serverIterator;
             Map<ROICoordinate, Shape>serverCoordMap;
             Shape s;
             ROICoordinate coord;
-            long id;
-            RoiResult tempResults;
             int shapeIndex;
 
             Collection<ROIData> updated = new ArrayList<ROIData>();
@@ -399,7 +378,6 @@ public class ROIFacility extends Facility {
                 Iterator si = serverCoordMap.entrySet().iterator();
                 Entry entry;
                 List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
-                List<IObject> toDelete = new ArrayList<IObject>();
                 while (si.hasNext()) {
                     entry = (Entry) si.next();
                     coord = (ROICoordinate) entry.getKey();

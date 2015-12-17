@@ -48,43 +48,39 @@ import org.slf4j.LoggerFactory;
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public class InstrumentProcessor implements ModelProcessor
-{
-    /** Logger for this class */
-    private Logger log = LoggerFactory.getLogger(InstrumentProcessor.class);
+public class InstrumentProcessor implements ModelProcessor {
+  /** Logger for this class */
+  private Logger log = LoggerFactory.getLogger(InstrumentProcessor.class);
 
-    /**
-     * Processes the OMERO client side metadata store.
-     * @param store OMERO metadata store to process.
-     * @throws ModelException If there is an error during processing.
-     */
-    public void process(IObjectContainerStore store)
-    throws ModelException
-    {
-        List<IObjectContainer> containers =
-            store.getIObjectContainers(Detector.class);
-        containers.addAll(store.getIObjectContainers(Objective.class));
-        containers.addAll(store.getIObjectContainers(OTF.class));
-        containers.addAll(store.getIObjectContainers(Arc.class));
-        containers.addAll(store.getIObjectContainers(Laser.class));
-        containers.addAll(store.getIObjectContainers(Filament.class));
+  /**
+   * Processes the OMERO client side metadata store.
+   * @param store OMERO metadata store to process.
+   * @throws ModelException If there is an error during processing.
+   */
+  public void process(IObjectContainerStore store) throws ModelException {
+    List<IObjectContainer> containers =
+      store.getIObjectContainers(Detector.class);
+    containers.addAll(store.getIObjectContainers(Objective.class));
+    containers.addAll(store.getIObjectContainers(OTF.class));
+    containers.addAll(store.getIObjectContainers(Arc.class));
+    containers.addAll(store.getIObjectContainers(Laser.class));
+    containers.addAll(store.getIObjectContainers(Filament.class));
 
-        for (IObjectContainer container : containers)
-        {
-            Integer instrumentIndex = container.indexes.get(Index.INSTRUMENT_INDEX.getValue());
-            Instrument instrument =
-		(Instrument) store.getSourceObject(new LSID(Instrument.class,
-				                           instrumentIndex));
+    for (IObjectContainer container : containers) {
+      Integer instrumentIndex = container.indexes.get(
+          Index.INSTRUMENT_INDEX.getValue());
+      Instrument instrument = (Instrument) store.getSourceObject(
+          new LSID(Instrument.class, instrumentIndex));
 
-            // If instrument is missing
-            if (instrument == null)
-            {
-                LinkedHashMap<Index, Integer> indexes =
-                    new LinkedHashMap<Index, Integer>();
-                indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-                container = store.getIObjectContainer(Instrument.class, indexes);
-                instrument = (Instrument) container.sourceObject;
-            }
-        }
-     }
+      // If instrument is missing
+      if (instrument == null) {
+        LinkedHashMap<Index, Integer> indexes =
+          new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        container = store.getIObjectContainer(Instrument.class, indexes);
+        instrument = (Instrument) container.sourceObject;
+      }
+    }
+  }
+
 }

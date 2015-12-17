@@ -196,7 +196,7 @@ public class MetadataValidatorTest
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
-    public void testMetadataLevelEquivilentDimensions()
+    public void testMetadataLevelEquivalentDimensions()
     {
         assertEquals(wrapper.getSeriesCount(), minimalWrapper.getSeriesCount());
         for (int i = 0; i < minimalWrapper.getSeriesCount(); i++)
@@ -216,7 +216,7 @@ public class MetadataValidatorTest
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
-    public void testMetadataLevelEquivilentUsedFiles()
+    public void testMetadataLevelEquivalentUsedFiles()
         throws FormatException, IOException
     {
         for (int i = 0; i < minimalWrapper.getSeriesCount(); i++)
@@ -240,7 +240,7 @@ public class MetadataValidatorTest
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
-    public void testMetadataLevelEquivilentPlaneData()
+    public void testMetadataLevelEquivalentPlaneData()
         throws FormatException, IOException
     {
         for (int i = 0; i < minimalWrapper.getSeriesCount(); i++)
@@ -267,7 +267,7 @@ public class MetadataValidatorTest
     }
 
     @Test(dependsOnMethods={"testMetadataLevel"})
-    public void testEquivilentBlockRetrievalPlaneData()
+    public void testEquivalentBlockRetrievalPlaneData()
         throws FormatException, IOException
     {
         String fileName = wrapper.getCurrentFile();

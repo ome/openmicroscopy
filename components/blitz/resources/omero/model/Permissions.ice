@@ -28,7 +28,7 @@ module omero {
       /**
        * Restrictions placed on the current object for the current
        * user. Indexes into this array are based on constants
-       * in the [omero::constants::permissions] module. If a
+       * in the {@link omero.constants.permissions} module. If a
        * restriction index is not present, then it is safe to
        * assume that there is no such restriction.
        *
@@ -41,9 +41,9 @@ module omero {
        * at runtime. Individual service methods will specify
        * which strings MAY NOT be present in this field for
        * execution to be successful. For example, if an
-       * [omero::model::Image] contains a "DOWNLOAD" restriction,
-       * then an attempt to call [omero::api::RawFileStore::read]
-       * will fail with an [omero::SecurityViolation].
+       * {@link omero.model.Image} contains a "DOWNLOAD" restriction,
+       * then an attempt to call {@link omero.api.RawFileStore#read}
+       * will fail with an {@link omero.SecurityViolation}.
        **/
       omero::api::StringSet extendedRestrictions;
 
@@ -63,7 +63,7 @@ module omero {
 
       /**
        * Do not use!
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setPerm1(long value);
 
@@ -145,47 +145,47 @@ module omero {
       // throw a ClientError
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setUserRead(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setUserAnnotate(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setUserWrite(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setGroupRead(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setGroupAnnotate(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setGroupWrite(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setWorldRead(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setWorldAnnotate(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Throws {@link omero.ClientError} if mutation not allowed.
        **/
       void setWorldWrite(bool value);
 

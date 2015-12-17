@@ -85,8 +85,7 @@ public class UploadScriptAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	ScriptUploaderDialog dialog = new ScriptUploaderDialog(model.getUI()
-    			, model.getScriptsAsString(), TreeViewerAgent.getRegistry());
+    	ScriptUploaderDialog dialog = new ScriptUploaderDialog(model.getUI(), TreeViewerAgent.getRegistry(), model.getSecurityContext());
     	dialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -96,10 +95,6 @@ public class UploadScriptAction
 					ScriptObject script = (ScriptObject) o;
 					UserNotifier un = 
 						TreeViewerAgent.getRegistry().getUserNotifier();
-					if (script == null) {
-						un.notifyInfo("Upload Script", "No script to upload");
-						return;
-					}
 					ScriptActivityParam p = new ScriptActivityParam(script, 
 							ScriptActivityParam.UPLOAD);
 					un.notifyActivity(TreeViewerAgent.getAdminContext(), p);

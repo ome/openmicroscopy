@@ -66,9 +66,11 @@ public class MetadataFacility extends Facility {
      * @param imageId
      *            The imageId
      * @return See above
+     * @throws DSAccessException 
+     * @throws DSOutOfServiceException 
      */
     public ImageAcquisitionData getImageAcquisitionData(SecurityContext ctx,
-            long imageId) {
+            long imageId) throws DSOutOfServiceException, DSAccessException {
         ParametersI params = new ParametersI();
         params.acquisitionData();
         ImageData img = browse.getImage(ctx, imageId, params);
@@ -83,9 +85,8 @@ public class MetadataFacility extends Facility {
      * @param imageId
      *            The imageId to get the ChannelData for
      * @return List of ChannelData
-     * @throws DSOutOfServiceException If the connection is broken, or logged in.
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException 
      */
     public List<ChannelData> getChannelData(SecurityContext ctx, long imageId)
             throws DSOutOfServiceException, DSAccessException {

@@ -96,21 +96,9 @@ class ToolBar
 	/** The text associated to the export as OME-TIFF action. */
 	private static final String EXPORT_AS_OME_TIFF_TOOLTIP = 
 		"Export the image as OME-TIFF.";
-	
-	/** Button to save the annotations. */
-	private JButton			saveButton;
 
 	/** Button to download the original image. */
 	private JButton			downloadButton;
-
-	/** Button to load the rendering control for the primary select. */
-	private JButton			rndButton;
-	
-	/** Button to refresh the selected tab. */
-	private JButton			refreshButton;
-
-	/** Button to bring up the analysis list. */
-	private JButton			analysisButton;
 	
 	/** Button to bring up the publishing list. */
 	private JButton			publishingButton;
@@ -171,9 +159,7 @@ class ToolBar
     {
     	if (MetadataViewerAgent.isBinaryAvailable()) return;
     	downloadButton.setEnabled(false); 
-    	rndButton.setEnabled(false);
     	publishingButton.setEnabled(false);
-		analysisButton.setEnabled(false);
     }
     
     /** Creates or recycles the save as menu. */
@@ -272,12 +258,6 @@ class ToolBar
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		IconManager icons = IconManager.getInstance();
-		saveButton = new JButton(icons.getIcon(IconManager.SAVE));
-		saveButton.setToolTipText("Save changes back to the server.");
-		saveButton.addActionListener(controller);
-		saveButton.setActionCommand(""+EditorControl.SAVE);
-		saveButton.setEnabled(false);
-		saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		downloadButton = new JButton(icons.getIcon(IconManager.DOWNLOAD));
 		downloadButton.setToolTipText("Download the Archived File(s).");
@@ -285,20 +265,6 @@ class ToolBar
 		downloadButton.setActionCommand(""+EditorControl.DOWNLOAD);
 		//downloadButton.setEnabled(false);
 		downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		
-		rndButton = new JButton(icons.getIcon(IconManager.RENDERER));
-		rndButton.setToolTipText("Rendering control for the first selected " +
-				"image.");
-		rndButton.addActionListener(controller);
-		rndButton.setActionCommand(""+EditorControl.RENDERER);
-		rndButton.setEnabled(false);
-		rndButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		
-		refreshButton = new JButton(icons.getIcon(IconManager.REFRESH));
-		refreshButton.setToolTipText("Refresh.");
-		refreshButton.addActionListener(controller);
-		refreshButton.setActionCommand(""+EditorControl.REFRESH);
-		refreshButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		publishingButton = new JButton(icons.getIcon(IconManager.PUBLISHING));
 		publishingButton.setToolTipText("Display the publishing options.");
@@ -316,22 +282,7 @@ class ToolBar
 						MetadataViewer.PUBLISHING_OPTION);
 			}
 		});
-		analysisButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
-		analysisButton.setToolTipText("Display the analysis options.");
-		analysisButton.setEnabled(false);
-		analysisButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		analysisButton.addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Launches the dialog when the user releases the mouse.
-			 * MouseAdapter#mouseReleased(MouseEvent)
-			 */
-			public void mouseReleased(MouseEvent e)
-			{
-				launchOptions((Component) e.getSource(), e.getPoint(), 
-						MetadataViewer.ANALYSIS_OPTION);
-			}
-		});
+
 		scriptsButton = new JButton(icons.getIcon(IconManager.ANALYSIS_RUN));
 		scriptsButton.setToolTipText("Display the available scripts.");
 		scriptsButton.setEnabled(false);
@@ -430,14 +381,10 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(pathButton);
 		UIUtilities.unifiedButtonLookAndFeel(locationButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
-		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
-		UIUtilities.unifiedButtonLookAndFeel(rndButton);
-		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
 		UIUtilities.unifiedButtonLookAndFeel(exportAsOmeTiffButton);
 		UIUtilities.unifiedButtonLookAndFeel(publishingButton);
 		UIUtilities.unifiedButtonLookAndFeel(uploadScriptButton);
-		UIUtilities.unifiedButtonLookAndFeel(analysisButton);
 		UIUtilities.unifiedButtonLookAndFeel(scriptsButton);
 		
 		Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH, 
@@ -463,8 +410,6 @@ class ToolBar
     	
         bar.add(viewButton);
         bar.add(Box.createHorizontalGlue());
-    	bar.add(saveButton);
-    	bar.add(Box.createHorizontalStrut(5));
         bar.add(publishingButton);
         bar.add(Box.createHorizontalStrut(5));
         bar.add(locationButton);
@@ -599,14 +544,6 @@ class ToolBar
     	initComponents();
     	buildGUI();
     }
-
-    /**
-     * Enables the {@link #saveButton} depending on the passed value.
-     * 
-     * @param b Pass <code>true</code> to save the data,
-     * 			<code>false</code> otherwise. 
-     */
-    void setDataToSave(boolean b) { saveButton.setEnabled(b); }
     
     /**
      * Sets to <code>true</code> if loading data, to <code>false</code>
@@ -626,14 +563,10 @@ class ToolBar
     {
     	saveAsMenu = null;
     	Object refObject = model.getRefObject();
-    	rndButton.setEnabled(false);
 		downloadButton.setEnabled(false);
 		if (pathButton != null) pathButton.setEnabled(false);
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
-    		rndButton.setEnabled(!model.isRendererLoaded());
-    		if (model.isNumerousChannel())
-    			rndButton.setEnabled(false);
     		if (refObject instanceof ImageData) {
     			downloadButton.setEnabled(model.isArchived());
     		}
@@ -653,7 +586,6 @@ class ToolBar
         Object ref = model.getRefObject();
         if (ref instanceof ExperimenterData || ref instanceof GroupData) {
             publishingButton.setEnabled(false);
-            analysisButton.setEnabled(false);
             scriptsButton.setEnabled(false);
             return;
         }
@@ -673,7 +605,6 @@ class ToolBar
         }
 
         publishingButton.setEnabled(true);
-        analysisButton.setEnabled(true);
         scriptsButton.setEnabled(true);
         if (publishingDialog != null)
             publishingDialog.setRootObject();

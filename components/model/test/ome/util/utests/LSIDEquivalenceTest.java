@@ -26,7 +26,7 @@ import ome.util.LSID;
 import org.testng.annotations.Test;
 
 @Test
-public class LSIDEquivilenceTest extends TestCase
+public class LSIDEquivalenceTest extends TestCase
 {
 	public void testStringHashMapContainsKey()
 	{

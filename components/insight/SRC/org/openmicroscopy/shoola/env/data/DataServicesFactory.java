@@ -612,7 +612,7 @@ public class DataServicesFactory
         try {
             // Load the omero client properties from the server
             List agents = (List) registry.lookup(LookupNames.AGENTS);
-            Map<String, String> props = omeroGateway.getOmeroClientProperties();
+            Map<String, String> props = omeroGateway.getOmeroClientProperties(exp.getGroupId());
             for (String key : props.keySet()) {
                 if (registry.lookup(key) == null)
                     registry.bind(key, props.get(key));
