@@ -1055,6 +1055,35 @@ def tags(request, tags_groupA, tags_groupB):
 
 
 @pytest.fixture(scope='function')
+def tag_project_twice(request, userA, userB,
+                      projects_userB_groupA):
+    """
+    Returns userA's Tag linked to userB's Project
+    by userA and userB
+    """
+    project = projects_userB_groupA[0]
+
+    # Create Tag belonging to userA
+    tagA = TagAnnotationI()
+    tagA.textValue = rstring('TagA')
+    conn = get_connection(userA)
+    tagA = conn.getUpdateService().saveAndReturnObject(tagA)
+
+    # User A links Tag to Project
+    project_link = ProjectAnnotationLinkI()
+    project_link.parent = project
+    project_link.child = tagA
+    conn.getUpdateService().saveAndReturnObject(project_link)
+
+    # User B links Tag to Project
+    project_link = ProjectAnnotationLinkI()
+    project_link.parent = ProjectI(project.id.val, False)
+    project_link.child = TagAnnotationI(tagA.id.val, False)
+    get_connection(userB).getUpdateService().saveAndReturnObject(project_link)
+    return tagA, project
+
+
+@pytest.fixture(scope='function')
 def tagset_hierarchy_userA_groupA(request, userA, userB,
                                   project_hierarchy_userA_groupA,
                                   screen_hierarchy_userA_groupA):
@@ -2233,6 +2262,21 @@ class TestTree(lib.ITest):
         marshaled = marshal_tagged(conn=conn,
                                    experimenter_id=userA[1].id.val,
                                    tag_id=tag.id.val)
+        assert marshaled == expected
+
+    def test_marshal_tagged_perms(self, userA, tag_project_twice):
+        """
+        Test that tagged queries have correct permissions on
+        tagged data and that results are distinct when linked
+        to tag by 2 users
+        """
+        conn = get_connection(userA)
+        tag = tag_project_twice[0]
+        project = tag_project_twice[1]
+        marshaled = marshal_tagged(conn=conn,
+                                   tag_id=tag.id.val)
+        expected = expected_tagged(userA, [project], [], [],
+                                   [], [], [])
         assert marshaled == expected
 
     # Share
