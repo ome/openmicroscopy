@@ -27,6 +27,7 @@
 import library as lib
 import string
 import csv
+import os.path
 import re
 
 from omero.api import RoiOptions
@@ -155,7 +156,7 @@ class TestPopulateMetadata(BasePopulate):
             attach to Plate. Then query to check table has expected content.
         """
 
-        ctx = ParsingContext(self.client, self.plate, self.csvName)
+        ctx = ParsingContext(self.client, self.plate, file=self.csvName)
         ctx.parse()
         ctx.write_to_omero()
 
@@ -188,8 +189,12 @@ class TestPopulateMetadata(BasePopulate):
         # self._testPopulateMetadataPlate()
         assert len(self.get_well_annotations()) == 0
 
+        cfg = os.path.join(
+            os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
+
         fileid = self.get_plate_annotations()[0].file.id.val
-        ctx = BulkToMapAnnotationContext(self.client, self.plate, fileid)
+        ctx = BulkToMapAnnotationContext(
+            self.client, self.plate, fileid=fileid, cfg=cfg)
         ctx.parse()
         assert len(self.get_well_annotations()) == 0
 
@@ -214,7 +219,7 @@ class TestPopulateMetadata(BasePopulate):
         # self._test_bulk_to_map_annotation_context()
         assert len(self.get_well_annotations()) == 2
 
-        ctx = DeleteMapAnnotationContext(self.client, self.plate, None)
+        ctx = DeleteMapAnnotationContext(self.client, self.plate)
         ctx.parse()
         assert len(self.get_well_annotations()) == 2
 
