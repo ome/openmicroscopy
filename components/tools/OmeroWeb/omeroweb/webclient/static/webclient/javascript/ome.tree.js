@@ -139,6 +139,19 @@ $(function() {
         if (!param) {
             // If not found, just select root node
             inst.select_node('ul > li:first');
+        } else if (param.split("-")[0] === "tag") {
+            // Tags not yet supported by paths_to_object lookup
+            // So, we only support top-level tags (not under TagSet)
+            // Tree root may be experimenter or 'All members' (this supports both)
+            var root = inst.get_node('ul > li:first');
+            inst.open_node(root, function() {
+                var node = inst.locate_node(param, root)[0];
+                if (!node) return;
+                inst.select_node(node);
+                inst.open_node(node);
+                // we also focus the node, to scroll to it and setup hotkey events
+                $("#" + node.id).children('.jstree-anchor').focus();
+            });
         } else {
             // Gather data for request
             // Might have multiple objects separated by |
@@ -349,17 +362,20 @@ $(function() {
                 if (selected.length > 0 && selected[0].type !== node.type) {
                     return false;
                 }
+                if (selected.length > 0 && (node.type === 'tag' || node.type === 'tagset')) {
+                    return false;
+                }
 
                 // Also disallow the selection if it is a multi-select and the new target
                 // is already selected
                 selected = inst.get_selected(true);
                 var allowSelect = true;
                 $.each(selected, function(index, sel) {
-                     if (sel.type === node.type && sel.data.obj.id === node.data.obj.id) {
+                    if (sel.type === node.type && sel.data.obj.id === node.data.obj.id) {
                         allowSelect = false;
                         // Break out of each
                         return false;
-                     }
+                    }
                 });
 
                 return allowSelect;
@@ -381,7 +397,7 @@ $(function() {
                 // Get the data for this query
                 var payload = {};
                 // Exception to this for orphans as in the case of api_images, id is a dataset
-                if (node.hasOwnProperty('data') && node.type != 'orphaned') {
+                if (node.hasOwnProperty('data') && node.type != 'orphaned' && node.type != 'experimenter') {
                     if (node.data.hasOwnProperty('obj')) {
                         payload['id'] = node.data.obj.id;
                     }
@@ -399,6 +415,8 @@ $(function() {
                 // orphaned node
                 if (path && (node.type === 'experimenter' || node.type === 'orphaned')) {
                     payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
+                    // TODO - for tags only
+                    payload['orphaned'] = true;     // Don't show tags that are in tagsets
                 }
 
                 // If this is a node which can have paged results then either specify that
@@ -421,10 +439,12 @@ $(function() {
                 }
 
                 // Extra data needed for showing thumbs in centre panel
-                if (node.type === 'dataset' || node.type === 'orphaned') {
+                if (node.type === 'dataset' || node.type === 'orphaned' || node.type === 'tag') {
                     payload['sizeXYZ'] = true;
                     payload['date'] = true;
-                    payload['thumbVersion'] = true;
+                    if (node.type !== 'tag') {
+                        payload['thumbVersion'] = true;
+                    }
                 }
 
                 // Always add the group_id from the current context
@@ -437,7 +457,12 @@ $(function() {
                 // Request the list of children from that url, adding any relevant filters
                 var url;
                 if (node.type === 'experimenter') {
-                    url = WEBCLIENT.URLS.api_containers;
+                    // This will be set to containers or tags url, depending on page we're on 
+                    url = WEBCLIENT.URLS.tree_top_level;
+                } else if (node.type === 'tagset') {
+                    url = WEBCLIENT.URLS.tree_top_level;
+                } else if (node.type === 'tag') {
+                    url = WEBCLIENT.URLS.tree_top_level;
                 } else if (node.type === 'project') {
                     url = WEBCLIENT.URLS.api_datasets;
                 } else if (node.type === 'dataset') {
@@ -535,6 +560,11 @@ $(function() {
                                     rv.text = value.firstName + ' ' + value.lastName;
                                     rv.state = {'opened': true};
                                     rv.children = true;
+                                } else if (type === 'tag') {
+                                    // We don't count children for Tags (too expensive?) Assume they have children
+                                    rv.children = true;
+                                    rv.type = value.set ? 'tagset' : 'tag';
+                                    rv.text = value.value;
                                 }
                                 return rv;
                             }
@@ -542,6 +572,14 @@ $(function() {
                             if (data.hasOwnProperty('experimenter')) {
                                 node = makeNode(data.experimenter, 'experimenter');
                                 jstree_data.push(node);
+                            }
+
+                            // Add tags to the jstree data structure
+                            if (data.hasOwnProperty('tags')) {
+                                $.each(data.tags, function(index, value) {
+                                    var node = makeNode(value, 'tag');
+                                    jstree_data.push(node);
+                                });
                             }
 
                             // Add projects to the jstree data structure
@@ -691,6 +729,14 @@ $(function() {
             'experimenter': {
                 'icon' : WEBCLIENT.URLS.static_webclient + 'image/icon_user.png',
                 'valid_children': ['project','dataset','screen','plate']
+            },
+            'tagset': {
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tags.png',
+                'valid_children': ['tagset','tag']
+            },
+            'tag': {
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
+                'valid_children': ['project, dataset, image, screen, plate, acquisition']
             },
             'project': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder16.png',
@@ -1016,18 +1062,22 @@ $(function() {
             var name2 = node2.text.toLowerCase();
 
             function getRanking(node) {
-                if (node.type === 'project') {
+                if (node.type === 'tagset') {
                     return 1;
-                } else if (node.type === 'dataset') {
+                } else if (node.type === 'tag') {
                     return 2;
-                } else if (node.type === 'screen') {
+                } else if (node.type === 'project') {
                     return 3;
-                } else if (node.type === 'plate') {
+                } else if (node.type === 'dataset') {
                     return 4;
-                } else if (node.type === 'orphaned') {
+                } else if (node.type === 'screen') {
                     return 5;
-                } else {
+                } else if (node.type === 'plate') {
                     return 6;
+                } else if (node.type === 'orphaned') {
+                    return 7;
+                } else {
+                    return 8;
                 }
             }
             // If the nodes are the same type then just compare lexicographically
