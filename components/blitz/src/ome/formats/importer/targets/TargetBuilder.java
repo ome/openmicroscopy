@@ -45,8 +45,9 @@ public class TargetBuilder {
         }
         target = string;
         int firstColon = string.indexOf(":");
+        String prefix;
         if (firstColon >= 0) {
-            String prefix = string.substring(0, firstColon);
+            prefix = string.substring(0, firstColon);
             Class<?> klass = tryClass(prefix);
             if (klass != null) {
                 if (ImportTarget.class.isAssignableFrom(klass)) {
@@ -64,10 +65,16 @@ public class TargetBuilder {
                     return this;
                 }
             }
-
+        } else {
+            throw new IllegalStateException(String.format(
+                    "Target string not valid: %s", string));
         }
 
         // Handles everything else.
+        if (!prefix.equals("regex") && !prefix.equals("")) {
+            throw new IllegalStateException(String.format(
+                    "Target string not valid: %s", string));
+        }
         type = TemplateImportTarget.class;
         return this;
     }

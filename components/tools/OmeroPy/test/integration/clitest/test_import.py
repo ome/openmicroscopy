@@ -417,7 +417,8 @@ class TestImport(CLITest):
         LegacyIdOnlyTargetSource(),
         LegacyIdModelTargetSource(),
         IdModelTargetSource(),
-        TemplateTargetSource("(?<Container1>.*)"),
+        TemplateTargetSource("regex:(?<Container1>.*)"),
+        TemplateTargetSource(":(?<Container1>.*)"),
         # ClassTargetSource(),
     )
 

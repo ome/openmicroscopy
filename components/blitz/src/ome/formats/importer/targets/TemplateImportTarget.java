@@ -42,7 +42,8 @@ public class TemplateImportTarget implements ImportTarget {
 
     @Override
     public void init(String target) {
-        this.template = target;
+        int idx = target.indexOf(":");
+        this.template = target.substring(idx + 1);
     }
 
     public String getTemplate() {
