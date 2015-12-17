@@ -69,6 +69,13 @@
     WEBCLIENT.URLS.api_plates = "{% url 'api_plates' %}";
     WEBCLIENT.URLS.api_plate_acquisitions = "{% url 'api_plate_acquisitions' %}";
     WEBCLIENT.URLS.static_webclient = "{% static 'webclient' %}/";
+    WEBCLIENT.URLS.api_tags_and_tagged = "{% url 'api_tags_and_tagged' %}";
+
+    {% ifequal menu 'usertags' %}
+        WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
+    {% else %}
+        WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_containers;
+    {% endifequal %}
 
     {% if active_user %}
     WEBCLIENT.active_user = {'id': {{ active_user.id }} };
@@ -799,31 +806,33 @@
 			
 			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
 			
-	        <li id="explore_tab" class="ui-state-default ui-tabs-active"><a class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a></li>
-	        <li id="tags_tab" class="ui-state-default"><a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a></li>
-	        <li id="public_tab" class="ui-state-default"><a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Shares" %}</a></li>
+	        <li id="explore_tab" class="ui-state-default{% ifequal menu 'userdata' %} ui-tabs-active{% endifequal %}">
+                <a href="{% url 'load_template' 'userdata' %}" class="ui-tabs-anchor" title="Explore">{% trans "Explore" %}</a>
+            </li>
+	        <li id="tags_tab" class="ui-state-default{% ifequal menu 'usertags' %} ui-tabs-active{% endifequal %}">
+                <a href="{% url 'load_template' 'usertags' %}" class="ui-tabs-anchor">{% trans "Tags" %}</a>
+            </li>
+	        <li id="public_tab" class="ui-state-default">
+                <a href="{% url 'load_template' 'public' %}" class="ui-tabs-anchor">{% trans "Shares" %}</a>
+            </li>
        
 	    </ul>
-		
-		
-		
-		<!--
-		<div id="navigator">
-			<a href="#" id="back">Back</a>
-			<a href="#" id="forward">Back</a>
-			<dl>
-				<dt>Groups</dt>
-			</dl>
-			<a href="#" id="settings">Settings</a>
-		</div>
-		-->
-		
-		
-		
-
 
         <!-- toolbar above tree -->
-        <div id="Projects">
+        <div>
+
+            {% ifequal menu 'usertags' %}
+            <!-- Show Tags toolbar for tag page... -->
+            <ul class="toolbar">
+                <li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh" /></li>
+
+                <li class="seperator"></li>
+
+                <li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /></li>
+            </ul>
+
+            {% else %}
+            <!-- Show Projects toolbar for main page... -->
             <ul class="toolbar">
 					
 			<li><input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /></li>
@@ -850,6 +859,7 @@
 			<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> </li>
 					
             </ul>
+            {% endifequal %}
             
 
             <div class="clear"></div>
@@ -894,29 +904,6 @@
         </form>
 
     </div>
-{% endblock %}
-
-
-
-
-
-{% block right %}
-<div>
-    <div id="annotation_tabs" class="absolute_fill">
-        <ul id="annotation_tabs_list">
-            <li><a href="#metadata_general">{% trans "General" %}</a></li>
-            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
-            {% for rt in ome.right_plugins %}
-                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
-            {% endfor %}
-        </ul>
-        <div id="metadata_general" class="right_tab_content" ></div>
-        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
-        {% for rt in ome.right_plugins %}
-        <div id="{{ rt.plugin_id }}" class="right_tab_content" ></div>
-        {% endfor %}
-    </div>
-</div>
 {% endblock %}
 
 

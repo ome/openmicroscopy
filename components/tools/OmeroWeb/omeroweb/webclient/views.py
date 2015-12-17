@@ -372,7 +372,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':
-        template = "webclient/data/container_tags.html"
+        template = "webclient/data/containers.html"
     else:
         # E.g. search/search.html
         template = "webclient/%s/%s.html" % (menu, menu)
@@ -462,6 +462,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         myColleagues.sort(key=lambda x: x.getLastName().lower())
 
     context = {
+        'menu': menu,
         'init': init,
         'myGroups': myGroups,
         'new_container_form': new_container_form,
