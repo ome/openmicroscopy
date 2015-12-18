@@ -240,6 +240,26 @@ public class BrowseFacility extends Facility {
      *
      * @param ctx
      *            The security context.
+     * @param pojoName
+     *            The type of object to retrieve. (Either the simple or the full
+     *            class name, e. g. omero.gateway.model.DatasetData or
+     *            DatasetData)
+     * @param id
+     *            The object's id.
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public DataObject findObject(SecurityContext ctx, String pojoName, long id)
+            throws DSOutOfServiceException, DSAccessException {
+        return findObject(ctx, pojoName, id, false);
+    }
+    
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx
+     *            The security context.
      * @param klassName
      *            The type of object to retrieve.
      * @param id
@@ -262,6 +282,47 @@ public class BrowseFacility extends Facility {
 
             IQueryPrx service = gateway.getQueryService(ctx);
             return service.find(klassName, id, m);
+        } catch (Throwable t) {
+            handleException(this, t,
+                    "Cannot retrieve the requested object with "
+                            + "object ID: " + id);
+        }
+        return null;
+    }
+    
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param pojoName
+     *            The type of object to retrieve. (Either the simple or the full
+     *            class name, e. g. omero.gateway.model.DatasetData or
+     *            DatasetData)
+     * @param id
+     *            The object's id.
+     * @param allGroups
+     *            Pass <code>true</code> to look for all groups
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public DataObject findObject(SecurityContext ctx, String pojoName, long id,
+            boolean allGroups) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            Map<String, String> m = new HashMap<String, String>();
+            if (allGroups) {
+                m.put("omero.group", "-1");
+            } else {
+                m.put("omero.group", "" + ctx.getGroupID());
+            }
+
+            Class klass = PojoMapper.getModelType(pojoName);
+
+            IQueryPrx service = gateway.getQueryService(ctx);
+            IObject iobj = service.find(klass.getSimpleName(), id, m);
+            return PojoMapper.asDataObject(iobj);
         } catch (Throwable t) {
             handleException(this, t,
                     "Cannot retrieve the requested object with "
