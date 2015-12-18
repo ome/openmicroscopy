@@ -1300,10 +1300,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     qs = conn.getQueryService()
 
-    common_clause = '''
-                    join obj.annotationLinks alink
-                    where alink.child.id=:tid
-                    '''
+    common_clause = ""
     if experimenter_id is not None and experimenter_id != -1:
         params.addId(experimenter_id)
         common_clause += '''
@@ -1318,19 +1315,27 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Projects
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               (select count(id) from ProjectDatasetLink pdl
-                where pdl.parent = obj.id),
-               lower(obj.name)
-        from Project obj
+        select new map(obj.id as id,
+            obj.name as name,
+            obj.details.owner.id as ownerId,
+            obj as project_details_permissions,
+            (select count(id) from ProjectDatasetLink dil
+                where dil.parent=obj.id) as childCount)
+            from Project obj
+            join obj.annotationLinks alink
+            where alink.id = (select max(alink.id) from ProjectAnnotationLink alink
+                where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
 
     projects = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["project_details_permissions"],
+             e[0]["childCount"]]
         projects.append(_marshal_project(conn, e[0:5]))
     tagged['projects'] = projects
 
@@ -1346,7 +1351,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
             join obj.annotationLinks alink
             where alink.id = (select max(alink.id) from DatasetAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)
-        '''
+        %s
+        ''' % common_clause
 
     datasets = []
     for e in qs.projection(q, params, service_opts):
@@ -1365,91 +1371,124 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
     if load_pixels:
         extraValues = """
              ,
-             pix.sizeX,
-             pix.sizeY,
-             pix.sizeZ
+             pix.sizeX as sizeX,
+             pix.sizeY as sizeY,
+             pix.sizeZ as sizeZ
              """
         extraObjs = " left outer join obj.pixels pix"
     if date:
         extraValues += """,
-            obj.details.creationEvent.time,
-            obj.acquisitionDate
+            obj.details.creationEvent.time as date,
+            obj.acquisitionDate as acqDate
             """
-    q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               obj.fileset.id,
-               lower(obj.name)%s
-        from Image obj %s
+
+    q = """
+        select new map(obj.id as id,
+               obj.name as name,
+               obj.details.owner.id as ownerId,
+               obj as image_details_permissions,
+               obj.fileset.id as filesetId %s)
+            from Image obj %s
+            join obj.annotationLinks alink
+            where alink.id = (select max(alink.id) from ImageAnnotationLink alink
+                where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
-        ''' % (extraValues, extraObjs, common_clause)
+        """ % (extraValues, extraObjs, common_clause)
 
     images = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        row = [e[0]["id"],
+               e[0]["name"],
+               e[0]["ownerId"],
+               e[0]["image_details_permissions"],
+               e[0]["filesetId"]]
         kwargs = {}
-        nextVal = 6
         if load_pixels:
-            kwargs['row_pixels'] = (e[6], e[7], e[8])
-            nextVal = 9
+            d = [e[0]["sizeX"], e[0]["sizeY"], e[0]["sizeZ"]]
+            kwargs['row_pixels'] = d
         if date:
-            kwargs['date'] = e[nextVal]
-            kwargs['acqDate'] = e[nextVal + 1]
-        images.append(_marshal_image(conn, e[0:5], **kwargs))
+            kwargs['acqDate'] = e[0]['acqDate']
+            kwargs['date'] = e[0]['date']
+        images.append(_marshal_image(conn, row, **kwargs))
     tagged['images'] = images
 
     # Screens
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               (select count(spl.id) from ScreenPlateLink spl
-                where spl.parent=obj.id),
-               lower(obj.name)
-        from Screen obj
+        select new map(obj.id as id,
+            obj.name as name,
+            obj.details.owner.id as ownerId,
+            obj as screen_details_permissions,
+            (select count(id) from ScreenPlateLink spl
+                where spl.parent=obj.id) as childCount)
+            from Screen obj
+            join obj.annotationLinks alink
+            where alink.id = (select max(alink.id) from ScreenAnnotationLink alink
+                where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
 
     screens = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["screen_details_permissions"],
+             e[0]["childCount"]]
         screens.append(_marshal_screen(conn, e[0:5]))
     tagged['screens'] = screens
 
     # Plate
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               (select count(pa.id) from PlateAcquisition pa
-                where pa.plate.id=obj.id),
-               lower(obj.name)
-        from Plate obj
+        select new map(obj.id as id,
+            obj.name as name,
+            obj.details.owner.id as ownerId,
+            obj as plate_details_permissions,
+            (select count(id) from PlateAcquisition pa
+                where pa.plate.id=obj.id) as childCount)
+            from Plate obj
+            join obj.annotationLinks alink
+            where alink.id = (select max(alink.id) from PlateAnnotationLink alink
+                where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
 
     plates = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["plate_details_permissions"],
+             e[0]["childCount"]]
         plates.append(_marshal_plate(conn, e[0:5]))
     tagged['plates'] = plates
 
     # Plate Acquisitions
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               obj.startTime,
-               obj.endTime,
-               lower(obj.name)
+        select new map(obj.id as id,
+            obj.name as name,
+            obj.details.owner.id as ownerId,
+            obj as plateacquisition_details_permissions,
+            obj.startTime as startTime,
+            obj.endTime as endTime)
         from PlateAcquisition obj
+            join obj.annotationLinks alink
+            where alink.id = (select max(alink.id) from PlateAcquisitionAnnotationLink alink
+                where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
 
     plate_acquisitions = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["plateacquisition_details_permissions"],
+             e[0]["startTime"],
+             e[0]["endTime"]]
         plate_acquisitions.append(_marshal_plate_acquisition(conn, e[0:6]))
     tagged['acquisitions'] = plate_acquisitions
 
