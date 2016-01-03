@@ -1323,7 +1323,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                 where dil.parent=obj.id) as childCount)
             from Project obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id) from ProjectAnnotationLink alink
+            where alink.id = (select max(alink.id)
+                from ProjectAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
@@ -1349,7 +1350,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                 where dil.parent=obj.id) as childCount)
             from Dataset obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id) from DatasetAnnotationLink alink
+            where alink.id = (select max(alink.id)
+                from DatasetAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
@@ -1390,7 +1392,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                obj.fileset.id as filesetId %s)
             from Image obj %s
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id) from ImageAnnotationLink alink
+            where alink.id = (select max(alink.id)
+                from ImageAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         """ % (extraValues, extraObjs, common_clause)
@@ -1423,7 +1426,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                 where spl.parent=obj.id) as childCount)
             from Screen obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id) from ScreenAnnotationLink alink
+            where alink.id = (select max(alink.id)
+                from ScreenAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
@@ -1449,7 +1453,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
                 where pa.plate.id=obj.id) as childCount)
             from Plate obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id) from PlateAnnotationLink alink
+            where alink.id = (select max(alink.id)
+                from PlateAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
@@ -1475,7 +1480,8 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
             obj.endTime as endTime)
         from PlateAcquisition obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id) from PlateAcquisitionAnnotationLink alink
+            where alink.id = (select max(alink.id)
+                from PlateAcquisitionAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)
         %s
         ''' % common_clause
