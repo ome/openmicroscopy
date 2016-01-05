@@ -1592,7 +1592,8 @@ public class OMEROMetadataStoreClient
         catch (Exception e)
         {
             log.error("Server error setting extended properties for Pixels:" +
-                      pixelsId + " Target file:" + file);
+                      pixelsId + " Target file:" + file, e);
+            throw new RuntimeException(e);
         }
     }
 
