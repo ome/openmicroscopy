@@ -896,7 +896,7 @@ $(function() {
                     "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_user_16.png" %}',
                     "action": function() {
                         // TODO - make sure this works with new jsTree
-                        OME.handleChgrp("{% url 'webindex' %}", "{% static 'webclient' %}");
+                        OME.handleChgrp(WEBCLIENT.URLS.webindex, WEBCLIENT.URLS.static_webclient);
                     }
                 };
                 
