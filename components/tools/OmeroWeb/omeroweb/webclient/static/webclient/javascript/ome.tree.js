@@ -242,7 +242,7 @@ $(function() {
         if (node) {
             if (node.type === 'image') {
                 //Open the image viewer for this image
-                OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('0', node.data.obj.id ));
+                OME.openPopup(WEBCLIENT.URLS.webindex + "img_detail/" + node.data.obj.id);
             }
         }
     })
