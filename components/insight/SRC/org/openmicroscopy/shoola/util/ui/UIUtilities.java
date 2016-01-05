@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2941,8 +2941,9 @@ public class UIUtilities
     /**
      * As workaround for https://bugzilla.gnome.org/show_bug.cgi?id=759492 an
      * internal repaint has to be triggered for undecorated frames in order to
-     * get displayed correctly. This is done by changing (and reverting) the
-     * size of the frame; a simple call to repaint() is not sufficient.
+     * get displayed correctly. This is done by changing the size of the frame
+     * (making it one pixel bigger); a simple call to repaint() is not
+     * sufficient.
      * 
      * @param w
      *            The {@link Window}
@@ -2958,10 +2959,7 @@ public class UIUtilities
             String desktop = System.getenv("XDG_CURRENT_DESKTOP");
             if (desktop != null && desktop.toLowerCase().contains("gnome")) {
                 Dimension size = w.getSize();
-                Dimension modSize = new Dimension(size.width + 1,
-                        size.height + 1);
-                w.setSize(modSize);
-                w.setSize(size);
+                w.setSize(new Dimension(size.width + 1, size.height + 1));
             }
         }
     }
