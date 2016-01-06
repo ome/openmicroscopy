@@ -4192,7 +4192,9 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
             '''
         for e in qs.projection(q, params, conn.SERVICE_OPTS):
             image_ids.add(e[0].val)
-            fileset_ids.add(e[1].val)
+            # Some images in Dataset may not have fileset
+            if e[1] is not None:
+                fileset_ids.add(e[1].val)
 
     # Get any images for plates
     # TODO Seemed no need to add the filesets for plates as it isn't possible
