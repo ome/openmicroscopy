@@ -843,13 +843,10 @@ public class SelectionWizardUI
                 ho = node.getUserObject();
                 if (ho instanceof DataObject) {
                     data = (DataObject) ho;
-                    if (data.getId() >= 0 && !isChild(node)) {
+                    if (data.getId() >= 0 && !isChild(node))
                         availableItems.add(node);
-                    }
-                    toRemove.add(node);
-                } else {
-                    toRemove.add(node);
                 }
+                toRemove.add(node);
             }
         }
         selectedItems.removeAll(toRemove);
