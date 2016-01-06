@@ -503,6 +503,13 @@ public class UIUtilities
 		FONTS.put("Zapfino", "cursive");
 	}
 	
+    private static final boolean GNOME;
+
+    static {
+        String desktop = System.getenv("XDG_CURRENT_DESKTOP");
+        GNOME = desktop != null && desktop.toLowerCase().contains("gnome");
+    }
+	
 	/**
      * Returns <code>true</code> if the passed value is textual,
      * <code>false</code> otherwise.
@@ -2949,6 +2956,9 @@ public class UIUtilities
      *            The {@link Window}
      */
     public static void applyGnome3Workaround(Window w) {
+        if (!GNOME)
+            return;
+
         boolean undecorated = false;
         if (w instanceof Frame)
             undecorated = ((Frame) w).isUndecorated();
@@ -2956,11 +2966,8 @@ public class UIUtilities
             undecorated = ((Dialog) w).isUndecorated();
 
         if (undecorated) {
-            String desktop = System.getenv("XDG_CURRENT_DESKTOP");
-            if (desktop != null && desktop.toLowerCase().contains("gnome")) {
-                Dimension size = w.getSize();
-                w.setSize(new Dimension(size.width + 1, size.height + 1));
-            }
+            Dimension size = w.getSize();
+            w.setSize(new Dimension(size.width + 1, size.height + 1));
         }
     }
 }
