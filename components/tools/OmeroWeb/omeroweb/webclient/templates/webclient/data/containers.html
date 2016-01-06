@@ -73,6 +73,9 @@
     WEBCLIENT.URLS.api_tags_and_tagged = "{% url 'api_tags_and_tagged' %}";
     WEBCLIENT.URLS.fileset_check = "{% url 'fileset_check' 'delete' %}";
     WEBCLIENT.URLS.deletemany = "{% url 'manage_action_containers' 'deletemany' %}";
+    WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'webgateway.views.copy_image_rdef_json' %}";
+    WEBCLIENT.URLS.reset_owners_rdef_json = "{% url 'reset_owners_rdef_json' %}";
+    WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
 
     {% ifequal menu 'usertags' %}
         WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
@@ -482,85 +485,11 @@
         // Stuff to do on load...
         $(function()
             {
-                var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}",
-                    apply_owners_rdef_url = "{% url 'reset_owners_rdef_json' %}",
-                    reset_rdef_json = "{% url 'reset_rdef_json' %}";
-
                 // We (un)truncate images when the left panel resizes...
                 $("#left_panel").on('resize', function(event) {
                     var inst = $.jstree.reference('#dataTree');
                     inst.redraw(true);
                 });
-
-                // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
-                var copyRenderingSettings = function(selected) {
-                    if (selected.length == 1) {
-                        var imageId = selected[0].data.obj.id;
-                        $.getJSON(copy_paste_rdef_url + "?fromid=" + imageId);
-                    }
-                }
-
-                // Paste settings from 'session' to selected Objects
-                var pasteRenderingSettings = function(selected, owner, reset) {
-
-                    var ids = [];
-                    var rdef_url = copy_paste_rdef_url;
-
-                    // Get the type of object having rendering settings applied
-                    var type = selected[0].type;
-
-                    if (owner) {
-                        rdef_url = apply_owners_rdef_url;
-                    } else if (reset) {
-                        rdef_url = reset_rdef_json;
-                    }
-
-                    // Get list of ids to be updated
-                    $.each(selected, function(index, node) {
-                         ids.push(node.data.obj.id);
-                    });
-
-                    var data = {'toids': ids}
-                    if (type === 'dataset' || type === 'plate' || type === 'acquisition') {
-                        data.to_type = type;
-                    }
-
-                    var confirmMsg = "This will save new rendering settings to " +
-                        selected.length + " " + type +
-                        (selected.length > 1 ? "s" : "") + ".<br> This cannot be undone.";
-
-                    var rdef_confirm_dialog = OME.confirm_dialog(
-                        confirmMsg,
-                        function() {
-                            var clicked_button_text = rdef_confirm_dialog.data("clicked_button");
-                            if (clicked_button_text === "OK") {
-                                $.ajax({
-                                    type: "POST",
-                                    dataType: 'text',
-                                    traditional: true,
-                                    url: rdef_url,
-                                    data: data,
-                                    success: function(data){
-                                        // update thumbnails
-                                        OME.refreshThumbnails();
-                                    }
-                                });
-                            }
-                        },
-                        "Change Rendering Settings?",
-                        ["OK", "Cancel"],
-                        350,
-                        175
-                    );
-                }
-
-                var applyOwnerRenderingSettings = function(selected) {
-                    pasteRenderingSettings(selected, true);
-                };
-
-                var resetRenderingSettings = function(selected) {
-                    pasteRenderingSettings(selected, false, true);
-                };
 
                 // Handle creation of new Project, Dataset or Screen...
                 $("#new-container-form").dialog({

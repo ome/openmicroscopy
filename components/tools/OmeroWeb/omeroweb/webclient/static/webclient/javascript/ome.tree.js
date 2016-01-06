@@ -921,7 +921,8 @@ $(function() {
                             "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_copy_16.png" %}',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
-                                copyRenderingSettings(inst.get_selected(true));
+                                OME.copyRenderingSettings(WEBCLIENT.URLS.copy_image_rdef_json,
+                                    inst.get_selected(true));
                             }
                         },
                         "paste_rdef": {
@@ -930,7 +931,8 @@ $(function() {
                             "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
-                                pasteRenderingSettings(inst.get_selected(true));
+                                OME.pasteRenderingSettings(WEBCLIENT.URLS.copy_image_rdef_json,
+                                    inst.get_selected(true));
                             }
                         },
                         "reset_rdef": {
@@ -939,7 +941,8 @@ $(function() {
                             "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
-                                resetRenderingSettings(inst.get_selected(true));
+                                OME.resetRenderingSettings(WEBCLIENT.URLS.reset_rdef_json,
+                                    inst.get_selected(true));
                             }
                         },
                         "owner_rdef": {
@@ -948,7 +951,8 @@ $(function() {
                             "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
-                                applyOwnerRenderingSettings(inst.get_selected(true));
+                                OME.applyOwnerRenderingSettings(WEBCLIENT.URLS.reset_owners_rdef_json,
+                                    inst.get_selected(true));
                             }
                         }
                     }
