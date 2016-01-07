@@ -503,6 +503,7 @@ public class UIUtilities
 		FONTS.put("Zapfino", "cursive");
 	}
 	
+    /** Flag indicating if desktop is GNOME **/
     private static final boolean GNOME;
 
     static {
