@@ -28,10 +28,15 @@ returns a Web response. This response can be the HTML contents of a Web page,
 or a redirect, or the 404 and 500 error, or an XML document, or an image...
 or anything.'''
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from omeroweb.feedback.views import handlerInternalError
+from django.utils.six.moves.urllib.parse import urljoin
 import logging
+
+from decorators import login_required
+from baseconv import base62
+import omero
 
 logger = logging.getLogger(__name__)
 
@@ -49,3 +54,20 @@ def index(request, **kwargs):
             "Path was not recognized. URL should follow the pattern: %s%s" % (
                 request.build_absolute_uri(reverse(viewname="webredirect")),
                 ("?path=server=1|project=1|dataset=2|image=3:selected")))
+
+
+@login_required()
+def shorturl(request, short, conn=None, **kwargs):
+    if short.isalnum():
+        server = request.build_absolute_uri(reverse("index"))
+        alias_id = base62.to_decimal(short)
+        try:
+            alias = conn.getQueryService().get("CommentAnnotation", alias_id)
+        except omero.ValidationException:
+            return HttpResponse("Invalid url.")
+        path = alias.description.val
+        if path.startswith("/"):
+            path = path.strip("/")
+        target_uri = urljoin(server, path)
+        return HttpResponseRedirect(target_uri)
+    return HttpResponse("Invalid url.")
