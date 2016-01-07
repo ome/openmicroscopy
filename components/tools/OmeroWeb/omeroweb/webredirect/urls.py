@@ -29,4 +29,5 @@ from omeroweb.webredirect import views
 urlpatterns = patterns(
     'django.views.generic.simple',
     url(r'^$', views.index, name='webredirect'),
+    url(r'(?P<short>\w+)$', views.shorturl, name='webshorturl'),
 )
