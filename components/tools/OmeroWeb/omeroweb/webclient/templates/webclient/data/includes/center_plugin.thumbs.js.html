@@ -140,6 +140,9 @@ $(document).ready(function() {
         // Get the current selection
         var selected = inst.get_selected(true);
 
+        OME.renderCentrePanel(selected);
+        return;
+
         if (selected.length === 0) {
             $("#content_details").html("");
             parentId = undefined;
