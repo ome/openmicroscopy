@@ -575,7 +575,7 @@ public class UIUtilities
 	{
 		centerOnScreen(window);
 		window.setVisible(true);
-        applyGnome3Workaround((Frame) window);
+        applyGnome3Workaround(window);
 	}
     
 	/**
@@ -2952,22 +2952,22 @@ public class UIUtilities
      * (making it one pixel bigger); a simple call to repaint() is not
      * sufficient.
      * 
-     * @param w
-     *            The {@link Window}
+     * @param c
+     *            The {@link Component}
      */
-    public static void applyGnome3Workaround(Window w) {
+    public static void applyGnome3Workaround(Component c) {
         if (!GNOME)
             return;
 
         boolean undecorated = false;
-        if (w instanceof Frame)
-            undecorated = ((Frame) w).isUndecorated();
-        if (w instanceof Dialog)
-            undecorated = ((Dialog) w).isUndecorated();
+        if (c instanceof Dialog)
+            undecorated = ((Dialog) c).isUndecorated();
+        if (c instanceof Frame)
+            undecorated = ((Frame) c).isUndecorated();
 
         if (undecorated) {
-            Dimension size = w.getSize();
-            w.setSize(new Dimension(size.width + 1, size.height + 1));
+            Dimension size = c.getSize();
+            c.setSize(new Dimension(size.width + 1, size.height + 1));
         }
     }
 }
