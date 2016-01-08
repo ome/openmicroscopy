@@ -283,7 +283,6 @@ class InputServerStrategy
 					data.canAnnotate());
 		fig.setEllipse(x, y, width, height);
 		fig.setText(data.getText());
-		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
@@ -309,7 +308,6 @@ class InputServerStrategy
 		MeasurePointFigure fig = new MeasurePointFigure(data.getText(), x, y, 
 				2*r, 2*r, data.isReadOnly(), data.isClientObject(), 
 				data.canEdit(), data.canDelete(), data.canAnnotate());
-		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
@@ -334,7 +332,6 @@ class InputServerStrategy
 					data.isReadOnly(), data.isClientObject(), data.canEdit(), 
 					data.canDelete(), data.canAnnotate());
 		fig.setText(data.getText());
-		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
@@ -363,7 +360,6 @@ class InputServerStrategy
 				data.canEdit(), data.canDelete(), data.canAnnotate());
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		fig.setVisible(data.isVisible());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -389,7 +385,6 @@ class InputServerStrategy
 		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
 				height, mask, data.isReadOnly(), data.isClientObject(),
 				data.canEdit(), data.canDelete(), data.canAnnotate());
-		fig.setVisible(data.isVisible());
 		fig.setVisible(true);
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
@@ -419,7 +414,6 @@ class InputServerStrategy
 				data.isClientObject(), data.canEdit(), data.canDelete(),
 				data.canAnnotate());
 		fig.removeAllNodes();
-		fig.setVisible(data.isVisible());
 		fig.addNode(new Node(x1, y1));
 		fig.addNode(new Node(x2, y2));
 		
@@ -446,7 +440,6 @@ class InputServerStrategy
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject(), data.canEdit(),
 				data.canDelete(), data.canAnnotate());
-		fig.setVisible(data.isVisible());
 		List<Point2D.Double> points = data.getPoints();
 		List<Point2D.Double> points1 = data.getPoints1();
 		List<Point2D.Double> points2 = data.getPoints2();
@@ -507,7 +500,6 @@ class InputServerStrategy
 				data.isClientObject(), data.canEdit(), data.canDelete(),
 				data.canAnnotate());
 		fig.removeAllNodes();
-		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
 			fig.addNode(new Node(points.get(i)));
 		
@@ -536,7 +528,6 @@ class InputServerStrategy
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject(), data.canEdit(),
 				data.canDelete(), data.canAnnotate());
-		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
 			fig.addNode(new Node(i, points.get(i), points.get(i),
 			        points.get(i)));

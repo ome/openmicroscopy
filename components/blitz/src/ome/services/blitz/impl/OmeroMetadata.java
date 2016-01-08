@@ -108,10 +108,11 @@ import org.slf4j.LoggerFactory;
 /**
  * An implementation for {@link MetadataStore} and {@link MetadataRetrieve} that
  * knows how to read and write the OMERO object model.
- * 
+ *
  * @author Josh Moore josh at glencoesoftware.com
  * @author Chris Allan callan at blackcat.ca
  * @author Curtis Rueden ctrueden at wisc.edu
+ * @author m.t.b.carroll@dundee.ac.uk
  */
 public class OmeroMetadata extends DummyMetadata {
 
@@ -129,21 +130,21 @@ public class OmeroMetadata extends DummyMetadata {
     private final List<Image> imageList = new ArrayList<Image>();
 
     // Annotations
-    private final List<XmlAnnotation> xmlAnnotationList = 
+    private final List<XmlAnnotation> xmlAnnotationList =
         new ArrayList<XmlAnnotation>();
-    private final List<LongAnnotation> longAnnotationList = 
+    private final List<LongAnnotation> longAnnotationList =
         new ArrayList<LongAnnotation>();
-    private final List<BooleanAnnotation> booleanAnnotationList = 
+    private final List<BooleanAnnotation> booleanAnnotationList =
         new ArrayList<BooleanAnnotation>();
-    private final List<DoubleAnnotation> doubleAnnotationList = 
+    private final List<DoubleAnnotation> doubleAnnotationList =
         new ArrayList<DoubleAnnotation>();
-    private final List<CommentAnnotation> commentAnnotationList = 
+    private final List<CommentAnnotation> commentAnnotationList =
         new ArrayList<CommentAnnotation>();
-    private final List<TimestampAnnotation> timestampAnnotationList = 
+    private final List<TimestampAnnotation> timestampAnnotationList =
         new ArrayList<TimestampAnnotation>();
-    private final List<TagAnnotation> tagAnnotationList = 
+    private final List<TagAnnotation> tagAnnotationList =
         new ArrayList<TagAnnotation>();
-    private final List<TermAnnotation> termAnnotationList = 
+    private final List<TermAnnotation> termAnnotationList =
         new ArrayList<TermAnnotation>();
 
     // ROIs
@@ -244,7 +245,7 @@ public class OmeroMetadata extends DummyMetadata {
         for (Image image : imageList) {
             if (!image.isLoaded()) {
 
-                final long id = image.getId().getValue(); 
+                final long id = image.getId().getValue();
                 QueryBuilder qb = new QueryBuilder();
                 qb.select("i");
                 qb.from("Image", "i");
@@ -300,13 +301,13 @@ public class OmeroMetadata extends DummyMetadata {
             }
         }
         session.clear();
-        
+
         IceMapper mapper = new IceMapper();
         for (Image image : lookups.keySet()) {
             Image replacement = (Image) mapper.map(new ProxyCleanupFilter().filter("", lookups.get(image)));
             replacements.put(image, replacement);
         }
-        
+
         List<Image> newImages = new ArrayList<Image>();
         for (int i = 0; i < imageList.size(); i++) {
             Image image = imageList.get(i);
@@ -524,7 +525,7 @@ public class OmeroMetadata extends DummyMetadata {
         }
         try
         {
-            Annotation annotation = 
+            Annotation annotation =
                 o.linkedAnnotationList().get(annotationRefIndex);
             return handleLsid(annotation);
         }
@@ -697,7 +698,7 @@ public class OmeroMetadata extends DummyMetadata {
         omero.model.PixelsType e = o.getPrimaryPixels().getPixelsType();
         try
         {
-            return e != null? 
+            return e != null?
                     PixelType.fromString(fromRType(e.getValue()))
                     : null;
         }
@@ -729,7 +730,7 @@ public class OmeroMetadata extends DummyMetadata {
             return null;
         }
     }
-    
+
     @Override
     public AcquisitionMode getChannelAcquisitionMode(int imageIndex,
             int channelIndex)
@@ -742,7 +743,7 @@ public class OmeroMetadata extends DummyMetadata {
         omero.model.AcquisitionMode e = o.getLogicalChannel().getMode();
         try
         {
-            return e != null? 
+            return e != null?
                     AcquisitionMode.fromString(fromRType(e.getValue()))
                     : null;
         }
@@ -785,7 +786,7 @@ public class OmeroMetadata extends DummyMetadata {
         omero.model.ContrastMethod e = o.getLogicalChannel().getContrastMethod();
         try
         {
-            return e != null? 
+            return e != null?
                     ContrastMethod.fromString(fromRType(e.getValue()))
                     : null;
         }
@@ -849,7 +850,7 @@ public class OmeroMetadata extends DummyMetadata {
         omero.model.Illumination e = o.getLogicalChannel().getIllumination();
         try
         {
-            return e != null? 
+            return e != null?
                     IlluminationType.fromString(fromRType(e.getValue()))
                     : null;
         }
@@ -1383,19 +1384,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public String getROINamespace(int ROIIndex) {
-        if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
-            return null;
-        }
-        final Roi roi = roiList.get(ROIIndex);
-        final String[] namespaces = roi.getNamespaces();
-        if (ArrayUtils.isEmpty(namespaces)) {
-            return null;
-        }
-        return namespaces[0];
-    }
-
-    @Override
     public int getShapeCount(int ROIIndex) {
         if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
             return -1;
@@ -1617,14 +1605,6 @@ public class OmeroMetadata extends DummyMetadata {
         return toTransform(shape.getTransform());
     }
 
-    private <X extends Shape> Boolean getShapeVisible(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
-        if (shape == null) {
-            return null;
-        }
-        return fromRType(shape.getVisibility());
-    }
-
     @Override
     public String getEllipseAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
         return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Ellipse.class);
@@ -1703,11 +1683,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public AffineTransform getEllipseTransform(int ROIIndex, int shapeIndex) {
         return getShapeTransform(ROIIndex, shapeIndex, Ellipse.class);
-    }
-
-    @Override
-    public Boolean getEllipseVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
@@ -1836,11 +1811,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Boolean getLabelVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Label.class);
-    }
-
-    @Override
     public String getLabelText(int ROIIndex, int shapeIndex) {
         final Label label = getShape(ROIIndex, shapeIndex, Label.class);
         if (label == null) {
@@ -1945,11 +1915,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public AffineTransform getLineTransform(int ROIIndex, int shapeIndex) {
         return getShapeTransform(ROIIndex, shapeIndex, Line.class);
-    }
-
-    @Override
-    public Boolean getLineVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Line.class);
     }
 
     @Override
@@ -2078,11 +2043,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Boolean getPointVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Point.class);
-    }
-
-    @Override
     public String getPointText(int ROIIndex, int shapeIndex) {
         final Point point = getShape(ROIIndex, shapeIndex, Point.class);
         if (point == null) {
@@ -2190,11 +2150,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Boolean getPolygonVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Polygon.class);
-    }
-
-    @Override
     public String getPolygonPoints(int ROIIndex, int shapeIndex) {
         final Polygon polygon = getShape(ROIIndex, shapeIndex, Polygon.class);
         if (polygon == null) {
@@ -2293,11 +2248,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public Boolean getPolylineVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Polyline.class);
-    }
-
-    @Override
     public String getPolylinePoints(int ROIIndex, int shapeIndex) {
         final Polyline polyline = getShape(ROIIndex, shapeIndex, Polyline.class);
         if (polyline == null) {
@@ -2393,11 +2343,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public AffineTransform getRectangleTransform(int ROIIndex, int shapeIndex) {
         return getShapeTransform(ROIIndex, shapeIndex, Rectangle.class);
-    }
-
-    @Override
-    public Boolean getRectangleVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override

@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.1__1 to OMERO5.2__0.
+--- OMERO5 development release upgrade from OMERO5.2DEV__0 to OMERO5.3DEV__0.
 ---
 
 BEGIN;
@@ -43,7 +43,7 @@ BEGIN
 
 END;$$ LANGUAGE plpgsql;
 
-SELECT omero_assert_db_version('OMERO5.1', 1);
+SELECT omero_assert_db_version('OMERO5.2DEV', 0);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
@@ -73,7 +73,7 @@ BEGIN
 
     IF version_num < version_prereq THEN
         RAISE EXCEPTION 'PostgreSQL database server version % is less than OMERO prerequisite %',
-	    db_pretty_version(version_num), db_pretty_version(version_prereq);
+            db_pretty_version(version_num), db_pretty_version(version_prereq);
     END IF;
 
     IF char_encoding != 'UTF8' THEN
@@ -84,7 +84,7 @@ BEGIN
 
 END;$$ LANGUAGE plpgsql;
 
-SELECT assert_db_server_prerequisites(90300);
+SELECT assert_db_server_prerequisites(90300);  -- TBD
 
 DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 DROP FUNCTION db_pretty_version(INTEGER);
@@ -95,48 +95,54 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.2',     0,            'OMERO5.1',      1);
+             VALUES ('OMERO5.3DEV',  0,            'OMERO5.2DEV',   0);
 
 -- ... up to patch 0:
 
--- Prevent the deletion of mimetype = "Directory" objects
-CREATE OR REPLACE FUNCTION _fs_dir_delete() RETURNS TRIGGER AS $$
-    BEGIN
-        --
-        -- If any children are found, prevent deletion
-        --
-        IF OLD.mimetype = 'Directory' AND EXISTS(
-            SELECT id FROM originalfile
-            WHERE repo = OLD.repo AND path = OLD.path || OLD.name || '/'
-            LIMIT 1) THEN
+CREATE FUNCTION assert_no_roi_keywords_namespaces() RETURNS void AS $$
 
-                -- CANCEL DELETE
-                RAISE EXCEPTION '%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+DECLARE
+  roi_row roi%ROWTYPE;
+  element TEXT;
 
+BEGIN
+    FOR roi_row IN SELECT * FROM roi LOOP
+        IF roi_row.keywords IS NOT NULL THEN
+            FOREACH element IN ARRAY roi_row.keywords LOOP
+                IF element <> '' THEN
+                    RAISE EXCEPTION 'data in roi.keywords row id=%', roi_row.id;
+                END IF;
+            END LOOP;
         END IF;
-        RETURN OLD; -- proceed
-    END;
-$$ LANGUAGE plpgsql;
+        IF roi_row.namespaces IS NOT NULL THEN
+            FOREACH element IN ARRAY roi_row.namespaces LOOP
+                IF element <> '' THEN
+                    RAISE EXCEPTION 'data in roi.namespaces row id=%', roi_row.id;
+                END IF;
+            END LOOP;
+        END IF;
+    END LOOP;
 
-CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+END;$$ LANGUAGE plpgsql;
 
-    DECLARE
-        curs CURSOR FOR SELECT * FROM _updated_annotations ORDER BY event_id LIMIT 100000 FOR UPDATE;
-        row _updated_annotations%rowtype;
+SELECT assert_no_roi_keywords_namespaces();
+DROP FUNCTION assert_no_roi_keywords_namespaces();
 
-    BEGIN
-        FOR row IN curs
-        LOOP
-            DELETE FROM _updated_annotations WHERE CURRENT OF curs;
+ALTER TABLE roi DROP COLUMN keywords;
+ALTER TABLE roi DROP COLUMN namespaces;
 
-            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
-                WHERE NOT EXISTS (SELECT 1 FROM eventlog AS el
-                    WHERE el.entityid = row.entity_id AND el.entitytype = row.entity_type AND el.event = row.event_id);
-
-        END LOOP;
-    END;
-$$ LANGUAGE plpgsql;
+ALTER TABLE shape DROP COLUMN anchor;
+ALTER TABLE shape DROP COLUMN baselineshift;
+ALTER TABLE shape DROP COLUMN decoration;
+ALTER TABLE shape DROP COLUMN direction;
+ALTER TABLE shape DROP COLUMN g;
+ALTER TABLE shape DROP COLUMN glyphorientationvertical;
+ALTER TABLE shape DROP COLUMN strokedashoffset;
+ALTER TABLE shape DROP COLUMN strokelinejoin;
+ALTER TABLE shape DROP COLUMN strokemiterlimit;
+ALTER TABLE shape DROP COLUMN vectoreffect;
+ALTER TABLE shape DROP COLUMN visibility;
+ALTER TABLE shape DROP COLUMN writingmode;
 
 
 --
@@ -144,11 +150,11 @@ $$ LANGUAGE plpgsql;
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
-    WHERE currentVersion  = 'OMERO5.2'    AND
+    WHERE currentVersion  = 'OMERO5.3DEV' AND
           currentPatch    = 0             AND
-          previousVersion = 'OMERO5.1'    AND
-          previousPatch   = 1;
+          previousVersion = 'OMERO5.2DEV' AND
+          previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.2__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

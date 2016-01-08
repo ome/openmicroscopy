@@ -1226,7 +1226,7 @@ def parseInputs(client, session=None, processFn=IdentityFn):
     return processFn(client.getInputs(unwrap=True))
 
 
-def getROIFromImage(iROIService, imageId, namespace=None):
+def getROIFromImage(iROIService, imageId):
     """
     Get the ROI from the server for the image with the namespace
     @param iROIService The iROIService object
@@ -1235,8 +1235,6 @@ def getROIFromImage(iROIService, imageId, namespace=None):
     @return See above.
     """
     roiOpts = omero.api.RoiOptions()
-    if(namespace is not None):
-        roiOpts.namespace = namespace
     return iROIService.findByImage(imageId, roiOpts)
 
 
