@@ -62,28 +62,10 @@ class TestQuery(lib.ITest):
         # get group we're working on...
         ctx = self.client.sf.getAdminService().getEventContext()
         groupId = ctx.groupId
-        print 'groupId', groupId
 
-        # Admin sets permissions to read-ann
-        admin = self.root.sf.getAdminService()
-        gr = admin.getGroup(groupId)
-        p = PermissionsI()
-        p.setUserRead(True)
-        p.setUserWrite(True)
-        p.setGroupRead(True)
-        p.setGroupAnnotate(True)
-        p.setGroupWrite(False)
-        p.setWorldRead(False)
-        p.setWorldAnnotate(False)
-        p.setWorldWrite(False)
-        gr.details.permissions = p
-        admin.updateGroup(gr)
-
-        # Update context for user
-        ctx = self.client.sf.getAdminService().getEventContext()
         update = self.client.sf.getUpdateService()
         query = self.client.sf.getQueryService()
-        tagCount = 100
+        tagCount = 10
         # create tag linked to many images
         tag = TagAnnotationI()
         tag.textValue = wrap("test_iQuerySpeed")
@@ -97,10 +79,6 @@ class TestQuery(lib.ITest):
             links.append(link)
         links = update.saveAndReturnArray(links)
         tag = links[0].child
-        # check permissions
-        p = tag.getDetails().getPermissions()
-        assert p.isGroupRead()
-        assert p.isGroupAnnotate()
 
         q = """select new map(obj.id as id,
                obj.name as name,
