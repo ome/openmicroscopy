@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1509,6 +1509,51 @@ class EditorModel
 		return (Collection<TagAnnotationData>) sorter.sort(results);
 	}
 	
+    /**
+     * Returns the collection of common tags linked to the
+     * <code>DataObject</code>s.
+     * 
+     * @return See above.
+     */
+    Collection<TagAnnotationData> getAllCommonTags() {
+        Collection<TagAnnotationData> results = getAllTags();
+        Map<DataObject, StructuredDataResults> r = parent
+                .getAllStructuredData();
+
+        if (CollectionUtils.isEmpty(results) || r == null) {
+            return new ArrayList<TagAnnotationData>();
+        }
+
+        // remove all tags which are not linked to all data objects
+        Iterator<Entry<DataObject, StructuredDataResults>> i = r.entrySet()
+                .iterator();
+        Iterator<TagAnnotationData> tagit = results.iterator();
+        while (tagit.hasNext()) {
+            TagAnnotationData next = tagit.next();
+            boolean common = true;
+            while (i.hasNext()) {
+                Entry<DataObject, StructuredDataResults> e = i.next();
+                Collection<TagAnnotationData> tags = e.getValue().getTags();
+                boolean contains = false;
+                for (TagAnnotationData otherTag : tags) {
+                    if (otherTag.getId() == next.getId()) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    common = false;
+                    break;
+                }
+            }
+
+            if (!common)
+                tagit.remove();
+        }
+
+        return results;
+    }
+    
 	/**
 	 * Returns the collection of the tags that are linked to all the selected
 	 * objects.
