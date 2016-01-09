@@ -930,7 +930,29 @@ button::-moz-focus-inner {
 
 
 
+	.iconTableHeader, .iconTableFooter, .iconTable {
+		position: absolute;
+		left: 0;
+		right: 0;
+		border-right: 0;
+	}
 
+	.iconTableHeader {
+		top: 0;
+		height: 29px;
+	}
+
+	.iconTableFooter {
+		bottom: 0;
+		height: 25px;
+	}
+
+	.iconTable {
+		bottom:25px;
+		top:29px;
+		overflow:auto;
+		margin-top:0px;
+	}
 
 
 
