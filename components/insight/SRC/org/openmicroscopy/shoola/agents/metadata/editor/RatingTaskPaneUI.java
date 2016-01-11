@@ -140,6 +140,7 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         rating.removePropertyChangeListener(this);
         rating.setValue(originalValue);
         rating.addPropertyChangeListener(this);
+        rating.setEnabled(model.canAnnotate());
     }
 
     
