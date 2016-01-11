@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -68,6 +68,12 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
     
     /** The collection of annotations to replace. */
     private List<FileAnnotationData>        toReplace;
+    
+    /** Remove attachments button */
+    private JButton removeDocsButton;
+    
+    /** Add attachments button */
+    private JButton addDocsButton;
     
     /**
      * Creates a new instance
@@ -279,6 +285,9 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
             list = model.getAttachments();
         
         layoutAttachments(list);
+        
+        addDocsButton.setEnabled(model.canAddAnnotationLink());
+        removeDocsButton.setEnabled(model.canAddAnnotationLink());
     }
     
     void layoutAttachments(Collection list) {
@@ -362,7 +371,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
 
         IconManager icons = IconManager.getInstance();
 
-        final JButton addDocsButton = new JButton(
+        addDocsButton = new JButton(
                 icons.getIcon(IconManager.PLUS_12));
         addDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
         addDocsButton.setToolTipText("Attach a document.");
@@ -379,7 +388,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
         UIUtilities.unifiedButtonLookAndFeel(addDocsButton);
         buttons.add(addDocsButton);
 
-        final JButton removeDocsButton = new JButton(
+        removeDocsButton = new JButton(
                 icons.getIcon(IconManager.MINUS_12));
         UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
         removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
