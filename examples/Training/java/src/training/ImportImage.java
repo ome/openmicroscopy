@@ -113,7 +113,10 @@ public class ImportImage {
         try {
             fakeImage = File.createTempFile("gateway_image", ".fake");
             ImportCallback cb = new ImportCallback();
+            
             TransferFacility tf = gateway.getFacility(TransferFacility.class);
+            // the uploadImage method will automatically create a dataset with
+            // the same name as the directory, the image file is located in
             tf.uploadImage(ctx, fakeImage, cb);
 
             // wait for the upload to finish
@@ -157,9 +160,10 @@ public class ImportImage {
             config.username.set(info.getUserName());
             config.password.set(info.getPassword());
 
-            // import images into dataset with id=1
-            config.targetClass.set("omero.model.Dataset");
-            config.targetId.set(1L);
+            // the imported image will go into 'orphaned images' unless
+            // you specify a particular existing dataset like this:
+            // config.targetClass.set("omero.model.Dataset");
+            // config.targetId.set(1L);
             OMEROMetadataStoreClient store = config.createStore();
             store.logVersionInfo(config.getIniVersionNumber());
             OMEROWrapper reader = new OMEROWrapper(config);
