@@ -144,6 +144,9 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
             l = model.getAllTags();
         
         layoutTags(l);
+        
+        addTagsButton.setEnabled(model.canAddAnnotationLink());
+        removeTagsButton.setEnabled(model.canAddAnnotationLink());
     }
     
     /**
