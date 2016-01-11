@@ -6,11 +6,18 @@
         parentTypes: ["dataset", "orphaned", "tag", "share"],
 
         getInitialState: function() {
-            return {layout: 'icon'};
+            return {
+                layout: 'icon',
+                iconSize: 65,
+            };
         },
 
         setLayout: function(layout) {
             this.setState({layout: layout});
+        },
+
+        setIconSize: function(size) {
+            this.setState({iconSize: size});
         },
 
         renderNothing: function(selected) {
@@ -72,12 +79,17 @@
 
             return (
                 <div>
-                    <IconTableHeader layout={this.state.layout} setLayout={this.setLayout} />
+                    <IconTableHeader
+                        layout={this.state.layout}
+                        setLayout={this.setLayout} />
                     <IconTable
                         parentNode={parentNode}
                         inst={inst}
+                        iconSize={this.state.iconSize}
                         layout={this.state.layout} />
-                    <IconTableFooter />
+                    <IconTableFooter
+                        iconSize={this.state.iconSize}
+                        setIconSize={this.setIconSize} />
                 </div>
             );
         }
@@ -124,10 +136,27 @@
     });
 
     var IconTableFooter = React.createClass({
+
+        componentDidMount: function() {
+            var setIconSize = this.props.setIconSize,
+                iconSize = this.props.iconSize;
+            $(ReactDOM.findDOMNode(this.thumbSlider)).slider({
+                max: 200,
+                min: 30,
+                value: iconSize,
+                slide: function(event, ui) {
+                    setIconSize(ui.value);
+                }
+            });
+        },
+
         render: function() {
             return (
                 <div className="toolbar iconTableFooter">
-                    <div id="thumb_size_slider" title="Zoom Thumbnails" />
+                    <div
+                        id="thumb_size_slider"
+                        ref={function(slider){this.thumbSlider = slider}.bind(this)}
+                        title="Zoom Thumbnails" />
                 </div>
             );
         }
@@ -237,6 +266,7 @@
                     <ImageIcon
                         image={image}
                         key={image.id}
+                        iconSize={this.props.iconSize}
                         handleIconClick={this.handleIconClick} />
                 );
             }.bind(this));
@@ -266,6 +296,7 @@
         render: function() {
 
             var image = this.props.image,
+                iconSize = this.props.iconSize,
                 cls = [];
             if (image.selected) {cls.push('ui-selected')};
             if (image.fsSelected) {cls.push('fs-selected')};
@@ -282,6 +313,7 @@
                 >
                     <div className="image">
                         <img alt="image"
+                            width={iconSize}
                             src={"render_thumbnail/size/96/" + image.id + "/?version=" + image.thumbVersion}
                             title={image.name} />
                     </div>
