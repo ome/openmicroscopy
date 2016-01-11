@@ -41,6 +41,7 @@ import javax.swing.JFrame;
 
 
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -49,6 +50,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
@@ -273,6 +275,7 @@ class SplashScreenManager
 		view.setVisible(true);
 		view.setStatusVisible(true, false);
 		isOpen = true;
+		UIUtilities.applyGnome3Workaround(view);
 		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
 				Boolean.valueOf(true));
 	}
