@@ -22,6 +22,13 @@ class TestShortUrl(IWebTest):
         request_url = reverse('webshorturl', args=[short])
         rsp = _response(self.django_root_client, request_url, 'get', {}, 200,
                         follow=True)
-        location = "%s?%s" % (rsp.wsgi_request.META['PATH_INFO'],
-                              rsp.wsgi_request.META['QUERY_STRING'])
+
+        # Work arround for Django 1.6
+        try:
+            location = "%s?%s" % (rsp.wsgi_request.META['PATH_INFO'],
+                                  rsp.wsgi_request.META['QUERY_STRING'])
+        except:
+            # TODO: remove when 1.6 is dropped
+            location = "%s?%s" % (rsp.request['PATH_INFO'],
+                                  rsp.request['QUERY_STRING'])
         assert origin == location
