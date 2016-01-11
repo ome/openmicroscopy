@@ -283,9 +283,16 @@
                     <div className="image">
                         <img alt="image"
                             src={"render_thumbnail/size/96/" + image.id + "/?version=" + image.thumbVersion}
-                            title={image.name}
-                        />
+                            title={image.name} />
                     </div>
+                    <div className="desc" valign="middle">
+                        {image.name}
+                        <span className="hidden_sort_text">{image.name}</span>
+                    </div>
+                    <div className="date" valign="middle">{image.date}</div>
+                    <div className="sizeX" valign="middle">{image.data.obj.sizeX}</div>
+                    <div className="sizeY" valign="middle">{image.data.obj.sizeY}</div>
+                    <div className="sizeZ" valign="middle">{image.data.obj.sizeZ}</div>
                 </li>
             )
         }
