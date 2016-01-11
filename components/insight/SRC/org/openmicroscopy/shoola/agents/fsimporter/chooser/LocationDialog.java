@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -352,6 +352,8 @@ class LocationDialog extends JDialog implements ActionListener,
      */
     private boolean activeWindow;
 
+    /** Flag indicating if projects/datasets have been loaded */
+    private boolean loaded = false;
     
 	/**
 	 * Creates a new instance.
@@ -1101,12 +1103,22 @@ class LocationDialog extends JDialog implements ActionListener,
 			List<DataNode> listItems, DataNode select,
 			ItemListener itemListener)
 	{
-		if (comboBox == null || listItems == null) return;
+		if (comboBox == null || listItems == null)
+		    return;
 		//Only add the item the user can actually select
 		if (itemListener != null)
 			comboBox.removeItemListener(itemListener);
 		comboBox.removeAllItems();
 
+        if (!loaded) {
+            SelectableComboBoxModel model = new SelectableComboBoxModel();
+            model.addElement("Loading...");
+            comboBox.setModel(model);
+            if (itemListener != null)
+                comboBox.addItemListener(itemListener);
+            return;
+        }
+		
 		List<String> tooltips = new ArrayList<String>(listItems.size());
 		List<String> lines;
 		ExperimenterData exp;
@@ -1683,6 +1695,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	    this.dataType = type;
 	    this.objects = objects;
 	    this.container = container;
+	    this.loaded = true;
 	    populateUIWithDisplayData(findWithId(groups, currentGroupId), userID);
 	    setInputsEnabled(true);
 	}
