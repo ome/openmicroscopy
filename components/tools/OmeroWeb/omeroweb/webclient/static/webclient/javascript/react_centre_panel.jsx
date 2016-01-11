@@ -123,6 +123,18 @@
 
     var IconTable = React.createClass({
 
+        handleIconClick: function(imageId) {
+            console.log("click", imageId);
+
+            var inst = this.props.inst;
+            var containerNode = OME.getTreeImageContainerBestGuess(imageId);
+            var selectedNode = inst.locate_node('image-' + imageId, containerNode)[0];
+
+            // Deselect all to begin (supress jstree event)
+            inst.deselect_all(true);
+            inst.select_node(selectedNode, true);
+        },
+
         render: function() {
             var parentNode = this.props.parentNode,
                 inst = this.props.inst;
@@ -194,28 +206,13 @@
             }
 
             var icons = imgJson.map(function(image){
-                var cls = [];
-                if (image.selected) {cls.push('ui-selected')};
-                if (image.fsSelected) {cls.push('fs-selected')};
                 return (
-                    <li className={"row " + cls.join(" ")}
+                    <ImageIcon
+                        image={image}
                         key={image.id}
-                        id={"image_icon-" + image.id}
-                        data-fileset={image.data.obj.filesetId}
-                        data-type="image"
-                        data-id={image.id}
-                        data-perms={image.data.obj.permsCss}
-                        tabIndex={0}
-                    >
-                        <div className="image">
-                            <img alt="image"
-                                src={"render_thumbnail/size/96/" + image.id + "/?version=" + image.thumbVersion}
-                                title={image.name}
-                            />
-                        </div>
-                    </li>
+                        handleIconClick={this.handleIconClick} />
                 );
-            })
+            }.bind(this));
 
             return (
                 <div id="icon_table" className="iconTable">
@@ -228,6 +225,44 @@
         }
     });
 
+    var ImageIcon = React.createClass({
+
+        handleIconClick: function() {
+            // this.setState ({selected: true});
+            this.props.handleIconClick(this.props.image.id);
+        },
+
+        // getInitialState: function() {
+        //     return {selected: this.props.image.selected};
+        // },
+
+        render: function() {
+
+            var image = this.props.image,
+                cls = [];
+            if (image.selected) {cls.push('ui-selected')};
+            if (image.fsSelected) {cls.push('fs-selected')};
+
+            return (
+                <li className={"row " + cls.join(" ")}
+                    id={"image_icon-" + image.id}
+                    data-fileset={image.data.obj.filesetId}
+                    data-type="image"
+                    data-id={image.id}
+                    data-perms={image.data.obj.permsCss}
+                    // tabIndex={0}
+                    onClick={this.handleIconClick}
+                >
+                    <div className="image">
+                        <img alt="image"
+                            src={"render_thumbnail/size/96/" + image.id + "/?version=" + image.thumbVersion}
+                            title={image.name}
+                        />
+                    </div>
+                </li>
+            )
+        }
+    })
 
     window.OME.renderCentrePanel = function(jstree, selected) {
         ReactDOM.render(
