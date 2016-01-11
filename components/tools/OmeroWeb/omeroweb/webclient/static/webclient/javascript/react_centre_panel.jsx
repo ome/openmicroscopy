@@ -5,6 +5,14 @@
 
         parentTypes: ["dataset", "orphaned", "tag", "share"],
 
+        getInitialState: function() {
+            return {layout: 'icon'};
+        },
+
+        setLayout: function(layout) {
+            this.setState({layout: layout});
+        },
+
         renderNothing: function(selected) {
             if (selected.length === 0) {
                 return true;
@@ -64,8 +72,11 @@
 
             return (
                 <div>
-                    <IconTableHeader />
-                    <IconTable parentNode={parentNode} inst={inst} />
+                    <IconTableHeader layout={this.state.layout} setLayout={this.setLayout} />
+                    <IconTable
+                        parentNode={parentNode}
+                        inst={inst}
+                        layout={this.state.layout} />
                     <IconTableFooter />
                 </div>
             );
@@ -75,12 +86,30 @@
 
     var IconTableHeader = React.createClass({
 
+        handleLayoutClick: function(event) {
+            var layout = event.target.getAttribute('data-layout');
+            this.props.setLayout(layout);
+        },
+
         render: function() {
+            var layout = this.props.layout;
+            var iconBtnClass = layout === "icon" ? "checked" : "",
+                tableBtnClass = layout === "table" ? "checked" : "";
             return (
                 <div className="toolbar iconTableHeader">
                     <div id="layout_chooser">
-                        <button id="icon_layout" title="View as Thumbnails" className="checked"></button>
-                        <button id="table_layout" title="View as List" className></button>
+                        <button
+                            onClick={this.handleLayoutClick}
+                            id="icon_layout"
+                            title="View as Thumbnails"
+                            data-layout="icon"
+                            className={iconBtnClass} />
+                        <button
+                            onClick={this.handleLayoutClick}
+                            id="table_layout"
+                            title="View as List"
+                            data-layout="table"
+                            className={tableBtnClass} />
                     </div>
                     <form className="search filtersearch" id="filtersearch" action="#" style={{top: 4}}>
                         <div>
@@ -124,8 +153,6 @@
     var IconTable = React.createClass({
 
         handleIconClick: function(imageId) {
-            console.log("click", imageId);
-
             var inst = this.props.inst;
             var containerNode = OME.getTreeImageContainerBestGuess(imageId);
             var selectedNode = inst.locate_node('image-' + imageId, containerNode)[0];
@@ -216,7 +243,7 @@
 
             return (
                 <div id="icon_table" className="iconTable">
-                    <ul id="dataIcons" className="element_sorter iconLayout">
+                    <ul id="dataIcons" className={this.props.layout + "Layout"}>
                         <IconTableHeadRow />
                         {icons}
                     </ul>
