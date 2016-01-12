@@ -27,7 +27,6 @@
 import library as lib
 from omero.rtypes import unwrap, wrap
 from omero.model import TagAnnotationI, ImageI, ImageAnnotationLinkI
-from omero.model import PermissionsI
 from omero.sys import ParametersI
 from helpers import createImageWithPixels
 from time import time
