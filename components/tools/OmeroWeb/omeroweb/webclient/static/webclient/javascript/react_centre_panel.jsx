@@ -293,11 +293,25 @@
         //     return {selected: this.props.image.selected};
         // },
 
+        getIconSizes: function() {
+            var image = this.props.image,
+                width = this.props.iconSize,
+                height = this.props.iconSize,
+                wh = image.data.obj.sizeX / image.data.obj.sizeY;
+            if (wh < 1) {
+                width = width * wh;
+            } else if (wh > 1) {
+                height = height / wh;
+            }
+            return {'width': width, 'height': height}
+        },
+
         render: function() {
 
             var image = this.props.image,
-                iconSize = this.props.iconSize,
+                iconSizes = this.getIconSizes(),
                 cls = [];
+
             if (image.selected) {cls.push('ui-selected')};
             if (image.fsSelected) {cls.push('fs-selected')};
 
@@ -313,7 +327,8 @@
                 >
                     <div className="image">
                         <img alt="image"
-                            width={iconSize}
+                            width={iconSizes.width + "px"}
+                            height={iconSizes.height + "px"}
                             src={"render_thumbnail/size/96/" + image.id + "/?version=" + image.thumbVersion}
                             title={image.name} />
                     </div>
