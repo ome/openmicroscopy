@@ -9,11 +9,39 @@
             return {
                 layout: 'icon',
                 iconSize: 65,
+                filterText: "",
             };
         },
 
         setLayout: function(layout) {
             this.setState({layout: layout});
+        },
+
+        setFilterText: function(filterText) {
+            this.setState({filterText: filterText});
+            setTimeout(this.deselectHiddenThumbs, 50);
+        },
+
+        deselectHiddenThumbs: function() {
+            var imageIds = this._thumbsToDeselect;
+            console.log(imageIds);
+
+            if (imageIds.length === 0) {
+                return;
+            }
+            var inst = this.props.jstree;
+            var containerNode = OME.getTreeImageContainerBestGuess(imageIds[0]);
+            if (containerNode) {
+                imageIds.forEach(function(iid){
+                    console.log('iid', iid);
+                    var selectedNode = inst.locate_node('image-' + iid, containerNode)[0];
+                    inst.deselect_node(selectedNode, true);
+                });
+            }
+        },
+
+        setThumbsToDeselect: function(imageIds) {
+            this._thumbsToDeselect = imageIds;
         },
 
         setIconSize: function(size) {
@@ -66,27 +94,34 @@
                 parentNode,
                 dtype;
 
-            if (this.renderNothing(selected)) {
-                return (<span></span>);
-            }
+            var iconTable;
+            if (!this.renderNothing(selected)) {
+                dtype = selected[0].type;
+                parentNode = this.getParentNode(dtype, selected, inst);
 
-            dtype = selected[0].type;
-            parentNode = this.getParentNode(dtype, selected, inst);
-
-            if (dtype === "plate" || dtype === "acquisition") {
-                return (<h1>Plate not supported yet</h1>);
+                if (dtype === "plate" || dtype === "acquisition") {
+                    return (<h1>Plate not supported yet</h1>);
+                }
+            
+                iconTable = (
+                    <IconTable
+                        parentNode={parentNode}
+                        inst={inst}
+                        filterText={this.state.filterText}
+                        setThumbsToDeselect={this.setThumbsToDeselect}
+                        iconSize={this.state.iconSize}
+                        layout={this.state.layout} />
+                )
             }
 
             return (
                 <div>
                     <IconTableHeader
+                        filterText={this.state.filterText}
+                        setFilterText={this.setFilterText}
                         layout={this.state.layout}
                         setLayout={this.setLayout} />
-                    <IconTable
-                        parentNode={parentNode}
-                        inst={inst}
-                        iconSize={this.state.iconSize}
-                        layout={this.state.layout} />
+                    {iconTable}
                     <IconTableFooter
                         iconSize={this.state.iconSize}
                         setIconSize={this.setIconSize} />
@@ -103,8 +138,14 @@
             this.props.setLayout(layout);
         },
 
+        handleFilterChange: function(event) {
+            var filterText = event.target.value;
+            this.props.setFilterText(filterText);
+        },
+
         render: function() {
-            var layout = this.props.layout;
+            var layout = this.props.layout,
+                filterText = this.props.filterText;
             var iconBtnClass = layout === "icon" ? "checked" : "",
                 tableBtnClass = layout === "table" ? "checked" : "";
             return (
@@ -125,8 +166,12 @@
                     </div>
                     <form className="search filtersearch" id="filtersearch" action="#" style={{top: 4}}>
                         <div>
-                            <label htmlFor="id_search"> Filter Images </label>
-                            <input id="id_search" type="text" size={25} />
+                            <input
+                                id="id_search"
+                                type="text"
+                                placeholder="Filter Images"
+                                onKeyUp={this.handleFilterChange}
+                                size={25} />
                         </div>
                         <span className="loading" style={{display: 'none'}} />
                     </form>
@@ -209,7 +254,10 @@
             });
 
             var imgJson = [],
-                selFileSets = [];
+                selFileSets = [],
+                thumbsToDeselect = [],
+                fltr = this.props.filterText;
+            console.log("Filter by...", fltr);
             // Convert jsTree nodes into json for template
             imgNodes.forEach(function(node){
                 var d = node.data.obj.date || node.data.obj.acqDate;
@@ -248,8 +296,16 @@
                     // share ID will be needed to open image viewer
                     iData.shareId = node.data.obj.shareId;
                 }
-                imgJson.push(iData);
+
+                if (fltr.length === 0 || iData.name.indexOf(fltr) > -1) {
+                    imgJson.push(iData);
+                } else if (iData.selected) {
+                    thumbsToDeselect.push(iData.id);
+                }
             });
+
+            // Let parent know that some aren't shown
+            this.props.setThumbsToDeselect(thumbsToDeselect);
 
             // Now we know which filesets are selected, we can
             // go through all images, adding fs-selection flag if in

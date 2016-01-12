@@ -691,7 +691,7 @@
                         inst.load_node(data.node);
                     }
                 })
-                .on('select_node.jstree', function(e, data) {
+                .on('select_node.jstree deselect_node.jstree', function(e, data) {
                     // When selection changes, trigger change for other panels
                     var inst = data.instance;
                     buttonsShowHide(inst.get_selected(true), inst);
