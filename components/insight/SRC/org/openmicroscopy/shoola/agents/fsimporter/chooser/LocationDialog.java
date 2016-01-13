@@ -1004,11 +1004,21 @@ class LocationDialog extends JDialog implements ActionListener,
 		{
 			case Importer.PROJECT_TYPE:
 				DataNode project = getSelectedItem(projectsBox);
+				if (project == null)
+				    project = new DataNode(DataNode.createDefaultProject(), null);
+				
 				DataNode dataset = getSelectedItem(datasetsBox);
+				if (dataset == null)
+				    dataset = new DataNode(DataNode.createDefaultDataset(), null);
+				
 				return new ProjectImportLocationSettings(group, user,
 						project, dataset);
 			case Importer.SCREEN_TYPE:
 				DataNode screen = getSelectedItem(screensBox);
+				
+				if (screen == null) 
+				    screen = new DataNode(DataNode.createDefaultScreen(), null);
+				
 				return new ScreenImportLocationSettings(group, user, screen);
 		}
 		
