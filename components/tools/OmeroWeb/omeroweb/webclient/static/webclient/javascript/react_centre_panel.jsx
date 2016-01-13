@@ -226,14 +226,23 @@
 
     var IconTable = React.createClass({
 
-        handleIconClick: function(imageId) {
+        handleIconClick: function(imageId, event) {
             var inst = this.props.inst;
             var containerNode = OME.getTreeImageContainerBestGuess(imageId);
             var selectedNode = inst.locate_node('image-' + imageId, containerNode)[0];
 
             // Deselect all to begin (supress jstree event)
-            inst.deselect_all(true);
-            inst.select_node(selectedNode, true);
+            // inst.deselect_all(true);
+            // inst.select_node(selectedNode, true);
+
+            // Simply allow jstree to handle selection ranges etc by delegating
+            // the event.
+            // TODO: this fails when we have some thumbnails hidden (still get selected in range)
+            var keys = {
+                shiftKey: event.shiftKey,
+                metaKey: event.metaKey
+            }
+            $("#" + selectedNode.id + ">a").trigger($.Event('click', keys));
         },
 
         render: function() {
@@ -340,9 +349,10 @@
 
     var ImageIcon = React.createClass({
 
-        handleIconClick: function() {
+        handleIconClick: function(event) {
+            console.log(arguments);
             // this.setState ({selected: true});
-            this.props.handleIconClick(this.props.image.id);
+            this.props.handleIconClick(this.props.image.id, event);
         },
 
         // getInitialState: function() {
