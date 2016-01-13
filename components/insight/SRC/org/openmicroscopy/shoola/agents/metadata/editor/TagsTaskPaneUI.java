@@ -22,12 +22,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -51,8 +48,17 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
     /** Hold the {@link DocComponent}s representing the tag data */
     private List<DocComponent> tagsDocList;
 
+    /** The add button */
     private JButton addTagsButton;
+    
+    /** The remove button */
     private JButton removeTagsButton;
+    
+    /** Tags which have to be removed */
+    private List<TagAnnotationData> toRemove = new ArrayList<TagAnnotationData>();
+    
+    /** Tags which have to be stored */
+    private List<TagAnnotationData> toAdd = new ArrayList<TagAnnotationData>();
     
     /**
      * Creates a new instance
@@ -136,7 +142,10 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
     @Override
     void refreshUI() {
         clearDisplay();
-
+        
+        toAdd.clear();
+        toRemove.clear();
+        
         Collection l;
         if (!model.isMultiSelection()) 
             l = model.getTags();
@@ -192,6 +201,34 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
      */
     void handleObjectsSelection(Class<?> type, Collection objects, boolean fire)
     {
+        toAdd.clear();
+        toRemove.clear();
+        
+        Set<Long> selectedIds = new HashSet<Long>();
+        for(Object obj : objects) {
+            if(obj instanceof TagAnnotationData) {
+                selectedIds.add(((TagAnnotationData)obj).getId());
+            }
+        }
+        
+        // determine which tags to remove
+        Set<Long> originalIds = new HashSet<Long>();
+        Collection<TagAnnotationData> originalTags = model.getAllTags();
+        for(TagAnnotationData originalTag : originalTags) {
+            if(!selectedIds.contains(originalTag.getId()))
+                toRemove.add(originalTag);
+            originalIds.add(originalTag.getId());
+        }
+        
+        // determine which tags to add
+        for(Object obj : objects) {
+            if(obj instanceof TagAnnotationData) {
+                TagAnnotationData tag = (TagAnnotationData)obj;
+                if(!originalIds.contains(tag.getId()))
+                    toAdd.add(tag);
+            }
+        }
+        
         layoutTags(objects);
     }
     
@@ -222,91 +259,18 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     List<AnnotationData> getAnnotationsToSave() {
-        List<AnnotationData> l = new ArrayList<AnnotationData>();
-        
-        Collection<TagAnnotationData> original = model.getAllTags();
-        Iterator<TagAnnotationData> j = original.iterator();
-        List<Long> ids = new ArrayList<Long>();
-        while (j.hasNext()) {
-            AnnotationData annotation = (AnnotationData) j.next();
-            ids.add(annotation.getId());
-        }
-        
-        Iterator<DocComponent> i = tagsDocList.iterator();
-        Map<Long, Integer> map = new HashMap<Long, Integer>();
-        Map<Long, AnnotationData> 
-            annotations = new HashMap<Long, AnnotationData>();
-        Integer count;
-        while (i.hasNext()) {
-            DocComponent doc = i.next();
-            Object object = doc.getData();
-            if (object instanceof TagAnnotationData) {
-                AnnotationData annotation = (AnnotationData) object;
-                long id = annotation.getId();
-                if (!ids.contains(id)) {
-                    l.add(annotation);
-                } else {
-                    count = map.get(id);
-                    if (count != null) {
-                        count++;
-                        map.put(id, count);
-                    } else {
-                        count = 1;
-                        annotations.put(id, annotation);
-                        map.put(id, count);
-                    }
-                }
-            }
-        }
-        
-        //check the count
-        Entry<Long, Integer> entry;
-        Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
-        int n = tagsDocList.size();
-        Map<DataObject, Boolean> m;
-        while (k.hasNext()) {
-            entry = k.next();
-            count = entry.getValue();
-            if (count != null && count == n) {
-                //Check if the annotation needs to be added
-                AnnotationData annotation = annotations.get(entry.getKey());
-                m = model.getTaggedObjects(annotation);
-                if (m.size() < count) {
-                    l.add(annotation);
-                }
-            }
-        }
-        
-        return l;
+        List<AnnotationData> result = new ArrayList<AnnotationData>();
+        for(TagAnnotationData tag : toAdd)
+            result.add(tag);
+        return result;
     }
 
     @Override
     List<Object> getAnnotationsToRemove() {
-        List<Object> l = new ArrayList<Object>();
-        
-        Set<Long> idsToKeep = new HashSet<Long>();
-        Iterator<DocComponent> i = tagsDocList.iterator();
-        while (i.hasNext()) {
-            DocComponent doc = i.next();
-            Object object = doc.getData();
-            if (object instanceof TagAnnotationData) {
-                AnnotationData annotation = (AnnotationData) object;
-                long id = annotation.getId();
-                if (id > 0) 
-                    idsToKeep.add(id);
-            }
-        }
-        
-        Collection<TagAnnotationData> original = model.getAllTags();
-        Iterator<TagAnnotationData> j = original.iterator();
-        while (j.hasNext()) {
-            AnnotationData annotation = (AnnotationData) j.next();
-            long id = annotation.getId();
-            if (!idsToKeep.contains(id))
-                l.add(annotation);
-        }
-        
-        return l;
+        List<Object> result = new ArrayList<Object>();
+        for(TagAnnotationData tag : toRemove)
+            result.add(tag);
+        return result;
     }
 
     List<TagAnnotationData> getCurrentSelection() {
