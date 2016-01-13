@@ -229,24 +229,6 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
     void handleObjectsSelection(Class<?> type, Collection objects, boolean fire)
     {
         layoutAttachments(objects);
-        List<Long> ids = new ArrayList<Long>();
-        Iterator i = objects.iterator();
-        FileAnnotationData data;
-        Collection attachments = model.getAllAttachments();
-        if (attachments == null || attachments.size() != objects.size()) {
-        } else {
-            while (i.hasNext()) {
-                data = (FileAnnotationData) i.next();
-                if  (data != null) ids.add(data.getId());
-            }
-            i = attachments.iterator();
-            while (i.hasNext()) {
-                data = (FileAnnotationData) i.next();
-                if (data != null && !ids.contains(data.getId())) {
-                    break;
-                }
-            }
-        }
     }
     /**
      * Returns the list of attachments currently selected by the user.
