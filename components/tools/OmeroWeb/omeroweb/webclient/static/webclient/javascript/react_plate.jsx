@@ -5,8 +5,6 @@
     var ReactPlate = React.createClass({
 
         render: function() {
-            console.log("render...", this._currentPlateId);
-            console.log(this.props.parentNode);
             var parentNode = this.props.parentNode;
 
             // If not loaded, show nothing (don't know how many children plate will have)
@@ -17,14 +15,19 @@
             if (parentNode.type === "plate" && parentNode.children.length > 1) {
                 return (<h2 className="iconTable">Select Run</h2>);
             }
-            // Load Plate or Run
+            // key identifies the content of center panel. Plate or Run
+            var key = parentNode.id;
+            if (parentNode.type === "plate" && parentNode.children.length === 1) {
+                // Children is list of node-ids
+                key = parentNode.children[0];
+            }
             // We pass key to <Plate> so that if key doesn't change,
             // Plate won't mount (load data) again
             return (
                 <div className="iconTable">
                     <Plate
                         parentNode={parentNode}
-                        key={parentNode.id}/>
+                        key={key}/>
                 </div>
             )
         }

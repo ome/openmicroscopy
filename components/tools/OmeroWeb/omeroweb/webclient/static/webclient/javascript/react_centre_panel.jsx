@@ -93,7 +93,6 @@
                 dtype;
 
             var iconTable;
-            console.log("ThumbTable render...");
             if (!this.renderNothing(selected)) {
                 dtype = selected[0].type;
 
