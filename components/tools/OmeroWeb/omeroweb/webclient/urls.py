@@ -341,6 +341,9 @@ urlpatterns = patterns(
     url(r'^api/tags/$', views.api_tags_and_tagged_list,
         name='api_tags_and_tagged'),
 
+    # list fields in Plate ?plate=123 or Acquisition ?run=456
+    url(r'^api/fields/$', views.api_field_list, name='api_fields'),
+
     url(r'^api/shares/$', views.api_share_list, name='api_shares'),
 
 

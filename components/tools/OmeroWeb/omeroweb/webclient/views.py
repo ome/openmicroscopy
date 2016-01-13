@@ -1136,6 +1136,43 @@ def api_share_list(request, conn=None, **kwargs):
 
 
 @login_required()
+def api_field_list(request, conn=None, **kwargs):
+
+    """
+    Returns list of min and max of indexed collection of well samples
+    per plate acquisition if exists
+
+    TODO: move to tree.py and add tests
+    """
+    plate_id = get_long_or_default(request, 'plate', None)
+    run_id = get_long_or_default(request, 'run', None)
+    if (plate_id is None and run_id is None):
+        return HttpJsonResponse('Need to use ?plate=pid or ?run=runid')
+
+    q = conn.getQueryService()
+    sql = "select minIndex(ws), maxIndex(ws) from Well w " \
+        "join w.wellSamples ws"
+
+    params = omero.sys.ParametersI()
+
+    if run_id is not None:
+        sql += " where ws.plateAcquisition.id=:runid"
+        params.add('runid', rlong(run_id))
+    if plate_id is not None:
+        sql += " where w.plate.id=:pid"
+        params.add('pid', rlong(plate_id))
+
+    fields = []
+
+    res = q.projection(sql, params, conn.SERVICE_OPTS)
+    res = [r for r in unwrap(res)[0] if r is not None]
+    if len(res) == 2:
+        fields = res
+
+    return HttpJsonResponse({'fields': fields})
+
+
+@login_required()
 @render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
               o3_type=None, o3_id=None, conn=None, **kwargs):
