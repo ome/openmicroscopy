@@ -3,7 +3,7 @@
 (function(){
     var ThumbTable = React.createClass({
 
-        parentTypes: ["dataset", "orphaned", "tag", "share"],
+        parentTypes: ["dataset", "orphaned", "tag", "share", "plate", "acquisition"],
 
         getInitialState: function() {
             return {
@@ -24,7 +24,6 @@
 
         deselectHiddenThumbs: function() {
             var imageIds = this._thumbsToDeselect;
-            console.log(imageIds);
 
             if (imageIds.length === 0) {
                 return;
@@ -33,7 +32,6 @@
             var containerNode = OME.getTreeImageContainerBestGuess(imageIds[0]);
             if (containerNode) {
                 imageIds.forEach(function(iid){
-                    console.log('iid', iid);
                     var selectedNode = inst.locate_node('image-' + iid, containerNode)[0];
                     inst.deselect_node(selectedNode, true);
                 });
@@ -95,23 +93,28 @@
                 dtype;
 
             var iconTable;
+            console.log("ThumbTable render...");
             if (!this.renderNothing(selected)) {
                 dtype = selected[0].type;
-                parentNode = this.getParentNode(dtype, selected, inst);
 
                 if (dtype === "plate" || dtype === "acquisition") {
-                    return (<h1>Plate not supported yet</h1>);
+                    iconTable = (
+                        <ReactPlate
+                            parentNode = {selected[0]} />
+                    )
+                } else {
+                    // handles tag, orphaned, dataset, share
+                    parentNode = this.getParentNode(dtype, selected, inst);
+                    iconTable = (
+                        <IconTable
+                            parentNode={parentNode}
+                            inst={inst}
+                            filterText={this.state.filterText}
+                            setThumbsToDeselect={this.setThumbsToDeselect}
+                            iconSize={this.state.iconSize}
+                            layout={this.state.layout} />
+                    )
                 }
-            
-                iconTable = (
-                    <IconTable
-                        parentNode={parentNode}
-                        inst={inst}
-                        filterText={this.state.filterText}
-                        setThumbsToDeselect={this.setThumbsToDeselect}
-                        iconSize={this.state.iconSize}
-                        layout={this.state.layout} />
-                )
             }
 
             return (
@@ -266,7 +269,6 @@
                 selFileSets = [],
                 thumbsToDeselect = [],
                 fltr = this.props.filterText;
-            console.log("Filter by...", fltr);
             // Convert jsTree nodes into json for template
             imgNodes.forEach(function(node){
                 var d = node.data.obj.date || node.data.obj.acqDate;
@@ -350,7 +352,6 @@
     var ImageIcon = React.createClass({
 
         handleIconClick: function(event) {
-            console.log(arguments);
             // this.setState ({selected: true});
             this.props.handleIconClick(this.props.image.id, event);
         },
@@ -409,7 +410,7 @@
                 </li>
             )
         }
-    })
+    });
 
     window.OME.renderCentrePanel = function(jstree, selected) {
         ReactDOM.render(
