@@ -96,6 +96,9 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
         removeAll();
         tagsDocList.clear();
         DocComponent doc;
+        
+        filter(list);
+        
         if (list != null && list.size() > 0) {
             Iterator i = list.iterator();
             DataObject data;
@@ -136,6 +139,24 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
             doc = new DocComponent(null, model);
             tagsDocList.add(doc);
             add(doc);
+        }
+    }
+    
+    /**
+     * Removes duplicate entries from the collection
+     * 
+     * @param collection
+     */
+    void filter(Collection collection) {
+        Set<Long> ids = new HashSet<Long>();
+        Iterator it = collection.iterator();
+        while (it.hasNext()) {
+            long id = ((DataObject) it.next()).getId();
+            if (ids.contains(id)) {
+                it.remove();
+                continue;
+            }
+            ids.add(id);
         }
     }
     
