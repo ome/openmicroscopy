@@ -24,11 +24,10 @@
             // We pass key to <Plate> so that if key doesn't change,
             // Plate won't mount (load data) again
             return (
-                <div className="iconTable">
-                    <Plate
-                        parentNode={parentNode}
-                        key={key}/>
-                </div>
+                <Plate
+                    plateId={this.props.plateId}
+                    parentNode={parentNode}
+                    key={key}/>
             )
         }
     });
@@ -37,41 +36,117 @@
     var Plate = React.createClass({
 
         componentDidMount: function() {
-            var parentNode = this.props.parentNode;
-            console.log("componentDidMount", parentNode.type, parentNode.children);
+            var parentNode = this.props.parentNode,
+                plateId = this.props.plateId,
+                objId = parentNode.data.id;
+            console.log("Plate componentDidMount");
+            var data;
             if (parentNode.type === "acquisition") {
                 // select 'run', load plate...
-                console.log("load RUN");
+                console.log("load RUN", objId);
+                data = {'run': objId};
             } else if (parentNode.type == "plate") {
                 // select 'plate', load if single 'run'
-                if (parentNode.children.length === 1) {
-                    console.log("load RUN");
-                } else if (parentNode.children.length === 0) {
-                    console.log("load PLATE");
+                if (parentNode.children.length < 2) {
+                    console.log("load RUN", objId);
+                    data = {'plate': objId};
                 }
+            } else {
+                return;
             }
-            // var data = {'id': this.props.dataset.id};
-            // var url = REACTOMERO.WEBGATEWAY_INDEX + "api/images/";
-            // $.ajax({
-            //     url: url,
-            //     jsonp: "callback",
-            //     data: data,
-            //     dataType: 'jsonp',
-            //     cache: false,
-            //     success: function(data) {
-            //         if (this.isMounted()) {
-            //             this.setState({images: data.images});
-            //         }
-            //     }.bind(this),
-            //     error: function(xhr, status, err) {
-            //     }.bind(this)
-            // });
+
+            var url = "/webclient/api/fields/";
+            $.ajax({
+                url: url,
+                data: data,
+                dataType: 'json',
+                cache: false,
+                success: function(data) {
+                    if (this.isMounted()) {
+                        this.setState({
+                            fields: data.fields,
+                            selectedField: data.fields[0]
+                        });
+                    }
+                }.bind(this),
+                    error: function(xhr, status, err) {
+                }.bind(this)
+            });
+        },
+
+        getInitialState: function() {
+            return {
+                fields: [],
+                selectedField: undefined
+            }
         },
 
         render: function() {
+            var fieldSelect,
+                fields = this.state.fields;
+            if (fields.length == 0) {
+                return (<div className="iconTable">Loading...</div>);
+            }
+            fieldSelect = [];
+            for (var f=fields[0], idx=1; f<=fields[1]; f++) {
+                fieldSelect.push(
+                    <option
+                        key={f}
+                        value={f}>
+                        {"Field " + idx}
+                    </option>);
+                idx++;
+            }
             return (
-                <h1>Plate grid {this.props.parentNode.id}</h1>
+                <div className="iconTable">
+                    <div>
+                        <select>
+                            {fieldSelect}
+                        </select>
+                    </div>
+                    <PlateGrid
+                        plateId={this.props.plateId}
+                        fieldId={this.state.selectedField} />
+                </div>
             )
+        }
+    });
+
+    var PlateGrid = React.createClass({
+
+        componentDidMount: function() {
+            var plateId = this.props.plateId,
+                fieldId = this.props.fieldId;
+            console.log("PlateGrid componentDidMount");
+
+            var url = "/webgateway/plate/" + plateId + "/" + fieldId + "/";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                cache: false,
+                success: function(data) {
+                    if (this.isMounted()) {
+                        this.setState({data: data});
+                    }
+                }.bind(this),
+                    error: function(xhr, status, err) {
+                }.bind(this)
+            });
+        },
+
+        getInitialState: function() {
+            return {data: undefined};
+        },
+
+        render: function() {
+            var data = this.state.data;
+            console.log(data);
+
+            return (
+                <table>
+
+                </table>
+            );
         }
     });
 

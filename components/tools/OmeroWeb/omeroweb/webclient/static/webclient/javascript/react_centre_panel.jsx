@@ -97,9 +97,15 @@
                 dtype = selected[0].type;
 
                 if (dtype === "plate" || dtype === "acquisition") {
+                    parentNode = selected[0];
+                    var plateId = parentNode.data.id;
+                    if (dtype === "acquisition") {
+                        plateId = inst.get_node(inst.get_parent(parentNode)).data.id;
+                    }
                     iconTable = (
                         <ReactPlate
-                            parentNode = {selected[0]} />
+                            plateId = {plateId}
+                            parentNode = {parentNode} />
                     )
                 } else {
                     // handles tag, orphaned, dataset, share
