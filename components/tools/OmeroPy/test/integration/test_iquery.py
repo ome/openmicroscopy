@@ -134,12 +134,16 @@ class TestQuery(lib.ITest):
                 from ImageAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)"""
         query = q % uniqueClause
-        result = queryService.projection(query, params, {'omero.group': str(groupId)})
+        result = queryService.projection(query, params,
+                                         {'omero.group': str(groupId)})
         assert len(result) == tagCount
 
-        # Without the select statement, we get the same image returned multiple times
-        # TODO: is there a 'nicer' way to ensure unique results without a second select statement?
+        # Without the select statement, we get the same image returned
+        # multiple times
+        # TODO: is there a 'nicer' way to ensure unique results without
+        # a second select statement?
         clause = "alink.parent.id=obj.id"
         query = q % clause
-        result = queryService.projection(query, params, {'omero.group': str(groupId)})
+        result = queryService.projection(query, params,
+                                         {'omero.group': str(groupId)})
         assert len(result) == tagCount
