@@ -102,12 +102,6 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             + "left outer join fetch p.annotationLinksCountPerOwner " 
             + "where p in (:list)";
 
-    /** Query to load the number of annotations per dataset. */
-    final static String loadLinksDatasets = "select d from Dataset d "
-            + "left outer join fetch d.annotationLinksCountPerOwner "
-            + "left outer join fetch d.imageLinksCountPerOwner where d " 
-            + "in (:list)";
-    
     /* A model object hierarchy navigator that is convenient for getImagesBySplitFilesets.
      * To switch its API from bare Longs to an IObject-based query interface, it is easy to implement
      * HierarchyNavigatorWrap<Class<? extends IObject>, IObject> and implement noteLookups with its methods. */
