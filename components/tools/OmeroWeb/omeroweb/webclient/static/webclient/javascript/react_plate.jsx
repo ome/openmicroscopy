@@ -27,6 +27,7 @@
                 <Plate
                     plateId={this.props.plateId}
                     parentNode={parentNode}
+                    iconSize={this.props.iconSize}
                     key={key}/>
             )
         }
@@ -97,6 +98,7 @@
                     </option>);
                 idx++;
             }
+            // #spw id is just for css
             return (
                 <div className="iconTable">
                     <div>
@@ -104,9 +106,12 @@
                             {fieldSelect}
                         </select>
                     </div>
-                    <PlateGrid
-                        plateId={this.props.plateId}
-                        fieldId={this.state.selectedField} />
+                    <div id="spw">
+                        <PlateGrid
+                            iconSize={this.props.iconSize}
+                            plateId={this.props.plateId}
+                            fieldId={this.state.selectedField} />
+                    </div>
                 </div>
             )
         }
@@ -139,12 +144,56 @@
         },
 
         render: function() {
-            var data = this.state.data;
-            console.log(data);
+            var data = this.state.data,
+                iconSize = this.props.iconSize,
+                imgStyle = {
+                    width: iconSize + 'px',
+                    maxHeight: iconSize + 'px',
+                },
+                placeholderStyle = {
+                    width: iconSize + 'px',
+                    height: iconSize + 'px',
+                }
+            if (!data) {
+                return (<table />)
+            }
+            var columnNames = data.collabels.map(function(l){
+                return (<th key={l}>{l}</th>);
+            });
+            var grid = data.grid;
+            var rows = data.rowlabels.map(function(r, rowIndex){
+                var wells = data.collabels.map(function(c, colIndex){
+                    var well = grid[rowIndex][colIndex]
+                    if (well) {
+                        return (<td className="well" key={well.id}>
+                            <img
+                                src={"/webgateway/render_thumbnail/" + well.id + "/96/"}
+                                style={imgStyle} />
+                            </td>)
+                    } else {
+                        return (
+                            <td className="placeholder" key={r + "_" + c}>
+                                <div style={placeholderStyle} />
+                            </td>);
+                    }
+                });
+                return (
+                    <tr key={r}>
+                        <th>{r}</th>
+                        {wells}
+                    </tr>
+                );
+            });
 
             return (
                 <table>
-
+                    <tbody>
+                        <tr>
+                            <th> </th>
+                            {columnNames}
+                        </tr>
+                        {rows}
+                    </tbody>
                 </table>
             );
         }

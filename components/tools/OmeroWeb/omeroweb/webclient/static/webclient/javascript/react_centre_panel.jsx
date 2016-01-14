@@ -104,8 +104,9 @@
                     }
                     iconTable = (
                         <ReactPlate
-                            plateId = {plateId}
-                            parentNode = {parentNode} />
+                            plateId={plateId}
+                            iconSize={this.state.iconSize}
+                            parentNode={parentNode} />
                     )
                 } else {
                     // handles tag, orphaned, dataset, share
