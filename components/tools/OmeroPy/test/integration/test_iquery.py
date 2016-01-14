@@ -111,7 +111,7 @@ class TestQuery(lib.ITest):
             rootLinks.append(link)
         rootUpdate.saveAndReturnArray(rootLinks, {'omero.group': str(groupId)})
 
-        q = """select new map(obj.id as id,
+        q = """select distinct new map(obj.id as id,
                obj.name as name,
                obj.details.owner.id as ownerId,
                obj as image_details_permissions,
@@ -134,16 +134,17 @@ class TestQuery(lib.ITest):
                 from ImageAnnotationLink alink
                 where alink.child.id=:tid and alink.parent.id=obj.id)"""
         query = q % uniqueClause
-        result = queryService.projection(query, params,
+        result1 = queryService.projection(query, params,
                                          {'omero.group': str(groupId)})
-        assert len(result) == tagCount
+        assert len(result1) == tagCount
 
         # Without the select statement, we get the same image returned
-        # multiple times
-        # TODO: is there a 'nicer' way to ensure unique results without
-        # a second select statement?
+        # multiple times if there is no 'distinct'
         clause = "alink.parent.id=obj.id"
         query = q % clause
-        result = queryService.projection(query, params,
+        result2 = queryService.projection(query, params,
                                          {'omero.group': str(groupId)})
-        assert len(result) == tagCount
+        assert len(result2) == tagCount
+        for idx in range(len(result1)-1):
+            # Omit final since == isn't defined for Ice objects.
+            assert result1[idx] == result2[idx]
