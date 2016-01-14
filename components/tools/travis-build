@@ -144,8 +144,8 @@ if [ $# -eq 0 ]
 then
     get_ice
     clean
-    build_java
-    build_python
+    java_build
+    py_build
 fi
 
 for arg in "$@"
