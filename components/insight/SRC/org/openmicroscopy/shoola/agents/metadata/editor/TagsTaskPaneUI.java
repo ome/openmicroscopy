@@ -280,18 +280,12 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     List<AnnotationData> getAnnotationsToSave() {
-        List<AnnotationData> result = new ArrayList<AnnotationData>();
-        for(TagAnnotationData tag : toAdd)
-            result.add(tag);
-        return result;
+        return new ArrayList<AnnotationData>(toAdd);
     }
 
     @Override
     List<Object> getAnnotationsToRemove() {
-        List<Object> result = new ArrayList<Object>();
-        for(TagAnnotationData tag : toRemove)
-            result.add(tag);
-        return result;
+        return new ArrayList<Object>(toRemove);
     }
 
     List<TagAnnotationData> getCurrentSelection() {
