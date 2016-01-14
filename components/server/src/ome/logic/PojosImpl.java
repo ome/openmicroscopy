@@ -514,25 +514,25 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         final HierarchyNavigatorPlain hierarchyNavigator = new HierarchyNavigatorPlain(iQuery);
 
-        hierarchyNavigator.noteLookups("/Project", "/Dataset", projectIds, datasetIds);
-        hierarchyNavigator.noteLookups("/Dataset", "/Image", datasetIds, imageIds);
-        hierarchyNavigator.noteLookups("/Screen", "/Plate", screenIds, plateIds);
-        hierarchyNavigator.noteLookups("/Plate", "/Well", plateIds, wellIds);
-        hierarchyNavigator.noteLookups("/Well", "/Image", wellIds, imageIds);
-        hierarchyNavigator.noteLookups("/Fileset", "/Image", filesetIds, imageIds);
+        hierarchyNavigator.noteLookups("Project", "Dataset", projectIds, datasetIds);
+        hierarchyNavigator.noteLookups("Dataset", "Image", datasetIds, imageIds);
+        hierarchyNavigator.noteLookups("Screen", "Plate", screenIds, plateIds);
+        hierarchyNavigator.noteLookups("Plate", "Well", plateIds, wellIds);
+        hierarchyNavigator.noteLookups("Well", "Image", wellIds, imageIds);
+        hierarchyNavigator.noteLookups("Fileset", "Image", filesetIds, imageIds);
 
         /* note which filesets are associated with referenced images */
 
         final Set<Long> filesetIdsRequired = new HashSet<Long>();
-        hierarchyNavigator.noteLookups("/Image", "/Fileset", imageIds, filesetIdsRequired);
+        hierarchyNavigator.noteLookups("Image", "Fileset", imageIds, filesetIdsRequired);
 
         /* make sure that associated filesets have all their images referenced */
 
         final Map<Long, Map<Boolean, List<Long>>> imagesBySplitFilesets = new HashMap<Long, Map<Boolean, List<Long>>>();
         final Set<Long> filesetIdsMissing = Sets.difference(filesetIdsRequired, filesetIds);
-        hierarchyNavigator.prepareLookups("/Image", "/Fileset", filesetIdsMissing);
+        hierarchyNavigator.prepareLookups("Image", "Fileset", filesetIdsMissing);
         for (final long filesetIdMissing : filesetIdsMissing) {
-            final Set<Long> imageIdsRequiredUnordered = hierarchyNavigator.doLookup("/Image", "/Fileset", filesetIdMissing);
+            final Set<Long> imageIdsRequiredUnordered = hierarchyNavigator.doLookup("Image", "Fileset", filesetIdMissing);
             final SortedSet<Long> imageIdsRequired = new TreeSet<Long>(imageIdsRequiredUnordered);
             final Set<Long> includedImageIds = Sets.intersection(imageIdsRequired, imageIds);
             final Set<Long> excludedImageIds = Sets.difference(imageIdsRequired, includedImageIds);

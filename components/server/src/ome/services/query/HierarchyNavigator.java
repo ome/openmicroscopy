@@ -56,31 +56,31 @@ public class HierarchyNavigator {
     private static final ImmutableMap<Map.Entry<String, String>, String> hqlFromTo;
 
     static {
-        /* note that there is not yet any treatment of /PlateAcquisition or /WellSample */
+        /* note that there is not yet any treatment of PlateAcquisition or WellSample */
         final Builder<Map.Entry<String, String>, String> builder = ImmutableMap.builder();
-        builder.put(Maps.immutableEntry("/Project", "/Dataset"),
+        builder.put(Maps.immutableEntry("Project", "Dataset"),
                 "SELECT parent.id, child.id FROM ProjectDatasetLink WHERE parent.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Dataset", "/Image"),
+        builder.put(Maps.immutableEntry("Dataset", "Image"),
                 "SELECT parent.id, child.id FROM DatasetImageLink WHERE parent.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Screen", "/Plate"),
+        builder.put(Maps.immutableEntry("Screen", "Plate"),
                 "SELECT parent.id, child.id FROM ScreenPlateLink WHERE parent.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Plate", "/Well"),
+        builder.put(Maps.immutableEntry("Plate", "Well"),
                 "SELECT plate.id, id FROM Well WHERE plate.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Well", "/Image"),
+        builder.put(Maps.immutableEntry("Well", "Image"),
                 "SELECT well.id, image.id FROM WellSample WHERE well.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Fileset", "/Image"),
+        builder.put(Maps.immutableEntry("Fileset", "Image"),
                 "SELECT fileset.id, id FROM Image WHERE fileset.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Image", "/Fileset"),
+        builder.put(Maps.immutableEntry("Image", "Fileset"),
                 "SELECT id, fileset.id FROM Image WHERE fileset.id IS NOT NULL AND id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Image", "/Well"),
+        builder.put(Maps.immutableEntry("Image", "Well"),
                 "SELECT image.id, well.id FROM WellSample WHERE image.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Well", "/Plate"),
+        builder.put(Maps.immutableEntry("Well", "Plate"),
                 "SELECT id, plate.id FROM Well WHERE id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Plate", "/Screen"),
+        builder.put(Maps.immutableEntry("Plate", "Screen"),
                 "SELECT child.id, parent.id FROM ScreenPlateLink WHERE child.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Image", "/Dataset"),
+        builder.put(Maps.immutableEntry("Image", "Dataset"),
                 "SELECT child.id, parent.id FROM DatasetImageLink WHERE child.id IN (:" + Parameters.IDS + ")");
-        builder.put(Maps.immutableEntry("/Dataset", "/Project"),
+        builder.put(Maps.immutableEntry("Dataset", "Project"),
                 "SELECT child.id, parent.id FROM ProjectDatasetLink WHERE child.id IN (:" + Parameters.IDS + ")");
         hqlFromTo = builder.build();
     }
