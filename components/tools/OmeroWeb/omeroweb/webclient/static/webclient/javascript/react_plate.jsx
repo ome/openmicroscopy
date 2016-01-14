@@ -40,7 +40,6 @@
             var parentNode = this.props.parentNode,
                 plateId = this.props.plateId,
                 objId = parentNode.data.id;
-            console.log("Plate componentDidMount");
             var data;
             if (parentNode.type === "acquisition") {
                 // select 'run', load plate...
@@ -57,6 +56,7 @@
             }
 
             var url = "/webclient/api/fields/";
+            console.log("Plate componentDidMount LOADING: ", url);
             $.ajax({
                 url: url,
                 data: data,
@@ -82,6 +82,10 @@
             }
         },
 
+        handleFieldSelect: function(event) {
+            this.setState({selectedField: event.target.value});
+        },
+
         render: function() {
             var fieldSelect,
                 fields = this.state.fields;
@@ -99,15 +103,17 @@
                 idx++;
             }
             // #spw id is just for css
+            // Use key: selectedField to force PlateGrid to mount on field change
             return (
                 <div className="iconTable">
                     <div>
-                        <select>
+                        <select onChange={this.handleFieldSelect} >
                             {fieldSelect}
                         </select>
                     </div>
                     <div id="spw">
                         <PlateGrid
+                            key={this.state.selectedField}
                             iconSize={this.props.iconSize}
                             plateId={this.props.plateId}
                             fieldId={this.state.selectedField} />
@@ -122,9 +128,9 @@
         componentDidMount: function() {
             var plateId = this.props.plateId,
                 fieldId = this.props.fieldId;
-            console.log("PlateGrid componentDidMount");
 
             var url = "/webgateway/plate/" + plateId + "/" + fieldId + "/";
+            console.log("PlateGrid componentDidMount. LOADING:", url);
             $.ajax({
                 url: url,
                 dataType: 'json',
@@ -165,7 +171,7 @@
                 var wells = data.collabels.map(function(c, colIndex){
                     var well = grid[rowIndex][colIndex]
                     if (well) {
-                        return (<td className="well" key={well.id}>
+                        return (<td className="well" key={well.id} title={""+r+c}>
                             <img
                                 src={"/webgateway/render_thumbnail/" + well.id + "/96/"}
                                 style={imgStyle} />
