@@ -46,6 +46,9 @@ class NodeControl(BaseControl):
         parser.add_argument(
             "command", nargs="+",
             choices=("start", "stop", "status", "restart"))
+        parser.add_argument(
+            "--foreground", action="store_true",
+            help="Start in foreground mode (no daemon/service)")
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
@@ -71,16 +74,23 @@ class NodeControl(BaseControl):
     def start(self, args):
 
         self._initDir()
+        self.ctx.invoke(["admin", "rewrite"])
 
         try:
             command = ["icegridnode", self._icecfg()]
             if self._isWindows():
+                self.ctx.die(128, "Not implemented")
+                # The following code clearly hasn't been tested.
+                # TODO: Fix this or remove it completely
                 command = command + ["--install", "OMERO."+args.node]
                 self.ctx.call(command)
                 self.ctx.call(["icegridnode", "--start", "OMERO."+args.node])
             else:
-                command = command + ["--daemon", "--pidfile",
-                                     str(self._pid()), "--nochdir"]
+                if args.foreground:
+                    command = command + ["--nochdir"]
+                else:
+                    command = command + ["--daemon", "--pidfile",
+                                         str(self._pid()), "--nochdir"]
                 self.ctx.call(command)
         except OSError, o:
                 msg = """%s\nPossibly an error finding "icegridnode". Try \
