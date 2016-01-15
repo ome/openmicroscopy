@@ -32,8 +32,7 @@ updateService = conn.getUpdateService()
 # We are using the core Python API and omero.model objects here, since ROIs
 # are not yet supported in the Python Blitz Gateway.
 #
-# In this example, we create an ROI with a rectangular shape and attach it to
-# an image.
+# First we load our image and pick some parameters for shapes
 x = 50
 y = 200
 width = 100
@@ -41,10 +40,9 @@ height = 50
 image = conn.getObject("Image", imageId)
 theZ = image.getSizeZ() / 2
 theT = 0
-print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
-       " height: %s" % (theZ, theT, x, y, width, height))
 
 
+# We have a helper function for creating an ROI and linking it to new shapes
 def createROI(img, shapes):
     # create an ROI, link it to Image
     roi = omero.model.RoiI()
@@ -56,12 +54,15 @@ def createROI(img, shapes):
     updateService.saveObject(roi)
 
 
+# Another helper for generating the color integers for shapes
 def rgbToRGBInt(red, green, blue):
     """ Convert an R,G,B value to an int """
     RGBInt = (red << 16) + (green << 8) + blue
     return int(RGBInt)
 
-# create a rectangle shape
+# create a rectangle shape (added to ROI below)
+print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
+       " height: %s" % (theZ, theT, x, y, width, height))
 rect = omero.model.RectangleI()
 rect.x = rdouble(x)
 rect.y = rdouble(y)
@@ -71,7 +72,7 @@ rect.theZ = rint(theZ)
 rect.theT = rint(theT)
 rect.textValue = rstring("test-Rectangle")
 
-# create an Ellipse shape
+# create an Ellipse shape (added to ROI below)
 ellipse = omero.model.EllipseI()
 ellipse.cx = rdouble(y)
 ellipse.cy = rdouble(x)
@@ -112,13 +113,12 @@ def pointsToString(points):
     points = ["%s,%s" % (p[0], p[1]) for p in points]
     csv = ", ".join(points)
     return "points[%s] points1[%s] points2[%s]" % (csv, csv, csv)
-# create an ROI with a single polygon
+# create an ROI with a single polygon, setting colors and lineWidth
 polygon = omero.model.PolygonI()
 polygon.theZ = rint(theZ)
 polygon.theT = rint(theT)
 polygon.fillColor = rint(rgbToRGBInt(255, 0, 255))
 polygon.strokeColor = rint(rgbToRGBInt(0, 255, 0))
-print UnitsLength
 polygon.strokeWidth = omero.model.LengthI(10, UnitsLength.PIXEL)
 points = [[10, 20], [50, 150], [200, 200], [250, 75]]
 polygon.points = rstring(pointsToString(points))
