@@ -12,6 +12,7 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 import omero
+from omero.model.enums import UnitsLength
 from omero.rtypes import rdouble, rint, rstring
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
@@ -43,12 +44,24 @@ theT = 0
 print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
        " height: %s" % (theZ, theT, x, y, width, height))
 
-# create an ROI, link it to Image
-roi = omero.model.RoiI()
-# use the omero.model.ImageI that underlies the 'image' wrapper
-roi.setImage(image._obj)
 
-# create a rectangle shape and add to ROI
+def createROI(img, shapes):
+    # create an ROI, link it to Image
+    roi = omero.model.RoiI()
+    # use the omero.model.ImageI that underlies the 'image' wrapper
+    roi.setImage(img._obj)
+    for shape in shapes:
+        roi.addShape(shape)
+    # Save the ROI (saves any linked shapes too)
+    updateService.saveObject(roi)
+
+
+def rgbToRGBInt(red, green, blue):
+    """ Convert an R,G,B value to an int """
+    RGBInt = (red << 16) + (green << 8) + blue
+    return int(RGBInt)
+
+# create a rectangle shape
 rect = omero.model.RectangleI()
 rect.x = rdouble(x)
 rect.y = rdouble(y)
@@ -57,9 +70,8 @@ rect.height = rdouble(height)
 rect.theZ = rint(theZ)
 rect.theT = rint(theT)
 rect.textValue = rstring("test-Rectangle")
-roi.addShape(rect)
 
-# create an Ellipse shape and add to ROI
+# create an Ellipse shape
 ellipse = omero.model.EllipseI()
 ellipse.cx = rdouble(y)
 ellipse.cy = rdouble(x)
@@ -68,9 +80,13 @@ ellipse.ry = rdouble(height)
 ellipse.theZ = rint(theZ)
 ellipse.theT = rint(theT)
 ellipse.textValue = rstring("test-Ellipse")
-roi.addShape(ellipse)
 
-# create a line shape and add to ROI
+# Create an ROI containing 2 shapes on same plane
+# NB: OMERO.insight client doesn't support this
+# The ellipse is removed later (see below)
+createROI(image, [rect, ellipse])
+
+# create an ROI with single line shape
 line = omero.model.LineI()
 line.x1 = rdouble(x)
 line.x2 = rdouble(x+width)
@@ -79,21 +95,34 @@ line.y2 = rdouble(y+height)
 line.theZ = rint(theZ)
 line.theT = rint(theT)
 line.textValue = rstring("test-Line")
-roi.addShape(line)
+createROI(image, [line])
 
-# create a point shape and add to ROI
+# create an ROI with single point shape
 point = omero.model.PointI()
 point.cx = rdouble(x)
 point.cy = rdouble(y)
 point.theZ = rint(theZ)
 point.theT = rint(theT)
 point.textValue = rstring("test-Point")
-roi.addShape(point)
+createROI(image, [point])
 
 
-# Save the ROI (saves any linked shapes too)
-r = updateService.saveAndReturnObject(roi)
-
+def pointsToString(points):
+    """ Returns strange format supported by Insight """
+    points = ["%s,%s" % (p[0], p[1]) for p in points]
+    csv = ", ".join(points)
+    return "points[%s] points1[%s] points2[%s]" % (csv, csv, csv)
+# create an ROI with a single polygon
+polygon = omero.model.PolygonI()
+polygon.theZ = rint(theZ)
+polygon.theT = rint(theT)
+polygon.fillColor = rint(rgbToRGBInt(255, 0, 255))
+polygon.strokeColor = rint(rgbToRGBInt(0, 255, 0))
+print UnitsLength
+polygon.strokeWidth = omero.model.LengthI(10, UnitsLength.PIXEL)
+points = [[10, 20], [50, 150], [200, 200], [250, 75]]
+polygon.points = rstring(pointsToString(points))
+createROI(image, [polygon])
 
 # Retrieve ROIs linked to an Image.
 # =================================================================
