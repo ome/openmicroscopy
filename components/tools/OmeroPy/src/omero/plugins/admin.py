@@ -1022,7 +1022,8 @@ present, the user will enter a console""")
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
-            '@Ice.Default.Host@': config.get('Ice.Default.Host', '127.0.0.1')
+            '@omero.master.host@': config.get('omero.master.host', config.get(
+                'Ice.Default.Host', '127.0.0.1'))
             }
 
         def copy_template(input_file, output_dir):
@@ -1045,8 +1046,8 @@ present, the user will enter a console""")
                 self._get_templates_dir() / "grid" / "*default.xml"):
             copy_template(xml_file, self._get_etc_dir() / "grid")
         ice_config = self._get_templates_dir() / "ice.config"
-        substitutions['@Ice.Default.Host@'] = config.get(
-            'Ice.Default.Host', 'localhost')
+        substitutions['@omero.master.host@'] = config.get(
+            'omero.master.host', config.get('Ice.Default.Host', 'localhost'))
         copy_template(ice_config, self._get_etc_dir())
 
         return rv
