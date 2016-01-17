@@ -1,7 +1,7 @@
 
 
 (function(){
-    var ThumbTable = React.createClass({
+    var CentrePanel = React.createClass({
 
         parentTypes: ["dataset", "orphaned", "tag", "share", "plate", "acquisition"],
 
@@ -420,7 +420,7 @@
 
     window.OME.renderCentrePanel = function(jstree, selected) {
         ReactDOM.render(
-            <ThumbTable 
+            <CentrePanel
                 jstree={jstree}
                 selected={selected}/>,
             document.getElementById('content_details')
