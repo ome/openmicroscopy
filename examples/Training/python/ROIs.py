@@ -101,6 +101,20 @@ line.theT = rint(theT)
 line.textValue = rstring("test-Line")
 createROI(image, [line])
 
+# create an ROI with a single mask
+mask = omero.model.MaskI()
+mask.setTheC(rint(0))
+mask.setTheZ(rint(0))
+mask.setTheT(rint(0))
+mask.setX(rdouble(20))
+mask.setY(rdouble(20))
+mask.setWidth(rdouble(100))
+mask.setHeight(rdouble(100))
+mask.setFillColor(rint(126))
+mask.setTextValue(rstring("test-Mask"))
+mask.setBytes([5]*10000) # WxH
+createROI(image, [mask])
+
 # create an ROI with single point shape
 point = omero.model.PointI()
 point.cx = rdouble(x)
@@ -162,8 +176,14 @@ for roi in result.rois:
             shape['x2'] = s.getX2().getValue()
             shape['y1'] = s.getY1().getValue()
             shape['y2'] = s.getY2().getValue()
+        elif type(s) == omero.model.MaskI:
+            shape['type'] = 'Mask'
+            shape['x'] = s.getX().getValue()
+            shape['y'] = s.getY().getValue()
+            shape['width'] = s.getWidth().getValue()
+            shape['height'] = s.getHeight().getValue()
         elif type(s) in (
-                omero.model.MaskI, omero.model.LabelI, omero.model.PolygonI):
+                omero.model.LabelI, omero.model.PolygonI):
             print type(s), " Not supported by this code"
         # Do some processing here, or just print:
         print "   Shape:",
