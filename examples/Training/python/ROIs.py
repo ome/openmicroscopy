@@ -11,10 +11,15 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
+import numpy
+import struct
+import math
+
 import omero
 from omero.model.enums import UnitsLength
 from omero.rtypes import rdouble, rint, rstring
 from omero.gateway import BlitzGateway
+from omero.gateway import ColorHolder
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
 imageId = int(imageId)
@@ -101,18 +106,64 @@ line.theT = rint(theT)
 line.textValue = rstring("test-Line")
 createROI(image, [line])
 
+
+def create_mask(mask_bytes, bytes_per_pixel=1):
+    if bytes_per_pixel == 2:
+        divider = 16.0
+        format_string = "H"  # Unsigned short
+        byte_factor = 0.5
+    elif bytes_per_pixel == 1:
+        divider = 8.0
+        format_string = "B"  # Unsiged char
+        byte_factor = 1
+    else:
+        message = "Format %s not supported"
+        raise ValueError(message)
+    steps = math.ceil(len(mask_bytes) / divider)
+    mask = []
+    for i in range(long(steps)):
+        binary = mask_bytes[
+            i * int(divider):i * int(divider) + int(divider)]
+        format = str(int(byte_factor * len(binary))) + format_string
+        binary = struct.unpack(format, binary)
+        s = ""
+        for bit in binary:
+            s += str(bit)
+        mask.append(int(s, 2))
+    return bytearray(mask)
+
+mask_x = 50
+mask_y = 50
+mask_h = 100
+mask_w = 100
+# Create [0, 1] mask
+mask_array = numpy.random.randint(0, 2, mask_w * mask_h)
+# Set correct number of bytes per value
+mask_array = mask_array.astype(numpy.uint8)
+# Convert the mask to bytes
+mask_array = mask_array.tobytes()
+# Pack the bytes to a bit mask
+mask_packed = create_mask(mask_array, 1)
+
+# Define mask's fill color
+mask_color = ColorHolder()
+mask_color.setRed(255)
+mask_color.setBlue(0)
+mask_color.setGreen(0)
+mask_color.setAlpha(100)
+
 # create an ROI with a single mask
 mask = omero.model.MaskI()
 mask.setTheC(rint(0))
 mask.setTheZ(rint(0))
 mask.setTheT(rint(0))
-mask.setX(rdouble(20))
-mask.setY(rdouble(20))
-mask.setWidth(rdouble(100))
-mask.setHeight(rdouble(100))
-mask.setFillColor(rint(126))
+mask.setX(rdouble(mask_x))
+mask.setY(rdouble(mask_y))
+mask.setWidth(rdouble(mask_w))
+mask.setHeight(rdouble(mask_h))
+mask.setFillColor(rint(mask_color.getInt()))
 mask.setTextValue(rstring("test-Mask"))
-mask.setBytes([5]*10000) # WxH
+mask.setBytes(mask_packed)
 createROI(image, [mask])
 
 # create an ROI with single point shape
