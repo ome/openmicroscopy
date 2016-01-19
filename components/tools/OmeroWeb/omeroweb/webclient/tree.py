@@ -1315,17 +1315,16 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Projects
     q = '''
-        select new map(obj.id as id,
+        select distinct new map(obj.id as id,
             obj.name as name,
+            lower(obj.name) as lowername,
             obj.details.owner.id as ownerId,
             obj as project_details_permissions,
             (select count(id) from ProjectDatasetLink dil
                 where dil.parent=obj.id) as childCount)
             from Project obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id)
-                from ProjectAnnotationLink alink
-                where alink.child.id=:tid and alink.parent.id=obj.id)
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
@@ -1342,17 +1341,16 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Datasets
     q = '''
-        select new map(obj.id as id,
+        select distinct new map(obj.id as id,
             obj.name as name,
+            lower(obj.name) as lowername,
             obj.details.owner.id as ownerId,
             obj as dataset_details_permissions,
             (select count(id) from DatasetImageLink dil
                 where dil.parent=obj.id) as childCount)
             from Dataset obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id)
-                from DatasetAnnotationLink alink
-                where alink.child.id=:tid and alink.parent.id=obj.id)
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
@@ -1385,16 +1383,15 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
             """
 
     q = """
-        select new map(obj.id as id,
+        select distinct new map(obj.id as id,
                obj.name as name,
+               lower(obj.name) as lowername,
                obj.details.owner.id as ownerId,
                obj as image_details_permissions,
                obj.fileset.id as filesetId %s)
             from Image obj %s
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id)
-                from ImageAnnotationLink alink
-                where alink.child.id=:tid and alink.parent.id=obj.id)
+            where alink.child.id=:tid
         %s
         """ % (extraValues, extraObjs, common_clause)
 
@@ -1418,17 +1415,16 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Screens
     q = '''
-        select new map(obj.id as id,
+        select distinct new map(obj.id as id,
             obj.name as name,
+            lower(obj.name) as lowername,
             obj.details.owner.id as ownerId,
             obj as screen_details_permissions,
             (select count(id) from ScreenPlateLink spl
                 where spl.parent=obj.id) as childCount)
             from Screen obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id)
-                from ScreenAnnotationLink alink
-                where alink.child.id=:tid and alink.parent.id=obj.id)
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
@@ -1445,17 +1441,16 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Plate
     q = '''
-        select new map(obj.id as id,
+        select distinct new map(obj.id as id,
             obj.name as name,
+            lower(obj.name) as lowername,
             obj.details.owner.id as ownerId,
             obj as plate_details_permissions,
             (select count(id) from PlateAcquisition pa
                 where pa.plate.id=obj.id) as childCount)
             from Plate obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id)
-                from PlateAnnotationLink alink
-                where alink.child.id=:tid and alink.parent.id=obj.id)
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
@@ -1472,17 +1467,16 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Plate Acquisitions
     q = '''
-        select new map(obj.id as id,
+        select distinct new map(obj.id as id,
             obj.name as name,
+            lower(obj.name) as lowername,
             obj.details.owner.id as ownerId,
             obj as plateacquisition_details_permissions,
             obj.startTime as startTime,
             obj.endTime as endTime)
         from PlateAcquisition obj
             join obj.annotationLinks alink
-            where alink.id = (select max(alink.id)
-                from PlateAcquisitionAnnotationLink alink
-                where alink.child.id=:tid and alink.parent.id=obj.id)
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
