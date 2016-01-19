@@ -28,6 +28,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -62,6 +65,8 @@ import omero.cmd.Response;
  */
 public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Delete2> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Delete2I.class);
+
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
@@ -91,7 +96,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
-     * @param targetClasses legal target object classes for chown
+     * @param targetClasses legal target object classes for delete
      * @param graphPolicy the graph policy to apply for delete
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
@@ -114,6 +119,14 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
 
@@ -238,6 +251,12 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             helper.setResponseIfNull(response);
             helper.info("in " + (dryRun ? "mock " : "") + "delete of " + targetObjectCount +
                     ", deleted " + deletedObjectCount + " in total");
+
+            if (LOGGER.isDebugEnabled()) {
+                final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+                arguments.addParameter("deletedObjects", response.deletedObjects);
+                LOGGER.debug("response: " + arguments);
+            }
         }
     }
 

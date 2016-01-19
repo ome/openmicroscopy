@@ -1025,7 +1025,7 @@ public class PropertiesUI
 		k = well.getColumn()+1;
 		String columnText = "";
 		if (columnIndex == PlateData.ASCENDING_LETTER)
-			columnText = UIUtilities.LETTERS.get(k+1);
+			columnText = UIUtilities.LETTERS.get(k);
 		else if (columnIndex == PlateData.ASCENDING_NUMBER)
 			columnText = ""+k;
 		String value = rowText+"-"+columnText;

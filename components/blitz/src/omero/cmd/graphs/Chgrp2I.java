@@ -66,6 +66,8 @@ import omero.cmd.Response;
  */
 public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Chgrp2I.class);
+
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.OWN);
@@ -96,7 +98,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean to use
      * @param deletionInstance a deletion instance for deleting files
-     * @param targetClasses legal target object classes for chown
+     * @param targetClasses legal target object classes for chgrp
      * @param graphPolicy the graph policy to apply for chgrp
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      */
@@ -119,6 +121,15 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("groupId", groupId);
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
 
@@ -262,6 +273,13 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             helper.setResponseIfNull(response);
             helper.info("in " + (dryRun ? "mock " : "") + "chgrp to " + groupId + " of " + targetObjectCount +
                     ", moved " + movedObjectCount + " and deleted " + deletedObjectCount + " in total");
+
+            if (LOGGER.isDebugEnabled()) {
+                final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+                arguments.addParameter("includedObjects", response.includedObjects);
+                arguments.addParameter("deletedObjects", response.deletedObjects);
+                LOGGER.debug("response: " + arguments);
+            }
         }
     }
 

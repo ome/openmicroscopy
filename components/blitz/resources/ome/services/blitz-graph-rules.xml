@@ -75,5 +75,6 @@
     <import resource="graph-rules/blitz-chmod-rules.xml"/>
     <import resource="graph-rules/blitz-chown-rules.xml"/>
     <import resource="graph-rules/blitz-delete-rules.xml"/>
+    <import resource="graph-rules/blitz-duplicate-rules.xml"/>
 
 </beans>

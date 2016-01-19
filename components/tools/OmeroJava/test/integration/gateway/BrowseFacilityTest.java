@@ -22,6 +22,7 @@ package integration.gateway;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -75,7 +76,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetDatasets() {
+    public void testGetDatasets() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get datasets of the group
@@ -105,13 +106,21 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetProjects() {
+    public void testGetProjects() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get projects of the group
         Collection<ProjectData> result = browseFacility.getProjects(ctx);
         Assert.assertEquals(result.size(), 2);
 
+        // check that we do *not* load the whole tree by default
+        for(ProjectData p : result) {
+            Set<DatasetData> datasets = p.getDatasets();
+            for(DatasetData ds : datasets) {
+                Assert.assertNull(ds.getImages(), "Images should not have been loaded at this point!");
+            }
+        }
+        
         // get specific project
         Collection<Long> ids = new ArrayList<Long>(1);
         ids.add(proj.getId());
@@ -135,7 +144,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetScreens() {
+    public void testGetScreens() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get screens of the group
@@ -165,7 +174,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetPlates() {
+    public void testGetPlates() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get plates of the group
@@ -195,7 +204,7 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
-    public void testGetImages() {
+    public void testGetImages() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get images of the root user

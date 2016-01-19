@@ -190,7 +190,7 @@ public class FullTextThread extends ExecutionThread {
 
         acquiredLock = DetailsFieldBridge.tryLock();
         if (!acquiredLock) {
-            log.error("Cound not acquire bridge lock. "
+            log.error("Could not acquire bridge lock. "
                     + "Waiting 60 seconds and aborting.");
             try {
                 Thread.sleep(60 * 1000L);

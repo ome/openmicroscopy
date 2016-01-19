@@ -34,7 +34,7 @@ module omero {
          * The map return values will be indexed by the short type name above:
          * "Project", "Image", ... All keys which are passed in the StringSet
          * argument will be included in the returned map, even if they have no
-         * values. A default value of 0 or the empty list [] will be used.
+         * values. A default value of 0 or the empty list \[] will be used.
          * The only exception to this rule is that the null or empty StringSet
          * implies all valid keys.
          *
@@ -52,8 +52,8 @@ module omero {
          * -------
          * The methods which take a StringSet and a Parameters object, also have
          * a "bool merge" argument. This argument defines whether or not the LIMIT
-         * applies to each object independently (["a","b"] @ 100 == 200) or merges
-         * the lists together chronologically (["a","b"] @ 100 merged == 100).
+         * applies to each object independently (\["a","b"] @ 100 == 200) or merges
+         * the lists together chronologically (\["a","b"] @ 100 merged == 100).
          *
          * Time used:
          * =========
@@ -68,7 +68,7 @@ module omero {
          *
          *     timeline = sf.getTimelineService()
          *     params = ParametersI().page(0,100)
-         *     types = ["Project","Dataset"])
+         *     types = \["Project","Dataset"])
          *     map = timeline.getByPeriod(types, params, False)
          *
          * At this point, map will not contain more than 200 objects.

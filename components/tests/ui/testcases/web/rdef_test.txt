@@ -58,6 +58,15 @@ Wait For Toolbar Button Disabled
 Right Click Image Rendering Settings
     [Arguments]            ${imageId}       ${optionText}
     ${treeId}=                              Wait For Image Node           ${imageId}
+    Right Click Rendering Settings          ${treeId}       ${optionText}
+
+Right Click Dataset Rendering Settings
+    [Arguments]            ${datasetId}       ${optionText}
+    ${treeId}=                              Wait For Dataset Node           ${datasetId}
+    Right Click Rendering Settings          ${treeId}       ${optionText}
+
+Right Click Rendering Settings
+    [Arguments]            ${treeId}       ${optionText}
     Open Context Menu                       xpath=//li[@id='${treeId}']/a
     Mouse Over                              xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Rendering Settings...')]
     Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), "${optionText}")]
@@ -69,7 +78,14 @@ Test Rdef Copy Paste Save
     [Documentation]     Tests Copy and Paste rdef, then Save and 'Save All'
 
     Select Experimenter
-    Select And Expand Image
+
+    Select First Project With Children
+    # Start by resetting rdefs to imported settings within Dataset
+    # In case previous failed tests left unexpected rdefs
+    ${datasetId}=                           Select First Dataset With Children
+    Right Click Dataset Rendering Settings  ${datasetId}            Set Imported and Save
+    Select First Image
+
     ${imageId}=                             Wait For General Panel And Return Id    Image
     Click Link                              Preview
     ${status}    ${oldId}                   Wait For Preview Load       FAIL      '1'
@@ -143,7 +159,7 @@ Test Rdef Copy Paste Save
     Click Element                           id=rdef-save-all
 
     # Return to Previous Image (now Blue)
-    Click Element                           id=image_icon-${imageId}
+    Select Image By Id                      ${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(0, 0, 255)
 
@@ -227,7 +243,7 @@ Test Owners Rdef
     Right Click Image Rendering Settings    ${imageId_2}            Paste and Save
     Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
-    Click Element                           id=image_icon-${imageId_2}
+    Select Image By Id                      ${imageId_2}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Channel Color                  rgb(255, 255, 255)
     Textfield Value Should Be               wblitz-ch0-cw-end           200

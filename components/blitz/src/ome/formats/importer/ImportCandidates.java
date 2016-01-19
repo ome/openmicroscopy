@@ -53,7 +53,7 @@ public class ImportCandidates extends DirectoryWalker
      * be raised for every file or directory, but the values will be valid for
      * each event.
      *
-     * If {@link #totalFiles} is less than 0, then the directory is currently be
+     * If {@link #totalFiles} is less than 0, then the directory is currently being
      * scanned and the count is unknown. Once {@link #totalFiles} is positive,
      * it will remain constant.
      *
@@ -122,7 +122,7 @@ public class ImportCandidates extends DirectoryWalker
     final private long start = System.currentTimeMillis();
 
     /**
-     * Time take for {@link IFormatReader#setId()}
+     * Time taken for {@link IFormatReader#setId()}
      */
     long readerTime = 0;
 
@@ -337,7 +337,7 @@ public class ImportCandidates extends DirectoryWalker
     }
 
     /**
-     * @return all containers as a array list
+     * @return all containers as an array list
      */
     public List<ImportContainer> getContainers()
     {
@@ -467,7 +467,7 @@ public class ImportCandidates extends DirectoryWalker
 
     /**
      * Retrieves Image names for each image that Bio-Formats has detected.
-     * @return See A list of Image names, in the order of <i>series</i>.
+     * @return a list of Image names, in the order of <i>series</i>.
      */
     private List<String> getImageNames() {
         List<String> toReturn = new ArrayList<String>();
@@ -581,7 +581,7 @@ public class ImportCandidates extends DirectoryWalker
     }
 
     /**
-     * The {@link Groups} class servers as an algorithm for sorting the usedBy
+     * The {@link Groups} class serves as an algorithm for sorting the usedBy
      * map from the {@link ImportCandidates#walk(File, Collection)} method.
      * These objects should never leave the outer class.
      *

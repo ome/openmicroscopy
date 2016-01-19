@@ -1363,6 +1363,20 @@ public class GraphTraversal {
     }
 
     /**
+     * Assert that {@link #unlinkTargets(boolean)} need not be called.
+     * @throws GraphException if any model objects are to be {@link Action#DELETE}d
+     */
+    public void assertNoUnlinking() throws GraphException {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
+        }
+        if (!planning.deleted.isEmpty()) {
+            throw new GraphException("cannot bypass unlinking step if any model objects are to be deleted");
+        }
+        progress.add(Milestone.UNLINKED);
+    }
+
+    /**
      * Prepare to remove links between the targeted model objects and the remainder of the model object graph.
      * @param isUnlinkIncludeFromExclude if {@link Action#EXCLUDE} objects must be unlinked from {@link Action#INCLUDE} objects
      * and vice versa
@@ -1490,7 +1504,7 @@ public class GraphTraversal {
         /* process the targets forward across links */
         while (!planning.blockedBy.isEmpty()) {
             /* determine which objects can be processed in this step */
-            final Collection<CI> nowUnblocked = new ArrayList<CI>();
+            final Collection<CI> nowUnblocked = new HashSet<CI>();
             final Iterator<Entry<CI, Set<CI>>> blocks = planning.blockedBy.entrySet().iterator();
             while (blocks.hasNext()) {
                 final Entry<CI, Set<CI>> block = blocks.next();
@@ -1575,5 +1589,43 @@ public class GraphTraversal {
                 progress.add(Milestone.PROCESSED);
             }
         };
+    }
+
+    /**
+     * Get the model objects that are linked to by the given object via the given property.
+     * Provides a window into the model object cache accumulated in planning a graph operation.
+     * @param propertyValueClass the full name of the model class that declares the given property
+     * @param propertyName a property name, may be nested
+     * @param id the ID of the model object doing the linking
+     * @return the class and ID of the model objects that are linked to by the given object, never {@code null}
+     */
+    public SetMultimap<String, Long> getLinkeds(String propertyValueClass, String propertyName, Long id) {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
+        }
+        final SetMultimap<String, Long> linkeds = HashMultimap.create();
+        for (final CI linked : planning.forwardLinksCached.get(new CPI(propertyValueClass, propertyName, id))) {
+            linkeds.put(linked.className, linked.id);
+        }
+        return linkeds;
+    }
+
+    /**
+     * Get the model objects that link to the given object via the given property.
+     * Provides a window into the model object cache accumulated in planning a graph operation.
+     * @param propertyValueClass the full name of the model class that declares the given property
+     * @param propertyName a property name, may be nested
+     * @param id the ID of the model object being linked to
+     * @return the class and ID of the model objects that link to the given object, never {@code null}
+     */
+    public SetMultimap<String, Long> getLinkers(String propertyValueClass, String propertyName, Long id) {
+        if (!progress.contains(Milestone.PLANNED)) {
+            throw new IllegalStateException("operation not yet planned");
+        }
+        final SetMultimap<String, Long> linkers = HashMultimap.create();
+        for (final CI linker : planning.backwardLinksCached.get(new CPI(propertyValueClass, propertyName, id))) {
+            linkers.put(linker.className, linker.id);
+        }
+        return linkers;
     }
 }

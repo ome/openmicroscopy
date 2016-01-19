@@ -93,7 +93,7 @@ module omero {
 
             /**
              * Called when the command has completed in any fashion
-             * including cancellation. The [Status::flags] list will
+             * including cancellation. The {@link Status#flags} list will
              * contain information about whether or not the process
              * was cancelled.
              */
@@ -129,14 +129,14 @@ module omero {
              * Returns a status object for the current execution.
              *
              * This will likely be the same object that would be
-             * returned as a component of the [Response] value.
+             * returned as a component of the {@link Response} value.
              *
              * Never null.
              **/
             Status getStatus();
 
             /**
-             * Attempts to cancel execution of this [Request]. Returns
+             * Attempts to cancel execution of this {@link Request}. Returns
              * true if cancellation was successful. Returns false if not,
              * in which case likely this request will run to completion.
              **/

@@ -10,6 +10,7 @@ ${ROOT FULL NAME}		root root
 
 ${USERNAME}             %(USER)s
 ${PASSWORD}             %(PASS)s
+${LAST NAME}            %(USER)s
 ${FULL NAME}            %(USER)s %(USER)s
 
 # Web config

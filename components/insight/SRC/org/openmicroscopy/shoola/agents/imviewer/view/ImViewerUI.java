@@ -1446,38 +1446,18 @@ class ImViewerUI
 	            }
 	            toolTipText = "";
 	            toolTipText += "Stage coordinates: ";
+	            DecimalFormat format = new DecimalFormat("0.##");
                 if (!notSet.contains(EditorUtil.POSITION_X)) {
-                    if (details.get(EditorUtil.POSITION_X) instanceof BigResult) {
-                        toolTipText += "x=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_X),
-                                EditorUtil.POSITION_X);
-                    } else {
-                        toolTipText += "x="
-                                + details.get(EditorUtil.POSITION_X) + " ";
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_X);
+                    toolTipText += "x="+format.format(l.getValue())+" "+l.getSymbol();
                 }
                 if (!notSet.contains(EditorUtil.POSITION_Y)) {
-                    if (details.get(EditorUtil.POSITION_Y) instanceof BigResult) {
-                        toolTipText += "y=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_Y),
-                                EditorUtil.POSITION_Y);
-                    } else {
-                        toolTipText += "y="
-                                + details.get(EditorUtil.POSITION_Y) + " ";
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_Y);
+                    toolTipText += "y="+format.format(l.getValue())+" "+l.getSymbol();
                 }
                 if (!notSet.contains(EditorUtil.POSITION_Z)) {
-                    if (details.get(EditorUtil.POSITION_Z) instanceof BigResult) {
-                        toolTipText += "z=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_Z),
-                                EditorUtil.POSITION_Z);
-                    } else {
-                        toolTipText += "z="
-                                + details.get(EditorUtil.POSITION_Z);
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_Z);
+                    toolTipText += "z="+format.format(l.getValue())+" "+l.getSymbol();
                 }
 	            tips.add(toolTipText);
 	            comp.setToolTipText(UIUtilities.formatToolTipText(tips));

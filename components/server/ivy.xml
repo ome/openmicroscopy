@@ -28,13 +28,15 @@
     <dependency org="zeroc" name="ice-freeze" rev="${versions.ice}"/>
     <!-- j2ee replacements : jta, jndi, etc. -->
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
-    <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}"/>
+    <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}" transitive="false"/>
     <!-- Public -->
     <dependency org="batik" name="batik-all" rev="${versions.batik}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
-    <dependency org="commons-pool" name="commons-pool" rev="${versions.commons-pool}"/>
+    <dependency org="commons-pool" name="commons-pool" rev="${versions.commons-pool}">
+        <exclude org="xml-apis"/>
+    </dependency>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
