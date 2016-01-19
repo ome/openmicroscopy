@@ -55,10 +55,11 @@ def createROI(img, shapes):
 
 
 # Another helper for generating the color integers for shapes
-def rgbToRGBInt(red, green, blue):
-    """ Convert an R,G,B value to an int """
-    RGBInt = (red << 16) + (green << 8) + blue
-    return int(RGBInt)
+def rgbaToRGBInt(red, green, blue, alpha=255):
+    """ Convert an R,G,B,A value to an int """
+    RGBAInt = (alpha << 24) + (red << 16) + (green << 8) + blue
+    return int(RGBAInt)
+
 
 # create a rectangle shape (added to ROI below)
 print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
@@ -117,8 +118,8 @@ def pointsToString(points):
 polygon = omero.model.PolygonI()
 polygon.theZ = rint(theZ)
 polygon.theT = rint(theT)
-polygon.fillColor = rint(rgbToRGBInt(255, 0, 255))
-polygon.strokeColor = rint(rgbToRGBInt(0, 255, 0))
+polygon.fillColor = rint(rgbaToRGBInt(255, 255, 255, 125))
+polygon.strokeColor = rint(rgbaToRGBInt(0, 255, 0))
 polygon.strokeWidth = omero.model.LengthI(10, UnitsLength.PIXEL)
 points = [[10, 20], [50, 150], [200, 200], [250, 75]]
 polygon.points = rstring(pointsToString(points))
