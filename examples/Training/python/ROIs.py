@@ -141,7 +141,7 @@ mask_array = numpy.random.randint(0, 2, mask_w * mask_h)
 # Set correct number of bytes per value
 mask_array = mask_array.astype(numpy.uint8)
 # Convert the mask to bytes
-mask_array = mask_array.tobytes()
+mask_array = mask_array.tostring()
 # Pack the bytes to a bit mask
 mask_packed = create_mask(mask_array, 1)
 
