@@ -115,7 +115,8 @@ class TestQuery(lib.ITest):
                obj.name as name,
                obj.details.owner.id as ownerId,
                obj as image_details_permissions,
-               obj.fileset.id as filesetId
+               obj.fileset.id as filesetId,
+               lower(obj.name) as n
              ,
              pix.sizeX as sizeX,
              pix.sizeY as sizeY,
@@ -123,7 +124,8 @@ class TestQuery(lib.ITest):
              )
             from Image obj  left outer join obj.pixels pix
             join obj.annotationLinks alink
-            where %s"""
+            where %s
+            order by lower(obj.name), obj.id """
 
         params = ParametersI()
         params.add('tid', tag.id)
@@ -140,7 +142,7 @@ class TestQuery(lib.ITest):
 
         # Without the select statement, we get the same image returned
         # multiple times if there is no 'distinct'
-        clause = "alink.parent.id=obj.id"
+        clause = "alink.child.id=:tid"
         query = q % clause
         result2 = queryService.projection(query, params,
                                           {'omero.group': str(groupId)})
