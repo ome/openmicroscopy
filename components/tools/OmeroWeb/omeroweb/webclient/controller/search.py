@@ -69,19 +69,23 @@ class BaseSearch(BaseController):
             batchSize = 1000
         if date is not None:
             p = str(date).split('_')
-            if len(p) > 1:
-                d1 = datetime.datetime.strptime(
-                    p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
-                d2 = datetime.datetime.strptime(
-                    p[1]+" 23:59:59", "%Y-%m-%d %H:%M:%S")
+            try:
+                if len(p) > 1:
+                    d1 = datetime.datetime.strptime(
+                        p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
+                    d2 = datetime.datetime.strptime(
+                        p[1]+" 23:59:59", "%Y-%m-%d %H:%M:%S")
 
-                created = [rtime(long(time.mktime(d1.timetuple()) + 1e-6 *
-                                      d1.microsecond) * 1000),
-                           rtime(long(time.mktime(d2.timetuple()) + 1e-6 *
-                                      d2.microsecond) * 1000)]
-            else:
-                d1 = datetime.datetime.strptime(
-                    p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
+                    created = [rtime(long(time.mktime(d1.timetuple()) + 1e-6 *
+                                          d1.microsecond) * 1000),
+                               rtime(long(time.mktime(d2.timetuple()) + 1e-6 *
+                                          d2.microsecond) * 1000)]
+                else:
+                    d1 = datetime.datetime.strptime(
+                        p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                # User entered an invalid date format - Ignore
+                pass
 
         def doSearch(searchType):
             """ E.g. searchType is 'images' """
