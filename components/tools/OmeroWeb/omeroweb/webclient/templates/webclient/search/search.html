@@ -73,10 +73,6 @@
 
                 $("#filtersearch label").inFieldLabels();
 
-                // Don't allow user to type into date inputs (input not validated)
-                $('#startdateinput, #enddateinput').keydown(function(event){
-                    return false;
-                });
 
                 // Init date-pickers...
                 $('#startdateinput').datepicker({
