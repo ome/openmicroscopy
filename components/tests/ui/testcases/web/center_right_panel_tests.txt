@@ -12,7 +12,8 @@ Suite Teardown      Close all browsers
 
 Get Id From Selected Item In Tree
 
-	${dataId}=                      Get Element Attribute    xpath=//li::a[contains(@class, 'jstree-clicked')]@data-id
+	# Wait Until Element Is Visible	xpath=//li::a[contains(@class, 'jstree-clicked')]
+	${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]@data-id
 	[return]						${dataId}
 
 Get Id From Selected Thumbnail
@@ -29,14 +30,14 @@ Get Id From Right Panel
 
 Select First Dataset
     ${datasetId}=                   Select Node By Icon      ${datasetIcon}
-    Wait Until Right Panel Loads    Dataset                  ${datasetId}
-    Wait Until Center Panel Loads 	Dataset
+    Wait Until Right Panel Loads Everything    	Dataset                  ${datasetId}
+    Wait Until Center Panel Loads 				Dataset
 
 Check Center and Right Panel Sync For Image
-	${imageId}						Select First Image
-	Wait Until Right Panel Loads	Image 					 ${imageId}
+	${imageId}=						Select First Image
+	Wait Until Right Panel Loads Everything		Image 					 ${imageId}
 	
-	${imageId1}						Get Id From Selected Item In Tree
+	${imageId1}=					Get Id From Selected Item In Tree
 	${imageId2}						Get Id From Selected Thumbnail
 	${imageId3}						Get Id From Right Panel
 
