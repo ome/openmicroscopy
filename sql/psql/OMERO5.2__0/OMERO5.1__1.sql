@@ -118,6 +118,26 @@ CREATE OR REPLACE FUNCTION _fs_dir_delete() RETURNS TRIGGER AS $$
     END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+
+    DECLARE
+        curs CURSOR FOR SELECT * FROM _updated_annotations ORDER BY event_id LIMIT 100000 FOR UPDATE;
+        row _updated_annotations%rowtype;
+
+    BEGIN
+        FOR row IN curs
+        LOOP
+            DELETE FROM _updated_annotations WHERE CURRENT OF curs;
+
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
+                WHERE NOT EXISTS (SELECT 1 FROM eventlog AS el
+                    WHERE el.entityid = row.entity_id AND el.entitytype = row.entity_type AND el.event = row.event_id);
+
+        END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
+
 
 --
 -- FINISHED
