@@ -8,6 +8,7 @@ ${imageIcon}                    webclient/image/image16.png
 ${shareIcon}                    webclient/image/left_sidebar_icon_public.png
 ${screenIcon}                   webclient/image/folder_screen16.png
 ${orphanedIcon}                 webclient/image/folder_yellow16.png
+${plateIcon}                    webclient/image/folder_plate16.png
 
 *** Keywords ***
 
@@ -111,6 +112,15 @@ Create Container
     Wait Until Page Contains Element    xpath=//li[@data-id='${newId}']/a[contains(@class, 'jstree-clicked')]    ${WAIT}
     [Return]                            ${newId}
 
+Delete Container
+    [Documentation]                         Delete the active container
+    Click Element                           id=deleteButton
+    Wait Until Element Is Visible           id=delete-dialog-form
+    Click Dialog Button                     Yes
+    # Wait for activities to show job done, then refresh tree...
+    Wait Until Keyword Succeeds             ${TIMEOUT}   ${INTERVAL}   Page Should Contain Element     xpath=//span[@id='jobstatus']
+    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
+
 Key Down
     [Arguments]    ${keyCode}    ${cssSelector}=body
     #     Press Key    css=body    \\40     # This doesn't work, since body is not a text input
@@ -187,6 +197,13 @@ Select First Dataset With Children
     Wait Until Right Panel Loads    Dataset                  ${datasetId}
     [Return]                        ${datasetId}
 
+Select First Dataset With Name
+    [Arguments]                     ${DatasetName}
+    ${nodeId}=                      Wait For Dataset Node Text      ${DatasetName}
+    Click Node                      ${nodeId}
+    Wait For General Panel          Dataset
+    [Return]                        ${nodeId}
+
 Select First Image
     ${imageId}=                     Select Node By Icon      ${imageIcon}
     Wait Until Right Panel Loads    Image                    ${imageId}
@@ -207,17 +224,25 @@ Select First Share
 Select First Screen
     ${screenId}=                    Select Node By Icon      ${screenIcon}
     Wait Until Right Panel Loads    Screen                   ${screenId}
-    [Return]                         ${screenId}
+    [Return]                        ${screenId}
+
+Select First Screen With Children
+    ${screenId}=                    Select Node With Children By Icon    ${screenIcon}
+    Wait Until Element Is Visible   xpath=//li[@data-id='${screenId}']/ul/li
+    Wait Until Right Panel Loads    Screen                   ${screenId}
+    [Return]                        ${screenId}
+
+Select First Plate
+    ${plateId}=                     Select Node By Icon      ${plateIcon}
+    Wait Until Right Panel Loads    Plate                    ${plateId}
+    [Return]                        ${plateId}
 
 Select Orphaned Images Section
     ${firstNodeId}=                 Get NodeId By Icon       ${orphanedIcon}
     Click Node                                               ${firstNodeId}
     Wait Until Page Contains Element                         xpath=//p[contains(@class,"description")][contains(text(),'This is a virtual container with orphaned images.')]
-    Node Should Be Selected By Icon                          ${orphanedIcon}
     Wait Until Element Is Visible                            xpath=//li[@id='${firstNodeId}']/ul/li
-    #Something weird happening in here, if the sleep is removed this seems to fail a couple of tests which are depenedent on Selecting Orphaned Images Section
-    #To Do : Investigate this failure in better detail.
-    # Sleep                           0.5
+    Node Should Be Selected By Icon                          ${orphanedIcon}
     [Return]                        ${firstNodeId}
 
 Wait Until Right Panel Loads
@@ -282,6 +307,11 @@ Wait For Screen Node
     ${nodeId}=                      Get NodeId By Icon And Id       ${screenIcon}        ${screenId}
     [Return]                        ${nodeId}
 
+Wait For Plate Node
+    [Arguments]                     ${plateId}
+    ${nodeId}=                      Get NodeId By Icon And Id       ${plateIcon}         ${plateId}
+    [Return]                        ${nodeId}
+
 # Or checking Nodes don't exist by ID (only checks what's loaded in jsTree)
 
 Node Should Not Exist In Tree
@@ -300,6 +330,12 @@ Image Should Not Exist In Tree
     [Arguments]                     ${imageId}
     Node Should Not Exist In Tree   ${imageIcon}        ${imageId}
 
+Dataset Should Contain Image 
+    [Arguments]                             ${imageId}      ${datasetId}
+    Select Dataset By Id                    ${datasetId}
+    Wait Until Page Contains Element        css=tr.data_heading_id strong
+    ${nodeId}=                              Wait For Dataset Node               ${datasetId}
+    Wait Until Element Is Visible           xpath=//li[@id='${nodeId}']/ul/li[@data-id='${imageId}']
 
 # Selecting Nodes by ID
 
@@ -317,7 +353,19 @@ Select Dataset By Id
 
 Select Image By Id
     [Arguments]                     ${imageId}
-    ${nodeId}=                      Wait For Image Node    ${imageId}
+    ${nodeId}=                      Wait For Image Node     ${imageId}
+    Click Node                      ${nodeId}
+    [Return]                        ${nodeId}
+
+Select Screen By Id
+    [Arguments]                     ${screenId}
+    ${nodeId}=                      Wait For Screen Node    ${screenId}
+    Click Node                      ${nodeId}
+    [Return]                        ${nodeId}
+
+Select Plate By Id
+    [Arguments]                     ${plateId}
+    ${nodeId}=                      Wait For Plate Node    ${plateId}
     Click Node                      ${nodeId}
     [Return]                        ${nodeId}
 

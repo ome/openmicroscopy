@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -288,7 +288,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                         } catch (NoSuchMethodException e) {
                             /* expected for collection properties */
                         } catch (NestedNullException e) {
-                            log.warn("guessing " + propertyPath + " of " + property.holder + " to be accessible");
+                            log.debug("guessing " + propertyPath + " of " + property.holder + " to be accessible");
                             propertyIsAccessible = true;
                         }
                     } catch (ReflectiveOperationException e) {
@@ -387,7 +387,22 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      * @return the class with that simple name, or {@code null} if one is not known
      */
     public Class<? extends IObject> getClassForSimpleName(String simpleName) {
-        return classesBySimpleName.get(simpleName);
+        Class<? extends IObject> namedClass = classesBySimpleName.get(simpleName);
+        if (namedClass != null) {
+            return namedClass;
+        }
+        /* may have named a subclass, try guessing */
+        Class<?> subclass;
+        try {
+            subclass = Class.forName("omero.model." + simpleName);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+        while (namedClass == null && subclass != Object.class) {
+            subclass = subclass.getSuperclass();
+            namedClass = classesBySimpleName.get(subclass.getSimpleName());
+        }
+        return namedClass;
     }
 
     /**

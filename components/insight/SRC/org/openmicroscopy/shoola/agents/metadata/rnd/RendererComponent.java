@@ -30,6 +30,7 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import omero.romio.PlaneDef;
 
@@ -86,6 +87,11 @@ class RendererComponent
     /** The default error message. */
     private static final String ERROR = " An error occurred while modifying " +
     		"the rendering settings.";
+    
+    /** Warning message shown when the rendering settings are to be reset */
+    public static final String RENDERINGSETTINGS_WARNING = "This will change the "
+            + "rendering settings of all images\nin the dataset/plate and cannot be undone.\n"
+            + "Proceed?";
     
     /** The number of attempts to reload the rendering control. */
     private static final int MAX_RETRY = 1;
@@ -663,7 +669,15 @@ class RendererComponent
      */
 	public void applyToAll()
 	{
-		if (!model.isGeneralIndex()) return;
+		if (!model.isGeneralIndex())
+		    return;
+		
+        MessageBox box = new MessageBox(
+                (JFrame) SwingUtilities.windowForComponent(view),
+                "Save rendering settings", RENDERINGSETTINGS_WARNING);
+        if (box.centerMsgBox() != MessageBox.YES_OPTION)
+            return;
+        
 		try {
 			saveCurrentSettings();
 			firePropertyChange(APPLY_TO_ALL_PROPERTY,  Boolean.valueOf(false), 

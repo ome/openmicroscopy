@@ -483,8 +483,16 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));
-
+			
 			ProcessBuilder builder = new ProcessBuilder(commandLineElements);
+			
+            if (commandLineElements[0].matches(".*Preview\\.app.*")) {
+                // workaround for OSX Preview.app; can't be called via full path 
+                // (will result in permissions exception)
+                builder = new ProcessBuilder("open", "-a", "Preview",
+                        commandLineElements[1]);
+            }
+			
 			builder.start();
 		} catch (Exception e) {
 			logger.error(this, e.getMessage());

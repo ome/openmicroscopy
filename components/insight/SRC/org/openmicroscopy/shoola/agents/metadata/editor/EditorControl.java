@@ -538,11 +538,7 @@ class EditorControl
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (SAVE_PROPERTY.equals(name) || 
-				DataComponent.DATA_MODIFIED_PROPERTY.equals(name) ||
-				PreviewPanel.PREVIEW_EDITED_PROPERTY.equals(name)) {
-			view.setDataToSave(view.hasDataToSave());
-		} else if (MetadataViewer.SAVE_DATA_PROPERTY.equals(name)) {
+		if (MetadataViewer.SAVE_DATA_PROPERTY.equals(name)) {
 			Boolean b = (Boolean) evt.getNewValue();
 			view.saveData(b.booleanValue());
 		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name) ||

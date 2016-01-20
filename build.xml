@@ -658,6 +658,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 <link href="http://docs.oracle.com/javase/8/docs/api/"/>
                 <link href="http://docs.spring.io/spring/docs/${versions.spring}/api/"/>
                 <link href="http://aopalliance.sourceforge.net/doc/"/>
+                <link href="http://downloads.openmicroscopy.org/bio-formats/5.1.7/api/"/>
 
             </javadoc>
         </presetdef>

@@ -89,8 +89,9 @@ module omero {
          * Starting point for all OMERO.blitz interaction.
          *
          * <p> A ServiceFactory once acquired can be used to create any number
-         * of service proxies to the server. Most services implement [ServiceInterface]
-         * or its subinterface [StatefulServiceInterface]. </p>
+         * of service proxies to the server. Most services implement
+         * {@link ServiceInterface} or its subinterface
+         * {@link StatefulServiceInterface}. </p>
          **/
         interface ServiceFactory extends omero::cmd::Session
         {
@@ -99,8 +100,8 @@ module omero {
 
             /**
              * Provides a list of all valid security contexts for this session.
-             * Each of the returned [omero::model::IObject] instances can be
-             * passed to setSecurityContext.
+             * Each of the returned {@link omero.model.IObject} instances can
+             * be passed to {@link #setSecurityContext}.
              **/
             IObjectList getSecurityContexts() throws ServerError;
 
@@ -113,20 +114,23 @@ module omero {
              *
              * <p> Current valid values for security context:
              * <ul>
-             *  <li>[omero::model::ExperimenterGroup] - logs into a specific group</li>
-             *  <li>[omero::model::Share] - uses IShare to activate a share</li>
+             *  <li>{@link omero.model.ExperimenterGroup} - logs into a
+             * specific group</li>
+             *  <li>{@link omero.model.Share} - uses IShare to activate a
+             * share</li>
              * </ul> </p>
              *
              * <p> Passing an unloaded version of either object type will change
              * the way the current session operates. Note: only objects which
-             * are returned by the [getSecurityContexts] method are considered
-             * valid. Any other instance will cause an exception to be thrown. </p>
+             * are returned by the {@link #getSecurityContexts} method are
+             * considered valid. Any other instance will cause an exception to
+             * be thrown. </p>
              *
              * <h4>Example usage in Python:<h4>
              * <pre>
              * sf = client.createSession()
              * objs = sf.getSecurityContexts()
-             * old = sf.setSecurityContext(objs[-1])
+             * old = sf.setSecurityContext(objs\[-1])
              * </pre>
              *
              **/
@@ -172,15 +176,16 @@ module omero {
             // Shared resources -----------------------------------------------
 
             /**
-             * Returns a reference to a back-end manager. The [omero::grid::SharedResources]
-             * service provides look ups for various facilities offered by OMERO:
+             * Returns a reference to a back-end manager. The
+             * {@link omero.grid.SharedResources} service provides look ups
+             * for various facilities offered by OMERO:
              * <ul>
              *   <li><a href="http://www.openmicroscopy.org/site/support/omero5.2/developers/scripts/">OMERO.scripts</a>
              *   <li><a href="http://www.openmicroscopy.org/site/support/omero5.2/developers/Tables.html">OMERO.tables</a>
              * </ul>
              * These facilities may or may not be available on first request.
              *
-             * @see omero::grid::SharedResources
+             * @see omero.grid.SharedResources
              **/
             omero::grid::SharedResources* sharedResources() throws ServerError;
 
