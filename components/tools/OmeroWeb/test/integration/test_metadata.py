@@ -60,4 +60,5 @@ class TestCoreMetadata(IWebTest):
         rsp = _get_response(self.django_client,
                             request_url, data, status_code=200)
         html = rsp.content
-        assert "Pixels Size (XYZ) (pixel):" in html
+        assert "Pixels Size (XYZ):" in html
+        assert "1.20 (pixel)" in html

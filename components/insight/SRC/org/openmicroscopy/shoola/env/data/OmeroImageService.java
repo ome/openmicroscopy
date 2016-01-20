@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
+import omero.ValidationException;
 import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.projection.ProjectionType;
@@ -714,9 +715,10 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ValidationException      If the script validation failed
 	 */
 	public Object uploadScript(SecurityContext ctx, ScriptObject script)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, ValidationException;
 	
 	/**
 	 * Retrieves the thumbnails corresponding to the passed collection of

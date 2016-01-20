@@ -354,6 +354,13 @@ public interface Browser
 	 */
 	public List<ImageNode> getVisibleImageNodes();
 	
+	/** 
+     * Returns the nodes currently visible.
+     * 
+     * @return See above.
+     */
+    public List<ImageNode> getVisibleNodes();
+    
 	/**
 	 * Returns the selected layout.
 	 * 

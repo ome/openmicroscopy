@@ -36,7 +36,7 @@ module omero {
                 idempotent IObjectList           findAllByFullText(string klass, string query, omero::sys::Parameters params) throws ServerError;
 
                 /**
-                 * Return a sequence of [omero::RType] sequences.
+                 * Return a sequence of {@link omero.RType} sequences.
                  *
                  * <p>
                  * Each element of the outer sequence is one row in the return value.
@@ -44,20 +44,22 @@ module omero {
                  * </p>
                  *
                  * <p>
-                 * [omero::model::IObject] instances are returned wrapped in an [omero::rtype::RObject]
-                 * instance. Primitives are mapped to the expected [omero::RType] subclass. Types without
-                 * an [omero::RType] mapper if returned will throw an exception if present in the select
-                 * except where a manual conversion is present on the server. This includes:
+                 * {@link omero.model.IObject} instances are returned wrapped
+                 * in an {@link omero.rtype.RObject} instance. Primitives are
+                 * mapped to the expected {@link omero.RType} subclass. Types
+                 * without an {@link omero.RType} mapper if returned will
+                 * throw an exception if present in the select except where a
+                 * manual conversion is present on the server. This includes:
                  * </p>
                  *
                  * <ul>
                  * <li>
-                 *     [omero::model::Permissions] instances are serialized to an [omero::RMap]
+                 *     {@link omero.model.Permissions} instances are serialized to an {@link omero.RMap}
                  *     containing the keys: perms, canAnnotate, canEdit, canLink, canDelete
                  * </li>
                  * <li>
-                 *     The quantity types like [omero::model::Length] are serialized
-                 *     to an [omero::RMap] containing the keys: value, unit, symbol
+                 *     The quantity types like {@link omero.model.Length} are serialized
+                 *     to an {@link omero.RMap} containing the keys: value, unit, symbol
                  * </li>
                  * </ul>
                  *

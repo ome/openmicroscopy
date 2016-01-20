@@ -70,6 +70,7 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
 import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.SearchFacility;
 import omero.gateway.model.ROIResult;
@@ -134,6 +135,7 @@ import omero.api.SearchPrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chmod2;
+import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -1632,7 +1634,9 @@ class OMEROGateway
 	{
 	    try {
             BrowseFacility f = gw.getFacility(BrowseFacility.class);
-            return f.loadHierarchy(ctx, rootType, rootIDs, options);
+            // TODO: tmp solution, should be changed to Collection<DataObject> throughout
+           return new HashSet(f.loadHierarchy(ctx, rootType,
+                    rootIDs, options));
         } catch (Throwable e) {
             handleException(e, "Cannot load hierarchy for "+rootType+".");
         }
@@ -2022,32 +2026,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
         try {
-            /* convert the list of objects to lists of IDs by OMERO model class name */
-            final Map<String, List<Long>> objectIds = new HashMap<String, List<Long>>();
-            for (final IObject object : objects) {
-                /* determine actual model class name for this object */
-                Class<? extends IObject> objectClass = object.getClass();
-                while (true) {
-                    final Class<?> superclass = objectClass.getSuperclass();
-                    if (IObject.class == superclass) {
-                        break;
-                    } else {
-                        objectClass = superclass.asSubclass(IObject.class);
-                    }
-                }
-                final String objectClassName = objectClass.getSimpleName();
-                /* then add the object's ID to the list for that class name */
-                final Long objectId = object.getId().getValue();
-                List<Long> idsThisClass = objectIds.get(objectClassName);
-                if (idsThisClass == null) {
-                    idsThisClass = new ArrayList<Long>();
-                    objectIds.put(objectClassName, idsThisClass);
-                }
-                idsThisClass.add(objectId);
-            }
-            /* now delete the objects */
-            final Request request = Requests.delete(objectIds);
-            gw.submit(ctx, request).loop(50, 250);
+            DataManagerFacility dmf = gw.getFacility(DataManagerFacility.class);
+            CmdCallbackI cb = dmf.delete(ctx, objects);
+            cb.loop(100, 250);
         } catch (Throwable t) {
             handleException(t, "Cannot delete the object.");
         }
@@ -6334,10 +6315,11 @@ class OMEROGateway
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ValidationException      If the script validation failed
 	 */
 	Object uploadScript(SecurityContext ctx, ScriptObject script,
 			boolean official)
-		throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException, ValidationException
 	{
 		FileInputStream stream = null;
 		try {
@@ -6386,7 +6368,10 @@ class OMEROGateway
 				return svc.uploadOfficialScript(path, buf.toString());
 			return svc.uploadScript(path, buf.toString());
 		} catch (Exception e) {
-			handleException(e,
+		    if (e instanceof ValidationException) 
+		        throw (ValidationException)e;
+		    else
+		        handleException(e,
 					"Cannot upload the script: "+script.getName()+".");
 		}
 		try {

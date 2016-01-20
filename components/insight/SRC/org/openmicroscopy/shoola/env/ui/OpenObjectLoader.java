@@ -23,9 +23,13 @@ package org.openmicroscopy.shoola.env.ui;
 import java.io.File;
 
 import org.openmicroscopy.shoola.env.config.Registry;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
@@ -89,16 +93,17 @@ public class OpenObjectLoader
     	File f;
     	if (object instanceof ImageData) {
     		ImageData image = (ImageData) object;
-    		path += image.getName();
-    		path += image.getId();
-    		path += "."+OMETIFFFilter.OME_TIFF;
+    		String name = image.getName();
+    		name += image.getName();
+    		name += "_"+image.getId();
+    		path += UIUtilities.replaceNonWordCharacters(name)+"."+OMETIFFFilter.OME_TIFF;
     		f = new File(path);
     		f.deleteOnExit();
     		handle = ivView.exportImageAsOMETiff(ctx, image.getId(), f, null,
     				this);
     	} else {
     		FileAnnotationData fa = (FileAnnotationData) object;
-    		path += fa.getFileName();
+    		path += UIUtilities.replaceNonWordCharacters(fa.getFileName());
     		f = new File(path);
     		f.deleteOnExit();
     		handle = mhView.loadFile(ctx, f, fa.getId(), 
