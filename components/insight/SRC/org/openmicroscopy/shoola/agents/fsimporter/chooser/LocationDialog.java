@@ -21,12 +21,12 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,12 +43,14 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -59,6 +61,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
@@ -110,29 +113,6 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/** Default GAP value for UI components */
 	private static final int UI_GAP = 5;
-	
-	/** Template for a table layout with a GAP on all 4 sides */
-	private static final double[][] TABLE_GAP = new double[][]
-			{
-				{UI_GAP, TableLayout.FILL, UI_GAP},
-				{UI_GAP, TableLayout.FILL, UI_GAP}
-			};
-	
-	/** Helper setting for TableLayout.PREFERRED*/
-	private static final double[] TABLE_PREF = {TableLayout.PREFERRED};
-	
-	/** Table template for 2 settings of Preferred width / height */
-	private static final double[] TABLE_PREF_PREF =
-		{TableLayout.PREFERRED, TableLayout.PREFERRED};
-
-	/** Table template for 3 settings of Preferred width / height */
-	private static final double[] TABLE_PREF_PREF_PREF =
-		{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED};
-	
-
-	/** Table template for expandable middle column / row */
-	private static final double[] TABLE_PREF_FILL_PREF =
-		{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED};
 
 	// other constants	
 	/** Minimum width of the dialog in pixels */
@@ -352,8 +332,8 @@ class LocationDialog extends JDialog implements ActionListener,
      */
     private boolean activeWindow;
 
-    /** Flag indicating if projects/datasets have been loaded */
-    private boolean loaded = false;
+    /** Indicates the loading progress. */
+    private JXBusyLabel     busyLabel;
     
 	/**
 	 * Creates a new instance.
@@ -384,6 +364,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		layoutUI(ijoption);
 		populateUIWithDisplayData(findWithId(groups, currentGroupId),
 		        model.getImportFor());
+		
+		addPropertyChangeListener(this);
 	}
 
 	/** 
@@ -532,6 +514,12 @@ class LocationDialog extends JDialog implements ActionListener,
 		closeButton.addActionListener(this);
 		closeButton.setActionCommand("" + CMD_CLOSE);
 		
+		Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH, 
+                UIUtilities.DEFAULT_ICON_HEIGHT);
+		busyLabel = new JXBusyLabel(d);
+        busyLabel.setVisible(true);
+        busyLabel.setBusy(true);
+        
 		getRootPane().setDefaultButton(addButton);
 	}
 
@@ -543,21 +531,24 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private JPanel buildLowerButtonPanel(boolean ijoption)
 	{
-		TableLayout buttonLayout =
-				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
-		JPanel buttonPanel = new JPanel(buttonLayout);
+		JPanel buttonPanel = new JPanel();
+		BoxLayout lay = new BoxLayout(buttonPanel, BoxLayout.X_AXIS);
+		buttonPanel.setLayout(lay);
 		int plugin = ImporterAgent.runAsPlugin();
 		if (plugin != LookupNames.IMAGE_J_IMPORT &&
 		        plugin != LookupNames.IMAGE_J) {
-		    buttonPanel.add(closeButton, "0, 0, l, c");
-	        buttonPanel.add(refreshButton, "1, 0, l, c");
+		    buttonPanel.add(closeButton);
+	        buttonPanel.add(refreshButton);
 		} else {
 		    if (!ijoption) {
-		        buttonPanel.add(closeButton, "0, 0, l, c");
+		        buttonPanel.add(closeButton);
             }
-		    buttonPanel.add(refreshButton, "1, 0, l, c");
+		    buttonPanel.add(refreshButton);
 		}
-		buttonPanel.add(addButton, "2, 0, r, c");
+		
+		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.add(addButton);
+		
 		JPanel buttonWrapper = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
 		Border border =
 				BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK); 
@@ -569,7 +560,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * Builds a TabbedPane holding the Screen / Project import sections
 	 * @return The tab panel for Screen / Project selection
 	 */
-	private JPanel buildDataTypeTabbedPane()
+	private JTabbedPane buildDataTypeTabbedPane()
 	{
 		IconManager icons = IconManager.getInstance();
 		
@@ -588,7 +579,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		tabbedPane.addChangeListener(this);
 		
-		return wrapInGapPanel(tabbedPane);
+		return tabbedPane;
 	}
 	
 	/**
@@ -597,22 +588,39 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private JPanel buildGroupSelectionPanel()
 	{
-		TableLayout groupLayout =
-				createTableLayout(TABLE_PREF_PREF_PREF, TABLE_PREF_PREF);
-		final JPanel groupPanel = new JPanel(groupLayout);
+		final JPanel groupPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0;
+        c.weighty = 0;
+		c.anchor = GridBagConstraints.WEST;
 		
-		String c1 = "0, 0, r, c";
-		String c2 = "1, 0";
 		if (groups.size() > 1) {
-	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), "0, 0, r, c");
-	        groupPanel.add(groupsBox,"1, 0");
-	        c1 = "0, 1, r, c";
-	        c2 = "1, 1";
+	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), c);
+	        c.gridx++;
+	        groupPanel.add(groupsBox,c);
+	        c.gridy++;
+	        c.gridx=0;
 		}
 		if (usersBox.isVisible()) {
-			groupPanel.add(UIUtilities.setTextFont(TEXT_IMPORT_AS), c1);
-			groupPanel.add(usersBox, c2);
+			groupPanel.add(UIUtilities.setTextFont(TEXT_IMPORT_AS), c);
+			c.gridx++;
+			groupPanel.add(usersBox, c);
+			c.gridy++;
 		}
+		
+		c.gridy = 0;
+		c.gridx = 2;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.EAST;
+		
+		groupPanel.add(busyLabel, c); 
+		
+		c.gridy++;
+		groupPanel.add(new JPanel(), c);
 		
 		return groupPanel;
 	}
@@ -624,20 +632,41 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private JPanel buildProjectSelectionPanel()
 	{
-		TableLayout projectLayout =
-				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF_PREF_PREF);
+		JPanel projectPanel = new JPanel(new GridBagLayout());
 		
-		JPanel projectPanel = new JPanel(projectLayout);
-
-		projectPanel.add(UIUtilities.setTextFont(TEXT_PROJECT), "0, 0, r, c");
-		projectPanel.add(projectsBox,"1, 0");
-		projectPanel.add(newProjectButton, "2, 0, c, c");
-
-		projectPanel.add(UIUtilities.setTextFont(TEXT_DATASET), "0, 1, r, c");
-		projectPanel.add(datasetsBox,"1, 1");
-		projectPanel.add(newDatasetButton, "2, 1, c, c");
-
-		return wrapInGapPanel(projectPanel);
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		c.weightx = 0;
+		c.weighty = 0;
+		
+		projectPanel.add(UIUtilities.setTextFont(TEXT_PROJECT), c);
+		c.gridx++;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		projectPanel.add(projectsBox, c);
+		c.gridx++;
+		c.fill = GridBagConstraints.NONE;
+        c.weightx = 0;
+		projectPanel.add(newProjectButton, c);
+		c.gridy++;
+		
+		c.gridx = 0;
+		projectPanel.add(UIUtilities.setTextFont(TEXT_DATASET), c);
+		c.gridx++;
+		c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+		projectPanel.add(datasetsBox, c);
+		c.gridx++;
+		c.fill = GridBagConstraints.NONE;
+        c.weightx = 0;
+		projectPanel.add(newDatasetButton, c);
+		
+		projectPanel.setBorder(BorderFactory.createEmptyBorder(UI_GAP, UI_GAP, UI_GAP, UI_GAP));
+		
+		return projectPanel;
 	}
 
 	/**
@@ -647,16 +676,29 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private JPanel buildScreenSelectionPanel()
 	{
-		TableLayout screenLayout =
-				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
+		JPanel screenPanel = new JPanel(new GridBagLayout());
 
-		JPanel screenPanel = new JPanel(screenLayout);
+		GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 0;
+        c.weighty = 0;
+        
+		screenPanel.add(UIUtilities.setTextFont(TEXT_SCREEN), c);
+		c.gridx++;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+		screenPanel.add(screensBox,c);
+		c.gridx++;
+        c.fill = GridBagConstraints.NONE;
+        c.weightx = 0;
+		screenPanel.add(newScreenButton,c);
 
-		screenPanel.add(UIUtilities.setTextFont(TEXT_SCREEN), "0, 0, r, c");
-		screenPanel.add(screensBox,"1, 0");
-		screenPanel.add(newScreenButton, "2, 0, c, c");
-
-		return wrapInGapPanel(screenPanel);
+		screenPanel.setBorder(BorderFactory.createEmptyBorder(UI_GAP, UI_GAP, UI_GAP, UI_GAP));
+		
+		return screenPanel;
 	}
 
 	/**
@@ -665,7 +707,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param availableGroups The available group.
 	 * @param selectedGroup The selected group.
 	 * @param userID The selected user.
-	 * @return See above.
 	 */
 	private void populateGroupBox(Collection<GroupData> availableGroups,
 			GroupData selectedGroup, long userID)
@@ -755,7 +796,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	private void layoutUI(boolean ijoption)
 	{
 	    int plugin = ImporterAgent.runAsPlugin();
-        JPanel pane;
+        JComponent pane;
         if (plugin == LookupNames.IMAGE_J_IMPORT ||plugin == LookupNames.IMAGE_J) {
             activeWindow = true;
             JPanel buttons = new JPanel();
@@ -776,10 +817,10 @@ class LocationDialog extends JDialog implements ActionListener,
             buttons.add(b);
             group.add(b);
             pane = new JPanel();
-            pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
-            pane.add(buildDataTypeTabbedPane());
+            pane.setLayout(new BorderLayout());
+            pane.add(buildDataTypeTabbedPane(), BorderLayout.CENTER);
             if (ijoption) {
-                pane.add(UIUtilities.buildComponentPanel(buttons));
+                pane.add(UIUtilities.buildComponentPanel(buttons), BorderLayout.SOUTH);
             }
         } else {
             pane = buildDataTypeTabbedPane();
@@ -789,15 +830,14 @@ class LocationDialog extends JDialog implements ActionListener,
 		layout.setHgap(UI_GAP);
 		layout.setVgap(UI_GAP);
 		
-		JPanel mainPanel = new JPanel(layout);
-		mainPanel.add(buildGroupSelectionPanel(),BorderLayout.NORTH);
-		mainPanel.add(pane, BorderLayout.CENTER);
-		mainPanel.add(buildLowerButtonPanel(ijoption), BorderLayout.SOUTH);
-		
-		TableLayout containerLayout = createTableLayout(TABLE_GAP);
-		Container contentPane = this.getContentPane();
-		contentPane.setLayout(containerLayout);
-		contentPane.add(mainPanel, "1, 1");
+		JPanel content = new JPanel();
+		content.setLayout(new BorderLayout());
+		content.add(buildGroupSelectionPanel(),BorderLayout.NORTH);
+		content.add(pane, BorderLayout.CENTER);
+		content.add(buildLowerButtonPanel(ijoption), BorderLayout.SOUTH);
+		content.setBorder(BorderFactory.createEmptyBorder(UI_GAP,UI_GAP,UI_GAP,UI_GAP));
+		this.getContentPane().setLayout(new BorderLayout());
+		this.getContentPane().add(content, BorderLayout.CENTER);
 		
 		// resize the window to minimum size
 		setMinimumSize();
@@ -817,48 +857,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		this.setPreferredSize(minSize);
 		this.setSize(minSize);
 	}
-
-	/**
-	 * Creates a TableLayout based on the design passed in
-	 * with a HGap and VGap set to UI_GAP.
-	 * 
-	 * @param design the column / row template
-	 * @return A table layout with the design & spacing applied
-	 */
-	private TableLayout createTableLayout(double[][] design)
-	{
-		TableLayout tableLayout =  new TableLayout(design);
-		tableLayout.setHGap(UI_GAP);
-		tableLayout.setVGap(UI_GAP);
-		return tableLayout;
-	}
-
-	/**
-	 * Creates a TableLayout based on the design passed in
-	 * with a HGap and VGap set to UI_GAP
-	 * @param columns the column template to use for the table design
-	 * @param rows the row template to use for the table design
-	 * @return A table layout with the design & spacing applied
-	 */
-	private TableLayout createTableLayout(double[] columns, double[] rows)
-	{
-		double[][] design = new double[][]{columns, rows};
-		return createTableLayout(design);
-	}
-	
-	/**
-	 * Wraps the container in a JPanel with a bordered TableLayout
-	 * with a border of UI_GAP
-	 * @param container the container to wrap
-	 * @return The JPanel wrapping the container
-	 */
-	private <T extends Container> JPanel wrapInGapPanel(T container)
-	{
-		TableLayout paddedLayout = createTableLayout(TABLE_GAP);
-		JPanel gapPanel = new JPanel(paddedLayout);
-		gapPanel.add(container, "1, 1");
-		return gapPanel;
-	}
 	
 	/**
 	 * Wraps the container in a JPanel with a bordered TableLayout
@@ -873,16 +871,11 @@ class LocationDialog extends JDialog implements ActionListener,
 	private <T extends Container> JPanel wrapInPaddedPanel(T container,
 			int top, int left, int bottom, int right)
 	{
-		double [][] spacedLayout = new double[][]
-				{
-					{left, TableLayout.FILL, right},
-					{top, TableLayout.FILL, bottom}
-				};
-		
-		TableLayout paddedLayout = createTableLayout(spacedLayout);
-		JPanel gapPanel = new JPanel(paddedLayout);
-		gapPanel.add(container, "1, 1");
-		return gapPanel;
+	    JPanel p = new JPanel();
+	    p.setLayout(new BorderLayout());
+	    p.setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
+	    p.add(container, BorderLayout.CENTER);
+	    return p;
 	}
 
 	/**
@@ -975,7 +968,9 @@ class LocationDialog extends JDialog implements ActionListener,
 	private void switchToSelectedGroup()
 	{
 		GroupData selectedNewGroup = getSelectedGroup();
-		setInputsEnabled(false);
+		objects.clear();
+		convertToDisplayData(objects);
+		populateLocationComboBoxes();
 		firePropertyChange(ImportDialog.PROPERTY_GROUP_CHANGED,
 				null, selectedNewGroup);
 	}
@@ -986,9 +981,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	private void switchToSelectedUser()
 	{
 		populateLocationComboBoxes();
-		//setInputsEnabled(false);
-		//firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null,
-		//		new ImportLocationDetails(dataType, getSelectedUser().getId()));
 	}
 
 	/**
@@ -1004,21 +996,11 @@ class LocationDialog extends JDialog implements ActionListener,
 		{
 			case Importer.PROJECT_TYPE:
 				DataNode project = getSelectedItem(projectsBox);
-				if (project == null)
-				    project = new DataNode(DataNode.createDefaultProject(), null);
-				
 				DataNode dataset = getSelectedItem(datasetsBox);
-				if (dataset == null)
-				    dataset = new DataNode(DataNode.createDefaultDataset(), null);
-				
 				return new ProjectImportLocationSettings(group, user,
 						project, dataset);
 			case Importer.SCREEN_TYPE:
 				DataNode screen = getSelectedItem(screensBox);
-				
-				if (screen == null) 
-				    screen = new DataNode(DataNode.createDefaultScreen(), null);
-				
 				return new ScreenImportLocationSettings(group, user, screen);
 		}
 		
@@ -1071,7 +1053,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	private void displayItemsWithTooltips(JComboBox comboBox,
 			List<DataNode> listItems, DataNode selected)
 	{
-		displayItems(comboBox, listItems, selected, null);
+	    displayItems(comboBox, listItems, selected, null);
 	}
 	
 	/**
@@ -1120,15 +1102,6 @@ class LocationDialog extends JDialog implements ActionListener,
 			comboBox.removeItemListener(itemListener);
 		comboBox.removeAllItems();
 
-        if (!loaded) {
-            SelectableComboBoxModel model = new SelectableComboBoxModel();
-            model.addElement("Loading...");
-            comboBox.setModel(model);
-            if (itemListener != null)
-                comboBox.addItemListener(itemListener);
-            return;
-        }
-		
 		List<String> tooltips = new ArrayList<String>(listItems.size());
 		List<String> lines;
 		ExperimenterData exp;
@@ -1312,6 +1285,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		projects = sort(projects); 
 		datasets.put(newProjectNode, newDatasets);
 		
+		currentProject = newProjectNode;
+		
 		displayItems(projectsBox, projects, newProjectNode, this);
 		displayItemsWithTooltips(datasetsBox, newDatasets);
 		
@@ -1347,6 +1322,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		datasets.put(selectedProject, projectDatasets);
 
+		currentDataset = newDatasetNode;
+		
 		displayItemsWithTooltips(datasetsBox, projectDatasets, newDatasetNode);
 		
 		repaint();
@@ -1365,6 +1342,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		screens.add(newScreenNode);
 		screens = sort(screens);
+		
+		currentScreen = newScreenNode;
 		
 		displayItemsWithTooltips(screensBox, screens, newScreenNode);
 		
@@ -1410,6 +1389,16 @@ class LocationDialog extends JDialog implements ActionListener,
 						getSelectedUser()));
 			}
 		}
+		
+        if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)
+                || ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
+            busyLabel.setBusy(true);
+            busyLabel.setVisible(true);
+            ImportLocationDetails details = (ImportLocationDetails) evt
+                    .getNewValue();
+            if (details != null)
+                dataType = (int) details.getDataType();
+        }
 	}
 
 	/**
@@ -1545,27 +1534,14 @@ class LocationDialog extends JDialog implements ActionListener,
 					currentDataset, index);
 			selectedScreen = findDataNode(screens, currentScreen);
 		}
-		
-		switch (dataType)
-		{
-			case Importer.PROJECT_TYPE:
-				displayItems(projectsBox, sortByUser(projects),
-						selectedProject, this);
-				displayItemsWithTooltips(datasetsBox,
-						sortByUser(datasets.get(selectedProject)),
-						selectedDataset);
-				break;
-			case Importer.SCREEN_TYPE:
-				if (container != null)
-				{
-					Object hostObject = container.getUserObject();
-					selectedScreen = findDataNode(screens,
-							hostObject, ScreenData.class);
-				}
-				
-				displayItemsWithTooltips(screensBox,
-						sortByUser(screens), selectedScreen);
-		}
+
+		displayItems(projectsBox, sortByUser(projects),
+				selectedProject, this);
+		displayItemsWithTooltips(datasetsBox,
+				sortByUser(datasets.get(selectedProject)),
+				selectedDataset);
+		displayItemsWithTooltips(screensBox,
+				sortByUser(screens), selectedScreen);
 	}
 
 	/**
@@ -1705,7 +1681,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	    this.dataType = type;
 	    this.objects = objects;
 	    this.container = container;
-	    this.loaded = true;
+	    this.busyLabel.setBusy(false);
+	    this.busyLabel.setVisible(false);
 	    populateUIWithDisplayData(findWithId(groups, currentGroupId), userID);
 	    setInputsEnabled(true);
 	}

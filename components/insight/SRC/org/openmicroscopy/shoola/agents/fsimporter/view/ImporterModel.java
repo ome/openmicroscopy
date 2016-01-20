@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 
 import omero.gateway.SecurityContext;
-import omero.gateway.ServerInformation;
 
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
@@ -122,6 +121,9 @@ class ImporterModel
     /** The id of the user to import for.*/
     private long userId;
 
+    /** Loader for screen/plates, projects/datasets */
+    private DataLoader containerLoader;
+    
     /**
      * The result object used to determine setting when saving rois/measurement
      * post import.
@@ -416,9 +418,15 @@ class ImporterModel
 		    ctx.setExperimenter(user);
 		    ctx.sudo();
 		}
-		DataLoader loader = new DataLoader(component, ctx, rootType,
+		
+		// cancel the previous loader
+		if(containerLoader != null && state == Importer.LOADING)
+		    containerLoader.cancel();
+		
+		state = Importer.LOADING;
+		containerLoader = new DataLoader(component, ctx, rootType,
 				refreshImport, changeGroup);
-		loader.load();
+		containerLoader.load();
 	}
 
 	/**
