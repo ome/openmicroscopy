@@ -514,9 +514,9 @@ class LocationDialog extends JDialog implements ActionListener,
 		closeButton.addActionListener(this);
 		closeButton.setActionCommand("" + CMD_CLOSE);
 		
-		Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH, 
+        Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
                 UIUtilities.DEFAULT_ICON_HEIGHT);
-		busyLabel = new JXBusyLabel(d);
+        busyLabel = new JXBusyLabel(d);
         busyLabel.setVisible(true);
         busyLabel.setBusy(true);
         
@@ -593,8 +593,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		c.gridx = 0;
 		c.gridy = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0;
-        c.weighty = 0;
+		c.weightx = 0;
+		c.weighty = 0;
 		c.anchor = GridBagConstraints.WEST;
 		
 		if (groups.size() > 1) {
@@ -625,81 +625,81 @@ class LocationDialog extends JDialog implements ActionListener,
 		return groupPanel;
 	}
 	
-	/**
-	 * Builds a JPanel holding the project selection section.
-	 * 
-	 * @return JPanel holding the project selection UI elements
-	 */
-	private JPanel buildProjectSelectionPanel()
-	{
-		JPanel projectPanel = new JPanel(new GridBagLayout());
-		
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.WEST;
-		c.weightx = 0;
-		c.weighty = 0;
-		
-		projectPanel.add(UIUtilities.setTextFont(TEXT_PROJECT), c);
-		c.gridx++;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 1;
-		projectPanel.add(projectsBox, c);
-		c.gridx++;
-		c.fill = GridBagConstraints.NONE;
-        c.weightx = 0;
-		projectPanel.add(newProjectButton, c);
-		c.gridy++;
-		
-		c.gridx = 0;
-		projectPanel.add(UIUtilities.setTextFont(TEXT_DATASET), c);
-		c.gridx++;
-		c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1;
-		projectPanel.add(datasetsBox, c);
-		c.gridx++;
-		c.fill = GridBagConstraints.NONE;
-        c.weightx = 0;
-		projectPanel.add(newDatasetButton, c);
-		
-		projectPanel.setBorder(BorderFactory.createEmptyBorder(UI_GAP, UI_GAP, UI_GAP, UI_GAP));
-		
-		return projectPanel;
-	}
+    /**
+     * Builds a JPanel holding the project selection section.
+     * 
+     * @return JPanel holding the project selection UI elements
+     */
+    private JPanel buildProjectSelectionPanel() {
+        JPanel projectPanel = new JPanel(new GridBagLayout());
 
-	/**
-	 * Builds a JPanel holding the screen selection section.
-	 * 
-	 * @return JPanel holding the screen selection UI elements
-	 */
-	private JPanel buildScreenSelectionPanel()
-	{
-		JPanel screenPanel = new JPanel(new GridBagLayout());
-
-		GridBagConstraints c = new GridBagConstraints();
+        GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 0;
         c.fill = GridBagConstraints.NONE;
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 0;
         c.weighty = 0;
-        
-		screenPanel.add(UIUtilities.setTextFont(TEXT_SCREEN), c);
-		c.gridx++;
+
+        projectPanel.add(UIUtilities.setTextFont(TEXT_PROJECT), c);
+        c.gridx++;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
-		screenPanel.add(screensBox,c);
-		c.gridx++;
+        projectPanel.add(projectsBox, c);
+        c.gridx++;
         c.fill = GridBagConstraints.NONE;
         c.weightx = 0;
-		screenPanel.add(newScreenButton,c);
+        projectPanel.add(newProjectButton, c);
+        c.gridy++;
 
-		screenPanel.setBorder(BorderFactory.createEmptyBorder(UI_GAP, UI_GAP, UI_GAP, UI_GAP));
-		
-		return screenPanel;
-	}
+        c.gridx = 0;
+        projectPanel.add(UIUtilities.setTextFont(TEXT_DATASET), c);
+        c.gridx++;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        projectPanel.add(datasetsBox, c);
+        c.gridx++;
+        c.fill = GridBagConstraints.NONE;
+        c.weightx = 0;
+        projectPanel.add(newDatasetButton, c);
+
+        projectPanel.setBorder(BorderFactory.createEmptyBorder(UI_GAP, UI_GAP,
+                UI_GAP, UI_GAP));
+
+        return projectPanel;
+    }
+
+    /**
+     * Builds a JPanel holding the screen selection section.
+     * 
+     * @return JPanel holding the screen selection UI elements
+     */
+    private JPanel buildScreenSelectionPanel() {
+        JPanel screenPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 0;
+        c.weighty = 0;
+
+        screenPanel.add(UIUtilities.setTextFont(TEXT_SCREEN), c);
+        c.gridx++;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        screenPanel.add(screensBox, c);
+        c.gridx++;
+        c.fill = GridBagConstraints.NONE;
+        c.weightx = 0;
+        screenPanel.add(newScreenButton, c);
+
+        screenPanel.setBorder(BorderFactory.createEmptyBorder(UI_GAP, UI_GAP,
+                UI_GAP, UI_GAP));
+
+        return screenPanel;
+    }
 
 	/**
 	 * Builds the toolbar when the importer is the entry point.
@@ -859,7 +859,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	/**
-	 * Wraps the container in a JPanel with a bordered TableLayout
+	 * Wraps the container in a JPanel with an empty border
 	 * with the border width specified
 	 * @param container
 	 * @param top The amount of padding on the top of the container
