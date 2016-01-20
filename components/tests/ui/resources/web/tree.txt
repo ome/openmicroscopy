@@ -10,6 +10,7 @@ ${screenIcon}                   webclient/image/folder_screen16.png
 ${orphanedIcon}                 webclient/image/folder_yellow16.png
 ${plateIcon}                    webclient/image/folder_plate16.png
 
+${datasetDetails}               xpath=//*[@id="general_tab"]/h1[contains(@data-name,'details')]/following-sibling::div
 *** Keywords ***
 
 Click Dialog Button
@@ -248,32 +249,44 @@ Select Orphaned Images Section
 
 Wait Until Right Panel Loads
     [Arguments]                     ${containerType}         ${containerId}
-    Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${containerType} ID:')]
-    Wait Until Page Contains Element                         xpath=//tr[contains(@class,'data_heading_id')]/td/strong[(text() = '${containerId}')]
+    Wait Until Element Is Visible                           xpath=//tr[contains(@class,'data_heading_id')]//th[contains(text(),'${containerType} ID:')]
+    Wait Until Element Is Visible                           xpath=//tr[contains(@class,'data_heading_id')]/td/strong[(text() = '${containerId}')]
+
+Wait Until Right Panel Loads Everything
+    [Arguments]                     ${containerType}        ${containerId}
+
+    Wait Until Right Panel Loads    ${containerType}        ${containerId}
+    Wait Until Element Is Visible                           xpath=//*[@id="general_tab"]/h1[contains(text(),'${containerType} Details')]
     
-    Wait Until Page Contains Element                         xpath=//*[@id="general_tab"]/h1[1][contains(text(),'${containerType} Details')]
-    Run Keyword If                  '${containerType}' == 'Project'        Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[1]/th[contains(text(),'Creation Date:')]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[1]/th[contains(text(),'Creation Date:')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[1]/th[contains(text(),'Acquisition Date:')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[2]/th[contains(text(),'Import Date:')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[3]/th[contains(text(),'Dimensions (XY):')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[4]/th[contains(text(),'Pixels Type:')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[5]/th[contains(text(),'Pixels Size (XYZ) (µm):')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[6]/th[contains(text(),'Z-sections/Timepoints:')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[7]/th[contains(text(),'Channels:')]
-    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Page Contains Element     xpath=//*[@id="general_tab"]/div[7]/table/tbody/tr[8]/th[contains(text(),'ROI Count:')]
-    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[2][contains(text(),'Tags')]
-    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[3][contains(text(),'Key-Value Pairs')]
-    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[4][contains(text(),'Attachments')]
-    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[5][contains(text(),'Ratings')]
-    Wait Until Page Contains Element                        xpath=//*[@id="general_tab"]/h1[6][contains(text(),'Comments')]
+    Run Keyword If                  '${containerType}' == 'Project'        Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Creation Date:')]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Creation Date:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Acquisition Date:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Import Date:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Dimensions (XY):')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Pixels Type:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Pixels Size (XYZ) (µm):')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Z-sections/Timepoints:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'Channels:')]
+    Run Keyword If                  '${containerType}' == 'Image'          Wait Until Element Is Visible     ${datasetDetails}//th[contains(text(),'ROI Count:')]
+    Wait Until Element Is Visible                       xpath=//*[@id="general_tab"]/h1[contains(text(),'Tags')]
+    Wait Until Element Is Visible                       xpath=//*[@id="general_tab"]/h1[contains(text(),'Key-Value Pairs')]
+    Wait Until Element Is Visible                       xpath=//*[@id="general_tab"]/h1[contains(text(),'Attachments')]
+    Wait Until Element Is Visible                       xpath=//*[@id="general_tab"]/h1[contains(text(),'Ratings')]
+    Wait Until Element Is Visible                       xpath=//*[@id="general_tab"]/h1[contains(text(),'Comments')]
+
+    Run Keyword If                  '${containerType}' == 'Image'           Wait Until Element Is Visible     xpath=//*[@id="general_tab"]/div/button/span[contains(text(),'Full viewer')]
+    Run Keyword If                  '${containerType}' == 'Image'           Wait Until Element Is Visible     xpath=//*[@id="general_tab"]/div/div/button[contains(@title,'Publishing Options')]
+    Run Keyword If                  '${containerType}' == 'Image'           Wait Until Element Is Visible     xpath=//*[@id="show_fs_files_btn"]
+    Run Keyword If                  '${containerType}' == 'Image'           Wait Until Element Is Visible     xpath=//*[@id="show_image_hierarchy"]
+    Run Keyword If                  '${containerType}' == 'Image'           Wait Until Element Is Visible     xpath=//*[@id="show_link_btn"]
+    Run Keyword If                  '${containerType}' == 'Image'           Wait Until Element Is Visible     xpath=//*[@id="general_tab"]/div/div/button[contains(@title,'Download Image as...')]
 
 Wait Until Center Panel Loads
     [Arguments]                     ${containerType}
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     //*[@id="content_details"]/div[1]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     xpath=//*[@id="filtersearch"]/div/label[contains(text(),'Filter Images')]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     xpath=//*[@id="icon_layout"][contains(@title,"View as Thumbnails")][contains(@class,"checked")]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Page Contains Element     //*[@id="table_layout"][contains(@title,"View as List")]    
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="content_details"]/div[1]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="filtersearch"]/div/label[contains(text(),'Filter Images')]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="icon_layout"][contains(@title,"View as Thumbnails")][contains(@class,"checked")]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="table_layout"][contains(@title,"View as List")]    
     
 
 # Methods for querying nodes by TEXT
