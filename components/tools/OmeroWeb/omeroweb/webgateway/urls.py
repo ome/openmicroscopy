@@ -101,8 +101,8 @@ Params in render_row_plot/<iid>/<z>/<t>/<y>/<w> are:
 """
 
 render_col_plot = (
-    r'^render_col_plot/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/(?P<x>[0-9]+)'
-    '/(?:(?P<w>[0-9]+)/)?$',
+    r'^render_col_plot/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)'
+    '/(?P<x>[0-9]+)/(?:(?P<w>[0-9]+)/)?$',
     'webgateway.views.render_col_plot')
 """
 Returns a gif graph of pixel values for a column of an image plane. See
@@ -117,7 +117,8 @@ Params in render_col_plot/<iid>/<z>/<t>/<x>/<w> are:
 """
 
 render_thumbnail = url(
-    r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<w>[0-9]+)/)?(?:(?P<h>[0-9]+)/)?$',
+    r'^render_thumbnail/(?P<iid>[0-9]+)'
+    '/(?:(?P<w>[0-9]+)/)?(?:(?P<h>[0-9]+)/)?$',
     'webgateway.views.render_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO Image, optionally scaled to max-width
