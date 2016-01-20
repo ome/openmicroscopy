@@ -486,16 +486,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webgateway_cache":
         ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
 
-    # VIEWER
-    # the following parameters configure when to show/hide the 'Volume viewer'
-    # icon in the Image metadata panel
-    "omero.web.open_astex_max_side":
-        ["OPEN_ASTEX_MAX_SIDE", 400, int, None],
-    "omero.web.open_astex_min_side":
-        ["OPEN_ASTEX_MIN_SIDE", 20, int, None],
-    "omero.web.open_astex_max_voxels":
-        ["OPEN_ASTEX_MAX_VOXELS", 27000000, int, None],  # 300 x 300 x 300
-
     # PIPELINE 1.3.20
 
     # Pipeline is an asset packaging library for Django, providing both CSS

@@ -294,45 +294,6 @@ class BaseContainer(BaseController):
         figureScripts.append(makeMovie)
         return figureScripts
 
-    def openAstexViewerCompatible(self):
-        """
-        Is the image suitable to be viewed with the Volume viewer 'Open Astex
-        Viewer' applet?
-        Image must be a 'volume' of suitable dimensions and not too big.
-        """
-        MAX_SIDE = settings.OPEN_ASTEX_MAX_SIDE     # default is 400
-        MIN_SIDE = settings.OPEN_ASTEX_MIN_SIDE     # default is 20
-        # default is 15625000 (250 * 250 * 250)
-        MAX_VOXELS = settings.OPEN_ASTEX_MAX_VOXELS
-
-        if self.image is None:
-            return False
-        sizeZ = self.image.getSizeZ()
-        if self.image.getSizeC() > 1:
-            return False
-        sizeX = self.image.getSizeX()
-        sizeY = self.image.getSizeY()
-        if sizeZ < MIN_SIDE or sizeX < MIN_SIDE or sizeY < MIN_SIDE:
-            return False
-        if sizeX > MAX_SIDE or sizeY > MAX_SIDE or sizeZ > MAX_SIDE:
-            return False
-        voxelCount = (sizeX * sizeY * sizeZ)
-        if voxelCount > MAX_VOXELS:
-            return False
-
-        try:
-            # if scipy ndimage is not available for interpolation, can only
-            # handle smaller images
-            import scipy.ndimage  # noqa
-        except ImportError:
-            logger.debug("Failed to import scipy.ndimage - Open Astex Viewer"
-                         " limited to display of smaller images.")
-            MAX_VOXELS = (160 * 160 * 160)
-            if voxelCount > MAX_VOXELS:
-                return False
-
-        return True
-
     def formatMetadataLine(self, l):
         if len(l) < 1:
             return None
