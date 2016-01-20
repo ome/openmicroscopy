@@ -12,6 +12,7 @@ sudo: false
 cache:
   directories:
   - $HOME/.m2
+  - download
 
 matrix:
       fast_finish: true
