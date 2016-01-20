@@ -283,7 +283,7 @@ public class BrowseFacility extends Facility {
      */
     public IObject findIObject(SecurityContext ctx, IObject o)
             throws DSOutOfServiceException, DSAccessException {
-        if (o == null)
+        if (o == null || o.getId() == null)
             return null;
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
