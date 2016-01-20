@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2DEV__0 to OMERO5.3DEV__0.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__0.
 ---
 
 BEGIN;
@@ -43,7 +43,7 @@ BEGIN
 
 END;$$ LANGUAGE plpgsql;
 
-SELECT omero_assert_db_version('OMERO5.2DEV', 0);
+SELECT omero_assert_db_version('OMERO5.2', 0);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  0,            'OMERO5.2DEV',   0);
+             VALUES ('OMERO5.3DEV',  0,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -152,7 +152,7 @@ ALTER TABLE shape DROP COLUMN writingmode;
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
           currentPatch    = 0             AND
-          previousVersion = 'OMERO5.2DEV' AND
+          previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
 SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
