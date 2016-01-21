@@ -30,10 +30,12 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.ImportException;
+import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImportCallback;
 import omero.gateway.model.ImportableFile;
 import omero.gateway.model.ImportableObject;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ProjectData;
 
 /**
  * {@link Facility} which provides data transfer functionality, i.e. download
@@ -80,31 +82,92 @@ public class TransferFacility extends Facility {
     /**
      * Uploads an image to the server.
      *
-     * @param context The security context.
-     * @param image The image to upload.
-     * @param folderAsContainer Indicates to use the folder's name to create
-     *                          a dataset or screen.
-     * @param overrideName Indicates to override the file's name.
-     * @param user The owner of the image.
-     * @param observer The observer to notify components of upload status.
+     * @param context
+     *            The security context.
+     * @param image
+     *            The image to upload.
+     * @param folderAsContainer
+     *            Indicates to use the folder's name to create a dataset or
+     *            screen.
+     * @param overrideName
+     *            Indicates to override the file's name. (if set to
+     *            <code>true</code> the full file path will be used as image
+     *            name)
+     * @param user
+     *            The user to import the image for (can be <code>null</code>)
+     * @param observer
+     *            The observer to notify components of upload status.
      * @throws DSOutOfServiceException
      * @throws DSAccessException
-     * @throws ImportException If an error occurred while importing data.
+     * @throws ImportException
+     *             If an error occurred while importing data.
      */
     public void uploadImage(SecurityContext context, File image,
             boolean folderAsContainer, boolean overrideName, ExperimenterData user,
             ImportCallback observer) throws DSAccessException,
             DSOutOfServiceException, ImportException {
+        if(user == null)
+            user = gateway.getLoggedInUser();
+        
         ImportableFile imf = new ImportableFile(image, folderAsContainer);
         imf.setGroup(user.getDefaultGroup());
         imf.setStatus(observer);
 
         ImportableObject imo = new ImportableObject(Arrays.asList(new ImportableFile[]{imf}),
                 overrideName);
+        
+        helper.importFile(imo, imf, user, true);
+    }
+    
+    /**
+     * Uploads an image to the server.
+     *
+     * @param context
+     *            The security context.
+     * @param image
+     *            The image to upload.
+     * @param folderAsContainer
+     *            Indicates to use the folder's name to create a dataset or
+     *            screen.
+     * @param overrideName
+     *            Indicates to override the file's name. (if set to
+     *            <code>true</code> the full file path will be used as image
+     *            name)
+     * @param targetProject
+     *            The {@link ProjectData} to import the image to (can be
+     *            <code>null</code>)
+     * @param targetDataset
+     *            The {@link DatasetData} to import the image to (can be
+     *            <code>null</code>)
+     * @param user
+     *            The user to import the image for (can be <code>null</code>)
+     * @param observer
+     *            The observer to notify components of upload status.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     * @throws ImportException
+     *             If an error occurred while importing data.
+     */
+    public void uploadImage(SecurityContext context, File image,
+            boolean overrideName, ProjectData targetProject,
+            DatasetData targetDataset, ExperimenterData user,
+            ImportCallback observer) throws DSAccessException,
+            DSOutOfServiceException, ImportException {
+        if (user == null)
+            user = gateway.getLoggedInUser();
+
+        ImportableFile imf = new ImportableFile(image, false);
+        imf.setGroup(user.getDefaultGroup());
+        imf.setStatus(observer);
+        if (targetDataset != null)
+            imf.setLocation(targetProject, targetDataset);
+
+        ImportableObject imo = new ImportableObject(
+                Arrays.asList(new ImportableFile[] { imf }), overrideName);
 
         helper.importFile(imo, imf, user, true);
     }
-
+    
     /**
      * Uploads an image to the server.
      *

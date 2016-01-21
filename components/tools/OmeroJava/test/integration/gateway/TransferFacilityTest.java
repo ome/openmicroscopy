@@ -30,7 +30,9 @@ import ome.specification.XMLWriter;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.ImportException;
+import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImportCallback;
+import omero.gateway.model.ProjectData;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -60,6 +62,7 @@ public class TransferFacilityTest extends GatewayTest {
     @Test
     public void testUploadImage() throws DSAccessException,
             DSOutOfServiceException, ImportException {
+        // upload, create dataset automatically
         ImportCallback cb = new ImportCallback();
         transferFacility.uploadImage(rootCtx, testFile, cb);
 
@@ -75,6 +78,57 @@ public class TransferFacilityTest extends GatewayTest {
         PixelsData p = (PixelsData) ((Set) obj).iterator().next();
         imgId = p.getImage().getId();
 
+        Assert.assertEquals(cb.getNumberOfImportedFiles(), 1);
+        Assert.assertNull(cb.getException());
+        
+        // upload into dataset
+        DatasetData targetDS = new DatasetData();
+        targetDS.setName("Test Dataset");
+        cb = new ImportCallback();
+        transferFacility.uploadImage(rootCtx, testFile, true, null, targetDS, null, cb);
+        
+        c = 0;
+        while (!cb.isFinished() && c < 10) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+        
+        Assert.assertEquals(cb.getNumberOfImportedFiles(), 1);
+        Assert.assertNull(cb.getException());
+        
+        // upload into project and dataset 
+        ProjectData targetProj = new ProjectData();
+        targetProj.setName("Test Project");
+        targetDS = new DatasetData();
+        targetDS.setName("Test Dataset 2");
+        cb = new ImportCallback();
+        transferFacility.uploadImage(rootCtx, testFile, true, targetProj, targetDS, null, cb);
+        
+        c = 0;
+        while (!cb.isFinished() && c < 10) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+        
+        Assert.assertEquals(cb.getNumberOfImportedFiles(), 1);
+        Assert.assertNull(cb.getException());
+        
+        // upload into orphaned images
+        cb = new ImportCallback();
+        transferFacility.uploadImage(rootCtx, testFile, false, true, null, cb);
+        
+        c = 0;
+        while (!cb.isFinished() && c < 10) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+        
         Assert.assertEquals(cb.getNumberOfImportedFiles(), 1);
         Assert.assertNull(cb.getException());
     }
