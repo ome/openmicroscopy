@@ -483,6 +483,7 @@ Click Previous Thumbnail
 Click Next Thumbnail
     Click Element  xpath=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]/following-sibling::li
 
+
 Thumbnail Should Be Selected
     [Arguments]     ${imageId}    ${expected}=${true}
     Run Keyword If  ${expected}   Wait Until Page Contains Element    xpath=//li[@id='image_icon-${imageId}' and contains(@class, 'ui-selected')]
@@ -502,7 +503,7 @@ Shift Click Thumbnail
 
 Shift Click Element
     [Arguments]                     ${elementSelector}
-    Execute Javascript              $("${elementSelector}").trigger(jQuery.Event( "click", { shiftKey: true } ));
+    Execute Javascript              $(${elementSelector}).trigger(jQuery.Event( "click", { shiftKey: true } ));
 
 Meta Click Node
     [Arguments]                     ${nodeId}
@@ -514,5 +515,5 @@ Meta Click Thumbnail
 
 Meta Click Element
     [Arguments]                     ${elementSelector}
-     Execute Javascript             $("${elementSelector}").trigger(jQuery.Event( "click", { metaKey: true } ));
+    Execute Javascript              $(${elementSelector}).trigger(jQuery.Event( "click", { metaKey: true } ));
 
