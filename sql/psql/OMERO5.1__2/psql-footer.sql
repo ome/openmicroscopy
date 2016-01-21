@@ -1755,7 +1755,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1',  2,    'OMERO5.1',   0,             'Initializing');
+             values ('OMERO5.1',  2,    'OMERO5.1',   1,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3059,7 +3059,7 @@ update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1' and
         currentPatch = 2 and
         previousVersion = 'OMERO5.1' and
-        previousPatch = 0;
+        previousPatch = 1;
 
 COMMIT;
 
