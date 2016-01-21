@@ -28,15 +28,19 @@ import java.util.Properties;
 
 
 /**
- *
- *
+ * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
 public class Setup {
 
-
+    /** The default port.*/
+    public static final int DEFAULT_PORT = 4064;
+    
+    /** The name space used during the training.*/
+    public static final String TRAINING_NS = "omero.training.demo";
+    
 	/** The name of the configuration file in the configuration directory. */
 	private static final String CONFIG_FILE = "training.config";
 	
@@ -93,45 +97,42 @@ public class Setup {
 	/**
 	 * Creates a new instance.
 	 */
-	Setup()
+	Setup(String[] args)
 	{
-	    String ice_config = System.getenv().get("ICE_CONFIG");
-	    Properties p;
-	    if (ice_config == null || ice_config.isEmpty()) {
-	        //fall back to training.config
-	        p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
-	    } else {
-	        p = loadConfig(new File(ice_config).getAbsolutePath());
-	    }
-		ConfigurationInfo info = null;
-		try {
-			info = new ConfigurationInfo();
-			info.setHostName(p.getProperty("omero.host"));
-			info.setPassword(p.getProperty("omero.pass"));
-			info.setUserName(p.getProperty("omero.user"));
-			info.setGroup(p.getProperty("omero.group"));
-			info.setPort(Integer.parseInt(p.getProperty("omero.port")));
-			info.setImageId(Long.parseLong(p.getProperty("omero.imageid")));
-			info.setDatasetId(Long.parseLong(p.getProperty("omero.datasetid")));
-			info.setProjectId(Long.parseLong(p.getProperty("omero.projectid")));
-			info.setScreenId(Long.parseLong(p.getProperty("omero.screenid")));
-			info.setPlateId(Long.parseLong(p.getProperty("omero.plateid")));
-		} catch (Exception e) {
-			e.printStackTrace();
-			//wrong configuration
-			info = null;
-		}
-		new CreateImage(info);
-		new DeleteData(info);
-		new HowToUseTables(info);
-		new LoadMetadataAdvanced(info);
-		new RawDataAccess(info);
-		new ReadData(info);
-		new ReadDataAdvanced(info);
-		new RenderImages(info);
-		new ROIs(info);
-		new WriteData(info);
-		new ImportImage(info);
+        long imageId = 1;
+        long datasetId = 1;
+        long projectId = 1;
+        long plateId = 1;
+
+        Properties p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
+        imageId = Long.parseLong(p.getProperty("omero.imageid"));
+        datasetId = Long.parseLong(p.getProperty("omero.datasetid"));
+        projectId = Long.parseLong(p.getProperty("omero.projectid"));
+        plateId = Long.parseLong(p.getProperty("omero.plateid"));
+
+        if (args == null || args.length == 0) {
+            String ice_config = System.getenv().get("ICE_CONFIG");
+            if (ice_config != null && !ice_config.isEmpty()) {
+                p = loadConfig(new File(ice_config).getAbsolutePath());
+                args = new String[] {
+                        "--omero.host=" + p.getProperty("omero.host"),
+                        "--omero.pass=" + p.getProperty("omero.pass"),
+                        "--omero.user=" + p.getProperty("omero.user"),
+                        "--omero.port=" + p.getProperty("omero.port") };
+            }
+        }
+		
+		new CreateImage(args, imageId, datasetId);
+		new DeleteData(args);
+		new HowToUseTables(args);
+		new LoadMetadataAdvanced(args, imageId);
+		new RawDataAccess(args, imageId);
+		new ReadData(args, datasetId, plateId, imageId);
+		new ReadDataAdvanced(args);
+		new RenderImages(args, imageId);
+		new ROIs(args, imageId);
+		new WriteData(args, imageId, projectId);
+		new ImportImage(args);
 	}
 	
 	/**
@@ -140,7 +141,7 @@ public class Setup {
 	 */
 	public static void main(String[] args)
 	{
-		new Setup();
+		new Setup(args);
 		System.exit(0);
 	}
 

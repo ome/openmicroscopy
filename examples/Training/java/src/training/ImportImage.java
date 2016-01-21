@@ -50,14 +50,16 @@ public class ImportImage {
 
     // The values used if the configuration file is not used. To edit*/
     /** The server address. */
-    private String hostName = "serverName";
+    private static String hostName = "serverName";
 
     /** The username. */
-    private String userName = "userName";
+    private static String userName = "userName";
 
     /** The password. */
-    private String password = "password";
+    private static String password = "password";
 
+    //end edit
+    
     /** Reference to the gateway */
     private Gateway gateway;
 
@@ -67,22 +69,10 @@ public class ImportImage {
     /**
      * Connects and invokes the various methods.
      * 
-     * @param info
-     *            The configuration information
+     * @param args The login credentials
      */
-    ImportImage(ConfigurationInfo info) {
-        if (info == null) {
-            info = new ConfigurationInfo();
-            info.setHostName(hostName);
-            info.setPassword(password);
-            info.setUserName(userName);
-        }
-
-        LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+    ImportImage(String[] args) {
+        LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
 
@@ -90,8 +80,8 @@ public class ImportImage {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
 
-            gatewayImport(info);
-            apiImport(info);
+            gatewayImport();
+            apiImport(args);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -100,14 +90,13 @@ public class ImportImage {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     }
 
     /**
      * Import an image file via the Gateway (recommended)
      */
-    private void gatewayImport(ConfigurationInfo info) {
+    private void gatewayImport() {
         File fakeImage = null;
 
         try {
@@ -139,10 +128,23 @@ public class ImportImage {
     /**
      * Import an image directly using the Java API
      */
-    private void apiImport(ConfigurationInfo info) {
+    private void apiImport(String[] args) {
         File fakeImage = null;
 
         try {
+
+            String host = hostName, port = "" + Setup.DEFAULT_PORT, user = userName, pass = password;
+            for (String arg : args) {
+                if (arg.startsWith("--omero.host"))
+                    host = arg.substring(arg.indexOf('=') + 1);
+                if (arg.startsWith("--omero.port"))
+                    port = arg.substring(arg.indexOf('=') + 1);
+                if (arg.startsWith("--omero.user"))
+                    user = arg.substring(arg.indexOf('=') + 1);
+                if (arg.startsWith("--omero.pass"))
+                    pass = arg.substring(arg.indexOf('=') + 1);
+            }
+            
             fakeImage = File.createTempFile("api_image", ".fake");
 
             String[] paths = new String[] { fakeImage.getPath() };
@@ -155,10 +157,10 @@ public class ImportImage {
             config.contOnError.set(false);
             config.debug.set(false);
 
-            config.hostname.set(info.getHostName());
-            config.port.set(info.getPort());
-            config.username.set(info.getUserName());
-            config.password.set(info.getPassword());
+            config.hostname.set(host);
+            config.port.set(Integer.parseInt(port));
+            config.username.set(user);
+            config.password.set(pass);
 
             // the imported image will go into 'orphaned images' unless
             // you specify a particular existing dataset like this:
@@ -189,7 +191,11 @@ public class ImportImage {
     }
 
     public static void main(String[] args) {
-        new ImportImage(null);
+        if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                    "--omero.user=" + userName, "--omero.pass=" + password };
+        
+        new ImportImage(args);
         System.exit(0);
     }
 
