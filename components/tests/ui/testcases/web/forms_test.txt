@@ -75,7 +75,6 @@ Test Share
     Submit Form                                 create_share_form
     Wait Until Element Is Visible               id=share_dialog_form    ${WAIT}
     ${shareId}=                                 Get Text                    id=shareCreatedId
-    Wait Until Element Is Visible               xpath=//button[contains(@class,'ui-button')]/span[contains(text(), 'OK')]   ${WAIT}
     Click Dialog Button                         OK
 
     # Check Share has been created
