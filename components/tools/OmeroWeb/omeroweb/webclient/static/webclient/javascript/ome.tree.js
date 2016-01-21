@@ -815,19 +815,19 @@ $(function() {
                         "project": {
                             "label" : "Project",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder16.png',
                             action: function (node) {OME.handleNewContainer("project"); },
                         },
                         "dataset": {
                             "label" : "Dataset",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder_image16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder_image16.png',
                             action: function (node) {OME.handleNewContainer("dataset"); },
                           },
                           "screen": {
                             "label" : "Screen",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder_screen16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder_screen16.png',
                             action: function (node) {OME.handleNewContainer("screen"); },
                           }
                     }
@@ -841,7 +841,7 @@ $(function() {
                         "cut"   :{
                             "label" : "Cut Link",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_cut_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_cut_16.png',
                             "action": function(data) {
                                 var inst = $.jstree.reference(data.reference);
                                 var objs = inst.get_selected(true);
@@ -853,7 +853,7 @@ $(function() {
                         "copy"  : {
                             "label" : "Copy Link",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_copy_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_copy_16.png',
 
 
                             "action": function (data) {
@@ -866,7 +866,7 @@ $(function() {
                         "paste": {
                             "label" : "Paste Link",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png',
                             "action": function(data) {
                                 var inst = $.jstree.reference(data.reference);
                                 var obj = inst.get_node(data.reference);
@@ -893,7 +893,7 @@ $(function() {
                 config["chgrp"] = {
                     "label" : "Move to Group...",
                     "_disabled": true,
-                    "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_user_16.png" %}',
+                    "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_user_16.png',
                     "action": function() {
                         // TODO - make sure this works with new jsTree
                         OME.handleChgrp(WEBCLIENT.URLS.webindex, WEBCLIENT.URLS.static_webclient);
@@ -903,7 +903,7 @@ $(function() {
                 config["share"] = {
                     "label" : "Create share",
                     "_disabled": true,
-                    "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_toolbar_share2.png" %}',
+                    "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_toolbar_share2.png',
                     "action": function(){
                         // We get_selected() within createShare()
                         OME.createShare();
@@ -918,7 +918,7 @@ $(function() {
                         "copy_rdef"  : {
                             "label" : "Copy",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_copy_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_copy_16.png',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 OME.copyRenderingSettings(WEBCLIENT.URLS.copy_image_rdef_json,
@@ -928,7 +928,7 @@ $(function() {
                         "paste_rdef": {
                             "label" : "Paste and Save",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 OME.pasteRenderingSettings(WEBCLIENT.URLS.copy_image_rdef_json,
@@ -938,7 +938,7 @@ $(function() {
                         "reset_rdef": {
                             "label" : "Set Imported and Save",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 OME.resetRenderingSettings(WEBCLIENT.URLS.reset_rdef_json,
@@ -948,7 +948,7 @@ $(function() {
                         "owner_rdef": {
                             "label" : "Set Owner's and Save",
                             "_disabled": true,
-                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png" %}',
+                            "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_basic_paste_16.png',
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree');
                                 OME.applyOwnerRenderingSettings(WEBCLIENT.URLS.reset_owners_rdef_json,
