@@ -81,7 +81,6 @@ public class ROIFacilityTest extends GatewayTest {
     private ROIData createRectangleROI(int x, int y, int w, int h) {
         ROIData roiData = new ROIData();
         RectangleData rectangle = new RectangleData(x, y, w, h);
-        rectangle.setVisible(true);
         roiData.addShapeData(rectangle);
         return roiData;
     }
@@ -92,9 +91,7 @@ public class ROIFacilityTest extends GatewayTest {
         List<ROIResult> roiResults = roifac.loadROIs(rootCtx, img.getId());
         List<ROIData> myRois = new ArrayList<ROIData>();
         for (ROIResult r : roiResults) {
-            Collection c = r.getROIs();
-            for (Object o : c)
-                myRois.add((ROIData) o);
+            myRois.addAll(r.getROIs());
         }
 
         Assert.assertEquals(rois.size(), myRois.size());
