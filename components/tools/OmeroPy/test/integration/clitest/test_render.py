@@ -20,14 +20,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import pytest
-import omero
 
-from collections import namedtuple
 from omero.plugins.render import RenderControl
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest
-from omero.rtypes import rstring
-from omero.model import NamedValue as NV
 from omero.gateway import BlitzGateway
 
 
@@ -38,6 +34,7 @@ SUPPORTED = {
     "plateid": "Plate:-1",
     "screenid": "Screen:-1",
 }
+
 
 class TestRender(CLITest):
 
