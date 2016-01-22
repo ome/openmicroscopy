@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -117,8 +117,12 @@ public class DataManagerFacility extends Facility {
      *            The security context.
      * @param object
      *            The object to delete.
+     * @return The {@link Response} handle
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Response deleteObject(SecurityContext ctx, IObject object)
             throws DSOutOfServiceException, DSAccessException {
@@ -134,7 +138,7 @@ public class DataManagerFacility extends Facility {
      *            The object to delete.
      * @return The {@link CmdCallbackI}
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
@@ -208,7 +212,10 @@ public class DataManagerFacility extends Facility {
      *            The objects to delete.
      * @return The {@link Response} handle
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Response deleteObjects(SecurityContext ctx, List<IObject> objects)
             throws DSOutOfServiceException, DSAccessException {
@@ -259,7 +266,10 @@ public class DataManagerFacility extends Facility {
      *            Options to update the data.
      * @return The updated object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
@@ -284,7 +294,10 @@ public class DataManagerFacility extends Facility {
      *            The object to update.
      * @return The updated object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public DataObject saveAndReturnObject(SecurityContext ctx, DataObject object)
@@ -302,7 +315,10 @@ public class DataManagerFacility extends Facility {
      *            The object to update.
      * @return The updated object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object)
@@ -330,7 +346,10 @@ public class DataManagerFacility extends Facility {
      *            The name of the user to create the data for.
      * @return The updated object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
@@ -359,7 +378,10 @@ public class DataManagerFacility extends Facility {
      *            The name of the user to create the data for.
      * @return The updated object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public DataObject saveAndReturnObject(SecurityContext ctx,
@@ -380,7 +402,10 @@ public class DataManagerFacility extends Facility {
      *            The name of the user to create the data for.
      * @return The updated object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject saveAndReturnObject(SecurityContext ctx, IObject object,
@@ -408,7 +433,10 @@ public class DataManagerFacility extends Facility {
      *            The username
      * @return The updated object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public List<IObject> saveAndReturnObject(SecurityContext ctx,
@@ -434,7 +462,10 @@ public class DataManagerFacility extends Facility {
      *            Options to update the data.
      * @return The updated object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObject(IObject, Parameters)
      */
     public IObject updateObject(SecurityContext ctx, IObject object,
@@ -462,7 +493,10 @@ public class DataManagerFacility extends Facility {
      *            Options to update the data.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @see IContainerPrx#updateDataObjects(List, Parameters)
      */
     public List<IObject> updateObjects(SecurityContext ctx,
@@ -498,7 +532,10 @@ public class DataManagerFacility extends Facility {
      * @param ds
      *            The dataset to add the image to
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public void addImageToDataset(SecurityContext ctx, ImageData image,
             DatasetData ds) throws DSOutOfServiceException, DSAccessException {
@@ -517,7 +554,10 @@ public class DataManagerFacility extends Facility {
      * @param ds
      *            The dataset to add the images to
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public void addImagesToDataset(SecurityContext ctx,
             Collection<ImageData> images, DatasetData ds)
@@ -541,7 +581,10 @@ public class DataManagerFacility extends Facility {
      * @param project The {@link ProjectData}
      * @return The {@link DatasetData}
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public DatasetData createDataset(SecurityContext ctx, DatasetData dataset,
             ProjectData project) throws DSOutOfServiceException,
@@ -687,7 +730,10 @@ public class DataManagerFacility extends Facility {
      *            The {@link DataObject} to attach to
      * @return The {@link AnnotationData}
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public <T extends AnnotationData> T attachAnnotation(SecurityContext ctx,
             T annotation, DataObject target) throws DSOutOfServiceException,
