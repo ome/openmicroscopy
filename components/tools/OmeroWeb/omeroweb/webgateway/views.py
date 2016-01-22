@@ -666,6 +666,8 @@ def render_shape_mask(request, shapeId, conn=None, **kwargs):
     shape = conn.getQueryService().findByQuery(
         "select s from Shape s where s.id = :id", params,
         conn.SERVICE_OPTS)
+    if shape is None:
+        raise Http404("Shape ID: %s not found" % shapeId)
     width = int(shape.getWidth().getValue())
     height = int(shape.getHeight().getValue())
     mask_packed = shape.getBytes()

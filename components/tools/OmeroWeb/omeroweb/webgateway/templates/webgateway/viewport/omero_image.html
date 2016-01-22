@@ -362,6 +362,7 @@
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }},
                      'height':{{ image.getSizeY }},
+                     'webgateway_index':'{% url "webgateway" %}',
                      'json_url':'{% url 'webgateway_get_rois_json' image.id %}'};
           if (viewport.loadedImg.tiles) {
               options['tiles'] = true;
