@@ -277,7 +277,8 @@ public class BrowseFacility extends Facility {
      *            The security context.
      * @param o
      *            The object to retrieve.
-     * @return The last version of the object.
+     * @return The last version of the object or <code>null</code> if the object
+     *         hasn't been persisted previously
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
