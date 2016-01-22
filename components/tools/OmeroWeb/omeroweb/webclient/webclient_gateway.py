@@ -179,12 +179,17 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             return False
 
     def getOrphanedContainerSettings(self):
-        name = (self.getConfigService().getConfigValue(
-                "omero.client.ui.tree.orphans.name") or "Orphaned image")
-        description = (self.getConfigService().getConfigValue(
-                       "omero.client.ui.tree.orphans.description") or
-                       "This is a virtual container with orphaned images.")
-        return name, description
+        orphans = dict()
+        if toBoolean(self.getConfigService().getConfigValue(
+                "omero.client.ui.tree.orphans.enabled")):
+            orphans['name'] = \
+                self.getConfigService().getConfigValue(
+                    "omero.client.ui.tree.orphans.name") or "Orphaned image"
+            orphans['description'] = \
+                (self.getConfigService().getConfigValue(
+                 "omero.client.ui.tree.orphans.description") or
+                 "This is a virtual container with orphaned images.")
+        return orphans
 
     def getDropdownMenuSettings(self):
         dropdown_menu = dict()
