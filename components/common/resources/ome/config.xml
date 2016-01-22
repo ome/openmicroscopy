@@ -169,6 +169,11 @@
        <property name="mutable" value="false"/>
        <property name="visibility" value="all"/>
     </bean>
+    <bean class="ome.system.Preference" id="omero.client.ui.tree.orphans.enabled">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
     <bean class="ome.system.Preference" id="omero.client.ui.tree.orphans.name">
        <property name="db" value="false"/>
        <property name="mutable" value="false"/>
