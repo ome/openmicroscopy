@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,6 +58,10 @@ public class HierarchyNavigator {
     static {
         /* note that there is not yet any treatment of PlateAcquisition or WellSample */
         final Builder<Map.Entry<String, String>, String> builder = ImmutableMap.builder();
+        builder.put(Maps.immutableEntry("Folder", "Folder"),  /* cannot distinguish ascent from descent, guess the latter */
+                "SELECT parentFolder.id, id FROM Folder WHERE parentFolder.id IN (:" + Parameters.IDS + ")");
+        builder.put(Maps.immutableEntry("Folder", "Image"),
+                "SELECT parent.id, child.id FROM FolderImageLink WHERE parent.id IN (:" + Parameters.IDS + ")");
         builder.put(Maps.immutableEntry("Project", "Dataset"),
                 "SELECT parent.id, child.id FROM ProjectDatasetLink WHERE parent.id IN (:" + Parameters.IDS + ")");
         builder.put(Maps.immutableEntry("Dataset", "Image"),
@@ -82,6 +86,8 @@ public class HierarchyNavigator {
                 "SELECT child.id, parent.id FROM DatasetImageLink WHERE child.id IN (:" + Parameters.IDS + ")");
         builder.put(Maps.immutableEntry("Dataset", "Project"),
                 "SELECT child.id, parent.id FROM ProjectDatasetLink WHERE child.id IN (:" + Parameters.IDS + ")");
+        builder.put(Maps.immutableEntry("Image", "Folder"),
+                "SELECT child.id, parent.id FROM FolderImageLink WHERE child.id IN (:" + Parameters.IDS + ")");
         hqlFromTo = builder.build();
     }
 
