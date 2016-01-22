@@ -124,7 +124,7 @@ class TestMetadata(MetadataTestBase):
         if annotations:
             tag, fab, fam, ma = self.create_annotations(self.image)
 
-        bulkanns = self.md.get_bulkanns()
+        bulkanns = list(self.md.get_bulkanns())
 
         if annotations:
             assert len(bulkanns) == 1
@@ -140,7 +140,7 @@ class TestMetadata(MetadataTestBase):
         if annotations:
             tag, fab, fam, ma = self.create_annotations(self.image)
 
-        measures = self.md.get_measures()
+        measures = list(self.md.get_measures())
 
         if annotations:
             assert len(measures) == 1
@@ -156,7 +156,7 @@ class TestMetadata(MetadataTestBase):
         if annotations:
             tag, fab, fam, ma = self.create_annotations(self.image)
 
-        allanns = self.md.get_allanns()
+        allanns = list(self.md.get_allanns())
 
         if annotations:
             assert len(allanns) == 4
