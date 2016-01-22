@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import javax.swing.ImageIcon;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
@@ -121,9 +122,10 @@ public class ThumbnailProvider
     //laid out.  Sort this out.
     private void computeDims()
     {
+        double scale = DataBrowserFactory.getThumbnailScaleFactor();
         PixelsData pxd = null;
-        width = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
-        height = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+        width = (int) (THUMB_MAX_WIDTH*scale);
+        height = (int) (THUMB_MAX_HEIGHT*scale);
         originalWidth = THUMB_MAX_WIDTH;
         originalHeight = THUMB_MAX_HEIGHT;
         try {
@@ -131,15 +133,15 @@ public class ThumbnailProvider
         		pxd = ((ImageData) imgInfo).getDefaultPixels();
         	else return;
 		} catch (Exception e) { //no pixels linked to it.
-			width = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
-	        height = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+			width = (int) (THUMB_MAX_WIDTH*scale);
+	        height = (int) (THUMB_MAX_HEIGHT*scale);
 	        originalWidth = THUMB_MAX_WIDTH;
 	        originalHeight = THUMB_MAX_HEIGHT;
 	        return;
 		}
 		if (pxd == null) {
-			width = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
-	        height = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+			width = (int) (THUMB_MAX_WIDTH*scale);
+	        height = (int) (THUMB_MAX_HEIGHT*scale);
 	        originalWidth = THUMB_MAX_WIDTH;
 	        originalHeight = THUMB_MAX_HEIGHT;
 	        return;
@@ -168,7 +170,7 @@ public class ThumbnailProvider
         	is instanceof FileData))
         	throw new IllegalArgumentException("Objet to supported.");
         imgInfo = is;
-        scalingFactor = SCALING_FACTOR;
+        scalingFactor = DataBrowserFactory.getThumbnailScaleFactor();
         computeDims();
         valid = true;
     }
