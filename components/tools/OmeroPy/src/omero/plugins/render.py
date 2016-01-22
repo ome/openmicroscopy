@@ -31,10 +31,10 @@ from omero.model import Screen
 
 
 DESC = {
-    "COPY": "Copy rendering definition to multiple objects",
-    "INFO": "Show details of a rendering definition",
-    "EDIT": "Edit a rendering definition",
-    "LIST": "List available rendering definitions",
+    "COPY": "Copy rendering setting to multiple objects",
+    "INFO": "Show details of a rendering setting",
+    "EDIT": "Edit a rendering setting",
+    "LIST": "List available rendering settings",
     "JPEG": "Render as JPEG",
 }
 
