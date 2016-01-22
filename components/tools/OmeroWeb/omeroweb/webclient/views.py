@@ -605,43 +605,52 @@ def api_container_list(request, conn=None, **kwargs):
     # parents), screens and plates (without parents). This is fine for
     # the first page, but the second page may not be what is expected.
 
+    r = dict()
     try:
         # Get the projects
-        projects = tree.marshal_projects(conn=conn,
-                                         group_id=group_id,
-                                         experimenter_id=experimenter_id,
-                                         page=page,
-                                         limit=limit)
+        r['projects'] = tree.marshal_projects(
+            conn=conn,
+            group_id=group_id,
+            experimenter_id=experimenter_id,
+            page=page,
+            limit=limit)
 
         # Get the orphaned datasets (without project parents)
-        datasets = tree.marshal_datasets(conn=conn,
-                                         orphaned=True,
-                                         group_id=group_id,
-                                         experimenter_id=experimenter_id,
-                                         page=page,
-                                         limit=limit)
+        r['datasets'] = tree.marshal_datasets(
+            conn=conn,
+            orphaned=True,
+            group_id=group_id,
+            experimenter_id=experimenter_id,
+            page=page,
+            limit=limit)
 
         # Get the screens for the current user
-        screens = tree.marshal_screens(conn=conn,
-                                       group_id=group_id,
-                                       experimenter_id=experimenter_id,
-                                       page=page,
-                                       limit=limit)
+        r['screens'] = tree.marshal_screens(
+            conn=conn,
+            group_id=group_id,
+            experimenter_id=experimenter_id,
+            page=page,
+            limit=limit)
 
         # Get the orphaned plates (without project parents)
-        plates = tree.marshal_plates(conn=conn,
-                                     orphaned=True,
-                                     group_id=group_id,
-                                     experimenter_id=experimenter_id,
-                                     page=page,
-                                     limit=limit)
-
+        r['plates'] = tree.marshal_plates(
+            conn=conn,
+            orphaned=True,
+            group_id=group_id,
+            experimenter_id=experimenter_id,
+            page=page,
+            limit=limit)
         # Get the orphaned images container
-        orphaned = tree.marshal_orphaned(conn=conn,
-                                         group_id=group_id,
-                                         experimenter_id=experimenter_id,
-                                         page=page,
-                                         limit=limit)
+        if request.session['server_settings']['ui']['orphans']:
+            orphaned = tree.marshal_orphaned(
+                conn=conn,
+                group_id=group_id,
+                experimenter_id=experimenter_id,
+                page=page,
+                limit=limit)
+            orphaned['name'] = \
+                request.session['server_settings']['ui']['orphans']['name']
+            r['orphaned'] = orphaned
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
@@ -649,11 +658,7 @@ def api_container_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'projects': projects,
-                             'datasets': datasets,
-                             'screens': screens,
-                             'plates': plates,
-                             'orphaned': orphaned})
+    return HttpJsonResponse(r)
 
 
 @login_required()
