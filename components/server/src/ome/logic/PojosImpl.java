@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006-2014 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -36,6 +34,7 @@ import ome.conditions.InternalException;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
+import ome.model.containers.Folder;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.fs.Fileset;
@@ -67,8 +66,6 @@ import com.google.common.collect.Sets;
  * implementation of the Pojos service interface.
  *
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date: 2007-10-03
- *          13:25:20 +0100 (Wed, 03 Oct 2007) $) </small>
  * @since OMERO 2.0
  */
 @Transactional
@@ -482,6 +479,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         /* note which entities have been explicitly referenced */
 
+        final Set<Long> folderIds  = new HashSet<Long>();
         final Set<Long> projectIds = new HashSet<Long>();
         final Set<Long> datasetIds = new HashSet<Long>();
         final Set<Long> screenIds  = new HashSet<Long>();
@@ -493,7 +491,9 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         for (final Entry<Class<? extends IObject>, List<Long>> typeAndIds : included.entrySet()) {
             final Class<? extends IObject> type = typeAndIds.getKey();
             final List<Long> ids = typeAndIds.getValue();
-            if (Project.class.isAssignableFrom(type)) {
+            if (Folder.class.isAssignableFrom(type)) {
+                folderIds.addAll(ids);
+            } else if (Project.class.isAssignableFrom(type)) {
                 projectIds.addAll(ids);
             } else if (Dataset.class.isAssignableFrom(type)) {
                 datasetIds.addAll(ids);
@@ -520,6 +520,23 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         hierarchyNavigator.noteLookups("Plate", "Well", plateIds, wellIds);
         hierarchyNavigator.noteLookups("Well", "Image", wellIds, imageIds);
         hierarchyNavigator.noteLookups("Fileset", "Image", filesetIds, imageIds);
+
+        Set<Long> oldFolderIds  = folderIds;
+        Set<Long> newFolderIds  = new HashSet<Long>();
+
+        while (true) {
+            hierarchyNavigator.noteLookups("Folder", "Folder", oldFolderIds, newFolderIds);
+
+            if (newFolderIds.isEmpty()) {
+                break;
+            } else {
+                folderIds.addAll(newFolderIds);
+                oldFolderIds = newFolderIds;
+                newFolderIds = new HashSet<Long>();
+            }
+        }
+
+        hierarchyNavigator.noteLookups("Folder", "Image", folderIds, imageIds);
 
         /* note which filesets are associated with referenced images */
 
