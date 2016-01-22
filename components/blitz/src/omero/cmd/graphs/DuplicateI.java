@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
@@ -118,6 +120,9 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
      * @return the named classes
      */
     private Set<Class<? extends IObject>> getClassesFromNames(Collection<String> classNames) {
+        if (CollectionUtils.isEmpty(classNames)) {
+            return Collections.emptySet();
+        }
         final Set<Class<? extends IObject>> classes = new HashSet<Class<? extends IObject>>();
         for (String className : classNames) {
             final int lastDot = className.lastIndexOf('.');
@@ -162,6 +167,17 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("typesToDuplicate", typesToDuplicate);
+            arguments.addParameter("typesToReference", typesToReference);
+            arguments.addParameter("typesToIgnore", typesToIgnore);
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
         helper.setSteps(dryRun ? 3 : 6);
 
@@ -272,7 +288,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                         /* note which of the objects to which the original links should be ignored */
                         final Set<Long> linkedToIdsToIgnore = new HashSet<Long>();
                         for (final Entry<String, Collection<Long>> linkedToClassIds :
-                            graphTraversal.getLinkeds(linkedClassName, property, original.getId()).asMap().entrySet()) {
+                            graphTraversal.getLinkeds(superclassName, property, original.getId()).asMap().entrySet()) {
                             final String linkedToClass = linkedToClassIds.getKey();
                             final Collection<Long> linkedToIds = linkedToClassIds.getValue();
                             if (classifier.getClass(Class.forName(linkedToClass).asSubclass(IObject.class)) == Inclusion.IGNORE) {
@@ -522,6 +538,12 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
             final DuplicateResponse response = new DuplicateResponse(duplicatedObjects);
             helper.setResponseIfNull(response);
             helper.info("in duplication of " + targetObjectCount + ", duplicated " + duplicatedObjectCount + " in total");
+
+            if (LOGGER.isDebugEnabled()) {
+                final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+                arguments.addParameter("duplicates", response.duplicates);
+                LOGGER.debug("response: " + arguments);
+            }
         }
     }
 

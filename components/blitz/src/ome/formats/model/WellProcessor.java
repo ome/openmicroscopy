@@ -47,83 +47,70 @@ import org.slf4j.LoggerFactory;
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public class WellProcessor implements ModelProcessor
-{
-    /** Logger for this class */
-    private Logger log = LoggerFactory.getLogger(WellProcessor.class);
+public class WellProcessor implements ModelProcessor {
 
-    /** Object container store to process. */
-    private IObjectContainerStore store;
+  /** Logger for this class */
+  private Logger log = LoggerFactory.getLogger(WellProcessor.class);
 
-    /**
-     * Processes the OMERO client side metadata store.
-     * @param store OMERO metadata store to process.
-     * @throws ModelException If there is an error during processing.
-     */
-    public void process(IObjectContainerStore store)
-    throws ModelException
-    {
-        this.store = store;
-        List<IObjectContainer> containers =
-            store.getIObjectContainers(Well.class);
-        for (IObjectContainer container : containers)
-        {
-            Integer plateIndex =
-                container.indexes.get(Index.PLATE_INDEX.getValue());
-            // Validate Plate
-            Plate plate = validatePlate(plateIndex);
-            Well well = (Well) container.sourceObject;
-            if (well.getColumn() != null
-                && well.getColumn().getValue() >= plate.getColumns().getValue())
-            {
-                plate.setColumns(rint(well.getColumn().getValue() + 1));
-            }
-            if (well.getRow() != null
-                && well.getRow().getValue() >= plate.getRows().getValue())
-            {
-                plate.setRows(rint(well.getRow().getValue() + 1));
-            }
-        }
+  /** Object container store to process. */
+  private IObjectContainerStore store;
+
+  /**
+   * Processes the OMERO client side metadata store.
+   * @param store OMERO metadata store to process.
+   * @throws ModelException If there is an error during processing.
+   */
+  public void process(IObjectContainerStore store) throws ModelException {
+    this.store = store;
+    List<IObjectContainer> containers =
+        store.getIObjectContainers(Well.class);
+    for (IObjectContainer container : containers) {
+      Integer plateIndex = container.indexes.get(Index.PLATE_INDEX.getValue());
+      // Validate Plate
+      Plate plate = validatePlate(plateIndex);
+      Well well = (Well) container.sourceObject;
+      if (well.getColumn() != null &&
+          well.getColumn().getValue() >= plate.getColumns().getValue()) {
+        plate.setColumns(rint(well.getColumn().getValue() + 1));
+      }
+      if (well.getRow() != null &&
+          well.getRow().getValue() >= plate.getRows().getValue()) {
+        plate.setRows(rint(well.getRow().getValue() + 1));
+      }
     }
+  }
 
-    /**
-     * Validates that a Plate object container exists and that the Plate source
-     * object has a name and that its row and column count are initialized.
-     * @param plateIndex Index of the plate within the data model.
-     * @return The existing or created plate.
-     */
-    private Plate validatePlate(int plateIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.PLATE_INDEX, plateIndex);
-        IObjectContainer container =
-            store.getIObjectContainer(Plate.class, indexes);
-        Plate plate = (Plate) container.sourceObject;
-        String userSpecifiedPlateName = store.getUserSpecifiedName();
-        String userSpecifiedPlateDescription =
-            store.getUserSpecifiedDescription();
-        if (userSpecifiedPlateName != null)
-        {
-            plate.setName(rstring(userSpecifiedPlateName));
-        }
-        if (userSpecifiedPlateDescription != null)
-        {
-            plate.setDescription(rstring(userSpecifiedPlateDescription));
-        }
-        if (plate.getName() == null)
-        {
-            log.warn("Missing plate name for: " + container.LSID);
-            plate.setName(rstring("Plate"));
-        }
-        if (plate.getRows() == null)
-        {
-            plate.setRows(rint(1));
-        }
-        if (plate.getColumns() == null)
-        {
-            plate.setColumns(rint(1));
-        }
-        return plate;
+  /**
+   * Validates that a Plate object container exists and that the Plate source
+   * object has a name and that its row and column count are initialized.
+   * @param plateIndex Index of the plate within the data model.
+   * @return The existing or created plate.
+   */
+  private Plate validatePlate(int plateIndex) {
+    LinkedHashMap<Index, Integer> indexes =
+        new LinkedHashMap<Index, Integer>();
+    indexes.put(Index.PLATE_INDEX, plateIndex);
+    IObjectContainer container =
+        store.getIObjectContainer(Plate.class, indexes);
+    Plate plate = (Plate) container.sourceObject;
+    String userSpecifiedPlateName = store.getUserSpecifiedName();
+    String userSpecifiedPlateDescription = store.getUserSpecifiedDescription();
+    if (userSpecifiedPlateName != null) {
+      plate.setName(rstring(userSpecifiedPlateName));
     }
+    if (userSpecifiedPlateDescription != null) {
+      plate.setDescription(rstring(userSpecifiedPlateDescription));
+    }
+    if (plate.getName() == null) {
+      log.warn("Missing plate name for: " + container.LSID);
+      plate.setName(rstring("Plate"));
+    }
+    if (plate.getRows() == null) {
+      plate.setRows(rint(1));
+    }
+    if (plate.getColumns() == null) {
+      plate.setColumns(rint(1));
+    }
+    return plate;
+  }
 }

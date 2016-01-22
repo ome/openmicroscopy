@@ -387,7 +387,22 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      * @return the class with that simple name, or {@code null} if one is not known
      */
     public Class<? extends IObject> getClassForSimpleName(String simpleName) {
-        return classesBySimpleName.get(simpleName);
+        Class<? extends IObject> namedClass = classesBySimpleName.get(simpleName);
+        if (namedClass != null) {
+            return namedClass;
+        }
+        /* may have named a subclass, try guessing */
+        Class<?> subclass;
+        try {
+            subclass = Class.forName("omero.model." + simpleName);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+        while (namedClass == null && subclass != Object.class) {
+            subclass = subclass.getSuperclass();
+            namedClass = classesBySimpleName.get(subclass.getSimpleName());
+        }
+        return namedClass;
     }
 
     /**

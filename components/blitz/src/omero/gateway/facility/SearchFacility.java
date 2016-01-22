@@ -83,10 +83,7 @@ public class SearchFacility extends Facility {
      *            search will be the group set in the security context)
      * @return The found objects.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public SearchResultCollection search(SecurityContext ctx, SearchParameters context)
             throws DSOutOfServiceException, DSAccessException {

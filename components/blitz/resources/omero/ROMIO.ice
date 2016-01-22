@@ -20,8 +20,8 @@ module omero
 
 Primitives for working with binary data.
 
-@see omero::api::RenderingEngine
-@see omero::api::RawPixelsStore
+@see omero.api.RenderingEngine
+@see omero.api.RawPixelsStore
 
  **/
 module romio

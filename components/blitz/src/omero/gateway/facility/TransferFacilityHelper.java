@@ -806,10 +806,7 @@ public class TransferFacilityHelper {
      *            The name of the user to create the data for.
      * @return See above.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMERO
-     *             service.
      */
     private IObject determineContainer(SecurityContext ctx,
             DatasetData dataset, DataObject container, ImportableObject object,
@@ -941,10 +938,7 @@ public class TransferFacilityHelper {
      * @param imageId The identifier of the image.
      * @return See above
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     List<File> downloadImage(SecurityContext context, String targetPath,
             long imageId) throws DSAccessException, DSOutOfServiceException {

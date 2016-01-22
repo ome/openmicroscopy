@@ -1,5 +1,5 @@
 /*
- * ome.formats.enums.IQueryEnumProvider
+ * ome.formats.model.BlitzInstanceProvider
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -40,71 +40,61 @@ import omero.model.IObject;
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public class BlitzInstanceProvider implements InstanceProvider
-{
-    /** Model object handler factory. */
-    private ModelObjectHandlerFactory modelObjectHandlerFactory;
+public class BlitzInstanceProvider implements InstanceProvider {
 
-    /** Constructor cache. */
-    private Map<Class<? extends IObject>, Constructor<? extends IObject>>
-	constructorCache = new HashMap<Class<? extends IObject>,
-	                               Constructor<? extends IObject>>();
+  /** Model object handler factory. */
+  private ModelObjectHandlerFactory modelObjectHandlerFactory;
 
-    /**
-     * Default constructor.
-     * @param enumProvider Enumeration provider we are to use.
-     */
-    public BlitzInstanceProvider(EnumerationProvider enumProvider)
-    {
-	modelObjectHandlerFactory = new ModelObjectHandlerFactory(enumProvider);
+  /** Constructor cache. */
+  private Map<Class<? extends IObject>,
+              Constructor<? extends IObject>> constructorCache =
+      new HashMap<Class<? extends IObject>, Constructor<? extends IObject>>();
+
+  /**
+   * Default constructor.
+   * @param enumProvider Enumeration provider we are to use.
+   */
+  public BlitzInstanceProvider(EnumerationProvider enumProvider) {
+    modelObjectHandlerFactory = new ModelObjectHandlerFactory(enumProvider);
+  }
+
+  /* (non-Javadoc)
+   * @see ome.formats.model.InstanceProvider#getInstance(java.lang.Class)
+   */
+  public <T extends IObject> T getInstance(Class<T> klass)
+      throws ModelException {
+    try {
+      Constructor<T> constructor = getConstructor(klass);
+      IObject o = constructor.newInstance();
+      return (T) modelObjectHandlerFactory.getHandler(klass).handle(o);
+    } catch (Exception e) {
+      String m = "Unable to instantiate object.";
+      throw new ModelException(m, klass, e);
     }
+  }
 
-	/* (non-Javadoc)
-	 * @see ome.formats.model.InstanceProvider#getInstance(java.lang.Class)
-	 */
-	public <T extends IObject> T getInstance(Class<T> klass)
-		throws ModelException
-	{
-		try
-		{
-            Constructor<T> constructor = getConstructor(klass);
-            IObject o = constructor.newInstance();
-            return (T) modelObjectHandlerFactory.getHandler(klass).handle(o);
-		}
-	    catch (Exception e)
-	    {
-	        String m = "Unable to instantiate object.";
-	        throw new ModelException(m, klass, e);
-	    }
-	}
+  /**
+   * Retrieves a constructor for a given class from the constructor cache if
+   * possible.
+   * @param klass Class to retrieve a constructor for.
+   * @return See above.
+   * @throws ModelException If there is an error retrieving the constructor.
+   */
+  private <T extends IObject> Constructor<T> getConstructor(Class<T> klass)
+      throws ModelException {
+    Constructor<? extends IObject> constructor = constructorCache.get(klass);
+    if (constructor == null) {
+      try {
+        Class<T> concreteClass =
+            (Class<T>) Class.forName(klass.getName() + "I");
+        constructor = concreteClass.getDeclaredConstructor();
+        constructorCache.put(klass, constructor);
+      } catch (Exception e) {
+        String m = "Unable to retrieve constructor.";
+        throw new ModelException(m, klass, e);
+      }
+    }
+    return (Constructor<T>) constructor;
+  }
 
-	/**
-	 * Retrieves a constructor for a given class from the constructor cache if
-	 * possible.
-	 * @param klass Class to retrieve a constructor for.
-	 * @return See above.
-	 * @throws ModelException If there is an error retrieving the constructor.
-	 */
-	private <T extends IObject> Constructor<T> getConstructor(Class<T> klass)
-		throws ModelException
-	{
-		Constructor<? extends IObject> constructor =
-			constructorCache.get(klass);
-		if (constructor == null)
-		{
-			try
-			{
-				Class<T> concreteClass =
-					(Class<T>) Class.forName(klass.getName() + "I");
-				constructor = concreteClass.getDeclaredConstructor();
-				constructorCache.put(klass, constructor);
-			}
-	        catch (Exception e)
-	        {
-	            String m = "Unable to retrieve constructor.";
-	            throw new ModelException(m, klass, e);
-	        }
-		}
-		return (Constructor<T>) constructor;
-	}
 }

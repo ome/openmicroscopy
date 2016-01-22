@@ -69,7 +69,7 @@ public class MetadataFacilityTest extends GatewayTest {
 
     @Test
     public void testGetImageAcquisitionData() throws ExecutionException,
-            BigResult {
+            BigResult, DSOutOfServiceException, DSAccessException {
         MetadataFacility mdf = gw.getFacility(MetadataFacility.class);
         ImageAcquisitionData d = mdf.getImageAcquisitionData(rootCtx,
                 img.getId());

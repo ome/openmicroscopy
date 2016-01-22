@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -52,6 +55,8 @@ import omero.cmd.Status;
  * @since 5.1.0
  */
 public class SkipHeadI extends SkipHead implements IRequest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SkipHeadI.class);
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
@@ -87,6 +92,18 @@ public class SkipHeadI extends SkipHead implements IRequest {
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("startFrom", startFrom);
+            if (request != null) {
+                arguments.addParameter("request", request.getClass().getName());
+            }
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
 
         final GraphPolicy.Action startAction;
