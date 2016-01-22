@@ -27,6 +27,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,7 +57,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -549,10 +549,12 @@ class LocationDialog extends JDialog implements ActionListener,
 		buttonPanel.add(Box.createHorizontalGlue());
 		buttonPanel.add(addButton);
 		
-		JPanel buttonWrapper = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
-		Border border =
-				BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK); 
-		buttonWrapper.setBorder(border);
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(UI_GAP, UI_GAP, 0, UI_GAP));
+		
+		JPanel buttonWrapper = new JPanel(new BorderLayout());
+		buttonWrapper.add(buttonPanel, BorderLayout.CENTER);
+		buttonWrapper.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
+		
 		return buttonWrapper;
 	}
 
@@ -579,6 +581,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		tabbedPane.addChangeListener(this);
 		
+		tabbedPane.setBorder(BorderFactory.createEmptyBorder(UI_GAP, UI_GAP, UI_GAP, UI_GAP));
+		
 		return tabbedPane;
 	}
 	
@@ -590,6 +594,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	{
 		final JPanel groupPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
+		c.insets = new Insets(1, 1, 1, 1);
 		c.gridx = 0;
 		c.gridy = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -634,6 +639,7 @@ class LocationDialog extends JDialog implements ActionListener,
         JPanel projectPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(1, 1, 1, 1);
         c.gridx = 0;
         c.gridy = 0;
         c.fill = GridBagConstraints.NONE;
@@ -678,6 +684,7 @@ class LocationDialog extends JDialog implements ActionListener,
         JPanel screenPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(1, 1, 1, 1);
         c.gridx = 0;
         c.gridy = 0;
         c.fill = GridBagConstraints.NONE;
