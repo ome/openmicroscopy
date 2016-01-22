@@ -105,21 +105,28 @@ public class Setup {
         long plateId = 1;
 
         Properties p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
-        imageId = Long.parseLong(p.getProperty("omero.imageid"));
-        datasetId = Long.parseLong(p.getProperty("omero.datasetid"));
-        projectId = Long.parseLong(p.getProperty("omero.projectid"));
-        plateId = Long.parseLong(p.getProperty("omero.plateid"));
-
+        if (p != null) {
+            imageId = Long.parseLong(p.getProperty("omero.imageid", "1"));
+            datasetId = Long.parseLong(p.getProperty("omero.datasetid", "1"));
+            projectId = Long.parseLong(p.getProperty("omero.projectid", "1"));
+            plateId = Long.parseLong(p.getProperty("omero.plateid", "1"));
+        }
+        
         if (args == null || args.length == 0) {
             String ice_config = System.getenv().get("ICE_CONFIG");
             if (ice_config != null && !ice_config.isEmpty()) {
                 p = loadConfig(new File(ice_config).getAbsolutePath());
-                args = new String[] {
-                        "--omero.host=" + p.getProperty("omero.host"),
-                        "--omero.pass=" + p.getProperty("omero.pass"),
-                        "--omero.user=" + p.getProperty("omero.user"),
-                        "--omero.port=" + p.getProperty("omero.port") };
+                if (p != null)
+                    args = new String[] {
+                            "--omero.host=" + p.getProperty("omero.host"),
+                            "--omero.pass=" + p.getProperty("omero.pass"),
+                            "--omero.user=" + p.getProperty("omero.user"),
+                            "--omero.port=" + p.getProperty("omero.port") };
             }
+
+            if (args == null || args.length == 0)
+                throw new RuntimeException(
+                        "Login credentials missing, neither arguments nor valid ICE_CONFIG provided.");
         }
 		
 		new CreateImage(args, imageId, datasetId);
