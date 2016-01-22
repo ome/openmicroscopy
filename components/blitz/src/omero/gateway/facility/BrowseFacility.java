@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -83,7 +83,10 @@ public class BrowseFacility extends Facility {
      * @param userId The user's to retrieve the data to handle.
      * @return See above.
      * @throws DSOutOfServiceException
-     * @throws DSAccessException 
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException, DSAccessException {
@@ -105,7 +108,10 @@ public class BrowseFacility extends Facility {
      * @param options The retrieval options.
      * @return See above.
      * @throws DSOutOfServiceException
-     * @throws DSAccessException 
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
@@ -134,6 +140,7 @@ public class BrowseFacility extends Facility {
      * @param userId The user's to retrieve the data to handle.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
@@ -158,6 +165,7 @@ public class BrowseFacility extends Facility {
      * @param options The retrieval options.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
@@ -185,7 +193,10 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id) throws DSOutOfServiceException,
@@ -207,7 +218,10 @@ public class BrowseFacility extends Facility {
      *            <code>false</code> to only use ctx's group
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id, boolean allGroups)
@@ -228,7 +242,10 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id)
             throws DSOutOfServiceException, DSAccessException {
@@ -248,7 +265,10 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public DataObject findObject(SecurityContext ctx, String pojoName, long id)
             throws DSOutOfServiceException, DSAccessException {
@@ -267,7 +287,10 @@ public class BrowseFacility extends Facility {
      * @param allGroups Pass <code>true</code> to look for all groups
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id,
             boolean allGroups) throws DSOutOfServiceException,
@@ -305,7 +328,10 @@ public class BrowseFacility extends Facility {
      *            Pass <code>true</code> to look for all groups
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public DataObject findObject(SecurityContext ctx, String pojoName, long id,
             boolean allGroups) throws DSOutOfServiceException,
@@ -341,7 +367,10 @@ public class BrowseFacility extends Facility {
      * @return The last version of the object or <code>null</code> if the object
      *         hasn't been persisted previously
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public IObject findIObject(SecurityContext ctx, IObject o)
             throws DSOutOfServiceException, DSAccessException {
@@ -367,7 +396,10 @@ public class BrowseFacility extends Facility {
      *            The user currently logged in.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Set<GroupData> getAvailableGroups(SecurityContext ctx,
             ExperimenterData user) throws DSOutOfServiceException,
@@ -411,8 +443,11 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ProjectData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -441,8 +476,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the projects to fetch
      * @return A collection of {@link ProjectData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -480,8 +518,11 @@ public class BrowseFacility extends Facility {
      * @param ownerId
      *            The id of the owner
      * @return A collection of {@link ProjectData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -515,8 +556,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the projects to fetch
      * @return A collection of {@link ProjectData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -557,8 +601,11 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link DatasetData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -587,8 +634,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the datasets to load
      * @return A collection of {@link DatasetData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -629,8 +679,11 @@ public class BrowseFacility extends Facility {
      * @param ownerId
      *            The id of the user
      * @return A collection of {@link DatasetData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -664,8 +717,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the datasets to load
      * @return A collection of {@link DatasetData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -707,8 +763,11 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ScreenData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -737,8 +796,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link ScreenData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -776,8 +838,11 @@ public class BrowseFacility extends Facility {
      * @param ownerId
      *            The id of the user
      * @return A collection of {@link ScreenData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -811,8 +876,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link ScreenData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -853,8 +921,11 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link PlateData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<PlateData> getPlates(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -883,8 +954,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link PlateData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<PlateData> getPlates(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -922,8 +996,11 @@ public class BrowseFacility extends Facility {
      * @param ownerId
      *            The id of the user
      * @return A collection of {@link PlateData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -957,8 +1034,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the plates to load
      * @return A collection of {@link PlateData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -996,8 +1076,11 @@ public class BrowseFacility extends Facility {
      * @param ctx The {@link SecurityContext}
      * @param plateId The ID of the plate
      * @return A collection of {@link WellData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<WellData> getWells(SecurityContext ctx, long plateId) throws DSOutOfServiceException, DSAccessException {
         Collection<WellData> result = new ArrayList<WellData>();
@@ -1036,8 +1119,11 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getUserImages(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -1070,8 +1156,11 @@ public class BrowseFacility extends Facility {
      * @param id
      *            The ids of the image to load
      * @return The {@link ImageData}
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public ImageData getImage(SecurityContext ctx, long id) throws DSOutOfServiceException, DSAccessException {
         return getImages(ctx, Collections.singleton(id)).iterator().next();
@@ -1087,8 +1176,11 @@ public class BrowseFacility extends Facility {
      * @param params
      *            Custom parameters, can be <code>null</code>
      * @return The {@link ImageData}
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public ImageData getImage(SecurityContext ctx, long id, ParametersI params) throws DSOutOfServiceException, DSAccessException {
         return getImages(ctx, Collections.singleton(id), params).iterator()
@@ -1103,8 +1195,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the images to load
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -1121,8 +1216,11 @@ public class BrowseFacility extends Facility {
      * @param params
      *            Custom parameters, can be <code>null</code>
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids, ParametersI params) throws DSOutOfServiceException, DSAccessException {
@@ -1196,8 +1294,11 @@ public class BrowseFacility extends Facility {
      *            The id of the user
      * @param ids The image ids
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -1238,8 +1339,11 @@ public class BrowseFacility extends Facility {
      * @param datasetIds
      *            The ids of the datasets
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImagesForDatasets(SecurityContext ctx,
             Collection<Long> datasetIds) throws DSOutOfServiceException, DSAccessException {
@@ -1273,8 +1377,11 @@ public class BrowseFacility extends Facility {
      * @param projectIds
      *            The ids of the projects
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImagesForProjects(SecurityContext ctx,
             Collection<Long> projectIds) throws DSOutOfServiceException, DSAccessException {

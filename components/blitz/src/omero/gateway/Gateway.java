@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -78,7 +78,6 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 import omero.gateway.util.PojoMapper;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -188,6 +187,7 @@ public class Gateway {
      *            The {@link LoginCredentials}
      * @return The {@link ExperimenterData} who is logged in
      * @throws DSOutOfServiceException
+     *             If the connection can't be established
      */
     public ExperimenterData connect(LoginCredentials c)
             throws DSOutOfServiceException {
@@ -326,6 +326,7 @@ public class Gateway {
      * 
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public String getServerVersion() throws DSOutOfServiceException {
         if (serverVersion == null) {
@@ -340,7 +341,8 @@ public class Gateway {
      * @param type
      *            The kind of {@link Facility} to request
      * @return See above
-     * @throws ExecutionException
+     * @throws ExecutionException 
+     *              If the {@link Facility} can't be retrieved or instantiated
      */
     public <T extends Facility> T getFacility(Class<T> type)
             throws ExecutionException {
@@ -383,7 +385,7 @@ public class Gateway {
      * @param target
      *            The target context is any.
      * @return See above.
-     * @throws Throwable 
+     * @throws Throwable If an error occurred
      */
     public CmdCallbackI submit(SecurityContext ctx, List<Request> commands,
             SecurityContext target) throws Throwable {
@@ -401,7 +403,7 @@ public class Gateway {
      * @param cmd
      *            The {@link Request} to submit
      * @return A callback reference, {@link CmdCallbackI}
-     * @throws Throwable
+     * @throws Throwable If an error occurred
      */
     public CmdCallbackI submit(SecurityContext ctx, Request cmd)
             throws Throwable {
@@ -447,7 +449,8 @@ public class Gateway {
      *            Parameters for the script
      * @return A callback reference, {@link ProcessCallbackI}
      * @throws DSOutOfServiceException
-     * @throws ServerError
+     *             If the connection is broken, or not logged in
+     * @throws ServerError If an error in the script execution occurred
      */
     public ProcessCallbackI runScript(SecurityContext ctx, long scriptID,
             Map<String, RType> parameters) throws DSOutOfServiceException,
@@ -1155,6 +1158,7 @@ public class Gateway {
      *            The name of the user
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public ExperimenterData getUserDetails(SecurityContext ctx, String name)
             throws DSOutOfServiceException {
@@ -1175,7 +1179,6 @@ public class Gateway {
      *            Uses the result of the last check instead of really performing
      *            the test if the last check is not older than 5 sec
      * @return See above
-     * @throws Exception
      */
     public boolean isNetworkUp(boolean useCachedValue) {
         try {
@@ -1208,6 +1211,7 @@ public class Gateway {
      *            The {@link SecurityContext}
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public Connector getConnector(SecurityContext ctx)
             throws DSOutOfServiceException {
@@ -1264,6 +1268,7 @@ public class Gateway {
      *            The {@link SecurityContext}
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
             throws DSOutOfServiceException {
@@ -1280,6 +1285,7 @@ public class Gateway {
      *            The {@link SecurityContext}
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
             throws DSOutOfServiceException {
@@ -1308,6 +1314,7 @@ public class Gateway {
      *            The {@link SecurityContext}
      * @return <code>true</code> if there is one, <code>false</code> otherwise
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException {
         return null != getConnector(ctx, true, true);
@@ -1326,7 +1333,8 @@ public class Gateway {
      *            whether or not to throw a {@link DSOutOfServiceException} if
      *            no {@link Connector} is available by the end of the execution.
      * @return See above.
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public Connector getConnector(SecurityContext ctx, boolean recreate,
             boolean permitNull) throws DSOutOfServiceException {
@@ -1416,7 +1424,7 @@ public class Gateway {
      * Shuts down the connectors created while creating/importing data for other
      * users.
      *
-     * @param ctx
+     * @param ctx The {@link SecurityContext}
      * @throws Exception
      *             Thrown if the connector cannot be closed.
      */
@@ -1450,7 +1458,7 @@ public class Gateway {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param pixelsID
+     * @param pixelsID The pixels id
      */
     public void shutdownRenderingEngine(SecurityContext ctx, long pixelsID) {
         List<Connector> clist = groupConnectorMap.get(ctx.getGroupID());
@@ -1467,8 +1475,9 @@ public class Gateway {
      * @param permitNull
      *            If not set throws an {@link DSOutOfServiceException} if the
      *            creation failed
-     * @return
+     * @return The {@link Connector}
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     private Connector createConnector(SecurityContext ctx, boolean permitNull)
             throws DSOutOfServiceException {

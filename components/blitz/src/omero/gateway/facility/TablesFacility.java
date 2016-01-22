@@ -1,3 +1,23 @@
+/*
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package omero.gateway.facility;
 
 import java.util.ArrayList;
@@ -80,7 +100,10 @@ public class TablesFacility extends Facility {
      * @param data
      *            The data
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public void addTable(SecurityContext ctx, DataObject target, String name,
             TableData data) throws DSOutOfServiceException, DSAccessException {
@@ -141,7 +164,10 @@ public class TablesFacility extends Facility {
      *            The if of the {@link OriginalFile} which stores the table
      * @return All data which the table contains
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public TableData getTable(SecurityContext ctx, long fileId)
             throws DSOutOfServiceException, DSAccessException {
@@ -322,7 +348,10 @@ public class TablesFacility extends Facility {
      *            The {@link DataObject}
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<FileData> getAvailableTables(SecurityContext ctx,
             DataObject parent) throws DSOutOfServiceException,

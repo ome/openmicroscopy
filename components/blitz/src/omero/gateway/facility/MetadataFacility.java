@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -75,8 +75,11 @@ public class MetadataFacility extends Facility {
      * @param imageId
      *            The imageId
      * @return See above
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public ImageAcquisitionData getImageAcquisitionData(SecurityContext ctx,
             long imageId) throws DSOutOfServiceException, DSAccessException {
@@ -95,7 +98,10 @@ public class MetadataFacility extends Facility {
      *            The imageId to get the ChannelData for
      * @return List of ChannelData
      * @throws DSOutOfServiceException
-     * @throws DSAccessException 
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public List<ChannelData> getChannelData(SecurityContext ctx, long imageId)
             throws DSOutOfServiceException, DSAccessException {
@@ -124,7 +130,10 @@ public class MetadataFacility extends Facility {
      * @param object The {@link DataObject} to load the annotations for
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public List<AnnotationData> getAnnotations(SecurityContext ctx,
             DataObject object) throws DSOutOfServiceException,
@@ -146,7 +155,10 @@ public class MetadataFacility extends Facility {
      *            <code>null</code>, i. e. all users)
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public List<AnnotationData> getAnnotations(SecurityContext ctx,
             DataObject object,
@@ -174,7 +186,10 @@ public class MetadataFacility extends Facility {
      * @return Lists of {@link AnnotationData}s mapped to the {@link DataObject}s
      *         they are attached to.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Map<DataObject, List<AnnotationData>> getAnnotations(
             SecurityContext ctx, List<? extends DataObject> objects,

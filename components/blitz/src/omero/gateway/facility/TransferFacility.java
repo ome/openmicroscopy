@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -69,8 +69,12 @@ public class TransferFacility extends Facility {
      * @param image The image to upload.
      * @param observer The observer to notify components of upload status.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
-     * @throws ImportException If an error occurred while importing data.
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     * @throws ImportException 
+     *             If an error occurred while importing data.
      */
     public void uploadImage(SecurityContext context, File image,
             ImportCallback observer) throws DSAccessException,
@@ -98,7 +102,10 @@ public class TransferFacility extends Facility {
      * @param observer
      *            The observer to notify components of upload status.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @throws ImportException
      *             If an error occurred while importing data.
      */
@@ -126,9 +133,6 @@ public class TransferFacility extends Facility {
      *            The security context.
      * @param image
      *            The image to upload.
-     * @param folderAsContainer
-     *            Indicates to use the folder's name to create a dataset or
-     *            screen.
      * @param overrideName
      *            Indicates to override the file's name. (if set to
      *            <code>true</code> the full file path will be used as image
@@ -144,7 +148,10 @@ public class TransferFacility extends Facility {
      * @param observer
      *            The observer to notify components of upload status.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      * @throws ImportException
      *             If an error occurred while importing data.
      */
@@ -177,7 +184,10 @@ public class TransferFacility extends Facility {
      * @param username The OMERO user name.
      * @param groupname The group to import the data to.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public void uploadImage(SecurityContext context, File image,
             IObserver observer, String username, String groupname)
@@ -192,7 +202,10 @@ public class TransferFacility extends Facility {
      * @param imageId The identifier of the image.
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public List<File> downloadImage(SecurityContext context, String targetPath,
             long imageId) throws DSAccessException, DSOutOfServiceException {
