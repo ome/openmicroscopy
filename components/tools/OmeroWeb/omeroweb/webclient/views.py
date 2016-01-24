@@ -30,7 +30,6 @@ from Ice import Exception as IceException
 import logging
 import traceback
 import json
-import re
 import sys
 
 from time import time
