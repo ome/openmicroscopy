@@ -137,12 +137,27 @@ class WebControl(BaseControl):
 
         for x in (start, restart):
             x.add_argument(
-                "--workers", type=int, default=5,
+                "--timeout", type=int, default=60,
+                help=("NGINX only: Workers silent for more than this many "
+                      "seconds are killed and restarted."))
+            x.add_argument(
+                "--workers", type=int, default=4,
                 help="NGINX only: the number of worker processes for handling "
                      "requests.")
             x.add_argument(
+                "--worker-class", type=str, default="sync",
+                help=("NGINX only: the type of workers to use (sync, gevent, "
+                      "eventlet)"))
+            x.add_argument(
                 "--worker-connections", type=int, default=1000,
-                help="NGINX only: the maximum number of simultaneous clients.")
+                help=("NGINX only: the maximum number of simultaneous "
+                      "clients. This setting only affects the Eventlet and "
+                      "Gevent worker types."))
+            x.add_argument(
+                "--threads", type=int, default=4,
+                help=("NGINX only: the number of worker threads for handling "
+                      "requests. Run each worker with the specified number "
+                      "of threads."))
             x.add_argument(
                 "--wsgi-args", type=str, default="",
                 help=("NGINX only: additional arguments. "
@@ -490,19 +505,24 @@ class WebControl(BaseControl):
             except:
                 pass
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
+            cmd += " --timeout %(timeout)d"
             cmd += " --bind %(host)s:%(port)d"
-            cmd += " --workers %(workers)d "
-            cmd += " --worker-connections %(worker_conn)d"
+            cmd += " --workers %(workers)d"
+            if args.worker_class in ('gevent', 'eventlet'):
+                cmd += " --worker-class %s" % args.worker_class
+                cmd += " --worker-connections %d" % args.worker_connections
+            else:
+                cmd += " --threads %d" % args.threads
             cmd += " --max-requests %(maxrequests)d"
             cmd += " %(wsgi_args)s"
             cmd += " omeroweb.wsgi:application"
             runserver = (cmd % {
                 'base': self.ctx.dir,
+                'timeout': args.timeout,
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT,
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
                 'workers': args.workers,
-                'worker_conn': args.worker_connections,
                 'wsgi_args': args.wsgi_args}).split()
             rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
