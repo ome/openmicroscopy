@@ -13,9 +13,9 @@ class TestShortUrl(IWebTest):
 
     def test_short_url(self):
         origin = "/webclient/?show=image-1"
-        alias = omero.model.CommentAnnotationI()
+        alias = omero.model.AliasI()
         alias.setNs(omero.rtypes.rstring("host/port"))
-        alias.description = omero.rtypes.rstring(origin)
+        alias.origin = omero.rtypes.rstring(origin)
         alias.details.permissions = omero.model.PermissionsI("rwr-r-")
         alias = self.root.sf.getUpdateService().saveAndReturnObject(alias)
         short = base62.from_decimal(alias.id.val)

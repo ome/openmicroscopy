@@ -62,10 +62,10 @@ def shorturl(request, short, conn=None, **kwargs):
         server = request.build_absolute_uri(reverse("index"))
         alias_id = base62.to_decimal(short)
         try:
-            alias = conn.getQueryService().get("CommentAnnotation", alias_id)
+            alias = conn.getQueryService().get("Alias", alias_id)
         except omero.ValidationException:
             return HttpResponse("Invalid url.")
-        path = alias.description.val
+        path = alias.origin.val
         if path.startswith("/"):
             path = path.strip("/")
         target_uri = urljoin(server, path)
