@@ -137,7 +137,8 @@ mask_y = 50
 mask_h = 100
 mask_w = 100
 # Create [0, 1] mask
-mask_array = numpy.random.randint(0, 2, mask_w * mask_h)
+mask_array = numpy.fromfunction(
+    lambda x, y: (x * y) % 2, (mask_w, mask_h))
 # Set correct number of bytes per value
 mask_array = mask_array.astype(numpy.uint8)
 # Convert the mask to bytes
