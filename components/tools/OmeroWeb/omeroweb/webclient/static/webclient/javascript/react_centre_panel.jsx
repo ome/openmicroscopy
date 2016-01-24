@@ -391,11 +391,12 @@
             return (
                 <li className={"row " + cls.join(" ")}
                     id={"image_icon-" + image.id}
+                    ref={function(icon){if (image.selected && icon){icon.focus()}} }
                     data-fileset={image.data.obj.filesetId}
                     data-type="image"
                     data-id={image.id}
                     data-perms={image.data.obj.permsCss}
-                    // tabIndex={0}
+                    tabIndex={0}
                     onClick={this.handleIconClick}
                 >
                     <div className="image">

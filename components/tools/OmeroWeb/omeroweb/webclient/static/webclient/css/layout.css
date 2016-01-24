@@ -1493,6 +1493,7 @@
 
     .iconLayout li {
         display: inline-block;
+        outline: none;
         background-color:hsl(0,0%,95%);
         margin:5px;
         padding:5px;
