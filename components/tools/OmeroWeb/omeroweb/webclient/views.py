@@ -641,7 +641,7 @@ def api_container_list(request, conn=None, **kwargs):
             page=page,
             limit=limit)
         # Get the orphaned images container
-        if request.session['server_settings']['ui']['orphans']:
+        if request.session['server_settings']['ui']['orphans']['enabled']:
             orphaned = tree.marshal_orphaned(
                 conn=conn,
                 group_id=group_id,
