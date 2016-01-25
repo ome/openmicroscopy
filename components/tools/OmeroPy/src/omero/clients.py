@@ -187,7 +187,8 @@ class BaseClient(object):
 
         # Strictly necessary for this class to work
         self._optSetProp(id, "Ice.ImplicitContext", "Shared")
-        self._optSetProp(id, "Ice.ACM.Client", "0")
+        if Ice.intVersion() <= 30500:
+            self._optSetProp(id, "Ice.ACM.Client", "0")
         self._optSetProp(id, "Ice.CacheMessageBuffers", "0")
         self._optSetProp(id, "Ice.RetryIntervals", "-1")
         self._optSetProp(id, "Ice.Default.EndpointSelection", "Ordered")
