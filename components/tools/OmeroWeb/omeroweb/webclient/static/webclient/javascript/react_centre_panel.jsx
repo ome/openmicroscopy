@@ -423,7 +423,7 @@
             return (
                 <li className={"row " + cls.join(" ")}
                     id={"image_icon-" + image.id}
-                    ref={function(icon){if (image.selected && icon){icon.focus()}} }
+                    ref={function(icon){if (image.selected && icon){icon.scrollIntoViewIfNeeded()}} }
                     data-fileset={image.data.obj.filesetId}
                     data-type="image"
                     data-id={image.id}
