@@ -140,7 +140,7 @@ module omero {
 
     /**
      * Constants used for field defaults and similar
-     * in the [omero::model::] classes.
+     * in the {@link omero.model} classes.
      **/
     module data {
 
@@ -152,7 +152,7 @@ module omero {
     };
 
     /**
-     * Namespaces for the [omero::api::IMetadata] interface.
+     * Namespaces for the {@link omero.api.IMetadata} interface.
      **/
     module metadata {
         const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
@@ -228,29 +228,29 @@ module omero {
     module permissions {
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the link restriction has been applied to the current object.
        **/
       const int LINKRESTRICTION = 0;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the edit restriction has been applied to the current object.
        **/
       const int EDITRESTRICTION = 1;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the delete restriction has been applied to the current object.
        **/
       const int DELETERESTRICTION = 2;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the annotate restriction has been applied to the current object.
        **/
       const int ANNOTATERESTRICTION = 3;

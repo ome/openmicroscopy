@@ -625,7 +625,7 @@ class BrowserControl
 			shiftDown = me.isShiftDown();
 			if (!shiftDown) source = null;
 			final List<ImageDisplay> selectedDisplays = new ArrayList<ImageDisplay>();
-			final List<ImageNode> visibleNodes = model.getVisibleImageNodes();
+			final List<ImageNode> visibleNodes = model.getVisibleNodes();
 			final Colors colors = Colors.getInstance();
 			for (final ImageDisplay node : visitor.getSelected())
 			    if (visibleNodes.contains(node))

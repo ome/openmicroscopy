@@ -258,7 +258,6 @@ class EditorUI
     {
     	Object uo = model.getRefObject();
     	remove(component);
-    	setDataToSave(false);
     	if (uo instanceof ExperimenterData)  {
     		toolBar.buildUI();
     		userUI.buildUI();
@@ -326,11 +325,9 @@ class EditorUI
 	{
 		Object uo = model.getRefObject();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
-		setDataToSave(false);
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, RENDERER_DESCRIPTION);
 		if (!(uo instanceof DataObject)) {
-			setDataToSave(false);
 			toolBar.setStatus(false);
 			toolBar.buildUI();
 			remove(component);
@@ -376,7 +373,6 @@ class EditorUI
 	void saveData(boolean async)
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		toolBar.setDataToSave(false);
 		if (model.getRefObject() instanceof ExperimenterData) {
 			Object exp = userUI.getExperimenterToSave();
 			model.fireAdminSaving(exp, async);
@@ -385,7 +381,6 @@ class EditorUI
 			AdminObject o = groupUI.getAdminObject();
 			if (o == null) {
 				setCursor(Cursor.getDefaultCursor());
-				toolBar.setDataToSave(true);
 				return;
 			}
 			model.fireAdminSaving(o, async);
@@ -406,14 +401,6 @@ class EditorUI
     	generalPane.setChannelData();
     	acquisitionPane.setChannelData();
     }
-    
-    /**
-     * Enables the saving controls depending on the passed value.
-     * 
-     * @param b Pass <code>true</code> to save the data,
-     * 			<code>false</code> otherwise.
-     */
-    void setDataToSave(boolean b) { toolBar.setDataToSave(b); }
     
     /**
 	 * Returns <code>true</code> if data to save, <code>false</code>
@@ -523,7 +510,6 @@ class EditorUI
 	private void removeLinks(int level, Collection l)
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		toolBar.setDataToSave(false);
 		Iterator<AnnotationData> i = l.iterator();
 		AnnotationData o;
 		List<Object> toRemove = new ArrayList<Object>();

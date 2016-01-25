@@ -71,7 +71,7 @@
                     },
                     success: function(html) {
                         $("#comment_spinner").hide();
-                        var $comment = $(html)
+                        var $comment = $($.trim(html));
                         $('#comments_container').prepend( $comment ).show();
                         $(".removeComment", $comment).hide();
                         var textArea = $('#add_comment_form textarea');
@@ -140,7 +140,7 @@
                     success: function(data) {
                         $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the list of tags
-                        var $tag = $(data);
+                        var $tag = $($.trim(data));
                         $tag.filter(".tag_annotation_wrapper").each(function(){
                             $("#"+$(this).attr("id")).remove();     // if this Tag already exists, remove it
                             $("#tags_container").prepend( this ).show();
@@ -168,7 +168,7 @@
                     success: function(data) {
                         $("#fileann_spinner").hide();
                         // update the list of file annotations and hide actions
-                        var $fileanns = $(data);
+                        var $fileanns = $($.trim(data));
                         $fileanns.filter(".file_ann_wrapper").each(function(){
                             $("#"+$(this).attr("id")).remove();     // if this File already exists, remove it
                             $("#fileanns_container").prepend( this ).show();

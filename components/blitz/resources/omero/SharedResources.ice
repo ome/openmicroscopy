@@ -36,7 +36,7 @@ module omero {
                 throws ServerError;
 
             /**
-             * Registers a [omero::grid::Processor] for Storm notifications
+             * Registers a {@link omero.grid.Processor} for Storm notifications
              * so that other sessions can query whether or not a given
              * processor would accept a given task.
              **/
@@ -45,9 +45,9 @@ module omero {
                 throws ServerError;
 
             /**
-             * Unregisters a [omero::grid::Processor] from Storm notifications.
-             * If the processor was not already registered via [addProcessor]
-             * this is a no-op.
+             * Unregisters a {@link omero.grid.Processor} from Storm
+             * notifications. If the processor was not already registered via
+             * {@link #addProcessor} this is a no-op.
              **/
             void
                 removeProcessor(omero::grid::Processor* proc)
@@ -72,9 +72,9 @@ module omero {
                 throws ServerError;
 
             /**
-             * Returns true if a [Tables] service is active in the grid.
-             * If this value is false, then all calls to [newTable]
-             * or [openTable] will either fail or return null (possibly
+             * Returns true if a {@link Tables} service is active in the grid.
+             * If this value is false, then all calls to {@link #newTable}
+             * or {@link #openTable} will either fail or return null (possibly
              * blocking while waiting for a service to startup)
              **/
             idempotent

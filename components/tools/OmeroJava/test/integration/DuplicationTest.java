@@ -21,6 +21,7 @@ package integration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import omero.RLong;
+import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.cmd.Delete2;
@@ -50,6 +52,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.ImageI;
 import omero.model.Line;
 import omero.model.LineI;
 import omero.model.LogicalChannel;
@@ -81,6 +84,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 /**
@@ -847,6 +852,110 @@ public class DuplicationTest extends AbstractServerTest {
 
         Assert.assertEquals(followLongAnnotations(originalImageAnnotation,  6), "[0[1[2[3[1[2]][4]]]]]");
         Assert.assertEquals(followLongAnnotations(duplicateImageAnnotation, 6), "[0[1[2[3[1[2]][4]]]]]");
+    }
+
+    /**
+     * Test duplication of annotated images that have separate and shared annotations.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testDuplicateImagesWithSeparateAndSharedAnnotations() throws Exception {
+        newUserAndGroup("rwra--");
+
+        /* create two annotated images with three annotations, the last annotation shared among both images */
+
+        final List<Long> originalImageIds = new ArrayList<Long>();
+
+        for (int ii = 0; ii < 2; ii++) {
+            originalImageIds.add(iUpdate.saveAndReturnObject(mmFactory.simpleImage()).getId().getValue());
+        }
+        testImages.addAll(originalImageIds);
+
+        final List<Long> originalAnnotationIds = new ArrayList<Long>();
+        final List<String> originalAnnotationText = new ArrayList<String>();
+
+        for (int ai = 0; ai < 3; ai++) {
+            final String textValue = getClass().getSimpleName() + " annotation #" + ai;
+            final TextAnnotation originalAnnotation = new XmlAnnotationI();
+            originalAnnotation.setTextValue(omero.rtypes.rstring(textValue));
+            originalAnnotationIds.add(iUpdate.saveAndReturnObject(originalAnnotation).getId().getValue());
+            originalAnnotationText.add(textValue);
+        }
+
+        final SetMultimap<Integer, Integer> imageAnnotationLinks = ImmutableSetMultimap.of(0, 0, 1, 1, 0, 2, 1, 2);
+        final List<Long> originalLinkIds = new ArrayList<Long>();
+
+        for (Map.Entry<Integer, Integer> toLink : imageAnnotationLinks.entries()) {
+            final Image image = new ImageI(originalImageIds.get(toLink.getKey()), false);
+            final TextAnnotation annotation = new XmlAnnotationI(originalAnnotationIds.get(toLink.getValue()), false);
+            final ImageAnnotationLink link = new ImageAnnotationLinkI();
+            link.setParent(image);
+            link.setChild(annotation);
+            originalLinkIds.add(iUpdate.saveAndReturnObject(link).getId().getValue());
+        }
+
+        /* duplicate the images */
+
+        final Duplicate dup = new Duplicate();
+        dup.targetObjects = ImmutableMap.of("Image", (List<Long>) new ArrayList<Long>(originalImageIds));
+        final DuplicateResponse response = (DuplicateResponse) doChange(dup);
+
+        /* check that the response includes duplication of the images, links, and annotations */
+
+        final Set<Long> reportedImageIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Image"));
+        final Set<Long> reportedAnnotationIds = new HashSet<Long>(response.duplicates.get("ome.model.annotations.XmlAnnotation"));
+        final Set<Long> reportedLinkIds = new HashSet<Long>(response.duplicates.get("ome.model.annotations.ImageAnnotationLink"));
+        testImages.addAll(reportedImageIds);
+
+        Assert.assertEquals(reportedImageIds.size(), originalImageIds.size());
+        Assert.assertEquals(reportedAnnotationIds.size(), originalAnnotationIds.size());
+        Assert.assertEquals(reportedLinkIds.size(), originalLinkIds.size());
+
+        /* check that the reported images, links, and annotations all have a new ID */
+
+        Assert.assertTrue(Sets.intersection(ImmutableSet.of(originalImageIds), reportedImageIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(ImmutableSet.of(originalAnnotationIds), reportedAnnotationIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(ImmutableSet.of(originalLinkIds), reportedLinkIds).isEmpty());
+
+        /* check that the annotations on the images are exactly as expected */
+
+        for (final Map.Entry<Integer, Collection<Integer>> linksForOneImage : imageAnnotationLinks.asMap().entrySet()) {
+            final int ii = linksForOneImage.getKey();
+            final Set<Long> expectedAnnotationIds = new HashSet<Long>();
+            for (final int ai : linksForOneImage.getValue()) {
+                expectedAnnotationIds.add(originalAnnotationIds.get(ai));
+            }
+            Assert.assertEquals(getImageAnnotations(originalImageIds.get(ii)), expectedAnnotationIds);
+        }
+
+        final Iterator<Long> reportedImageIdsIterator = reportedImageIds.iterator();
+        final Set<Long> reportedImage1Annotations = getImageAnnotations(reportedImageIdsIterator.next());
+        final Set<Long> reportedImage2Annotations = getImageAnnotations(reportedImageIdsIterator.next());
+
+        Assert.assertEquals(reportedImage1Annotations.size(), 2);
+        Assert.assertEquals(reportedImage2Annotations.size(), 2);
+        Assert.assertEquals(Sets.union(reportedImage1Annotations, reportedImage2Annotations), reportedAnnotationIds);
+
+        /* check that the annotations are indeed duplicates of the original */
+
+        final Set<Long> sharedAnnotationIds = Sets.intersection(reportedImage1Annotations, reportedImage2Annotations);
+        final Set<Long> separateAnnotationIds = Sets.symmetricDifference(reportedImage1Annotations, reportedImage2Annotations);
+
+        final String hql = "SELECT textValue FROM TextAnnotation WHERE id IN (:ids)";
+        final Set<String> reportedSharedAnnotationText = new HashSet<String>();
+        final Set<String> reportedSeparateAnnotationText = new HashSet<String>();
+        for (final List<RType> result : iQuery.projection(hql, new ParametersI().addIds(sharedAnnotationIds))) {
+            reportedSharedAnnotationText.add(((RString) result.get(0)).getValue());
+        }
+        for (final List<RType> result : iQuery.projection(hql, new ParametersI().addIds(separateAnnotationIds))) {
+            reportedSeparateAnnotationText.add(((RString) result.get(0)).getValue());
+        }
+
+        Assert.assertEquals(reportedSharedAnnotationText.size(), 1);
+        Assert.assertEquals(reportedSeparateAnnotationText.size(), 2);
+
+        Assert.assertEquals(reportedSharedAnnotationText, ImmutableSet.of(originalAnnotationText.get(2)));
+        Assert.assertEquals(reportedSeparateAnnotationText, ImmutableSet.copyOf(originalAnnotationText.subList(0, 2)));
     }
 
     /**

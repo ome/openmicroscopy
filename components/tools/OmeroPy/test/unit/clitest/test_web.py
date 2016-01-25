@@ -46,6 +46,12 @@ class TestWeb(object):
         monkeypatch.setattr(WebControl, '_get_web_templates_dir',
                             lambda x: dist_dir / "etc" / "templates" / "web")
 
+    def set_python_path(self, monkeypatch, python_path=None):
+        if python_path:
+            monkeypatch.setenv('PYTHONPATH', python_path)
+        else:
+            monkeypatch.delenv('PYTHONPATH')
+
     def set_python_dir(self, monkeypatch):
 
         dist_dir = path(__file__) / ".." / ".." / ".." / ".." / ".." /\
@@ -344,7 +350,7 @@ class TestWeb(object):
     @pytest.mark.parametrize('http', [False, 8081])
     def testApacheWSGIConfig(self, server_type, prefix, app_server, http,
                              capsys, monkeypatch):
-
+        self.set_python_path(monkeypatch)
         self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
         upstream_name = self.add_upstream_name(prefix, monkeypatch)
@@ -372,26 +378,79 @@ class TestWeb(object):
         if prefix:
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
-                ('DocumentRoot ', 'lib/python/omeroweb'),
                 ('WSGIDaemonProcess %s ' % upstream_name +
                  'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % icepath, 'lib/python/omeroweb'),
                 ('WSGIScriptAlias %s ' % prefix,
-                 'lib/python/omeroweb/wsgi.py'),
+                 'lib/python/omeroweb/wsgi.py ' +
+                 'process-group=omeroweb_%s' % prefix.strip("/")),
+                ('WSGIProcessGroup omeroweb_%s' % prefix.strip("/")),
                 ('Alias %s ' % static_prefix[:-1],
                  'lib/python/omeroweb/static'),
                 ], lines)
         else:
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
-                ('DocumentRoot ', 'lib/python/omeroweb'),
                 ('WSGIDaemonProcess %s ' % upstream_name +
                  'processes=5 threads=1 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % icepath, 'lib/python/omeroweb'),
-                ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py'),
+                ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py ' +
+                 'process-group=omeroweb'),
+                ('WSGIProcessGroup omeroweb'),
                 ('Alias /static ', 'lib/python/omeroweb/static'),
+                ], lines)
+        assert not missing, 'Line not found: ' + str(missing)
+
+    @pytest.mark.parametrize('server_type', ["apache", "apache22", "apache24"])
+    @pytest.mark.parametrize('app_server', ['wsgi'])
+    @pytest.mark.parametrize('python_path', [None, '/python/path/location'])
+    def testApacheWSGIConfigPythonPath(self, server_type, app_server,
+                                       python_path, capsys, monkeypatch):
+        self.set_python_path(monkeypatch, python_path)
+        self.add_application_server(app_server, monkeypatch)
+
+        try:
+            import pwd
+            username = pwd.getpwuid(os.getuid()).pw_name
+        except ImportError:
+            import getpass
+            username = getpass.getuser()
+        icepath = os.path.dirname(Ice.__file__)
+        ctx = self.cli.controls["web"]
+        pythondir = ctx.dir / "lib" / "python"
+        fallbackdir = ctx.dir / "lib" / "fallback"
+
+        self.args += ["config", server_type]
+
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        lines = self.clean_generated_file(o)
+        # Note: the differences between the generated apache22 and apache24
+        # configurations are in unchanged parts of the template
+        if python_path:
+            pp = os.pathsep.join([icepath, pythondir,
+                                  python_path, fallbackdir])
+            missing = self.required_lines_in([
+                ("<VirtualHost _default_:%s>" % (80)),
+                ('WSGIDaemonProcess omeroweb ' +
+                 'processes=5 threads=1 '
+                 'display-name=%%{GROUP} user=%s ' % username +
+                 'python-path=%s' % pp,
+                 'lib/python/omeroweb'),
+                ], lines)
+        else:
+            pp = os.pathsep.join([icepath, pythondir, fallbackdir])
+            missing = self.required_lines_in([
+                ("<VirtualHost _default_:%s>" % (80)),
+                ('WSGIDaemonProcess omeroweb ' +
+                 'processes=5 threads=1 '
+                 'display-name=%%{GROUP} user=%s ' % username +
+                 'python-path=%s' % pp,
+                 'lib/python/omeroweb'),
                 ], lines)
         assert not missing, 'Line not found: ' + str(missing)
 
@@ -410,6 +469,7 @@ class TestWeb(object):
         self.add_application_server(app_server, monkeypatch)
         self.args += ["config"] + server_type
         self.set_templates_dir(monkeypatch)
+        self.set_python_path(monkeypatch)
         self.cli.invoke(self.args, strict=True)
 
         o, e = capsys.readouterr()
@@ -443,6 +503,7 @@ class TestWeb(object):
 
         self.args += ["config"] + server_type
         self.set_templates_dir(monkeypatch)
+        self.set_python_path(monkeypatch)
         self.cli.invoke(self.args, strict=True)
 
         o, e = capsys.readouterr()

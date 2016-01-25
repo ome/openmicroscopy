@@ -27,7 +27,7 @@ module omero {
          * scripts = svc.getScripts()
          *
          * if len(scripts) >= 1:
-         *   script_id = svc.keys()[0]
+         *   script_id = svc.keys()\[-1]
          * else:
          *   script_id = svc.uploadScript('/test/my_script.py', SCRIPT_TEXT)
          *
@@ -58,18 +58,23 @@ module omero {
                 //
 
                 /**
-                 * This method returns official server scripts as a list of [omero::model::OriginalFile] objects.
-                 * These scripts will be executed by the server if submitted via [runScript]. The input parameters
-                 * necessary for proper functioning can be retrieved via [getParams].
+                 * This method returns official server scripts as a list of
+                 * {@link omero.model.OriginalFile} objects.
+                 * These scripts will be executed by the server if submitted
+                 * via {@link #runScript}. The input parameters
+                 * necessary for proper functioning can be retrieved via
+                 * {@link #getParams}.
                  *
-                 * The [omero::model::OriginalFil::path] value can be used in other official scripts via the
-                 * language specific import command, since the script directory will be placed on the appropriate
+                 * The {@link omero.model.OriginalFile#path} value can be used
+                 * in other official scripts via the
+                 * language specific import command, since the script
+                 * directory will be placed on the appropriate
                  * environment path variable.
                  * <pre>
                  * scripts = scriptService.getScripts()
                  * for script in scripts:
                  *     text = scriptService.getScriptText(script.id.val)
-                 *     path = script.path.val[1:] # First symbol is a "/"
+                 *     path = script.path.val\[1:\] # First symbol is a "/"
                  *     path = path.replace("/",".")
                  *     print "Possible import: %s" % path
                  * </pre>
@@ -125,8 +130,9 @@ module omero {
                 long uploadScript(string path, string scriptText) throws ServerError;
 
                 /**
-                 * Like [uploadScript] but is only callable by administrators. The parameters
-                 * for the script are also checked.
+                 * Like {@link #uploadScript} but is only callable by
+                 * administrators. The parameters for the script are also
+                 * checked.
                  **/
                 long uploadOfficialScript(string path, string scriptText) throws ServerError;
 
@@ -177,9 +183,10 @@ module omero {
                 //
 
                 /**
-                 * If [ResourceError] is thrown, then no [Processor] is available. Use [scheduleJob]
-                 * to create a [omero::model::ScriptJob] in the "Waiting" state. A [Processor] may
-                 * become available.
+                 * If {@link ResourceError} is thrown, then no
+                 * {@link Processor} is available. Use {@link #scheduleJob}
+                 * to create a {@link omero.model.ScriptJob} in the "Waiting"
+                 * state. A {@link Processor} may become available.
                  *
                  * <pre>
                  * try:
@@ -188,9 +195,9 @@ module omero {
                  *     job = scriptService.scheduleScript(1, {}, None)
                  * </pre>
                  *
-                 * The [ScriptProcess] proxy MUST be closed before exiting.
-                 * If you would like the script execution to continue in the
-                 * background, pass "True" as the argument.
+                 * The {@link ScriptProcess} proxy MUST be closed before
+                 * exiting. If you would like the script execution to continue
+                 * in the background, pass "True" as the argument.
                  *
                  * <pre>
                  * try:
@@ -203,12 +210,14 @@ module omero {
                 omero::grid::ScriptProcess* runScript(long scriptID, omero::RTypeDict inputs, omero::RInt waitSecs) throws ServerError;
 
                 /**
-                 * Returns true if there is a processor which will run the given script.
+                 * Returns true if there is a processor which will run the
+                 * given script.
                  *
                  * <p>
-                 * Either the script is an official script and this method will return true
-                 * (though an individual invocation may fail with an [omero::ResourceError]
-                 * for some reason) <em>or</em> this is a user script, and a usermode processor
+                 * Either the script is an official script and this method
+                 * will return true (though an individual invocation may fail
+                 * with an {@link omero.ResourceError} for some reason)
+                 * <em>or</em> this is a user script, and a usermode processor
                  * must be active which takes the scripts user or group.
                  * </p>
                  *
@@ -217,8 +226,10 @@ module omero {
                 bool canRunScript(long scriptID) throws ServerError;
 
                 /**
-                 * Used internally by processor.py to check if the script attached to the [omero::model::Job]
-                 * has a valid script attached, based on the [acceptsList] and the current security context.
+                 * Used internally by processor.py to check if the script
+                 * attached to the {@link omero.model.Job} has a valid script
+                 * attached, based on the {@link #acceptsList} and the current
+                 * security context.
                  *
                  * An example of an acceptsList might be <pre>Experimenter(myUserId, False)</pre>, meaning that
                  * only scripts belonging to me should be trusted. An empty list implies that the server should
