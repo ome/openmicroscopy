@@ -73,8 +73,8 @@ class NodeControl(BaseControl):
 
     def start(self, args):
 
-        self._initDir()
         self.ctx.invoke(["admin", "rewrite"])
+        self._initDir()
 
         try:
             command = ["icegridnode", self._icecfg()]
