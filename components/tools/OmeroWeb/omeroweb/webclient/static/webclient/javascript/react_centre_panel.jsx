@@ -235,6 +235,26 @@
 
     var IconTable = React.createClass({
 
+        componentDidMount: function() {
+            var inst = this.props.inst;
+            $(ReactDOM.findDOMNode(this._dataIcons)).selectable({
+                filter: 'li.row',
+                distance: 2,
+                stop: function() {
+                    // Make the same selection in the jstree etc
+                    $(".ui-selected").each(function(){
+                        var imageId = $(this).attr('data-id');
+                        var containerNode = OME.getTreeImageContainerBestGuess(imageId);
+                        var selectedNode = inst.locate_node('image-' + imageId, containerNode)[0];
+                        inst.select_node(selectedNode, true);
+                    });
+                },
+                start: function() {
+                    inst.deselect_all();
+                }
+            });
+        },
+
         handleIconClick: function(imageId, event) {
             var inst = this.props.inst;
             var containerNode = OME.getTreeImageContainerBestGuess(imageId);
@@ -346,7 +366,9 @@
 
             return (
                 <div id="icon_table" className="iconTable">
-                    <ul id="dataIcons" className={this.props.layout + "Layout"}>
+                    <ul id="dataIcons"
+                        ref={function(dataIcons){this._dataIcons = dataIcons}.bind(this)}
+                        className={this.props.layout + "Layout"}>
                         <IconTableHeadRow />
                         {icons}
                     </ul>
@@ -420,6 +442,7 @@
     });
 
     window.OME.renderCentrePanel = function(jstree, selected) {
+        console.log("renderCentrePanel...");
         ReactDOM.render(
             <CentrePanel
                 jstree={jstree}
