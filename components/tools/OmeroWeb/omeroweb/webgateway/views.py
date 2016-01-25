@@ -681,7 +681,8 @@ def render_shape_mask(request, shapeId, conn=None, **kwargs):
     # steps = len(binarray) / 8
     # for i in range(steps):
     #     b = binarray[i*8: (i+1)*8]
-    #     pixels += struct.pack("8B", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7])
+    #     pixels += struct.pack("8B", b[0], b[1], b[2], b[3], b[4],
+    #                           b[5], b[6], b[7])
     # for b in binarray:
     #     pixels += struct.pack("1B", b)
     # print 'pixels', repr(pixels)
