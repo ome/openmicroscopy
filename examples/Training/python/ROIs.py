@@ -51,7 +51,7 @@ def createROI(img, shapes):
     for shape in shapes:
         roi.addShape(shape)
     # Save the ROI (saves any linked shapes too)
-    updateService.saveObject(roi)
+    return updateService.saveAndReturnObject(roi)
 
 
 # Another helper for generating the color integers for shapes
@@ -182,6 +182,13 @@ for roi in result.rois:
             print "Removing Shape from ROI..."
             roi.removeShape(s)
             roi = updateService.saveAndReturnObject(roi)
+
+
+# Delete ROIs and all the Shapes they contain
+# =================================================================
+roiToDelete = createROI(image, [rect])
+print "Deleting ROI:", roi.id.val
+conn.deleteObjects("Roi", [roi.id.val], wait=True)
 
 
 # Close connection:
