@@ -146,7 +146,7 @@ Returns a thumbnail jpeg of the OMERO Shape. See
 L{views.render_shape_thumbnail}. Uses current rendering settings.
 """
 
-render_shape_mask = (r'^render_shape_mask/(?P<shapeId>[1-9]+)/$',
+render_shape_mask = (r'^render_shape_mask/(?P<shapeId>[0-9]+)/$',
                      'webgateway.views.render_shape_mask')
 """
 Returns a mask for the specified shape
