@@ -198,6 +198,8 @@ public class OmeroMetadata extends DummyMetadata {
             Class<? extends IObject> k = obj.getClass();
             if (Annotation.class.isAssignableFrom(k)) {
                 k = Annotation.class;
+            } else if (Shape.class.isAssignableFrom(k)) {
+                k = Shape.class;
             }
             long id = obj.getId().getValue();
             Long v = (ue == null) ? null : ue.getId().getValue();
@@ -224,6 +226,8 @@ public class OmeroMetadata extends DummyMetadata {
         String prefix = obj.getClass().getSimpleName();
         if (Annotation.class.isAssignableFrom(obj.getClass())) {
             prefix = Annotation.class.getSimpleName();
+        } else if (Shape.class.isAssignableFrom(obj.getClass())) {
+            prefix = Shape.class.getSimpleName();
         }
         String lsid = prefix + ":" + uuid;
         ei.setLsid(rstring(lsid));

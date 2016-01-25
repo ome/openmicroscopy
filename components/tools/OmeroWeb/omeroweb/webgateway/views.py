@@ -385,6 +385,8 @@ def render_roi_thumbnail(request, roiId, w=None, h=None, conn=None, **kwargs):
             elif minT == t:
                 zz.add(z)
     zList = list(zz)
+    if len(zList) == 0:
+        raise Http404("No Shapes found for ROI %s" % roiId)
     zList.sort()
     midZ = zList[len(zList)/2]
     s = shapes[(midZ, minT)]

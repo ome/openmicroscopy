@@ -372,7 +372,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':
-        template = "webclient/data/container_tags.html"
+        template = "webclient/data/containers.html"
     else:
         # E.g. search/search.html
         template = "webclient/%s/%s.html" % (menu, menu)
@@ -462,6 +462,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         myColleagues.sort(key=lambda x: x.getLastName().lower())
 
     context = {
+        'menu': menu,
         'init': init,
         'myGroups': myGroups,
         'new_container_form': new_container_form,
@@ -4191,7 +4192,9 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
             '''
         for e in qs.projection(q, params, conn.SERVICE_OPTS):
             image_ids.add(e[0].val)
-            fileset_ids.add(e[1].val)
+            # Some images in Dataset may not have fileset
+            if e[1] is not None:
+                fileset_ids.add(e[1].val)
 
     # Get any images for plates
     # TODO Seemed no need to add the filesets for plates as it isn't possible
