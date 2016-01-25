@@ -263,6 +263,7 @@ def leave_none_unset_int(s):
         return int(s)
 
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
+CUSTOM_HOST = CUSTOM_SETTINGS.get("omero.master.host", CUSTOM_HOST)
 # DO NOT EDIT!
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback":

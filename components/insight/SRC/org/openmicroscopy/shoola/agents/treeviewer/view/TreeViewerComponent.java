@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,6 @@ import javax.swing.JFrame;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import omero.log.LogMessage;
 import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -102,7 +101,6 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -3412,6 +3410,10 @@ class TreeViewerComponent
 			}
 			return;
 		}
+		
+		if (!node.isExpanded())
+		    node.setExpanded(true);
+        
 		ActionCmd actionCmd = null;
 		Object uo = node.getUserObject();
 		if (uo instanceof ProjectData) {
