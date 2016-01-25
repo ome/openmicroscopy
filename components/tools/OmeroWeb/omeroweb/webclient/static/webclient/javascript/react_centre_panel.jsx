@@ -204,6 +204,11 @@
             });
         },
 
+        componentWillUnmount: function() {
+            // cleanup plugin
+            $(ReactDOM.findDOMNode(this._dataIcons)).slider( "destroy" );
+        },
+
         render: function() {
             return (
                 <div className="toolbar iconTableFooter">
@@ -253,6 +258,11 @@
                     inst.deselect_all();
                 }
             });
+        },
+
+        componentWillUnmount: function() {
+            // cleanup plugin
+            $(ReactDOM.findDOMNode(this._dataIcons)).selectable( "destroy" );
         },
 
         handleIconClick: function(imageId, event) {
