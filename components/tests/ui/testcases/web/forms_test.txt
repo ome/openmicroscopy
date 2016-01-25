@@ -121,7 +121,7 @@ Test Annotate
 
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
-    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Click Dialog Button                         Save
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files
@@ -156,7 +156,7 @@ Test Batch Annotate
     Wait Until Keyword Succeeds                 ${TIMEOUT}  ${INTERVAL}   Page Should Not Contain Element     xpath=//div[@class='progress-label']
     Input Text                                  id_tag     testSeleniumTag${pid}
     Click Element                               id_add_new_tag
-    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Click Dialog Button                         Save
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), testSeleniumTag${pid})]    ${WAIT}
 
     # Files

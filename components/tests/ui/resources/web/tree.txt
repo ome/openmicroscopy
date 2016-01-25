@@ -15,8 +15,9 @@ ${plateIcon}                    webclient/image/folder_plate16.png
 Click Dialog Button
     [Arguments]     ${buttonText}
     # Confirm dialog (make sure we pick the currently visible dialog)
-    Wait Until Page Contains Element    xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button[contains(text(), '${buttonText}')]
-    Click Element                       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button[contains(text(), '${buttonText}')]
+    # jQuery UI buttons sometimes are <button>text and sometimes <button><span>text so we use *
+    Wait Until Page Contains Element    xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(), '${buttonText}')]
+    Click Element                       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(), '${buttonText}')]
 
 Xpath Should Have Class
     [Arguments]                     ${identifier}       ${className}
