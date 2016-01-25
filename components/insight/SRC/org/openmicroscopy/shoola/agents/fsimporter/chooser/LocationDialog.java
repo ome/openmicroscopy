@@ -1401,10 +1401,13 @@ class LocationDialog extends JDialog implements ActionListener,
                 || ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
             busyLabel.setBusy(true);
             busyLabel.setVisible(true);
-            ImportLocationDetails details = (ImportLocationDetails) evt
-                    .getNewValue();
-            if (details != null)
-                dataType = (int) details.getDataType();
+            Object value = evt.getNewValue();
+            if(value != null && value instanceof ImportLocationDetails) {
+                ImportLocationDetails details = (ImportLocationDetails) evt
+                        .getNewValue();
+                if (details != null)
+                    dataType = (int) details.getDataType();
+            }
         }
 	}
 
