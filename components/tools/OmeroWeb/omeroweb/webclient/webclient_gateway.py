@@ -185,7 +185,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 self.getConfigService()
                 .getConfigValue("omero.client.ui.tree.orphans.enabled"))
         except:
-            orphans['enabled'] = False
+            orphans['enabled'] = True
         if orphans['enabled']:
             try:
                 orphans['name'] = \
