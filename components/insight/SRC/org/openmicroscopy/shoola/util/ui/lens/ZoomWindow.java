@@ -36,9 +36,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 
-import ome.model.units.BigResult;
 import omero.model.Length;
-import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
 //Third-party libraries
@@ -155,6 +153,8 @@ class ZoomWindow
 	{
         statusPanel.setXYPixelSizes(x, y);
         statusPanel.repaint();
+        lensMenu.setMicronsMenuEnabled(!x.getUnit().equals(UnitsLength.PIXEL)
+                && !y.getUnit().equals(UnitsLength.PIXEL));
 	}
 	
 	/**
@@ -237,17 +237,14 @@ class ZoomWindow
 
 	
 	public void componentHidden(ComponentEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void componentMoved(ComponentEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 	
 	public void componentShown(ComponentEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 	
