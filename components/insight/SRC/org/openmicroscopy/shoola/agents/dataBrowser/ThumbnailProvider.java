@@ -43,8 +43,7 @@ import omero.gateway.model.PixelsData;
 /** 
  * The class hosting the thumbnail corresponding to an {@link ImageData}.
  * We first retrieve a thumbnail of dimension {@link #THUMB_MAX_WIDTH}
- * and {@link #THUMB_MAX_HEIGHT} and scale it down i.e magnification factor
- * {@link #SCALING_FACTOR}.
+ * and {@link #THUMB_MAX_HEIGHT} and scale it down i.e magnification factor.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
