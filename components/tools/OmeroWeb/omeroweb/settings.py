@@ -445,8 +445,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["WSGI_ARGS",
          None,
          leave_none_unset,
-         ("A string representing additional arguments overwriting "
-          "``bin/omero web start --wsgi-args``. Check Gunicorn Documentation "
+         ("A string representing Gunicorn additional arguments. "
+          "Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/latest/settings.html")],
 
     # Public user
