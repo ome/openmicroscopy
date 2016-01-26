@@ -413,11 +413,8 @@ class ImporterModel
 			changeGroup, ExperimenterData user)
 	{
 		if (!(ProjectData.class.equals(rootType) ||
-			ScreenData.class.equals(rootType))) return;
-		if (user != null) {
-		    ctx.setExperimenter(user);
-		    ctx.sudo();
-		}
+			ScreenData.class.equals(rootType))) 
+		    return;
 		
 		// cancel the previous loader
 		if(containerLoader != null && state == Importer.LOADING)
