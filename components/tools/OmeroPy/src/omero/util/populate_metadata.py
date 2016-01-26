@@ -423,6 +423,9 @@ class ParsingContext(object):
 
     def __init__(self, client, target_object, file=None, fileid=None,
                  cfg=None, cfgid=None, attach=False):
+        '''
+        This lines should be handled outside of the constructor:
+
         if not file:
             raise MetadataError('file required for %s' % type(self))
         if fileid and not file:
@@ -431,6 +434,7 @@ class ParsingContext(object):
             raise MetadataError('cfg not supported for %s' % type(self))
         if cfgid:
             raise MetadataError('cfgid not supported for %s' % type(self))
+        '''
 
         self.client = client
         self.target_object = target_object
