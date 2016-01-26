@@ -191,7 +191,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 orphans['name'] = \
                     (self.getConfigService().getConfigValue(
                      "omero.client.ui.tree.orphans.name") or
-                     "Orphaned Image")
+                     "Orphaned Images")
             except:
                 orphans['name'] = "Orphaned image"
             try:
