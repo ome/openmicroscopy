@@ -301,8 +301,8 @@ class TestWeb(object):
         self.cli.invoke(self.args + ["start", wsgi_args_cmd], strict=True)
         o, e = capsys.readouterr()
         if wsgi_args:
-            startout = ("Starting OMERO.web...  `--wsgi-args` is ovewritten"
-                        " by `omero.web.wsgi_args`. [OK]")
+            startout = ("Starting OMERO.web...  `--wsgi-args` is deprecated"
+                        " and ovewritten by `omero.web.wsgi_args`. [OK]")
         else:
             startout = "Starting OMERO.web... [OK]"
         assert startout == o.split(os.linesep)[1]

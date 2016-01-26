@@ -36,7 +36,7 @@ Example Nginx developer usage:
     omero config set omero.web.application_server.max_requests 1
     omero web config nginx-development --http=8000 >> nginx.conf
     nginx -c `pwd`/nginx.conf
-    omero web start --wsgi-args ' --reload'
+    omero web start
     omero web status
     omero web stop
     nginx -s stop
@@ -144,11 +144,7 @@ class WebControl(BaseControl):
                 "--worker-connections", type=int, default=1000,
                 help="NGINX only: the maximum number of simultaneous clients.")
             x.add_argument(
-                "--wsgi-args", type=str, default="",
-                help=("NGINX only: additional arguments overwritten by "
-                      "`bin/omero config set omero.web.wsgi_args`. "
-                      "Check Gunicorn Documentation "
-                      "http://docs.gunicorn.org/en/latest/settings.html"))
+                "--wsgi-args", type=str, default="", help=SUPPRESS)
 
         #
         # Advanced
@@ -496,8 +492,8 @@ class WebControl(BaseControl):
                 wsgiargs = args.wsgi_args
             else:
                 if args.wsgi_args:
-                    self.ctx.out(" `--wsgi-args` is ovewritten by"
-                                 " `omero.web.wsgi_args`. ", newline=False)
+                    self.ctx.out(" `--wsgi-args` is deprecated and ovewritten"
+                                 " by `omero.web.wsgi_args`. ", newline=False)
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " --bind %(host)s:%(port)d"
             cmd += " --workers %(workers)d "
