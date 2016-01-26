@@ -1289,7 +1289,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		newDatasets.add(newDefaultDatasetNode);
 		
 		projects.add(newProjectNode);
-		projects = sort(projects); 
+		projects = sortByUser(projects); 
 		datasets.put(newProjectNode, newDatasets);
 		
 		currentProject = newProjectNode;
@@ -1325,7 +1325,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		}
 		
 		projectDatasets.add(newDatasetNode);
-		projectDatasets = sort(projectDatasets);
+		projectDatasets = sortByUser(projectDatasets);
 		
 		datasets.put(selectedProject, projectDatasets);
 
@@ -1348,7 +1348,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		DataNode newScreenNode = new DataNode(newScreenObject);
 		
 		screens.add(newScreenNode);
-		screens = sort(screens);
+		screens = sortByUser(screens);
 		
 		currentScreen = newScreenNode;
 		
