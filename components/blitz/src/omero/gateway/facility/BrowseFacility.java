@@ -642,7 +642,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -687,6 +687,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
+            if (ownerId < 0)
+                return Collections.emptyList();
+            
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
             
@@ -725,7 +728,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty() || ownerId < 0)
             return Collections.emptyList();
         
         try {
@@ -804,7 +807,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -846,6 +849,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
+            if (ownerId < 0)
+                return Collections.emptyList();
+            
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
 
@@ -884,7 +890,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty() || ownerId < 0)
             return Collections.emptyList();
         
         try {
@@ -962,7 +968,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -1004,6 +1010,9 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
+            if (ownerId < 0)
+                return Collections.emptyList();
+            
             ParametersI param = new ParametersI();
             param.exp(omero.rtypes.rlong(ownerId));
 
@@ -1042,7 +1051,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty() || ownerId < 0)
             return Collections.emptyList();
         
         try {
@@ -1084,6 +1093,10 @@ public class BrowseFacility extends Facility {
      */
     public Collection<WellData> getWells(SecurityContext ctx, long plateId) throws DSOutOfServiceException, DSAccessException {
         Collection<WellData> result = new ArrayList<WellData>();
+        
+        if (plateId < 0)
+            return result;
+        
         try {
             IQueryPrx proxy = gateway.getQueryService(ctx);
             StringBuilder sb = new StringBuilder();
@@ -1224,7 +1237,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids, ParametersI params) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -1302,7 +1315,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty() || ownerId < 0)
             return Collections.emptyList();
         
         try {
@@ -1347,7 +1360,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImagesForDatasets(SecurityContext ctx,
             Collection<Long> datasetIds) throws DSOutOfServiceException, DSAccessException {
-        if (datasetIds == null)
+        if (datasetIds == null || datasetIds.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -1385,7 +1398,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImagesForProjects(SecurityContext ctx,
             Collection<Long> projectIds) throws DSOutOfServiceException, DSAccessException {
-        if (projectIds == null)
+        if (projectIds == null || projectIds.isEmpty())
             return Collections.emptyList();
         
         try {
