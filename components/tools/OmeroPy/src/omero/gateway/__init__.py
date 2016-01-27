@@ -3882,6 +3882,7 @@ class _BlitzGateway (object):
                                 * 'Well'
                                 * 'Annotation'
                                 * 'OriginalFile'
+                                * 'Roi'
                                 * 'Image/Pixels/Channel'
 
                                 As of OMERO 4.4.0 the correct case is now
