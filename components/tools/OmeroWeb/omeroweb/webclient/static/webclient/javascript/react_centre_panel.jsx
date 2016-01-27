@@ -420,6 +420,8 @@
             if (image.selected) {cls.push('ui-selected')};
             if (image.fsSelected) {cls.push('fs-selected')};
 
+            // TODO: scrollIntoViewIfNeeded() should be in componentDidUpdate(), not render()
+            // https://facebook.github.io/react/docs/component-specs.html
             return (
                 <li className={"row " + cls.join(" ")}
                     id={"image_icon-" + image.id}
