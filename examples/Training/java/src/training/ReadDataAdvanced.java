@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -60,13 +60,13 @@ public class ReadDataAdvanced
 
 	//The value used if the configuration file is not used. To edit*/
 	/** The server address.*/
-	private String hostName = "serverName";
+	private static String hostName = "serverName";
 
 	/** The username.*/
-	private String userName = "userName";
+	private static String userName = "userName";
 	
 	/** The password.*/
-	private String password = "password";
+	private static String password = "password";
 	//end edit
 	
 	/** The name of a Dataset.*/
@@ -105,7 +105,7 @@ public class ReadDataAdvanced
 		for (int i = 0; i < 3; i ++)
 		{
 			TagAnnotationData t = new TagAnnotationData(tagName);
-			((TagAnnotation)t.asIObject()).setNs(rstring(ConfigurationInfo.TRAINING_NS));
+			((TagAnnotation)t.asIObject()).setNs(rstring(Setup.TRAINING_NS));
 			t.setDescription(String.format("%s %s", tagName, i));
 			dm.saveAndReturnObject(ctx, t);
 		}
@@ -153,7 +153,7 @@ public class ReadDataAdvanced
 		IQueryPrx proxy = gateway.getQueryService(ctx);
 		List<IObject> tags = (List<IObject>)
 		proxy.findAllByString("TagAnnotation", "ns",
-				ConfigurationInfo.TRAINING_NS, caseSensitive, filter);
+		        Setup.TRAINING_NS, caseSensitive, filter);
 		System.out.println("\nList Tags:");
 		for (IObject obj : tags)
 		{
@@ -231,22 +231,11 @@ public class ReadDataAdvanced
 	/**
 	 * Connects and invokes the various methods.
 	 * 
-	 * @param info The configuration information.
+	 * @param args The login credentials
 	 */
-	ReadDataAdvanced(ConfigurationInfo info)
+	ReadDataAdvanced(String[] args)
 	{
-		if (info == null) {
-			info = new ConfigurationInfo();
-			info.setHostName(hostName);
-			info.setPassword(password);
-			info.setUserName(userName);
-		}
-		
-		LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+		LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
         
@@ -278,7 +267,11 @@ public class ReadDataAdvanced
 	 */
 	public static void main(String[] args)
 	{
-		new ReadDataAdvanced(null);
+	    if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                    "--omero.user=" + userName, "--omero.pass=" + password };
+	    
+		new ReadDataAdvanced(args);
 		System.exit(0);
 	}
 
