@@ -68,7 +68,6 @@ class BaseSearch(BaseController):
         if len(onlyTypes) == 1:
             batchSize = 1000
         if date is not None:
-            print 'date', date
             p = str(date).split('_')
             if len(p) > 1:
                 try:
@@ -79,7 +78,6 @@ class BaseSearch(BaseController):
                                           d1.microsecond) * 1000),
                                rtime(long(time.mktime(d2.timetuple()) + 1e-6 *
                                           d2.microsecond) * 1000)]
-                    print 'created', created
                 except ValueError:
                     # User entered an invalid date format - Ignore
                     pass
