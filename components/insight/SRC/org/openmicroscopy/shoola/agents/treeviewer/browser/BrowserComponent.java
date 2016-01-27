@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1111,7 +1111,7 @@ class BrowserComponent
 	public void loadExperimenterData(TreeImageDisplay exp, TreeImageDisplay n)
 	{
 		if (exp == null)
-			throw new IllegalArgumentException("Node not valid.");
+			return;
 		Object uo = exp.getUserObject();
 		if (!(uo instanceof ExperimenterData || uo instanceof GroupData))
 			throw new IllegalArgumentException("Node not valid.");
