@@ -451,7 +451,8 @@
       $roi_table.append($(roi_html));
 
       get_shape_icon_src = function(type, klass) {
-          var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png', 'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png',
+          var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png',
+            'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png', 'Mask': 'mask16.png',
             'Point':'point16.png', 'Label':'text16.png', 'PolyLine':'line16.png'}
           if (type in shape_icons) {
               return "<img class='"+ klass +"' src='{% static 'webgateway/img/' %}" + shape_icons[type] + "' />";
