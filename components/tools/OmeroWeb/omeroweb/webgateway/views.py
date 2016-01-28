@@ -31,7 +31,7 @@ from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
-from marshal import imageMarshal, shapeMarshal
+from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
 
 try:
     from hashlib import md5
@@ -670,6 +670,11 @@ def render_shape_mask(request, shapeId, conn=None, **kwargs):
         raise Http404("Shape ID: %s not found" % shapeId)
     width = int(shape.getWidth().getValue())
     height = int(shape.getHeight().getValue())
+    color = unwrap(shape.getFillColor())
+    fill = (255, 255, 0, 255)
+    if color is not None:
+        color = rgb_int2rgba(color)
+        fill = (color[0], color[1], color[2], int(color[3] * 255))
     mask_packed = shape.getBytes()
     # convert bytearray into something we can use
     intarray = numpy.fromstring(mask_packed, dtype=numpy.uint8)
@@ -692,7 +697,6 @@ def render_shape_mask(request, shapeId, conn=None, **kwargs):
     img = Image.new("RGBA", size=(width, height), color=(0, 0, 0, 0))
     x = 0
     y = 0
-    fill = (255, 0, 0, 255)
     for pix in binarray:
         if pix == 1:
             img.putpixel((x, y), fill)
