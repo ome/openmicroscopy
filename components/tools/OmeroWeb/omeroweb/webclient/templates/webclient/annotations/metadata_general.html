@@ -581,7 +581,6 @@
                         wellId = {{ manager.well.id }};
 
                     var showBulkAnnTooltip = function(data) {
-                        console.log("showBulkAnnTooltip", data);
                         var bulkAnnTooltip = "<span class='tooltip_html' style='display:none'>" +
                             "Data from tables file:<br />" +
                             "<b>File ID:</b> " + data.id + "<br />" +
@@ -590,7 +589,6 @@
                             "<b>Linked to:</b> " + data.parentType + " " + data.parentId + "<br />" +
                             "<b>Linked by:</b> " + data.addedBy + " <br />" +
                             "<b>On:</b> " + OME.formatDate(data.addedOn) + "</span>";
-                        console.log(bulkAnnTooltip, $("#bulk-annotations").length);
                         $("#bulk-annotations").append(bulkAnnTooltip);
                         $("#bulk-annotations").parent().tooltip({
                                 items: '.bulk_annotation',
@@ -911,20 +909,27 @@
 
 
 
+            <!-- TABLES -->
+            <h1 class="can-collapse defclose" data-name="tables">
+                Tables
+            </h1>
+            <div class="annotations_section">
+
+                <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Info</h2>
+                <div style="display: none;">
+                    <table id="bulk_annotations_table">
+                    </table>
+                </div>
+                <div style="clear:both; margin:8px"></div>
+            </div>
+
+
             <!-- FILES -->
             <h1 class="can-collapse defclose" data-name="attachments">
                 Attachments
             </h1>
             <div class="annotations_section">
 
-<!-- <<<<<<< HEAD -->
-                <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Tables</h2>
-                <div style="display: none;">
-                    <table id="bulk_annotations_table">
-                    </table>
-                </div>
-                <div style="clear:both; margin:8px"></div>
-<!-- ======= -->
                     {% if manager.canAnnotate %}
                         <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
                             <span></span>
