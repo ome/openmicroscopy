@@ -479,7 +479,7 @@ class WebControl(BaseControl):
             except ImportError:
                 self.ctx.err("[FAILED]")
                 self.ctx.die(690,
-                             "ERROR: FastCGI support was removed in "
+                             "[ERROR] FastCGI support was removed in "
                              "OMERO 5.2. Install Gunicorn and update "
                              "config.")
             try:
@@ -490,10 +490,9 @@ class WebControl(BaseControl):
                 wsgiargs = settings.WSGI_ARGS
             except:
                 wsgiargs = args.wsgi_args
-            else:
-                if args.wsgi_args:
-                    self.ctx.out(" `--wsgi-args` is deprecated and ovewritten"
-                                 " by `omero.web.wsgi_args`. ", newline=False)
+            if args.wsgi_args:
+                self.ctx.out(" `--wsgi-args` is deprecated and overwritten"
+                             " by `omero.web.wsgi_args`. ", newline=False)
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " --bind %(host)s:%(port)d"
             cmd += " --workers %(workers)d "
