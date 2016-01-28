@@ -194,7 +194,14 @@ class BaseClient(object):
         self._optSetProp(id, "Ice.Default.EndpointSelection", "Ordered")
         self._optSetProp(id, "Ice.Default.PreferSecure", "1")
         self._optSetProp(id, "Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
-        self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+
+        if Ice.intVersion() >= 30600:
+            if sys.platform == "darwin":
+                self._optSetProp(id, "IceSSL.Ciphers", "NONE (DH_anon.*AES)")
+            else:
+                self._optSetProp(id, "IceSSL.Ciphers", "ADH")
+        else:
+            self._optSetProp(id, "IceSSL.Ciphers", "ADH")
         self._optSetProp(id, "IceSSL.VerifyPeer", "0")
         self._optSetProp(id, "IceSSL.Protocols", "tls1")
 
