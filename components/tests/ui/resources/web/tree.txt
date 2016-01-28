@@ -9,7 +9,7 @@ ${shareIcon}                    webclient/image/left_sidebar_icon_public.png
 ${screenIcon}                   webclient/image/folder_screen16.png
 ${orphanedIcon}                 webclient/image/folder_yellow16.png
 ${plateIcon}                    webclient/image/folder_plate16.png
-${runIcon}                      webclient/image/image16.png
+${runIcon}                      webclient/image/run16.png
 
 *** Keywords ***
 
