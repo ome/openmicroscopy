@@ -297,12 +297,14 @@ class TestWeb(object):
         self.mock_subprocess_popen(monkeypatch)
         self.mock_subprocess_call(monkeypatch)
         self.set_django_pid(monkeypatch)
-        wsgi_args_cmd = "--wsgi-args='%s'" % wsgi_args
-        self.cli.invoke(self.args + ["start", wsgi_args_cmd], strict=True)
+        start_cmd = ["start"]
+        if wsgi_args is not None:
+            start_cmd.append("--wsgi-args='%s'" % wsgi_args)
+        self.cli.invoke(self.args + start_cmd, strict=True)
         o, e = capsys.readouterr()
-        if wsgi_args:
+        if wsgi_args is not None:
             startout = ("Starting OMERO.web...  `--wsgi-args` is deprecated"
-                        " and ovewritten by `omero.web.wsgi_args`. [OK]")
+                        " and overwritten by `omero.web.wsgi_args`. [OK]")
         else:
             startout = "Starting OMERO.web... [OK]"
         assert startout == o.split(os.linesep)[1]
