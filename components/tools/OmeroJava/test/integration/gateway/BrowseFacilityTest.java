@@ -27,6 +27,7 @@ import java.util.Set;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.model.Dataset;
 import omero.model.IObject;
 
 import org.testng.Assert;
@@ -260,6 +261,15 @@ public class BrowseFacilityTest extends GatewayTest {
         ScreenData s = browseFacility.findObject(rootCtx, ScreenData.class,
                 screen.getId(), true);
         Assert.assertEquals(screen.getId(), s.getId());
+    }
+    
+    @Test
+    public void testFindNonPersistedObject() throws DSOutOfServiceException,
+            DSAccessException {
+        DatasetData nonPersistedDS = new DatasetData();
+        IObject tmp = browseFacility.findIObject(rootCtx,
+                nonPersistedDS.asIObject());
+        Assert.assertNull(tmp);
     }
 
     private void initData() throws Exception {

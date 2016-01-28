@@ -16,6 +16,7 @@
   <properties file="${ivy.settings.dir}/build.properties"/>
   <properties file="${ivy.settings.dir}/local.properties"/>
   <properties file="${ivy.settings.dir}/../target/omero.version"/>
+  <property name="local-maven2-dir" value="${user.home}/.m2/repository/"/>
 
   <settings defaultResolver="${omero.resolver}"/>
 
@@ -27,7 +28,7 @@
            while maven is for any stable, unchanging jar that is being
            downloaded -->
       <cache name="local" basedir="${ivy.settings.dir}/../lib/cache"/>
-      <cache name="maven" basedir="${user.home}/.m2/repository/"
+      <cache name="maven" basedir="${local-maven2-dir}"
         artifactPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"
         ivyPattern="[orgPath]/[module]/[revision]/[artifact]-[revision].xml"
         lockStrategy="artifact-lock"
@@ -54,8 +55,8 @@
           checkmodified="true" changingMatcher="regexp"
           changingPattern=".*SNAPSHOT.*"
           cache="local" descriptor="required">
-        <artifact pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-        <ivy pattern="${user.home}/.m2/repository/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
+        <artifact pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        <ivy pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[module]-[revision].pom"/>
       </filesystem>
 
       <!-- Remote downloads; cached to '~/.m2/repository' -->

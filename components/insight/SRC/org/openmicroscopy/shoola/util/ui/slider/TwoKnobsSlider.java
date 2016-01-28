@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -437,7 +437,7 @@ public class TwoKnobsSlider
 	/**
 	 * Rounds and returns the start value as int
 	 * (e. g. 2.49 will be rounded to 2, whereas 2.51 will
-	 *  be rounded to 3)
+	 *  be rounded to 3) (one based)
 	 * @return See above.
 	 */
 	public int getStartValueAsInt() {
@@ -450,12 +450,14 @@ public class TwoKnobsSlider
 	 * 
 	 * @return See above.
 	 */
-	public double getEndValue() { return model.getEndValue(); }
+	public double getEndValue() { 
+	    return model.getEndValue(); 
+	    }
 
 	/**
          * Rounds and returns the end value as int
          * (e. g. 2.49 will be rounded to 2, whereas 2.51 will
-         *  be rounded to 3)
+         *  be rounded to 3) (one based)
          * @return See above.
          */
 	public int getEndValueAsInt() {
@@ -508,8 +510,8 @@ public class TwoKnobsSlider
 	 * @param absoluteMin 	The absolute minimum value of the slider.
 	 * @param max       	The maximum value.
 	 * @param min       	The minimum value.
-	 * @param start     	The value of the start knob.
-	 * @param end       	The value of the end knob.
+	 * @param start     	The value of the start knob. (one based)
+	 * @param end       	The value of the end knob. (one based)
 	 */
 	public void setValues(double absoluteMax, double absoluteMin, 
 	        double max, double min, double start, double end)
@@ -523,8 +525,8 @@ public class TwoKnobsSlider
 	/**
 	 * Sets the input interval.
 	 * 
-	 * @param start	The value of the start knob.
-	 * @param end	The value of the end knob.
+	 * @param start	The value of the start knob. (one based)
+	 * @param end	The value of the end knob. (one based)
 	 */
 	public void setInterval(double start, double end)
 	{

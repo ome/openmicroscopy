@@ -45,7 +45,7 @@ object type and identifier, optionally traversing object model graph.
 """
 
 render_image = (
-    r'^render_image/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$',
+    r'^render_image/(?P<iid>[0-9]+)/(?:(?P<z>[0-9]+)/)?(?:(?P<t>[0-9]+)/)?$',
     'webgateway.views.render_image')
 """
 Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering
@@ -58,7 +58,7 @@ Params in render_image/<iid>/<z>/<t>/ are:
 """
 
 render_image_region = (
-    r'^render_image_region/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$',
+    r'^render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$',
     'webgateway.views.render_image_region')
 """
 Returns a jpeg of the OMERO image, rendering only a region specified in query
@@ -72,7 +72,7 @@ Params in render_image/<iid>/<z>/<t>/ are:
 """
 
 render_split_channel = (
-    r'^render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$',
+    r'^render_split_channel/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$',
     'webgateway.views.render_split_channel')
 """
 Returns a jpeg of OMERO Image with channels split into different panes in a
@@ -85,8 +85,8 @@ Params in render_split_channel/<iid>/<z>/<t> are:
 """
 
 render_row_plot = (
-    r'^render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/'
-    '(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$',
+    r'^render_row_plot/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/'
+    '(?P<y>[0-9]+)/(?:(?P<w>[0-9]+)/)?$',
     'webgateway.views.render_row_plot')
 """
 Returns a gif graph of pixel values for a row of an image plane. See
@@ -101,8 +101,8 @@ Params in render_row_plot/<iid>/<z>/<t>/<y>/<w> are:
 """
 
 render_col_plot = (
-    r'^render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)'
-    '/(?:(?P<w>[^/]+)/)?$',
+    r'^render_col_plot/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)'
+    '/(?P<x>[0-9]+)/(?:(?P<w>[0-9]+)/)?$',
     'webgateway.views.render_col_plot')
 """
 Returns a gif graph of pixel values for a column of an image plane. See
@@ -117,7 +117,8 @@ Params in render_col_plot/<iid>/<z>/<t>/<x>/<w> are:
 """
 
 render_thumbnail = url(
-    r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$',
+    r'^render_thumbnail/(?P<iid>[0-9]+)'
+    '/(?:(?P<w>[0-9]+)/)?(?:(?P<h>[0-9]+)/)?$',
     'webgateway.views.render_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO Image, optionally scaled to max-width
@@ -131,7 +132,7 @@ Params in render_thumbnail/<iid>/<w>/<h> are:
 """
 
 render_roi_thumbnail = (
-    r'^render_roi_thumbnail/(?P<roiId>[^/]+)/?$',
+    r'^render_roi_thumbnail/(?P<roiId>[0-9]+)/?$',
     'webgateway.views.render_roi_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO ROI. See L{views.render_roi_thumbnail}.
@@ -139,7 +140,7 @@ Uses current rendering settings.
 """
 
 render_shape_thumbnail = (
-    r'^render_shape_thumbnail/(?P<shapeId>[^/]+)/?$',
+    r'^render_shape_thumbnail/(?P<shapeId>[0-9]+)/?$',
     'webgateway.views.render_shape_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO Shape. See
@@ -147,7 +148,7 @@ L{views.render_shape_thumbnail}. Uses current rendering settings.
 """
 
 render_birds_eye_view = (
-    r'^render_birds_eye_view/(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$',
+    r'^render_birds_eye_view/(?P<iid>[0-9]+)/(?:(?P<size>[0-9]+)/)?$',
     'webgateway.views.render_birds_eye_view')
 """
 Returns a bird's eye view JPEG of the OMERO Image.
@@ -158,7 +159,7 @@ Params in render_birds_eye_view/<iid>/ are:
              view.
 """
 
-render_ome_tiff = (r'^render_ome_tiff/(?P<ctx>[^/]+)/(?P<cid>[^/]+)/$',
+render_ome_tiff = (r'^render_ome_tiff/(?P<ctx>[^/]+)/(?P<cid>[0-9]+)/$',
                    'webgateway.views.render_ome_tiff')
 """
 Generates an OME-TIFF of an Image (or zip for multiple OME-TIFFs) and returns
@@ -170,7 +171,7 @@ Image.
 """
 
 render_movie = (
-    r'^render_movie/(?P<iid>[^/]+)/(?P<axis>[zt])/(?P<pos>[^/]+)/$',
+    r'^render_movie/(?P<iid>[0-9]+)/(?P<axis>[zt])/(?P<pos>[0-9]+)/$',
     'webgateway.views.render_movie')
 """
 Generates a movie file from the image, spanning Z or T frames. See
@@ -191,7 +192,7 @@ L{views.listProjects_json} .
 List of E.g. {"description": "", "id": 651, "name": "spim"}
 """
 
-projectDetail_json = (r'^proj/(?P<pid>[^/]+)/detail/$',
+projectDetail_json = (r'^proj/(?P<pid>[0-9]+)/detail/$',
                       'webgateway.views.projectDetail_json')
 """
 json method: returns details of specified Project. See
@@ -201,7 +202,7 @@ L{views.projectDetail_json}. Returns E.g
     - pid:  Project ID
 """
 
-listDatasets_json = (r'^proj/(?P<pid>[^/]+)/children/$',
+listDatasets_json = (r'^proj/(?P<pid>[0-9]+)/children/$',
                      'webgateway.views.listDatasets_json')
 """
 json method: returns list of Datasets belonging to specified Project. See
@@ -212,7 +213,7 @@ list of {"child_count": 4, "description": "", "type": "Dataset", "id": 901,
     - pid:  Project ID
 """
 
-datasetDetail_json = (r'^dataset/(?P<did>[^/]+)/detail/$',
+datasetDetail_json = (r'^dataset/(?P<did>[0-9]+)/detail/$',
                       'webgateway.views.datasetDetail_json')
 """
 json method: returns details of specified Dataset. See
@@ -223,7 +224,7 @@ L{views.datasetDetail_json}. Returns E.g
 """
 
 webgateway_listimages_json = url(
-    r'^dataset/(?P<did>[^/]+)/children/$', 'webgateway.views.listImages_json',
+    r'^dataset/(?P<did>[0-9]+)/children/$', 'webgateway.views.listImages_json',
     name="webgateway_listimages_json")
 """
 json method: returns list of Images belonging to specified Dataset. See
@@ -243,7 +244,7 @@ L{views.listImages_json}. Returns E.g list of
 """
 
 webgateway_listwellimages_json = url(
-    r'^well/(?P<did>[^/]+)/children/$',
+    r'^well/(?P<did>[0-9]+)/children/$',
     'webgateway.views.listWellImages_json',
     name="webgateway_listwellimages_json")
 """
@@ -257,12 +258,12 @@ L{views.listWellImages_json}. Returns E.g list of
 """
 
 webgateway_plategrid_json = url(
-    r'^plate/(?P<pid>[^/]+)/(?:(?P<field>[^/]+)/)?$',
+    r'^plate/(?P<pid>[0-9]+)/(?:(?P<field>[0-9]+)/)?$',
     'webgateway.views.plateGrid_json', name="webgateway_plategrid_json")
 """
 """
 
-imageData_json = (r'^imgData/(?P<iid>[^/]+)/(?:(?P<key>[^/]+)/)?$',
+imageData_json = (r'^imgData/(?P<iid>[0-9]+)/(?:(?P<key>[^/]+)/)?$',
                   'webgateway.views.imageData_json')
 """
 json method: returns details of specified Image. See L{views.imageData_json}.
@@ -274,7 +275,7 @@ Returns E.g
             pixel_range, rdefs, split_channel, size etc
 """
 
-wellData_json = url(r'^wellData/(?P<wid>[^/]+)/$',
+wellData_json = url(r'^wellData/(?P<wid>[0-9]+)/$',
                     'webgateway.views.wellData_json',
                     name='webgateway_wellData_json')
 """
@@ -319,7 +320,7 @@ See L{views.full_viewer}.
     - iid:  Image ID.
 """
 
-save_image_rdef_json = (r'^saveImgRDef/(?P<iid>[^/]+)/$',
+save_image_rdef_json = (r'^saveImgRDef/(?P<iid>[0-9]+)/$',
                         'webgateway.views.save_image_rdef_json')
 """
 Saves rendering definition (from request parameters) on the image. See
@@ -337,7 +338,7 @@ Gets rendering definition from the 'session' if saved.
 Returns json dict of 'c', 'm', 'z', 't'.
 """
 
-list_compatible_imgs_json = (r'^compatImgRDef/(?P<iid>[^/]+)/$',
+list_compatible_imgs_json = (r'^compatImgRDef/(?P<iid>[0-9]+)/$',
                              'webgateway.views.list_compatible_imgs_json')
 """
 json method: returns list of IDs for images that have channels compatible with

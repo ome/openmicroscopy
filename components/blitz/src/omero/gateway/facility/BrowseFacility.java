@@ -277,13 +277,14 @@ public class BrowseFacility extends Facility {
      *            The security context.
      * @param o
      *            The object to retrieve.
-     * @return The last version of the object.
+     * @return The last version of the object or <code>null</code> if the object
+     *         hasn't been persisted previously
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
     public IObject findIObject(SecurityContext ctx, IObject o)
             throws DSOutOfServiceException, DSAccessException {
-        if (o == null)
+        if (o == null || o.getId() == null)
             return null;
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
