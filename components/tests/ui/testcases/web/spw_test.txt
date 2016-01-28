@@ -28,10 +28,12 @@ Test Bulk Annotations
     [Documentation]     Test display of bulk annotations added in setup
 
     Select Experimenter
-    Select And Expand Plate
-    Select And Expand Run
+    Select First Plate
+    Select First Run
     Click Well By Name                      A1
-    Wait Until Page Contains Element        id=bulk_annotations_table
+    Wait Until Page Contains Element        xpath=//h1[@data-name='tables']
+    Click Element                           xpath=//h1[@data-name='tables']
+    Wait Until Element Is Visible           id=bulk_annotations_table
     Bulk Annotation Should Contain Row      Well Type       Control
     Bulk Annotation Should Contain Row      Concentration   0
     Click Well By Name                      A2
