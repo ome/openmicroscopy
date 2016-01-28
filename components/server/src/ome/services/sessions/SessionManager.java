@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -11,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.ehcache.Ehcache;
-import ome.api.ISession;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.IObject;
@@ -56,6 +53,8 @@ public interface SessionManager {
      * 
      * @param principal
      * @param credentials
+     * @param agent
+     * @param ip
      * @return Not null. Instead an exception will be thrown.
      */
     Session createWithAgent(Principal principal, String credentials, String agent, String ip);
@@ -63,6 +62,8 @@ public interface SessionManager {
     /**
      * 
      * @param principal
+     * @param agent
+     * @param ip
      * @return Not null. Instead an exception will be thrown.
      */
     Session createWithAgent(Principal principal, String agent, String ip);
@@ -71,7 +72,11 @@ public interface SessionManager {
      * 
      * @param principal
      * @param enabled
-     * @return
+     * @param timeToLive
+     * @param eventType
+     * @param description
+     * @param groupId
+     * @return Not null. Instead an exception will be thrown.
      */
     Share createShare(Principal principal, boolean enabled, long timeToLive,
             String eventType, String description, long groupId);
@@ -86,13 +91,13 @@ public interface SessionManager {
      * {@link ome.conditions.ApiUsageException}.
      *
      * @param principal {@link Principal} for which the context should be set.
-     * @param obj  {@link IObject} which represents the new context.
+     * @param obj {@link IObject} which represents the new context.
+     * @return See above.
      */
     IObject setSecurityContext(Principal principal, IObject obj);
 
     /**
-     * See {@link ISession#updateSession(Session)} for the logic that's
-     * implemented here. Certain fields from the {@link Session} instance will
+     * Certain fields from the {@link Session} instance will
      * be copied and then saved to the db, as well as a new
      * {@link SessionContext} created. This method assumes that the user is NOT
      * an admin.
@@ -114,7 +119,7 @@ public interface SessionManager {
      * cause the session to be removed.
      * 
      * @param uuid
-     * @return
+     * @return See above.
      */
     int detach(String uuid);
 
@@ -131,7 +136,7 @@ public interface SessionManager {
     SessionStats getSessionStats(String uuid);
     
     /**
-     * @param sessionId
+     * @param uuid
      * @return A current session.
      * @throws SessionTimeoutException
      *             if the session has timed out during this call. It will then
@@ -145,7 +150,7 @@ public interface SessionManager {
     /**
      *
      * @param user
-     * @return
+     * @return See above.
      */
     List<Session> findByUser(String user);
 
@@ -158,7 +163,7 @@ public interface SessionManager {
     List<Session> findByUserAndAgent(String user, String... agent);
 
     /**
-     * Return all sessions that are active with associated possibly varing
+     * Return all sessions that are active with associated possibly varying
      * session data information.
      */
     Map<String, Map<String, Object>> getSessionData();
@@ -182,7 +187,7 @@ public interface SessionManager {
     /**
      * Provides a partial {@link EventContext} for the current {@link Session}.
      * 
-     * @param uuid
+     * @param principal
      *            Non null.
      * @return Never null.
      * @throws RemovedSessionException
@@ -198,7 +203,7 @@ public interface SessionManager {
      * and so should not be used anywhere in a critical path.
      *
      * @param uuid non null.
-     * @return
+     * @return See above.
      * @throws RemovedSessionException If the uuid does not exist.
      */
     EventContext reload(String uuid)
@@ -212,6 +217,7 @@ public interface SessionManager {
      * 
      * @param name
      * @param credentials
+     * @return See above.
      */
     boolean executePasswordCheck(String name, String credentials);
 
@@ -290,14 +296,16 @@ public interface SessionManager {
 
     /**
      * Returns a copy of the input environment.
-     * 
+     *
+     * @param session The session id.
      * @return Not null
      */
     public Map<String, Object> inputEnvironment(String session);
 
     /**
      * Returns a copy of the output environment.
-     * 
+     *
+     * @param session The session id.
      * @return Not null.
      */
     public Map<String, Object> outputEnvironment(String session);

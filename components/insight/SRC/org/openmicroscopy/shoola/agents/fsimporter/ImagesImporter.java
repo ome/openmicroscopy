@@ -22,18 +22,12 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter;
 
-
-
-//Java imports
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
@@ -42,7 +36,7 @@ import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 
 /** 
  * Imports the images.
@@ -54,9 +48,6 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ImagesImporter 
@@ -77,7 +68,6 @@ public class ImagesImporter
 	 * 
 	 * @param viewer	The Importer this data loader is for.
      * 					Mustn't be <code>null</code>.
-     * @param ctx The security context.
 	 * @param context	The context of the import.
 	 * @param loaderID  The identifier of the loader.
 	 */

@@ -15,8 +15,7 @@ public interface TileLoopIteration
 {
     /**
     * Invoke a single loop iteration.
-    * @param rps An active {@link omero.api.RawPixelsStorePrx}. This instance
-    *            is created and will be closed by the calling method.
+    * @param data the tile access strategy
     * @param z Z section counter of the loop.
     * @param c Channel counter of the loop.
     * @param t Timepoint counter of the loop.

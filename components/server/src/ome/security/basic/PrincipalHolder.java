@@ -21,30 +21,32 @@ public interface PrincipalHolder {
 
     /**
      * Get the number of active principal contexts.
+     * @return the number of active principals
      */
     public int size();
 
     /**
      * Get the last, i.e. currently active, principal.
-     * 
-     * @return
+     * @return the current principal
      */
     public Principal getLast();
 
     /**
      * Add a new principal context to the stack.
+     * @param principal the principal to add
      */
     public void login(Principal principal);
 
     /**
      * Allow logging in directly with an event context.
-     * @param bec
+     * @param bec the event context to use
      */
     public void login(BasicEventContext bec);
 
     /**
      * Pop the last created principal context and return the number of active
      * contexts remaining.
+     * @return the number of active principals after the logout
      */
     public int logout();
 }

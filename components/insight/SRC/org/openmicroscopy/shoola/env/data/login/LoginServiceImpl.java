@@ -28,24 +28,31 @@ package org.openmicroscopy.shoola.env.data.login;
 import java.awt.Toolkit;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.swing.JFrame;
 
 import Glacier2.PermissionDeniedException;
 import Ice.ConnectionRefusedException;
 import Ice.DNSException;
+
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.SecurityViolation;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+
+import omero.gateway.exception.DSOutOfServiceException;
+
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.log.LogMessage;
+import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;

@@ -72,10 +72,7 @@ public class IOUtil
 	
 	/** Filter for PDF documents. */
 	private static final PDFFilter PDF_FILTER;
-	
-	/** The class path.*/
-	private static String CLASS_PATH_PROPERTY_NAME = "java.class.path";
-	
+
 	static {
 		WORD_FILTER = new WordFilter();
 		PDF_FILTER = new PDFFilter();
@@ -251,24 +248,8 @@ public class IOUtil
 	public static InputStream readConfigFile(String fileName)
 		throws IOException
 	{
-		if (isJavaWebStart()) {
-			// We're running under Java Web Start, read configuration file
-			// from the CLASSPATH.
-			return IOUtil.class.getClassLoader().getResourceAsStream(fileName);
-		}
 		// We're running normally, return as so.
 		return new FileInputStream(fileName);
-	}
-	
-	/**
-	 * Returns <code>true</code> if the application is running under Java
-	 * Web Start, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public static boolean isJavaWebStart()
-	{
-		return System.getProperty("javawebstart.version", null) != null;
 	}
 
 	/**
@@ -317,7 +298,7 @@ public class IOUtil
 	/**
 	 * Makes the zip.
 	 * 
-	 * @param zipName The name of the zip.
+	 * @param zip The zip file.
 	 * @param compress Pass <code>true</code> to compress,
 	 * <code>false</code> otherwise.
 	 */
@@ -352,7 +333,7 @@ public class IOUtil
 	/**
 	 * Makes the zip.
 	 * 
-	 * @param zipName The name of the zip.
+	 * @param zip The zip.
 	 */
 	public static File zipDirectory(File zip)
 		throws Exception
@@ -372,8 +353,6 @@ public class IOUtil
 		Map<String, InputStream> values = new HashMap<String, InputStream>();
 		if (name == null) return values;
 		ClassLoader loader = IOUtil.class.getClassLoader();
-		if (isJavaWebStart())
-			loader = Thread.currentThread().getContextClassLoader();
         //Get the URLs
         URL[] urls = ((URLClassLoader) loader).getURLs();
 		try {

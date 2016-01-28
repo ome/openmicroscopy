@@ -82,12 +82,8 @@ public class BasicEventContext extends SimpleEventContext {
 
     /**
      * Copy-constructor to not have to allow the mutator {@link #copy(EventContext)}
-     * or {@link #copyContext(EventContext)} out of the {@link EventContext}
+     * or {@code copyContext(EventContext)} out of the {@link EventContext}
      * hierarchy.
-     *
-     * @param p
-     * @param stats
-     * @param ec
      */
     public BasicEventContext(Principal p, SessionStats stats, EventContext ec) {
         this(p, stats);
@@ -330,7 +326,9 @@ public class BasicEventContext extends SimpleEventContext {
     // =========================================================================
 
     /**
-     * Never returns {@link Permissions.DUMMY}.
+     * Never returns {@link Permissions#DUMMY}.
+     * @param group a group ID, may be {@code null}
+     * @return the group's permissions, may be {@code null}
      */
     public Permissions getPermissionsForGroup(Long group) {
         if (group == null || groupPermissionsMap == null) {
@@ -342,6 +340,9 @@ public class BasicEventContext extends SimpleEventContext {
     /**
      * Called during {@link BasicACLVoter#allowLoad(org.hibernate.Session, Class, ome.model.internal.Details, long)}
      * to track groups that will need resolving later.
+     * @param group a group ID, not {@code null}
+     * @param perms the group's permissions
+     * @return the group's previous permissions, or {@code null} if none are noted
      */
     public Permissions setPermissionsForGroup(Long group, Permissions perms) {
         if (perms == Permissions.DUMMY) {

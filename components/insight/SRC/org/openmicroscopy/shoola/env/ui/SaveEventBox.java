@@ -22,12 +22,8 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
 import javax.swing.JCheckBox;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -38,9 +34,6 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class SaveEventBox
@@ -54,7 +47,6 @@ public class SaveEventBox
 	 * Creates a new instance.
 	 * 
 	 * @param evt 	The event hosted by this node. Mustn't be <code>null</code>.
-	 * @param text	The text to set.
 	 */
 	public SaveEventBox(RequestEvent evt)
 	{

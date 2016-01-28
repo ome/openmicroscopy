@@ -44,17 +44,6 @@ module omero {
          "java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
         sequence<GraphModify> GraphModifyList;
 
-        /**
-         *
-         **/
-        ["deprecated:GraphSpecs in general are deprecated"]
-        class GraphSpecList extends Request {};
-
-        ["deprecated:GraphSpecs in general are deprecated"]
-        class GraphSpecListRsp extends Response {
-            GraphModifyList list;
-        };
-
         ["deprecated:use omero::cmd::Chgrp2 instead"]
         class Chgrp extends GraphModify {
             long grp;
@@ -99,9 +88,9 @@ module omero {
         };
 
         /**
-         * Delete requests will return a [omero::cmd::DeleteRsp]
+         * Delete requests will return a {@link omero.cmd.DeleteRsp}
          * unless an error has occurred in which case a standard
-         * [omero::cmd::ERR] may be returned.
+         * {@link omero.cmd.ERR} may be returned.
          **/
         ["deprecated:use omero::cmd::Delete2 instead"]
         class Delete extends GraphModify {
@@ -133,12 +122,12 @@ module omero {
             omero::api::IdListMap undeletedFiles;
 
             /**
-             * Number of steps that this [DeleteCommand] requires.
+             * Number of steps that this {@link DeleteCommand} requires.
              **/
             int steps;
 
             /**
-             * Number of objects that this [DeleteCommand] will attempt
+             * Number of objects that this {@link DeleteCommand} will attempt
              * to delete.
              **/
             long scheduledDeletes;
@@ -226,11 +215,9 @@ module omero {
             graphs::ChildOptions childOptions;
 
             /**
-             * If this request should skip the phases in which model
-             * objects are operated upon.
+             * If this request should skip the actual model object updates.
              * The response is still as if the operation actually occurred,
-             * indicating what would have been done to which objects, except
-             * for that various permissions checks are omitted.
+             * indicating what would have been done to which objects.
              **/
             bool dryRun;
         };
@@ -298,8 +285,8 @@ module omero {
 
         /**
          * Change the ownership of model objects.
-         * The user must be either an administrator,
-         * or the owner of the objects with
+         * The user must be an administrator, or they
+         * must be an owner of the objects' group, with
          * the target user a member of the objects' group.
          **/
         class Chown2 extends GraphModify2 {
@@ -372,6 +359,71 @@ module omero {
              * (those implementing WrappableRequest).
              **/
             GraphModify2 request;
+        };
+
+        /**
+         * Duplicate model objects with some selection of their subgraph.
+         * All target model objects must be in the current group context.
+         * The extra three data members allow adjustment of the related
+         * subgraph. The same type must not be listed in more than one of
+         * those data members. Use of a more specific sub-type in a data
+         * member always overrides the more general type in another.
+         **/
+        class Duplicate extends GraphModify2 {
+
+            /**
+             * The types of the model objects to actually duplicate.
+             **/
+            omero::api::StringSet typesToDuplicate;
+
+            /**
+             * The types of the model objects that should not be duplicated
+             * but that may participate in references involving duplicates.
+             **/
+            omero::api::StringSet typesToReference;
+
+            /**
+             * The types of the model objects that should not be duplicated
+             * and that may not participate in references involving duplicates.
+             **/
+            omero::api::StringSet typesToIgnore;
+        };
+
+        /**
+         * Result of duplicating model objects.
+         **/
+        class DuplicateResponse extends OK {
+
+            /**
+             * The duplicate model objects created by the request.
+             * Note: If dryRun is set to true then this instead lists the model
+             * objects that would have been duplicated.
+             **/
+            omero::api::StringLongListMap duplicates;
+        };
+
+        /**
+         * Graph requests typically allow only specific model object classes
+         * to be targeted. This request lists the legal targets for a given
+         * request. The request's fields are ignored, only its class matters.
+         **/
+        class LegalGraphTargets extends Request {
+
+            /**
+             * A request of the type being queried.
+             **/
+            GraphModify2 request;
+        };
+
+        /**
+         * A list of the legal targets for a graph request.
+         **/
+        class LegalGraphTargetsResponse extends OK {
+
+            /**
+             * The legal targets for the given request's type.
+             **/
+            omero::api::StringSet targets;
         };
 
         /**

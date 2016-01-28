@@ -54,11 +54,13 @@ public interface ExtendedMetadata {
 
     /**
      * Returns all the classes which implement {@link IAnnotated}
+     * @return the annotatable types
      */
     Set<Class<IAnnotated>> getAnnotatableTypes();
 
     /**
      * Returns all the classes which subclass {@link Annotation}
+     * @return the types of annotation
      */
     Set<Class<Annotation>> getAnnotationTypes();
 
@@ -80,6 +82,8 @@ public interface ExtendedMetadata {
      * Given the name of a database table or alternatively the simple class name
      * (non-fully qualified) of an IObject, this method returns the class which
      * Hibernate will map that table to.
+     * @param table a database table name, or simple class name of a model object
+     * @return the corresponding mapped class
      */
     Class<IObject> getHibernateClass(String table);
 
@@ -108,7 +112,8 @@ public interface ExtendedMetadata {
      * objects will be returned.
      *
      * @param klass Not null.
-     * @return
+     * @param onlyWithGroups if should omit checks that point to {@link IGlobal}s
+     * @return the lock candidates for checking
      */
     String[][] getLockCandidateChecks(Class<? extends IObject> klass, boolean onlyWithGroups);
 
@@ -120,7 +125,6 @@ public interface ExtendedMetadata {
      *            Non-null {@link Class subclass} of {@link IObject}
      * @return A non-null array of {@link String} queries which can be used to
      *         determine if an {@link IObject} instance can be unlocked.
-     * @see Permissions.Flag#LOCKED
      */
     String[][] getLockChecks(Class<? extends IObject> klass);
 
@@ -140,16 +144,11 @@ public interface ExtendedMetadata {
      * </pre>
      *
      * If the clause argument is null or empty it will be omitted.
-     *
-     * @param id
-     * @param lockChecks
-     * @param clause
-     * @return
      */
     Map<String, Long> countLocks(Session session, Long id, String[][] lockChecks, String clause);
 
     /**
-     * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
+     * Walks the data on what locks what
      * for "from" argument to see if there is any direct relationship to the
      * "to" argument. If there is, the name will be returned. Otherwise, null.
      */
@@ -168,12 +167,6 @@ public interface ExtendedMetadata {
      * returns "child". getSQLJoin("Image", "I", "DatasetImageLink", "L"),
      * however, will always return "I.id = L.child" (though the order may be
      * reversed).
-     *
-     * @param fromType
-     * @param fromAlias
-     * @param toType
-     * @param toAlias
-     * @return
      */
     String getSQLJoin(String fromType, String fromAlias, String toType, String toAlias);
 
@@ -252,8 +245,8 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
     /**
      * Initializes the metadata needed by this instance.
      * 
-     * @param sessionFactory
-     * @see SessionFactory#getAllClassMetadata()
+     * @param sessionFactory the Hibernate session factory
+     * @see org.hibernate.SessionFactory#getAllClassMetadata()
      */
     public void setSessionFactory(SessionFactory sessionFactory) {
 
@@ -375,7 +368,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
     }
 
     /**
-     * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
+     * Walks the data on what locks what
      * for "from" argument to see if there is any direct relationship to the
      * "to" argument. If there is, the name will be returned. Otherwise, null.
      */
@@ -428,7 +421,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
 
     /**
      * walks the {@link IObject} argument <em>non-</em>recursively and gathers
-     * all {@link IObject} instances which will be linkd to by the
+     * all {@link IObject} instances which will be linked to by the
      * creation or updating of the argument. (Previously this was called "locking"
      * since a flag was set on the object to mark it as linked, but this was 
      * removed in 4.2)
@@ -461,7 +454,6 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
      *            Non-null {@link Class subclass} of {@link IObject}
      * @return A non-null array of {@link String} queries which can be used to
      *         determine if an {@link IObject} instance can be unlocked.
-     * @see Permissions.Flag#LOCKED
      */
     public String[][] getLockChecks(Class<? extends IObject> klass) {
         if (klass == null) {
@@ -950,6 +942,7 @@ class Locks {
      * components) can possibly point to multiple instances. See
      * {@link #total()} for the final size and (2) some fields do not need to be
      * examined (Integers, e.g.). See {@link #include}
+     * @return how many fields this entity has
      */
     public int size() {
         return size;
@@ -958,6 +951,7 @@ class Locks {
     /**
      * as opposed to {@link #size()}, the returns the actual number of fields
      * that will need to be checked.
+     * @return how many fields must be checked for this entity
      */
     public int total() {
         return total;

@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.figures;
 
 
-//Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -39,12 +38,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.geom.BezierPath;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -66,9 +63,6 @@ import omero.model.enums.UnitsLength;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class MeasureBezierFigure 
@@ -718,7 +712,7 @@ public class MeasureBezierFigure
 	
 	/**
 	 * Overridden to stop updating shape if read only.
-	 * @see AbstractAttributedFigure#setBounds(Point2D, Point2D)
+	 * @see AbstractAttributedFigure#setBounds(Point2D.Double, Point2D.Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{

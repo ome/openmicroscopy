@@ -5,7 +5,6 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-//Java imports
 import java.io.File;
 import java.io.FileFilter;
 import java.lang.reflect.Method;
@@ -14,10 +13,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.Properties;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * The Build Tool.
@@ -78,10 +73,6 @@ import java.util.Properties;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class omero

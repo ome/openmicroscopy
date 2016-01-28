@@ -32,7 +32,7 @@ import java.util.Iterator;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;

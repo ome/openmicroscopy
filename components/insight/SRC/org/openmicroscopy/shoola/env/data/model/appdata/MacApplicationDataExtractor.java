@@ -108,10 +108,11 @@ public class MacApplicationDataExtractor implements ApplicationDataExtractor {
 	}
 
 	/**
+	 * Returns the command string to launch the default application for the
+     *          file specified by {@code location}.
 	 * @param location
 	 *            the location pointing to the file to be opened
-	 * @returns the command string to launch the default application for the
-	 *          file specified by {@code location}
+	 * @return See above.
 	 */
 	public String[] getDefaultOpenCommandFor(URL location) {
 		return new String[] { "open", location.toString() };

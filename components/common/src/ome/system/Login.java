@@ -7,12 +7,8 @@
 
 package ome.system;
 
-// Java imports
 import java.util.Properties;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 
 /**
@@ -26,8 +22,7 @@ import ome.conditions.ApiUsageException;
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0
- * @see ome.system.ServiceFactory <small> (<b>Internal version:</b> $Rev$
- *      $Date$) </small>
+ * @see ome.system.ServiceFactory
  * @since 1.0
  */
 public class Login {
@@ -53,7 +48,7 @@ public class Login {
     public final static String OMERO_EVENT = "omero.event";
 
     /**
-     * {@link CopyOfLogin} constant which has username and password values set
+     * {@link Login} constant which has username and password values set
      * to null and other values set to their default. This will permit logging
      * in as an anonymous user.
      */

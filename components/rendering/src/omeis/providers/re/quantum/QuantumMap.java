@@ -7,12 +7,6 @@
 
 package omeis.providers.re.quantum;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Provides methods to map value. Each method is wrapper around a method exposed
  * by the {@link Math} class. Each value mapper should implements this I/F.

@@ -7,20 +7,14 @@
 
 package ome.tools.hibernate;
 
-// Java imports
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
 import org.hibernate.Hibernate;
 
-// Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.model.IObject;
-import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 
@@ -30,13 +24,10 @@ import ome.util.Filterable;
  * {@link ome.logic.UpdateImpl} save methods.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see ome.api.IUpdate
  * @see ome.logic.UpdateImpl
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class UpdateFilter extends ContextFilter {
 
     /**
@@ -49,12 +40,12 @@ public class UpdateFilter extends ContextFilter {
      * instead.
      * </p>
      * <p>
-     * The replacement is set by {@link MergeEventListener} and this is the
+     * The replacement is set by {@link ome.security.basic.MergeEventListener} and this is the
      * signal that that entity can be unloaded. Usually, this method is invoked
      * by {@link ome.logic.UpdateImpl}
      * </p>
      * 
-     * @see MergeEventListener
+     * @see ome.security.basic.MergeEventListener
      * @see ome.logic.UpdateImpl
      * @see IObject#unload()
      */
@@ -136,7 +127,7 @@ public class UpdateFilter extends ContextFilter {
 
     /**
      * Prevents CountPerOwner from being loaded unnecessarily.
-     * @see ticket:3978
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/3978">Trac ticket #3978</a>
      */
     @Override
     public Map filter(String fieldId, Map m) {

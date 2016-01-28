@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -22,7 +20,6 @@ import omero.RType;
 import omero.ServerError;
 import omero.api.JobHandlePrx;
 import omero.constants.categories.PROCESSCALLBACK;
-import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ProcessCallbackPrx;

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.DataManagerView
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,25 +21,20 @@
 
 package org.openmicroscopy.shoola.env.data.views;
 
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /** 
 * Provides methods to support data management.
@@ -52,9 +45,6 @@ import pojos.ImageData;
 *              <a href="mailto:a.falconi@dundee.ac.uk">
 *                  a.falconi@dundee.ac.uk</a>
 * @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
 * @since OME2.2
 */
 public interface DataManagerView
@@ -160,7 +150,7 @@ public interface DataManagerView
 	 * Adds the specified items to the parent.
 	 * 
 	 * @param ctx The security context.
-	 * @param parents The <code>DataObject</code>s to update. Either a 
+	 * @param parent The <code>DataObject</code>s to update. Either a 
 	 *                  <code>ProjectData</code> or <code>DatasetData</code>.
 	 * @param children  The items to add.
 	 * @param observer  Call-back handler.
@@ -350,7 +340,7 @@ public interface DataManagerView
 	 */
 	public CallHandle saveChannelData(SecurityContext ctx,
 			List<ChannelData> channels, List<DataObject> objects,
-			AgentEventListener channelDataSaver);
+			AgentEventListener observer);
 	
 	/**
 	 * Loads to the plate hosting the specified images.

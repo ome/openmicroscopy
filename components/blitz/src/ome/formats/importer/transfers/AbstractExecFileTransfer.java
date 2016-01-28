@@ -76,9 +76,9 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
     /**
      * Build a path of the form "root.path/root.name/file.path/file.name".
      *
-     * @param root
-     * @param ofile
-     * @return
+     * @param root the root directory
+     * @param ofile a path relative to the root
+     * @return the assembled path with separators suitable for the local filesystem
      */
     protected File getLocalLocation(OriginalFile root, OriginalFile ofile) {
         StringBuilder sb = new StringBuilder();
@@ -97,10 +97,10 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      * written to by the server. If either condition fails, no linking takes
      * place.
      *
-     * @param location
-     * @param rawFileStore
-     * @throws ServerError
-     * @throws IOException
+     * @param location the source file
+     * @param rawFileStore the target on the server
+     * @throws ServerError if the raw file store could not be used
+     * @throws IOException for problems with the source file
      */
     protected void checkLocation(File location, RawFileStorePrx rawFileStore)
             throws ServerError, IOException {
@@ -153,9 +153,9 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
     /**
      * Executes a local command and fails on non-0 return codes.
      *
-     * @param file
-     * @param location
-     * @throws IOException
+     * @param file the source file
+     * @param location the target on the server
+     * @throws IOException for problems with the source file
      */
     protected void exec(File file, File location) throws IOException {
         ProcessBuilder pb = createProcessBuilder(file, location);
@@ -237,9 +237,9 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
      * {@link ProcessBuilder#start()} called on it. The only critical
      * piece of information should be the return code.
      *
-     * @param file
-     * @param location
-     * @return
+     * @param file File to be copied.
+     * @param location Location to copy to.
+     * @return an instance ready for performing the transfer
      */
     protected abstract ProcessBuilder createProcessBuilder(File file, File location);
 

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -51,7 +49,7 @@ import com.google.common.collect.MapMaker;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.2.1
- * @see ticket:3173
+ * @see <a href="http://trac.openmicroscopy.org/ome/ticket/3173">ticket:3173</a>
  */
 public class SessionCache implements ApplicationContextAware {
 
@@ -328,7 +326,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      * Used externally to refresh the {@link SessionContext} instance
      * associated with the session uuid
-     * @param id
+     * @param uuid
      * @param replacement
      */
     public void refresh(String uuid, SessionContext replacement) {
@@ -585,7 +583,7 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     /**
-     * Marks a new update request in {@link State#lastUpdateRequest}. If the
+     * Adds a new entry to {@link #state}. If the
      * timestamp on the event is invalid, then
      * {@link System#currentTimeMillis()} will be used.
      */
@@ -604,7 +602,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      * Will only ever be accessed by a single thread. Rechecks the target update
      * time again in case a second write thread was blocking the current one.
-     * {@link #lastUpdateRun} gets set to a negative value to specify that this
+     * {@link #active} gets set to <code>true</code> value to specify that this
      * method is currently running.
      */
     public void doUpdate() {
@@ -646,8 +644,8 @@ public class SessionCache implements ApplicationContextAware {
      * Provides the reloading logic of the {@link SessionCache} for the
      * {@link SessionManagerImpl} to use.
      *
-     * @see ticket:4011
-     * @see ticket:5849
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/4011">ticket:4011</a>
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5849">ticket:5849</a>
      */
     public void reload(String id) {
 

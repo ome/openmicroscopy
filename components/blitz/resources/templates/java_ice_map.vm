@@ -1,13 +1,9 @@
 #*
- *   $Id$
- * 
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  * 
  *#
 /*
- *   $$Id$$
- * 
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  * 
@@ -15,16 +11,13 @@
 
 package omero.util;
 
-//Java imports
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-//Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-//Application-internal dependencies
 import ome.util.Filterable;
 
 /**
@@ -75,7 +68,7 @@ public class IceMap {
         _ome2omero.put(ome.model.roi.Point.class, omero.model.SmartPointI.class);
         _ome2omero.put(ome.model.roi.Polygon.class, omero.model.SmartPolygonI.class);
         _ome2omero.put(ome.model.roi.Polyline.class, omero.model.SmartPolylineI.class);
-        _ome2omero.put(ome.model.roi.Rect.class, omero.model.SmartRectI.class);
+        _ome2omero.put(ome.model.roi.Rectangle.class, omero.model.SmartRectI.class);
         _ome2omero.put(ome.model.roi.Label.class, omero.model.SmartTextI.class);
 
         // Units

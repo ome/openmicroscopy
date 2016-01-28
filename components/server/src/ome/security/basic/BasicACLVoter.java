@@ -13,8 +13,6 @@ import static ome.model.internal.Permissions.Role.WORLD;
 
 import java.util.Set;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
@@ -48,8 +46,6 @@ import org.springframework.util.Assert;
  * @see Permissions
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class BasicACLVoter implements ACLVoter {
 
     /**
@@ -112,7 +108,7 @@ public class BasicACLVoter implements ACLVoter {
 
     /**
      * delegates to SecurityFilter because that is where the logic is defined
-     * for the {@link #enableReadFilter(Object) read filter}
+     * for the {@link BasicSecuritySystem#enableReadFilter(Object) read filter}
      * 
      * Ignores the id for the moment.
      * 
@@ -422,11 +418,12 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     /**
-     * @param iObject
-     * @param uid
-     * @return
-     * @DEV.TODO this is less problematic than linking.
+     * Check if the given object is owned by the given user.
+     * @param iObject a model object
+     * @param uid the ID of a user
+     * @return if the object is owned by the user, or is not yet persisted
      */
+    // TODO this is less problematic than linking
     private boolean objectBelongsToUser(IObject iObject, Long uid) {
         final Experimenter e = iObject.getDetails().getOwner();
         if (e == null) {

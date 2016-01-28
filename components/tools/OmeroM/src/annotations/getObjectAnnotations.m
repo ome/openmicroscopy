@@ -30,6 +30,11 @@ function annotations = getObjectAnnotations(session, annotationType, parentType,
 %    array of all the annotations linked to the i-th object.
 %    Default: true.
 %
+%    anns = getObjectAnnotations(session, annotationType, parentType, ids,
+%    'group', groupid) returns annotations belonging to the input groupid.
+%    Use -1 to return the annotations belonging to all groups.
+%    Default: current session groupid.
+%
 %    All additional options input as parameter/value pairs are passed to
 %    the OMERO service.
 %
@@ -80,6 +85,7 @@ ip.addParamValue('include', [], @(x) iscellstr(x) || ischar(x));
 ip.addParamValue('exclude', [], @(x) iscellstr(x) || ischar(x));
 ip.addParamValue('flatten', true, @(x) isscalar(x) && (x || ~x));
 ip.addParamValue('owner', defaultownerid, @isscalar);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.KeepUnmatched = true;
 ip.parse(annotationType, parentType, ids, varargin{:});
 
@@ -90,6 +96,15 @@ metadataService = session.getMetadataService();
 if ~isnumeric(ids),
     ids = arrayfun(@(x) x.getId().getValue(), ids);
 end
+
+context = structToHashMap(ip.Unmatched);
+if ~isempty(ip.Results.group)
+    context.put(...
+        'omero.group', java.lang.String(num2str(ip.Results.group)));
+elseif ~context.containsKey('omero.group') && ~isempty(ids)
+    context.put('omero.group', '-1');
+end
+
 ids = toJavaList(ids, 'java.lang.Long');
 include = toJavaList(ip.Results.include, 'java.lang.String');
 exclude = toJavaList(ip.Results.exclude, 'java.lang.String');
@@ -102,7 +117,7 @@ object = objects(strcmp(parentType, {objects.name}));
 annotation = annotations(strcmp(annotationType, {annotations.name}));
 annotations = metadataService.loadSpecifiedAnnotationsLinkedTo(...
     annotation.class, include, exclude, object.class, ids, parameters, ...
-    structToHashMap(ip.Unmatched));
+    context);
 
 % Aggregate all annotations into a java.util.ArrayList
 if ip.Results.flatten

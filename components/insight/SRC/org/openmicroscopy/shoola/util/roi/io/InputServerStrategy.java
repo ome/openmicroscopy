@@ -22,9 +22,7 @@
  */
 package org.openmicroscopy.shoola.util.roi.io;
 
-
-
-//Java imports
+import java.awt.Font;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -45,12 +43,15 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import ome.model.units.BigResult;
+import omero.model.Length;
 import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -70,17 +71,17 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
 
-import pojos.EllipseData;
-import pojos.LineData;
-import pojos.PointData;
-import pojos.ROIData;
-import pojos.RectangleData;
-import pojos.ShapeData;
-import pojos.PolygonData;
-import pojos.MaskData;
-import pojos.PolylineData;
-import pojos.ShapeSettingsData;
-import pojos.TextData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ShapeSettingsData;
+import omero.gateway.model.TextData;
 
 
 /** 
@@ -91,9 +92,6 @@ import pojos.TextData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class InputServerStrategy
@@ -175,13 +173,6 @@ class InputServerStrategy
 		ROI newROI = component.createROI(id, id <= 0, edit,
 				roi.canDelete(), roi.canAnnotate());
 		newROI.setOwnerID(roi.getOwner().getId());
-		
-		if (roi.getNamespaces().size() != 0) {
-			String s = roi.getNamespaces().get(0);
-			if (CommonsLangUtils.isNotBlank(s)) {
-			    newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
-			}
-		}
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();
@@ -236,6 +227,7 @@ class InputServerStrategy
 		addMissingAttributes(fig);
 		ROIShape shape = new ROIShape(roi, coord, fig, fig.getBounds());
 		shape.setROIShapeID(data.getId());
+		shape.setData(data);
 		return shape;
 	}
 
@@ -571,23 +563,27 @@ class InputServerStrategy
 	 */
 	private void addShapeSettings(ROIFigure figure, ShapeSettingsData data)
 	{
-	    Double value;
+	    Double value = ShapeSettingsData.DEFAULT_STROKE_WIDTH;
+	    Length l;
         try {
-            value = data.getStrokeWidth(UnitsLength.PIXEL).getValue();
-        } catch (BigResult e) {
-            value = 1d;
+            l = data.getStrokeWidth(UnitsLength.PIXEL);
+            if (l != null) {
+                value = l.getValue();
+            }
+        } catch (Exception e) {
+            if (e instanceof BigResult) {
+                BigResult ex = (BigResult) e;
+                if (ex.result != null) {
+                    value = ex.result.doubleValue();
+                }
+            }
         }
 		STROKE_WIDTH.set(figure, value);
 		STROKE_COLOR.set(figure, data.getStroke());
 		FILL_COLOR.set(figure, data.getFill());
-		FONT_FACE.set(figure, data.getFont());
-		
-		try {
-            value = data.getFontSize(UnitsLength.POINT).getValue();
-        } catch (BigResult e) {
-            value = 10d;
-        }
-		FONT_SIZE.set(figure, value);
+		Font f = data.getFont();
+		FONT_FACE.set(figure, f);
+		FONT_SIZE.set(figure, (double) f.getSize());
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		STROKE_CAP.set(figure, data.getLineCap());

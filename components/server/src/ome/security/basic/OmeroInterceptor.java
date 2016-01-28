@@ -28,8 +28,6 @@ import org.hibernate.type.ComponentType;
 import org.hibernate.type.Type;
 import org.springframework.util.Assert;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
@@ -75,8 +73,6 @@ import ome.tools.hibernate.HibernateUtils;
  * @see Interceptor
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class OmeroInterceptor implements Interceptor {
 
     static volatile String last = null;
@@ -567,12 +563,12 @@ public class OmeroInterceptor implements Interceptor {
     }
 
     /**
-     * The default right need for a linkage is WRITE
+     * The default right need for a linkage is {@link Right#WRITE}.
      * If however, this is only an annotation or only a viewing,
      * then less permission is needed.
-     * @param changedClass
-     * @param linkedClass
-     * @return
+     * @param changedClass the changed class
+     * @param linkedClass the linked class
+     * @return the right that is needed
      */
     protected Right neededRight(final Class<?> changedClass,
             final Class<?> linkedClass) {
@@ -608,10 +604,7 @@ public class OmeroInterceptor implements Interceptor {
 
     /**
      * Like {@link #newTransientDetails(IObject)} but allows passing in a
-     * newDetails object with possibly pre-set values.
-     *
-     * @param obj
-     * @return
+     * newDetails object with possibly preset values.
      * @see #evaluateLinkages(IObject)
      */
     protected Details newTransientDetails(final IObject obj,
@@ -865,11 +858,10 @@ public class OmeroInterceptor implements Interceptor {
 
     /**
      * responsible for guaranteeing that external info is not modified by any
-     * users, including rot.
+     * users, including root.
      *
-     * @param locked
-     * @param privileged
-     * @param obj
+     * @param privileged if the user is privileged
+     * @param obj the model object
      * @param previousDetails
      *            details representing the known DB state
      * @param currentDetails

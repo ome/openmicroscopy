@@ -37,12 +37,26 @@ public class FindServiceFactoryMessage extends InternalMessage {
 
     protected transient ServiceFactoryI sf;
 
+    public FindServiceFactoryMessage(Object source, Ice.Identity id) {
+        super(source);
+        this.id = id;
+        this.curr = null;
+    }
+
     public FindServiceFactoryMessage(Object source, Ice.Current current) {
         super(source);
         this.curr = current;
     }
 
+    public Ice.Identity getIdentity() {
+        return this.id;
+    }
+
     public Ice.Current getCurrent() {
+        if (this.curr == null) {
+            throw new RuntimeException(
+                    "This instance was initialized with an Identity");
+        }
         return this.curr;
     }
 

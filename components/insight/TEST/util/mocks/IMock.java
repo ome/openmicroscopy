@@ -23,12 +23,6 @@
 
 package util.mocks;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Specifies the life-cycle of mock objects.
  * A mock object's life-cycle is as follows:
@@ -56,10 +50,6 @@ package util.mocks;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public interface IMock

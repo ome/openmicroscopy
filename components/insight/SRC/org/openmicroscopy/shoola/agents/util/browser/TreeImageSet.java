@@ -23,14 +23,7 @@
 
 package org.openmicroscopy.shoola.agents.util.browser;
 
-
-
-//Java imports
 import java.util.Iterator;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Represents a container in the composite structure used to visualize an
@@ -123,24 +116,6 @@ public class TreeImageSet
     public void addChildDisplay(TreeImageDisplay child)
     {
         if (child == null) throw new NullPointerException("No child.");
-        /*
-        Class childClass = child.getClass();
-        if (containsImages == null) {  //First time add is invoked.
-            containsImages = 
-                new Boolean(childClass.equals(TreeImageNode.class));
-        } else {  //Either ImageNodes or ImageSets have been added.
-            if (containsImages.booleanValue()) {  //Children are ImageNodes.
-                if (!childClass.equals(TreeImageNode.class))
-                    throw new IllegalArgumentException(
-                        "This node can only contain TreeImageNodes.");
-            } else  { //Children are ImageSets.
-                if (!(childClass.equals(TreeImageSet.class) ||
-                	childClass.equals(TreeImageTimeSet.class)))
-                    throw new IllegalArgumentException(
-                        "This node can only contain TreeImageSets.");
-            }
-        }
-        */
         super.addChildDisplay(child);
     }
     
@@ -163,10 +138,6 @@ public class TreeImageSet
 			if (i.next() instanceof TreeImageNode) return true;
 		}
     	return false;
-    	/*
-        if (containsImages == null) return false;
-        return containsImages.booleanValue();
-        */
     }
 
     /** 
@@ -183,7 +154,7 @@ public class TreeImageSet
      * loaded.
      * 
      * @return See above.
-     * @see #setNumberItems(int)
+     * @see #setNumberItems(long)
      */
     public long getNumberItems() { return numberItems; }
     

@@ -7,14 +7,11 @@
 
 package ome.util.math.geom2D;
 
-// Java imports
-import org.testng.annotations.*;
 import java.awt.Rectangle;
 
-// Third-party libraries
-import junit.framework.TestCase;
+import org.testng.annotations.*;
 
-// Application-internal dependencies
+import junit.framework.TestCase;
 
 /**
  * Unit test for {@link RectangleArea}.
@@ -24,8 +21,6 @@ import junit.framework.TestCase;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/25 18:09:01 $) </small>
  * @since OME2.2
  */
 public class TestRectangleArea extends TestCase {

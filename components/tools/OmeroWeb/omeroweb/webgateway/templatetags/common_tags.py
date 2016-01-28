@@ -25,6 +25,7 @@
 
 
 import logging
+import time
 
 from django.conf import settings
 from django import template
@@ -99,3 +100,35 @@ def do_plural(parser, token):
             % token.contents.split()[0])
 
     return PluralNode(quantity, single, plural)
+
+
+class TemplateTokenNode(template.Node):
+    def __init__(self, component, cid):
+        self.component = template.Variable(component)
+        self.cid = template.Variable(cid)
+
+    def render(self, context):
+        timestamp = time.time()
+        return u'%s-%s-%s' % (self.component.resolve(context),
+                              self.cid.resolve(context),
+                              timestamp)
+
+
+@register.tag(name="content_identifier")
+def content_identifier(parser, token):
+    """
+    Usage: {% plural quantity name_singular name_plural %}
+
+    This simple version only works with template variable since we will use
+    blocktrans for strings.
+    """
+
+    try:
+        # split_contents() knows not to split quoted strings.
+        tag_name, component, cid = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires exactly three arguments"
+            % token.contents.split()[0])
+
+    return TemplateTokenNode(component, cid)

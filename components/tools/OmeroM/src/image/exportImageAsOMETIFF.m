@@ -51,8 +51,10 @@ end
 store = session.createExporter;
 
 % Set the image identifier
+context = java.util.HashMap;
+context.put('omero.group', '-1');
 store.addImage(imageID);
-size = store.generateTiff();
+size = store.generateTiff(context);
 
 % Open image file in write access
 fid = fopen(imagePath, 'w');

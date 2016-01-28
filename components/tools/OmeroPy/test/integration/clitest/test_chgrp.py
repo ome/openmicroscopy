@@ -23,7 +23,6 @@ import omero
 from omero.cli import NonZeroReturnCode
 from omero.plugins.chgrp import ChgrpControl
 from test.integration.clitest.cli import CLITest, RootCLITest
-from omero.rtypes import rstring
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
@@ -47,27 +46,6 @@ class TestChgrp(CLITest):
         super(TestChgrp, self).setup_method(method)
         self.cli.register("chgrp", ChgrpControl, "TEST")
         self.args += ["chgrp"]
-
-    def create_object(self, object_type):
-        # create object
-        if object_type == 'Dataset':
-            new_object = omero.model.DatasetI()
-        elif object_type == 'Project':
-            new_object = omero.model.ProjectI()
-        elif object_type == 'Plate':
-            new_object = omero.model.PlateI()
-        elif object_type == 'Screen':
-            new_object = omero.model.ScreenI()
-        elif object_type == 'Image':
-            new_object = self.new_image()
-        new_object.name = rstring("")
-        new_object = self.update.saveAndReturnObject(new_object)
-
-        # check object has been created
-        found_object = self.query.get(object_type, new_object.id.val)
-        assert found_object.id.val == new_object.id.val
-
-        return new_object.id.val
 
     @pytest.mark.parametrize("object_type", object_types)
     @pytest.mark.parametrize("target_group_perms", permissions)

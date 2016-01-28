@@ -23,15 +23,10 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
@@ -63,7 +58,7 @@ public class ScriptRunner
 
     /**
      * Notifies that an error occurred.
-     * @see UserNotifierLoader#onException(String)
+     * @see UserNotifierLoader#onException(String, Throwable)
      */
     protected void onException(String message, Throwable ex)
     { 

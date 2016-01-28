@@ -297,8 +297,11 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 SessionI.unregisterServant(curr.id, adapter, holder);
             } else if (event instanceof FindServiceFactoryMessage) {
                 FindServiceFactoryMessage msg = (FindServiceFactoryMessage) event;
-                Ice.Current curr = msg.getCurrent();
-                Ice.Identity id = getServiceFactoryIdentity(curr);
+                Ice.Identity id = msg.getIdentity();
+                if (id == null) {
+                    Ice.Current curr = msg.getCurrent();
+                    id = getServiceFactoryIdentity(curr);
+                }
                 ServiceFactoryI sf = getServiceFactory(id);
                 msg.setServiceFactory(id, sf);
             } else if (event instanceof DestroySessionMessage) {

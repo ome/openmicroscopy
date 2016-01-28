@@ -39,7 +39,7 @@ import javax.swing.JProgressBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 

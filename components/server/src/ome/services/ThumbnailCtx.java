@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -53,7 +51,7 @@ public class ThumbnailCtx
      * their callers that for whatever reason the desired Thumbnail is not
      * available, in which case the caller can use a *Direct method instead.
      *
-     * See ticket:10618
+     * See <a href="http://trac.openmicroscopy.org/ome/ticket/10618">ticket:10618</a>
      */
     public static class NoThumbnail extends Exception {
 
@@ -1099,7 +1097,7 @@ public class ThumbnailCtx
      * @param dimensions The dimensions of the thumbnail.
      *
      * @return the thumbnail metadata as created.
-     * @see getThumbnailMetadata()
+     * @see #getMetadata(long)
      */
     public Thumbnail createThumbnailMetadata(Pixels pixels,
             Dimension dimensions)

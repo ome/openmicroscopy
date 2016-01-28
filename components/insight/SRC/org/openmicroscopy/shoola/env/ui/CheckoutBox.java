@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,9 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
@@ -57,9 +52,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class CheckoutBox 
@@ -164,7 +156,7 @@ public class CheckoutBox
 	/**
 	 * Creates  a new instance.
 	 * 
-	 * @param onwer		The parent window.
+	 * @param owner		The parent window.
 	 * @param title		The title to display on the title bar.
 	 * @param message	The notification message.
 	 * @param map 		Contains the instances to save.
@@ -181,7 +173,7 @@ public class CheckoutBox
 	/**
 	 * Creates  a new instance.
 	 * 
-	 * @param onwer		The parent window.
+	 * @param owner		The parent window.
 	 * @param title		The title to display on the title bar.
 	 * @param message	The notification message.
 	 * @param map 		Contains the instances to save.

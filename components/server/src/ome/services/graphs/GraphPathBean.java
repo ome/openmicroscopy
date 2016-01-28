@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -122,6 +122,9 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /* the identifier properties of classes */
     private final Map<String, String> classIdProperties = new HashMap<String, String>();
 
+    /* the properties of classes that have simple values */
+    private final SetMultimap<String, String> simpleProperties = HashMultimap.create();
+
     /**
      * The application context after refresh should contain a usable Hibernate session factory.
      * If not already done, process the Hibernate domain object model from that bean.
@@ -168,6 +171,14 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
             interfacesFrom = interfacesTo;
         }
         return interfaceForProperty == null ? null : interfaceForProperty;
+    }
+
+    /**
+     * @param name the name of an object property
+     * @return if the property should be ignored
+     */
+    private static boolean ignoreProperty(String name) {
+        return "perm1".equals(name) || name.startsWith("_") || name.endsWith("CountPerOwner");
     }
 
     /**
@@ -234,6 +245,9 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
         /* process each property to note entity linkages */
         while (!propertyQueue.isEmpty()) {
             final PropertyDetails property = propertyQueue.remove();
+            if (ignoreProperty(property.path.get(property.path.size() - 1))) {
+                continue;
+            }
             /* if the property has a component type, queue the parts for processing */
             if (property.type instanceof ComponentType) {
                 final ComponentType componentType = (ComponentType) property.type;
@@ -248,7 +262,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                             property.holder, componentPropertyPath, componentPropertyTypes[i], componentPropertyNullabilities[i]));
                 }
             } else {
-                /* until we are ready for deep copy we care about entity linkages only */
+                /* determine if another mapped entity class is linked by this property */
                 final boolean isAssociatedEntity;
                 if (property.type instanceof CollectionType) {
                     final CollectionType ct = (CollectionType) property.type;
@@ -256,11 +270,10 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                 } else {
                     isAssociatedEntity = property.type instanceof AssociationType;
                 }
-                if (isAssociatedEntity) {
                     /* the property can link to entities, so process it further */
-                    final String propertyPath = Joiner.on('.').join(property.path);
+                    String propertyPath = Joiner.on('.').join(property.path);
                     /* find if the property is accessible (e.g., not protected) */
-                    boolean propertyIsAccessible = true;
+                    boolean propertyIsAccessible = false;
                     String classToInstantiateName = property.holder;
                     Class<?> classToInstantiate = null;
                     try {
@@ -271,13 +284,16 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                         }
                         try {
                             PropertyUtils.getNestedProperty(classToInstantiate.newInstance(), propertyPath);
+                            propertyIsAccessible = true;
                         } catch (NoSuchMethodException e) {
-                            propertyIsAccessible = false;
+                            /* expected for collection properties */
                         } catch (NestedNullException e) {
-                            propertyIsAccessible = false;
+                            log.debug("guessing " + propertyPath + " of " + property.holder + " to be accessible");
+                            propertyIsAccessible = true;
                         }
-                    } catch (/* TODO Java SE 7 ReflectiveOperation*/Exception e) {
-                        log.error("could not probe property of " + property.holder, e);
+                    } catch (ReflectiveOperationException e) {
+                        log.error("could not probe property " + propertyPath + " of " + property.holder, e);
+                        continue;
                     }
                     /* build property report line for log */
                     final char arrowShaft = property.isNullable ? '-' : '=';
@@ -292,8 +308,14 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                     sb.append(arrowShaft);
                     sb.append(arrowShaft);
                     sb.append("> ");
-                    final String valueClassName = ((AssociationType) property.type).getAssociatedEntityName(sessionFactory);
+                    final String valueClassName;
+                    if (isAssociatedEntity) {
+                    valueClassName = ((AssociationType) property.type).getAssociatedEntityName(sessionFactory);
                     sb.append(valueClassName);
+                    } else {
+                        valueClassName = null;
+                        sb.append("value");
+                    }
                     if (property.type.isCollectionType()) {
                         sb.append("[]");
                     }
@@ -327,9 +349,18 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                              * but then properties would not be unique by declarer class and instance ID. */
                         }
                         /* entity linkages by non-inherited properties are recorded */
+                        if (valueClassName == null && property.path.size() > 1) {
+                            /* assume that the top-level property suffices for describing simple properties */
+                            log.debug("recording " + propertyPath + " as " + property.path.get(0));
+                            propertyPath = property.path.get(0);
+                        }
                         final Entry<String, String> classPropertyName = Maps.immutableEntry(property.holder, propertyPath);
+                        if (valueClassName == null) {
+                            simpleProperties.put(property.holder, propertyPath);
+                        } else {
                         linkedTo.put(property.holder, Maps.immutableEntry(valueClassName, propertyPath));
                         linkedBy.put(valueClassName, classPropertyName);
+                        }
                         final PropertyKind propertyKind;
                         if (property.type.isCollectionType()) {
                             propertyKind = PropertyKind.COLLECTION;
@@ -346,7 +377,6 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                     if (log.isDebugEnabled()) {
                         log.debug(sb.toString());
                     }
-                }
             }
         }
         log.info("initialized graph path bean with " + propertyKinds.size() + " properties");
@@ -357,7 +387,22 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      * @return the class with that simple name, or {@code null} if one is not known
      */
     public Class<? extends IObject> getClassForSimpleName(String simpleName) {
-        return classesBySimpleName.get(simpleName);
+        Class<? extends IObject> namedClass = classesBySimpleName.get(simpleName);
+        if (namedClass != null) {
+            return namedClass;
+        }
+        /* may have named a subclass, try guessing */
+        Class<?> subclass;
+        try {
+            subclass = Class.forName("omero.model." + simpleName);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+        while (namedClass == null && subclass != Object.class) {
+            subclass = subclass.getSuperclass();
+            namedClass = classesBySimpleName.get(subclass.getSimpleName());
+        }
+        return namedClass;
     }
 
     /**
@@ -449,5 +494,14 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      */
     public String getIdentifierProperty(String className) {
         return classIdProperties.get(className);
+    }
+
+    /**
+     * Get the <q>simple</q> properties for the given class, not linking to other mapped classes.
+     * @param className the name of a class
+     * @return the <q>simple</q> properties of the given class; never {@code null}
+     */
+    public Set<String> getSimpleProperties(String className) {
+        return simpleProperties.get(className);
     }
 }

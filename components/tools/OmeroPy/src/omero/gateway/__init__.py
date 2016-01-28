@@ -29,7 +29,7 @@ from omero.util.decorators import timeit
 from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
 from omero.cmd.graphs import ChildOption
 from omero.api import Save
-from omero.gateway.utils import ServiceOptsDict, GatewayConfig
+from omero.gateway.utils import ServiceOptsDict, GatewayConfig, toBoolean
 import omero.scripts as scripts
 
 import Ice
@@ -824,8 +824,9 @@ class BlitzObjectWrapper (object):
 
     def _loadAnnotationLinks(self):
         """
-        Loads the annotation links for the object (if not already loaded) and
-        saves them to the object
+        Loads the annotation links and annotations for the object
+        (if not already loaded) and saves them to the object.
+        Also loads file for file annotations.
         """
         # pragma: no cover
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'):
@@ -839,6 +840,7 @@ class BlitzObjectWrapper (object):
                      "fetch l.details.owner join "
                      "fetch l.details.creationEvent "
                      "join fetch l.child as a join fetch a.details.owner "
+                     "left outer join fetch a.file "
                      "join fetch a.details.creationEvent where l.parent.id=%i"
                      % (self.OMERO_CLASS, self._oid))
             links = self._conn.getQueryService().findAllByQuery(
@@ -1528,18 +1530,68 @@ class _BlitzGateway (object):
                 int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
 
+    def getRoiLimitSetting(self):
+        try:
+            roi_limit = (int(self.getConfigService().getConfigValue(
+                             "omero.client.viewer.roi_limit")) or 2000)
+        except:
+            roi_limit = 2000
+        return roi_limit
+
     def getInitialZoomLevel(self):
         """
         Returns default initial zoom level set on the server.
         """
-        return (self.getConfigService().getConfigValue(
-                "omero.client.viewer.initial_zoom_level") or 0)
+        try:
+            initzoom = (self.getConfigService().getConfigValue(
+                        "omero.client.viewer.initial_zoom_level") or 0)
+        except:
+            initzoom = 0
+        return initzoom
+
+    def getInterpolateSetting(self):
+        """
+        Returns default interpolation setting on the server.
+        This is a string but represents a boolean, E.g. 'true'
+
+        :return:    String
+        """
+        try:
+            interpolate = (
+                toBoolean(self.getConfigService().getConfigValue(
+                    "omero.client.viewer.interpolate_pixels")) or True
+            )
+        except:
+            interpolate = True
+        return interpolate
+
+    def getDownloadAsMaxSizeSetting(self):
+        """
+        Returns default max size of images that can be downloaded as
+        jpg, png or tiff, expressed as number of pixels.
+        Default is 144000000 (12k * 12k image)
+
+        :return:    Integer
+        """
+        size = 144000000
+        try:
+            size = self.getConfigService().getConfigValue(
+                "omero.client.download_as.max_size")
+            size = int(size)
+        except:
+            pass
+        return size
 
     def getWebclientHost(self):
         """
         Returns default initial zoom level set on the server.
         """
-        return self.getConfigService().getConfigValue("omero.client.web.host")
+        try:
+            host = self.getConfigService() \
+                       .getConfigValue("omero.client.web.host")
+        except:
+            host = None
+        return host
 
     def isAnonymous(self):
         """
@@ -2521,6 +2573,8 @@ class _BlitzGateway (object):
             if eid is not None:
                 query += " and ws.details.owner.id=:eid "
             query += ")"
+
+        query += " order by lower(obj.name), obj.id"
 
         result = self.getQueryService().findAllByQuery(
             query, params, self.SERVICE_OPTS)
@@ -3787,14 +3841,31 @@ class _BlitzGateway (object):
         linked to others in the database
 
         :param obj:     Object to delete
-        :type obj:      IObject"""
+        :type obj:      IObject
+
+        ** Deprecated ** Use :meth:`deleteObject` or :meth:`deleteObjects`.
+        """
+        warnings.warn(
+            "Deprecated. Use deleteObject() or deleteObjects()",
+            DeprecationWarning)
 
         type = obj.__class__.__name__.rstrip('I')
         delete = Delete2(targetObjects={type: [obj.getId().val]})
         self.c.submit(delete, self.SERVICE_OPTS)
 
+    def deleteObject(self, obj):
+        """
+        Delete a single object.
+
+        :param obj:     Object to delete
+        :type obj:      IObject
+        """
+
+        objType = obj.__class__.__name__.rstrip('I')
+        self.deleteObjects(objType, [obj.id.val], wait=True)
+
     def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
-                      deleteChildren=False):
+                      deleteChildren=False, dryRun=False, wait=False):
         """
         Generic method for deleting using the delete queue. Options allow to
         delete 'independent' Annotations (Tag, Term, File) and to delete
@@ -3834,7 +3905,7 @@ class _BlitzGateway (object):
 
         graph = graph_spec.lstrip('/').split('/')
         obj_ids = map(long, obj_ids)
-        delete = Delete2(targetObjects={graph[0]: obj_ids})
+        delete = Delete2(targetObjects={graph[0]: obj_ids}, dryRun=dryRun)
 
         exc = list()
         if not deleteAnns and graph[0] not in ["Annotation",
@@ -3866,6 +3937,7 @@ class _BlitzGateway (object):
             skiphead.targetObjects = delete.targetObjects
             skiphead.childOptions = delete.childOptions
             skiphead.startFrom = [graph[-1]]
+            skiphead.dryRun = dryRun
             delete = skiphead
 
         logger.debug('Deleting %s [%s]. Options: %s' %
@@ -3874,6 +3946,12 @@ class _BlitzGateway (object):
         logger.debug('Delete2: \n%s' % str(delete))
 
         handle = self.c.sf.submit(delete, self.SERVICE_OPTS)
+        if wait:
+            try:
+                self._waitOnCmd(handle)
+            finally:
+                handle.close()
+
         return handle
 
     def _waitOnCmd(self, handle, loops=10, ms=500,
@@ -3894,8 +3972,9 @@ class _BlitzGateway (object):
         callback.loop(20, 500)
         rsp = prx.getResponse()
         """
-        chmod = omero.cmd.Chmod(
-            type="/ExperimenterGroup", id=group_Id, permissions=permissions)
+        chmod = omero.cmd.Chmod2(
+            targetObjects={'ExperimenterGroup': [group_Id]},
+            permissions=permissions)
         prx = self.c.sf.submit(chmod)
         return prx
 
@@ -4553,6 +4632,10 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 
     OMERO_TYPE = FileAnnotationI
 
+    def __init__(self, *args, **kwargs):
+        super(FileAnnotationWrapper, self).__init__(*args, **kwargs)
+        self._file = None
+
     _attrs = ('file|OriginalFileWrapper',)
 
     def _getQueryString(self):
@@ -4572,6 +4655,16 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
     def setValue(self, val):
         """ Not implemented """
         pass
+
+    def getFile(self):
+        """
+        Returns an OriginalFileWrapper for the file.
+        Wrapper object will load the file if it isn't already loaded.
+        File is cached to prevent repeated loading of the file.
+        """
+        if self._file is None:
+            self._file = OriginalFileWrapper(self._conn, self._obj.file)
+        return self._file
 
     def setFile(self, originalfile):
         """
@@ -7048,30 +7141,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         self._author = e.firstName.val + " " + e.lastName.val
         return self._author
 
-    def getDataset(self):
-        """
-        XXX: Deprecated since 4.3.2, use listParents(). (See #6660)
-        Gets the Dataset that image is in, or None.
-        Returns None if Image is in more than one Dataset.
-
-        :return:    Dataset
-        :rtype:     :class:`DatasetWrapper`
-        """
-
-        try:
-            q = """
-            select ds from Image i join i.datasetLinks dl join dl.parent ds
-            where i.id = %i
-            """ % self._obj.id.val
-            query = self._conn.getQueryService()
-            ds = query.findAllByQuery(q, None, self._conn.SERVICE_OPTS)
-            if ds and len(ds) == 1:
-                return DatasetWrapper(self._conn, ds[0])
-        except:  # pragma: no cover
-            logger.debug('on getDataset')
-            logger.debug(traceback.format_exc())
-            return None
-
     def getProject(self):
         """
         Gets the Project that image is in, or None.
@@ -8928,7 +8997,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         Count number of ROIs associated to an image
 
-        :param shapeType: Filter by shape type ("Rect",...).
+        :param shapeType: Filter by shape type ("Rectangle",...).
         :param filterByCurrentUser: Whether or not to filter the count by
                                     the currently logged in user.
         :return: Number of ROIs found for the currently logged in user if

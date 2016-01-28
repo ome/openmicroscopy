@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
-//Java imports
 import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,19 +34,16 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.ProjectData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
 
 /** 
  * Represents a component in the composite structure used to visualize an
@@ -98,9 +92,6 @@ import pojos.ProjectData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 5216 $ $Date: 2008-01-22 13:15:18 +0000 (Tue, 22 Jan 2008) $)
- * </small>
  * @since OME2.2
  */
 public abstract class ImageDisplay
@@ -482,7 +473,6 @@ public abstract class ImageDisplay
      * Adds the specified listener to the passed components.
      * 
      * @param listener The listener to add.
-     * @param listener
      */
     public abstract void addListenerToComponents(Object listener);
 

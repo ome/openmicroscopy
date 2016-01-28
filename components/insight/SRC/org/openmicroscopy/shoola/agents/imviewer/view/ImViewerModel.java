@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerModel
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,9 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -77,14 +72,16 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+import omero.gateway.model.TableResult;
+
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
@@ -94,15 +91,15 @@ import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.ObjectiveData;
-import pojos.PixelsData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ObjectiveData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /** 
 * The Model component in the <code>ImViewer</code> MVC triad.
@@ -125,7 +122,9 @@ import pojos.WellSampleData;
 class ImViewerModel
 {
 
-	
+    /** Default maximum export size, 12kx12kx image */
+    static int DEFAULT_MAX_EXPORT_SIZE = 144000000;
+    
 	/** The maximum size for the bird eye view for standard screen size.*/
 	private static final int BIRD_EYE_SIZE_LOWER = 128;
 	
@@ -327,8 +326,14 @@ class ImViewerModel
     private int planeSize;
 
     /** The units corresponding to the pixels size.*/
-    private String refUnit;
+    private UnitsLength refUnit;
     
+    /** The unit used for the scale bar */
+    private UnitsLength scaleBarUnit;
+
+    /** The selected rendering settings in under "User Setting".*/
+    private long selectedRndDefID;
+
     /**
      * Returns the default resolution level.
      * 
@@ -559,22 +564,22 @@ class ImViewerModel
 	/** Initializes the {@link #metadataViewer}. */
 	private void initializeMetadataViewer()
 	{
-		metadataViewer = MetadataViewerFactory.getViewer("",
-				MetadataViewer.RND_SPECIFIC);
-		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
-				getSecurityContext());
-		
-		// there might already exist another MetadataViewer with modified
-		// rendering settings; if so copy it's original settings
-                MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
-                        ImageData.class.getName(), image.getId());
-                if (otherViewer != null) {
-                    Renderer otherRenderer = otherViewer.getRenderer();
-                    if (otherRenderer != null)
-                        originalDef = otherRenderer.getInitialRndSettings();
-                }
+	    metadataViewer = MetadataViewerFactory.getViewer("",
+	            MetadataViewer.RND_SPECIFIC, alternativeSettings, selectedRndDefID);
+	    metadataViewer.setRootObject(image, metadataViewer.getUserID(),
+	            getSecurityContext());
+
+	    // there might already exist another MetadataViewer with modified
+	    // rendering settings; if so copy its original settings
+	    MetadataViewer otherViewer = MetadataViewerFactory.getViewerFromId(
+	            ImageData.class.getName(), image.getId());
+	    if (otherViewer != null) {
+	        Renderer otherRenderer = otherViewer.getRenderer();
+	        if (otherRenderer != null)
+	            originalDef = otherRenderer.getInitialRndSettings();
+	    }
 	}
-	
+
 	/**
    	 * Reloads the 'saved by' thumbnails of the the rendering panel
     	 */
@@ -646,6 +651,7 @@ class ImViewerModel
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component,
 				ImViewerFactory.getPreferences());
+		selectedRndDefID = -1;
 	}
 	
 	/**
@@ -655,6 +661,25 @@ class ImViewerModel
 	boolean isRendererLoaded() {
 	    return metadataViewer.getRenderer() != null;
 	}
+	
+    /**
+     * Get the unit for the scalebar.
+     * Determined by assuming a 100px wide scalebar.
+     * 
+     * @return The unit used for the scalebar
+     */
+    public UnitsLength getScaleBarUnit() {
+        if (scaleBarUnit == null) {
+            if (getPixelsSizeX() == null)
+                return UnitsLength.MICROMETER;
+            // Determine a reasonable unit by assuming a 100px wide scalebar
+            Length tmp = new LengthI(getPixelsSizeX().getValue() * 100,
+                    getPixelsSizeX().getUnit());
+            tmp = UIUtilities.transformSize(tmp);
+            this.scaleBarUnit = tmp.getUnit();
+        }
+        return scaleBarUnit;
+    }
 	
 	/**
 	 * Returns the current user's details.
@@ -1059,7 +1084,9 @@ class ImViewerModel
 			if (alternativeSettings != null && rnd != null)
 				rnd.resetSettings(alternativeSettings, false);
 			alternativeSettings = null;
-			if (rnd != null && originalDef == null) originalDef = rnd.getRndSettingsCopy();
+			if (rnd != null && originalDef == null) {
+			    originalDef = rnd.getRndSettingsCopy();
+			}
 		} catch (Exception e) {}
 	}
 	
@@ -1265,7 +1292,35 @@ class ImViewerModel
 		return rnd.isBigImage();
 	}
 
+	/**
+     * Checks if the image can be exported, i. e. it does not exceed the maximum
+     * size for being able to get exported as jpg, png or tif
+     * 
+     * @return See above
+     */
+    public boolean isExportable() {
+        if (getPixelsData() == null)
+            return false;
 
+        int imgSize = getPixelsData().getSizeX() * getPixelsData().getSizeY();
+        int maxSize = DEFAULT_MAX_EXPORT_SIZE;
+        String tmp = (String) ImViewerAgent.getRegistry().lookup(
+                LookupNames.MAX_EXPORT_SIZE);
+        if (tmp != null) {
+            try {
+                maxSize = Integer.parseInt(tmp);
+            } catch (NumberFormatException e) {
+                ImViewerAgent
+                        .getRegistry()
+                        .getLogger()
+                        .warn(this,
+                                "Non integer value provided for "
+                                        + LookupNames.MAX_EXPORT_SIZE);
+            }
+        }
+        return imgSize <= maxSize;
+    }
+    
 	/**
 	 * Returns <code>true</code> if it is a large image,
 	 * <code>false</code> otherwise.
@@ -1383,38 +1438,39 @@ class ImViewerModel
 	BufferedImage getGridImage() { return browser.getGridImage(); }
 
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelsSizeX()
+	Length getPixelsSizeX()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return -1;
+		if (rnd == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rnd.getPixelsSizeX(); 
 	}
 
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelsSizeY()
+	Length getPixelsSizeY()
 	{ 
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return -1;
+		if (rnd == null) return new LengthI(1, UnitsLength.PIXEL);
 		return rnd.getPixelsSizeY();
 	}
 
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelsSizeZ()
+	Length getPixelsSizeZ()
 	{
 		Renderer rnd = metadataViewer.getRenderer();
-		if (rnd == null) return -1;
+		if (rnd == null) return new LengthI(1, UnitsLength.PIXEL);
 		return rnd.getPixelsSizeZ();
 	}
 
@@ -2212,16 +2268,17 @@ class ImViewerModel
 	/**
 	 * Returns <code>true</code> if the rendering settings are original,
 	 * <code>false</code> otherwise.
-	 * 
+	 * @param checkPlane Pass <code>true</code> to take z/t changes into account, 
+	 *                     <code>false</code> to ignore them
 	 * @return See above.
 	 */
-	boolean isOriginalSettings()
+	boolean isOriginalSettings(boolean checkPlane)
 	{
 		if (originalDef == null) return true;
 		if (metadataViewer == null) return true;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return true;
-		return isSameSettings(originalDef, false);
+		return isSameSettings(originalDef, checkPlane);
 	}
 
 	/**
@@ -2949,18 +3006,14 @@ class ImViewerModel
      * 
      * @return See above.
      */
-	String getUnits()
+	UnitsLength getRefUnit()
 	{
 		if (refUnit != null) 
 			return refUnit;
 		
-		double size = getPixelsSizeX();
-		if (size < 0) 
-			return LengthI.lookupSymbol(UnitsLength.MICROMETER);
+		Length tmp = UIUtilities.transformSize(getPixelsSizeX());
+		refUnit = tmp.getUnit();
 		
-		Length tmp = new LengthI(size, UnitsLength.MICROMETER);
-		tmp = UIUtilities.transformSize(tmp);
-		refUnit = ((LengthI)tmp).getSymbol();
 		return refUnit;
 	}
 	
@@ -3026,7 +3079,7 @@ class ImViewerModel
      * Returns if interpolation is enabled or not
      * @return
      */
-    public boolean isInterpolation() {
+    boolean isInterpolation() {
         return browser.isInterpolation();
     }
 
@@ -3034,8 +3087,12 @@ class ImViewerModel
      * En-/Disables interpolation
      * @param interpolation
      */
-    public void setInterpolation(boolean interpolation) {
+    void setInterpolation(boolean interpolation) {
         browser.setInterpolation(interpolation);
     }
 
+    void setSelectedRndDef(long defID)
+    {
+        selectedRndDefID = defID;
+    }
 }

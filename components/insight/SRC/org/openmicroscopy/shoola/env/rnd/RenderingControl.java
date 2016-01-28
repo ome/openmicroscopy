@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.RenderingControl
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,23 +21,21 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
+import omero.model.Length;
 import omero.romio.PlaneDef;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 
-import pojos.ChannelData;
-import pojos.PixelsData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.PixelsData;
 
 
 /** 
@@ -53,9 +49,6 @@ import pojos.PixelsData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public interface RenderingControl
@@ -166,25 +159,25 @@ public interface RenderingControl
     public int getPixelsDimensionsC();
     
     /**
-     * The size in microns of a pixel along the X-axis.
+     * The size of a pixel along the X-axis.
      * 
      * @return See above.
      */
-    public double getPixelsPhysicalSizeX();
+    public Length getPixelsPhysicalSizeX();
     
     /**
-     * The size in microns of a pixel along the Y-axis.
+     * The size of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    public double getPixelsPhysicalSizeY();
+    public Length getPixelsPhysicalSizeY();
     
     /**
-     * The size in microns of a pixel along the Z-axis.
+     * The size of a pixel along the Z-axis.
      * 
      * @return See above.
      */
-    public double getPixelsPhysicalSizeZ();
+    public Length getPixelsPhysicalSizeZ();
 
     /**
      * Specifies the model that dictates how transformed raw data has to be 
@@ -575,7 +568,7 @@ public interface RenderingControl
     /**
      * Resets the rendering settings.
      * 
-     * @param settings
+     * @param rndDef
      *            The settings to set.
      * @param includeZT Pass <code>true</code> to also reset Z and T setting,
      *         <code>false</code> to ignore Z and T
@@ -817,7 +810,7 @@ public interface RenderingControl
 	 * Returns <code>true</code> if it is a big image, <code>false</code>
 	 * otherwise.
 	 * 
-	 * @return
+	 * @return See above.
 	 * @throws RenderingServiceException
 	 * @throws DSOutOfServiceException
 	 */

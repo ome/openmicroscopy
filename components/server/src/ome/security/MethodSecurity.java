@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -8,7 +6,6 @@
 package ome.security;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 import ome.annotations.RolesAllowed;
 import ome.conditions.SecurityViolation;

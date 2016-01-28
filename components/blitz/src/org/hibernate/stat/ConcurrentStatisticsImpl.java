@@ -39,7 +39,7 @@ import com.google.common.cache.CacheBuilder;
 
 /**
  * Implementation of {@link Statistics}, as well as {@link StatisticsImplementor}, based on the
- * {@link java.util.concurrent} package introduced in Java 5.
+ * {@code java.util.concurrent} package introduced in Java 5.
  *
  * @author Alex Snaps
  */

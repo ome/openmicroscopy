@@ -270,9 +270,7 @@ public class CurrentDetails implements PrincipalHolder {
     }
 
     /**
-     * Public view on the data contained here. Used to create the
-     * 
-     * @return
+     * @return the current event context
      */
     public EventContext getCurrentEventContext() {
         return current();
@@ -369,7 +367,7 @@ public class CurrentDetails implements PrincipalHolder {
      * The {@link Permissions} on the instance are calculated from the current
      * group as well as the user's umask.
      *
-     * @return
+     * @return details for the current security context
      * @see <a href="https://trac.openmicroscopy.org.uk/trac/omero/ticket:1434">ticket:1434</a>
      */
     public Details createDetails() {
@@ -422,6 +420,7 @@ public class CurrentDetails implements PrincipalHolder {
      * Checks the "groupPermissions" map in {@link BasicEventContext} which has
      * been filled up by calls to {@link BasicEventContext#setPermissionsForGroup(Long, Permissions)}
      * during {@link BasicACLVoter#allowLoad(org.hibernate.Session, Class, Details, long)}.
+     * @param session the Hibernate session
      */
     public void loadPermissions(org.hibernate.Session session) {
         current().loadPermissions(session);
@@ -484,6 +483,7 @@ public class CurrentDetails implements PrincipalHolder {
      * most likely only be closed once, so it doesn't make sense to keep them
      * around. The first caller of this method is responsible for closing all of
      * them.
+     * @return a new copy of the current cleanups
      */
     public Set<RegisterServiceCleanupMessage> emptyCleanups() {
         Set<RegisterServiceCleanupMessage> set = current().getServiceCleanups();

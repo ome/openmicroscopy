@@ -1,15 +1,13 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
 import ome.system.Principal;
-import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
 
@@ -22,9 +20,9 @@ import Ice.ObjectAdapter;
 /**
  * Standalone repository service.
  *
- * @DEV.TODO Better named "StandaloneRepositoryI"
  * @since Beta4.1
  */
+//TODO Better named "StandaloneRepositoryI"
 public class InternalRepositoryI extends AbstractRepositoryI {
 
     private final static Logger log = LoggerFactory.getLogger(InternalRepositoryI.class);
@@ -34,9 +32,7 @@ public class InternalRepositoryI extends AbstractRepositoryI {
         super(oa, reg, ex, p, repoDir, servant);
     }
 
-    /**
-     * @DEV.TODO CACHING
-     */
+    //TODO CACHING
     public String getFilePath(final OriginalFile file, Current __current)
             throws ServerError {
 

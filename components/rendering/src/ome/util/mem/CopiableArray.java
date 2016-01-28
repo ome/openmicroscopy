@@ -7,12 +7,6 @@
 
 package ome.util.mem;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * This abstract class provides an implementation of the {@link Copiable}
  * interface. It constructs an array of {@link Copiable}s , note that all

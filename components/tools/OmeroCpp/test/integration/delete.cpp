@@ -35,8 +35,8 @@ TEST(DeleteTest, testSimpleDelete ) {
     image->setName( rstring("testSimpleDelete") );
     image = ImagePtr::dynamicCast( iupdate->saveAndReturnObject( image ) );
 
-    omero::api::LongList imageIds;
-    omero::api::StringLongListMap objects;
+    omero::sys::LongList imageIds;
+    StringLongListMap objects;
     ChildOptions options;
     Delete2Ptr deleteCmd = new Delete2();
     imageIds.push_back( image->getId()->getValue() );

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,12 +18,9 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
-
-//Java imports
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -47,10 +42,6 @@ import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -61,14 +52,14 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.StringComparator;
 
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Factory to create {@link TreeViewer} component.
@@ -78,9 +69,6 @@ import pojos.ImageData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class TreeViewerFactory
@@ -513,7 +501,7 @@ public class TreeViewerFactory
 	}
 	
 	/**
-	 * Sets the {@link #viewer} to <code>null</code> when it is
+	 * Removes all the references to viewer when the state is
 	 * {@link TreeViewer#DISCARDED discarded}. 
 	 * @see ChangeListener#stateChanged(ChangeEvent)
 	 */ 

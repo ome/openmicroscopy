@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import omero.api.IRenderingSettingsPrx;
@@ -18,6 +17,7 @@ import omero.cmd.Delete2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.constants.metadata.NSINSIGHTRATING;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
@@ -47,8 +47,6 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Collections of tests for the <code>Delete</code> service related to
@@ -96,11 +94,11 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asProject());
 
-        // Dataset
+        // Screen
         Screen s = (Screen) iUpdate.saveAndReturnObject(mmFactory
                 .simpleScreenData().asScreen());
 
-        // Dataset
+        // Plate
         Plate plate = (Plate) iUpdate.saveAndReturnObject(mmFactory
                 .simplePlateData().asPlate());
 
@@ -109,30 +107,15 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(user1Ctx);
 
         List<Request> commands = new ArrayList<Request>();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(d.getId().getValue()));
+        dc = Requests.delete("Dataset", d.getId().getValue());
         commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Project.class.getSimpleName(),
-                Collections.singletonList(p.getId().getValue()));
+        dc = Requests.delete("Project", p.getId().getValue());
         commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(s.getId().getValue()));
+        dc = Requests.delete("Screen", s.getId().getValue());
         commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(plate.getId().getValue()));
+        dc = Requests.delete("Plate", plate.getId().getValue());
         commands.add(dc);
 
         DoAll all = new DoAll();
@@ -170,10 +153,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // create another user and try to delete the image
         newUserInGroup();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(imageID));
+        Delete2 dc = Requests.delete("Image", imageID);
         callback(false, client, dc);
 
         // check the image exists as the owner
@@ -198,10 +178,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // Log the admin into that users group
         logRootIntoGroup();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -238,10 +215,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         Permissions perms = img.getDetails().getPermissions();
         assertTrue(perms.canDelete());
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -267,10 +241,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ownerEc);
         makeGroupOwner();
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(img); // Deletion permitted in 4.4
@@ -295,10 +266,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // admin deletes the object.
         logRootIntoGroup();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(img);
     }
@@ -337,10 +305,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // owner deletes image
         loginUser(ec);
         long id = image.getId().getValue();
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Image", id);
         callback(true, client, dc);
 
         // image and annotations are all gone
@@ -390,10 +355,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // owner deletes their image
         loginUser(ec);
         long id = imageOwner.getId().getValue();
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Image", id);
         callback(true, client, dc);
 
         // image is gone but other image and annotations remain
@@ -434,10 +396,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // owner tries to delete image.
         loginUser(ec);
         long id = img.getId().getValue();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(id));
+        Delete2 dc = Requests.delete("Image", id);
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -480,10 +439,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // Tag's owner now deletes the tag.
         init(tagger);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Annotation.class.getSimpleName(),
-                Collections.singletonList(c.getId().getValue()));
+        Delete2 dc = Requests.delete("Annotation", c.getId().getValue());
         callback(false, client, dc);
         assertExists(c);
         assertExists(link);
@@ -533,10 +489,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         // Tag's owner now deletes the tag.
         init(tagger);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Annotation.class.getSimpleName(),
-                Collections.singletonList(c.getId().getValue()));
+        Delete2 dc = Requests.delete("Annotation", c.getId().getValue());
         callback(true, client, dc);
 
         assertNoneExist(c, link);
@@ -579,10 +532,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // Delete the image.
         loginUser(ownerCtx);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(imageID));
+        Delete2 dc = Requests.delete("Image", imageID);
         callback(true, client, dc);
         assertNoneExist(image, ownerDef, otherDef);
     }
@@ -615,10 +565,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ctx);
         makeGroupOwner();
         // Now try to delete the project.
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Project.class.getSimpleName(),
-                Collections.singletonList(project.getId().getValue()));
+        Delete2 dc = Requests.delete("Project", project.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(project);
         assertDoesNotExist(dataset);
@@ -649,11 +596,8 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         link.setChild((Dataset) dataset.proxy());
         link.setParent((Project) project.proxy());
         link = (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
-        // Now try to delete the project.
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(dataset.getId().getValue()));
+        // Now try to delete the dataset.
+        Delete2 dc = Requests.delete("Dataset", dataset.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(dataset);
         assertExists(project);
@@ -690,10 +634,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         loginUser(user2Ctx);
         // Now try to delete the dataset.
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(dataset.getId().getValue()));
+        Delete2 dc = Requests.delete("Dataset", dataset.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(dataset);
         assertExists(project);
@@ -733,10 +674,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         // now try to delete the dataset
         loginUser(ctx);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(dataset.getId().getValue()));
+        Delete2 dc = Requests.delete("Dataset", dataset.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(dataset);
         assertDoesNotExist(image1);
@@ -767,10 +705,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         link.setParent((Dataset) dataset.proxy());
         iUpdate.saveAndReturnObject(link);
         // Now try to delete the image
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(image.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", image.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(image);
@@ -807,10 +742,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // now try to delete the image
         loginUser(user2Ctx);
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(image.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", image.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(image);
@@ -844,10 +776,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ctx);
 
         // Now try to delete the screen
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(screen.getId().getValue()));
+        Delete2 dc = Requests.delete("Screen", screen.getId().getValue());
         callback(false, client, dc);
 
         assertExists(screen);
@@ -882,10 +811,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ctx);
         makeGroupOwner();
         // Now try to delete the screen
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(screen.getId().getValue()));
+        Delete2 dc = Requests.delete("Screen", screen.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(screen);
@@ -917,10 +843,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         link.setParent((Screen) screen.proxy());
         link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
         // Now try to delete the plate
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(plate.getId().getValue()));
+        Delete2 dc = Requests.delete("Plate", plate.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(plate);
@@ -958,10 +881,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         loginUser(user2Ctx);
         // Now try to delete the plate
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(plate.getId().getValue()));
+        Delete2 dc = Requests.delete("Plate", plate.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(plate);
@@ -1001,10 +921,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         loginUser(ctx);
         // Now try to delete the dataset
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
-                Collections.singletonList(dataset.getId().getValue()));
+        Delete2 dc = Requests.delete("Dataset", dataset.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(dataset);
@@ -1031,10 +948,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // admin deletes the object.
         logRootIntoGroup();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -1059,10 +973,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // admin deletes the object.
         logRootIntoGroup();
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -1097,10 +1008,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         Permissions perms = img.getDetails().getPermissions();
         assertTrue(perms.canDelete());
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         // Image should be deleted.
@@ -1124,10 +1032,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // group owner deletes it
         disconnect();
         newUserInGroup(ownerEc);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(false, client, dc);
 
         assertExists(img);
@@ -1150,10 +1055,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // group owner deletes it
         disconnect();
         newUserInGroup(ownerEc);
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(false, client, dc);
 
         assertExists(img);
@@ -1188,10 +1090,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         Permissions perms = img.getDetails().getPermissions();
         assertTrue(perms.canDelete());
 
-        Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img.getId().getValue()));
+        Delete2 dc = Requests.delete("Image", img.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(img);

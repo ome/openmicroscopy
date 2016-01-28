@@ -35,7 +35,7 @@ public interface Counter {
     long getCount();
 
     /**
-     * @see com.codahale.metrics.Counter#dec()}
+     * @see com.codahale.metrics.Counter#dec()
      */
     void dec();
 

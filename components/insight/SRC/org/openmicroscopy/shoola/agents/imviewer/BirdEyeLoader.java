@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.BirdEyeLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,24 +20,19 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer;
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /** 
  * Loads the image for the bird eye view.
@@ -147,7 +140,7 @@ public class BirdEyeLoader
 
     /**
      * Notifies the user that an error has occurred.
-     * @see DataBrowserLoader#handleException(Throwable)
+     * @see DataLoader#handleException(Throwable)
      */
     public void handleException(Throwable exc)
     {

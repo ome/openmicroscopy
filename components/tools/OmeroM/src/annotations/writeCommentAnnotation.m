@@ -10,6 +10,9 @@ function ca = writeCommentAnnotation(session, comment, varargin)
 %    ca = writeCommentAnnotation(session, comment, 'namespace', namespace)
 %    also sets the namespace of the comment annotation.
 %
+%    ca = writeCommentAnnotation(session, comment, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        ca = writeCommentAnnotation(session, comment)

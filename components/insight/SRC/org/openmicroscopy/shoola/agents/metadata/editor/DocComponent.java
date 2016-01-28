@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.DocComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -42,6 +40,7 @@ import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -80,17 +79,17 @@ import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.LongAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TimeAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TimeAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Component displaying the annotation, either <code>FileAnnotationData</code>
@@ -101,9 +100,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class DocComponent 
@@ -198,7 +194,13 @@ class DocComponent
 
 	/** Flag indicating if it is a XML modulo annotation.*/
 	private boolean isModulo;
-
+	
+	/** Flag inidicating if the component is selectable */
+	private boolean selectable;
+	
+	/** Checkbox which enables the component to be selected */
+	private JCheckBox checkbox;
+	
 	/**
 	 * Enables or disables the various buttons depending on the passed value.
 	 * Returns <code>true</code> if some controls are visible, 
@@ -585,6 +587,7 @@ class DocComponent
 		initButtons();
 		label = new JLabel();
 		label.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+		checkbox = new JCheckBox();
 		if (data == null) {
 			label.setText(AnnotationUI.DEFAULT_TEXT);
 		} else {
@@ -720,6 +723,8 @@ class DocComponent
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		if (selectable)
+		    add(checkbox);
 		add(label);
 		JToolBar bar = new JToolBar();
 		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -791,8 +796,10 @@ class DocComponent
 	 * @param deletable Pass <code>false</code> to indicate that the document
 	 *					cannot be deleted regardless of the permissions,
 	 *					<code>true</code> otherwise.
+	 * @param selectable Pass <code>true</code> to add a checkbox, so that the component
+	 *                     can be selected
 	 */
-	DocComponent(Object data, EditorModel model, boolean deletable)
+	DocComponent(Object data, EditorModel model, boolean deletable, boolean selectable)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No Model.");
@@ -800,6 +807,7 @@ class DocComponent
 		this.model = model;
 		this.data = data;
 		this.deletable = deletable;
+		this.selectable = selectable;
 		initComponents();
 		buildGUI();
 	}
@@ -812,7 +820,7 @@ class DocComponent
 	 */
 	DocComponent(Object data, EditorModel model)
 	{
-		this(data, model, true);
+		this(data, model, true, false);
 	}
 	
 	/**
@@ -831,7 +839,7 @@ class DocComponent
 	 * 
 	 * @return See above.
 	 */
-	Object getData() { return data; }
+	public Object getData() { return data; }
 
 	/**
 	 * Returns <code>true</code> if the description of the tag has been 
@@ -860,6 +868,16 @@ class DocComponent
 	 * @return See above.
 	 */
 	boolean isImageLoaded() { return thumbnail != null; }
+	
+	/**
+	 * Returns <code>true</code> if the component is selected,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSelected() {
+	    return selectable && checkbox.isSelected();
+	}
 	
 	/**
 	 * Returns <code>true</code> if the object can be unlinked,

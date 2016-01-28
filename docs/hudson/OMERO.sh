@@ -12,18 +12,10 @@ set -x
 source docs/hudson/functions.sh
 echo Building $OMERO_BRANCH
 
-./build.py clean
-./build.py build-default test-compile
-./build.py release-all
+./build.py build-dev release-all
 if [ -d .git ]
 then
   ./build.py release-src
-fi
-
-if [ -z "${RELEASE-}" ]; then
-  pushd target
-  ../docs/hudson/omero_insight_sign.py ../lib/keystore omedev OMERO.server-*.zip -kp omedev -cp omedev -ts no -oz OMERO.server-*.zip
-  popd
 fi
 
 # Log information

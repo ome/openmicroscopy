@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.FigureParam 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-//Java imports
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,9 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
 
-//Application-internal dependencies
 
 /** 
  * Hosts the parameters needed for the creation of a figure, either a 
@@ -44,9 +39,6 @@ import java.util.Map.Entry;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class FigureParam
@@ -224,7 +216,7 @@ public class FigureParam
 	private boolean 				includeUntagged;
 	
 	/** The data object the figure is attached to. */
-	private pojos.DataObject 		anchor;
+	private omero.gateway.model.DataObject 		anchor;
 	
 	/** The maximum number of images per columns.*/
 	private int maxPerColumn;
@@ -762,14 +754,14 @@ public class FigureParam
 	 * 
 	 * @param anchor The value to set.
 	 */
-	public void setAnchor(pojos.DataObject anchor) { this.anchor = anchor; }
+	public void setAnchor(omero.gateway.model.DataObject anchor) { this.anchor = anchor; }
 	
 	/**
 	 * Returns the <code>DataObject</code> the figure will be attached to.
 	 * 
 	 * @return See above.
 	 */
-	public pojos.DataObject getAnchor() { return anchor; }
+	public omero.gateway.model.DataObject getAnchor() { return anchor; }
 	
 	/**
 	 * Returns the name of the script associated to the index or 

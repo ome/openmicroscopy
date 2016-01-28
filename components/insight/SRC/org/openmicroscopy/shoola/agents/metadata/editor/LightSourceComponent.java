@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.LightSourceComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
-//Java imports
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.beans.PropertyChangeEvent;
@@ -39,9 +36,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -50,8 +44,8 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ChannelAcquisitionData;
-import pojos.LightSourceData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.LightSourceData;
 
 /** 
  * Component displaying information about the light source i.e.
@@ -62,9 +56,6 @@ import pojos.LightSourceData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class LightSourceComponent 
@@ -214,7 +205,7 @@ class LightSourceComponent
             						AcquisitionDataUI.BOOLEAN_NO);
             		} else {
             			laserTuneableBox.setSelectedItem(
-            					AnnotationDataUI.NO_SET_TEXT);
+            			        AnnotationUI.NO_SET_TEXT);
             			set = false;
             		}
             		laserTuneableBox.setEditedColor(UIUtilities.EDITED_COLOR);
@@ -232,7 +223,7 @@ class LightSourceComponent
             		} else {
             			set = false;
             			laserPockelCellBox.setSelectedItem(
-            					AnnotationDataUI.NO_SET_TEXT);
+            			        AnnotationUI.NO_SET_TEXT);
             		}
             		laserPockelCellBox.setEditedColor(UIUtilities.EDITED_COLOR);
             		area = laserPockelCellBox;//parent.replaceCombobox(laserPockelCellBox);
@@ -347,7 +338,7 @@ class LightSourceComponent
 			array[i] = j.next();
 			i++;
 		}
-		array[i] = new EnumerationObject(AnnotationDataUI.NO_SET_TEXT);
+		array[i] = new EnumerationObject(AnnotationUI.NO_SET_TEXT);
 		laserPulseBox = EditorUtil.createComboBox(array);
 	}
 	
@@ -389,7 +380,7 @@ class LightSourceComponent
 		String[] values = new String[3];
 		values[0] = AcquisitionDataUI.BOOLEAN_YES;
 		values[1] = AcquisitionDataUI.BOOLEAN_NO;
-		values[2] = AnnotationDataUI.NO_SET_TEXT;
+		values[2] = AnnotationUI.NO_SET_TEXT;
 		laserTuneableBox = EditorUtil.createComboBox(values);
 		laserPockelCellBox = EditorUtil.createComboBox(values);
 		
@@ -398,7 +389,7 @@ class LightSourceComponent
 		values[1] = EditorUtil.EMITTING_DIODE_TYPE;
 		values[2] = EditorUtil.FILAMENT_TYPE;
 		values[3] = EditorUtil.LASER_TYPE;
-		values[4] = AnnotationDataUI.NO_SET_TEXT;
+		values[4] = AnnotationUI.NO_SET_TEXT;
 		lightTypeBox = EditorUtil.createComboBox(values);
 		/*
 		lightTypeBox.addActionListener(new ActionListener() {

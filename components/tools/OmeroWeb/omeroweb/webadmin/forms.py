@@ -23,6 +23,11 @@
 
 import logging
 
+try:
+    from collections import OrderedDict  # Python 2.7+ only
+except:
+    pass
+
 from django.conf import settings
 from django import forms
 from django.forms.widgets import Textarea
@@ -51,7 +56,8 @@ class LoginForm(NonASCIIForm):
         self.fields.keyOrder = ['server', 'username', 'password', 'ssl']
 
     username = forms.CharField(
-        max_length=50, widget=forms.TextInput(attrs={'size': 22}))
+        max_length=50, widget=forms.TextInput(attrs={
+            'size': 22, 'autofocus': 'autofocus'}))
     password = forms.CharField(
         max_length=50,
         widget=forms.PasswordInput(attrs={'size': 22, 'autocomplete': 'off'}))
@@ -62,6 +68,11 @@ class LoginForm(NonASCIIForm):
         ' checking the box, but it will slow down the data access. Turning'
         ' it off does not affect the connection to the server which is always'
         ' secure." alt="SSL"/>' % settings.STATIC_URL)
+
+    def clean_username(self):
+        if (self.cleaned_data['username'] in ('guest')):
+            raise forms.ValidationError("Guest account is not supported.")
+        return self.cleaned_data['username']
 
 
 class ForgottonPasswordForm(NonASCIIForm):
@@ -117,15 +128,25 @@ class ExperimenterForm(NonASCIIForm):
                 widget=forms.PasswordInput(attrs={'size': 30,
                                                   'autocomplete': 'off'}))
 
-            self.fields.keyOrder = [
+            fields_key_order = [
                 'omename', 'password', 'confirmation', 'first_name',
                 'middle_name', 'last_name', 'email', 'institution',
                 'administrator', 'active', 'default_group', 'other_groups']
         else:
-            self.fields.keyOrder = [
-                'omename', 'first_name', 'middle_name', 'last_name', 'email',
-                'institution', 'administrator', 'active', 'default_group',
-                'other_groups']
+            fields_key_order = [
+                'omename', 'first_name', 'middle_name', 'last_name',
+                'email', 'institution', 'administrator', 'active',
+                'default_group', 'other_groups']
+
+        # Django 1.8: Form.fields uses OrderedDict from the collections module.
+        # Django 1.6: Form.fields uses SortedDict for form.fields.keyOrder.
+        if hasattr(self.fields, 'keyOrder'):
+            self.fields.keyOrder = fields_key_order
+        else:
+            self.fields = OrderedDict(
+                (k, self.fields[k])
+                for k in fields_key_order)
+
         if experimenter_is_me_or_system:
             self.fields['omename'].widget.attrs['readonly'] = True
             self.fields['omename'].widget.attrs['title'] = \

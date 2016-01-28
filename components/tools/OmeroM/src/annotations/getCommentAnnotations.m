@@ -1,4 +1,4 @@
-function cas = getCommentAnnotations(session, ids)
+function cas = getCommentAnnotations(session, ids, varargin)
 % GETCOMMENTANNOTATIONS Retrieve comment annotations from the OMERO server
 %
 %   cas = getCommentAnnotations(session, ids) returns all the comment
@@ -36,4 +36,4 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
 % Return comment annotations
-cas = getAnnotations(session, ids, 'comment');
+cas = getAnnotations(session, ids, 'comment', varargin{:});

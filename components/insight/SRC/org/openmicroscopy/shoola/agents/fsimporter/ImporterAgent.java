@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter;
 
 
-//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -35,14 +32,8 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
-//Third-party libraries
-
-
-
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ActivitiesEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
@@ -65,8 +56,8 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * This agent interacts is used to import images.

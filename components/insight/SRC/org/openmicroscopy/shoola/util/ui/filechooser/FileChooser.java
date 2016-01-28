@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui.filechooser;
 
-//Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -40,7 +39,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -623,7 +621,7 @@ public class FileChooser
     /**
      * Sets the value indicating to check or not if the file can be overridden.
      * 
-     * @param checkOverwrite Pass <code>true</code> to override,
+     * @param checkOverride Pass <code>true</code> to override,
      * <code>false</code> otherwise.
      */
     public void setCheckOverride(boolean checkOverride)
@@ -646,7 +644,7 @@ public class FileChooser
      * Returns <code>true</code> to override the files when saving,
      * <code>false</code> otherwise. Default is <code>false</code>.
      *
-     * @return
+     * @return See above.
      */
     public boolean isOverride() { return override; }
 }

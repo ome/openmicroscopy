@@ -7,25 +7,20 @@
 
 package ome.parameters;
 
-// Java imports
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 
 /**
- * arbitrary query parameter used by {@link ome.api.IQuery}.
+ * arbitrary query parameter used by {@code ome.api.IQuery}.
  * 
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 3.0
  * @since 3.0-M2
  */
 public class QueryParameter implements Serializable {

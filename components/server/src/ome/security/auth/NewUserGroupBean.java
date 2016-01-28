@@ -22,13 +22,6 @@ import org.springframework.ldap.core.LdapOperations;
  */
 public interface NewUserGroupBean {
 
-    /**
-     *
-     * @param config
-     * @param ldap
-     * @param provider
-     * @param userProperties
-     */
     List<Long> groups(String username,
             LdapConfig config, LdapOperations ldap, RoleProvider provider,
             AttributeSet attrSet);

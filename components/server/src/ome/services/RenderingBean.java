@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -19,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
@@ -42,7 +38,6 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import ome.model.internal.Permissions;
 import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
@@ -87,12 +82,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Chris Allan, callan at blackcat.ca
  * @author Jean-Marie Burel, j.burel at dundee.ac.uk
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see RenderingEngine
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 @Transactional(readOnly = true)
 public class RenderingBean implements RenderingEngine, Serializable {
 
@@ -170,9 +162,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /**
      * Compression service Bean injector.
-     * 
-     * @param compressionService
-     *            an <code>ICompress</code>.
+     *
+     * @param dataService
+     *                  The pixels service
+     * @param compress
+     *              an <code>ICompress</code>.
+     * @param ex
+     *          Reference to the executor.
+     * @param secSys
+     *          Reference to the security system.
      */
     public RenderingBean(PixelsService dataService, LocalCompress compress,
             Executor ex, SecuritySystem secSys) {
@@ -415,7 +413,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
-     * @see RenderingEngine#setOverlays()
+     * @see RenderingEngine#setOverlays(Map)
      * @deprecated As of release 5.1.0, replaced by
      * {@link omeis.providers.re.data.PlaneDef#setShapeIds(List)}.
      */
@@ -426,7 +424,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /**
-     * Implemented as specified by the {@link RenderingEngine} interface. TODO
+     * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#getCurrentEventContext()
      */
@@ -514,7 +512,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
-     * @see RenderingEngine#renderCompressed()
+     * @see LocalCompress#compressToStream(BufferedImage, java.io.OutputStream)
      */
     @RolesAllowed("user")
     public byte[] renderCompressed(PlaneDef pd) {
@@ -526,16 +524,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
             if (overlays.size() > 0) {
                 renderer.setOverlays(overlays);
             }
-        	int stride = pd.getStride();
-        	if (stride < 0) stride = 0;
-        	stride++;
+            int stride = pd.getStride();
+            if (stride < 0) stride = 0;
+            stride++;
             int[] buf = renderAsPackedInt(pd);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
             RegionDef region = pd.getRegion();
             if (region != null) {
-            	sizeX = region.getWidth();
-            	sizeY = region.getHeight();
+                sizeX = region.getWidth();
+                sizeY = region.getHeight();
             }
             sizeX = sizeX/stride;
             sizeY = sizeY/stride;
@@ -563,7 +561,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
-     * @see RenderingEngine#renderProjectedAsPackedInt()
+     * @see RenderingEngine#renderAsPackedInt(PlaneDef)
      */
     @RolesAllowed("user")
     public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
@@ -582,8 +580,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
             int projectedSizeC = 0;
             for (int i = 0; i < channelBindings.length; i++) {
                 if (channelBindings[i].getActive()) {
-                    planes[0][i][0] = projectStack(algorithm, timepoint, 
-                    		stepping, start, end, pixelsId, i);
+                    planes[0][i][0] = projectStack(algorithm, timepoint,
+                            stepping, start, end, pixelsId, i);
                     projectedSizeC += 1;
                 }
             }
@@ -613,7 +611,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
-     * @see RenderingEngine#renderProjectedCompressed()
+     * @see LocalCompress#compressToStream(BufferedImage, java.io.OutputStream)
      */
     @RolesAllowed("user")
     public byte[] renderProjectedCompressed(int algorithm, int timepoint,
@@ -696,14 +694,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
                         // loadRenderingDef(), report an error.
                         errorIfInvalidState();
                     }
-                    
                     rendDefObj = createNewRenderingDef(pixelsObj);
                     _resetDefaults(rendDefObj, pixelsObj);
                 } else {
                     errorIfInvalidState();
                     //first need to check if we need a set for the owner.
-                    Long ownerId = rendDefObj.getDetails().getOwner().getId();
-                    Long sessionUserId = secSys.getEffectiveUID();
                     if (!settingsBelongToCurrentUser()) {
                         rendDefObj = createNewRenderingDef(pixelsObj);
                     }
@@ -723,11 +718,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
             rwl.writeLock().unlock();
         }
     }
-    
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
-     * @see RenderingEngine#setCompressionLevel()
+     * @see LocalCompress#setCompressionLevel(float)
      */
     @RolesAllowed("user")
     public void setCompressionLevel(float percentage) {

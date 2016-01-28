@@ -24,12 +24,12 @@ import java.util.List;
 
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
-import pojos.DataObject;
-import pojos.FileAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * Loads the parents ({@link DataObject}) of the specified {@link FileAnnotationData} objects,

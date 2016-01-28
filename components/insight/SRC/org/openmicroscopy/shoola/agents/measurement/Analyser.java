@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.Analyser 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,23 +20,20 @@
  */
 package org.openmicroscopy.shoola.agents.measurement;
 
-//Java imports
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
-import pojos.PixelsData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Analyses the collection of ROI shapes.
@@ -50,9 +45,6 @@ import pojos.PixelsData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class Analyser 
@@ -71,6 +63,9 @@ public class Analyser
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
    
+    /** The plane to analyze the shapes for */
+    private Coord3D plane;
+    
     /**
      * Creates a new instance. 
      * 
@@ -82,9 +77,10 @@ public class Analyser
      * 					Mustn't be <code>null</code>.
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
+     * @param plane     The plane to analyze the shapes for, can be <code>null</code>
      */
 	public Analyser(MeasurementViewer viewer, SecurityContext ctx,
-			PixelsData pixels, Collection channels, List shapes)
+			PixelsData pixels, Collection channels, List shapes, Coord3D plane)
 	{
 		super(viewer, ctx);
 		if (CollectionUtils.isEmpty(channels))
@@ -94,6 +90,7 @@ public class Analyser
 		this.pixels = pixels;
 		this.channels = channels;
 		this.shapes = shapes;
+		this.plane = plane;
 	}
 	
 	/**
@@ -102,7 +99,7 @@ public class Analyser
      */
     public void load()
     {
-    	handle = idView.analyseShapes(ctx, pixels, channels, shapes, this);
+    	handle = idView.analyseShapes(ctx, pixels, channels, shapes, plane, this);
     }
     
     /**

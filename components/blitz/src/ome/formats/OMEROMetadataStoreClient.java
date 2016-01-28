@@ -75,7 +75,6 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
-import ome.services.blitz.repo.ManagedImportRequestI;
 import ome.units.quantity.ElectricPotential;
 import ome.units.quantity.Frequency;
 import ome.units.quantity.Length;
@@ -124,7 +123,6 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
-import omero.constants.namespaces.NSCOMPANIONFILE;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
@@ -152,8 +150,6 @@ import omero.model.ExperimenterGroup;
 import omero.model.Filament;
 import omero.model.FilamentType;
 import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
-import omero.model.Fileset;
 import omero.model.FilesetJobLink;
 import omero.model.Filter;
 import omero.model.FilterSet;
@@ -163,9 +159,6 @@ import omero.model.GenericExcitationSource;
 import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Image;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
 import omero.model.Immersion;
 import omero.model.Instrument;
@@ -190,7 +183,6 @@ import omero.model.MicroscopeType;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.PixelsType;
@@ -204,7 +196,7 @@ import omero.model.Project;
 import omero.model.ProjectI;
 import omero.model.Pulse;
 import omero.model.Reagent;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
@@ -221,13 +213,11 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.IceMapper;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
-
 
 /**
  * Client side implementation of the Bio-Formats {@link MetadataStore}. It is
@@ -258,6 +248,9 @@ public class OMEROMetadataStoreClient
     /** Our LSID reference cache. */
     private Map<LSID, List<LSID>> referenceCache =
         new HashMap<LSID, List<LSID>>();
+
+    private Map<LSID, Set<LSID>> referenceCacheCheck =
+        new HashMap<LSID, Set<LSID>>();
 
     /** Our authoritative LSID container cache. */
     private Map<Class<? extends IObject>, Map<String, IObjectContainer>>
@@ -529,12 +522,12 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Sets the id which will be used by {@link #initializeServices(boolean)}
+     * Sets the id which will be used
      * to set the call context for all services. If null, the call context
      * will be left which will then use the context of the session.
      *
-     * @param groupID
-     * @return
+     * @param groupID the group ID to use for call contexts
+     * @return the previous group ID, may be {@code null}
      */
     public Long setGroup(Long groupID) {
         Long old = this.groupID;
@@ -547,6 +540,7 @@ public class OMEROMetadataStoreClient
      * service factory. When finished with this instance, close stateful
      * services via {@link #closeServices()}.
      * @param serviceFactory The factory. Mustn't be <code>null</code>.
+     * @throws ServerError if the services could not be initialized
      */
     public void initialize(ServiceFactoryPrx serviceFactory)
         throws ServerError
@@ -563,6 +557,7 @@ public class OMEROMetadataStoreClient
      * services via {@link #closeServices()}.
      *
      * @param c The client. Mustn't be <code>null</code>.
+     * @throws ServerError if the services could not be initialized
      */
     public void initialize(omero.client c)
         throws ServerError
@@ -671,6 +666,9 @@ public class OMEROMetadataStoreClient
      * @param server Server hostname.
      * @param port Server port.
      * @param sessionKey Bind session key.
+     * @throws CannotCreateSessionException if a session could not be created
+     * @throws PermissionDeniedException if the services may not be initialized
+     * @throws ServerError if the services could not be initialized
      */
     public void initialize(String server, int port, String sessionKey)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
@@ -687,6 +685,10 @@ public class OMEROMetadataStoreClient
      * @param server Server hostname.
      * @param port Server port.
      * @param sessionKey Bind session key.
+     * @param isSecure if a secure session should be created
+     * @throws CannotCreateSessionException if a session could not be created
+     * @throws PermissionDeniedException if the services may not be initialized
+     * @throws ServerError if the services could not be initialized
      */
     public void initialize(String server, int port, String sessionKey, boolean isSecure)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
@@ -807,7 +809,7 @@ public class OMEROMetadataStoreClient
     /**
      * Sets the active instance provider.
      *
-     * @param enumProvider Enumeration provider to use.
+     * @param instanceProvider the instance provider to use
      */
     public void setInstanceProvider(InstanceProvider instanceProvider)
     {
@@ -815,7 +817,7 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Retrieves the active enumeration provider.
+     * Retrieves the active instance provider.
      *
      * @return See above.
      */
@@ -1037,10 +1039,7 @@ public class OMEROMetadataStoreClient
      */
     public RInt toRType(Color value)
     {
-        java.awt.Color javaColor = new java.awt.Color(
-                value.getRed(), value.getGreen(), value.getBlue(),
-                value.getAlpha());
-        return toRType(javaColor.getRGB());
+        return toRType(value.getValue());
     }
 
     //
@@ -1193,6 +1192,7 @@ public class OMEROMetadataStoreClient
             containerCache =
                 new TreeMap<LSID, IObjectContainer>(new OMEXMLModelComparator());
             referenceCache = new HashMap<LSID, List<LSID>>();
+            referenceCacheCheck = new HashMap<LSID, Set<LSID>>();
             referenceStringCache = null;
             imageChannelGlobalMinMax = null;
             userSpecifiedAnnotations = null;
@@ -1424,7 +1424,7 @@ public class OMEROMetadataStoreClient
     /**
      * Adds a model processor to the end of the processing chain.
      * @param processor Model processor to add.
-     * @return <code>true</code> as specified by {@link Collection.add(E)}.
+     * @return <code>true</code> as specified by {@link Collection#add(Object)}
      */
     public boolean addModelProcessor(ModelProcessor processor)
     {
@@ -1444,7 +1444,7 @@ public class OMEROMetadataStoreClient
      */
     public Map<LSID, List<LSID>> getReferenceCache()
     {
-        return referenceCache;
+        return Collections.unmodifiableMap(referenceCache);
     }
 
     /* (non-Javadoc)
@@ -1485,17 +1485,23 @@ public class OMEROMetadataStoreClient
     public void addReference(LSID source, LSID target)
     {
         List<LSID> targets = null;
+        Set<LSID> targetsCheck = null;
         if (referenceCache.containsKey(source))
         {
             targets = referenceCache.get(source);
+            targetsCheck = referenceCacheCheck.get(source);
         }
         else
         {
             targets = new ArrayList<LSID>();
+            targetsCheck = new HashSet<LSID>();
             referenceCache.put(source, targets);
+            referenceCacheCheck.put(source, targetsCheck);
         }
-        if (!targets.contains(target))
+        // Adding to a list is VERY slow.
+        if (!targetsCheck.contains(target))
         {
+            targetsCheck.add(target);
             targets.add(target);
         }
     }
@@ -1586,7 +1592,9 @@ public class OMEROMetadataStoreClient
         catch (Exception e)
         {
             log.error("Server error setting extended properties for Pixels:" +
-                      pixelsId + " Target file:" + file);
+                      pixelsId + " Target file:" + file, e);
+            throw e instanceof RuntimeException ?
+                (RuntimeException) e : new RuntimeException(e);
         }
     }
 
@@ -1594,8 +1602,7 @@ public class OMEROMetadataStoreClient
      * Changes the default group of the currently logged in user.
      *
      * @param groupID The id of the group.
-     * @throws Exception If an error occurred while trying to
-     * retrieve data from OMERO service.
+     * @throws ServerError if the group could not be set or the services initialized accordingly
      */
     public void setCurrentGroup(long groupID)
         throws ServerError
@@ -1643,7 +1650,7 @@ public class OMEROMetadataStoreClient
      * Also strips system groups from this map
      *
      * @return map of group id & name
-     * @throws ServerError
+     * @throws ServerError if the groups could not be mapped
      */
     public Map<Long, String> mapUserGroups() throws ServerError
     {
@@ -1691,8 +1698,8 @@ public class OMEROMetadataStoreClient
     /**
      * Retrieve the default group's name
      *
-     * @return name
-     * @throws ServerError
+     * @return the name of the default group
+     * @throws ServerError if the default group could not be retrieved
      */
     public String getDefaultGroupName() throws ServerError
     {
@@ -1709,7 +1716,7 @@ public class OMEROMetadataStoreClient
      * Retrieve the default group's permission 'level'.
      *
      * @return ImportEvent's group level
-     * @throws ServerError
+     * @throws ServerError if the default group could not be retrieved
      */
     @Deprecated
     public int getDefaultGroupLevel() throws ServerError {
@@ -1750,7 +1757,7 @@ public class OMEROMetadataStoreClient
 
     /**
      * Post processes the internal structure of the client side MetadataStore.
-     * Should be called before {@link saveToDB()}.
+     * Should be called before {@link #saveToDB(FilesetJobLink)}.
      */
     public void postProcess()
     {
@@ -1764,6 +1771,7 @@ public class OMEROMetadataStoreClient
     /**
      * Updates the server side MetadataStore with a list of our objects and
      * references and saves them into the database.
+     * @param link the link to save to the database
      * @return List of Pixels after database commit.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -1885,10 +1893,10 @@ public class OMEROMetadataStoreClient
     /**
      * Helper method to retrieve an object from iQuery
      *
-     * @param <T>
-     * @param klass
-     * @param id
-     * @return
+     * @param <T> the kind of model object to retrieve
+     * @param klass the class of the model object
+     * @param id the ID of the model object
+     * @return the model object
      */
     @SuppressWarnings("unchecked")
     public <T extends IObject> T getTarget(Class<T> klass, long id)
@@ -1917,8 +1925,8 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param projectId
-     * @return
+     * @param projectId the ID of the project
+     * @return the project
      */
     public Project getProject(long projectId)
     {
@@ -1933,10 +1941,10 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param datasetName
-     * @param datasetDescription
-     * @param project
-     * @return
+     * @param datasetName the name of the dataset
+     * @param datasetDescription the description of the dataset
+     * @param project the project in which the dataset is (if any)
+     * @return the newly persisted dataset
      */
     public Dataset addDataset(String datasetName, String datasetDescription,
             Project project)
@@ -1991,7 +1999,7 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @return
+     * @return the screens
      */
     public List<Screen> getScreens()
     {
@@ -2014,7 +2022,7 @@ public class OMEROMetadataStoreClient
 
 
     /**
-     * @return
+     * @return the projects
      */
     public List<Project> getProjects()
     {
@@ -2039,8 +2047,8 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param p
-     * @return
+     * @param p the project whose datasets to get ({@code null} for orphaned datasets)
+     * @return the datasets
      */
     public List<Dataset> getDatasets(Project p)
     {
@@ -2069,7 +2077,7 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @return
+     * @return the orphaned datasets
      */
     public List<Dataset> getDatasetsWithoutProjects()
     {
@@ -2095,9 +2103,9 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param projectName
-     * @param projectDescription
-     * @return
+     * @param projectName the name of the project
+     * @param projectDescription the description of the project
+     * @return the newly persisted project
      */
     public Project addProject(String projectName, String projectDescription)
     {
@@ -2117,9 +2125,9 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param screenName
-     * @param screenDescription
-     * @return
+     * @param screenName the name of the screen
+     * @param screenDescription the description of the screen
+     * @return the newly persisted screen
      */
     public Screen addScreen(String screenName, String screenDescription)
     {
@@ -2161,8 +2169,9 @@ public class OMEROMetadataStoreClient
      * The call to close on the RawPixelsStorePrx may throw, in which case
      * the current import should be considered failed, since the saving of
      * the pixels server-side will have not completed successfully.
-     *
-     * @see ticket:5594
+     * 
+     * @throws ServerError if the pixel store could not be finalized or a new one created
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5594">Trac ticket #5594</a>
      */
     public void finalizePixelStore() throws ServerError
     {
@@ -2538,9 +2547,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Arc
-     * @param instrumentIndex
-     * @param lightSourceIndex
-     * @return
+     * @param instrumentIndex the index of the instrument
+     * @param lightSourceIndex the index of the light source within the instrument
+     * @return the arc
      */
     private Arc getArc(int instrumentIndex, int lightSourceIndex)
     {
@@ -2646,8 +2655,8 @@ public class OMEROMetadataStoreClient
     //////// BooleanAnnotation /////////
 
     /**
-     * @param booleanAnnotationIndex
-     * @return
+     * @param booleanAnnotationIndex the index of the Boolean annotation
+     * @return the Boolean annotation
      */
     private BooleanAnnotation getBooleanAnnotation(int booleanAnnotationIndex)
     {
@@ -2789,8 +2798,8 @@ public class OMEROMetadataStoreClient
         o.getLogicalChannel().setEmissionWave(convertLength(emissionWavelength));
     }
 
-    /** (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(ome.xml.model.primitives.PositiveFloat, int, int)
+    /**
+     * @see loci.formats.meta.MetadataStore#setChannelExcitationWavelength(Length, int, int)
      */
     @Override
     public void setChannelExcitationWavelength(
@@ -2908,9 +2917,9 @@ public class OMEROMetadataStoreClient
     /**
      * Logical Channel and Channel combined in the new model
      *
-     * @param imageIndex
-     * @param logicalChannelIndex
-     * @return
+     * @param imageIndex the index of the image
+     * @param channelIndex the index of the channel within the image
+     * @return the light settings
      */
     private LightSettings getChannelLightSourceSettings(int imageIndex, int channelIndex)
     {
@@ -3015,9 +3024,9 @@ public class OMEROMetadataStoreClient
     ////////Detector/////////
 
     /**
-     * @param instrumentIndex
-     * @param detectorIndex
-     * @return
+     * @param instrumentIndex the instrument index
+     * @param detectorIndex the detector index within the instrument
+     * @return the detector
      */
     public Detector getDetector(int instrumentIndex, int detectorIndex)
     {
@@ -3158,9 +3167,9 @@ public class OMEROMetadataStoreClient
     ////////Detector Settings/////////
 
     /**
-     * @param instrumentIndex
-     * @param detectorIndex
-     * @return
+     * @param imageIndex the index of the image
+     * @param channelIndex the index of the channel within the image
+     * @return the detector settings
      */
     private DetectorSettings getDetectorSettings(int imageIndex, int channelIndex)
     {
@@ -3262,9 +3271,9 @@ public class OMEROMetadataStoreClient
     ////////Dichroic/////////
 
     /**
-     * @param instrumentIndex
-     * @param dichroicIndex
-     * @return
+     * @param instrumentIndex the index of the instrument
+     * @param dichroicIndex the index of the dichroic within the instrument
+     * @return the dichroic
      */
     private Dichroic getDichroic(int instrumentIndex, int dichroicIndex)
     {
@@ -3384,9 +3393,9 @@ public class OMEROMetadataStoreClient
     ////////Eclipse/////////
 
     /**
-     * @param ROIIndex
-     * @param shapeIndex
-     * @return
+     * @param ROIIndex the index of the ROI
+     * @param shapeIndex the index of the shape within the ROI
+     * @return the ellipse
      */
     private Ellipse getEllipse(int ROIIndex, int shapeIndex)
     {
@@ -4142,8 +4151,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Image
-     * @param imageIndex
-     * @return
+     * @param imageIndex the index of the image
+     * @return the image
      */
     private Image getImage(int imageIndex)
     {
@@ -4921,7 +4930,7 @@ public class OMEROMetadataStoreClient
     public void setListAnnotationAnnotationRef(String annotation,
             int listAnnotationIndex, int annotationRefIndex)
     {
-        LSID key = new LSID(Annotation.class, listAnnotationIndex);
+        LSID key = new LSID(ListAnnotation.class, listAnnotationIndex);
         addReference(key, new LSID(annotation));
     }
 
@@ -6479,9 +6488,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Reagent
-     * @param screenIndex
-     * @param reagentIndex
-     * @return
+     * @param screenIndex the index of the screen
+     * @param reagentIndex the index of the reagent within the screen
+     * @return the reagent
      */
     private Reagent getReagent(int screenIndex, int reagentIndex)
     {
@@ -6555,18 +6564,18 @@ public class OMEROMetadataStoreClient
     //////// Rectangle /////////
 
     /**
-     * Retrieve the Rectangle object (as a Rect object)
-     * @param ROIIndex
-     * @param shapeIndex
-     * @return
+     * Retrieve the Rectangle object.
+     * @param ROIIndex the index of the ROI
+     * @param shapeIndex the index of the shape within the ROI
+     * @return the rectangle
      */
-    private Rect getRectangle(int ROIIndex, int shapeIndex)
+    private Rectangle getRectangle(int ROIIndex, int shapeIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.ROI_INDEX, ROIIndex);
         indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        return getSourceObject(Rect.class, indexes);
+        return getSourceObject(Rectangle.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -6575,14 +6584,14 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleID(String id, int ROIIndex, int shapeIndex)
     {
-        checkDuplicateLSID(Rect.class, id);
+        checkDuplicateLSID(Rectangle.class, id);
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.ROI_INDEX, ROIIndex);
         indexes.put(Index.SHAPE_INDEX, shapeIndex);
-        IObjectContainer o = getIObjectContainer(Rect.class, indexes);
+        IObjectContainer o = getIObjectContainer(Rectangle.class, indexes);
         o.LSID = id;
-        addAuthoritativeContainer(Rect.class, id, o);
+        addAuthoritativeContainer(Rectangle.class, id, o);
     }
 
     /* (non-Javadoc)
@@ -6592,7 +6601,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleText(String description, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTextValue(toRType(description));
     }
 
@@ -6602,7 +6611,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleFillColor(Color fill, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFillColor(toRType(fill));
     }
 
@@ -6613,7 +6622,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFontSize(Length fontSize, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFontSize(convertLength(fontSize));
     }
 
@@ -6623,7 +6632,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleHeight(Double height, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setHeight(toRType(height));
     }
 
@@ -6633,7 +6642,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleStrokeColor(Color stroke, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setStrokeColor(toRType(stroke));
     }
 
@@ -6644,7 +6653,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleStrokeDashArray(String strokeDashArray,
             int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setStrokeDashArray(toRType(strokeDashArray));
     }
 
@@ -6655,7 +6664,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setStrokeWidth(convertLength(strokeWidth));
     }
 
@@ -6665,7 +6674,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleTheC(NonNegativeInteger theC, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheC(toRType(theC));
     }
 
@@ -6675,7 +6684,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleTheT(NonNegativeInteger theT, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheT(toRType(theT));
     }
 
@@ -6685,7 +6694,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleTheZ(NonNegativeInteger theZ, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTheZ(toRType(theZ));
     }
 
@@ -6696,7 +6705,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleTransform(AffineTransform transform, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setTransform(toRType(transform));
     }
 
@@ -6706,7 +6715,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleWidth(Double width, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setWidth(toRType(width));
     }
 
@@ -6716,7 +6725,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleX(Double x, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setX(toRType(x));
     }
 
@@ -6726,7 +6735,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleY(Double y, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setY(toRType(y));
     }
 
@@ -6743,8 +6752,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Screen
-     * @param screenIndex
-     * @return
+     * @param screenIndex the index of the screen
+     * @return the screen
      */
     private Screen getScreen(int screenIndex)
     {
@@ -6869,8 +6878,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve StageLabel
-     * @param imageIndex
-     * @return
+     * @param imageIndex the index of the image
+     * @return the image's stage label
      */
     private StageLabel getStageLabel(int imageIndex)
     {
@@ -6924,8 +6933,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve CommentAnnotation object
-     * @param commentAnnotationIndex
-     * @return
+     * @param commentAnnotationIndex the index of the comment annotation
+     * @return the comment annotation
      */
     private CommentAnnotation getCommentAnnotation(int commentAnnotationIndex)
     {
@@ -6984,9 +6993,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve the Label object
-     * @param ROIIndex
-     * @param shapeIndex
-     * @return
+     * @param ROIIndex the index of the ROI
+     * @param shapeIndex the index of the shape within the ROI
+     * @return the label
      */
     private Label getLabel(int ROIIndex, int shapeIndex)
     {
@@ -7191,8 +7200,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve TimestampAnnotation
-     * @param timestampAnnotationIndex
-     * @return
+     * @param timestampAnnotationIndex the index of the timestamp annotation
+     * @return the timestamp annotation
      */
     private TimestampAnnotation getTimestampAnnotation(int timestampAnnotationIndex)
     {
@@ -7339,9 +7348,9 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve Well
-     * @param plateIndex
-     * @param wellIndex
-     * @return
+     * @param plateIndex the index of the plate
+     * @param wellIndex the index of the well within the plate
+     * @return the well
      */
     private Well getWell(int plateIndex, int wellIndex)
     {
@@ -7449,10 +7458,10 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve WellSample
-     * @param plateIndex
-     * @param wellIndex
-     * @param wellSampleIndex
-     * @return
+     * @param plateIndex the index of the plate
+     * @param wellIndex the index of the well within the plate
+     * @param wellSampleIndex the index of the field within the well
+     * @return the well sample
      */
     private WellSample getWellSample(int plateIndex, int wellIndex, int wellSampleIndex)
     {
@@ -7549,8 +7558,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve XMLAnnotation
-     * @param XMLAnnotationIndex
-     * @return
+     * @param XMLAnnotationIndex the index of the XML annotation
+     * @return the XML annotation
      */
 
     private XmlAnnotation getXMLAnnotation(int XMLAnnotationIndex)
@@ -7837,8 +7846,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve TagAnnotation object
-     * @param tagAnnotationIndex
-     * @return
+     * @param tagAnnotationIndex the index of the tag annotation
+     * @return the tag annotation
      */
     private TagAnnotation getTagAnnotation(int tagAnnotationIndex)
     {
@@ -7917,8 +7926,8 @@ public class OMEROMetadataStoreClient
 
     /**
      * Retrieve TermAnnotation object
-     * @param termAnnotationIndex
-     * @return
+     * @param termAnnotationIndex the index of the term annotation
+     * @return the term annotation
      */
     private TermAnnotation getTermAnnotation(int termAnnotationIndex)
     {
@@ -8732,7 +8741,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFillRule(FillRule fillRule, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFillRule(toRType(fillRule.getValue()));
     }
 
@@ -8743,7 +8752,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFontFamily(FontFamily fontFamily, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFontFamily(toRType(fontFamily.getValue()));
     }
 
@@ -8754,7 +8763,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleFontStyle(FontStyle fontStyle, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFontStyle(toRType(fontStyle.getValue()));
     }
 
@@ -8774,7 +8783,7 @@ public class OMEROMetadataStoreClient
     @Override
     public void setRectangleLocked(Boolean locked, int ROIIndex, int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
     }
 
@@ -8785,7 +8794,7 @@ public class OMEROMetadataStoreClient
     public void setRectangleVisible(Boolean visible, int ROIIndex,
             int shapeIndex)
     {
-        Rect o = getRectangle(ROIIndex, shapeIndex);
+        Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setVisibility(toRType(visible));
     }
 
@@ -8977,7 +8986,7 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setRectangleAnnotationRef(String annotation, int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        LSID key = new LSID(Rect.class, ROIIndex, shapeIndex);
+        LSID key = new LSID(Rectangle.class, ROIIndex, shapeIndex);
         addReference(key, new LSID(annotation));
     }
 

@@ -7,13 +7,8 @@
 
 package ome.util;
 
-// Java imports
 import java.util.Collection;
 import java.util.Iterator;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * walks an object graph producing RDF-like output.

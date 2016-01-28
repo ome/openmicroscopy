@@ -23,26 +23,17 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.finder;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to find all occurences of the phrase.
+ * Action to find all occurrences of the phrase.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$Date: )
- * </small>
  * @since OME2.2
  */
 public class FindAction 
@@ -53,7 +44,7 @@ public class FindAction
     private static final String NAME = "Find";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Finds all occurences of " +
+    private static final String DESCRIPTION = "Finds all occurrences of " +
 	  											"the phrase.";
     
     /** 

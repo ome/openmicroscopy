@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
-//Java imports
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -40,15 +37,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -61,6 +60,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -101,7 +101,6 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -116,32 +115,37 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.PojosUtil;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PermissionData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PermissionData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Implements the {@link TreeViewer} interface to provide the functionality
@@ -159,19 +163,18 @@ import pojos.WellSampleData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 class TreeViewerComponent
  	extends AbstractComponent
  	implements TreeViewer
 {
-  
-        /** Warning message shown when the rendering settings are to be reset */
-        private static final String RENDERINGSETTINGS_WARNING = "This will save new rendering settings and cannot be undone.";
     
+    /** Warning message shown when the rendering settings are to be reset */
+    public static final String RENDERINGSETTINGS_WARNING = "This will change the "
+            + "rendering settings of all images\nin the dataset/plate and cannot be undone.\n"
+            + "Proceed?";
+  
 	/** The Model sub-component. */
 	private TreeViewerModel     model;
 
@@ -648,7 +651,10 @@ class TreeViewerComponent
 			return;
 		}
 		if (object instanceof ImageData) {
-			TreeImageDisplay displayParent = display.getParentDisplay();
+			TreeImageDisplay displayParent = null;
+			if (display != null) {
+			    displayParent = display.getParentDisplay();
+			}
 			
 			if (displayParent instanceof TreeImageTimeSet ||
 				(displayParent instanceof TreeFileSet &&
@@ -1374,11 +1380,7 @@ class TreeViewerComponent
 		
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
-			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified " +
-					"data \n before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-			else mv.clearDataToSave();
+		    mv.saveData();
 		}
 		boolean sameSelection = false;
 		if (view.getDisplayMode() != SEARCH_MODE) {
@@ -1462,11 +1464,7 @@ class TreeViewerComponent
         }
         MetadataViewer mv = model.getMetadataViewer();
         if (hasDataToSave()) {
-            MessageBox dialog = new MessageBox(view, "Save data",
-                    "Do you want to save the modified " +
-                    "data \n before selecting a new item?");
-            if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-            else mv.clearDataToSave();
+            mv.saveData();
         }
         List<Object> siblings = (List<Object>) l.get(0);
         int size = siblings.size();
@@ -1654,11 +1652,7 @@ class TreeViewerComponent
 		}
 		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
-			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified \n" +
-					"data before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
-			else mv.clearDataToSave();
+			mv.saveData();
 		}
 		Browser browser = model.getSelectedBrowser();
 		ExperimenterData exp = null;
@@ -2206,7 +2200,7 @@ class TreeViewerComponent
 				break;
 			case AVAILABLE_SCRIPTS_MENU:
 				if (model.getAvailableScripts() == null) {
-					model.loadScripts(p);
+					model.loadScripts(p, c);
 					firePropertyChange(SCRIPTS_LOADING_PROPERTY,
 							Boolean.valueOf(false), Boolean.valueOf(true));
 					return;
@@ -2454,6 +2448,15 @@ class TreeViewerComponent
 		}
 	}
 
+    public void saveMetadata() {
+        MetadataViewer metadata = model.getMetadataViewer();
+        if (metadata == null)
+            return;
+        if (!(metadata.hasDataToSave()))
+            return;
+        model.getMetadataViewer().saveData();
+    }
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#retrieveUserGroups(Point, GroupData)
@@ -2654,16 +2657,23 @@ class TreeViewerComponent
 			"paste. \n Please first copy settings.");
 			return;
 		}
-		if (ids == null || ids.size() == 0) {
+		if (CollectionUtils.isEmpty(ids)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "Please select the nodes \n" +
 			"you wish to apply the settings to.");
 			return;
 		}
+		
+		if (PojosUtil.isContainerClass(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
+        }
+		
 		model.firePasteRenderingSettings(ids, klass);
-		fireStateChange();
+        fireStateChange();
 	}
-
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
@@ -2715,12 +2725,15 @@ class TreeViewerComponent
 			return;
 		}
 		
-		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
-	                RENDERINGSETTINGS_WARNING);
-	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-	            model.fireResetRenderingSettings(ids, klass);
-	            fireStateChange();
-	        }
+		if (PojosUtil.isContainerClass(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
+        }
+		
+		model.fireResetRenderingSettings(ids, klass);
+        fireStateChange();
 	}
 
 	/**
@@ -2789,7 +2802,7 @@ class TreeViewerComponent
 		} else if (parentObject instanceof FileData) {
 			FileData f = (FileData) parentObject;
 			if (!f.isHidden()) {
-				if (f.isDirectory() || f instanceof MultiImageData) 
+				if (f.isDirectory()) 
 					db = DataBrowserFactory.getFSFolderBrowser(
 							model.getSecurityContext(parent),
 							(FileData) parentObject, leaves);
@@ -3045,12 +3058,15 @@ class TreeViewerComponent
 			return;
 		}
 		
-		MessageBox box = new MessageBox(getUI(), "Reset rendering settings",
-	                RENDERINGSETTINGS_WARNING);
-	        if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-	            model.fireSetOwnerRenderingSettings(ids, klass);
-	            fireStateChange();
-	        }
+		if (PojosUtil.isContainerClass(klass)) {
+            MessageBox box = new MessageBox(getUI(),
+                    "Save rendering settings", RENDERINGSETTINGS_WARNING);
+            if (box.centerMsgBox() != MessageBox.YES_OPTION)
+                return;
+        }
+		
+		model.fireSetOwnerRenderingSettings(ids, klass);
+        fireStateChange();
 	}
 
 	/**
@@ -3112,7 +3128,7 @@ class TreeViewerComponent
 	 */
         public void setSearchResult(Object result)
 	{
-	    AdvancedSearchResultCollection results = (AdvancedSearchResultCollection) result;
+	    SearchResultCollection results = (SearchResultCollection) result;
 
 		MetadataViewer metadata = model.getMetadataViewer();
 		if (metadata != null) {
@@ -3394,6 +3410,10 @@ class TreeViewerComponent
 			}
 			return;
 		}
+		
+		if (!node.isExpanded())
+		    node.setExpanded(true);
+        
 		ActionCmd actionCmd = null;
 		Object uo = node.getUserObject();
 		if (uo instanceof ProjectData) {
@@ -3492,7 +3512,7 @@ class TreeViewerComponent
 		} else if (uo instanceof FileData) {
 			FileData fa = (FileData) uo;
 			if (!fa.isHidden()) {
-				if (fa.isDirectory() || fa instanceof MultiImageData) {
+				if (fa.isDirectory()) {
 					model.getSelectedBrowser().loadExperimenterData(
 							BrowserFactory.getDataOwner(node), 
 		        			node);
@@ -3553,9 +3573,9 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#onNodesMoved()
+	 * @see TreeViewer#onNodesMoved(DataObject)
 	 */
-	public void onNodesMoved()
+	public void onNodesMoved(DataObject target)
 	{
 		if (model.getState() != SAVE) return;
 		model.setState(READY);
@@ -3566,7 +3586,7 @@ class TreeViewerComponent
 		DataBrowserFactory.discardAll();
 		
 		Browser browser = model.getSelectedBrowser();
-		browser.refreshTree(null, null);
+		browser.refreshTree(null, target);
 		model.getMetadataViewer().setRootObject(null, -1, null);
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -3579,13 +3599,13 @@ class TreeViewerComponent
 	public void onNodesDeleted(Collection<DataObject> deleted)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (deleted == null || deleted.size() == 0) {
-			onNodesMoved();
+		if (CollectionUtils.isEmpty(deleted)) {
+			onNodesMoved(null);
 			return;
 		}
 		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, deleted);
 		if (nd.centerAndShow() == NotDeletedObjectDialog.CLOSE)
-			onNodesMoved();
+			onNodesMoved(null);
 	}
 
 	/**
@@ -3668,6 +3688,8 @@ class TreeViewerComponent
             DownloadArchivedActivityParam p = new DownloadArchivedActivityParam(
                     folder, archived, icon);
             p.setOverride(override);
+            p.setZip(false);
+            p.setKeepOriginalPaths(true);
             un.notifyActivity(ctx, p);
 	    }
 	}
@@ -3828,29 +3850,6 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#getScriptsAsString()
-	 */
-	public Map<Long, String> getScriptsAsString()
-	{
-		Registry reg = TreeViewerAgent.getRegistry();
-		//TODO: review
-		/*
-		try {
-			//TODO: asynchronous call instead
-			return reg.getImageService().getScriptsAsString();
-		} catch (Exception e) {
-			String s = "Data Retrieval Failure: ";
-	        LogMessage msg = new LogMessage();
-	        msg.print(s);
-	        msg.print(e);
-	        reg.getLogger().error(this, msg);
-		}
-		*/
-		return new HashMap<Long, String>();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#isLeaderOfGroup(GroupData)
 	 */
 	public boolean isLeaderOfGroup(GroupData group)
@@ -3974,8 +3973,7 @@ class TreeViewerComponent
 		
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
-		mv.addPropertyChangeListener(controller);
-		
+
 		//reset search
 		clearFoundResults();
 	}
@@ -3996,8 +3994,7 @@ class TreeViewerComponent
 		view.clearMenus();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
-		mv.addPropertyChangeListener(controller);
-		
+
 		//reset search
 		clearFoundResults();
 		model.getAdvancedFinder().reset(
@@ -4329,10 +4326,35 @@ class TreeViewerComponent
 		model.setScript(script);
 		Browser browser = model.getSelectedBrowser();
 		List<DataObject> objects;
-		if (browser == null) objects = new ArrayList<DataObject>();
-		else objects = browser.getSelectedDataObjects();
+		if (browser == null)
+		    objects = new ArrayList<DataObject>();
+		else 
+		    objects = browser.getSelectedDataObjects();
 
-		if (objects == null) objects = new ArrayList<DataObject>();
+		if (CollectionUtils.isEmpty(objects)) {
+		    DataBrowser db = model.getDataViewer();
+		    objects = new ArrayList<DataObject>();
+		    if (db != null && db.getBrowser() != null) {
+		        objects.addAll(db.getBrowser().getSelectedDataObjects());
+		    }
+		}
+		
+        // if it is a script which operates on FileAnnotations, pass on the selected
+        // FileAnnotations in the MetadataViewer as additional reference objects
+        ListMultimap<String, DataObject> addObjects = null;
+        Pattern p = Pattern.compile("file.?annotation.*",
+                Pattern.CASE_INSENSITIVE);
+        for (String paramName : script.getInputs().keySet()) {
+            Matcher m = p.matcher(paramName);
+            if (m.matches()) {
+                addObjects = ArrayListMultimap.create();
+                if (model.getMetadataViewer() != null) {
+                    addObjects.putAll(paramName, model.getMetadataViewer()
+                            .getEditor().getSelectedFileAnnotations());
+                }
+            }
+        }
+		
 		//setStatus(false);
 		//Check if the objects are in the same group.
 		Iterator<DataObject> i = objects.iterator();
@@ -4355,12 +4377,12 @@ class TreeViewerComponent
 		}
 		if (scriptDialog == null) {
 			scriptDialog = new ScriptingDialog(view, 
-					model.getScript(script.getScriptID()), objects, 
+					model.getScript(script.getScriptID()), objects, addObjects,
 					TreeViewerAgent.isBinaryAvailable());
 			scriptDialog.addPropertyChangeListener(controller);
 			UIUtilities.centerAndShow(scriptDialog);
 		} else {
-			scriptDialog.reset(model.getScript(script.getScriptID()), objects);
+			scriptDialog.reset(model.getScript(script.getScriptID()), objects, addObjects);
 			if (!scriptDialog.isVisible())
 				UIUtilities.centerAndShow(scriptDialog);
 		}
@@ -4891,4 +4913,57 @@ class TreeViewerComponent
     {
         return model.isSystemGroup(groupID, key);
     }
+
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#getSelectedObjectsFromBrowser()
+     */
+    public Collection<DataObject> getSelectedObjectsFromBrowser()
+    {
+        DataBrowser db = model.getDataViewer();
+        if (db != null && db.getBrowser() != null) {
+            return db.getBrowser().getSelectedDataObjects();
+        }
+        return null;
+    }
+    
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#resetRndSettings(long, RndProxyDef)
+     */
+   public void resetRndSettings(long imageID, RndProxyDef settings)
+   {
+       MetadataViewer viewer = model.getMetadataViewer();
+       if (viewer == null) return;
+       Object ho = viewer.getRefObject();
+       ImageData img = null;
+       if (ho instanceof ImageData) {
+           img = (ImageData) ho;
+       } else if (ho instanceof WellSampleData) {
+           img = ((WellSampleData) ho).getImage();
+       }
+       if (img == null || img.getId() != imageID) return;
+       Renderer rnd = viewer.getRenderer();
+       if (rnd != null) {
+           rnd.resetSettings(settings, true);
+       }
+   }
+
+   public RndProxyDef getSelectedViewedBy()
+   {
+       MetadataViewer viewer = model.getMetadataViewer();
+       if (viewer == null) return null;
+       Object ho = viewer.getRefObject();
+       ImageData img = null;
+       if (ho instanceof ImageData) {
+           img = (ImageData) ho;
+       } else if (ho instanceof WellSampleData) {
+           img = ((WellSampleData) ho).getImage();
+       }
+       if (img == null) return null;
+       Renderer rnd = viewer.getRenderer();
+       if (rnd == null) return null;
+       return rnd.getSelectedDef();
+   }
+   
 }

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.util.ui.search.SearchComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-
-//Java imports
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,22 +38,20 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
+import omero.gateway.model.SearchParameters;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 
@@ -69,9 +63,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class SearchComponent
@@ -343,11 +334,9 @@ public class SearchComponent
 	/**
 	 * Initializes the component. Displays the controls buttons.
 	 * 
-	 * @param controls The collection of controls to add.
 	 * @param groups The collection of groups.
 	 */
-	public void initialize(
-			Collection<GroupData> groups)
+	public void initialize(Collection<GroupData> groups)
 	{
 		initialize(true, groups);
 	}
@@ -357,7 +346,6 @@ public class SearchComponent
 	 * 
 	 * @param showControl Pass <code>true</code> to display the buttons,
 	 *                    <code>false</code> otherwise.
-	 * @param controls The collection of controls to add.
 	 * @param groups The collection of groups.
 	 */
 	public void initialize(boolean showControl, Collection<GroupData> groups)
@@ -390,7 +378,7 @@ public class SearchComponent
 	/** 
 	 * Sets the values to add. 
 	 * 
-	 * @param values The values to add.
+	 * @param terms The values to add.
 	 */
 	protected void setTerms(List<String> terms)
 	{

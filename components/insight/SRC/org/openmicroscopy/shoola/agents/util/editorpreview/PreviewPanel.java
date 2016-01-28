@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.editorpreview;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -47,9 +46,6 @@ import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
@@ -58,8 +54,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /** 
  * Displays an entire Editor file.
  * This is simply the display panel, and does not include E.g the JXTaskPane 
- * Other classes may display this panel in a JXTaskPane, and use the 
- * {@link getTitle} method to set the JXTaskPane title. 
+ * Other classes may display this panel in a JXTaskPane, and use the
+ * {@link #getTitle()} method to set the JXTaskPane title. 
  * 
  * Steps are displayed as panels with labeled border, with their
  * parameters displayed as name-value pairs. 
@@ -69,9 +65,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class PreviewPanel 

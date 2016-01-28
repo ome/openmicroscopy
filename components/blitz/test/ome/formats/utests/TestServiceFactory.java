@@ -1,56 +1,13 @@
 package ome.formats.utests;
 
-import java.util.List;
-import java.util.Map;
-
-import Ice.ByteSeqHolder;
-import Ice.Communicator;
-import Ice.Connection;
-import Ice.Endpoint;
-import Ice.EndpointSelectionType;
-import Ice.Identity;
-import Ice.LocatorPrx;
-import Ice.ObjectPrx;
-import Ice.OperationMode;
-import Ice.RouterPrx;
 import omero.ServerError;
-import omero.api.ClientCallbackPrx;
-import omero.api.IAdminPrx;
-import omero.api.IConfigPrx;
-import omero.api.IContainerPrx;
-import omero.api.ILdapPrx;
-import omero.api.IMetadataPrx;
-import omero.api.IPixelsPrx;
-import omero.api.IProjectionPrx;
-import omero.api.IQueryPrx;
-import omero.api.IRenderingSettingsPrx;
-import omero.api.IRepositoryInfoPrx;
-import omero.api.IRoiPrx;
-import omero.api.IScriptPrx;
-import omero.api.ISessionPrx;
-import omero.api.ISharePrx;
-import omero.api.ITimelinePrx;
-import omero.api.ITypesPrx;
-import omero.api.IUpdatePrx;
-import omero.api.JobHandlePrx;
 import omero.api.MetadataStorePrx;
-import omero.api.RawFileStorePrx;
-import omero.api.RawPixelsStorePrx;
-import omero.api.SearchPrx;
 import omero.api.ServiceInterfacePrx;
-import omero.api.StatefulServiceInterfacePrx;
-import omero.api.ThumbnailStorePrx;
-//import omero.system.OmeroContext;
 import omero.api.ServiceFactoryPrx;
-import omero.api.RenderingEnginePrx;
 import omero.constants.METADATASTORE;
-import omero.grid.InteractiveProcessorPrx;
-import omero.model.IObject;
-import omero.model.Job;
 
 import org.jmock.Mock;
 import org.jmock.core.stub.DefaultResultStub;
-
 
 public class TestServiceFactory
 {

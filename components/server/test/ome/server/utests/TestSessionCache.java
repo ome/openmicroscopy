@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.server.utests;
 
 import java.sql.Timestamp;
@@ -32,7 +33,6 @@ import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.NullSessionStats;
-import ome.services.sessions.stats.PerSessionStats;
 import ome.services.sessions.stats.SessionStats;
 
 /**

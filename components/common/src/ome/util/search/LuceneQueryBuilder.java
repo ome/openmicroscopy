@@ -78,7 +78,7 @@ public class LuceneQueryBuilder {
      * 
      * @param fields
      * @param input
-     * @return
+     * @return the query
      * @throws InvalidQueryException
      */
     public static String buildLuceneQuery(List<String> fields, Date from,
@@ -119,7 +119,7 @@ public class LuceneQueryBuilder {
      * 
      * @param fields
      * @param input
-     * @return
+     * @return the query
      * @throws InvalidQueryException
      */
     public static String buildLuceneQuery(List<String> fields, String input)

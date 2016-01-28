@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -26,17 +24,16 @@ import org.hibernate.transform.ResultTransformer;
 
 /**
  * single-point of entry for walking of OME container hierarchies.
- * 
- * 
+ *
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since OMERO 3.0
  */
 public class Hierarchy {
 
+    //TODO Nodes currently uses statically defined arrays containing the
+    //Hierarchy information. This needs to be refactored to use ITypes.
     /**
-     * TODO Nodes currently uses statically defined arrays containing the
-     * Hierarchy information. This needs to be refactored to use ITypes.
-     * 
      * The rather complicated data structures are used to efficiently produce
      * chains which represent a walk up from Image to higher-level containers,
      * or a walk down from any container to Image.

@@ -23,20 +23,15 @@
 package org.openmicroscopy.shoola.agents.util.finder;
 
 
-
-//Java imports
 import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 
@@ -48,10 +43,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * 
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class QuickFinder
@@ -108,20 +99,7 @@ public class QuickFinder
 				}
 			}
 		}
-		if (terms == null) terms = values;	
-		/*
-		switch (selectedNode.getIndex()) {
-			case TAGS:
-				fireTagsRetrieval(terms, sep);
-				break;
-			case IMAGES:
-				fireImagesRetrieval(terms, sep);
-				break;
-			case ANNOTATIONS:
-				fireAnnotationsRetrieval(terms, sep);
-				break;
-		}
-		*/
+		if (terms == null) terms = values;
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	}
 	/** 
@@ -162,9 +140,9 @@ public class QuickFinder
 
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
-	 * @see Finder#setResult(SecurityContext, Object)
+	 * @see Finder#setResult(SearchResultCollection)
 	 */
-	public void setResult(AdvancedSearchResultCollection result) {}
+	public void setResult(SearchResultCollection result) {}
 
 	/** 
 	 * Implemented as specified by {@link Finder} I/F

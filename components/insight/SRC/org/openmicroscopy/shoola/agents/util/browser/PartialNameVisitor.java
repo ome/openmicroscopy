@@ -66,7 +66,6 @@ public class PartialNameVisitor
 	 */
 	public void visit(TreeImageNode node)
 	{
-		if (node.isPartialName() == partialName) return;
 		node.setPartialName(partialName);
 	}
 
@@ -75,6 +74,9 @@ public class PartialNameVisitor
 	 * implementation in our case.
 	 * @see TreeImageDisplayVisitor#visit(TreeImageSet)
 	 */
-	public void visit(TreeImageSet node) {}
+	public void visit(TreeImageSet node)
+	{
+	    node.setPartialName(partialName);
+	}
 
 }

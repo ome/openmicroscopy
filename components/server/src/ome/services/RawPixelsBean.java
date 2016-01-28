@@ -402,6 +402,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         return -1;
     }
 
+    /*
+     * @inheritDoc
+     * @see ome.io.nio.PixelBuffer#getPlaneSize()
+     */
     @RolesAllowed("user")
     public synchronized long getPlaneSize() {
         errorIfNotLoaded();

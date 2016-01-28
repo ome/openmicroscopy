@@ -1,16 +1,15 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test.utests;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;

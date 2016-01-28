@@ -24,14 +24,8 @@
 package org.openmicroscopy.shoola.agents.util.dnd;
 
 
-//Java imports
-import java.awt.dnd.DnDConstants;
-import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 
 /** 
@@ -72,7 +66,7 @@ public class ObjectToTransfer
 	/**
 	 * Returns the drop action.
 	 * 
-	 * @return
+	 * @return See above.
 	 */
 	public int getDropAction() { return dropAction; }
 	

@@ -29,6 +29,10 @@ import java.io.File;
 
 //Third-party libraries
 
+
+import omero.log.Logger;
+import omero.log.LogMessage;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.Environment;

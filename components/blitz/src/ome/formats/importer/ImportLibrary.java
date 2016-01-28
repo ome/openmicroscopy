@@ -165,12 +165,12 @@ public class ImportLibrary implements IObservable
     /**
      * The default implementation of {@link FileTransfer} performs a
      * no-op and therefore need not have
-     * {@link FileTransfer#afterTransfer(int, File[])} as with the
+     * {@link FileTransfer#afterTransfer(int, List)} as with the
      * {@link #ImportLibrary(OMEROMetadataStoreClient, OMEROWrapper, FileTransfer)}
      * constructor.
      *
-     * @param client
-     * @param reader
+     * @param client client-side {@link loci.formats.meta.MetadataStore}, not null
+     * @param reader a Bio-Formats reader (ignored), not null
      */
     public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader)
     {
@@ -182,11 +182,12 @@ public class ImportLibrary implements IObservable
      * between calls to import.
      *
      * <em>Note:</em> the responsibility of closing
-     * {@link FileTransfer#afterTransfer(int, File[])} falls to invokers of this
+     * {@link FileTransfer#afterTransfer(int, List)} falls to invokers of this
      * method.
      *
-     * @param store not null
-     * @param reader not null
+     * @param client client-side {@link loci.formats.meta.MetadataStore}, not null
+     * @param reader a Bio-Formats reader (ignored), not null
+     * @param transfer how files are to be transferred to the server
      */
     public ImportLibrary(OMEROMetadataStoreClient client, OMEROWrapper reader,
             FileTransfer transfer)
@@ -256,10 +257,10 @@ public class ImportLibrary implements IObservable
     // =========================================================================
 
     /**
-     * Primary user method for importing a number
-     *
+     * Primary user method for importing a number of import candidates.
      * @param config The configuration information.
      * @param candidates Hosts information about the files to import.
+     * @return if the import did not exit because of an error
      */
     public boolean importCandidates(ImportConfig config, ImportCandidates candidates)
     {
@@ -312,6 +313,7 @@ public class ImportLibrary implements IObservable
      * @param container The current import container containing usedFiles to be
      * deleted.
      * @return List of files that could not be deleted.
+     * @throws ServerError if file deletion failed
      */
     public List<String> deleteFilesFromRepository(ImportContainer container)
             throws ServerError
@@ -325,6 +327,9 @@ public class ImportLibrary implements IObservable
     /**
      * Provide initial configuration to the server in order to create the
      * {@link ImportProcessPrx} which will manage state server-side.
+     * @param container the import container
+     * @return the new import process from the server
+     * @throws ServerError if the import process could not be created
      * @throws IOException if the used files' absolute path could not be found
      */
     public ImportProcessPrx createImport(final ImportContainer container)
@@ -376,8 +381,8 @@ public class ImportLibrary implements IObservable
      * As each file is written to the server, a message digest is kept updated
      * of the bytes that are being written. These are then returned to the
      * caller so they can be checked against the values found on the server.
-     *
-     * @param container The current import container we're to handle.
+     * @param srcFiles the files to upload
+     * @param proc the server import process to use for the upload
      * @return A list of the client-side (i.e. local) hashes for each file.
      */
     public List<String> uploadFilesToRepository(
@@ -471,6 +476,7 @@ public class ImportLibrary implements IObservable
      * @throws IOException If there is an I/O error.
      * @throws ServerError If there is an error communicating with the OMERO
      * server we're importing into.
+     * @throws Throwable If there is some other kind of error during import.
      * @since OMERO Beta 4.2.1.
      */
     public List<Pixels> importImage(final ImportContainer container, int index,
@@ -757,8 +763,8 @@ public class ImportLibrary implements IObservable
      * {@link OriginalFile} that the service argument is acting on.
      *
      * @param uploader not null
-     * @return
-     * @throws ServerError
+     * @return the original file
+     * @throws ServerError if the file could not be identified and loaded
      */
     public OriginalFile loadOriginalFile(RawFileStorePrx uploader)
             throws ServerError {

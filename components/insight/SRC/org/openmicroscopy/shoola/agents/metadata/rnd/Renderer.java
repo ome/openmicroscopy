@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.rnd.Renderer 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,27 +20,31 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JComponent;
 
+import omero.model.Length;
 import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.ChannelData;
-import pojos.ImageData;
-import pojos.PixelsData;
+
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Defines the interface provided by the renderer component. 
@@ -419,24 +421,24 @@ public interface Renderer
     List<Integer> getActiveChannels();
 
     /**
-     * Returns the size in microns of a pixel along the X-axis.
+     * Returns the size of a pixel along the X-axis.
      * 
      * @return See above.
      */
-    double getPixelsSizeX();
+    Length getPixelsSizeX();
     /**
-     * Returns the size in microns of a pixel along the Y-axis.
+     * Returns the size of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    double getPixelsSizeY();
+    Length getPixelsSizeY();
 
     /**
-     * Returns the size in microns of a pixel along the Y-axis.
+     * Returns the size of a pixel along the Y-axis.
      * 
      * @return See above.
      */
-    double getPixelsSizeZ();
+    Length getPixelsSizeZ();
 
     /**
      * Returns a 3-dimensional array of boolean value, one per color band.
@@ -592,7 +594,6 @@ public interface Renderer
      * Renders the specified plane.
      * 
      * @param pDef The plane to render.
-     * @param compression The compression level.
      * @return See above.
      */
     BufferedImage renderPlane(PlaneDef pDef);
@@ -670,7 +671,7 @@ public interface Renderer
      * 
      * @param loading Pass <code>true</code> to indicate that the settings are 
      *                being loaded, <code>false</code> when loaded.
-     * @param list The list of objects displaying the rendering settings
+     * @param results The list of objects displaying the rendering settings
      *             and the associated images.
      */
     void loadRndSettings(boolean loading, List<ViewedByItem> results);
@@ -803,5 +804,10 @@ public interface Renderer
      * Enables/Disables the paste action
      */
     void updatePasteAction();
-    
+
+    /**
+     * Returns the selected rendering settings under "User Settings".
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef();
 }

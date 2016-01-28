@@ -26,7 +26,6 @@ import java.util.Map;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
@@ -73,7 +72,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
 
 import ch.qos.logback.classic.ClassicConstants;
 
@@ -504,9 +502,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * Uses the {@link OMEROMetadataStoreClient} to save all metadata for the
      * current image provided.
      *
-     * @param index Index of the file being imported.
-     * @param container The import container which houses all the configuration
-     * values for the import.
+     * @param mij Object hosting metadata to save.
      * @return the newly created {@link Pixels} id.
      * @throws FormatException if there is an error parsing metadata.
      * @throws IOException if there is an error reading the file.

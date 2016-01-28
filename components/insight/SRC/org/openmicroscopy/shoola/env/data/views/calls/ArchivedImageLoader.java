@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-
-//Java imports
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,15 +29,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import com.google.common.io.Files;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.util.file.IOUtil;
@@ -69,6 +64,12 @@ public class ArchivedImageLoader
     /**Flag indicating to override or not the existing file if it exists.*/
     private boolean override;
 
+    /** Flag for zipping the downloaded images */
+    private boolean zip = true;
+    
+    /** Flag for preserving the original folder structure */
+    private boolean keepOriginalPaths = false;
+    
     /**
      * Copies the specified file to the folder.
      * 
@@ -130,19 +131,25 @@ public class ArchivedImageLoader
                 OmeroDataService os = context.getDataService();
                 File tmpFolder = null;
                 try {
-                    tmpFolder = Files.createTempDir();
+                    if(zip)
+                        tmpFolder = Files.createTempDir();
+                    else
+                        tmpFolder = folder;
                     
                     List<File> files = new ArrayList<File>();
                     
                     for (Long imageID : imageIDs) {
                         Map<Boolean, Object> r = os.getArchivedImage(ctx,
-                                tmpFolder, imageID);
+                                tmpFolder, imageID, keepOriginalPaths);
                         files.addAll((List<File>) r.get(Boolean.TRUE));
                     }
                     
                     result = new HashMap<Boolean, List<File>>();
                     
-                    if (!CollectionUtils.isEmpty(files)) {
+                    if(CollectionUtils.isEmpty(files))
+                        return;
+                    
+                    if (zip) {
                         File f = IOUtil.zipDirectory(tmpFolder, false);
                         // rename the zip
                         String baseName = FilenameUtils
@@ -155,11 +162,14 @@ public class ArchivedImageLoader
                         f = copyFile(to, folder.getParentFile());
                         ((Map<Boolean, List<File>>)result).put(Boolean.TRUE, Arrays.asList(f));
                     }
+                    else {
+                        ((Map<Boolean, List<File>>)result).put(Boolean.TRUE, files);
+                    }
                     
                 } catch (Exception e) {
                     throw new Exception(e);
                 } finally {
-                    if (tmpFolder != null)
+                    if (zip && tmpFolder != null)
                         FileUtils.deleteDirectory(tmpFolder);
                 }
             }
@@ -184,8 +194,7 @@ public class ArchivedImageLoader
 	 * exception so to fail early and in the caller's thread.
 	 * 
 	 * @param ctx The security context.
-     * @param imageID The Id of the image.
-     * @param name The name of the image.
+     * @param imageIDs The identifiers of the images.
      * @param folderPath The location where to download the archived image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.
@@ -196,6 +205,30 @@ public class ArchivedImageLoader
     	if (CollectionUtils.isEmpty(imageIDs))
     		 throw new IllegalArgumentException("No image IDs provided.");
     	this.override = override;
+        loadCall = makeBatchCall(ctx, imageIDs, folderPath);
+    }
+
+    /**
+     * Loads the archived images.
+     * If bad arguments are passed, we throw a runtime
+     * exception so to fail early and in the caller's thread.
+     * 
+     * @param ctx The security context.
+     * @param imageIDs The Id of the image.
+     * @param folderPath The location where to download the archived image.
+     * @param override Flag indicating to override the existing file if it
+     *                 exists, <code>false</code> otherwise.
+     * @param zip Pass <code>true</code> to create a zip file
+     * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
+     */
+    public ArchivedImageLoader(SecurityContext ctx, List<Long> imageIDs,
+            File folderPath, boolean override, boolean zip, boolean keepOriginalPaths)
+    {
+        if (CollectionUtils.isEmpty(imageIDs))
+             throw new IllegalArgumentException("No image IDs provided.");
+        this.override = override;
+        this.zip = zip;
+        this.keepOriginalPaths = keepOriginalPaths;
         loadCall = makeBatchCall(ctx, imageIDs, folderPath);
     }
 }

@@ -1,11 +1,7 @@
-import java.util.Iterator;
-
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
-import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
 
 public class constructors {
 

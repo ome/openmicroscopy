@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
-//Java imports
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +32,6 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * This class is designed to format Chemical Names E.g H2O so that the 
@@ -47,118 +43,117 @@ import javax.swing.text.StyledDocument;
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ChemicalNameFormatter {
-	
-	/** The Doc to parse  */
-	StyledDocument doc;
-	
-	private boolean refresh;
 
-	/** A list of formulas to recognise */
-	List<String>	formulas;
-	
-	/** The Style of the plain text */
-	private SimpleAttributeSet					plainText;
-	
-	/** The Style of the subscript */
-	private SimpleAttributeSet					subscript;
-	
+    /** The Doc to parse  */
+    StyledDocument doc;
 
-	/**
-	 * Creates an instance. 
-	 * Sets the plain text to Sans-Serif, size 14.
-	 */
-	public ChemicalNameFormatter() {
-		formulas = new ArrayList<String>();
-		
-		plainText = new SimpleAttributeSet();
-		StyleConstants.setFontFamily(plainText, "SansSerif");
+    private boolean refresh;
+
+    /** A list of formulas to recognize */
+    List<String> formulas;
+
+    /** The Style of the plain text */
+    private SimpleAttributeSet plainText;
+
+    /** The Style of the subscript */
+    private SimpleAttributeSet subscript;
+
+
+    /**
+     * Creates an instance.
+     * Sets the plain text to Sans-Serif, size 14.
+     */
+    public ChemicalNameFormatter() {
+        formulas = new ArrayList<String>();
+
+        plainText = new SimpleAttributeSet();
+        StyleConstants.setFontFamily(plainText, "SansSerif");
         StyleConstants.setFontSize(plainText, 14);
         subscript = new SimpleAttributeSet();
         StyleConstants.setSubscript(subscript, true);
         StyleConstants.setFontSize(subscript, 11);
-	}
-	
-	/**
-	 * Creates an instance. 
-	 * 
-	 * @param plainText		The Style of text with no regex matches. 
-	 */
-	public ChemicalNameFormatter(SimpleAttributeSet plainText) {
-		this();
-		this.plainText = plainText;
-	}
-	
-	/**
-	 * Add a Formula to the List parsed for matches. 
-	 * 
-	 * @param regex		The Formula to find. 
-	 */
-	public void addFormula(String formula) {
-		formulas.add(formula);
-	}
-	
-	/**
-	 * Parse the document, find the regex matches and apply the appropriate 
-	 * Style to each. The Source of the Edit Event should be a 
-	 * StyledDocument in order that the styles are applied. 
-	 * Method is public so that it can be called to apply styles before any
-	 * editing occurs. 
-	 * Editing occurs on a new thread, so that concurrent editing does not 
-	 * occur when this method is called from a Document Listener.
-	 * 
-	 * @param e		The Edit Event. 
-	 */
-	public void parseRegex(StyledDocument document, boolean refreshStyle) {
-		doc = document;
-		refresh = refreshStyle;
-		
-		SwingUtilities.invokeLater(new Runnable() {
-	        public void run() {
-	        	
-	        	// first, make all the text plain.
-	        	if (refresh)
-	        		doc.setCharacterAttributes(0, doc.getLength(), 
-	        												plainText, true);
-		    	try {
-		    		
-		    		String text = doc.getText(0, doc.getLength());
-		    		
-		    		List<Position> positionList = new ArrayList<Position>();
-		    		for (String formula: formulas){
-						positionList.clear();
-						WikiView.findExpressions(text, formula, positionList);
-						
-						// paint the regex
-						int start, end;
-						for (Position p : positionList) {
-							start = p.getStart();
-							end = p.getEnd();
-							
-							Character c;
-							while (start < end) {
-								c = doc.getText(start, 1).charAt(0);
-								if (Character.isDigit(c)) {
-									doc.setCharacterAttributes(start, 1, 
-											subscript, false);
-								}
-								start++;
-							}
-						}
-		    		}
-					
-				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-	        }
-		});
-	}
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param plainText The Style of text with no regex matches.
+     */
+    public ChemicalNameFormatter(SimpleAttributeSet plainText) {
+        this();
+        this.plainText = plainText;
+    }
+
+    /**
+     * Add a Formula to the List parsed for matches.
+     * 
+     * @param formula The Formula to find.
+     */
+    public void addFormula(String formula) {
+        formulas.add(formula);
+    }
+
+    /**
+     * Parse the document, find the regex matches and apply the appropriate 
+     * Style to each. The Source of the Edit Event should be a 
+     * StyledDocument in order that the styles are applied. 
+     * Method is public so that it can be called to apply styles before any
+     * editing occurs. 
+     * Editing occurs on a new thread, so that concurrent editing does not 
+     * occur when this method is called from a Document Listener.
+     *
+     * @param document The document style
+     * @param refreshStyle Pass <code>true</code> to refresh the style,
+     *                     <code>false</code> otherwise.
+     */
+    public void parseRegex(StyledDocument document, boolean refreshStyle) {
+        doc = document;
+        refresh = refreshStyle;
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+
+                // first, make all the text plain.
+                if (refresh)
+                    doc.setCharacterAttributes(0, doc.getLength(), 
+                            plainText, true);
+                try {
+
+                    String text = doc.getText(0, doc.getLength());
+
+                    List<Position> positionList = new ArrayList<Position>();
+                    for (String formula: formulas){
+                        positionList.clear();
+                        WikiView.findExpressions(text, formula, positionList);
+
+                        // paint the regex
+                        int start, end;
+                        for (Position p : positionList) {
+                            start = p.getStart();
+                            end = p.getEnd();
+
+                            Character c;
+                            while (start < end) {
+                                c = doc.getText(start, 1).charAt(0);
+                                if (Character.isDigit(c)) {
+                                    doc.setCharacterAttributes(start, 1, 
+                                            subscript, false);
+                                }
+                                start++;
+                            }
+                        }
+                    }
+
+                } catch (BadLocationException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+        });
+    }
 
 }
 

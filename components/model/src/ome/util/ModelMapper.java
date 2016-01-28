@@ -7,7 +7,6 @@
 
 package ome.util;
 
-// Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 1.0
  * @since 1.0
  */
 public abstract class ModelMapper extends ContextFilter {

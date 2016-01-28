@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -70,7 +68,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /** 
  * Modal dialog displaying option to export the rendered image. 
@@ -80,9 +78,6 @@ import pojos.ChannelData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class MovieExportDialog 

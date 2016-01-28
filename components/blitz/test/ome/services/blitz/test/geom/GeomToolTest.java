@@ -13,28 +13,17 @@ import static omero.rtypes.rtime;
 import java.util.List;
 
 import junit.framework.TestCase;
+
 import ome.api.IPixels;
 import ome.io.nio.PixelsService;
-import ome.model.IObject;
 import ome.services.roi.GeomTool;
 import ome.services.roi.PixelData;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
-import omero.model.Ellipse;
-import omero.model.ImageI;
-import omero.model.Line;
-import omero.model.Point;
-import omero.model.Rect;
-import omero.model.RoiI;
 import omero.model.Shape;
-import omero.util.IceMapper;
 
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 

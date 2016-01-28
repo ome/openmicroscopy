@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.MIFResultObject
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,20 +22,17 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /**
  * Hosts result of MIF delete/chgrp check.
@@ -140,9 +135,9 @@ public class MIFResultObject
 	}
 
 	/**
-	 * Sets the thumbnails corresponding to the list returned by 
-	 * {@link #get}
-	 * @param thumbnails
+	 * Sets the thumbnails.
+	 *
+	 * @param thumbnails The value to set.
 	 */
 	public void setThumbnails(List<ThumbnailData> thumbnails)
 	{

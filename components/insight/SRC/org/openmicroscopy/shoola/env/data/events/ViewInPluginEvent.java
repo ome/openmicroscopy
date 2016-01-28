@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,17 +22,11 @@
 package org.openmicroscopy.shoola.env.data.events;
 
 
-
-//Java imports
 import java.util.Collection;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * View the image in the specified plug-in.
@@ -126,7 +118,7 @@ public class ViewInPluginEvent
 	/**
 	 * Returns the collection of selected objects.
 	 * 
-	 * @param objects The objects to view.
+	 * @return See above.
 	 */
 	public Collection<DataObject> getDataObjects() { return objects; }
 	

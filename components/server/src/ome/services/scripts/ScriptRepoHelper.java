@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -21,14 +19,12 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.local.LocalAdmin;
-import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.model.core.OriginalFile;
 import ome.model.enums.ChecksumAlgorithm;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.delete.Deletion;
-import ome.services.graphs.GraphException;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -56,6 +52,9 @@ import org.hibernate.Session;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Strategy used by the ScriptRepository for registering, loading, and saving
@@ -107,7 +106,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
-     * @see #ScriptRepoHelper(String, File, Executor, Principal)
+     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
      */
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
         this(new File(getDefaultScriptDir()), ex, new Principal(sessionUuid),
@@ -115,7 +114,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     /**
-     * @see #ScriptRepoHelper(String, File, Executor, Principal)
+     * @see #ScriptRepoHelper(String, File, Executor, Principal, Roles)
      */
     public ScriptRepoHelper(File dir, Executor ex, Principal p, Roles roles) {
         this(SCRIPT_REPO, dir, ex, p, roles);
@@ -450,7 +449,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * <pre>(uuid == null)</pre> and a new file created in its place.
      *
      * @param modificationCheck
-     * @return
+     * @return See above.
      */
     @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck) {
@@ -499,7 +498,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      *
      * @param repoFile
      * @param old
-     * @return
+     * @return See above.
      */
     public OriginalFile addOrReplace(final RepoFile repoFile, final Long old) {
         return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
@@ -524,7 +523,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     /**
-     * Given the current files on disk, {@link #unregister(Long, Session)}
+     * Given the current files on disk, {@link #unregister(Long, SqlAction)}
      * all files which have been removed from disk.
      */
     public long removeMissingFilesFromDb(SqlAction sqlAction, Session session, List<OriginalFile> filesOnDisk) {
@@ -686,20 +685,12 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                                 .getEventContextQuiet();
                             Deletion d = executor.getContext().getBean(
                                 Deletion.class.getName(), Deletion.class);
-                            int steps = d.start(ec, getSqlAction(), session,
-                                "/OriginalFile", id, null);
-                            if (steps > 0) {
-                                for (int i = 0; i < steps; i++) {
-                                    d.execute(i);
-                                }
-                                d.finish();
-                                return d;
-                            }
+                            final SetMultimap<String, Long> toDelete = HashMultimap.create();
+                            toDelete.put("OriginalFile", id);
+                            d.deleteFiles(toDelete);
+                            return null;
                         } catch (ome.conditions.ValidationException ve) {
                             log.debug("ValidationException on delete", ve);
-                        }
-                        catch (GraphException ge) {
-                            log.debug("GraphException on delete", ge);
                         }
                         catch (Throwable e) {
                             log.warn("Throwable while deleting script " + id, e);
@@ -708,14 +699,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     }
 
                 });
-
-        if (deletion != null) {
-            deletion.deleteFiles();
-            deletion.stop();
-        } else {
-            throw new ApiUsageException("Cannot delete "
-                    + id + "\nIs in use by other objects");
-        }
     }
 
 }

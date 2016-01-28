@@ -168,7 +168,7 @@ public class Quantization_float extends QuantumStrategy {
      *
      * @param qd
      *            Quantum definition object, contained mapping data.
-     * @param type
+     * @param pixels
      *            The pixels
      */
     public Quantization_float(QuantumDef qd, Pixels pixels) {
@@ -228,8 +228,7 @@ public class Quantization_float extends QuantumStrategy {
     @Override
     public int quantize(double value) throws QuantizationException {
         try {
-            double v = getMiddleRange(value);
-            return values.get(v);
+            return values.get(getMiddleRange(value));
         } catch (ExecutionException e) {
             throw new QuantizationException(e);
         }

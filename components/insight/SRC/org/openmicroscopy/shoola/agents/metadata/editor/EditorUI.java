@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.EditorUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,9 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -47,12 +42,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -63,21 +55,21 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.WellSampleData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Component hosting the various {@link AnnotationUI} entities.
@@ -87,9 +79,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class EditorUI 
@@ -148,11 +137,6 @@ class EditorUI
 
 	/** The tool bar with various controls. */
 	private ToolBar						toolBar;
-
-    /** 
-     * Flag indicating that the data has already been saved and no new changes.
-     */
-    private boolean						saved;
 	
     /** The tab pane hosting the metadata. */
     private JTabbedPane					tabPane;
@@ -274,7 +258,6 @@ class EditorUI
     {
     	Object uo = model.getRefObject();
     	remove(component);
-    	setDataToSave(false);
     	if (uo instanceof ExperimenterData)  {
     		toolBar.buildUI();
     		userUI.buildUI();
@@ -342,12 +325,9 @@ class EditorUI
 	{
 		Object uo = model.getRefObject();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
-		setDataToSave(false);
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, RENDERER_DESCRIPTION);
 		if (!(uo instanceof DataObject)) {
-			//saved = false;
-			setDataToSave(false);
 			toolBar.setStatus(false);
 			toolBar.buildUI();
 			remove(component);
@@ -392,9 +372,7 @@ class EditorUI
      */
 	void saveData(boolean async)
 	{
-		saved = true;
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		toolBar.setDataToSave(false);
 		if (model.getRefObject() instanceof ExperimenterData) {
 			Object exp = userUI.getExperimenterToSave();
 			model.fireAdminSaving(exp, async);
@@ -402,9 +380,7 @@ class EditorUI
 		} else if  (model.getRefObject() instanceof GroupData) {
 			AdminObject o = groupUI.getAdminObject();
 			if (o == null) {
-				saved = false;
 				setCursor(Cursor.getDefaultCursor());
-				toolBar.setDataToSave(true);
 				return;
 			}
 			model.fireAdminSaving(o, async);
@@ -419,40 +395,12 @@ class EditorUI
 		model.fireAnnotationSaving(object, metadata, async);
 	}
 
-	/**
-	 * Returns the list of tags currently selected by the user.
-	 * 
-	 * @return See above.
-	 */
-	List<TagAnnotationData> getCurrentTagsSelection()
-	{
-		return generalPane.getCurrentTagsSelection();
-	}
-	
-	/**
-	 * Returns the list of attachments currently selected by the user.
-	 * 
-	 * @return See above.
-	 */
-	List<FileAnnotationData> getCurrentAttachmentsSelection()
-	{
-		return generalPane.getCurrentAttachmentsSelection();
-	}
-	
 	/** Shows the image's info. */
     void showChannelData()
     { 
     	generalPane.setChannelData();
     	acquisitionPane.setChannelData();
     }
-    
-    /**
-     * Enables the saving controls depending on the passed value.
-     * 
-     * @param b Pass <code>true</code> to save the data,
-     * 			<code>false</code> otherwise.
-     */
-    void setDataToSave(boolean b) { toolBar.setDataToSave(b); }
     
     /**
 	 * Returns <code>true</code> if data to save, <code>false</code>
@@ -462,7 +410,6 @@ class EditorUI
 	 */
 	boolean hasDataToSave()
 	{
-		if (saved) return false;
 		Object ref = model.getRefObject();
 		if (!(ref instanceof DataObject)) return false;
 		if (ref instanceof ExperimenterData)
@@ -479,7 +426,6 @@ class EditorUI
 	/** Clears data to save. */
 	void clearData()
 	{
-		saved = false;
 		userUI.clearData(null);
 		groupUI.clearData(null);
 		generalPane.clearData(null);
@@ -550,7 +496,7 @@ class EditorUI
 			data instanceof DoubleAnnotationData ||
 			data instanceof LongAnnotationData ||
 			data instanceof BooleanAnnotationData) {
-			generalPane.removeObject(data);
+			generalPane.removeAnnotation((AnnotationData)data);
 			if (data.getId() >= 0)
 				saveData(true);
 		}
@@ -563,9 +509,7 @@ class EditorUI
 	 */
 	private void removeLinks(int level, Collection l)
 	{
-		saved = true;
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		toolBar.setDataToSave(false);
 		Iterator<AnnotationData> i = l.iterator();
 		AnnotationData o;
 		List<Object> toRemove = new ArrayList<Object>();
@@ -1097,4 +1041,13 @@ class EditorUI
 	    userUI.setLDAPDetails(result);
 	}
 
+	/**
+     * Returns the selected FileAnnotations or an empty Collection
+     * if there are no FileAnnotations
+     * 
+     * @return See above
+     */
+	public Collection<FileAnnotationData> getSelectedFileAnnotations() { 
+	    return generalPane.getSelectedFileAnnotations();
+	}
 }

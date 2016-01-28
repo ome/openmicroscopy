@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -22,7 +20,7 @@ import Glacier2.SessionPrx;
 
 /**
  * {@link Redirector} implementation which uses the {@link REDIRECT} config key
- * via {@link LocalConfig} to know which {@link Node} is currently active.
+ * via {@link LocalConfig} to know which {@link ome.model.meta.Node} is currently active.
  * 
  *@since Beta-4.0-RC2
  */

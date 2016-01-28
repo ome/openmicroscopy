@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.rnd.DomainPane 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -59,20 +55,17 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-import org.jdesktop.swingx.JXTaskPane;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /** 
  * Pane displaying the controls used to define the transformation process
@@ -383,6 +376,9 @@ public class DomainPane
         			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
         	canvas = new PreviewCanvas();
         	canvas.setBackground(UIUtilities.BACKGROUND_COLOR);
+        	canvas.setInterpolate(Boolean.parseBoolean((String) MetadataViewerAgent.getRegistry().lookup(
+                            LookupNames.INTERPOLATE)));
+
         }
         if (model.hasModuloT()) {
             lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
@@ -799,7 +795,7 @@ public class DomainPane
      * @see ControlPane#getPaneIndex()
      */
     protected int getPaneIndex() { return ControlPane.DOMAIN_PANE_INDEX; }
-    
+
     /**
      * Resets the default rendering settings. 
      * @see ControlPane#resetDefaultRndSettings()
@@ -813,14 +809,24 @@ public class DomainPane
         resetBitResolution();
         int n = model.getMaxC();
         for (int i = 0; i < n; i++) {
-        	setChannelColor(i);
-		}
+            setChannelColor(i);
+        }
         resetGamma(model.getCurveCoefficient());
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
         setGreyScale(model.isGreyScale());
     }
-    
+
+    /**
+     * Resets the settings.
+     *
+     * @param settings the value to set.
+     */
+    void resetViewedBy(RndProxyDef settings)
+    {
+        graphicsPane.resetViewedBy(settings);
+    }
+
     /**
      * Sets the enabled flag of the UI components.
      * @see ControlPane#onStateChange(boolean)
@@ -1039,7 +1045,16 @@ public class DomainPane
 			cb.setText(data.getChannelLabeling());
 		}
     }
-    
+
+    /**
+     * Returns the selected rendering settings if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef()
+    {
+        return graphicsPane.getSelectedDef();
+    }
     /**
      * Depending on the source of the event. Sets the gamma value or
      * the bit resolution.

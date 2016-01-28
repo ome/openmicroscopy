@@ -157,8 +157,14 @@ public class ProcessManager extends ExecutionThread implements IProcessManager {
      * main constructor which takes a non-null array of {@link Processor}
      * instances as its only argument. This array is copied, so modifications
      * will not be noticed.
-     * 
-     * @param processors
+     *
+     * @param manager
+     *              Reference to the session manager.
+     * @param sec
+     *          Reference to the security manager
+     * @param executor
+     *              The executor.
+     * @param procs
      *            Array of Processors. Not null.
      */
     public ProcessManager(SessionManager manager, SecuritySystem sec,

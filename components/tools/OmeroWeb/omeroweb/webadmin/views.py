@@ -320,9 +320,9 @@ def forgotten_password(request, **kwargs):
         return Connector(server_id, True).create_guest_connection('OMERO.web')
 
     if request.method == 'POST':
-        form = ForgottonPasswordForm(data=request.REQUEST.copy())
+        form = ForgottonPasswordForm(data=request.POST.copy())
         if form.is_valid():
-            server_id = request.REQUEST.get('server')
+            server_id = form.cleaned_data['server']
             try:
                 conn = getGuestConnection(server_id)
             except Exception:
@@ -332,8 +332,8 @@ def forgotten_password(request, **kwargs):
             if conn is not None:
                 try:
                     req = omero.cmd.ResetPasswordRequest(
-                        smart_str(request.REQUEST.get('username')),
-                        smart_str(request.REQUEST.get('email')))
+                        smart_str(form.cleaned_data['username']),
+                        smart_str(form.cleaned_data['email']))
                     handle = conn.c.sf.submit(req)
                     try:
                         conn._waitOnCmd(handle)
@@ -409,8 +409,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             return HttpResponseRedirect(
                 reverse(viewname="wamanageexperimenterid", args=["new"]))
         else:
-            name_check = conn.checkOmeName(request.REQUEST.get('omename'))
-            email_check = conn.checkEmail(request.REQUEST.get('email'))
+            name_check = conn.checkOmeName(request.POST.get('omename'))
+            email_check = conn.checkEmail(request.POST.get('email'))
             my_groups = getSelectedGroups(
                 conn,
                 request.POST.getlist('other_groups'))
@@ -418,7 +418,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                        'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
             form = ExperimenterForm(
-                initial=initial, data=request.REQUEST.copy(),
+                initial=initial, data=request.POST.copy(),
                 name_check=name_check, email_check=email_check)
             if form.is_valid():
                 logger.debug("Create experimenter form:" +
@@ -506,9 +506,9 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 reverse(viewname="wamanageexperimenterid",
                         args=["edit", experimenter.id]))
         else:
-            name_check = conn.checkOmeName(request.REQUEST.get('omename'),
+            name_check = conn.checkOmeName(request.POST.get('omename'),
                                            experimenter.omeName)
-            email_check = conn.checkEmail(request.REQUEST.get('email'),
+            email_check = conn.checkEmail(request.POST.get('email'),
                                           experimenter.email)
             my_groups = getSelectedGroups(
                 conn,
@@ -666,7 +666,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid",
                                                 args=["new"]))
         else:
-            name_check = conn.checkGroupName(request.REQUEST.get('name'))
+            name_check = conn.checkGroupName(request.POST.get('name'))
             form = GroupForm(initial={'experimenters': experimenters},
                              data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
@@ -698,7 +698,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
         else:
             permissions = getActualPermissions(group)
 
-            name_check = conn.checkGroupName(request.REQUEST.get('name'),
+            name_check = conn.checkGroupName(request.POST.get('name'),
                                              group.name)
             form = GroupForm(initial={'experimenters': experimenters},
                              data=request.POST.copy(), name_check=name_check)
@@ -720,13 +720,11 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 context = getEditFormContext()
                 context['ome'] = {}
 
-                permissions_error = False
                 try:
-                    conn.updateGroup(group, name, perm, listOfOwners,
-                                     description)
+                    msgs = conn.updateGroup(group, name, perm, listOfOwners,
+                                            description)
                 except omero.SecurityViolation, ex:
                     if ex.message.startswith('Cannot change permissions'):
-                        permissions_error = True
                         msgs.append("Downgrade to private group not currently"
                                     " possible")
                     else:
@@ -735,7 +733,7 @@ def manage_group(request, action, gid=None, conn=None, **kwargs):
                 new_members = getSelectedExperimenters(
                     conn, mergeLists(members, owners))
                 removalFails = conn.setMembersOfGroup(group, new_members)
-                if len(removalFails) == 0 and not permissions_error:
+                if len(removalFails) == 0 and len(msgs) == 0:
                     return HttpResponseRedirect(reverse("wagroups"))
                 # If we've failed to remove user...
 
@@ -816,20 +814,20 @@ def manage_group_owner(request, action, gid, conn=None, **kwargs):
                 removalFails = conn.setMembersOfGroup(group, new_members)
 
                 permissions = int(permissions)
-                permissions_error = False
                 if getActualPermissions(group) != permissions:
                     perm = setActualPermissions(permissions)
                     try:
-                        conn.updatePermissions(group, perm)
+                        msg = conn.updatePermissions(group, perm)
+                        if msg is not None:
+                            msgs.append(msg)
                     except omero.SecurityViolation, ex:
-                        permissions_error = True
                         if ex.message.startswith('Cannot change permissions'):
                             msgs.append("Downgrade to private group not"
                                         " currently possible")
                         else:
                             msgs.append(ex.message)
 
-                if len(removalFails) == 0 and not permissions_error:
+                if len(removalFails) == 0 and len(msgs) == 0:
                     return HttpResponseRedirect(reverse("wamyaccount"))
                 # If we've failed to remove user...
                 # prepare error messages
@@ -876,7 +874,7 @@ def my_account(request, action=None, conn=None, **kwargs):
             return HttpResponseRedirect(reverse(viewname="wamyaccount",
                                                 args=["edit"]))
         else:
-            email_check = conn.checkEmail(request.REQUEST.get('email'),
+            email_check = conn.checkEmail(request.POST.get('email'),
                                           experimenter.email)
             form = MyAccountForm(data=request.POST.copy(),
                                  initial={'groups': otherGroups},
@@ -936,10 +934,10 @@ def manage_avatar(request, action=None, conn=None, **kwargs):
                     reverse(viewname="wamanageavatar",
                             args=[conn.getEventContext().userId]))
     elif action == "crop":
-        x1 = long(request.REQUEST.get('x1'))
-        x2 = long(request.REQUEST.get('x2'))
-        y1 = long(request.REQUEST.get('y1'))
-        y2 = long(request.REQUEST.get('y2'))
+        x1 = long(request.POST.get('x1'))
+        x2 = long(request.POST.get('x2'))
+        y1 = long(request.POST.get('y1'))
+        y2 = long(request.POST.get('y2'))
         box = (x1, y1, x2, y2)
         conn.cropExperimenterPhoto(box)
         return HttpResponseRedirect(reverse("wamyaccount"))
@@ -969,7 +967,7 @@ def stats(request, conn=None, **kwargs):
 
 # @login_required()
 # def load_drivespace(request, conn=None, **kwargs):
-#     offset = request.REQUEST.get('offset', 0)
+#     offset = request.POST.get('offset', 0)
 #     rv = usersData(conn, offset)
 #     return HttpJsonResponse(rv)
 

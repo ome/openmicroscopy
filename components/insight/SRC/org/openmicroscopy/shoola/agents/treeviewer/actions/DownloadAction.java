@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,36 +20,27 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-import javax.swing.filechooser.FileFilter;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.util.filter.file.ZipFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Action to download the selected file.
@@ -153,61 +142,27 @@ public class DownloadAction
             return;
         
         JFrame f = TreeViewerAgent.getRegistry().getTaskBar().getFrame();
+        
+        int type = FileChooser.FOLDER_CHOOSER;
 
-        int type = FileChooser.SAVE;
-        List<FileFilter> filters = new ArrayList<FileFilter>();
-        filters.add(new ZipFilter());
-        boolean all = false;
-        
-        if(node.getUserObject() instanceof FileAnnotationData) {
-            type = FileChooser.FOLDER_CHOOSER;
-            filters = null;
-            all = true;
-        }
-        
         FileChooser chooser = new FileChooser(f, type,
-                FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
-                filters, all);
-        try {
-            if (UIUtilities.getDefaultFolder() != null)
-                chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
-        } catch (Exception ex) {
-        }
-        
-        if(type == FileChooser.SAVE) {
-            File file = UIUtilities.generateFileName(
-                    UIUtilities.getDefaultFolder(), browser
-                            .getSelectedDataObjects().size() > 1 ? "Original_Files"
-                            : "Original_File", "zip");
-            chooser.setSelectedFile(file);
-        }
-        
-        chooser.setCheckOverride(true);
+                FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION);
+
         IconManager icons = IconManager.getInstance();
         chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
         chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
+        chooser.setCheckOverride(true);
         chooser.addPropertyChangeListener(new PropertyChangeListener() {
-
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
                 FileChooser src = (FileChooser) evt.getSource();
-                File path = null;
                 if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-                    if (src.getChooserType() == FileChooser.FOLDER_CHOOSER) {
-                        path = new File((String) evt.getNewValue());
-                    } else {
-                        File[] files = (File[]) evt.getNewValue();
-                        if (files == null || files.length == 0) return;
-                        path = files[0];
-                    }
-                    if (path == null) {
-                        path = UIUtilities.getDefaultFolder();
-                    }
-                    model.download(path, src.isOverride());
+                    String path = (String) evt.getNewValue();
+                    model.download(new File(path), src.isOverride());
                 }
             }
         });
-		chooser.centerDialog();
+        chooser.centerDialog();
     }
 
 }

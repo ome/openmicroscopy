@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.cache;
 //Java imports
 import java.io.InputStream;
 
+
 //Third-party libraries
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -34,8 +35,9 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.gateway.cache.CacheService;
+import omero.log.LogMessage;
+import omero.log.Logger;
 
 /** 
  * Provides the caching service.
@@ -79,7 +81,7 @@ class CacheServiceImpl
 	}
 
 	/** Shuts down the cache manager. */
-	void shutDown()
+	public void shutDown()
 	{
 		try {
 			manager.shutdown();

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,18 +21,13 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import pojos.GroupData;
-import pojos.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ExperimenterData;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;

@@ -23,12 +23,6 @@
  */
 package org.openmicroscopy.shoola.env.config;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /**
  * Hosts information about 3rd party application when the client is used
  * as a plugin of that application.
@@ -67,7 +61,7 @@ public class PluginInfo
     /**
      * Creates a new instance.
      *
-     * @param value The identifier of the plugin.
+     * @param id The identifier of the plugin.
      * @param dependencies The list of dependencies separated by <code>,</code>.
      * @param directory The directory hosting the dependencies.
      */

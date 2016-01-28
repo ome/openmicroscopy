@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerComponent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -41,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -53,6 +50,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.iviewer.ResetRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -74,10 +72,17 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.log.LogMessage;
+import omero.log.Logger;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
@@ -88,12 +93,13 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
+
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
 
 
 /** 
@@ -115,9 +121,6 @@ import pojos.ImageData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 class ImViewerComponent
@@ -301,7 +304,7 @@ class ImViewerComponent
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		JCheckBox rndBox = null;
-		if (!model.isOriginalSettings()) {
+		if (!model.isOriginalSettings(false)) {
 			rndBox = new JCheckBox(RND);
 			rndBox.setSelected(true);
 			p.add(rndBox);
@@ -343,7 +346,6 @@ class ImViewerComponent
 					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
 				}
 			}
-			savePlane();
 			return true;
 		}
 		MessageBox msg = new MessageBox(view, "Save Data", 
@@ -406,6 +408,10 @@ class ImViewerComponent
 					ImViewerAgent.getRegistry().getLogger().error(this, logMsg);
 				}
 			}
+			//post an event
+			ResetRndSettings evt = new ResetRndSettings(model.getImageID(),
+			        model.getOriginalDef());
+			ImViewerAgent.getRegistry().getEventBus().post(evt);
 			model.resetMappingSettings(model.getOriginalDef());
 		}
 		return true;
@@ -531,7 +537,9 @@ class ImViewerComponent
 	 */
 	ImViewerComponent(ImViewerModel model)
 	{
-		if (model == null) throw new NullPointerException("No model.");
+		if (model == null) 
+		    throw new NullPointerException("No model.");
+		
 		this.model = model;
 		controller = new ImViewerControl();
 		view = new ImViewerUI(model.getImageTitle());
@@ -626,19 +634,16 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#activate(RndProxyDef, long, int)
+	 * @see ImViewer#activate(RndProxyDef, long, int, long)
 	 */
-	public void activate(RndProxyDef settings, long userID, int displayMode)
+	public void activate(RndProxyDef settings, long userID, int displayMode,
+	        long selectedRndDefID)
 	{
 		model.setDisplayMode(displayMode);
+		model.setSelectedRndDef(selectedRndDefID);
 		switch (model.getState()) {
 			case NEW:
 				model.setAlternativeSettings(settings, userID);
-				/*
-				if (model.isImageLoaded())
-					model.fireRenderingControlLoading(model.getPixelsID());
-				else model.fireImageLoading();
-				*/
 				if (!model.isImageLoaded()) {
 					model.fireImageLoading();
 				} else {
@@ -806,6 +811,9 @@ class ImViewerComponent
 	 */
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
+	    boolean enableSave = z != model.getDefaultZ()
+                || t != model.getDefaultT();
+	    
 	    if (z < 0) z = model.getDefaultZ();
 	    if (t < 0) t = model.getRealSelectedT();
 	    switch (model.getState()) {
@@ -840,6 +848,9 @@ class ImViewerComponent
 	        newPlane = true;
 	    }
 	    model.setSelectedXYPlane(z, t, bin);
+	    
+	    if (enableSave)
+            controller.getAction(ImViewerControl.SAVE_RND_SETTINGS).setEnabled(true);
 	}
 	
 	/** 
@@ -1011,8 +1022,6 @@ class ImViewerComponent
 			}
 			if (GREY_SCALE_MODEL.equals(model.getColorModel()))
 				setColorModel(ColorModelAction.RGB_MODEL);
-			//else 
-			//	renderXYPlane();
 		} catch (Exception e) {
 			Registry reg = ImViewerAgent.getRegistry();
 			LogMessage msg = new LogMessage();
@@ -1517,7 +1526,7 @@ class ImViewerComponent
 		}
 		if (includeROI) {
 			if (layers == null) return model.getDisplayedImage();
-			return createImageWithROI(model.getDisplayedImage());//model.getBrowser().getRenderedImage());
+			return createImageWithROI(model.getDisplayedImage());
 		}
 		return model.getDisplayedImage();
 	}
@@ -1542,14 +1551,14 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeX()
 	 */
-	public double getPixelsSizeX()
+	public Length getPixelsSizeX()
 	{
 		switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
-				return -1;
+				return new LengthI(1, UnitsLength.PIXEL);
 		}
 		return model.getPixelsSizeX();
 	}
@@ -1558,14 +1567,14 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeY()
 	 */
-	public double getPixelsSizeY()
+	public Length getPixelsSizeY()
 	{
 		switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
-				return -1;
+			    return new LengthI(1, UnitsLength.PIXEL);
 		}
 		return model.getPixelsSizeY();
 	}
@@ -1574,14 +1583,14 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getPixelsSizeZ()
 	 */
-	public double getPixelsSizeZ()
+	public Length getPixelsSizeZ()
 	{
 		switch (model.getState()) {
 			case NEW:
 				throw new IllegalStateException(
 						"This method can't be invoked in the NEW state.");
 			case DISCARDED:
-				return -1;
+			    return new LengthI(1, UnitsLength.PIXEL);
 		}
 		return model.getPixelsSizeZ();
 	}
@@ -1670,8 +1679,9 @@ class ImViewerComponent
 	 */
 	public void setUnitBarSize(double size)
 	{
-		if (model.getState() == DISCARDED) return;
-		model.getBrowser().setUnitBarSize(size);
+		if (model.getState() == DISCARDED) 
+		    return;
+		model.getBrowser().setUnitBarSize(size, model.getScaleBarUnit());
 		controller.setPreferences();
 	}
 
@@ -1682,7 +1692,7 @@ class ImViewerComponent
 	public void showUnitBarSelection()
 	{
 		if (model.getState() == DISCARDED) return;
-		UnitBarSizeDialog d = new UnitBarSizeDialog(view);
+		UnitBarSizeDialog d = new UnitBarSizeDialog(view, model.getScaleBarUnit());
 		d.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(d);
 	}
@@ -2742,7 +2752,7 @@ class ImViewerComponent
 				throw new IllegalArgumentException("This method cannot be " +
 				"invoked in the DISCARDED state.");
 		}
-		return model.isOriginalSettings();
+		return model.isOriginalSettings(true);
 	}
 
 	/** 
@@ -2805,12 +2815,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getUnitInRefUnits()
-	 */
-	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#makeMovie()
 	 */
 	public void makeMovie()
@@ -2822,8 +2826,7 @@ class ImViewerComponent
 	/** Build the view.*/
 	private void buildView()
 	{
-		int index = UnitBarSizeAction.getDefaultIndex(
-				UIUtilities.transformSize(5*getPixelsSizeX()).getValue());
+		int index = UnitBarSizeAction.DEFAULT_UNIT_INDEX;
 		setUnitBarSize(UnitBarSizeAction.getValue(index));
 		view.setDefaultScaleBarMenu(index);
 		colorModel = model.getColorModel();
@@ -3028,6 +3031,21 @@ class ImViewerComponent
 		}
 		return model.isBigImage();
 	}
+
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#isExportable()
+     */
+    public boolean isExportable() {
+        switch (model.getState()) {
+        case NEW:
+        case DISCARDED:
+        case LOADING_IMAGE_DATA:
+            return false;
+        }
+        return model.isExportable();
+    }
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -3206,7 +3224,8 @@ class ImViewerComponent
 	 */
 	public void loadTiles(Rectangle region)
 	{
-		if (model.getState() == DISCARDED) return;
+		if (model.getState() == DISCARDED || !model.isRendererLoaded()) 
+		    return;
 		if (region == null) 
 			region = model.getBrowser().getVisibleRectangle();
 		Map<Integer, Tile> tiles = getTiles();
@@ -3407,7 +3426,6 @@ class ImViewerComponent
      */
     public void setInterpolation(boolean interpolation) {
         model.setInterpolation(interpolation);
-        refresh();
     }
 
     /**
@@ -3427,5 +3445,10 @@ class ImViewerComponent
      */
     public ImageAcquisitionData getImageAcquisitionData() {
         return this.acquisitionData;
+    }
+
+    void onSettingsChanged()
+    {
+        view.resetDefaults();
     }
 }

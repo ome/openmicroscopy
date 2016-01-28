@@ -89,6 +89,10 @@ public class GenericEnumType<E extends Enum<E>> implements UserType, Parameteriz
         return (Class<E>) units.enumType;
     }
 
+    public Class<? extends Unit> getQuantityClass() {
+        return (Class<? extends Unit>) units.quantityType;
+    }
+
     public int[] sqlTypes() {
         return new int[] { units.sqlType };
     }

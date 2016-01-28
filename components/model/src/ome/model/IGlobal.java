@@ -7,9 +7,9 @@
 package ome.model;
 
 /**
- * marker interface for all global types, which have no {@link Details} fields
+ * marker interface for all global types, which have no {@link IDetails} fields
  * other than permissions. It can be assumed that such entities will always have
- * null for the other {@link Details}.
+ * null for the other {@link IDetails}.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3

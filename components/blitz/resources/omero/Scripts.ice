@@ -19,18 +19,18 @@
  * implementation, for use by the server and via the
  * InteractiveProcessor wrapper by clients.
  *
- * See http://www.openmicroscopy.org/site/support/omero5.1/developers/scripts/
+ * See http://www.openmicroscopy.org/site/support/omero5.2/developers/scripts/
  */
 
 module omero {
 
     /**
-     * Base class similar to [omero::model::IObject] but for non-model-objects.
+     * Base class similar to {@link omero.model.IObject} but for non-model-objects.
      **/
     class Internal{};
 
     /**
-     * Base type for [RType]s whose contents will not be parsed by
+     * Base type for {@link RType}s whose contents will not be parsed by
      * the server. This allows Blitz-specific types to be safely
      * passed in as the inputs/outputs of scripts.
      **/
@@ -46,7 +46,7 @@ module omero {
 
     /**
      * Sequences cannot subclass other types, so the Plane
-     * class extends [Internal] and wraps a [Bytes2D] instance.
+     * class extends {@link Internal} and wraps a {@link Bytes2D} instance.
      **/
     class Plane extends Internal {
         Bytes2D data;
@@ -95,7 +95,7 @@ module omero {
          *
          * <pre>
          * a = omero.scripts.String("a")
-         * a.param().values = ["hi", "bye"]
+         * a.param().values = \["hi", "bye"]
          * </pre>
          **/
         class Param {
@@ -115,9 +115,9 @@ module omero {
             /**
              * Whether or not a script will require this value to be present
              * in the input or output. If an input is missing or None when
-             * non-optional, then a [omero::ValidationException] will be thrown
-             * on [processJob]. A missing output param will be marked after
-             * execution.
+             * non-optional, then a {@link omero.ValidationException} will be
+             * thrown on {@link #processJob}. A missing output param will be
+             * marked after execution.
              **/
             bool \optional;
 
@@ -130,18 +130,19 @@ module omero {
              * param = ...;
              * inputs = ...;
              * if name in inputs:
-             *     value = inputs[name]
-             * elif param.inputs[name].useDefault:
-             *     value = param.inputs[name].prototype
+             *     value = inputs\[name]
+             * elif param.inputs\[name].useDefault:
+             *     value = param.inputs\[name].prototype
              * </pre>
              **/
             bool useDefault;
 
             /**
-             * [omero::RType] which represents what the input or output value
-             * should look like. If this is a collection type (i.e. [omero::RCollection]
-             * or [omero::RMap] or their subclasses), then the first contents of
-             * the collection will be used (recursively).
+             * {@link omero.RType} which represents what the input or output
+             * value should look like. If this is a collection type (i.e.
+             * {@link omero.RCollection} or {@link omero.RMap} or their
+             * subclasses), then the first contents of the collection will be
+             * used (recursively).
              *
              * <pre>
              * param.prototype = rlist(rlist(rstring)))
@@ -188,19 +189,20 @@ module omero {
 
             /**
              * An enumeration of acceptable values which can be used
-             * for this parameter. If [min] and [max] are set, this value
-             * will be ignored. If [prototype] is an [omero::RCollection]
-             * or [omero::RMap] instance, then the values in this [omero::RList]
-             * will be of the member types of the collection or map, and not
-             * a collection or map instance.
+             * for this parameter. If {@link #min} and {@link #max} are set,
+             * this value will be ignored. If {@link prototype} is an
+             * {@link omero.RCollection} or {@link omero.RMap} instance, then
+             * the values in this {@link omero.RList} will be of the member
+             * types of the collection or map, and not a collection or map
+             * instance.
              **/
             omero::RList values;
 
             /**
-             * Defines the grouping strategy for this [Param].
+             * Defines the grouping strategy for this {@link Param}.
              *
              * <p>
-             * A set of [Param] objects in a single [JobParams] can
+             * A set of {@link Param} objects in a single {@link JobParams} can
              * use dot notation to specify that they belong together,
              * and in which order they should be presented to the user.
              * </p>
@@ -252,10 +254,10 @@ module omero {
              *
              * <pre>
              *
-             *  Scale Bar: [ on/off ]
+             *  Scale Bar: \[ on/off ]
              *  ======================
-             *    Color:  [rgb]
-             *    Size:   [ 10]
+             *    Color:  \[rgb]
+             *    Size:   \[ 10]
              *
              * </pre>
              *
@@ -272,11 +274,13 @@ module omero {
              * </p>
              *
              * <p>
-             * [omero::constants::namespaces::NSDOWNLOAD], for example,
+             * {@link omero.constants.namespaces.NSDOWNLOAD}, for example,
              * indicates that users may want to download the resulting
-             * file. The [prototype] of the [Param] should be one of:
-             * [omero::model::OriginalFile], [omero::model::FileAnnotation],
-             * or an annotation link (like [omero::model::ImageAnnotationLink])
+             * file. The {@link #prototype} of the {@link Param} should be one
+             * of: {@link omero.model.OriginalFile},
+             * {@link omero.model.FileAnnotation},
+             * or an annotation link (like
+             * {@link omero.model.ImageAnnotationLink})
              * which points to a file annotation.
              * </p>
              **/
@@ -300,7 +304,7 @@ module omero {
          *
          * <pre>
          * params = omero.grid.JobParams()
-         * params.authors = ["Andy", "Kathy"]
+         * params.authors = \["Andy", "Kathy"]
          * params.version = "0.0.1"
          * params.description = """
          *     Clever way to count to 5
@@ -351,20 +355,20 @@ module omero {
             omero::api::StringArray institutions;
 
             /**
-             * For authors[i], authorInstitutions[i] should be
+             * For authors\[i], authorInstitutions\[i] should be
              * and array of indexes j such that author i is a member
-             * of authorsInstitutions[i][j].
+             * of authorsInstitutions\[i]\[j].
              *
              * Example:
-             *   authors = ["Jane", "Mike"]
-             *   institutions = ["Acme U.", "Private Corp."]
-             *   authorsInstitutions = [[1, 2], [1]]
+             *   authors = \["Jane", "Mike"]
+             *   institutions = \["Acme U.", "Private Corp."]
+             *   authorsInstitutions = \[\[1, 2], \[1]]
              *
              * which means that Jane is a member of both "Acme U."
              * and "Private Corp." while Mike is only a member of
              * "Acme U."
              *
-             * An empty authorsInsitutations array implies that all
+             * An empty authorsInstitutions array implies that all
              * authors are from all institutions.
              **/
             omero::api::IntegerArrayArray authorsInstitutions;
@@ -382,10 +386,11 @@ module omero {
             ParamMap outputs;
 
             /**
-             * [omero::model::Format].value of the stdout stream produced by
-             * the script. If this value is not otherwise set (i.e. is None),
-             * the default of "text/plain" will be set. This is typically a
-             * good idea if the script uses "print" or the logging module.
+             * {@link omero.model.Format#value} of the stdout stream produced
+             * by the script. If this value is not otherwise set (i.e. is
+             * None), the default of "text/plain" will be set. This is
+             * typically a good idea if the script uses "print" or the logging
+             * module.
              *
              * If you would like to disable stdout upload, set the value to ""
              * (the empty string).
@@ -395,7 +400,7 @@ module omero {
             string stdoutFormat;
 
             /**
-             * [omero::model::Format].value of the stderr stream produced by
+             * {@link omero.model.Format#value} of the stderr stream produced by
              * the script. If this value is not otherwise set (i.e. is None),
              * the default of "text/plain" will be set. This is typically a
              * good idea if the script uses "print" or the logging module.
@@ -408,7 +413,8 @@ module omero {
             string stderrFormat;
 
             /**
-             * Defines machine readable interpretations for this [JobParams].
+             * Defines machine readable interpretations for this
+             * {@link JobParams}.
              *
              * <p>
              * Where the description field should provide information for
@@ -502,10 +508,10 @@ module omero {
         };
 
         /**
-         * Extension of the [Process] interface which is returned by [IScript]
-         * when an [omero::model::ScriptJob] is launched. It is critical that
-         * instances of [ScriptProcess] are closed on completetion. See the close
-         * method for more information.
+         * Extension of the {@link Process} interface which is returned by
+         * {@link IScript} when an {@link omero.model.ScriptJob} is launched.
+         * It is critical that instances of (@link ScriptProcess} are closed
+         * on completetion. See the {@link #close} method for more information.
          **/
         interface ScriptProcess extends Process {
 
@@ -520,14 +526,14 @@ module omero {
             /**
              * Returns the results immediately if present. If the process
              * is not yet finished, waits "waitSecs" before throwing an
-             * [omero.ApiUsageException]. If poll has returned a non-null
+             * {@link omero.ApiUsageException}. If poll has returned a non-null
              * value, then this method will always return a non-null value.
              **/
             idempotent
             omero::RTypeDict getResults(int waitSecs) throws ServerError;
 
             /**
-             * Sets the message on the [omero::model::ScriptJob] object.
+             * Sets the message on the {@link omero.model.ScriptJob} object.
              * This value MAY be overwritten by the server if the script
              * fails.
              **/
@@ -538,7 +544,7 @@ module omero {
              * Closes this process and frees server resources attached to it.
              * If the detach argument is True, then the background process
              * will continue executing. The user can reconnect to the process
-             * via the [IScript] service.
+             * via the {@link IScript} service.
              *
              * If the detach argument is False, then the background process
              * will be shutdown immediately, and all intermediate results
@@ -559,7 +565,8 @@ module omero {
         interface Processor;
 
         /**
-         * Internal callback interface which is passed to the [Processor::accepts] method
+         * Internal callback interface which is passed to the
+         * {@link Processor#accepts} method
          * to query whether or not a processor will accept a certain operation.
          **/
         interface ProcessorCallback {
@@ -580,10 +587,10 @@ module omero {
         ["ami"] interface Processor {
 
             /**
-             * Called by [omero::grid::SharedResources] to find a suitable
-             * target for [omero::grid::SharedResources::acquireProcessor].
+             * Called by {@link omero.grid.SharedResources} to find a suitable
+             * target for {@link omero.grid.SharedResources#acquireProcessor}.
              * New processor instances are added to the checklist by using
-             * [omero::grid::SharedResources::addProcessor]. All processors
+             * {@link omero.grid.SharedResources#addProcessor}. All processors
              * must respond with their session uuid in order to authorize
              * the action.
              **/
@@ -595,7 +602,8 @@ module omero {
 
             /**
              * Used by servers to find out what jobs are still active.
-             * Response will be sent to [ProcessorCallback::responseRunning]
+             * Response will be sent to
+             * {@link ProcessorCallback#responseRunning}
              **/
             idempotent
             void requestRunning(ProcessorCallback* cb);
@@ -603,7 +611,7 @@ module omero {
             /**
              * Parses a job and returns metadata definition required
              * for properly submitting the job. This object will be
-             * cached by the server, and passed back into [processJob]
+             * cached by the server, and passed back into {@link #processJob}
              **/
             idempotent
             JobParams parseJob(string session, omero::model::Job jobObject) throws ServerError;
@@ -611,8 +619,8 @@ module omero {
             /**
              * Starts a process based on the given job
              * If this processor cannot handle the given job, a
-             * null process will be returned. The [params] argument
-             * was created by a previously call to [parseJob].
+             * null process will be returned. The {@param params} argument
+             * was created by a previously call to {@link #parseJob}.
              **/
             Process* processJob(string session, JobParams params, omero::model::Job jobObject) throws ServerError;
 
@@ -673,9 +681,10 @@ module omero {
 
             /**
              * Sets whether or not cancel will be called on the current
-             * [Process] on stop. If detach is true, then the [Process]
-             * will continue running. Otherwise, Process.cancel() willl
-             * be called, before prepairing for another run.
+             * {@link Process} on stop. If detach is true, then the
+             * {@link Process} will continue running. Otherwise,
+             * {@link Process#cancel} will be called, before preparing for
+             * another run.
              *
              * false by default
              *
@@ -684,10 +693,10 @@ module omero {
             bool setDetach(bool detach) throws ServerError;
 
             /**
-             * Clears the current execution of [omero::model::Job] from
+             * Clears the current execution of {@link omero.model.Job} from
              * the processor to prepare for another execution.
              *
-             * cancel() will be called on the current [Process]
+             * cancel() will be called on the current {@link Process}
              * if detach is set to false.
              **/
             idempotent

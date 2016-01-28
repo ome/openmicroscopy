@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,9 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-//Java imports
+
+import ij.ImagePlus;
+
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
@@ -97,12 +97,12 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.GenericFileChooser;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.GroupData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /**
  * Dialog used to select the files to import.
@@ -115,7 +115,7 @@ import pojos.TagAnnotationData;
  * @author Scott Littlewood &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:sylittlewood@dundee.ac.uk"
  *         >sylittlewood@dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
+ * @version 3.0
  * @since 3.0-Beta4
  */
 public class ImportDialog extends ClosableTabbedPaneComponent
@@ -1246,8 +1246,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 *            The owner of the dialog.
 	 * @param filters
 	 *            The list of filters.
-	 * @param containers
-	 *            The container where to import the files.
+	 * @param selectedContainer
+	 *            The selected container if any.
 	 * @param objects
 	 *            The possible objects.
 	 * @param type
@@ -1566,7 +1566,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
             ImportLocationSettings settings)
     {
         int plugin = ImporterAgent.runAsPlugin();
-        
         if (!(plugin == LookupNames.IMAGE_J_IMPORT ||
                 plugin == LookupNames.IMAGE_J)) return;
         if (CollectionUtils.isEmpty(list)) {
@@ -1574,13 +1573,16 @@ public class ImportDialog extends ClosableTabbedPaneComponent
             list = new ArrayList<FileObject>();
             FileObject f, ff;
             if (active) {
-                f = new FileObject(WindowManager.getCurrentImage());
+                ImagePlus p = WindowManager.getCurrentImage();
+                f = new FileObject(p);
+                int id = p.getID();
                 //check if there are associated files
                 int[] values = WindowManager.getIDList();
                 String path = f.getAbsolutePath();
                 if (path != null) {
                     for (int i = 0; i < values.length; i++) {
-                        ff = new FileObject(WindowManager.getImage(values[i]));
+                        p = WindowManager.getImage(values[i]);
+                        ff = new FileObject(p);
                         if (path.equals(ff.getAbsolutePath())) {
                             f.addAssociatedFile(ff);
                         }
@@ -1588,11 +1590,25 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                 }
                 list.add(f);
             } else {
+                List<String> paths = new ArrayList<String>();
                 int[] values = WindowManager.getIDList();
                 if (values != null) {
                     for (int i = 0; i < values.length; i++) {
-                        list.add(new FileObject(
-                                WindowManager.getImage(values[i])));
+                        //need to check if it is the same image
+                        ImagePlus p = WindowManager.getImage(values[i]);
+                        f = new FileObject(p);
+                        String path = f.getAbsolutePath();
+                        if (!paths.contains(path)) {
+                            paths.add(path);
+                            list.add(f);
+                            for (int j = 0; j < values.length; j++) {
+                                p = WindowManager.getImage(values[j]);
+                                ff = new FileObject(p);
+                                if (path.equals(ff.getAbsolutePath())) {
+                                    f.addAssociatedFile(ff);
+                                }
+                            }
+                        }
                     }
                 }
             }

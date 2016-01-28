@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.browser.NodesFinder 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,21 +20,15 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Finds for the {@link ImageDisplay}s corresponding to the selected

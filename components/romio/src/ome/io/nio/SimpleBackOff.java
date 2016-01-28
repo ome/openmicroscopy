@@ -28,7 +28,7 @@ import org.perf4j.slf4j.Slf4JStopWatch;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3.1
- * @see ticket:5910
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5910">ticket 5910</a>
  */
 public class SimpleBackOff implements BackOff {
 

@@ -36,6 +36,8 @@ public interface IRequest {
      * implementations will require "omero.group":"-1" for example and will
      * hard-code that value. Others may permit users to pass in the desired
      * values which will be merged into the static {@link Map} as desired.
+     *
+     * @return the call context for this request
      */
     Map<String, String> getCallContext();
 
@@ -43,11 +45,14 @@ public interface IRequest {
      * Method called within the transaction boundaries before any processing occurs.
      * 
      * Implementations must properly initialize the "step" field of the
-     * {@link Status} object by calling {@link Helper#setSteps(int). This count
+     * {@link Status} object by calling {@link Helper#setSteps(int)}. This count
      * will define how many times the {@link #step(int)} method will be called.
      * 
      * The {@link Helper} instance passed in contains those resources needed by
      * IRequests to interact with data and should be stored for later use.
+     *
+     * @param helper the helper for this request
+     * @throws Cancel if this request is cancelled
      */
     void init(Helper helper) throws Cancel;
 
@@ -58,10 +63,10 @@ public interface IRequest {
      * current thread and transaction. After processing and detachment from
      * the transaction, the object will be passed to
      * {@link #buildResponse(int, Object)} for conversion and storage.
-     * 
-     * @param i
-     * @return
-     * @throws Cancel
+     *
+     * @param step the step number
+     * @return an object to be used in building the response
+     * @throws Cancel if this request is cancelled
      */
     Object step(int step) throws Cancel;
 
@@ -70,6 +75,7 @@ public interface IRequest {
      * occurred. A thrown {@link Cancel} will still rollback the current
      * transaction.
      *
+     * @throws Cancel if this request is cancelled
      * @since 5.0.0
      */
     void finish() throws Cancel;
@@ -77,9 +83,9 @@ public interface IRequest {
     /**
      * Post-transaction chance to map from the return value of
      * {@link #step(int)} to a {@link omero.cmd.Response} object.
-     * 
-     * @param i
-     * @param object
+     *
+     * @param step the step number
+     * @param object an object to be used in building the response
      */
     void buildResponse(int step, Object object);
 
@@ -88,6 +94,8 @@ public interface IRequest {
      * by synchronization where necessary, and should never raise an exception.
      * It is also guaranteed to be called so that any state cleanup that is
      * necessary can take place here.
+     *
+     * @return the response to this request
      */
     Response getResponse();
 

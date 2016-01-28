@@ -1,12 +1,9 @@
 /*
- * ome.server.itests.PojosDaoTest
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.server.itests;
 
-// Java imports
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,8 +25,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * tests for an up-and-coming pojos data access TODO rename
- * "PojosQuerySourceTest"
+ * tests for an up-and-coming pojos data access
+ * 
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
@@ -37,6 +34,7 @@ import org.testng.annotations.Test;
  * @since 2.0
  */
 // FIXME
+//TODO rename "PojosQuerySourceTest"
 @Test(groups = "integration")
 public class PojosDaoTest extends TestCase {
 

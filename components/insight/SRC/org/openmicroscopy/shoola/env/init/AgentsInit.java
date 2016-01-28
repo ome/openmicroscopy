@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.init.AgentsInit
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,13 +23,9 @@
 
 package org.openmicroscopy.shoola.env.init;
 
-//Java imports
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -163,32 +159,43 @@ public final class AgentsInit
 	 * @see InitializationTask#execute()
 	 */
 	void execute() 
-		throws StartupException
+	        throws StartupException
 	{
-		Registry reg = container.getRegistry();
-		Integer v = (Integer) reg.lookup(LookupNames.ENTRY_POINT);
-		int value = LookupNames.INSIGHT_ENTRY;
-		if (v != null) {
-			switch (v.intValue()) {
-				case LookupNames.IMPORTER_ENTRY:
-				case LookupNames.INSIGHT_ENTRY:
-					value = v.intValue();
-			}
-		}
-		
-		List<AgentInfo> agents =
-				(List<AgentInfo>) reg.lookup(LookupNames.AGENTS);
-		Iterator<AgentInfo> i = agents.iterator();
-		while (i.hasNext()) 
-			createAgent(i.next(), value);
-		String name = (String) container.getRegistry().lookup(
-				LookupNames.MASTER);
-		if (name == null)
-			container.getRegistry().bind(LookupNames.MASTER,
-					LookupNames.MASTER_INSIGHT);
+	    Registry reg = container.getRegistry();
+	    Integer v = (Integer) reg.lookup(LookupNames.ENTRY_POINT);
+	    int value = LookupNames.INSIGHT_ENTRY;
+	    if (v != null) {
+	        switch (v.intValue()) {
+	            case LookupNames.IMPORTER_ENTRY:
+	            case LookupNames.INSIGHT_ENTRY:
+	                value = v.intValue();
+	        }
+	    }
+
+	    List<AgentInfo> agents =
+	            (List<AgentInfo>) reg.lookup(LookupNames.AGENTS);
+	    Iterator<AgentInfo> i = agents.iterator();
+	    while (i.hasNext()) 
+	        createAgent(i.next(), value);
+	    String name = (String) container.getRegistry().lookup(
+	            LookupNames.MASTER);
+	    if (name == null) {
+	        name = LookupNames.MASTER_INSIGHT;
+	    }
+	    //check if run as an ij plugin.
+	    Integer plugin = (Integer) container.getRegistry().lookup(
+	            LookupNames.PLUGIN);
+	    if (plugin != null) {
+	        switch (plugin) {
+	            case LookupNames.IMAGE_J:
+	            case LookupNames.IMAGE_J_IMPORT:
+	                name = LookupNames.MASTER_IJ;
+	        }
+	    }
+	    container.getRegistry().bind(LookupNames.MASTER, name);
 	}
 
-	/** 
+	/**
 	 * Does nothing.
 	 * @see InitializationTask#rollback()
 	 */

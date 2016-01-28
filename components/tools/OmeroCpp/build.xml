@@ -10,7 +10,6 @@
     <property name="copy.dir"         value="target/"/>
 
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
     <import file="../common.xml"/>
 
     <property name="cmake.builddir"   value="cppbuild"/>

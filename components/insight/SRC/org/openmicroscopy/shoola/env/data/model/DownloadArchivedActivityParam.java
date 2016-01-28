@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,18 +21,12 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-
-//Java imports
 import java.io.File;
 import java.util.List;
 
 import javax.swing.Icon;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Hosts the parameters required to download the archived image.
@@ -44,9 +36,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DownloadArchivedActivityParam 
@@ -64,11 +53,17 @@ public class DownloadArchivedActivityParam
     /** Flag indicating to override or not the files when saving.*/
     private boolean override;
 
+    /** Flag for zipping the downloaded images */
+    private boolean zip = false;
+    
+    /** Flag for preserving the original folder structure */
+    private boolean keepOriginalPaths = true;
+    
     /**
      * Creates a new instance.
      * 
      * @param location The file to download the content into.
-     * @param image The archived images to download.
+     * @param images The archived images to download.
      * @param icon The icon associated to the parameters.
      */
     public DownloadArchivedActivityParam(File location, List<ImageData> images,
@@ -92,7 +87,7 @@ public class DownloadArchivedActivityParam
      * Returns <code>true</code> to override the files when saving,
      * <code>false</code> otherwise. Default is <code>false</code>.
      *
-     * @return
+     * @return See above.
      */
     public boolean isOverride() { return override; }
 
@@ -116,5 +111,45 @@ public class DownloadArchivedActivityParam
      * @return See above.
      */
     public List<ImageData> getImages() { return images; }
+
+    /**
+     * Returns if the downloaded images should be zipped
+     * 
+     * @return See above
+     */
+    public boolean isZip() {
+        return zip;
+    }
+
+    /**
+     * Sets the zip flag
+     * 
+     * @param zip
+     *            Pass <code>true</code> if the downloaded images should be
+     *            zipped
+     */
+    public void setZip(boolean zip) {
+        this.zip = zip;
+    }
+
+    /**
+     * Returns if the original folder structure should be preserved
+     * 
+     * @return See above
+     */
+    public boolean isKeepOriginalPaths() {
+        return keepOriginalPaths;
+    }
+
+    /**
+     * Sets the keepOriginalPaths flag
+     * 
+     * @param keepOriginalPaths
+     *            Pass <code>true</code> to preserve the original folder
+     *            structure
+     */
+    public void setKeepOriginalPaths(boolean keepOriginalPaths) {
+        this.keepOriginalPaths = keepOriginalPaths;
+    }
 
 }

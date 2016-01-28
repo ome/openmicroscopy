@@ -9,8 +9,7 @@ package ome.security.auth;
 
 /**
  * Extension interface to {@link PasswordProvider} for methods which may or may
- * not be available from a provider implementation. This interface is intended
- * to eventually take over for {@link ome.security.PasswordUtil}.
+ * not be available from a provider implementation.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.0

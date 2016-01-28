@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.RenderingControlProxy
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,12 +21,10 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -39,34 +35,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.LockTimeout;
 import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
 import omero.model.Family;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
+import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.cache.CacheService;
+
+import omero.gateway.cache.CacheService;
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
-import pojos.ChannelData;
-import pojos.ExperimenterData;
-import pojos.PixelsData;
+
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * UI-side implementation of the {@link RenderingControl} interface.
@@ -1343,30 +1343,33 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeX()
      */
-    public double getPixelsPhysicalSizeX()
+    public Length getPixelsPhysicalSizeX()
     {
-        if (pixs.getPhysicalSizeX() == null) return 1;
-        return pixs.getPhysicalSizeX().getValue();
+        if (pixs.getPhysicalSizeX() == null) 
+            return new LengthI(1, UnitsLength.PIXEL);
+        return pixs.getPhysicalSizeX();
     }
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeY()
      */
-    public double getPixelsPhysicalSizeY()
+    public Length getPixelsPhysicalSizeY()
     {
-        if (pixs.getPhysicalSizeY() == null) return 1;
-        return pixs.getPhysicalSizeY().getValue();
+        if (pixs.getPhysicalSizeY() == null) 
+            return new LengthI(1, UnitsLength.PIXEL);
+        return pixs.getPhysicalSizeY();
     }
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeZ()
      */
-    public double getPixelsPhysicalSizeZ()
+    public Length getPixelsPhysicalSizeZ()
     {
-        if (pixs.getPhysicalSizeZ() == null) return 1;
-        return pixs.getPhysicalSizeZ().getValue();
+        if (pixs.getPhysicalSizeZ() == null) 
+            return new LengthI(1, UnitsLength.PIXEL);
+        return pixs.getPhysicalSizeZ();
     }
 
     /** 

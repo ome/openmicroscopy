@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *
@@ -24,7 +22,6 @@
 package org.openmicroscopy.shoola.agents.util;
 
 
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -34,21 +31,18 @@ import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.ProjectData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.TagAnnotationData;
 
 /**
  * Determines and sets the icon corresponding to a data object.
@@ -286,7 +280,7 @@ public class TreeCellRenderer
 
     /**
      * Overridden to highlight the destination of the target.
-     * @see paintComponent(Graphics)
+     * @see #paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {

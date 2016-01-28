@@ -7,11 +7,6 @@
 
 package ome.api.local;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import ome.services.query.Query;
@@ -22,8 +17,6 @@ import ome.services.query.Query;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
  * @since OMERO3.0
  */
 public interface LocalQuery extends ome.api.IQuery {

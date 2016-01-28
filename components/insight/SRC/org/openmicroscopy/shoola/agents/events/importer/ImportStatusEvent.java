@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,14 +21,10 @@
 package org.openmicroscopy.shoola.agents.events.importer;
 
 
-//Java imports
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Event indicating if there are on-going imports.
@@ -40,81 +34,77 @@ import pojos.DataObject;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ImportStatusEvent
-	extends RequestEvent
+    extends RequestEvent
 {
 
-	/** Flag indicating if there are any on-going import. */
-	private boolean importing;
-	
-	/** The collection of containers that will have to be refreshed. */
-	private List<DataObject> containers;
-	
-	/** Flag indicating that the tree needs to be refreshed. */
-	private boolean toRefresh;
-	
-	/** The successfully imported object or the failure.*/
-	private Object importResult;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param importing Pass <code>true</code> to indicate on-going imports,
-	 * 					<code>false</code> otherwise.
-	 * @param containers The containers to refresh.
-	 * @param imported The files that imported successfully
-	 * @param failures The files that could not be imported.
-	 */
-	public ImportStatusEvent(boolean importing, List<DataObject> containers,
-			Object importResult)
-	{
-		this.importing = importing;
-		this.containers = containers;
-		this.importResult = importResult;
-	}
-	
-	/**
-	 * Sets to <code>true</code> to indicate to refresh the tree, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param toRefresh Pass <code>true</code> to indicate to refresh the tree, 
-	 * 				  <code>false</code> otherwise.
-	 */
-	public void setToRefresh(boolean toRefresh) { this.toRefresh = toRefresh; }
-	
-	/**
-	 * Returns <code>true</code> to indicate to refresh the tree, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isToRefresh() { return toRefresh; }
-	
-	/**
-	 * Returns the containers that will have to be refreshed.
-	 * 
-	 * @return See above.
-	 */
-	public List<DataObject> getContainers() { return containers; }
-	
-	/**
-	 * Returns <code>true</code> if on-going imports, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isImporting() { return importing; }
-	
-	/**
-	 * Returns the result of the import
-	 * 
-	 * @return See above.
-	 */
-	public Object getImportResult() { return importResult; }
+    /** Flag indicating if there are any on-going import. */
+    private boolean importing;
+
+    /** The collection of containers that will have to be refreshed. */
+    private List<DataObject> containers;
+
+    /** Flag indicating that the tree needs to be refreshed. */
+    private boolean toRefresh;
+
+    /** The successfully imported object or the failure.*/
+    private Object importResult;
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param importing Pass <code>true</code> to indicate on-going imports,
+     *                  <code>false</code> otherwise.
+     * @param containers The containers to refresh.
+     * @param importResult The result of the import.
+     */
+    public ImportStatusEvent(boolean importing, List<DataObject> containers,
+            Object importResult)
+    {
+        this.importing = importing;
+        this.containers = containers;
+        this.importResult = importResult;
+    }
+
+    /**
+     * Sets to <code>true</code> to indicate to refresh the tree, 
+     * <code>false</code> otherwise.
+     * 
+     * @param toRefresh Pass <code>true</code> to indicate to refresh the tree, 
+     *                  <code>false</code> otherwise.
+     */
+    public void setToRefresh(boolean toRefresh) { this.toRefresh = toRefresh; }
+
+    /**
+     * Returns <code>true</code> to indicate to refresh the tree, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isToRefresh() { return toRefresh; }
+
+    /**
+     * Returns the containers that will have to be refreshed.
+     *
+     * @return See above.
+     */
+    public List<DataObject> getContainers() { return containers; }
+
+    /**
+     * Returns <code>true</code> if on-going imports, 
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isImporting() { return importing; }
+
+    /**
+     * Returns the result of the import
+     *
+     * @return See above.
+     */
+    public Object getImportResult() { return importResult; }
 
 }

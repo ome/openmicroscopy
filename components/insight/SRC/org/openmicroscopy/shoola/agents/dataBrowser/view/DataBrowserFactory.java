@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,25 +33,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
 
 /** 
  * Factory to create {@link DataBrowser} components.
@@ -69,9 +66,6 @@ import pojos.WellData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataBrowserFactory
@@ -111,15 +105,15 @@ public class DataBrowserFactory
 	}
 	
 	/**
-         * Creates a browser to display the results.
-         * 
-         * @param result The value to set.
-         * @return See above.
-         */
-        public static final DataBrowser getSearchBrowser(AdvancedSearchResultCollection results)
-        {
-                return singleton.createSearchDataBrowser(results);
-        }
+	 * Creates a browser to display the results.
+	 * 
+	 * @param results The value to set.
+	 * @return See above.
+	 */
+	public static final DataBrowser getSearchBrowser(SearchResultCollection results)
+	{
+	    return singleton.createSearchDataBrowser(results);
+	}
 
 	/**
 	 * Returns the browser used for searching data.
@@ -206,9 +200,9 @@ public class DataBrowserFactory
 	 * Creates a new {@link DataBrowser} for the passed collection of 
 	 * files.
 	 * 
-	 *  @param ctx The security context.
-	 * @param parent		The parent's node.
-	 * @param experimenters	The collection to set.
+	 * @param ctx The security context.
+	 * @param parent The parent's node.
+	 * @param files The collection to set.
 	 * @return See above.
 	 */
 	public static final DataBrowser getFSFolderBrowser(
@@ -221,8 +215,8 @@ public class DataBrowserFactory
 	 * Creates a new {@link DataBrowser} for the passed collection of datasets.
 	 * 
 	 * @param ctx The security context.
-	 * @param parent	The parent's node.
-	 * @param nodes		The collection to set.
+	 * @param parent The parent's node.
+	 * @param nodes The collection to set.
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(SecurityContext ctx, 
@@ -234,8 +228,7 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed node.
 	 * 
-	 * @param parent  The node.
-	 * @param experimenter  The experimenter associated to the node.
+	 * @param parent The node.
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(Object parent)
@@ -678,7 +671,7 @@ public class DataBrowserFactory
          * @param result The result of the search.
          * @return See above.
          */
-        private DataBrowser createSearchDataBrowser(AdvancedSearchResultCollection result)
+        private DataBrowser createSearchDataBrowser(SearchResultCollection result)
         {
                 DataBrowserModel model = new AdvancedResultSearchModel(result);
                 DataBrowserComponent comp = new DataBrowserComponent(model);

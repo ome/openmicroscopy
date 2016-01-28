@@ -21,7 +21,7 @@
  * The Tables API is intended to provide a storage mechanism
  * for tabular data.
  *
- * See http://www.openmicroscopy.org/site/support/omero5.1/developers/Tables.html
+ * See http://www.openmicroscopy.org/site/support/omero5.2/developers/Tables.html
  */
 module omero {
 
@@ -44,7 +44,7 @@ module omero {
         /**
          * Base type for dealing working with tabular data. For efficiency,
          * data is grouped by type, i.e. column. These value objects are passed
-         * through the [Table] interface.
+         * through the {@link Table} interface.
          **/
         class Column {
 
@@ -174,8 +174,8 @@ module omero {
             /**
              * Read the given rows of data.
              *
-             * [rowNumbers] must contain at least one element or an
-             * [omero::ApiUsageException] will be thrown.
+             * {@param rowNumbers} must contain at least one element or an
+             * {@link omero.ApiUsageException} will be thrown.
              **/
             idempotent
             Data
@@ -202,8 +202,8 @@ module omero {
              * data = table.slice(None, None)
              * assert len(data.rowNumbers) == table.getNumberOfRows()
              *
-             * data = table.slice(None, [3,2,1])
-             * assert data.rowNumbers == [3,2,1]
+             * data = table.slice(None, \[3,2,1])
+             * assert data.rowNumbers == \[3,2,1]
              * </pre>
              **/
             idempotent
@@ -222,8 +222,8 @@ module omero {
             /**
              * Allows the user to modify a Data instance passed back
              * from a query method and have the values modified. It
-             * is critical that the [Data::lastModification] and the
-             * [Data::rowNumbers] fields are properly set. An exception
+             * is critical that the {@link Data#lastModification} and the
+             * {@link Data#rowNumbers} fields are properly set. An exception
              * will be thrown if the data has since been modified.
              **/
             void update(Data modifiedData)
@@ -308,7 +308,7 @@ module omero {
              * This service will open the file locally to access the data.
              * After any modification, the file will be saved locally and
              * the server asked to update the database record. This is done
-             * via services in the [omero::api::ServiceFactory].
+             * via services in the {@link omero.api.ServiceFactory}.
              */
             idempotent
             Table*

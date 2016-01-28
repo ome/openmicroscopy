@@ -1,6 +1,4 @@
 /*
- * training.util.BytesConverter 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,13 +21,6 @@
  */
 package training.util;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Converts the values.

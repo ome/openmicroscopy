@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.util;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -80,21 +76,21 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.PixelsData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Component hosting the file to import and displaying the status of the 
@@ -290,12 +286,18 @@ public class FileImportComponent
 	    String logText = "View Import Log";
 	    String checksumText = "View Checksum";
 	    String exceptionText = "View Exception";
+	    String copyExceptionText = "Copy Exception to Clipboard";
 	    Object result = statusLabel.getImportResult();
 	    switch (resultIndex) {
 	    case FAILURE_LIBRARY:
 	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
                 public void actionPerformed(ActionEvent e) {
                     viewError();
+                }
+            }));
+	        menu.add(new JMenuItem(new AbstractAction(copyExceptionText) {
+                public void actionPerformed(ActionEvent e) {
+                    copyErrorToClipboard();
                 }
             }));
 	        break;
@@ -308,6 +310,11 @@ public class FileImportComponent
 	        menu.add(new JMenuItem(new AbstractAction(exceptionText) {
                 public void actionPerformed(ActionEvent e) {
                     viewError();
+                }
+            }));
+	        menu.add(new JMenuItem(new AbstractAction(copyExceptionText) {
+                public void actionPerformed(ActionEvent e) {
+                    copyErrorToClipboard();
                 }
             }));
 	        break;
@@ -517,6 +524,16 @@ public class FileImportComponent
 	        UIUtilities.centerAndShow(d);
 	    }
 	}
+
+	/** Copies the error to the clipboard.*/
+    private void copyErrorToClipboard()
+    {
+        Object o = statusLabel.getImportResult();
+        if (o instanceof ImportException) {
+            String v = UIUtilities.printErrorText((ImportException) o);
+            UIUtilities.copyToClipboard(v);
+        }
+    }
 
 	/** Browses the node or the data object. */
 	private void browse()
@@ -905,7 +922,38 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public StatusLabel getStatus() { return statusLabel; }
-	
+
+	/**
+	 * Returns the associated file if any.
+	 *
+	 * @param series See above.
+	 * @return See above.
+	 */
+	private FileObject getAssociatedFile(int series)
+	{
+	    List<FileObject> l = getFile().getAssociatedFiles();
+	    Iterator<FileObject> i = l.iterator();
+	    FileObject f;
+	    while (i.hasNext()) {
+            f = i.next();
+            if (f.getIndex() == series) {
+                return f;
+            }
+        }
+	    return null;
+	}
+
+	/**
+	 * Returns <code>true</code> if the file has some associated files,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	private boolean hasAssociatedFiles() {
+	    List<FileObject> l = getFile().getAssociatedFiles();
+	    return CollectionUtils.isNotEmpty(l);
+	}
+
 	/**
 	 * Sets the result of the import.
 	 * @param image The image.
@@ -924,16 +972,30 @@ public class FileImportComponent
 		} else if (image instanceof Set) {
 			//Result from the import itself
 			this.image = null;
+			Set set = (Set) image;
+			Iterator i = set.iterator();
+			FileObject f;
+			while (i.hasNext()) {
+                Object object = i.next();
+                if (object instanceof PixelsData) {
+                    PixelsData pix = (PixelsData) object;
+                    if (hasAssociatedFiles()) {
+                        int series = pix.getImage().getSeries();
+                        f = getAssociatedFile(series);
+                        if (f != null) {
+                            f.setImageID(pix.getImage().getId());
+                        }
+                    } else {
+                        f = getOriginalFile();
+                        f.setImageID(pix.getImage().getId());
+                    }
+                }
+            }
 			formatResult();
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
 			ThumbnailData data = list.get(0);
-			long iid = data.getImageID();
-			if (data.getImage() != null) {
-			    iid = data.getImage().getId();
-			}
-			getFile().setImageID(iid);
 			imageLabel.setData(data);
 			list.remove(0);
 			if (list.size() > 0) {
@@ -1420,7 +1482,7 @@ public class FileImportComponent
 	 * Sets to <code>true</code> to mark the file for reimport.
 	 * <code>false</code> otherwise.
 	 * 
-	 * @param Pass <code>true</code> to mark the file for reimport.
+	 * @param reimported Pass <code>true</code> to mark the file for reimport,
 	 * <code>false</code> otherwise.
 	 */
 	public void setReimported(boolean reimported)
@@ -1597,7 +1659,7 @@ public class FileImportComponent
 
 	/**
 	 * Returns the name of the file and group's id and user's id.
-	 * @see #toString();
+	 * @see #toString()
 	 */
 	public String toString()
 	{

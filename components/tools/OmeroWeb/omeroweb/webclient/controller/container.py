@@ -3,7 +3,7 @@
 #
 # container
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2015 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -204,6 +204,27 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
+    def canExportAsJpg(self, request, objDict=None):
+        """
+        Can't export as Jpg, Png, Tiff if bigger than approx 12k * 12k.
+        Limit set by OOM error in omeis.providers.re.RGBIntBuffer
+        """
+        can = True
+        try:
+            limit = request.session['server_settings'][
+                'download_as_max_size']
+        except:
+            limit = 144000000
+        if self.image:
+            if (self.image.getSizeX() * self.image.getSizeY()) > limit:
+                can = False
+        elif objDict is not None:
+            if 'image' in objDict:
+                for i in objDict['image']:
+                    if (i.getSizeX() * i.getSizeY()) > limit:
+                        can = False
+        return can
+
     def canDownload(self, objDict=None):
         """
         Returns False if any of selected object cannot be downloaded
@@ -393,12 +414,14 @@ class BaseContainer(BaseController):
         pa_list = list(self.conn.getObjectsByAnnotations(
             'PlateAcquisition', [self.tag.id]))
 
-        pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        im_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
-        pa_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        def sortKeys(x):
+            return (x.getName() and x.getName().lower() or " ", x.id)
+        pr_list.sort(key=lambda x: sortKeys(x))
+        ds_list.sort(key=lambda x: sortKeys(x))
+        im_list.sort(key=lambda x: sortKeys(x))
+        sc_list.sort(key=lambda x: sortKeys(x))
+        pl_list.sort(key=lambda x: sortKeys(x))
+        pa_list.sort(key=lambda x: sortKeys(x))
 
         self.containers = {
             'projects': pr_list,
@@ -415,11 +438,12 @@ class BaseContainer(BaseController):
         if eid is not None:
             if eid == -1:       # Load data for all users
                 eid = None
-            else:
-                self.experimenter = self.conn.getObject("Experimenter", eid)
+            # else:
+            #     self.experimenter = self.conn.getObject("Experimenter", eid)
         im_list = list(self.conn.listImagesInDataset(
             oid=did, eid=eid, page=page, load_pixels=load_pixels))
-        im_list.sort(key=lambda x: x.getName().lower())
+        # List is already sorted by name, id in query
+        # im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
         self.containers = {'images': im_list}
         self.c_size = self.conn.getCollectionCount(
             "Dataset", "imageLinks", [long(did)])[long(did)]
@@ -468,7 +492,7 @@ class BaseContainer(BaseController):
             params.page((int(page)-1)*settings.PAGE, settings.PAGE)
         im_list = list(self.conn.listOrphans(
             "Image", eid=eid, params=params, loadPixels=True))
-        im_list.sort(key=lambda x: x.getName().lower())
+        im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
         self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
 
@@ -1107,7 +1131,7 @@ class BaseContainer(BaseController):
                         up_pdl = pdl
                 if already_there:
                     if long(parent[1]) != long(destination[1]):
-                        self.conn.deleteObjectDirect(up_pdl._obj)
+                        self.conn.deleteObject(up_pdl._obj)
                 else:
                     new_pr = self.conn.getObject("Project", destination[1])
                     if parent[0] not in ('experimenter', 'orphaned'):
@@ -1123,7 +1147,7 @@ class BaseContainer(BaseController):
                 for p in self.dataset.getParentLinks():
                     if p.parent.id.val == long(parent[1]):
                         up_pdl = p
-                        self.conn.deleteObjectDirect(up_pdl._obj)
+                        self.conn.deleteObject(up_pdl._obj)
             elif destination[0] == 'orphaned':
                 return ('Cannot move dataset to %s.' %
                         self.conn.getOrphanedContainerSettings()[1])
@@ -1147,7 +1171,7 @@ class BaseContainer(BaseController):
                 if already_there:
                     # delete link to not duplicate
                     if long(parent[1]) != long(destination[1]):
-                        self.conn.deleteObjectDirect(up_dsl._obj)
+                        self.conn.deleteObject(up_dsl._obj)
                 else:
                     # update link to new destination
                     new_ds = self.conn.getObject("Dataset", destination[1])
@@ -1171,7 +1195,7 @@ class BaseContainer(BaseController):
                         # gets old parent to delete
                         if dsls[0].parent.id.val == long(parent[1]):
                             up_dsl = dsls[0]
-                            self.conn.deleteObjectDirect(up_dsl._obj)
+                            self.conn.deleteObject(up_dsl._obj)
                     else:
                         return ('This image is linked in multiple places.'
                                 ' Please unlink the image first.')
@@ -1194,7 +1218,7 @@ class BaseContainer(BaseController):
                         up_spl = spl
                 if already_there:
                     if long(parent[1]) != long(destination[1]):
-                        self.conn.deleteObjectDirect(up_spl._obj)
+                        self.conn.deleteObject(up_spl._obj)
                 else:
                     new_sc = self.conn.getObject("Screen", destination[1])
                     if parent[0] not in ('experimenter', 'orphaned'):
@@ -1213,7 +1237,7 @@ class BaseContainer(BaseController):
                     spls = list(self.plate.getParentLinks())
                     for spl in spls:
                         if spl.parent.id.val == long(parent[1]):
-                            self.conn.deleteObjectDirect(spl._obj)
+                            self.conn.deleteObject(spl._obj)
                             break
             else:
                 return 'Destination not supported.'
@@ -1246,16 +1270,16 @@ class BaseContainer(BaseController):
                     if (al is not None and al.canDelete() and (
                             tag_owner_id is None or
                             unwrap(al.details.owner.id) == tag_owner_id)):
-                        self.conn.deleteObjectDirect(al._obj)
+                        self.conn.deleteObject(al._obj)
             elif self.file:
                 for al in self.file.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
-                        self.conn.deleteObjectDirect(al._obj)
+                        self.conn.deleteObject(al._obj)
             elif self.comment:
                 # remove the comment from specified parent
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
-                        self.conn.deleteObjectDirect(al._obj)
+                        self.conn.deleteObject(al._obj)
                 # if comment is orphan, delete it directly
                 orphan = True
 
@@ -1274,23 +1298,23 @@ class BaseContainer(BaseController):
                         orphan = False
                         break
                 if orphan:
-                    self.conn.deleteObjectDirect(self.comment._obj)
+                    self.conn.deleteObject(self.comment._obj)
 
             elif self.dataset is not None:
                 if dtype == 'project':
                     for pdl in self.dataset.getParentLinks([parentId]):
                         if pdl is not None:
-                            self.conn.deleteObjectDirect(pdl._obj)
+                            self.conn.deleteObject(pdl._obj)
             elif self.plate is not None:
                 if dtype == 'screen':
                     for spl in self.plate.getParentLinks([parentId]):
                         if spl is not None:
-                            self.conn.deleteObjectDirect(spl._obj)
+                            self.conn.deleteObject(spl._obj)
             elif self.image is not None:
                 if dtype == 'dataset':
                     for dil in self.image.getParentLinks([parentId]):
                         if dil is not None:
-                            self.conn.deleteObjectDirect(dil._obj)
+                            self.conn.deleteObject(dil._obj)
             else:
                 raise AttributeError(
                     "Attribute not specified. Cannot be removed.")
@@ -1299,7 +1323,7 @@ class BaseContainer(BaseController):
         if self.dataset is not None:
             dil = self.dataset.getParentLinks('image', images)
             if dil is not None:
-                self.conn.deleteObjectDirect(dil._obj)
+                self.conn.deleteObject(dil._obj)
         else:
             raise AttributeError(
                 "Attribute not specified. Cannot be removed.")
@@ -1383,8 +1407,8 @@ class BaseContainer(BaseController):
         if destination is None:
             # gets every links for child
             dsls = self.conn.getDatasetImageLinks(source[1])
-            for dsl in dsls:
-                self.conn.deleteObjectDirect(dsl._obj)
+            dslIds = [dsl._obj.id.val for dsl in dsls]
+            self.conn.deleteObjects("DatasetImageLink", dslIds, wait=True)
         else:
             im = self.conn.getObject("Image", source[1])
             ds = self.conn.getObject("Dataset", destination[1])

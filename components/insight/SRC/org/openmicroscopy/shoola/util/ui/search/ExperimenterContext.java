@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.util.ui.search.GroupContext 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -25,7 +23,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /**
  * Host information about the experimenter to search for.

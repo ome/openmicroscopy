@@ -20,7 +20,6 @@ package ome.services.blitz.test;
 
 import static omero.rtypes.rstring;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,10 +41,8 @@ import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd._HandleTie;
 import omero.cmd.basic.DoAllI;
-import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.ChgrpFacadeI;
 import omero.model.DatasetI;
-import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterGroupI;
 import omero.model.ImageI;
 
 import org.testng.annotations.Test;
@@ -77,8 +74,8 @@ public class DoAllITest extends AbstractGraphTest {
         }
     }
 
-    ChgrpI chgrp(long imageID, long groupID) {
-        ChgrpI chgrp = (ChgrpI) ic.findObjectFactory(Chgrp.ice_staticId())
+    Request chgrp(long imageID, long groupID) {
+        ChgrpFacadeI chgrp = (ChgrpFacadeI) ic.findObjectFactory(Chgrp.ice_staticId())
                 .create("");
         chgrp.type = "/Image";
         chgrp.id = imageID;

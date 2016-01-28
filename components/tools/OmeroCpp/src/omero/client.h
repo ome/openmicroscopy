@@ -69,6 +69,8 @@ namespace omero {
     private:
         client& operator=(const client& rv);
         client(client&);
+        void optionallySetProperty(const Ice::InitializationData& id,
+                const std::string& key, const std::string& def="");
 
         // These are the central instances provided by this class.
     protected:

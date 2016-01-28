@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.SearchModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -38,17 +36,17 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResult;
+import omero.gateway.model.SearchResultCollection;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /**
  * A DataBrowserModel for search results
@@ -73,7 +71,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
     private List<SearchResultTable> tables = new ArrayList<SearchResultTable>();
 
     /** Reference to the search results */
-    private AdvancedSearchResultCollection results;
+    private SearchResultCollection results;
     
     /**
      * Creates a new instance.
@@ -81,7 +79,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
      * @param results
      *            The results to display.
      */
-    public AdvancedResultSearchModel(AdvancedSearchResultCollection results) {
+    public AdvancedResultSearchModel(SearchResultCollection results) {
 
         super(null);
         if (results == null)
@@ -234,8 +232,8 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
     /**
      * Get the thumbnail for a certain image
      * 
-     * @param refObj
-     * @return
+     * @param refObj The image to handle.
+     * @return See above
      */
     public Thumbnail getThumbnail(DataObject refObj) {
         return thumbs.get(refObj);
@@ -254,12 +252,12 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
      * Checks if the search result corresponding to the provided type and id is
      * an ID match
      * 
-     * @param type
-     * @param id
-     * @return
+     * @param type The type of data object
+     * @param id The object to handle.
+     * @return <code>true</code> if found, <code>false</code> otherwise.
      */
     public boolean isIdMatch(Class<? extends DataObject> type, long id) {
-        for (AdvancedSearchResult r : results) {
+        for (SearchResult r : results) {
             if (r.isIdMatch() && r.getObjectId() == id
                     && r.getType().equals(type))
                 return true;

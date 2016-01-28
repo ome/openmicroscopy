@@ -48,6 +48,13 @@ public interface WrappableRequest<X> extends IRequest {
     void adjustGraphPolicy(Function<GraphPolicy, GraphPolicy> adjuster);
 
     /**
+     * Get the step of this request that suffices for assembling the request's response.
+     * It is presumed that checking the permissibility of the planned operation occurs afterward.
+     * @return a step number
+     */
+    int getStepProvidingCompleteResponse();
+
+    /**
      * @return the action associated with nodes qualifying as start objects
      */
     GraphPolicy.Action getActionForStarting();

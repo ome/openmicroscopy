@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.AdminObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,21 +21,17 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.IllegalArgumentException;
 
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Holds information about the group, users to handle.
@@ -47,9 +41,6 @@ import pojos.GroupData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class AdminObject 
@@ -140,7 +131,6 @@ public class AdminObject
 	 * 
 	 * @param group The group to handle.
 	 * @param values The experimenters to handle.
-	 * @param index One of the constants defined by this class.
 	 */
 	public AdminObject(GroupData group, Collection<ExperimenterData> values)
 	{

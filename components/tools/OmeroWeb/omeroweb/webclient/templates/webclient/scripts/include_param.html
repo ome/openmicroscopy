@@ -41,7 +41,7 @@
     {% if i.options %}
     <!-- List has options -->
         <img src="{% static "webclient/image/info16.png" %}" title="Add items to list with [+]" />
-        <select name="{{ i.key }}">
+        <select tabIndex="1" name="{{ i.key }}">
             {% for v in i.options %}
                 <option value="{{ v }}" {% ifequal i.default v %} selected="True" {% endifequal %} >{{ v }}</option>
             {% endfor %}
@@ -50,12 +50,12 @@
     <!-- Otherwise, Use comma-separated list -->
     {% else %}
         <img src="{% static "webclient/image/info16.png" %}" title="Add items to list, separated by ','" />
-        <input type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+        <input tabIndex="1" type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
     {% endif %}
 {% else %}
     {% if i.options %}
     <!-- drop-down list of enums -->
-        <select name="{{ i.key }}">
+        <select tabIndex="1" name="{{ i.key }}">
             {% for v in i.options %}
                 <option value="{{ v }}" {% ifequal i.default v %} selected="True" {% endifequal %} >{{ v }}</option>
             {% endfor %}
@@ -70,18 +70,18 @@
     <td valign="top">
             <table class="map">
                 <tr>
-                    <td><input type="text" name="{{ i.key }}_key0"/></td>
-                    <td><input type="text" name="{{ i.key }}_value0"/></td>
+                    <td><input tabIndex="1" type="text" name="{{ i.key }}_key0"/></td>
+                    <td><input tabIndex="1" type="text" name="{{ i.key }}_value0"/></td>
                 </tr>
             </table>
         {% else %}
             {% if i.boolean %}
-                <input type="checkbox" name="{{ i.key }}" {% if i.default %} checked="True" {% endif %} />
+                <input tabIndex="1" type="checkbox" name="{{ i.key }}" {% if i.default %} checked="True" {% endif %} />
             {% else %}
                 {% if i.number %}
-                    <input type="text" name="{{ i.key }}" class="{{ i.number }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+                    <input tabIndex="1" type="text" name="{{ i.key }}" class="{{ i.number }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
                 {% else %}
-                    <input type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
+                    <input tabIndex="1" type="text" name="{{ i.key }}" {% ifnotequal i.default None %} value="{{ i.default }}" {% endifnotequal %} />
                 {% endif %}
             {% endif %}
         {% endif %}

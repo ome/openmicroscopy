@@ -21,7 +21,6 @@ package ome.services.mail;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;

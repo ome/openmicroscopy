@@ -41,12 +41,10 @@ public interface ILdap extends ServiceInterface {
     /**
      * Searches Distinguished Name - {@link java.lang.String} in groups
      *
-     * @param attr
-     *            - String name of member attribute. Never null or empty.
-     * @param value
-     *            - user's DN which should be set on value for attribute. Never
-     *            null or empty.
-     * @return List of groups which contains DN.
+     * @param attr   Name of member attribute. Never null or empty.
+     * @param value  User's DN which should be set on value for attribute.
+     *               Never null or empty.
+     * @return       List of groups which contains DN.
      */
     List<String> searchDnInGroups(@NotNull
     String attr, @NotNull
@@ -56,16 +54,10 @@ public interface ILdap extends ServiceInterface {
      * Searches all {@link ome.model.meta.Experimenter} in LDAP for specified
      * attribute
      *
-     * @param dn
-     *            - Distinguished Name - {@link java.lang.String} base for
-     *            search. Never null, should be
-     *            {@link net.sf.ldaptemplate.support.DistinguishedName#EMPTY_PATH}
-     *            .
-     * @param attr
-     *            - String name of attribute. Never null or empty.
-     * @param value
-     *            - String expected value of attribute. Never null or empty.
-     * @return List of Experimenters.
+     * @param dn        {@code Distinguished Name} base for search. Never null.
+     * @param attribute Name of attribute. Never null or empty.
+     * @param value     Expected value of attribute. Never null or empty.
+     * @return          List of Experimenters.
      */
     List<Experimenter> searchByAttribute(@NotNull
     String dn, @NotNull
@@ -77,16 +69,10 @@ public interface ILdap extends ServiceInterface {
      * attributes. Attributes should be specified in String [] and their values
      * should be set in equivalent String [].
      *
-     * @param dn
-     *            - {@link net.sf.ldaptemplate.support.DistinguishedName} base
-     *            for search. Never null, should be
-     *            {@link net.sf.ldaptemplate.support.DistinguishedName#EMPTY_PATH}
-     *            .
-     * @param attr
-     *            - String [] name of attribute. Never null or empty.
-     * @param value
-     *            - String [] expected value of attribute. Never null or empty.
-     * @return List of Experimenters.
+     * @param dn         {@code DistinguishedName} base for search. Never null.
+     * @param attributes Name of attribute. Never null or empty.
+     * @param values     Expected value of attribute. Never null or empty.
+     * @return           List of Experimenters.
      */
     List<Experimenter> searchByAttributes(@NotNull
     String dn, @NotNull

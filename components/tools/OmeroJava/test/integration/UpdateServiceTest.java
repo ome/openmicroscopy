@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static omero.rtypes.rlong;
@@ -17,14 +16,13 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import omero.cmd.Delete2;
-import omero.cmd.graphs.ChildOption;
+import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.BooleanAnnotation;
@@ -81,8 +79,8 @@ import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.Reagent;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiAnnotationLink;
 import omero.model.RoiAnnotationLinkI;
@@ -105,28 +103,26 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
-import pojos.BooleanAnnotationData;
-import pojos.DatasetData;
-import pojos.EllipseData;
-import pojos.ImageData;
-import pojos.LineData;
-import pojos.LongAnnotationData;
-import pojos.MaskData;
-import pojos.PlateData;
-import pojos.PointData;
-import pojos.PolygonData;
-import pojos.PolylineData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.RectangleData;
-import pojos.ScreenData;
-import pojos.ShapeData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.EllipseData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LineData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MaskData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.PointData;
+import omero.gateway.model.PolygonData;
+import omero.gateway.model.PolylineData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RectangleData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.ShapeData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /**
  * Collections of tests for the <code>IUpdate</code> service.
@@ -557,7 +553,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.exp(rlong(self));
         //method tested in PojosServiceTest
-        List results = factory.getContainerService().loadContainerHierarchy(
+        List<IObject> results = factory.getContainerService().loadContainerHierarchy(
                 Plate.class.getName(),
                 Arrays.asList(pp.getId().getValue()), param);
         pp = (Plate) results.get(0);
@@ -574,11 +570,38 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertEquals(pal.getParent().getId().getValue(), pa.getId().getValue());
 
         //Create a roi
+        int n = 0;
         ROIData roiData = new ROIData();
         roiData.setImage((Image) i.proxy());
-        //Add shape
-        RectangleData r = new RectangleData(0, 0, 1, 1);
+        //Add rectangle
+        ShapeData r = new RectangleData(0, 0, 1, 1);
         roiData.addShapeData(r);
+        n++;
+        //Add ellipse
+        r = new EllipseData(2, 2, 1, 1);
+        roiData.addShapeData(r);
+        n++;
+        //Add point
+        r = new PointData(1, 1);
+        roiData.addShapeData(r);
+        n++;
+        //Add line
+        r = new LineData(0, 1, 1, 2);
+        roiData.addShapeData(r);
+        n++;
+        //Add polygon
+        String points = "points[10,10] points1[10,10] points2[10,10]";
+        Polygon rect = new PolygonI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        r = new PolygonData(rect);
+        roiData.addShapeData(r);
+        n++;
+        //Add polyline
+        Polyline polyline = new PolylineI();
+        polyline.setPoints(omero.rtypes.rstring(points));
+        r = new PolylineData(polyline);
+        roiData.addShapeData(r);
+        n++;
         Roi roi = (Roi) iUpdate.saveAndReturnObject(roiData.asIObject());
         //annotate both roi and the shape.
         RoiAnnotationLink ral = new RoiAnnotationLinkI();
@@ -590,7 +613,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertEquals(ral.getChild().getId().getValue(), data.getId().getValue());
         assertEquals(ral.getParent().getId().getValue(), roi.getId().getValue());
         List<Shape> shapes = roi.copyShapes();
-        assertEquals(1, shapes.size());
+        assertEquals(n, shapes.size());
         Iterator<Shape> k = shapes.iterator();
         while (k.hasNext()) {
             Shape shape = k.next();
@@ -741,10 +764,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertNotNull(l);
         long id = l.getId().getValue();
         // annotation and image are linked. Remove the link.
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                ImageAnnotationLink.class.getSimpleName(),
-                Collections.singletonList(l.getId().getValue()));
+        final Delete2 dc = Requests.delete("ImageAnnotationLink", l.getId().getValue());
         callback(true, client, dc);
         // now check that the image is no longer linked to the annotation
         String sql = "select link from ImageAnnotationLink as link";
@@ -1167,7 +1187,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         int z = 0;
         int t = 0;
         int c = 0;
-        Rect rect = new RectI();
+        Rectangle rect = new RectangleI();
         rect.setX(omero.rtypes.rdouble(v));
         rect.setY(omero.rtypes.rdouble(v));
         rect.setWidth(omero.rtypes.rdouble(v));

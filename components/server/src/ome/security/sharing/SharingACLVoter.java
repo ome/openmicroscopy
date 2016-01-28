@@ -19,6 +19,7 @@ import ome.security.SystemTypes;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.TokenHolder;
 import ome.services.sharing.ShareStore;
+import ome.services.sharing.data.ShareData;
 
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -73,7 +74,11 @@ public class SharingACLVoter implements ACLVoter {
             return true;
         }
         long sessionID = cd.getCurrentEventContext().getCurrentShareId();
-        return store.contains(sessionID, klass, id);
+        ShareData data = store.get(sessionID);
+        if (data.enabled) {
+            return store.contains(sessionID, klass, id);
+        }
+        return false;
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {

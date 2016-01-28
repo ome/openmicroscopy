@@ -98,8 +98,7 @@ public class ServantHolder {
     /**
      * Constructs an {@link Ice.Identity} from the current session
      * and from the given {@link String} which for
-     * stateless services are defined by the instance fields {@link #adminKey},
-     * {@link #configKey}, etc. and for stateful services are UUIDs.
+     * stateful services are defined by UUIDs.
      */
     public Ice.Identity getIdentity(String idName) {
         Ice.Identity id = new Ice.Identity();
@@ -126,8 +125,7 @@ public class ServantHolder {
 
     /**
      * Acquires the given lock or if necessary creates a new one.
-     *
-     * @param key
+     * @param key the lock's key
      */
     public void acquireLock(String key) {
         try {
@@ -140,6 +138,7 @@ public class ServantHolder {
     /**
      * Releases the given lock if found, otherwise throws an
      * {@link ome.conditions.InternalException}
+     * @param key the lock's key
      */
     public void releaseLock(String key) {
         final Lock lock = locks.getIfPresent(key);

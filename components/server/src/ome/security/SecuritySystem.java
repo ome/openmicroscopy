@@ -12,8 +12,6 @@ package ome.security;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -38,8 +36,6 @@ import ome.system.Roles;
  * @see ACLEventListener
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public interface SecuritySystem {
 
     // ~ Login/logout
@@ -49,12 +45,13 @@ public interface SecuritySystem {
      * stores this {@link Principal} instance in the current thread context for
      * authenticating and authorizing all actions. This method does <em>not</em>
      * make any queries and is only a conduit for login information from the
-     * outer-most levels. Session bean implementations and other in-JVM clients
+     * outermost levels. Session bean implementations and other in-JVM clients
      * can fill the {@link Principal}. Note, however, a call must first be made
-     * to {@link #loadEventContext(boolean)} or
-     * {@link #setEventContext(EventContext)} for some calls to be made to the
+     * to {@link #loadEventContext(boolean)} for some calls to be made to the
      * {@link SecuritySystem}. In general, this means that execution must pass
      * through the {@link ome.security.basic.EventHandler}
+     *
+     * @param principal the new current principal
      */
     void login(Principal principal);
 
@@ -69,9 +66,9 @@ public interface SecuritySystem {
     /**
      * Calls {@link #getEventContext(boolean)} with a false as "refresh".
      * This is the previous, safer logic of the method since consumers
-     * are not expecting a long-method run.
-     * 
-     * @return
+     * are not expecting a long method run.
+     *
+     * @return the event context
      */
     EventContext getEventContext();
 
@@ -102,7 +99,9 @@ public interface SecuritySystem {
      * }
      * image.linkAnnotation(toSave);
      * etc.
-     * <pre>
+     * </pre>
+     * 
+     * @return the effective user ID
      */
     Long getEffectiveUID();
 
@@ -110,9 +109,10 @@ public interface SecuritySystem {
      * If refresh is false, returns the current {@link EventContext} stored
      * in the session. Otherwise, reloads the context to have the most
      * up-to-date information.
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/4011">Trac ticket #4011</a>
      *
-     * @see ticket:4011
-     * @return
+     * @param refresh if the event context should first be reloaded
+     * @return the event context
      */
     EventContext getEventContext(boolean refresh);
 
@@ -165,13 +165,13 @@ public interface SecuritySystem {
     boolean hasPrivilegedToken(IObject obj);
 
     /**
-     * Checks whether or not a {@link ome.sercurity.Policy} instance of matching
+     * Checks whether or not a {@link Policy} instance of matching
      * name has been registered, considers itself active, <em>and</em>
      * considers the passed context object to be restricted.
      * 
      * @param name A non-null unique name for a class of policies.
      * @param obj An instance which is to be checked against matching policies.
-     * @throws a {@link SecurityViolation} if the given {@link Policy} is
+     * @throws {@link SecurityViolation} if the given {@link Policy} is
      *      considered to be restricted.
      */
     void checkRestriction(String name, IObject obj) throws SecurityViolation;
@@ -243,7 +243,8 @@ public interface SecuritySystem {
      *      href="http://trac.openmicroscopy.org.uk/ome/ticket/1769>1769</a>
      * @see <a
      *      href="http://trac.openmicroscopy.org.uk/ome/ticket/9474>9474</a>
-     * @return
+     * @param details the details
+     * @return if the graph is critical
      */
     boolean isGraphCritical(Details details);
 
@@ -313,13 +314,18 @@ public interface SecuritySystem {
      * Note: the {@link ome.api.IUpdate} save methods should not be used, since
      * they also accept detached entities, which could pose security risks.
      * Instead load an entity from the database via {@link ome.api.IQuery},
-     * make changes, and save the changes with {@link ome.api.IUpdate#flush()}.
+     * make changes, and save the changes with {@link ome.api.IUpdate}.
+     *
+     * @param group the group to run the action as
+     * @param action the action to run
      */
     void runAsAdmin(ExperimenterGroup group, AdminAction action);
 
     /**
      * Calls {@link #runAsAdmin(ExperimenterGroup, AdminAction)} with a
      * null group.
+     *
+     * @param action the action to run
      */
     void runAsAdmin(AdminAction action);
 

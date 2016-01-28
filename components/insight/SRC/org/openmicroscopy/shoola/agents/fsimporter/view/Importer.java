@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.FSImporter 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.util.Collection;
@@ -40,9 +36,9 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Defines the interface provided by the importer component.
@@ -199,7 +195,7 @@ public interface Importer
     /** 
      * Sets the used and available disk space.
      * 
-     * @param qota The value to set.
+     * @param quota The value to set.
      */
     public void setDiskSpace(DiskQuota quota);
 
@@ -283,10 +279,10 @@ public interface Importer
      * Brings up the menu on top of the specified component at
      * the specified location.
      * 
-     * @param menuID The id of the menu. One out of the following constants:
+     * @param personalMenu The id of the menu. One out of the following constants:
      *               {@link #PERSONAL_MENU}.
-     * @param invoker The component that requested the pop-up menu.
-     * @param loc The point at which to display the menu, relative to the
+     * @param source The component that requested the pop-up menu.
+     * @param point The point at which to display the menu, relative to the
      *            <code>component</code>'s coordinates.
      */
     public void showMenu(int personalMenu, Component source, Point point);

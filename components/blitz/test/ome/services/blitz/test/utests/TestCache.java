@@ -1,12 +1,9 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.services.blitz.test.utests;
 
-import java.util.UUID;
+package ome.services.blitz.test.utests;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

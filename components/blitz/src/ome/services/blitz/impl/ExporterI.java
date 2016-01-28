@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -24,8 +22,6 @@ import loci.common.services.ServiceException;
 import loci.common.xml.XMLTools;
 import loci.formats.FormatTools;
 import loci.formats.IFormatWriter;
-import loci.formats.ImageWriter;
-import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.out.OMETiffWriter;
@@ -39,25 +35,17 @@ import ome.io.nio.RomioPixelBuffer;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.db.DatabaseIdentity;
 import ome.services.formats.OmeroReader;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
-import ome.util.messages.InternalMessage;
 import ome.xml.model.MetadataOnly;
 import ome.xml.model.OME;
-import ome.xml.model.OMEModel;
-import ome.xml.model.OMEModelImpl;
 import omero.ServerError;
 import omero.api.AMD_Exporter_addImage;
 import omero.api.AMD_Exporter_generateTiff;
 import omero.api.AMD_Exporter_generateXml;
 import omero.api.AMD_Exporter_read;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
-import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._ExporterOperations;
 import omero.model.Image;
 import omero.model.ImageI;

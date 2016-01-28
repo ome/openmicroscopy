@@ -40,6 +40,11 @@ public class KeyDescription {
         this.description = description;
     }
     
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+
     public String getKey() { return key;}
     public String getDescription() {return description;}
 }

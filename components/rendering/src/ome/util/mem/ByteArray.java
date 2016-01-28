@@ -7,13 +7,8 @@
 
 package ome.util.mem;
 
-// Java imports
 import java.io.IOException;
 import java.io.InputStream;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * A read-write slice of a given array. This class extends

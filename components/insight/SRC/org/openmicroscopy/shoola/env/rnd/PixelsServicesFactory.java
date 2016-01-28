@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.RenderingControlFactory
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
@@ -43,15 +39,19 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-import pojos.ChannelData;
-import pojos.PixelsData;
+
+import omero.gateway.Gateway;
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+import omero.gateway.rnd.DataSink;
+import omero.log.Logger;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.PixelsData;
 
 
 /** 
@@ -185,7 +185,8 @@ public class PixelsServicesFactory
 	 * 						cannot call the method. 
 	 * 						It must be a reference to the
 	 *                  	container's registry.
-	 * @param reList        The {@link RenderingEngine}s.
+	 * @param ctx The security context.
+	 * @param reList        The rendering proxies.
 	 * @param pixels   		The pixels set.
 	 * @param metadata  	The channel metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
@@ -213,7 +214,7 @@ public class PixelsServicesFactory
 	 *                call the method. It must be a reference to the
 	 *                container's registry.
 	 * @param pixelsID	The ID of the pixels set.
-	 * @param reList The {@link RenderingEngine}s.
+	 * @param reList The rendering proxies
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while setting 
 	 * the value.
@@ -255,7 +256,7 @@ public class PixelsServicesFactory
 	 *                call the method. It must be a reference to the
 	 *                container's registry.
 	 * @param pixelsID The ID of the pixels set.
-	 * @param reList The {@link RenderingEngine}s.
+	 * @param reList The rendering proxies
 	 * @param def The rendering def linked to the rendering engine.
 	 * This is passed to speed up the initialization sequence.
 	 * @return See above.
@@ -426,7 +427,7 @@ public class PixelsServicesFactory
 	 * @param pixels The pixels set the data sink is for.
 	 * @return See above.
 	 */
-	public static DataSink createDataSink(PixelsData pixels)
+	public static DataSink createDataSink(PixelsData pixels, Gateway gw)
 	{
 		if (pixels == null)
 			throw new IllegalArgumentException("Pixels cannot be null.");
@@ -436,7 +437,7 @@ public class PixelsServicesFactory
 		registry.getCacheService().clearAllCaches(); 
 		int size = getCacheSize();
 		if (size <= 0) size = 0;
-		singleton.pixelsSource = DataSink.makeNew(pixels, registry, size);
+		singleton.pixelsSource = DataSink.makeNew(pixels, registry.getGateway(), size);
 		return singleton.pixelsSource;
 	}
 
@@ -512,7 +513,7 @@ public class PixelsServicesFactory
 	 *                  call the method. It must be a reference to the
 	 *                  container's registry.
 	 * @param pixelsID  The id of the pixels set.
-	 * @param pDef      The plane to render.
+	 * @param pd      The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
 	 * @param overlays	The overlays to render or <code>null</code>.
 	 * @return See above.

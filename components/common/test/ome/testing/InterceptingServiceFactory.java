@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.testing;
 
 import ome.api.IAdmin;
@@ -27,7 +26,6 @@ import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
-import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;

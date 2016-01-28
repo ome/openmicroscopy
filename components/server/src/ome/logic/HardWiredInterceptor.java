@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -33,8 +31,6 @@ import org.springframework.aop.framework.ReflectiveMethodInvocation;
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-Beta1
  */
-@RevisionDate("$Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $")
-@RevisionNumber("$Revision: 1167 $")
 public abstract class HardWiredInterceptor implements MethodInterceptor {
 
     /** Unique string for the current ServiceFactory instance */

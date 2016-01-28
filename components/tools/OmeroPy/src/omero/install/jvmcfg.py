@@ -368,6 +368,21 @@ STRATEGY_REGISTRY["manual"] = ManualStrategy
 STRATEGY_REGISTRY["percent"] = PercentStrategy
 
 
+def read_settings(template_xml):
+    """
+    Read the memory settings from the temlates file
+    """
+
+    rv = dict()
+    for template in template_xml.findall("server-template"):
+        for server in template.findall("server"):
+            for option in server.findall("option"):
+                o = option.text
+                if o.startswith("-Xmx") | o.startswith("-XX"):
+                    rv.setdefault(server.get('id'), []).append(o)
+    return rv
+
+
 def adjust_settings(config, template_xml,
                     blitz=None, indexer=None,
                     pixeldata=None, repository=None):

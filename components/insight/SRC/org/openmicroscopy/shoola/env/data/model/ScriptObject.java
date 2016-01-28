@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ScriptObject 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -40,12 +38,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.RType;
 import omero.grid.JobParams;
 import omero.grid.Param;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * Hosts the information about a given script.
@@ -191,10 +189,13 @@ public class ScriptObject
      * Flag indicating if the script is an official script i.e.
      * release by the team or not.
      */
-    private boolean	official;
+    private boolean official;
 
     /** The specified data types if set e.g. image.*/
     private List<Class<?>> dataTypes;
+
+    /** The id of the group the object to the script on belong to.*/
+    private long groupID;
 
     /**
      * Converts the specified values to the corresponding class.
@@ -293,6 +294,7 @@ public class ScriptObject
         journalRef = "";
         mimeType = null;
         official = true;
+        groupID = -1;
     }
 
     /**
@@ -308,7 +310,7 @@ public class ScriptObject
      * Returns <code>true</code> if it is an official script,
      * <code>false</code> otherwise.
      * 
-     * @return
+     * @return See above.
      */
     public boolean isOfficialScript() { return official; }
 
@@ -640,21 +642,34 @@ public class ScriptObject
     }
 
     /**
+     * Sets the id of the group.
+     *
+     * @param groupID The value to set.
+     */
+    public void setGroupID(long groupID)
+    {
+        this.groupID = groupID;
+    }
+
+    /**
+     * Returns the id of the group.
+     *
+     * @return See above.
+     */
+    public long getGroupID() { return groupID; }
+
+    /**
+     * Returns <code>true</code> if the specified object is supported,
+     * <code>false</code> otherwise.
      * 
      * @param data
-     * @param key
-     * @return
+     * @return See above.
      */
-    public boolean isSupportedType(pojos.DataObject data, String key)
+    public boolean isSupportedType(omero.gateway.model.DataObject data)
     {
-        if (data == null || CommonsLangUtils.isBlank(key)) return false;
-        if (key.contains("_")) {
-            String[] values = key.split("_");
-            Class<?> type = convertDataType(values[0]);
-            return (data.getClass().equals(type));
-        }
-        return false;
+        return getDataTypes().contains(data.getClass());
     }
+    
     /**
      * Overridden to return the name of the script.
      * @see java.lang.Object#toString()

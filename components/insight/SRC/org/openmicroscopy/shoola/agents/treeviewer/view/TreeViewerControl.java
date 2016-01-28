@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerControl
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,11 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -58,6 +53,7 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -138,7 +134,7 @@ import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
@@ -146,16 +142,16 @@ import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 
 /** 
@@ -959,10 +955,14 @@ class TreeViewerControl
 			downloadScript(new ScriptActivityParam(script,
 					ScriptActivityParam.DOWNLOAD));
 		} else {
-			GroupData g = model.getSelectedGroup();
-			if (g == null) 
-				g = TreeViewerAgent.getUserDetails().getDefaultGroup();
-			ctx = new SecurityContext(g.getId());
+		    long groupID = script.getGroupID();
+		    if (groupID < 0) {
+		        GroupData g = model.getSelectedGroup();
+	            if (g == null) 
+	                g = TreeViewerAgent.getUserDetails().getDefaultGroup();
+	            groupID = g.getId();
+		    }
+			ctx = new SecurityContext(groupID);
 			un.notifyActivity(ctx, new ScriptActivityParam(script,
 					ScriptActivityParam.RUN));
 		}
@@ -996,9 +996,9 @@ class TreeViewerControl
 	 * 
 	 * @param location The location of the mouse click.
 	 */
-	void reloadAvailableScripts(Point location)
+	void reloadAvailableScripts(Point location, Component source)
 	{
-		model.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, null, location);
+		model.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, source, location);
 	}
 	
 	/**
@@ -1354,11 +1354,17 @@ class TreeViewerControl
 			if (param.isSelectedObjects()) {
 				Browser b = model.getSelectedBrowser();
 				if (b != null) l = b.getSelectedDataObjects();
-				else l = model.getDisplayedImages();
+				else {
+				    l = new ArrayList<DataObject>();
+	                Collection<DataObject> nodes = model.getSelectedObjectsFromBrowser();
+	                if (nodes != null) {
+	                    l.addAll(nodes);
+	                }
+				}
 			} else {
 				l = model.getDisplayedImages();
 			}
-			if (l == null) return;
+			if (CollectionUtils.isEmpty(l)) return;
 			Class klass = null;
 			Object p = null;
 			if (param.getIndex() == FigureParam.THUMBNAILS) {
@@ -1369,16 +1375,7 @@ class TreeViewerControl
 						TreeImageDisplay node = nodes[0];
 						Object ho = node.getUserObject();
 						TreeImageDisplay pNode;
-
 						if (ho instanceof DatasetData) {
-							/*
-							klass = ho.getClass();
-							pNode = node.getParentDisplay();
-							if (pNode != null) {
-								p = pNode.getUserObject();
-								if (!(p instanceof ProjectData)) p = null;
-							}
-							*/
 							klass = ho.getClass();
 							p = ho;
 						} else if (ho instanceof ImageData) {
@@ -1413,7 +1410,7 @@ class TreeViewerControl
 				}
 			}
 			if (!canRun) {
-				un.notifyInfo("Script", "You can run the script only\non" +
+				un.notifyInfo("Script", "You can run the script only\non " +
 						"objects from the same group");
 				return;
 			}

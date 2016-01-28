@@ -1,20 +1,16 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.util;
 
-import ome.api.local.LocalConfig;
 import ome.conditions.InternalException;
 import ome.system.PreferenceContext;
 import ome.util.SqlAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Hook run by the context. This hook tests the database version against the
@@ -36,7 +32,7 @@ public class DBPatchCheck {
     }
 
     private final static String line = "***************************************************************************************\n";
-    private final static String see = "See http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/server-upgrade.html\n";
+    private final static String see = "See http://www.openmicroscopy.org/site/support/omero5.2/sysadmins/server-upgrade.html\n";
     private final static String no_table = mk("Error connecting to database table dbpatch. You may need to bootstrap.\n");
     private final static String wrong_version = mk("DB version (%s) does not match omero.properties (%s). Please apply a db upgrade.\n");
 

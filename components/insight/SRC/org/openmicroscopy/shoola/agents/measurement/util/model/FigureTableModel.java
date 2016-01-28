@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel 
- *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,24 +20,26 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
-//Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.collections.CollectionUtils;
 
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
+
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * The model associated to the table displaying the figures.
@@ -49,9 +49,6 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class FigureTableModel 
@@ -82,7 +79,6 @@ public class FigureTableModel
 	 * @param fieldList The collection of fields. Mustn't be <code>null</code>.
 	 * @param columnNames The collection of column's names.
 	 *                    Mustn't be <code>null</code>.
-	 * @param canvas Reference to the drawing canvas. Mustn't be <code>null</code>.
 	 */
 	public FigureTableModel(List<AttributeField> fieldList,
 			List<String> columnNames)
@@ -135,6 +131,28 @@ public class FigureTableModel
 						if (figure.isReadOnly())
 							fieldName.setEditable(false);
 						else fieldName.setEditable(figure.canEdit());
+					} else if (AnnotationKeys.TAG.equals(key)) {
+	                    
+	                    StructuredDataResults sd = (StructuredDataResults) figure.getAttribute(key);
+	                    if (sd != null) {
+	                        Collection<TagAnnotationData> tags = sd.getTags();
+	                        if (CollectionUtils.isNotEmpty(tags)) {
+	                            StringBuffer buffer = new StringBuffer();
+	                            Iterator<TagAnnotationData> k = tags.iterator();
+	                            TagAnnotationData tag;
+	                            int index = 0;
+	                            int size = tags.size()-1;
+	                            while (k.hasNext()) {
+	                                tag = k.next();
+	                                buffer.append(tag.getTagValue());
+	                                if (index < size) {
+	                                    buffer.append(", ");
+	                                }
+	                                index++;
+	                            }
+	                            value = buffer.toString();
+	                        }
+	                    }
 					}
 					keys.add(key);
 					values.add(value);
@@ -145,38 +163,11 @@ public class FigureTableModel
 			if (!found)
 			{
 				key = fieldName.getKey();
-				
-				/*
-				if (figure.getROI().hasAnnotation(key.getKey()))
-				{
-					keys.add(key);
-					if (AnnotationKeys.NAMESPACE.equals(key)) {
-						values.add(EditorUtil.getWorkflowForDisplay(
-								(String) figure.getROI().getAnnotation(
-										(AnnotationKey) key)));
-					} else {
-						values.add(figure.getROI().getAnnotation(
-								(AnnotationKey) key));
-					}
-				} else {
-					keys.add(key);
-					if (AnnotationKeys.NAMESPACE.equals(key) ||
-							AnnotationKeys.KEYWORDS.equals(key))
-						values.add("");
-					else values.add(NA);
-				}
-				*/
 				keys.add(key);
-				if (AnnotationKeys.NAMESPACE.equals(key)) {
-					values.add(EditorUtil.getWorkflowForDisplay(
-							(String) figure.getROI().getAnnotation(
-									(AnnotationKey) key)));
-				} else {
-					if (key instanceof AnnotationKey)
-						values.add(figure.getROI().getAnnotation(
-							(AnnotationKey) key));
-					else values.add(NA);
-				}
+				if (key instanceof AnnotationKey)
+                    values.add(figure.getROI().getAnnotation(
+                        (AnnotationKey) key));
+                else values.add(NA);
 			}
 		}
 		fireTableDataChanged();

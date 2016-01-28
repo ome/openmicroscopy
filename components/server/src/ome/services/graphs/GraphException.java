@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -8,8 +6,8 @@
 package ome.services.graphs;
 
 /**
- * Exception which will be thrown by activities within {@link GraphSpec}
- * implementations. This is a caught exception so that internal API consumers
+ * Exception which will be thrown by traversing the graph if an error occurred.
+ * This is a caught exception so that internal API consumers
  * will have to handle any issues and create the proper remote exceptions for
  * clients.
  *

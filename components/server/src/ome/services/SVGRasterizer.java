@@ -103,6 +103,8 @@ public class SVGRasterizer {
 
     /**
      * Returns the image that represents the SVG document as a JPEG.
+     *
+     * @param outputStream The stream to use.
      */
     public void createJPEG(OutputStream outputStream)
         throws TranscoderException {
@@ -136,7 +138,7 @@ public class SVGRasterizer {
     /**
      * Sets the height of the image to rasterize.
      *
-     * @param width the image height
+     * @param height the image height
      */
     public void setImageHeight(float height) {
         hints.put(ImageTranscoder.KEY_HEIGHT, new Float(height));
@@ -158,7 +160,7 @@ public class SVGRasterizer {
      * lets you choose how units such as 'em' are converted. e.g. 0.26458 is
      * 96dpi (the default) or 0.3528 is 72dpi.
      *
-     * @param px2mm the pixel to millimeter convertion factor.
+     * @param px2mm the pixel to millimeter conversion factor.
      */
     public void setPixelToMMFactor(float px2mm) {
         hints.put(ImageTranscoder.KEY_PIXEL_UNIT_TO_MILLIMETER,
@@ -177,7 +179,7 @@ public class SVGRasterizer {
 
     /**
      * Sets whether or not the XML parser used to parse SVG document should be
-     * validating or not, depending on the specified parameter. For futher
+     * validating or not, depending on the specified parameter. For further
      * details about how media work, see the
      * <a href="http://www.w3.org/TR/CSS2/media.html">Media types in the CSS2
      * specification</a>.
@@ -200,7 +202,7 @@ public class SVGRasterizer {
     }
 
     /**
-     * Sets the alternate stylesheet to use. For futher details, you can have
+     * Sets the alternate stylesheet to use. For further details, you can have
      * a look at the <a href="http://www.w3.org/TR/xml-stylesheet/">Associating
      * Style Sheets with XML documents</a>.
      *

@@ -60,6 +60,7 @@ import com.google.common.collect.TreeMultimap;
 
 import ome.model.IObject;
 import ome.model.units.GenericEnumType;
+import ome.model.units.Unit;
 import ome.services.graphs.GraphPathBean.PropertyDetails;
 import ome.services.scheduler.ThreadPool;
 import ome.system.OmeroContext;
@@ -131,7 +132,7 @@ public class GraphPathReport {
      * @return a Sphinx label for that class
      */
     private static String labelFor(String className) {
-        return Joiner.on('.').join("Hibernate version of class omero.model", className);
+        return "OMERO model class " + className;
     }
 
     /**
@@ -140,7 +141,7 @@ public class GraphPathReport {
      * @return a Sphinx label for that class property
      */
     private static String labelFor(String className, String propertyName) {
-        return Joiner.on('.').join("Hibernate version of property omero.model", className, propertyName);
+        return "OMERO model property " + className + '.' + propertyName;
     }
 
     /**
@@ -181,19 +182,18 @@ public class GraphPathReport {
     }
 
     /**
-     * @param interfaceName the name of an OMERO model Java interface
-     * @return a Sphinx link to that interface's source code
+     * @param className the name of an OMERO model Java class
+     * @return a Sphinx link to that class' documentation
      */
-    private static String interfaceSource(String interfaceName) {
+    private static String linkToJavadoc(String className) {
         final StringBuffer sb = new StringBuffer();
-        sb.append(":source:");
+        sb.append(":javadoc:");
         sb.append('`');
-        sb.append(getSimpleName(interfaceName));
+        sb.append(getSimpleName(className));
         sb.append(' ');
         sb.append('<');
-        sb.append("components/model/src/");
-        sb.append(interfaceName.replace('.', '/'));
-        sb.append(".java");
+        sb.append(className.replace('.', '/'));
+        sb.append(".html");
         sb.append('>');
         sb.append('`');
         return sb.toString();
@@ -312,8 +312,12 @@ public class GraphPathReport {
                     } else {
                         userType = null;
                     }
-                    if (property.type instanceof EnumType || userType instanceof GenericEnumType) {
+                    if (property.type instanceof EnumType) {
                         valueClassName = "enumeration";
+                    } else if (userType instanceof GenericEnumType) {
+                        @SuppressWarnings("unchecked")
+                        final Class<? extends Unit> unitQuantityClass = ((GenericEnumType) userType).getQuantityClass();
+                        valueClassName = "enumeration of " + linkToJavadoc(unitQuantityClass.getName());
                     } else if (property.type instanceof ListType || userType instanceof ListAsSQLArrayUserType) {
                         valueClassName = "list";
                     } else if (property.type instanceof MapType) {
@@ -350,7 +354,7 @@ public class GraphPathReport {
                 } else {
                     if (interfaceForProperty != null) {
                         sb.append(", see ");
-                        sb.append(interfaceSource(interfaceForProperty.getName()));
+                        sb.append(linkToJavadoc(interfaceForProperty.getName()));
                     }
                 }
                 SortedMap<String, String> byProperty = classPropertyReports.get(holderSimpleName);
@@ -362,8 +366,8 @@ public class GraphPathReport {
             }
         }
         /* the information is gathered, now write the report */
-        out.write("Every OMERO model object\n");
-        out.write("========================\n\n");
+        out.write("Glossary of all OMERO Model Objects\n");
+        out.write("===================================\n\n");
         out.write("Overview\n");
         out.write("--------\n\n");
         out.write("Reference\n");

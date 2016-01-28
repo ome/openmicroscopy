@@ -1,6 +1,4 @@
 /*
- * ome.services.query.QueryFactory
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -14,13 +12,10 @@
 
 package ome.services.query;
 
-// Java imports
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 import ome.parameters.Parameters;
 
@@ -73,7 +68,7 @@ public class QueryFactory {
      * @param <T>
      * @param queryID
      * @param params
-     * @return
+     * @return See above.
      */
     public <T> Query<T> lookup(String queryID, Parameters params) {
         Query<T> q = null;

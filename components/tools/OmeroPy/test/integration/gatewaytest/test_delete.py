@@ -72,6 +72,29 @@ class TestDelete (object):
                "from CommentAnnotation where ns='%s'" % ns, None)]
         assert len(ids) == 0
 
+    def testDeleteObjectsWait(self, gatewaywrapper):
+        """ tests the call to deleteObjects using wait """
+        ns = 'testDeleteObjects-'+str(time.time())
+        gatewaywrapper.loginAsAuthor()
+        ids = self._prepareObjectsToDelete(gatewaywrapper.gateway, ns)
+        gatewaywrapper.gateway.deleteObjects('Annotation', ids, wait=True)
+        q = gatewaywrapper.gateway.getQueryService()
+        ids = [x.id.val for x in q.findAllByQuery(
+               "from CommentAnnotation where ns='%s'" % ns, None)]
+        assert len(ids) == 0
+
+    def testDeleteObjectsDryRun(self, gatewaywrapper):
+        """ tests the call to deleteObjects with dryRun using wait"""
+        ns = 'testDeleteObjects-'+str(time.time())
+        gatewaywrapper.loginAsAuthor()
+        ids = self._prepareObjectsToDelete(gatewaywrapper.gateway, ns)
+        gatewaywrapper.gateway.deleteObjects('Annotation', ids, dryRun=True,
+                                             wait=True)
+        q = gatewaywrapper.gateway.getQueryService()
+        foundIds = [x.id.val for x in q.findAllByQuery(
+            "from CommentAnnotation where ns='%s'" % ns, None)]
+        assert set(ids) == set(foundIds)
+
     def testDeleteAnnotatedFileAnnotation(self, gatewaywrapper):
         """ See trac:11939 """
         ns = 'testDeleteObjects-' + str(time.time())

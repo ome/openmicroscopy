@@ -35,9 +35,9 @@ import java.util.prefs.Preferences;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @DEV.TODO USE JSCH FOR PUBKEY ENCRYPTION
- * @DEV.TODO backing store sync
- * @DEV.TODO test nondispatchable
+ * TODO USE JSCH FOR PUBKEY ENCRYPTION
+ * TODO backing store sync
+ * TODO test nondispatchable
  */
 public class prefs {
 
@@ -387,7 +387,7 @@ public class prefs {
      * value to be set. For more advanced usage, see {@link #load(String[])}.
      * 
      * @param args
-     * @return
+     * @return a
      * @throws BackingStoreException
      */
     public static String[] set(String[] args) throws BackingStoreException {

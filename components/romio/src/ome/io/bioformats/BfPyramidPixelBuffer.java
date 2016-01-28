@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.io.bioformats;
 
 import java.awt.Dimension;
@@ -15,8 +14,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.FormatException;
@@ -135,7 +132,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * Upon construction, the pixel buffer is available for reading or writing.
      * However, on the first read, writing will be subsequently disabled.
      *
-     * @see ticket:5083
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5083">ticket 5083</a>
      */
     public BfPyramidPixelBuffer(Pixels pixels, String filePath, boolean write)
     throws IOException, FormatException
@@ -215,7 +212,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
 
     /**
      * Initializes the writer. Since the reader location is not present until
-     * this instance is closed, other {@link ByPyramidPixelBuffer} instances
+     * this instance is closed, other {@link BfPyramidPixelBuffer} instances
      * may try to also call this method in which case {@link #acquireLock()}
      * will throw a {@link LockTimeout}.
      *

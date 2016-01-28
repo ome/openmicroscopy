@@ -23,13 +23,7 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-
-//Java imports
 import java.util.List;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Holds information about instances of a given agent to save.
@@ -39,9 +33,6 @@ import java.util.List;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class AgentSaveInfo
@@ -57,7 +48,7 @@ public class AgentSaveInfo
 	 * Creates a new instance.
 	 * 
 	 * @param name  The name associated to the agent.
-	 * @param count The number of instances to save.
+	 * @param instances The instances to save.
 	 */
 	public AgentSaveInfo(String name, List<Object> instances)
 	{
@@ -86,7 +77,7 @@ public class AgentSaveInfo
 	/**
 	 * Returns the instances to save.
 	 * 
-	 * @return
+	 * @return See above.
 	 */
 	public List<Object> getInstances() { return instances; }
 	

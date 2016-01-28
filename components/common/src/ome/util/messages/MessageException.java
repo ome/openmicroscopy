@@ -36,7 +36,7 @@ public class MessageException extends RuntimeException {
 
     /**
      * Get the exception which this instance wraps.
-     * @return
+     * @return the {@link Throwable exception}
      */
     public Throwable getException() {
         return t;

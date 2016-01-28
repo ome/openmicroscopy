@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,18 +22,14 @@
 package org.openmicroscopy.shoola.agents.fsimporter.actions;
 
 
-//Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Selects the group the user is a member of.
@@ -43,9 +37,6 @@ import pojos.GroupData;
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class GroupSelectionAction 

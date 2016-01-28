@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -30,12 +28,12 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.AdvancedResultSearchMod
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /**
  * Loads all thumbnails for the specified images. This class calls the
@@ -67,7 +65,7 @@ public class SearchThumbnailLoader extends DataBrowserLoader {
      *            <code>null</code>.
      * @param ctx
      *            The security context.
-     * @param objects
+     * @param imgs
      *            The <code>DataObject</code>s associated to the images to
      *            fetch. Mustn't be <code>null</code>.
      * @param model

@@ -23,8 +23,6 @@ import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
 
 import ome.annotations.NotNull;
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.IRenderingSettings;
@@ -72,8 +70,6 @@ import omeis.providers.re.quantum.QuantumStrategy;
  *          2007/09/06 23:27:31 $) </small>
  * @since OME3.0
  */
-@RevisionDate("$Date: 2007-09-06 14:29:18 +0100 (Thu, 06 Sep 2007) $")
-@RevisionNumber("$Revision: 1792 $")
 @Transactional
 public class RenderingSettingsImpl extends AbstractLevel2Service implements
         IRenderingSettings, Serializable {

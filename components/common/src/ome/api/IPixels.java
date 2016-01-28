@@ -7,18 +7,16 @@
 
 package ome.api;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import java.util.List;
 
 import ome.annotations.Validate;
 import ome.model.IObject;
+import ome.model.core.Channel;
 import ome.model.core.Pixels;
+import ome.model.core.PlaneInfo;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
+import ome.model.stats.StatsInfo;
 
 /**
  * Metadata gateway for the {@link omeis.providers.re.RenderingEngine} and
@@ -37,8 +35,7 @@ import ome.model.enums.PixelsType;
  * @author <br>
  *         Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/08 15:21:59 $) </small>
+ * @version 3.0
  * @since OME2.2
  */
 public interface IPixels extends ServiceInterface 
@@ -116,10 +113,8 @@ public interface IPixels extends ServiceInterface
      * <li>renderingDef.spatialDomainEnhancement</li>
      * </ul>
      * 
-     * @param pixelsId
-     *            Pixels id.
-     * @param userID 
-     * 			  The id of the user.
+     * @param pixId    Pixels id.
+     * @param userId   The id of the user.
      * @return Rendering definition.
      */
     public List<IObject> retrieveAllRndSettings(long pixId, long userId);
@@ -148,14 +143,16 @@ public interface IPixels extends ServiceInterface
      * Copies the metadata, and <b>only</b> the metadata linked to a Pixels
      * object into a new Pixels object of equal or differing size across one
      * or many of its three physical dimensions or temporal dimension.
-     * It is beyond the scope of this method to handle updates or changes to 
-     * the raw pixel data available through {@link RawPixelsStore} or to add 
-     * and link {@link PlaneInfo} and/or other Pixels set specific metadata. 
-     * It is also assumed that the caller wishes the physical 
-     * {@link PixelsDimensions} and {@link PixelsType} to remain the same;
-     * changing these is outside the scope of this method. <b>NOTE:</b> As 
-     * {@link Channel} objects are only able to apply to a single set of
-     * Pixels any annotations or linkage to these objects will be lost.
+     * It is beyond the scope of this method to handle updates or changes to
+     * the raw pixel data available through {@link RawPixelsStore} or to add
+     * and link {@link ome.model.core.PlaneInfo} and/or other Pixels set
+     * specific metadata.
+     * It is also assumed that the caller wishes the pixels dimensions and
+     * {@link PixelsType} to remain the same;
+     * changing these is outside the scope of this method. <b>NOTE:</b> As
+     * {@link ome.model.core.Channel} objects are only able to apply to a
+     * single set of Pixels any annotations or linkage to these objects will
+     * be lost.
      * 
      * @param pixelsId The source Pixels set id.
      * @param sizeX The new size across the X-axis. <code>null</code> if the
@@ -191,8 +188,8 @@ public interface IPixels extends ServiceInterface
      * It is beyond the scope of this method to handle updates or changes to 
      * the raw pixel data available through {@link RawPixelsStore} or to add 
      * and link {@link PlaneInfo} and/or other Pixels set specific metadata. 
-     * It is also assumed that the caller wishes the physical
-     * {@link PixelsDimensions} and {@link PixelsType} to remain the same;
+     * It is also assumed that the caller wishes the pixels dimensions and
+     * {@link PixelsType} to remain the same;
      * changing these is outside the scope of this method. <b>NOTE:</b> As 
      * {@link Channel} objects are only able to apply to a single set of
      * Pixels any annotations or linkage to these objects will be lost.
@@ -229,7 +226,7 @@ public interface IPixels extends ServiceInterface
      * changes to the raw pixel data available through {@link RawPixelsStore} 
      * or to add and link {@link PlaneInfo} or {@link StatsInfo} objects
      * and/or other Pixels set specific metadata. It is also up to the caller
-     * to update {@link PixelsDimensions}.
+     * to update the pixels dimensions.
      * 
      * @param sizeX The new size across the X-axis.
      * @param sizeY The new size across the Y-axis.
@@ -237,11 +234,8 @@ public interface IPixels extends ServiceInterface
      * @param sizeT The new number of timepoints.
      * @param channelList The channels (emission wavelength in nanometers) that 
      * should be added to the new Pixels set.
-     * @param pixelsType The pixel type of the Pixels set.
      * @param name The name of the new Image.
      * @param description The description of the new Image.
-     * @param copyStats Whether or not to copy the {@link StatsInfo} for each
-     * channel.
      * @return Id of the new Image object on success or <code>null</code> on
      * failure.
      * @throws ValidationException If the channel list is <code>null</code> or 

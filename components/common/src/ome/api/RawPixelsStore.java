@@ -7,14 +7,11 @@
 
 package ome.api;
 
-import java.io.IOException;
-import java.nio.BufferOverflowException;
 import java.util.List;
 import java.util.Set;
 
 import ome.annotations.Validate;
 import ome.model.core.Pixels;
-import ome.util.PixelData;
 
 /**
  * Binary data provider. Initialized with the id of a
@@ -62,11 +59,8 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public void prepare(@Validate(Long.class) Set<Long> pixelsIds);
 
     /**
-     * delegates to {@link ome.io.nio.PixelBuffer}
-     * 
-     * @param pixelsId
-     * @return
-     * @see ome.io.nio.PixelBuffer#getPlaneSize()
+     * Returns the plane size
+     * @return the plane size
      */
     public long getPlaneSize();
 

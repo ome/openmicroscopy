@@ -82,36 +82,36 @@ public class FileBuffer extends AbstractBuffer {
     }
 
     /**
-     * Delegates to {@link java.nio.FileChannel}
+     * Delegates to {@link FileChannel}
      * 
-     * @see java.nio.FileChannel#read(java.nio.ByteBuffer)
+     * @see FileChannel#read(ByteBuffer)
      */
     public int read(ByteBuffer dst) throws IOException {
         return getFileChannel().read(dst);
     }
 
     /**
-     * Delegates to {@link java.nio.FileChannel}
+     * Delegates to {@link FileChannel}
      * 
-     * @see java.nio.FileChannel#read(java.nio.ByteBuffer, long)
+     * @see FileChannel#read(ByteBuffer, long)
      */
     public int read(ByteBuffer dst, long position) throws IOException {
         return getFileChannel().read(dst, position);
     }
 
     /**
-     * Delegates to {@link java.nio.FileChannel}
+     * Delegates to {@link FileChannel}
      * 
-     * @see java.nio.FileChannel#write(java.nio.ByteBuffer, long)
+     * @see FileChannel#write(ByteBuffer, long)
      */
     public int write(ByteBuffer src, long position) throws IOException {
         return getFileChannel().write(src, position);
     }
 
     /**
-     * Delegates to {@link java.nio.FileChannel}
+     * Delegates to {@link FileChannel}
      * 
-     * @see java.nio.FileChannel#write(java.nio.ByteBuffer)
+     * @see FileChannel#write(ByteBuffer)
      */
     public int write(ByteBuffer src) throws IOException {
         return getFileChannel().write(src);

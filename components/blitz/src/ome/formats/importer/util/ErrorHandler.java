@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -14,9 +12,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,27 +23,20 @@ import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
-import omero.ServerError;
 import omero.client;
 import omero.api.IQueryPrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Fileset;
-import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.sys.ParametersI;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 /**
  * Top of the error handling hierarchy. Will add errors to a queue
  * which can be sent with {@link #sendErrors()}. Subclasses will get
- * a change to handle all {@link ImportEvent} instances, but should
+ * a chance to handle all {@link ImportEvent} instances, but should
  * try not to duplicate handling.
  *
  * @author Brian W. Loranger
@@ -112,9 +101,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         public final Object source;
 
         /**
-         * @param filename
-         * @param exception
-         * @param source
+         * @param filename the filename
+         * @param exception the exception
+         * @param source the source (e.g., {@link ImportCandidates})
          */
         public UNKNOWN_FORMAT(String filename, Exception exception, Object source) {
             super(exception);
@@ -144,9 +133,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         public final Object source;
 
         /**
-         * @param filename
-         * @param exception
-         * @param source
+         * @param filename the filename
+         * @param exception the exception
+         * @param source the source
          */
         public UNREADABLE_FILE(String filename, Exception exception, Object source) {
             super(exception);
@@ -167,9 +156,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      * file and otherwise unspecified exception takes place. An example of an
      * exception which receives separate handling is {@link UNKNOWN_FORMAT} which
      * can be considered less serious than {@link FILE_EXCEPTION}. Subclasses of
-     * this class may should receive special handling. For example,
-     * {@link ImportCandidates#SCANNING_FILE_EXCEPTION} may be considered less
-     * significant if the user was trying to import a large directory.
+     * this class may should receive special handling.
      * {@link MISSING_LIBRARY} below is probably more of a warn situation rather
      * than an error.
      */
@@ -236,7 +223,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /**
      * Initialize
      *
-     * @param config
+     * @param config the import configuration
      */
     public ErrorHandler(ImportConfig config)
     {
@@ -299,7 +286,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /**
      * abstract on update method
      *
-     * @param importLibrary
+     * @param importLibrary the import library
      * @param event - importEvent
      */
     protected abstract void onUpdate(IObservable importLibrary, ImportEvent event);
@@ -605,22 +592,22 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
 
     /**
-     * @param index
+     * @param index the index in the error container
      */
     protected void onSending(int index)
     {
     }
 
     /**
-     * @param index
+     * @param index the index in the error container
      */
     protected void onSent(int index)
     {
     }
 
     /**
-     * @param index
-     * @param serverReply
+     * @param index the index in the error container
+     * @param serverReply the reply from the server
      */
     protected void onNotSending(int index, String serverReply)
     {
@@ -628,7 +615,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     /**
      * Action to take on exception
-     * @param exception
+     * @param exception the exception
      */
     protected void onException(Exception exception)
     {
@@ -663,9 +650,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      * to test error handling without touching QA. The server reply should be
      * non-null, but is otherwise unimportant.
      *
-     * @param sendUrl
-     * @param postList
-     * @throws HtmlMessengerException
+     * @param sendUrl the HTTP POST URL
+     * @param postList the form values
+     * @throws HtmlMessengerException if POST fails
      */
     public void executePost(String sendUrl, Map<String, String> postList)
             throws HtmlMessengerException {
@@ -677,7 +664,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      * Upload a single {@link ErrorContainer}. This can be overwritten in order
      * to test error handling without touching QA.
      *
-     * @param errorContainer
+     * @param errorContainer the error container
      */
     public void uploadFile(ErrorContainer errorContainer) {
         errorContainer.setToken(serverReply);
@@ -692,9 +679,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
     
     /**
-     * Return stack trace from throwable
-     * @param throwable
-     * @return stack trace
+     * Return the stack trace from a {@link Throwable}.
+     * @param throwable the {@link Throwable} to inspect
+     * @return the stack trace
      */
     public static String getStackTrace(Throwable throwable)
     {

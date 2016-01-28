@@ -1,15 +1,13 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test.old;
 
 import java.io.File;
 
 import static omero.rtypes.*;
-import omero.RString;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.model.Image;

@@ -24,6 +24,7 @@
 import library as lib
 
 from django.test import Client
+from django.test.client import MULTIPART_CONTENT
 from django.core.urlresolvers import reverse
 from urllib import urlencode
 
@@ -75,18 +76,51 @@ class IWebTest(lib.ITest):
 
 
 # Helpers
-def _post_response(django_client, request_url, data, status_code=403):
-    response = django_client.post(request_url, data=data)
+def _response(django_client, request_url, method, data, status_code=403,
+              content_type=MULTIPART_CONTENT, **extra):
+    response = getattr(django_client, method)(request_url,
+                                              data=data,
+                                              content_type=content_type,
+                                              **extra)
     assert response.status_code == status_code, response
     return response
 
 
-def _csrf_post_response(django_client, request_url, data, status_code=200):
+# POST
+def _post_response(django_client, request_url, data, status_code=403,
+                   content_type=MULTIPART_CONTENT, **extra):
+    return _response(django_client, request_url, method='post', data=data,
+                     status_code=status_code, content_type=content_type,
+                     **extra)
+
+
+def _csrf_post_response(django_client, request_url, data, status_code=200,
+                        content_type=MULTIPART_CONTENT):
     csrf_token = django_client.cookies['csrftoken'].value
-    data['csrfmiddlewaretoken'] = csrf_token
-    return _post_response(django_client, request_url, data, status_code)
+    extra = {'HTTP_X_CSRFTOKEN': csrf_token}
+    return _post_response(django_client, request_url, data=data,
+                          status_code=status_code, content_type=content_type,
+                          **extra)
 
 
+# DELETE
+def _delete_response(django_client, request_url, data, status_code=403,
+                     content_type=MULTIPART_CONTENT, **extra):
+    return _response(django_client, request_url, method='delete', data=data,
+                     status_code=status_code, content_type=content_type,
+                     **extra)
+
+
+def _csrf_delete_response(django_client, request_url, data, status_code=200,
+                          content_type=MULTIPART_CONTENT):
+    csrf_token = django_client.cookies['csrftoken'].value
+    extra = {'HTTP_X_CSRFTOKEN': csrf_token}
+    return _delete_response(django_client, request_url, data=data,
+                            status_code=status_code, content_type=content_type,
+                            **extra)
+
+
+# GET
 def _get_response(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
     response = django_client.get('%s?%s' % (request_url, query_string))

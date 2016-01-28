@@ -267,8 +267,22 @@ class TestSessions(CLITest):
     # ========================================================================
     def testFile(self):
 
-        self.args = ["sessions", "file"]
+        self.args += ["file"]
         self.cli.invoke(self.args, strict=True)
+
+    # Key subcommand
+    # ========================================================================
+    def testKey(self, capsys):
+
+        user = self.new_user()
+        self.set_login_args(user)
+        self.args += ["-w", user.omeName.val]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args = ["sessions", "key"]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+        assert o == "%s\n" % self.cli.get_event_context().sessionUuid
 
     # who subcommand
     # ========================================================================

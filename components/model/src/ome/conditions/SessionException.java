@@ -8,9 +8,9 @@ package ome.conditions;
 
 /**
  * Base session related exception. May be thrown be any service method. All
- * services other than {@link ISession} will most likely throw
+ * services other than {@code ISession} will most likely throw
  * {@link SessionTimeoutException} or {@link RemovedSessionException}, and the
- * {@link ome.api.ISession} service itself: {@link AuthenticationException} and
+ * {@code ome.api.ISession} service itself: {@link AuthenticationException} and
  * {@link ExpiredCredentialException}.
  * 
  * @author Josh Moore, josh at glencoesoftware.com

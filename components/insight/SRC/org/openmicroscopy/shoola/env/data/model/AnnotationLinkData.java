@@ -1,6 +1,4 @@
 /*
- * pojos.AnnotationLinkData 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,14 +22,8 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.IObject;
-import pojos.AnnotationData;
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * 
@@ -44,10 +36,10 @@ public class AnnotationLinkData
 {
     
     /** The child of the link.*/
-    private pojos.DataObject child;
+    private omero.gateway.model.DataObject child;
     
     /** The parent of the link.*/
-    private pojos.DataObject parent;
+    private omero.gateway.model.DataObject parent;
     
     /** The original link.*/
     private IObject link;
@@ -59,7 +51,7 @@ public class AnnotationLinkData
 	 * @param link
 	 */
 	public AnnotationLinkData(IObject link, 
-			pojos.DataObject child, pojos.DataObject parent)
+	        omero.gateway.model.DataObject child, omero.gateway.model.DataObject parent)
 	{
 		this.link = link;
 		this.child = child;
@@ -78,7 +70,7 @@ public class AnnotationLinkData
 	 * 
 	 * @return See above.
 	 */
-	public pojos.DataObject getParent()
+	public omero.gateway.model.DataObject getParent()
 	{
 		return parent;
 	}
@@ -88,7 +80,7 @@ public class AnnotationLinkData
 	 * 
 	 * @return See above.
 	 */
-	public pojos.DataObject getChild()
+	public omero.gateway.model.DataObject getChild()
 	{
 		return child;
 	}

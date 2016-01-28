@@ -41,7 +41,7 @@ import org.subethamail.smtp.helper.SimpleMessageListener;
  * Basic {@link SimpleMessageListener} which stores all received emails as
  * {@link MapAnnotation} instances belong to root with the namespace
  * {@link #NAMESPACE}. The description of the annotation is the body of the
- * text and two fields are set with the keys {@ #FROM} and {@link #TO}.
+ * text and two fields are set with the keys {@link #FROM} and {@link #TO}.
  *
  * @since 5.1.0
  */

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,28 +21,28 @@
 package org.openmicroscopy.shoola.agents.measurement.view;
 
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JFrame;
 
-//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 
-import pojos.ChannelData;
-//Application-internal dependencies
-import pojos.WorkflowData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
 
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.FileAnnotationData;
 
 /** 
  * Defines the interface provided by the measurement component. 
@@ -56,9 +54,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface MeasurementViewer
@@ -331,23 +326,6 @@ public interface MeasurementViewer
 	 * @param result The List of ROIData that have been saved.
 	 */
 	public void setUpdateROIComponent(Collection result);
-
-	/**
-	 * Create a new workflow
-	 */
-	public void createWorkflow();
-
-	/**
-	 * Set the current workflow to workflowNamespace. 
-	 * @param workflowNamespace The general name of the workflow. 
-	 */
-	public void setWorkflow(String workflowNamespace);
-
-	/**
-	 * Set the current keyword of the workflow to keyword. 
-	 * @param keyword The keyword of the workflow. 
-	 */
-	public void setKeyword(List<String> keyword);
 	
 	/**
 	 * Returns <code>true</code> if the specified image can be annotated
@@ -364,12 +342,6 @@ public interface MeasurementViewer
 	 * @return See above.
 	 */
 	public boolean canDelete();
-	
-	/**
-	 * Set the workflows in the measurement tool to be list passed.
-	 * @param workflows See above.
-	 */
-	public void setWorkflowList(List<WorkflowData> workflows);
 
 	/** 
 	 * Deletes all ROIs owned by the user currently logged in. 
@@ -406,4 +378,31 @@ public interface MeasurementViewer
 	 * Exports the graph as JPEG or PNG.
 	 */
 	public void exportGraph();
+
+	/**
+	 * Sets the annotations associated to the shapes.
+	 *
+	 * @param result The roi annotations to set.
+	 */
+    public void setROIAnnotations(Map<DataObject, StructuredDataResults> result);
+
+    /**
+     * Sets the tags.
+     *
+     * @param tags The value to set.
+     */
+    public void setExistingTags(Collection tags);
+
+    /** Loads and displays the existing tags.*/
+    public void loadTags();
+
+    /**
+     * Tags the selected figures.
+     *
+     * @param tags The tags to use.
+     */
+    public void tagSelectedFigures(List<AnnotationData> tags);
+
+    /** Notifies that the annotations have been saved. Reloads.*/
+    public void onAnnotationSaved();
 }

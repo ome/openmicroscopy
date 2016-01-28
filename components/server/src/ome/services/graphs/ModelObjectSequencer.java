@@ -44,10 +44,10 @@ public class ModelObjectSequencer {
      * @param unorderedIds the IDs of original files
      * @return a batching of the given IDs such that a batch containing a file precedes a batch containing a containing directory
      */
-    public static Collection<List<Long>> sortOriginalFileIds(Session session, Collection<Long> unorderedIds) {
+    public static Collection<Collection<Long>> sortOriginalFileIds(Session session, Collection<Long> unorderedIds) {
         if (unorderedIds.size() < 2) {
             /* no need to rearrange anything, as there are not multiple original files */
-            return Collections.<List<Long>>singletonList(new ArrayList<Long>(unorderedIds));
+            return Collections.<Collection<Long>>singleton(new ArrayList<Long>(unorderedIds));
         }
         final String hql = "SELECT id, length(path) FROM OriginalFile WHERE id IN (:ids)";
         final SortedMap<Integer, List<Long>> filesByPathLength = new TreeMap<Integer, List<Long>>(Ordering.natural().reverse());
@@ -63,7 +63,7 @@ public class ModelObjectSequencer {
                 idList.add(id);
             }
         }
-        final Collection<List<Long>> orderedIds = new ArrayList<List<Long>>();
+        final Collection<Collection<Long>> orderedIds = new ArrayList<Collection<Long>>();
         for (final List<Long> ids : filesByPathLength.values()) {
             orderedIds.add(ids);
         }

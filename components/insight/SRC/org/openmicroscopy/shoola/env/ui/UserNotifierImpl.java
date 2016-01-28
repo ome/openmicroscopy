@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.ui.UserNotifierImpl
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -52,14 +50,14 @@ import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.gateway.SecurityContext;
+import omero.log.Logger;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /**
  * Implements the {@link UserNotifier} interface.
@@ -263,7 +261,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	/**
 	 * Implemented as specified by {@link UserNotifier}.
 	 * 
-	 * @see UserNotifier#notifyError(String, String, String, List)
+	 * @see UserNotifier#notifyError(String, String, String, List, PropertyChangeListener)
 	 */
 	public void notifyError(String title, String summary, String email,
 			List<ImportErrorObject> toSubmit, PropertyChangeListener listener) {
@@ -471,7 +469,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	/**
 	 * Implemented as specified by {@link UserNotifier}.
 	 * 
-	 * @see UserNotifier#openApplication(Object)
+	 * @see UserNotifier#openApplication(ApplicationData, String)
 	 */
 	public void openApplication(ApplicationData data, String path) {
 
@@ -485,8 +483,16 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));
-
+			
 			ProcessBuilder builder = new ProcessBuilder(commandLineElements);
+			
+            if (commandLineElements[0].matches(".*Preview\\.app.*")) {
+                // workaround for OSX Preview.app; can't be called via full path 
+                // (will result in permissions exception)
+                builder = new ProcessBuilder("open", "-a", "Preview",
+                        commandLineElements[1]);
+            }
+			
 			builder.start();
 		} catch (Exception e) {
 			logger.error(this, e.getMessage());

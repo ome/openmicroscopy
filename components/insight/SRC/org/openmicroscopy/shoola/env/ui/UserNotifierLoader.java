@@ -22,20 +22,14 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 
 /** 
  * Class that each loader should extend. 
@@ -45,9 +39,6 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 abstract class UserNotifierLoader
@@ -149,7 +140,7 @@ abstract class UserNotifierLoader
     /** Subclasses should override this method.
      * 
      * @param message The message to display.
-     * @param exception The exception to handle.
+     * @param ex The exception to handle.
      */
     protected void onException(String message, Throwable ex) {};
     

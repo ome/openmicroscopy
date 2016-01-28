@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright (C) 2008-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -8,8 +6,6 @@
 package ome.formats.importer.cli;
 
 import static ome.formats.importer.ImportEvent.*;
-import loci.formats.FormatReader;
-import loci.formats.FormatTools;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;

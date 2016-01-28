@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <description>
   Defines the contexts for the OMERO.blitz server. Other beanRefFactory.xmls may define
   other contexts.
   </description>
-  
+
   <bean    id="OMERO.blitz"
-    	  class="ome.system.OmeroContext"
-    	  lazy-init="true">
-	<constructor-arg index="0">
+           class="ome.system.OmeroContext"
+           lazy-init="true">
+    <constructor-arg index="0">
       <list>
         <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/services/objectfactories.xml</value>
         <value>classpath:ome/services/throttling/throttling.xml</value>
-        <value>classpath*:ome/services/blitz-*.xml</value>   
+        <value>classpath*:ome/services/blitz-*.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>
@@ -24,9 +24,9 @@
   </bean>
 
   <bean   id="OMERO.blitz.test"
-    	  class="ome.system.OmeroContext"
-    	  lazy-init="true">
-	<constructor-arg index="0">
+          class="ome.system.OmeroContext"
+          lazy-init="true">
+    <constructor-arg index="0">
       <list>
         <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/messaging.xml</value>
@@ -40,7 +40,7 @@
     </constructor-arg>
     <constructor-arg index="1" value="true"/>
   </bean>
-  
+
   <bean   id="OMERO.repository"
           class="ome.system.OmeroContext"
           lazy-init="true">
@@ -55,7 +55,7 @@
       </list>
     </constructor-arg>
   </bean>
-  
+
     <bean   id="OMERO.security.test"
           class="ome.system.OmeroContext"
           lazy-init="true">
@@ -66,5 +66,5 @@
       </list>
     </constructor-arg>
   </bean>
-  
+
 </beans>

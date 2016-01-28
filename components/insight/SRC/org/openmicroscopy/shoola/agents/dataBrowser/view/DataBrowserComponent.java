@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -39,11 +36,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-//Third-party libraries
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
@@ -60,35 +53,39 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.FlushVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.hiviewer.LaunchViewer;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.TableResult;
+
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.log.LogMessage;
+import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.WellSampleData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Implements the {@link DataBrowser} interface to provide the functionality
@@ -103,9 +100,6 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class DataBrowserComponent 
@@ -1606,6 +1600,9 @@ class DataBrowserComponent
 		//depends on the view.
 		WellsModel wm = (WellsModel) model;
 		
+        if (wm.getSelectedWell() == null)
+            return;
+		
 		int index = view.getSelectedView();
 		
 		if (index == DataBrowserUI.FIELDS_VIEW) {
@@ -1636,6 +1633,8 @@ class DataBrowserComponent
 		WellsModel wm = (WellsModel) model;
 		if (!wm.isSameWell(row, column)) return;
 		WellImageSet well = wm.getSelectedWell();
+		if (well == null)
+		    return;
 		List<WellSampleNode> nodes = well.getWellSamples();
 		Iterator<WellSampleNode> j = nodes.iterator();
 		WellSampleNode n; 
@@ -1726,7 +1725,6 @@ class DataBrowserComponent
 		EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
 		DataObject data = null;
 		Object uo = node.getHierarchyObject();
-		ViewImage event;
 		Object go;
 		ViewImageObject object;
 		if (uo instanceof ImageData) {
@@ -1743,7 +1741,7 @@ class DataBrowserComponent
 							img, LookupNames.IMAGE_J);
 					bus.post(evt);
 				} else {
-					bus.post(new ViewImage(ctx, object, null));
+					bus.post(new LaunchViewer(ctx, object));
 				}
 			} else {
 				if (internal)
@@ -1769,8 +1767,7 @@ class DataBrowserComponent
 						wellSample.getImage(), LookupNames.IMAGE_J);
 				bus.post(evt);
 			} else {
-				bus.post(new ViewImage(model.getSecurityContext(), object, 
-						null));
+				bus.post(new LaunchViewer(model.getSecurityContext(), object));
 			}
 		}
 	}

@@ -70,7 +70,7 @@ module omero {
 
       /**
        * Context which would have been returned by a
-       * simultaneous call to [omero::api::IAdmin::getEventContext]
+       * simultaneous call to {@link omero.api.IAdmin#getEventContext}
        * while this object was being loaded.
        **/
       omero::sys::EventContext event;

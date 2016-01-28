@@ -7,12 +7,7 @@
 
 package ome.util.tests.common;
 
-// Java imports
 import java.awt.image.BufferedImage;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Fake object. A {@link BufferedImage} of <code>2x2</code> pixels of
@@ -23,8 +18,6 @@ import java.awt.image.BufferedImage;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/25 18:09:17 $) </small>
  * @since OME2.2
  */
 public class FakeBufferedImage extends BufferedImage {

@@ -22,10 +22,11 @@
 import omero
 from omero.plugins.delete import DeleteControl
 from test.integration.clitest.cli import CLITest
-from omero.rtypes import rstring
+from test.integration.clitest.test_tag import AbstractTagTest
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
+model = ["", "I"]
 ordered = [True, False]
 
 
@@ -36,33 +37,13 @@ class TestDelete(CLITest):
         self.cli.register("delete", DeleteControl, "TEST")
         self.args += ["delete"]
 
-    def create_object(self, object_type):
-        # create object
-        if object_type == 'Dataset':
-            new_object = omero.model.DatasetI()
-        elif object_type == 'Project':
-            new_object = omero.model.ProjectI()
-        elif object_type == 'Plate':
-            new_object = omero.model.PlateI()
-        elif object_type == 'Screen':
-            new_object = omero.model.ScreenI()
-        elif object_type == 'Image':
-            new_object = self.new_image()
-        new_object.name = rstring("")
-        new_object = self.update.saveAndReturnObject(new_object)
-
-        # check object has been created
-        found_object = self.query.get(object_type, new_object.id.val)
-        assert found_object.id.val == new_object.id.val
-
-        return new_object.id.val
-
+    @pytest.mark.parametrize("model", model)
     @pytest.mark.parametrize("object_type", object_types)
-    def testDeleteMyData(self, object_type):
+    def testDeleteMyData(self, object_type, model):
         oid = self.create_object(object_type)
 
         # Delete the object
-        self.args += ['/%s:%s' % (object_type, oid)]
+        self.args += ['/%s%s:%s' % (object_type, model, oid)]
         self.cli.invoke(self.args, strict=True)
 
         # Check the object has been deleted
@@ -306,6 +287,64 @@ class TestDelete(CLITest):
         # Check that the image has not been deleted,
         assert self.query.find('Image', img.id.val)
 
+    # Test combinations of include and exclude other than annotations
+    @pytest.fixture()
+    def simpleHierarchy(self):
+        proj = self.make_project()
+        dset = self.make_dataset()
+        img = self.update.saveAndReturnObject(self.new_image())
+        self.link(proj, dset)
+        self.link(dset, img)
+        return proj, dset, img
+
+    def testExcludeNone(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that everything has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert not self.query.find('Dataset', dset.id.val)
+        assert not self.query.find('Image', img.id.val)
+
+    def testExcludeDataset(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Dataset']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only the Project has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert self.query.find('Dataset', dset.id.val)
+        assert self.query.find('Image', img.id.val)
+
+    def testExcludeImage(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Image']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only Project & Dataset have been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert not self.query.find('Dataset', dset.id.val)
+        assert self.query.find('Image', img.id.val)
+
+    def testExcludeOverridesInclude(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        self.args += ['Project:%s' % proj.id.val]
+        self.args += ['--exclude', 'Dataset']
+        self.args += ['--include', 'Image']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only the Project has been deleted.
+        assert not self.query.find('Project', proj.id.val)
+        assert self.query.find('Dataset', dset.id.val)
+        assert self.query.find('Image', img.id.val)
+
     # These tests check the default exclusion of the annotations:
     # FileAnnotation, TagAnnotation and TermAnnotation
 
@@ -417,3 +456,101 @@ class TestDelete(CLITest):
         assert not self.query.find('Image', img.id.val)
         assert not self.query.find('FileAnnotation', fa.id.val)
         assert not self.query.find('FileAnnotation', fa2.id.val)
+
+    def testOutputWithElision(self, capfd):
+        IMAGES = 8
+        # Import several images
+        ids = []
+        for i in range(IMAGES):
+            ids.append(self.importSingleImage().id.val)
+        ids = sorted(ids)
+        assert len(ids) == IMAGES
+        assert ids[-1] - ids[0] + 1 == IMAGES
+        ids = [str(id) for id in ids]
+        # Now delete some of those images, mix up the order
+        iids = [ids[5], ids[4], ids[0], ids[7], ids[2], ids[1]]
+        self.args += ['Image:%s' % ",".join(iids)]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        o = o.strip().split(" ")
+        # The output should contain:...
+        # ... the command and an ok at either end,...
+        assert o[0] == "omero.cmd.Delete2"
+        assert o[2] == "ok"
+        type, oids = o[1].split(":")
+        # ... the object type,...
+        assert type == "Image"
+        oids = oids.split(",")
+        # ... the first three sequential ids elided,...
+        assert oids[0] == ids[0]+"-"+ids[2]
+        # ... the next two sequential ids, not elided,...
+        assert oids[1] == ids[4]
+        assert oids[2] == ids[5]
+        # ... and the final separate single id.
+        assert oids[3] == ids[7]
+
+
+class TestTagDelete(AbstractTagTest):
+
+    def setup_method(self, method):
+        super(AbstractTagTest, self).setup_method(method)
+        self.cli.register("delete", DeleteControl, "TEST")
+        self.args += ["delete"]
+        # Create two tags sets with two tags each, one in common
+        tag_name = self.uuid()
+        self.tag_ids = self.create_tags(3, tag_name)
+        self.ts1_id = self.create_tagset(self.tag_ids[:2], tag_name)
+        self.ts2_id = self.create_tagset(self.tag_ids[1:], tag_name)
+
+    def teardown_method(self, method):
+        pass
+
+    def testDeleteOneTagSetNotTags(self):
+        # try to delete one tag set
+        self.args += ['TagAnnotation:%s' % self.ts1_id]
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        assert not self.query.find('TagAnnotation', self.ts1_id)
+        assert self.query.find('TagAnnotation', self.tag_ids[0])
+        assert self.query.find('TagAnnotation', self.ts2_id)
+        assert self.query.find('TagAnnotation', self.tag_ids[1])
+        assert self.query.find('TagAnnotation', self.tag_ids[2])
+
+    def testDeleteTwoTagSetsNotTags(self):
+        # try to delete both tag sets
+        self.args += ['TagAnnotation:%s,%s' % (self.ts1_id, self.ts2_id)]
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        assert not self.query.find('TagAnnotation', self.ts1_id)
+        assert self.query.find('TagAnnotation', self.tag_ids[0])
+        assert not self.query.find('TagAnnotation', self.ts2_id)
+        assert self.query.find('TagAnnotation', self.tag_ids[1])
+        assert self.query.find('TagAnnotation', self.tag_ids[2])
+
+    def testDeleteOneTagSetIncludingTags(self):
+        # try to delete one tag set with tags
+        self.args += ['TagAnnotation:%s' % self.ts1_id]
+        self.args += ['--include', 'TagAnnotation']
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        assert not self.query.find('TagAnnotation', self.ts1_id)
+        assert not self.query.find('TagAnnotation', self.tag_ids[0])
+        assert self.query.find('TagAnnotation', self.ts2_id)
+        assert not self.query.find('TagAnnotation', self.tag_ids[1])
+        assert self.query.find('TagAnnotation', self.tag_ids[2])
+
+    def testDeleteTwoTagSetsIncludingTags(self):
+        # try to delete both tag sets with tags
+        self.args += ['TagAnnotation:%s,%s' % (self.ts1_id, self.ts2_id)]
+        self.args += ['--include', 'TagAnnotation']
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        assert not self.query.find('TagAnnotation', self.ts1_id)
+        assert not self.query.find('TagAnnotation', self.tag_ids[0])
+        assert not self.query.find('TagAnnotation', self.ts2_id)
+        assert not self.query.find('TagAnnotation', self.tag_ids[1])
+        assert not self.query.find('TagAnnotation', self.tag_ids[2])

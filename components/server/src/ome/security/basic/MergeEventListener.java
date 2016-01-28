@@ -10,8 +10,6 @@ package ome.security.basic;
 // Java imports
 import java.util.Map;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.SecurityViolation;
 import ome.model.IEnum;
 import ome.model.IObject;
@@ -45,8 +43,6 @@ import org.springframework.util.Assert;
  * @version $Revision$, $Date$
  * @since 3.0
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class MergeEventListener extends IdTransferringMergeEventListener {
 
     public final static String MERGE_EVENT = "MergeEvent";

@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.rnd.RendererComponent 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -31,24 +27,32 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.log.LogMessage;
+import omero.log.Logger;
+import omero.model.Length;
+
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -56,9 +60,9 @@ import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.ChannelData;
-import pojos.ImageData;
-import pojos.PixelsData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
 
 /** 
  * Implements the {@link RendererComponent} interface to provide the 
@@ -83,6 +87,11 @@ class RendererComponent
     /** The default error message. */
     private static final String ERROR = " An error occurred while modifying " +
     		"the rendering settings.";
+    
+    /** Warning message shown when the rendering settings are to be reset */
+    public static final String RENDERINGSETTINGS_WARNING = "This will change the "
+            + "rendering settings of all images\nin the dataset/plate and cannot be undone.\n"
+            + "Proceed?";
     
     /** The number of attempts to reload the rendering control. */
     private static final int MAX_RETRY = 1;
@@ -600,12 +609,14 @@ class RendererComponent
 				}
 			}
 			view.setColorModelChanged();
-			//if (model.isGeneralIndex()) model.saveRndSettings();
 			firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
    		 			Boolean.valueOf(true));
 			if (update)
 				firePropertyChange(RENDER_PLANE_PROPERTY,
 						Boolean.valueOf(false), Boolean.valueOf(true));
+			RndSettingsChanged evt = new RndSettingsChanged(
+                    model.getRefImage().getId());
+            MetadataViewerAgent.getRegistry().getEventBus().post(evt);
 		} catch (Exception e) {
 			handleException(e);
 		}
@@ -658,7 +669,15 @@ class RendererComponent
      */
 	public void applyToAll()
 	{
-		if (!model.isGeneralIndex()) return;
+		if (!model.isGeneralIndex())
+		    return;
+		
+        MessageBox box = new MessageBox(
+                (JFrame) SwingUtilities.windowForComponent(view),
+                "Save rendering settings", RENDERINGSETTINGS_WARNING);
+        if (box.centerMsgBox() != MessageBox.YES_OPTION)
+            return;
+        
 		try {
 			saveCurrentSettings();
 			firePropertyChange(APPLY_TO_ALL_PROPERTY,  Boolean.valueOf(false), 
@@ -768,19 +787,19 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getPixelsSizeX()
      */
-	public double getPixelsSizeX() { return model.getPixelsSizeX(); }
+	public Length getPixelsSizeX() { return model.getPixelsSizeX(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getPixelsSizeY()
      */
-	public double getPixelsSizeY() { return model.getPixelsSizeY(); }
+	public Length getPixelsSizeY() { return model.getPixelsSizeY(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getPixelsSizeZ()
      */
-	public double getPixelsSizeZ() { return model.getPixelsSizeZ(); }
+	public Length getPixelsSizeZ() { return model.getPixelsSizeZ(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
@@ -843,19 +862,9 @@ class RendererComponent
      */
 	public void resetSettings()
 	{
-		try {
-		        model.makeHistorySnapshot();
-			model.resetDefaults();
-			view.resetDefaultRndSettings();
-			firePropertyChange(RENDER_PLANE_PROPERTY, 
-					Boolean.valueOf(false), Boolean.valueOf(true));
-			firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
-   		 			Boolean.valueOf(true));
-		} catch (Throwable e) {
-			handleException(e);
-		}
+		resetSettings(null, true);
 	}
-	
+
         /**
          * Implemented as specified by the {@link Renderer} interface.
          * 
@@ -904,13 +913,21 @@ class RendererComponent
 	public void resetSettings(RndProxyDef settings, boolean update)
 	{
 		try {
-		        model.makeHistorySnapshot();
-			model.resetSettings(settings);
+		    model.makeHistorySnapshot();
+		    if (settings != null) {
+		        model.resetSettings(settings);
+		    } else {
+		        model.resetDefaults();
+		    }
 			if (update) {
 				view.resetDefaultRndSettings();
+				if (settings == null) {
+				    settings = model.getInitialRndSettings();
+				}
+				view.resetViewedBy(settings);
 				firePropertyChange(RENDER_PLANE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
-				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false),
 	   		 			Boolean.valueOf(true));
 				controller.updatePasteAction();
 			}
@@ -1258,8 +1275,12 @@ class RendererComponent
 			bus.post(new ViewInPluginEvent(model.getSecurityContext(),
 					image, LookupNames.IMAGE_J));
 		} else {
-			bus.post(new ViewImage(model.getSecurityContext(),
-					new ViewImageObject(image), null));
+		    ViewImageObject vio = new ViewImageObject(image);
+		    RndProxyDef def = view.getSelectedDef();
+		    if (def != null) {
+		        vio.setSelectedRndDef(def.getDataID());
+		    }
+			bus.post(new ViewImage(model.getSecurityContext(), vio, null));
 		}
 	}
 
@@ -1339,10 +1360,19 @@ class RendererComponent
 	public ModuloInfo getModuloT() { return model.getModuloT(); }
 	
 	/**
-         * Implemented as specified by the {@link Renderer} interface.
-         * @see Renderer#updatePasteAction()
-         */
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#updatePasteAction()
+	 */
 	public void updatePasteAction() {
 	    controller.updatePasteAction();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#getSelectedDef()
+	 */
+	public RndProxyDef getSelectedDef()
+	{
+	    return  view.getSelectedDef();
 	}
 }

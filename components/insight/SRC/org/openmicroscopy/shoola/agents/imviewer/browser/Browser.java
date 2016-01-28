@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.Browser
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
-
-
-//Java imports
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -33,6 +30,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -47,9 +45,6 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public interface Browser
@@ -163,11 +158,12 @@ public interface Browser
     public void setUnitBar(boolean b);
 
     /**
-     * Sets the size of the unit bar in microns.
+     * Sets the size of the unit bar.
      * 
-     * @param size The size of the unit bar in microns.
+     * @param size The size of the unit bar.
+     * @param unit The unit
      */
-    public void setUnitBarSize(double size);
+    public void setUnitBarSize(double size, UnitsLength unit);
 
     /**
      * Returns <code>true</code> if the unit bar is displayed, 
@@ -412,14 +408,14 @@ public interface Browser
 	
 	/**
          * Returns if interpolation is enabled or not
-         * @return
+         * @return See above.
          */
         public boolean isInterpolation();
     
        /**
         * En-/Disables interpolation
         * 
-        * @param interpolation
+        * @param interpolation The value to set.
         */
         public void setInterpolation(boolean interpolation);
 

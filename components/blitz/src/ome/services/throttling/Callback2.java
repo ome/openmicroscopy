@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -9,11 +7,8 @@ package ome.services.throttling;
 
 import java.util.concurrent.Callable;
 
-import ome.api.ServiceInterface;
 import ome.services.blitz.util.BlitzOnly;
-import ome.services.blitz.util.IceMethodInvoker;
 import ome.system.OmeroContext;
-import omero.util.IceMapper;
 
 import org.springframework.util.Assert;
 
@@ -21,7 +16,6 @@ import org.springframework.util.Assert;
  * {@link Callable}-based callback which guarantees that ice_response or
  * ice_exception is called. Similar to {@link Callback}, this instance is useful
  * for servants which are {@link BlitzOnly}
- *
  */
 public class Callback2<R> extends Task {
 

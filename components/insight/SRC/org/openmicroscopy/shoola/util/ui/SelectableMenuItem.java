@@ -20,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
-//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -101,14 +100,14 @@ public class SelectableMenuItem extends JMenuItem {
     /**
      * Creates a new instance.
      *
-     * @param selectedIcon
+     * @param checkedIcon
      *            The icon used when the menu is selected.
-     * @param deselectedIcon
+     * @param uncheckedIcon
      *            The icon used when the menu is not selected.
-     * @param selected
+     * @param checked
      *            Pass <code>true</code> to select the menu, <code>false</code>
      *            otherwise.
-     * @param selectable
+     * @param checkable
      *            Pass <code>true</code> to allow user selection,
      *            <code>false</code> otherwise.
      */
@@ -152,16 +151,16 @@ public class SelectableMenuItem extends JMenuItem {
     /**
      * Creates a new instance.
      *
-     * @param selectedIcon
+     * @param checkedIcon
      *            The icon used when the menu is selected.
-     * @param deselectedIcon
+     * @param uncheckedIcon
      *            The icon used when the menu is not selected.
-     * @param selected
+     * @param checked
      *            Pass <code>true</code> to select the menu, <code>false</code>
      *            otherwise.
      * @param text
      *            The text of the menu.
-     * @param selectable
+     * @param checkable
      *            Pass <code>true</code> to allow user selection,
      *            <code>false</code> otherwise.
      */

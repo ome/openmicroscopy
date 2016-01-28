@@ -1,9 +1,8 @@
 /*
- * ome.server.utests.PojosConstraintsTest
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.utests;
 
 import java.sql.Timestamp;
@@ -28,16 +27,12 @@ import ome.model.containers.Project;
 import ome.parameters.Filter;
 import ome.security.basic.CurrentDetails;
 import ome.server.itests.LoginInterceptor;
-import ome.services.sessions.SessionContext;
-import ome.services.sessions.state.SessionCache;
-import ome.services.sessions.stats.NullSessionStats;
 import ome.services.util.ServiceHandler;
 import ome.system.Principal;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since Omero 2.0
  */
 public class IQueryMockSessionTest extends MockObjectTestCase {

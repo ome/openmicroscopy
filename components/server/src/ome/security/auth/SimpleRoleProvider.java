@@ -343,10 +343,6 @@ public class SimpleRoleProvider implements RoleProvider {
      * If the "user" group is the first element of the list of groups that this
      * user is a member of, then check if there's a second value which could be
      * used as the default instead.
-     *
-     * @param userId
-     * @param s
-     * @return
      */
     private ExperimenterGroup shouldBeDefault(Experimenter usr, Session s) {
         List<ExperimenterGroup> grps = usr.linkedExperimenterGroupList();

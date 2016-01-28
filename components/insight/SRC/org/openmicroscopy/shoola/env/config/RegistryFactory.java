@@ -23,18 +23,16 @@
 
 package org.openmicroscopy.shoola.env.config;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.cache.CacheService;
+import omero.gateway.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.Logger;
+
+import omero.gateway.Gateway;
+import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -51,10 +49,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
+ * @version 2.2
  * @since OME2.2
  */
 
@@ -72,9 +67,9 @@ public class RegistryFactory
 	 * Creates a new {@link Registry} and fills it up with the entries
 	 * in the specified configuration file.
 	 * 
-	 * @param file	Path to a configuration file.
+	 * @param file Path to a configuration file.
 	 * @return A new {@link Registry} built from the specified file.
-	 * @throws ConfigException	If an error occurs while accessing the file
+	 * @throws ConfigException If an error occurs while accessing the file
 	 * 							or the file contents are not valid.
 	 */
 	public static Registry makeNew(String file)
@@ -141,8 +136,8 @@ public class RegistryFactory
      * Adds the {@link AdminService} instance to the specified
      * {@link Registry}.
      * 
-     * @param ms	The {@link AdminService} instance.
-     * @param reg   The {@link Registry}.
+     * @param admin The {@link AdminService} instance.
+     * @param reg The {@link Registry}.
      */
     public static void linkAdmin(AdminService admin, Registry reg)
     {
@@ -205,4 +200,8 @@ public class RegistryFactory
 		((RegistryImpl) reg).setCacheService(cache);
 	}
 	
+	public static void linkGateway(Gateway gw, Registry reg)
+    {
+        ((RegistryImpl) reg).setGateway(gw);
+    }
 }

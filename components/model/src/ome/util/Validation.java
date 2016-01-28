@@ -7,23 +7,18 @@
 
 package ome.util;
 
-// Java imports
-
-// Third-party libraries
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
-
 /**
  * collector for Model-validation status.
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 1.0
  * @since 1.0
  */
 public class Validation {

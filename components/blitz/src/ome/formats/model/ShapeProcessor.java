@@ -37,7 +37,7 @@ import omero.model.Path;
 import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Roi;
 import omero.model.Label;
 
@@ -51,50 +51,45 @@ import org.slf4j.LoggerFactory;
  * @author Chris Allan <callan at blackcat dot ca>
  *
  */
-public class ShapeProcessor implements ModelProcessor
-{
-    /** Logger for this class */
-    private Logger log = LoggerFactory.getLogger(ShapeProcessor.class);
+public class ShapeProcessor implements ModelProcessor {
 
-    /** Exhaustive list of ROI types. */
-    private static final List<Class<? extends IObject>> SHAPE_TYPES =
-	new ArrayList<Class<? extends IObject>>();
+  /** Logger for this class */
+  private Logger log = LoggerFactory.getLogger(ShapeProcessor.class);
 
-    static
-    {
-        SHAPE_TYPES.add(Line.class);
-        SHAPE_TYPES.add(Rect.class);
-        SHAPE_TYPES.add(Mask.class);
-        SHAPE_TYPES.add(Ellipse.class);
-        SHAPE_TYPES.add(Point.class);
-        SHAPE_TYPES.add(Polyline.class);
-        SHAPE_TYPES.add(Path.class);
-        SHAPE_TYPES.add(Label.class);
-        // XXX: Unused OME-XML type
-        SHAPE_TYPES.add(Polygon.class);
+  /** Exhaustive list of ROI types. */
+  private static final List<Class<? extends IObject>> SHAPE_TYPES =
+      new ArrayList<Class<? extends IObject>>();
+
+  static {
+    SHAPE_TYPES.add(Line.class);
+    SHAPE_TYPES.add(Rectangle.class);
+    SHAPE_TYPES.add(Mask.class);
+    SHAPE_TYPES.add(Ellipse.class);
+    SHAPE_TYPES.add(Point.class);
+    SHAPE_TYPES.add(Polyline.class);
+    SHAPE_TYPES.add(Path.class);
+    SHAPE_TYPES.add(Label.class);
+    // XXX: Unused OME-XML type
+    SHAPE_TYPES.add(Polygon.class);
+  }
+
+  /**
+   * Processes the OMERO client side metadata store.
+   * @param store OMERO metadata store to process.
+   * @throws ModelException If there is an error during processing.
+   */
+  public void process(IObjectContainerStore store) throws ModelException {
+    for (Class<? extends IObject> klass : SHAPE_TYPES) {
+      List<IObjectContainer> containers =
+        store.getIObjectContainers(klass);
+      for (IObjectContainer container : containers) {
+        Integer roiIndex = container.indexes.get(Index.ROI_INDEX.getValue());
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, roiIndex);
+        // Creates an ROI if one doesn't exist
+        store.getIObjectContainer(Roi.class, indexes);
+      }
     }
-
-    /**
-     * Processes the OMERO client side metadata store.
-     * @param store OMERO metadata store to process.
-     * @throws ModelException If there is an error during processing.
-     */
-    public void process(IObjectContainerStore store)
-    throws ModelException
-    {
-	for (Class<? extends IObject> klass : SHAPE_TYPES)
-	{
-	        List<IObjectContainer> containers =
-			store.getIObjectContainers(klass);
-	        for (IObjectContainer container : containers)
-	        {
-	            Integer roiIndex = container.indexes.get(Index.ROI_INDEX.getValue());
-				LinkedHashMap<Index, Integer> indexes =
-					new LinkedHashMap<Index, Integer>();
-				indexes.put(Index.ROI_INDEX, roiIndex);
-				// Creates an ROI if one doesn't exist
-				store.getIObjectContainer(Roi.class, indexes);
-	        }
-	}
-    }
+  }
 }

@@ -11,7 +11,6 @@ package ome.conditions;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @see ome.api.ISession#changeExpiredCredentials(String, String, String)
  */
 public class ExpiredCredentialException extends SessionException {
 

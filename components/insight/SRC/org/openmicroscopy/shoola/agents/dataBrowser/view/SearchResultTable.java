@@ -1,20 +1,22 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
- * All rights reserved.
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *------------------------------------------------------------------------------
  */
 
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
@@ -26,8 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EventObject;
@@ -52,17 +52,16 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /**
- * A table for displaying a {@link AdvancedSearchResultCollection}
+ * A table for displaying a search result.
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -82,9 +81,10 @@ public class SearchResultTable extends JXTable {
 
     /**
      * Creates a new instance
-     * 
-     * @param data
-     * @param browserModel
+     *
+     * @param parent Reference to the view.
+     * @param data The data to display
+     * @param browserModel The model.
      */
     public SearchResultTable(SearchResultView parent, List<DataObject> data,
             AdvancedResultSearchModel browserModel) {
@@ -96,7 +96,7 @@ public class SearchResultTable extends JXTable {
     }
 
     /**
-     * Initializes the table; i. e. creates/sets the cell renderers, etc.
+     * Initializes the table; i.e. creates/sets the cell renderers, etc.
      */
     public void initTable() {
         TableCellRenderer defaultRenderer = new MyRenderer();

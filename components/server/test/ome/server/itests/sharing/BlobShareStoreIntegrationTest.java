@@ -1,15 +1,13 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.sharing;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import junit.framework.TestCase;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.meta.Share;

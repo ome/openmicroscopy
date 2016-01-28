@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui.search;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -42,9 +40,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -57,100 +52,97 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
-public class SearchHelp 
-	extends JDialog
+public class SearchHelp
+extends JDialog
 {
-	/** Button to close the window. */
-	private JButton closeButton;
-	
-	private String helpURL = "";
-	
-	/** Indicates if there was a problem opening the webbrowser */
-	private boolean helpWebbrowserError = false;
-	
+    /** Button to close the window. */
+    private JButton closeButton;
+
+    private String helpURL = "";
+
+    /** Indicates if there was a problem opening the webbrowser */
+    private boolean helpWebbrowserError = false;
+
 
     /** Closes and disposes. */
-	private void close()
-	{
-		setVisible(false);
-		dispose();
-	}
-	
-	/** Initializes the components composing the display. */
-	private void initComponents()
-	{
-		closeButton = new JButton("Close");
-		closeButton.addActionListener(new ActionListener() {
-		
-			public void actionPerformed(ActionEvent e) {
-				close();
-			}
-		
-		});
-		getRootPane().setDefaultButton(closeButton);
-	}
-	
-	/** 
-	 * Builds and lays out the main component.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildMain()
-	{
-		JPanel content = new JPanel();
-		BoxLayout lay = new BoxLayout(content, BoxLayout.PAGE_AXIS);
-		content.setLayout(lay);
-		content.setBorder(new TitledBorder(""));
-		content.add(new JLabel(formatText()));
-		content.add(linkout("OMERO Help Website", helpURL));
-		return content;
-	}
-	
-	/**
-	 * Builds and lays out the various controls.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildControl()
-	{
-		JPanel content = new JPanel();
-		content.add(closeButton);
-		return UIUtilities.buildComponentPanelRight(content);
-	}
-	
-	/** 
-	 * Formats and returns the help text.
-	 * 
-	 * @return See above. 
-	 */
-	private String formatText()
-	{
-		StringBuffer buf = new StringBuffer();
-                buf.append("<html><body>");
-                buf.append("<table>");
-                buf.append("<tr><td>?</td><td>Single character wildcard</td>");
-                buf.append("<tr><td>*</td><td>Multiple character wildcard</td>");
-                buf.append("<tr><td>AND</td><td>Results will contain both terms e.g. GFP AND H2B</td>");
-                buf.append("</table>");
-                buf.append("<p/>");
-                buf.append("<p>For more information see:</p>");
-                buf.append("</body></html>");
-                return buf.toString();
-	}
-	
-	/**
-	 * Creates a clickable 'link' label, which opens a browser with
-	 * the provided URL
-	 * @param name Name of the link
-	 * @param url The URL to open
-	 * @return
-	 */
-	private JLabel linkout(final String name, final String url) {
+    private void close()
+    {
+        setVisible(false);
+        dispose();
+    }
+
+    /** Initializes the components composing the display. */
+    private void initComponents()
+    {
+        closeButton = new JButton("Close");
+        closeButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                close();
+            }
+
+        });
+        getRootPane().setDefaultButton(closeButton);
+    }
+
+    /** 
+     * Builds and lays out the main component.
+     * 
+     * @return See above.
+     */
+    private JPanel buildMain()
+    {
+        JPanel content = new JPanel();
+        BoxLayout lay = new BoxLayout(content, BoxLayout.PAGE_AXIS);
+        content.setLayout(lay);
+        content.setBorder(new TitledBorder(""));
+        content.add(new JLabel(formatText()));
+        content.add(linkout("OMERO Help Website", helpURL));
+        return content;
+    }
+
+    /**
+     * Builds and lays out the various controls.
+     * 
+     * @return See above.
+     */
+    private JPanel buildControl()
+    {
+        JPanel content = new JPanel();
+        content.add(closeButton);
+        return UIUtilities.buildComponentPanelRight(content);
+    }
+
+    /** 
+     * Formats and returns the help text.
+     * 
+     * @return See above. 
+     */
+    private String formatText()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("<html><body>");
+        buf.append("<table>");
+        buf.append("<tr><td>?</td><td>Single character wildcard</td>");
+        buf.append("<tr><td>*</td><td>Multiple character wildcard</td>");
+        buf.append("<tr><td>AND</td><td>Results will contain both terms e.g. GFP AND H2B</td>");
+        buf.append("</table>");
+        buf.append("<p/>");
+        buf.append("<p>For more information see:</p>");
+        buf.append("</body></html>");
+        return buf.toString();
+    }
+
+    /**
+     * Creates a clickable 'link' label, which opens a browser with
+     * the provided URL
+     * @param name Name of the link
+     * @param url The URL to open
+     * @return See above.
+     */
+    private JLabel linkout(final String name, final String url) {
         JLabel l = new JLabel("<html><a href=\"\">" + name + "</a></html>");
 
         l.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -167,44 +159,43 @@ public class SearchHelp
         });
 
         return l;
-	}
-	
-	/**
-	 * Checks if there was an error opening the webbrowser
-	 * @return
-	 */
-	public boolean hasError() {
-	    return helpWebbrowserError;
-	}
-	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
-	{
-		Container c = getContentPane();
-		IconManager icons = IconManager.getInstance();
-		TitlePanel title = new TitlePanel("Search Tips", "",
-							icons.getIcon(IconManager.HELP));
-		c.add(title, BorderLayout.NORTH);
-		c.add(buildMain(), BorderLayout.CENTER);
-		c.add(buildControl(), BorderLayout.SOUTH);
-	}
-	
-	/** 
-	 * Creates a new instance. 
-	 * 
-	 * @param owner The owner of the frame.
-	 * @param helpURL URL for the search help website
-	 */
-	public SearchHelp(JFrame owner, String helpURL)
-	{
-		super(owner);
-		this.helpURL = helpURL;
-		setModal(true);
-		setResizable(false);
-		initComponents();
-		buildGUI();
-		//setSize(520, 350);
-		pack();
-	}
-	
+    }
+
+    /**
+     * Checks if there was an error opening the webbrowser
+     * @return See above.
+     */
+    public boolean hasError() {
+        return helpWebbrowserError;
+    }
+
+    /** Builds and lays out the UI. */
+    private void buildGUI()
+    {
+        Container c = getContentPane();
+        IconManager icons = IconManager.getInstance();
+        TitlePanel title = new TitlePanel("Search Tips", "",
+                icons.getIcon(IconManager.HELP));
+        c.add(title, BorderLayout.NORTH);
+        c.add(buildMain(), BorderLayout.CENTER);
+        c.add(buildControl(), BorderLayout.SOUTH);
+    }
+
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param owner The owner of the frame.
+     * @param helpURL URL for the search help website
+     */
+    public SearchHelp(JFrame owner, String helpURL)
+    {
+        super(owner);
+        this.helpURL = helpURL;
+        setModal(true);
+        setResizable(false);
+        initComponents();
+        buildGUI();
+        pack();
+    }
+
 }

@@ -12,8 +12,6 @@ package ome.security;
 // Third-party imports
 import java.util.Set;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.tools.hibernate.HibernateUtils;
@@ -50,8 +48,6 @@ import org.slf4j.LoggerFactory;
  * @see SecurityViolation
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class ACLEventListener implements
 /* BEFORE... */PreDeleteEventListener, PreInsertEventListener,
 /* and...... */PreLoadEventListener, PreUpdateEventListener,

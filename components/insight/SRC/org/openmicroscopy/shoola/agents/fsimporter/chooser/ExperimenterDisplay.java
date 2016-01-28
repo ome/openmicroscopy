@@ -23,7 +23,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Provides a wrapper to display the experimenter 

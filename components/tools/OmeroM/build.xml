@@ -23,8 +23,8 @@
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
     <property name="import.dir" value="${up-one}/antlib/resources"/>
+
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
@@ -47,7 +47,7 @@
       <copy file="${basedir}/src/omeroVersion.m" tofile="${target.dir}/matlab/omeroVersion.m"/>
       <replace file="${target.dir}/matlab/omeroVersion.m" token="@DEVBUILD@" value="${omero.version}"/>
       <copy todir="${target.dir}/matlab">
-        <fileset dir="${etc.dir}"           includes="ice.config"/>
+        <fileset dir="${etc.dir}" includes="ice.config"/>
         <fileset dir="${basedir}/src"       includes="**/*"/>
         <fileset dir="${target.dir}"        includes="libs/*"/>
         <fileset dir="${target.dir}"        includes="omeroVersion.m"/>

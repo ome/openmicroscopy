@@ -23,6 +23,9 @@
 
 package org.openmicroscopy.shoola.env.log;
 
+import omero.log.LogMessage;
+import omero.log.Logger;
+
 
 //Java imports
 

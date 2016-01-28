@@ -140,7 +140,7 @@ module omero {
 
     /**
      * Constants used for field defaults and similar
-     * in the [omero::model::] classes.
+     * in the {@link omero.model} classes.
      **/
     module data {
 
@@ -152,7 +152,7 @@ module omero {
     };
 
     /**
-     * Namespaces for the [omero::api::IMetadata] interface.
+     * Namespaces for the {@link omero.api.IMetadata} interface.
      **/
     module metadata {
         const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
@@ -162,7 +162,7 @@ module omero {
     };
 
     /**
-     * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
+     * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5.2/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
      **/
     module namespaces {
         const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
@@ -181,6 +181,11 @@ module omero {
         const string NSCREATED = "openmicroscopy.org/omero/scripts/results/created";
         const string NSDOWNLOAD = "openmicroscopy.org/omero/scripts/results/download";
         const string NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
+
+        //
+        // omero.grid.JobParam.namespaces in Scripts.ice
+        //
+        const string NSDYNAMIC = "openmicroscopy.org/omero/scripts/job/dynamic";
 
         //
         // modulo namespaces for <a href="http://www.openmicroscopy.org/site/support/ome-model/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
@@ -223,29 +228,29 @@ module omero {
     module permissions {
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the link restriction has been applied to the current object.
        **/
       const int LINKRESTRICTION = 0;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the edit restriction has been applied to the current object.
        **/
       const int EDITRESTRICTION = 1;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the delete restriction has been applied to the current object.
        **/
       const int DELETERESTRICTION = 2;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the annotate restriction has been applied to the current object.
        **/
       const int ANNOTATERESTRICTION = 3;

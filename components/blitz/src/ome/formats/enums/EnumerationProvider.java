@@ -53,7 +53,6 @@ public interface EnumerationProvider
     /**
      * Retrieves all enumerations of a specific type.
      * @param klass Enumeration's base class from <code>ome.model.enums</code>.
-     * @param value Enumeration's string value.
      * @return Enumeration object.
      */
 	<T extends IObject> HashMap<String, T> getEnumerations(Class<T> klass);

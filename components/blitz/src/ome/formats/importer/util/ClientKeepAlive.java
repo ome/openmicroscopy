@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link Runnable} which keeps a {@link Connector}'s server side resources
+ * A {@link Runnable} which keeps a {@link IceInternal.Connector}'s server-side resources
  * from timing out. <b>NOTE:</b> Upon catching an exception, the
  * <code>Connector</code> is logged out.
  *

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2014 Glencoe Software, Inc.
+# Copyright (C) 2014-2015 Glencoe Software, Inc.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@ from omero.rtypes import rstring, rtime
 from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _post_response
 from weblibrary import _csrf_get_response, _get_response
+from weblibrary import _csrf_delete_response, _delete_response
 
 import json
 
@@ -266,59 +267,39 @@ class TestCsrf(IWebTest):
         response = _csrf_post_response(self.django_client, request_url, data)
         did = json.loads(response.content).get("id")
 
-        # Copy image
+        img = self.image_with_channels()
+
+        # Link image to Dataset
+        request_url = reverse("api_links")
+        data = {
+            'dataset': {did: {'image': [img.id.val]}}
+        }
+
+        _post_response(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client,
+                            request_url,
+                            json.dumps(data),
+                            content_type="application/json")
+
+        # Unlink image from Dataset
+        request_url = reverse("api_links")
+        data = {
+            'dataset': {did: {'image': [img.id.val]}}
+        }
+        _delete_response(self.django_client, request_url, data)
+        response = _csrf_delete_response(self.django_client,
+                                         request_url,
+                                         json.dumps(data),
+                                         content_type="application/json")
+        # Response will contain remaining links from image (see test_links.py)
+        response = json.loads(response.content)
+        assert response == {"success": True}
+
+    def test_create_share(self):
+
         img = self.image_with_channels()
         request_url = reverse("manage_action_containers",
-                              args=["paste", "image", img.id.val])
-        data = {
-            'destination': "dataset-%i" % did
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Move image
-        request_url = reverse("manage_action_containers",
-                              args=["move", "image", img.id.val])
-        data = {
-            'destination': 'orphaned-0',
-            'parent': 'dataset-%i' % did
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Remove image
-        request_url = reverse("manage_action_containers",
-                              args=["remove", "image", img.id.val])
-        data = {
-            'parent': 'dataset-%i' % did
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Delete image
-        request_url = reverse("manage_action_containers", args=["deletemany"])
-        data = {
-            'child': 'on',
-            'dataset': did
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-    def test_basket_actions(self):
-
-        # Create discussion
-        request_url = reverse("basket_action", args=["createdisc"])
-        data = {
-            'enable': 'on',
-            'members': self.user.id.val,
-            'message': 'foobar'
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Create share
-        img = self.image_with_channels()
-        request_url = reverse("basket_action", args=["createshare"])
+                              args=["add", "share"])
         data = {
             'enable': 'on',
             'image': img.id.val,
@@ -326,18 +307,14 @@ class TestCsrf(IWebTest):
             'message': 'foobar'
         }
 
-        # edit share
+        _post_response(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, data)
+
+    def test_edit_share(self):
+
         # create images
         images = [self.createTestImage(session=self.sf),
                   self.createTestImage(session=self.sf)]
-
-        # put images into the basket
-        session = self.django_client.session
-        session['imageInBasket'] = [i.id.val for i in images]
-        session.save()
-
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
 
         sid = self.sf.getShareService().createShare(
             "foobar", rtime(None), images, [self.user], [], True)

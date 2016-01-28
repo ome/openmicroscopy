@@ -7,8 +7,6 @@
 
 package ome.services.util;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
 import ome.system.OmeroContext;
 import ome.system.SelfConfigurableService;
@@ -24,8 +22,6 @@ import org.springframework.context.ApplicationContextAware;
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-Beta2
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class BeanHelper {
 
     private transient Class beanClass;

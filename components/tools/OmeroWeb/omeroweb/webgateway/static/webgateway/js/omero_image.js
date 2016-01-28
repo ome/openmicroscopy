@@ -29,7 +29,10 @@
         // Need imageId for 'apply to all'
         rdefQry = rdefQry + "&imageId=" + viewport.loadedImg.id;
         // save to session
-        $.getJSON(viewport.viewport_server + "/copyImgRDef/?" + rdefQry);
+        var jqxhr = $.getJSON(viewport.viewport_server + "/copyImgRDef/?" + rdefQry);
+        jqxhr.complete(function() {
+            $("#rdef-paste-btn").removeAttr('disabled').removeClass("button-disabled");
+        });
     };
 
     window.pasteRdefs = function (viewport) {
@@ -145,7 +148,8 @@
         }
         //var t = $('#rd-wblitz-ch'+idx).get(0);
         //if (t != undefined) t.checked=ch.active;
-        $('#wblitz-ch'+idx).css('background-color', "#"+OME.rgbToHex(ch.color)).attr('title', ch.label);
+        var rgb = OME.hexToRgb(ch.color)
+        $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')').attr('title', ch.label);
     };
 
 
@@ -324,9 +328,10 @@
             };
         };
         for (i=0; i<channels.length; i++) {
+            var rgb = OME.hexToRgb(channels[i].color)
             $('<button id="wblitz-ch'+i+
                 '"class="squared' + (channels[i].active?' pressed':'') +
-                '"style="background-color: #' + OME.rgbToHex(channels[i].color) +
+                '"style="background-color: rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')' +
                 '"title="' + channels[i].label +
                 '">'+channels[i].label+'</button>')
             .appendTo(box)
@@ -363,7 +368,7 @@
 
         var template = '' +
           '<tr class="$cls rdef-window">' +
-          '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $class" style="background-color: #$col" ' +
+          '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $class" style="background-color: $col" ' +
             'title="$label">$l</button></td>' +
           '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
@@ -462,9 +467,10 @@
             if (lbl.length > 7) {
                 lbl = lbl.slice(0, 5) + "...";
             }
+            var rgb = OME.hexToRgb(channels[i].color)
             tmp.after(template
                 .replace(/\$class/g, btnClass)
-                .replace(/\$col/g, OME.rgbToHex(channels[i].color))
+                .replace(/\$col/g, 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')')
                 .replace(/\$label/g, channels[i].label)
                 .replace(/\$l/g, lbl)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based

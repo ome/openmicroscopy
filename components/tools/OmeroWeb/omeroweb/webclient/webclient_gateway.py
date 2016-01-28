@@ -3,7 +3,7 @@
 #
 # webclient_gateway
 #
-# Copyright (c) 2008-2014 University of Dundee.
+# Copyright (c) 2008-2015 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -39,7 +39,7 @@ import omero.scripts
 
 from omero.rtypes import rbool, rint, rstring, rlong, rlist, rtime, unwrap
 from omero.model import ExperimenterI, ExperimenterGroupI
-from omero.cmd import Chmod
+from omero.cmd import Chmod2, Chgrp2, DoAll
 
 from omero.gateway import AnnotationWrapper
 from omero.gateway import OmeroGatewaySafeCallWrapper
@@ -53,6 +53,7 @@ from django.utils.encoding import smart_str
 from django.conf import settings
 
 from omero.gateway.utils import toBoolean
+from webgateway.templatetags.common_filters import lengthunit, lengthformat
 
 try:
     import hashlib
@@ -202,6 +203,25 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 self.getConfigService().getConfigValue(
                     "omero.client.ui.menu.dropdown.everyone")
         return dropdown_menu
+
+    def chgrpDryRun(self, targetObjects, group_id):
+        """
+        Submits a 'dryRun' chgrp to test for links that would be broken.
+        Returns a handle.
+
+        :param targetObjects:   Dict of dtype: [ids]. E.g. {'Dataset': [1,2]}
+        :param group_id:        The group to move the data to.
+        """
+
+        chgrp = Chgrp2(targetObjects=targetObjects, groupId=group_id)
+        chgrp.dryRun = True
+
+        da = DoAll()
+        da.requests = [chgrp]
+
+        ctx = self.SERVICE_OPTS.copy()
+        prx = self.c.sf.submit(da, ctx)
+        return prx
 
     ##############################################
     #   IAdmin                                  ##
@@ -559,7 +579,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             sql += " and im.details.owner.id=:eid"
-        sql += " order by im.name ASC"
+        sql += " order by lower(im.name), im.id"
 
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             kwargs = {'link': omero.gateway.BlitzObjectWrapper(
@@ -577,7 +597,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             ds.description = rstring(str(description))
         dsid = self.saveAndReturnId(ds)
         if img_ids is not None:
-            iids = [int(i) for i in img_ids.split(",")]
+            iids = [int(i) for i in img_ids]
             links = []
             for iid in iids:
                 link = omero.model.DatasetImageLinkI()
@@ -819,10 +839,11 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             links = exp._getAnnotationLinks()
             # there should be only one ExperimenterAnnotationLink
             # but if there is more then one all of them should be deleted.
-            for l in links:
-                self.deleteObjectDirect(l)
+            linkIds = [l.id.val for l in links]
+            self.deleteObjects(
+                "ExperimenterAnnotationLink", linkIds, wait=True)
             # No error handling?
-            self.deleteObjects("/Annotation", [ann.id.val])
+            self.deleteObject(ann)
 
     def cropExperimenterPhoto(self, box, oid=None):
         """
@@ -1379,13 +1400,17 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             if not flag:
                 add_exps.append(nex._obj)
 
+        msgs = []
         admin_serv = self.getAdminService()
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(up_gr)
         if permissions is not None:
-            self.updatePermissions(group, permissions)
+            err = self.updatePermissions(group, permissions)
+            if err is not None:
+                msgs.append(err)
         admin_serv.addGroupOwners(up_gr, add_exps)
         admin_serv.removeGroupOwners(up_gr, rm_exps)
+        return msgs
 
     def updateMyAccount(self, experimenter, firstName, lastName, email,
                         defaultGroupId, middleName=None, institution=None):
@@ -1453,11 +1478,18 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         perms = str(permissions)
         logger.debug("Chmod of group ID: %s to %s" % (group.id, perms))
-        command = Chmod(type="/ExperimenterGroup",
-                        id=group.id,
-                        permissions=perms)
-        cb = self.c.submit(command, loops=120)
-        cb.close(True)
+        command = Chmod2(targetObjects={'ExperimenterGroup': [group.id]},
+                         permissions=perms)
+        cb = None
+        message = None
+        try:
+            cb = self.c.submit(command, loops=120)
+        except omero.CmdError, ex:
+            message = ex.err.message
+        finally:
+            if cb:
+                cb.close(True)
+        return message
 
     def saveObject(self, obj):
         """
@@ -1733,6 +1765,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
+        self.SERVICE_OPTS.setOmeroGroup('-1')
         img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
 
@@ -1768,121 +1801,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         return share_id
 
     ##############################################
-    # History methods                        ##
-
-    # def getLastAcquiredImages (self):
-    #    tm = self.getTimelineService()
-    #    p = omero.sys.Parameters()
-    #    p.map = {}
-    #    f = omero.sys.Filter()
-    #    f.ownerId = rlong(self.getEventContext().userId)
-    #    f.groupId = rlong(self.getEventContext().groupId)
-    #    f.limit = rint(6)
-    #    p.theFilter = f
-    #    for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
-    #        yield ImageWrapper(self, e)
-
-    def listLastImportedImages(self):
-        """
-        Retrieve most recent imported images
-        controlled by the security system.
-
-        @return:            Generator yielding Images
-        @rtype:             L{ImageWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(10)
-        p.theFilter = f
-        for e in tm.getMostRecentObjects(
-                ['Image'], p, False, self.SERVICE_OPTS)["Image"]:
-            yield ImageWrapper(self, e)
-
-    def listMostRecentShares(self):
-        """
-        Retrieve most recent shares
-        controlled by the security system.
-
-        @return:    Generator yielding SessionAnnotationLink
-        @rtype:     L{ShareWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.limit = rint(10)
-        p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p, self.SERVICE_OPTS):
-            yield ShareWrapper(self, e.parent)
-
-    def listMostRecentShareComments(self):
-        """
-        Retrieve most recent share comments
-        controlled by the security system.
-
-        @return:    Generator yielding SessionAnnotationLink
-        @rtype:     L{SessionCommentWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.limit = rint(10)
-        p.theFilter = f
-        for e in tm.getMostRecentShareCommentLinks(p, self.SERVICE_OPTS):
-            yield AnnotationWrapper(
-                self, e.child, link=ShareWrapper(self, e.parent))
-
-    def listMostRecentComments(self):
-        """
-        Retrieve most recent comment annotations
-        controlled by the security system.
-
-        @return:    Generator yielding BlitzObjectWrapper
-        @rtype:     L{BlitzObjectWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(10)
-        p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(
-                None, ['CommentAnnotation'], None, p, self.SERVICE_OPTS):
-            yield omero.gateway.BlitzObjectWrapper(self, e)
-
-    def listMostRecentTags(self):
-        """
-        Retrieve most recent tag annotations
-        controlled by the security system.
-
-        @return:    Generator yielding BlitzObjectWrapper
-        @rtype:     L{BlitzObjectWrapper} generator
-        """
-
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        # f.ownerId = rlong(self.getEventContext().userId)
-        f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(200)
-        p.theFilter = f
-        for e in tm.getMostRecentAnnotationLinks(
-                None, ['TagAnnotation'], None, p, self.SERVICE_OPTS):
-            yield omero.gateway.BlitzObjectWrapper(self, e.child)
+    # History                                   ##
 
     def getDataByPeriod(self, start, end, eid, otype=None, page=None):
         """
@@ -2036,7 +1955,7 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 correct_dataset = False
                 for plink in i.getParentLinks():
                     if plink.parent.id != target_ds:
-                        self.deleteObjectDirect(plink._obj)
+                        self.deleteObject(plink._obj)
                     else:
                         correct_dataset = True
                 if not correct_dataset:
@@ -2212,11 +2131,11 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.setLongValue(rlong(rating))
                     ratingAnn.save()
                 else:
-                    self._conn.deleteObjectDirect(ratingLink._obj)
-                    self._conn.deleteObjectDirect(ratingAnn._obj)
+                    self._conn.deleteObject(ratingLink._obj)
+                    self._conn.deleteObject(ratingAnn._obj)
             # otherwise, unlink and create a new rating
             else:
-                self._conn.deleteObjectDirect(ratingLink._obj)
+                self._conn.deleteObject(ratingLink._obj)
                 addRating(rating)
         else:
             addRating(rating)
@@ -2397,16 +2316,35 @@ class ImageWrapper (OmeroWebObjectWrapper,
         if 'link' in kwargs:
             self.link = 'link' in kwargs and kwargs['link'] or None
 
-    """
-    This override standard omero.gateway.ImageWrapper.getChannels
-    and catch exceptions.
-    """
+    def getPixelSizeUnits(self):
+        """
+        We use the pixelSizeX to find the appropriate units.
+        By default, we get the actual size in Microns, then use the
+        lengthunit filter to pick the most suitable size (same logic
+        is used for doing the length conversions).
+        However, if unit can't be converted, then we just return the
+        current unit's symbol.
+        """
+        try:
+            size = self.getPixelSizeX(units="MICROMETER")
+        except:
+            size = self.getPixelSizeX(True)
+            if size is not None:
+                return size.getSymbol()
+        if size is None:
+                size = 0
+        else:
+            size = size.getValue()
+        return lengthunit(size)
 
     def getPixelSizeXMicrons(self):
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeX(units="MICROMETER")
+        try:
+            size = self.getPixelSizeX(units="MICROMETER")
+        except:
+            size = self.getPixelSizeX(True)
         if size is None:
             return 0
         return size.getValue()
@@ -2415,7 +2353,10 @@ class ImageWrapper (OmeroWebObjectWrapper,
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeY(units="MICROMETER")
+        try:
+            size = self.getPixelSizeY(units="MICROMETER")
+        except:
+            size = self.getPixelSizeY(True)
         if size is None:
             return 0
         return size.getValue()
@@ -2424,12 +2365,64 @@ class ImageWrapper (OmeroWebObjectWrapper,
         """
         Helper for calling getPixelSizeX(units="MICROMETER") in templates
         """
-        size = self.getPixelSizeZ(units="MICROMETER")
+        try:
+            size = self.getPixelSizeZ(units="MICROMETER")
+        except:
+            size = self.getPixelSizeZ(True)
         if size is None:
             return 0
         return size.getValue()
 
+    def getPixelSizeXWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeX(True)
+        return self.formatPixelSizeWithUnits(size)
+
+    def getPixelSizeYWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeY(True)
+        return self.formatPixelSizeWithUnits(size)
+
+    def getPixelSizeZWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeZ(True)
+        return self.formatPixelSizeWithUnits(size)
+
+    def formatPixelSizeWithUnits(self, size):
+        """
+        Formats the response for methods above.
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        if size is None:
+            return (0, "µm")
+        length = size.getValue()
+        unit = size.getUnit()
+        if unit == "MICROMETER":
+            unit = lengthunit(length)
+            length = lengthformat(length)
+        else:
+            unit = size.getSymbol()
+        return (length, unit)
+
     def getChannels(self, *args, **kwargs):
+        """
+        This override standard omero.gateway.ImageWrapper.getChannels
+        and catch exceptions.
+        """
         try:
             return super(ImageWrapper, self).getChannels(*args, **kwargs)
         except Exception:
@@ -2507,15 +2500,6 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
             self.link = 'link' in kwargs and kwargs['link'] or None
 
 omero.gateway.WellWrapper = WellWrapper
-
-
-class TagWrapper(OmeroWebObjectWrapper, omero.gateway.TagAnnotationWrapper):
-    """
-    omero_model_TagAnnotationI class wrapper overwrite
-    omero.gateway.TagAnnotationWrapper and extends OmeroWebObjectWrapper.
-    """
-
-omero.gateway.TagAnnotationWrapper = TagWrapper
 
 
 class PlateAcquisitionWrapper(OmeroWebObjectWrapper,

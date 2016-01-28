@@ -23,7 +23,7 @@ import omero.SecurityViolation;
  * allows users to dynamically change, for example, the
  * call group without modifying the whole session.
  *
- * @see ticket:3529
+ * @see <a href="http://trac.openmicroscopy.org/ome/ticket/3529">Trac ticket #3529</a>
  */
 public class CallContext implements MethodInterceptor {
 

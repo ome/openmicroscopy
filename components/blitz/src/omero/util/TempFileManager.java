@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Creates temporary files and folders and makes a best effort to remove them on
  * exit (or sooner). Typically only a single instance of this class will exist
- * (static {@link #manager} constant)
+ * (held in a private static field).
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.1
@@ -94,10 +94,11 @@ public class TempFileManager {
     }
 
     /**
-     * Initializes a {@link TempFileManager} instance with a {@link userDir}
-     * containing the given prefix value. Also adds a
+     * Initializes a {@link TempFileManager} instance with the user's
+     * temporary directory containing the given prefix value. Also adds a
      * {@link Runtime#addShutdownHook(Thread) shutdown hook} to call
      * {@link #cleanup()} on exit.
+     * @param prefix the prefix for the user's temporary directory
      */
     public TempFileManager(String prefix) {
         File tmp = tmpdir();
@@ -171,7 +172,7 @@ public class TempFileManager {
     }
 
     /**
-     * Releases {@link #lock} and deletes {@link #dir}. The lock is released
+     * Releases the lock and deletes the top-level temporary directory. The lock is released
      * first since on some platforms like Windows the lock file cannot be
      * deleted even by the owner of the lock.
      */
@@ -312,9 +313,9 @@ public class TempFileManager {
 
     /**
      * Uses {@link File#createTempFile(String, String, File)} to create
-     * temporary files and folders under {@link #dir}. For folders, first a
-     * temporary file is created, then deleted, and finally a directory
-     * produced.
+     * temporary files and folders under the top-level temporary directory.
+     * For folders, first a temporary file is created, then deleted,
+     * and finally a directory produced.
      */
     public File createPath(String prefix, String suffix, boolean folder)
             throws IOException {
@@ -330,8 +331,9 @@ public class TempFileManager {
     }
 
     /**
-     * If the given file is under {@link #dir}, then it is deleted whether file
-     * or folder. Otherwise a {@link RuntimeException} is thrown.
+     * If the given file is under the top-level temporary directory
+     * then it is deleted whether file or folder.
+     * Otherwise a {@link RuntimeException} is thrown.
      */
     public void removePath(File file) throws IOException {
         String f = file.getAbsolutePath();
@@ -353,7 +355,7 @@ public class TempFileManager {
     }
 
     /**
-     * Deletes {@link #dir}
+     * Deletes the top-level temporary directory.
      */
     protected void cleanTempDir() throws IOException {
         log.debug("Removing tree: " + dir.getAbsolutePath());
@@ -407,7 +409,7 @@ public class TempFileManager {
     }
 
     /**
-     * Calls {@link #createPath(String, String, boolean)} on {@link #manager}
+     * Calls {@link #createPath(String, String, boolean)}
      * with defaults of "omero", ".tmp", and false.
      */
     public static File create_path() throws IOException {
@@ -415,7 +417,7 @@ public class TempFileManager {
     }
 
     /**
-     * Calls {@link #createPath(String, String, boolean)} on {@link #manager}
+     * Calls {@link #createPath(String, String, boolean)}
      * with defaults of ".tmp", and false.
      */
     public static File create_path(String prefix) throws IOException {
@@ -423,7 +425,7 @@ public class TempFileManager {
     }
 
     /**
-     * Calls {@link #createPath(String, String, boolean)} on {@link #manager}
+     * Calls {@link #createPath(String, String, boolean)}
      * with ".tmp", and false arguments.
      */
     public static File create_path(String prefix, String suffix)
@@ -432,7 +434,7 @@ public class TempFileManager {
     }
 
     /**
-     * Calls {@link #createPath(String, String, boolean)} on {@link #manager}.
+     * Calls {@link #createPath(String, String, boolean)}.
      */
     public static File create_path(String prefix, String suffix, boolean folder)
             throws IOException {
@@ -440,22 +442,22 @@ public class TempFileManager {
     }
 
     /**
-     * Calls {@link #removePath(File)} on {@link #manager}.
+     * Calls {@link #removePath(File)}.
      */
     public static void remove_path(File file) throws IOException {
         manager.removePath(file);
     }
 
     /**
-     * Calls {@link #getTempDir()} on {@link #manager}.
+     * Calls {@link #getTempDir()}.
      */
     public static void gettempdir() {
         manager.getTempDir();
     }
 
     /**
-     * Command-line interface to the global {@link TempFileManager} instance (
-     * {@link #manger}). Valid arguments: "--debug", "clean", "dir", and for
+     * Command-line interface to the global {@link TempFileManager} instance.
+     * Valid arguments: "--debug", "clean", "dir", and for
      * testing, "lock"
      */
     public static void main(String[] _args) throws IOException {

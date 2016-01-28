@@ -52,12 +52,13 @@
             $.ajax({
                 type: "GET",
                 url: form_url,
-                success: function(html) {                
+                success: function(html) {
+                    html = $.trim(html);
                     $( self ).parent().fadeOut('fast', function(){                    
                         
                         $( self ).parent().hide();
                         $("#"+field_id).append($(html)).fadeIn();
-                        $("#"+field_id).find("form").attr('id', "form-"+field_id)
+                        $("#"+field_id).find("form").attr('id', "form-"+field_id);
                                                 
                         $('<input id="save-'+field_id+'" type="submit" value="Save" />')
                         /*.bind( "click", function( e ) {
@@ -87,7 +88,7 @@
                                         if (field_id.indexOf("name") > -1) {
                                             var $this = $("#id_name");
                                             if ($this.attr('name')!=null && $this.attr('name')!=""){
-                                                var new_name = $this.attr('value');
+                                                var new_name = $this.val();
                                                 $("#"+field_id+"-"+$this.attr('name')).text(new_name);
                                                 if (data.o_type != "well") {
                                                     // Check we have a jsTree (not in Search or History page etc)
@@ -97,14 +98,15 @@
                                                         $("#"+objId+" div.desc").text(new_name);
                                                         $("#"+objId+" div.image img").attr('title', new_name);  // tooltip
                                                         // And in jsTree
-                                                        var node = $.jstree._focused().get_selected();
-                                                        if (new_name.length > 30) {
-                                                            new_name = '...' + new_name.substring(new_name.length-30, new_name.length);
-                                                        }
-                                                        $("#dataTree").jstree('set_text', $.jstree._focused().get_selected(), new_name);
-                                                        // For images, set data and truncate if needed
-                                                        node.children('a').attr('data-name', new_name);
-                                                        OME.truncateNames();
+                                                        var dataTree = $.jstree.reference('#dataTree');
+                                                        var node = dataTree.get_selected(true)[0];
+
+                                                        // Update the names of all instances of this object currently existing in jstree
+                                                        var identicalNodes = dataTree.locate_node(node.type + '-' + node.data.obj.id);
+                                                        $.each(identicalNodes, function(index, identicalNode) {
+                                                             dataTree.rename_node(identicalNode, new_name);
+                                                        });
+
                                                     } else {
                                                         // OR we may be in the search page: Update image name in table...
                                                         var objId = field_id.replace("name","");    // E.g. imagename-123

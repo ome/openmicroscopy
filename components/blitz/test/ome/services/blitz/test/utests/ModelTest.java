@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test.utests;
 
 import static omero.rtypes.rdouble;
@@ -15,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -26,7 +26,6 @@ import omero.model.ArcI;
 import omero.model.ChannelI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
-import omero.model.Event;
 import omero.model.EventI;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;

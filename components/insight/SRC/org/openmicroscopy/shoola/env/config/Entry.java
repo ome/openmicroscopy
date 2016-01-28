@@ -117,7 +117,7 @@ abstract class Entry
     }
     
     /**
-     * Holds the contents of the <i>name</i> and <i>type<i> attributes of an
+     * Holds the contents of the <i>name</i> and <i>type</i> attributes of an
      * entry tag (either <i>entry</i> or <i>structuredEntry</i>).
      */
     private static class NameTypePair

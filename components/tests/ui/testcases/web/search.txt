@@ -2,10 +2,13 @@
 Documentation     Tests Search on Web
 ...               https://www.openmicroscopy.org/private/ome-internal/testing_scenarios/Search.html
 
-# Resource          ../config.txt
 Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+
 Library           DateTime
-Library           Selenium2Library      run_on_failure=Nothing
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
 
 *** Variables ***
 
@@ -54,36 +57,6 @@ ${SEARCH URL}           ${WELCOME URL}search/
 
 *** Keywords ***
 
-User "${username}" logs in with password "${password}"
-    Open Browser To Login Page
-    Input username    ${username}
-    Input password    ${password}
-    Submit credentials
-    Welcome Page Should Be Open
-
-Welcome Page Should Be Open
-    Location Should Be    ${WELCOME URL}
-    Title Should Be       Webclient
-
-Open Browser To Login Page
-    Open Browser          ${LOGIN URL}    ${BROWSER}
-    Set Selenium Speed    ${DELAY}
-    Login Page Should Be Open
-
-Input Username
-    [Arguments]   ${username}
-    Input Text    username    ${username}
-
-Input Password
-    [Arguments]   ${password}
-    Input Text    password    ${password}
-
-Submit Credentials
-    Click Button    Login
-
-Login Page Should Be Open
-    Title Should Be    OMERO.web - Login
-
 Unselect All Checkboxes
     
     Unselect Checkbox  name
@@ -114,12 +87,12 @@ Omero Default Search
 For-Loop-In-Range-Acquired       [Arguments]         ${rows}
     : FOR    ${INDEX}    IN RANGE    2    ${rows}
     \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    3
-    \    Run Keyword Unless    "${RANDOM_STRING}" == ""    Condition Check Acquired Date 
+    \    Run Keyword Unless    "${RANDOM_STRING}" == ""    Condition Check Acquired Date       ${RANDOM_STRING}
    
 For-Loop-In-Range-Imported       [Arguments]         ${rows}
     : FOR    ${INDEX}    IN RANGE    2    ${rows}
     \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    4
-    \    Run Keyword Unless    "${RANDOM_STRING}" == ""  Condition Check Imported Date  
+    \    Run Keyword Unless    "${RANDOM_STRING}" == ""  Condition Check Imported Date         ${RANDOM_STRING}
 
 For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
     
@@ -158,11 +131,13 @@ For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
 
 
 Condition Check Imported Date
+    [Arguments]             ${RANDOM_STRING}    
     ${DATE}=    Get Current Date    result_format=timestamp
     ${time} =  Subtract Date From Date  ${RANDOM_STRING}  ${Date}  
     Should Be True     ${time}<=0
 
 Condition Check Acquired Date
+    [Arguments]             ${RANDOM_STRING}
     ${DATE}=    Get Current Date    result_format=timestamp
     ${time} =    Subtract Date From Date    ${RANDOM_STRING}   ${Date}
     Should Be True     ${time}<=0
@@ -185,12 +160,11 @@ Clear Search Text Field
 Test Default Search Check
     [Documentation]     login,search and Check that you are taken to the search ‘page’/UI with your search query entered into the search field.
     
-    User "${USERNAME}" logs in with password "${PASSWORD}"
     Omero Default Search
-    Location Should Be  ${SEARCH URL}
-    Page Should Contain Textfield  name=query
-    Textfield Value Should be  name=query   ${SEARCH_QUERY}
-    Wait Until Page Contains Element  id=dataTable  10
+    Location Should Be                  ${SEARCH URL}
+    Page Should Contain Textfield       name=query
+    Textfield Value Should be           name=query      ${SEARCH_QUERY}
+    Wait Until Page Contains Element    id=dataTable    ${WAIT}
  
 
 Test Check Search Results
@@ -218,7 +192,7 @@ Test Check Search Results
 
     
 Test Default Search Selections
-	[Documentation]		Check that the objects searched for are Projects, Datasets, Images, Screens, Plates (all checkboxes selected by default).
+    [Documentation]     Check that the objects searched for are Projects, Datasets, Images, Screens, Plates (all checkboxes selected by default).
 
     Checkbox Should Be Selected  images
     Checkbox Should Be Selected  datasets
@@ -231,7 +205,7 @@ Test Default Search Selections
     Click Button  id=search_button
     
 Test Additional Search With Selections
-	[Documentation]		Checkbox selections for name description and annotation and search again
+    [Documentation]     Checkbox selections for name description and annotation and search again
 
     Select Checkbox  name    
     Select Checkbox  description    
@@ -239,7 +213,7 @@ Test Additional Search With Selections
     Click Button  id=search_button
     
 Test Check Search Date Field
-	[Documentation]     Check that no date range has been chosen by default.
+    [Documentation]     Check that no date range has been chosen by default.
     
     Page Should Contain Textfield  id=startdateinput
     Textfield Value Should be  id=startdateinput  ${EMPTY}
@@ -247,14 +221,14 @@ Test Check Search Date Field
     Textfield Value Should be  id=enddateinput  ${EMPTY}
 
 Test Check Search Default Group Selection
-	[Documentation]		Check that the default Scope for the search is All Groups
+    [Documentation]     Check that the default Scope for the search is All Groups
 
     @{In group}  Get List Items  id=searchGroup
     ${expected_group}  Get Selected List Label  id=searchGroup
     Should Be Equal  ${expected_group}  ${Default_Srch_Group}
 
 Test Check Search Default User Selection
-	[Documentation]		Check : user matching the username you are logged in as, e.g user-4 user-4.
+    [Documentation]     Check : user matching the username you are logged in as, e.g user-4 user-4.
 
     @{DataOwned by}  Get List Items  id=searchByGroupMember--1
     ${expected_user}  Get Selected List Label  id=searchByGroupMember--1

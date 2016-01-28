@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -34,7 +32,7 @@ import omero.api.ShapeStats;
 import omero.model.Ellipse;
 import omero.model.Line;
 import omero.model.Point;
-import omero.model.Rect;
+import omero.model.Rectangle;
 import omero.model.Shape;
 import omero.model.SmartEllipseI;
 import omero.model.SmartLineI;
@@ -48,15 +46,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.context.ApplicationListener;
 
 /**
  * Strategy for handling the conversion between {@link Shape shapes} and
  * database-specific geometries.
- * 
- * Implements {@link ApplicationListener} in order to keep the strategy-specific
- * geometry columns in sync when a {@link ShapeChangeMessage} is published.
- * 
  * @since Beta4.1
  */
 public class GeomTool {
@@ -94,7 +87,7 @@ public class GeomTool {
      * 
      * @param shapeId
      * @param session
-     * @return
+     * @return See above.
      */
     private Shape justShapeById(long shapeId, Session session) {
         Query q = session.createQuery("select s from Shape s where s.id = :id");
@@ -144,7 +137,7 @@ public class GeomTool {
         return rect;
     }
 
-    public Rect rect(double x, double y, double w, double h) {
+    public Rectangle rect(double x, double y, double w, double h) {
         SmartRectI rect = new SmartRectI();
         rect.setX(rdouble(x));
         rect.setY(rdouble(y));
@@ -291,8 +284,6 @@ public class GeomTool {
                             .getLogicalChannel().getId();
                 }
             }
-            ShapeStats agg = rs.combined;
-
             final ShapeStats stats = makeStats(pix, shape);
             stats.shapeId = shape.getId();
 
@@ -368,8 +359,8 @@ public class GeomTool {
      * "::omero::model::Text", "Text", "TextI", "omero.model.TextI",
      * "ome.model.roi.Text", ...) to the definitive database discriminator.
      * 
-     * @param string
-     * @return
+     * @param string The string to check.
+     * @return See above.
      */
     public Object discriminator(String string) {
         if (string == null || string.length() == 0) {

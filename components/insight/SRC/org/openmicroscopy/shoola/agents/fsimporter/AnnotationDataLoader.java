@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,7 +22,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,11 +30,11 @@ import java.util.Map;
 
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
 
 /**
  * Loads the annotations of a given type linked to the specified image.
@@ -65,7 +62,7 @@ public class AnnotationDataLoader
 	 * @param viewer The Importer this data loader is for.
 	 * Mustn't be <code>null</code>.
      * @param ctx The security context.
-	 * @param imageID The identifier of the image.
+	 * @param fileSetID The identifier of the fileset.
 	 * @param index The index of the UI element.
 	 */
 	public AnnotationDataLoader(Importer viewer, SecurityContext ctx,

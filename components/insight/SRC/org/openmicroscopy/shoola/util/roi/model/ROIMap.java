@@ -20,24 +20,15 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.util.roi.model;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROICoordMap;
-import org.openmicroscopy.shoola.util.roi.model.ROIIDMap;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
@@ -47,10 +38,6 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ROIMap 

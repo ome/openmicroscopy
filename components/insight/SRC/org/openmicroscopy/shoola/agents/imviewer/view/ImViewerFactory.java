@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerFactory
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-//Java imports
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,18 +39,16 @@ import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivateRecentAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /** 
 * Factory to create {@link ImViewer} components.
@@ -71,9 +65,6 @@ import pojos.ImageData;
 * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
 * @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $ $Date: $)
-* </small>
 * @since OME2.2
 */
 public class ImViewerFactory
@@ -86,6 +77,10 @@ public class ImViewerFactory
 	private static final String	OMERO_VIEWER_COMPRESSION = 
 		"omeroViewerCompression";
 
+	/** The name of the interpolation property */
+	private static final String    OMERO_INTERPOLATION = 
+	        "omeroViewerInterpolation";
+	
 	/** The name of the windows menu. */
 	private static final String MENU_NAME = "Image Viewer";
 	
@@ -105,7 +100,7 @@ public class ImViewerFactory
 	 * Adds all the {@link ImViewer} components that this factory is
 	 * currently tracking to the passed menu.
 	 * 
-	 * @param menu The menu to add the components to. 
+	 * @param menu The menu to add the components to.
 	 */
 	static void register(JMenu menu)
 	{ 
@@ -183,12 +178,12 @@ public class ImViewerFactory
 
 	/**
 	 * Returns a viewer to display the image corresponding to the specified id.
-	 * 
-	 * @param imageID  	The image to view.
-	 * @param bounds    The bounds of the component invoking the 
-	 *                  {@link ImViewer}.
-	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
-	 * 						 separate window, <code>false</code> otherwise. 
+	 *
+	 * @param ctx The security context.
+	 * @param imageID The image to view.
+	 * @param bounds The bounds of the component invoking the {@link ImViewer}.
+	 * @param separateWindow Pass <code>true</code> to open the viewer in a
+	 *                       separate window, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static ImViewer getImageViewer(SecurityContext ctx,
@@ -201,7 +196,8 @@ public class ImViewerFactory
 	
 	/**
 	 * Returns the viewer if any, identified by the passed pixels ID.
-	 * 
+	 *
+	 * @param ctx The security context.
 	 * @param pixelsID The Identifier of the pixels set.
 	 * @return See above.
 	 */
@@ -218,7 +214,8 @@ public class ImViewerFactory
 
 	/**
 	 * Returns the viewer if any, identified by the passed image's ID.
-	 * 
+	 *
+	 * @param ctx The security context.
 	 * @param imageID The Identifier of the image.
 	 * @return See above.
 	 */
@@ -256,8 +253,8 @@ public class ImViewerFactory
 	/**
 	 * Copies the rendering settings.
 	 * 
-	 * @param image	The image to copy the rendering settings from.
-         * @param refRndDef 'Pending' rendering settings to copy (can be null)
+	 * @param image The image to copy the rendering settings from.
+	 * @param refRndDef 'Pending' rendering settings to copy (can be null)
 	 */
 	public static void copyRndSettings(ImageData image, RndProxyDef refRndDef)
 	{
@@ -289,6 +286,23 @@ public class ImViewerFactory
 			
 			comp.reloadRenderingThumbs();
 		}
+	}
+
+	/**
+	 * Indicates that rendering settings have been modified.
+	 * 
+	 * @param imageID The Identifier of the pixels set.
+	 */
+	public static void rndSettingsChanged(long imageID)
+	{
+	    Iterator<ImViewer> v = singleton.viewers.iterator();
+	    ImViewerComponent comp;
+	    while (v.hasNext()) {
+	        comp = (ImViewerComponent) v.next();
+	        if (comp.getModel().getImageID() == imageID) {
+	            comp.onSettingsChanged();
+	        }
+	    }
 	}
 
 	/**
@@ -424,6 +438,28 @@ public class ImViewerFactory
 		if (value != null && value.trim().length() > 0) 
 			return Integer.parseInt(value);
 		return -1;
+	}
+	
+	/**
+	 * Sets the interpolation user preference
+	 */
+	public static void setInterpolation(boolean interpolation) {
+	    Preferences p = Preferences.userNodeForPackage(ImViewerFactory.class);
+        p.put(OMERO_INTERPOLATION, ""+interpolation);
+	}
+	
+	/**
+	 * Returns the interpolation user preference or <code>null</code>
+	 * if it hasn't been set.
+	 * 
+	 * @return See above.
+	 */
+	public static Boolean isInterpolation() {
+	    Preferences p = Preferences.userNodeForPackage(ImViewerFactory.class);
+        String value = p.get(OMERO_INTERPOLATION, null);
+        if (CommonsLangUtils.isNotEmpty(value)) 
+            return new Boolean(value);
+        return null;
 	}
 	
 	/**

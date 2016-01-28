@@ -17,23 +17,21 @@
 
 package ome.services.blitz.test;
 
-import java.sql.Timestamp;
 import java.util.Map;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ome.api.IAdmin;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 
 import omero.ClientError;
+import omero.cmd.Chmod;
+import omero.cmd.IRequest;
 import omero.cmd._HandleTie;
-import omero.cmd.graphs.ChmodI;
+import omero.cmd.graphs.ChmodFacadeI;
 import omero.model.PermissionsI;
-
 
 /**
  * Tests around the changing of group-based permissions.
@@ -55,13 +53,13 @@ public class ChmodITest extends AbstractGraphTest {
         return user.managedSf.getAdminService().getGroup(newGrpId);
     }
 
-    ChmodI newChmod(String perms) {
+    IRequest newChmod(String perms) {
         return newChmod("/ExperimenterGroup", newGrpId, perms, null);
     }
 
-    ChmodI newChmod(String type, long id, String perms,
+    IRequest newChmod(String type, long id, String perms,
             Map<String, String> options) {
-        ChmodI chmod = (ChmodI) ic.findObjectFactory(ChmodI.ice_staticId()).create("");
+        ChmodFacadeI chmod = (ChmodFacadeI) ic.findObjectFactory(Chmod.ice_staticId()).create("");
         chmod.type = type;
         chmod.id = id;
         chmod.options = options;
@@ -96,7 +94,7 @@ public class ChmodITest extends AbstractGraphTest {
     @Test
     public void testSimple() throws Exception {
         setupNewGroup("rw----");
-        ChmodI chmod = newChmod("rwr---");
+        IRequest chmod = newChmod("rwr---");
         _HandleTie handle = submit(chmod);
         block(handle, 5, 1000);
         assertSuccess(handle);
@@ -105,7 +103,7 @@ public class ChmodITest extends AbstractGraphTest {
     @Test
     public void testReducingPermissionsOkNoData() throws Exception {
         setupNewGroup("rwr---");
-        ChmodI chmod = newChmod("rw----");
+        IRequest chmod = newChmod("rw----");
         _HandleTie handle = submit(chmod);
         block(handle, 5, 1000);
         assertSuccess(handle);
@@ -126,7 +124,7 @@ public class ChmodITest extends AbstractGraphTest {
         d.linkImage(i);
         d = user.managedSf.getUpdateService().saveAndReturnObject(d);
 
-        ChmodI chmod = newChmod("rw----");
+        IRequest chmod = newChmod("rw----");
         _HandleTie handle = submit(chmod);
         block(handle, 5, 1000);
         assertSuccess(handle);
@@ -152,7 +150,7 @@ public class ChmodITest extends AbstractGraphTest {
         d.linkImage(i);
         d = other.managedSf.getUpdateService().saveAndReturnObject(d);
 
-        ChmodI chmod = newChmod("rw----");
+        IRequest chmod = newChmod("rw----");
         _HandleTie handle = submit(chmod);
         block(handle, 5, 1000);
         assertFailure(handle, "check failed");
@@ -180,7 +178,7 @@ public class ChmodITest extends AbstractGraphTest {
         d.linkImage(i);
         d = other.managedSf.getUpdateService().saveAndReturnObject(d);
 
-        ChmodI chmod = newChmod("rwrw--");
+        IRequest chmod = newChmod("rwrw--");
         _HandleTie handle = submit(chmod);
         block(handle, 5, 1000);
         assertFailure(handle, "check failed");

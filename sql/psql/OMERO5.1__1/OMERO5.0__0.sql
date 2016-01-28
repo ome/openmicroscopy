@@ -62,7 +62,7 @@ BEGIN
     END IF;
 
     IF char_encoding != 'UTF8' THEN
-        RAISE EXCEPTION 'OMERO database character encoding must be UTF8, not %%', char_encoding;
+        RAISE EXCEPTION 'OMERO database character encoding must be UTF8, not %', char_encoding;
     ELSE
         SET client_encoding = 'UTF8';
     END IF;
@@ -2226,7 +2226,7 @@ create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
             limit 1) then
 
                 -- CANCEL DELETE
-                RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+                RAISE EXCEPTION '%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
 
         end if;
         return OLD; -- proceed

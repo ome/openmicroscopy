@@ -35,9 +35,6 @@ urlpatterns = patterns(
     # Home page is the main 'Data' page
     url(r'^$', views.load_template, {'menu': 'userdata'}, name="webindex"),
 
-    # 'Feed' / 'recent'
-    url(r'^feed/$', views.feed, name="web_feed"),
-
     # render main template
     url(r'^(?P<menu>((?i)userdata|public|history|search|help|usertags))/$',
         views.load_template,
@@ -49,12 +46,6 @@ urlpatterns = patterns(
         views.load_template, {'menu': 'history'},
         name="history"),
 
-    url(r'^last_imports/$',
-        views.index_last_imports,
-        name="index_last_imports"),
-    url(r'^most_recent/$', views.index_most_recent, name="index_most_recent"),
-    url(r'^tag_cloud/$', views.index_tag_cloud, name="index_tag_cloud"),
-
     url(r'^login/$', views.login, name="weblogin"),
     url(r'^logout/$', views.logout, name="weblogout"),
     url(r'^active_group/$',
@@ -65,17 +56,6 @@ urlpatterns = patterns(
     url(r'^group_user_content/$',
         views.group_user_content,
         name="group_user_content"),
-
-    # load basket
-    url(r'^basket/empty/$', views.empty_basket, name="empty_basket"),
-    url(r'^basket/update/$', views.update_basket, name="update_basket"),
-    url(r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$',
-        views.basket_action,
-        name="basket_action"),
-    url(r'^basket_content/$',
-        views.basket_action,
-        {'template': 'webclient/basket/basketContent.html'},
-        name="basket_content"),
 
     # update, display activities, E.g. delete queues, scripts etc.
     url(r'^activities/', views.activities, name="activities"),
@@ -207,6 +187,10 @@ urlpatterns = patterns(
         views.fileset_check,
         name="fileset_check"),
 
+    # chgrp dry run - 'group_id', obj-types and ids in POST data.
+    # E.g. Dataset=1,2,3 & Fileset=4. Multiple datatypes in one chgrp.
+    url(r'^chgrpDryRun/$', views.chgrpDryRun, name="chgrpDryRun"),
+
     # Popup for downloading original archived files for images
     url(r'^download_placeholder/$', views.download_placeholder,
         name="download_placeholder"),
@@ -240,7 +224,7 @@ urlpatterns = patterns(
         views.download_orig_metadata,
         name="download_orig_metadata"),
 
-    url(r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$',
+    url(r'^load_data_by_tag/',
         views.load_data_by_tag,
         name="load_data_by_tag"),
 
@@ -307,5 +291,57 @@ urlpatterns = patterns(
 
     # ping OMERO server to keep session alive
     url(r'^keepalive_ping/$', views.keepalive_ping, name="keepalive_ping"),
+
+    # Load data, but with JSON.
+    # url(r'^api/$', None, name='api'),
+    url(r'^api/groups/$', views.api_group_list,
+        name='api_groups'),
+
+    url(r'^api/experimenters/$', views.api_experimenter_list,
+        name='api_experimenters'),
+    url(r'^api/experimenters/(?P<experimenter_id>[0-9]+)/$',
+        views.api_experimenter_detail, name='api_experimenter'),
+
+    # Generic container list. This is necessary as an experimenter may have
+    # datasets/etc which do not belong to any project
+    url(r'^api/containers/$', views.api_container_list, name='api_containers'),
+
+    # url(r'^api/projects/$', views.api_project_list, name='api_projects'),
+    # url(r'^api/projects/(?P<pk>[0-9]+)/$', views.api_project_detail),
+
+    url(r'^api/datasets/$', views.api_dataset_list, name='api_datasets'),
+    # url(r'^api/datasets/(?P<pk>[0-9]+)/$', views.api_dataset_detail),
+
+    url(r'^api/images/$', views.api_image_list, name='api_images'),
+
+    # special case: share_id not allowed in query string since we
+    # just want to allow share connection for this url ONLY.
+    url(r'^api/share_images/(?P<share_id>[0-9]+)/$', views.api_image_list,
+        name='api_share_images'),
+
+    url(r'^api/plates/$', views.api_plate_list, name='api_plates'),
+    # url(r'^api/plates/(?P<pk>[0-9]+)/$', views.api_plate_detail),
+
+    url(r'^api/plate_acquisitions/$', views.api_plate_acquisition_list,
+        name='api_plate_acquisitions'),
+    # url(r'^api/plate_acquisitions/(?P<pk>[0-9]+)/$',
+    #     views.api_plate_acquisitions_detail),
+
+    # POST to create link, DELETE to remove.
+    # links in request.body json, e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+    url(r'^api/links/$', views.api_links, name='api_links'),
+
+    # url(r'^api/tags/$', views.api_tag_list, name='api_tags'),
+    # url(r'^api/tags/(?P<pk>[0-9]+)/$', views.api_tag_detail),
+
+    # Retrieve paths to an object
+    url(r'^api/paths_to_object/$', views.api_paths_to_object,
+        name='api_paths_to_object'),
+
+    url(r'^api/tags/$', views.api_tags_and_tagged_list,
+        name='api_tags_and_tagged'),
+
+    url(r'^api/shares/$', views.api_share_list, name='api_shares'),
+
 
 )

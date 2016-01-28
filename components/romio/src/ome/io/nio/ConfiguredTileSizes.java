@@ -12,7 +12,7 @@ package ome.io.nio;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3.1
- * @see ticket:5952
+ * @see <a href="https://trac.openmicroscopy.org/ome/ticket/5952">ticket 5952</a>
  */
 public class ConfiguredTileSizes implements TileSizes {
 

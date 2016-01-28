@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -17,7 +15,6 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
-import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
@@ -35,8 +32,8 @@ import org.slf4j.LoggerFactory;
  * The strategy here is to not only check for name, but also for the sha1 of the
  * file, meaning that if a new version is published, it will be used.
  *
- * Also provides {@link #createJob()} method in order to allow simple creation
- * of processors.
+ * Also provides {@link #createJob(ServiceFactory)} method in order to allow
+ * simple creation of processors.
  *
  * @since Beta4.1
  */

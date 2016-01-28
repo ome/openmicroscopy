@@ -19,7 +19,7 @@ import org.springframework.util.Assert;
 
 /**
  * LDAP {@link PasswordProvider} which can create users on
- * {@link #checkPassword(String, String) request} to synchronize with an LDAP
+ * {@link #checkPassword(String, String, boolean) request} to synchronize with an LDAP
  * directory. Assuming that a user exists in the configured LDAP store but not
  * in the database, then a new user will be created. Authentication, however,
  * always takes place against LDAP, and changing passwords is not allowed.
@@ -54,9 +54,9 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
     /**
      * Only returns if the user is already in the database and has a DN value in
      * the password table. Note: after a call to
-     * {@link #checkPassword(String, String)} with this same user value, this
-     * method might begin to return true due to a call to
-     * {@link LocalLdap#createUser(String, String)}.
+     * {@link #checkPassword(String, String, boolean)} with this same user value, this
+     * method might begin to return {@code true} due to a call to
+     * {@link LdapImpl#createUser(String, String)}.
      */
     @Override
     public boolean hasPassword(String user) {

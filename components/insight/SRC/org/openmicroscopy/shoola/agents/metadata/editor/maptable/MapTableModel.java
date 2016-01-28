@@ -3,7 +3,7 @@
  *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -32,7 +32,7 @@ import omero.model.NamedValue;
 
 import org.openmicroscopy.shoola.util.ui.table.Reorderable;
 
-import pojos.MapAnnotationData;
+import omero.gateway.model.MapAnnotationData;
 
 /**
  * {@link TableModel} used for the {@link MapTable}
@@ -66,8 +66,8 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	/**
 	 * Get the entry of a certain row
 	 * 
-	 * @param index
-	 * @return
+	 * @param index The row to check.
+	 * @return See above.
 	 */
 	public NamedValue getRow(int index) {
 		if (index >= 0 && index < data.size()) {
@@ -276,7 +276,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	 * Get the {@link MapAnnotationData} represented by this
 	 * {@link MapTableModel}
 	 * 
-	 * @return
+	 * @return See above.
 	 */
 	public MapAnnotationData getMap() {
 		if (isDirty()) {

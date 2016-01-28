@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.DataHandlerView 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,23 +21,20 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchParameters;
+
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import pojos.ExperimenterData;
-import pojos.ImageData;
+
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
 
 /** 
 * Provides methods to support annotation.
@@ -49,9 +44,6 @@ import pojos.ImageData;
 * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
 * @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
 * @since OME3.0
 */
 public interface DataHandlerView
@@ -98,14 +90,13 @@ public interface DataHandlerView
 	 * <code>ImageData</code>.
 	 * 
 	 * @param ctx The security context.
-	 * @param pixelsID The id of the pixels set of reference.
 	 * @param rootNodeType The type of nodes. Can either be 
 	 * 						<code>ImageData</code>, <code>DatasetData</code>.
 	 * @param ids The identifiers of the nodes to apply settings to. 
 	 * 				Mustn't be <code>null</code>.
+	 * @param def The 'pending' rendering settings
+     * @param refImage The image the rendering settings belong to
 	 * @param observer Call-back handler.
-         * @param def The 'pending' rendering settings
-         * @param refImage The image the rendering settings belong to
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle pasteRndSettings(SecurityContext ctx,

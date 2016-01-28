@@ -20,21 +20,17 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.util.ui;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
+
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.ColourIcon;
 
 /** 
  * ColourListRenderer will render the colour icons and colour names in the list
@@ -44,10 +40,6 @@ import org.openmicroscopy.shoola.util.ui.ColourIcon;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ColorListRenderer 	

@@ -21,7 +21,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 {% endcomment %}
-
     <script type="text/javascript">
         
         $(document).ready(function()
@@ -230,7 +229,7 @@
                         if ($.trim(textArea.val()).length == 0) return false;
                     },
                     success: function(html) {
-                        var $comment = $(html)
+                        var $comment = $($.trim(html));
                         linkify_element($comment);
                         $('#comments_container').prepend( $comment ).show();
                         var textArea = $('#add_comment_form textarea');
@@ -335,10 +334,11 @@
                     success: function(data) {
                         $("#fileann_spinner").hide();
                         // update the list of file annotations and bind actions
-                        var $fileanns = $(data)
+                        var $fileanns = $($.trim(data));
                         $("#fileanns_container").prepend( $fileanns ).show();
                         $(".tooltip", $fileanns).tooltip_init();
                         OME.filterAnnotationsAddedBy();
+                        OME.fileAnnotationCheckboxDynamicallyAdded();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
@@ -429,9 +429,17 @@
 
                 // Channel name editing
             {% if manager.image or manager.well.getWellSample.image %}
+
                 var $chNameForm = $("#channel_names_edit");
                 // set up form with Parent
-                var pid = OME.getParentId();    // E.g. dataset-123 OR plate-456
+                {% if manager.well %}
+                // If we're looking at a well we know parent is plate
+                  var pid = "plate-{{ manager.well.plate.id.val }}";
+                {% else %}
+                  // For images in Datasets, we get parent from jsTree, using selected image
+                  // E.g. dataset-123
+                  var pid = OME.getParentId();
+                {% endif %}
                 if (typeof pid === "undefined") {
                     $chNameForm.find("button[name=apply]").hide();  // hide 'apply to all'
                 } else {
@@ -531,9 +539,39 @@
                         // update summary
                         $("#ratingsAverage").text(data.average);
                         $("#ratingsCount").text(data.count);
-                        $("#ratingsSummary").show();
+                        if (data.count > 0) {
+                            $("#ratingsSummary").show();
+                        } else {
+                            $("#ratingsSummary").hide();
+                        }
                     });
                 }
+
+                // Handle click on collapsible panes
+                $('#metadata_general .can-collapse').click(function () {
+                    $(this).toggleClass('closed').next().slideToggle();
+                    // remember which panes are expanded
+                    var open = [];
+                    $('#metadata_general .can-collapse').each(function(){
+                        var $this = $(this);
+                        if (!$this.hasClass('closed') && $this.attr('data-name')) {
+                            open.push($this.attr('data-name'));
+                        }
+                    });
+                    $("#metadata_general").data('open_panes', open);
+                });
+                // Expand any previously opened panes
+                var open_panes = $("#metadata_general").data('open_panes');
+                if (open_panes === undefined) {
+                    open_panes = ["details"];     // by default, just 'details' is open
+                }
+
+                open_panes.forEach(function(name) {
+                    // remove 'defclose' flag from open panes
+                    $('#metadata_general .can-collapse[data-name="' + name + '"]').removeClass('defclose');
+                });
+                // Any panes that still have 'defclose' flag, we close
+                $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
 
                 // For wells, we try to load Bulk table annotations attached to parent Screen / Plate
                 // loading just the row we need for the current well.
@@ -543,6 +581,7 @@
                         wellId = {{ manager.well.id }};
 
                     var showBulkAnnTooltip = function(data) {
+                        console.log("showBulkAnnTooltip", data);
                         var bulkAnnTooltip = "<span class='tooltip_html' style='display:none'>" +
                             "Data from tables file:<br />" +
                             "<b>File ID:</b> " + data.id + "<br />" +
@@ -551,6 +590,7 @@
                             "<b>Linked to:</b> " + data.parentType + " " + data.parentId + "<br />" +
                             "<b>Linked by:</b> " + data.addedBy + " <br />" +
                             "<b>On:</b> " + OME.formatDate(data.addedOn) + "</span>";
+                        console.log(bulkAnnTooltip, $("#bulk-annotations").length);
                         $("#bulk-annotations").append(bulkAnnTooltip);
                         $("#bulk-annotations").parent().tooltip({
                                 items: '.bulk_annotation',
@@ -607,11 +647,10 @@
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
                   
-
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-                  
-                  
-                  
+            <h1 class="can-collapse defclose" data-name="details">
+                Image Details
+            </h1>
+            <div> 
                   
             <!-- Image Description -->      
             {% with obj=manager.image %}
@@ -631,6 +670,8 @@
                 {% include "webclient/annotations/includes/core_metadata.html" %}
             {% endwith %}
 
+            </div>
+
 
             {% else %}
                 {% if manager.dataset %}
@@ -642,9 +683,12 @@
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
 
-                <hr/>
                 
                 <!-- Dataset Description -->
+                <h1 class="can-collapse defclose" data-name="details">
+                    Dataset Details
+                </h1>
+                <div> 
                 {% with obj=manager.dataset %}
                     {% include "webclient/annotations/includes/description.html" %}
                 {% endwith %}
@@ -655,6 +699,7 @@
                         <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>                    
                 </table>
+                </div>
                 {% else %}
                     {% if manager.project %}
 
@@ -665,9 +710,12 @@
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
 
-                    <hr/>
                     
                     <!--Project Description -->
+                    <h1 class="can-collapse defclose" data-name="details">
+                        Project Details
+                    </h1>
+                    <div>
                     {% with obj=manager.project %}
                         {% include "webclient/annotations/includes/description.html" %}
                     {% endwith %}
@@ -678,6 +726,7 @@
                             <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
                         </tr>
                     </table>
+                    </div>
                     {% endif %}
                 {% endif %}
             {% endif %}
@@ -705,16 +754,19 @@
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
 
-            <hr/>
             
             <!-- Image (in WellSample) Description -->
+            <h1 class="can-collapse defclose" data-name="details">
+                Well Details
+            </h1>
+            <div>
             {% with obj=image %}
                 {% include "webclient/annotations/includes/description.html" %}
             {% endwith %}
 
             <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
             {% include "webclient/annotations/includes/core_metadata.html" %}
-
+            </div>
             {% endwith %}{# "image=manager.well.getWellSample.image" #}
 
             {% else %}
@@ -726,30 +778,13 @@
                 {% with obj=manager.acquisition nameText=manager.acquisition.name %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
-                
 
-                <h2 class="data_heading_id">
-                    Plate Run ID: <strong>{{ manager.acquisition.id }}</strong>
-                    <!-- open link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Acquisition">
-                        <span></span>
-                    </button>
-                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                        <input type="text" size="30">
-                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                    </div>
-                </h2>
-                <table style="float:left; width:100px; clear:left">
-                    <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
-                    </tr>
-                </table>
-                <div style="clear: both"></div>
-
-                <hr/>
                 
                 <!-- Acquisition Description -->
+                <h1 class="can-collapse defclose" data-name="details">
+                    Run Details
+                </h1>
+                <div>
                 {% with obj=manager.acquisition %}
                     {% include "webclient/annotations/includes/description.html" %}
                 {% endwith %}
@@ -760,6 +795,8 @@
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>
                 </table>
+                </div>
+
                 {% else %}
                     {% if manager.plate %}
 
@@ -770,9 +807,12 @@
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
                     
-                    <hr/>
                     
                     <!-- Plate Description -->
+                    <h1 class="can-collapse defclose" data-name="details">
+                        Plate Details
+                    </h1>
+                    <div>
                     {% with obj=manager.plate %}
                         {% include "webclient/annotations/includes/description.html" %}
                     {% endwith %}
@@ -790,6 +830,7 @@
                         </tr>
                         {% endcomment %}-->
                     </table>
+                    </div>
                     {% else %}
                         {% if manager.screen %}
 
@@ -800,10 +841,13 @@
                             {% include "webclient/annotations/includes/name.html" %}
                         {% endwith %}
                             
-                        <hr/>   
                             
 
                         <!-- Screen Description -->
+                        <h1 class="can-collapse defclose" data-name="details">
+                            Screen Details
+                        </h1>
+                        <div>
                         {% with obj=manager.screen %}
                             {% include "webclient/annotations/includes/description.html" %}
                         {% endwith %}
@@ -818,19 +862,11 @@
                                 <td id='child_count'>{{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'plate' 'plates' %}</td>
                             </tr>
                         </table>
+                        </div>
                         {% endif %}
                     {% endif %}
                 {% endif %}
             {% endif %}
-        
-        
-        
-            
-            
-            
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-            
-            
             
             
             
@@ -838,34 +874,103 @@
         
         
     <!-- ANNOTATIONS -->
-    <!--<h1>{% trans "Annotations" %}</h1>-->
-            <div>
-                <h2 style="float: left">
-                    Annotations
-                </h2>
 
-                <select id="annotationFilter" title="Filter by user" data-userId="{{ ome.user.id }}"
-                        style="float: right; width:80px">
-                    <option value="all">Show all</option>
-                    <option value="me">Show added by me</option>
-                    <option value="others">Show added by others</option>
-                </select>
+
+            <!-- TAGS -->               
+            <h1 class="can-collapse defclose" data-name="tags">
+                Tags
+            </h1>
+            <div class="annotations_section">
+                
+                {% if manager.canAnnotate %}
+                    <div>
+                        <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
+                    </div>
+                {% endif %}
+
+                <!-- display existing Tags -->
+                <div id="tags_container" class="lntags">
+                    {% with tags=manager.tag_annotations %}
+                        {% include "webclient/annotations/tags.html" %}
+                    {% endwith %}
+                </div>
+ 
             </div>
-            <div style="clear:both"></div>
-            <hr style="margin-top:0" />
 
+
+
+            <!-- MAP ANNOTATIONS -->
+            <h1 class="can-collapse defclose" data-name="keyvaluepairs">
+                Key-Value Pairs
+            </h1>
             <div class="annotations_section">
 
+                {% include "webclient/annotations/mapannotations.html" %}
+
+            </div>
+
+
+
+            <!-- FILES -->
+            <h1 class="can-collapse defclose" data-name="attachments">
+                Attachments
+            </h1>
+            <div class="annotations_section">
+
+<!-- <<<<<<< HEAD -->
                 <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Tables</h2>
                 <div style="display: none;">
                     <table id="bulk_annotations_table">
                     </table>
                 </div>
                 <div style="clear:both; margin:8px"></div>
+<!-- ======= -->
+                    {% if manager.canAnnotate %}
+                        <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
+                            <span></span>
+                        </a>
+                        <div class="toolbar">
+                            <input type="button" title="Select Files for Scripts"
+                                class="btn silver btn_script_dark">
+                            <!-- Class "scriptButton" also on <span> as that
+                                 is actually what we're clicking on.
+                            -->
+                        </div>
+                        <script type="text/javascript">
+                            $(".annotations_section .scriptButton").click(
+                                {webindex: "{% url 'webindex' %}"},
+                                OME.showScriptList
+                            );
+                        </script>
+                    {% endif %}
+                    <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
+
+                <div style="clear:both"></div>
+                <!-- display existing file annotations -->
+
+                    <ul id="fileanns_container" class="lnfiles">
+                        {% with fileanns=manager.file_annotations %}
+                            {% include "webclient/annotations/fileanns.html" %}
+                        {% endwith %}
+                    </ul>
+                    <script type="text/javascript">
+                        $(".annotations_section .toolbar input[type=button]").click(
+                            OME.toggleFileAnnotationCheckboxes
+                        );
+                        $("#fileanns_container").on(
+                            "change", "li input[type=checkbox]",
+                            OME.fileAnnotationCheckboxChanged
+                        );
+                    </script>
+            </div>
+
+<!-- >>>>>>> origin/develop -->
 
             <!-- RATING -->
-      
-                <h2>{% trans "Rating" %}</h2>
+            <h1 class="can-collapse defclose" data-name="ratings">
+                Ratings
+            </h1>
+            <div class="annotations_section">
 
                 {% with ratings=manager.getGroupedRatings %}
 
@@ -906,78 +1011,60 @@
                 </div>
                 {% endwith %}
              </div>
-            
-            
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-            
-            
-            <!-- TAGS -->               
-            <div class="annotations_section">
-                
-                <h2>{% trans "Tags" %}</h2>
-                
-                
-                
-                {% if manager.canAnnotate %}
-                    <div>
-                        <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
-                    </div>
-                {% endif %}
 
-                <!-- display existing Tags -->
-                <div id="tags_container" class="lntags">
-                    {% with tags=manager.tag_annotations %}
-                        {% include "webclient/annotations/tags.html" %}
-                    {% endwith %}
-                </div>
- 
-            </div>
+
             
-            
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-            
-            
-            
-            <!-- FILES -->
+            <!-- COMMENTS -->
+            <h1 class="can-collapse defclose" data-name="comments">
+                Comments
+            </h1>
             <div class="annotations_section">
-                <h2>{% trans "Attachments" %}</h2>
 
                     {% if manager.canAnnotate %}
-                        <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
-                            <span></span>
-                        </a>
+                    <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
+                    <table>
+                        <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
+                        <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
+                        <tr>
+                            <td>
+                                <div id="add_comment_wrapper" style="position: relative">
+                                    <label class="inline_label" for="id_comment">Add Comment:</label>
+                                    {{ form_comment.comment }}
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="submit" value="{% trans 'Add Comment' %}" style="display:none" /></td>
+                        </tr>
+                    </table>
+                    </form>
                     {% endif %}
-                    <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
 
-                <!-- display existing file annotations -->
-
-                    <ul id="fileanns_container" class="lnfiles">
-                        {% with fileanns=manager.file_annotations %}
-                            {% include "webclient/annotations/fileanns.html" %}
-                        {% endwith %}
-                    </ul>
-
+                    <div id="comments_container" class="lncomments">
+                        {% for tann in manager.text_annotations %}
+                            {% with added_by=tann.link.getDetails.getOwner.id %}
+                                {% include "webclient/annotations/comment.html" %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
             </div>
+            <div class="clear"></div>          
+            
 
 
-            <hr/>
-
-            <!-- MAP ANNOTATIONS -->
-            <div class="annotations_section">
-
-                {% include "webclient/annotations/mapannotations.html" %}
-
-            </div>
-
-
-            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-
-
+            <!-- 'OTHER' ANNOTATIONS -->
             {% if manager.xml_annotations or manager.boolean_annotations or manager.double_annotations or manager.long_annotations or manager.term_annotations or manager.time_annotations %}
-            <!-- CUSTOM ANNOTATIONS -->
+            <h1 class="can-collapse defclose" data-name="others">
+                Others
+            </h1>
             <div class="annotations_section">
                 <h2>{% trans "Others" %}:</h2>
-                
+
                     <!-- tool tips for each <td> is contained in child <span>, which are also hidden -->
                     <table id="custom_annotations">
                         {% for ann in manager.xml_annotations %}
@@ -990,7 +1077,7 @@
                             </td>
                         </tr>
                         {% endfor %}
-                        
+
                         {% for ann in manager.boolean_annotations %}
                         <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
                             <th>Boolean:</th>
@@ -1038,49 +1125,8 @@
                         {% endfor %}
                     </table>
             </div>
-            <hr/>
             {% endif %}
 
-            
-            
-            <!-- COMMENTS -->
-            <div class="annotations_section">
-                
-                    {% if manager.canAnnotate %}
-                    <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
-                    <table>
-                        <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
-                        <tr>
-                            <td>
-                                <div id="add_comment_wrapper" style="position: relative">
-                                    <label class="inline_label" for="id_comment">Add Comment:</label>
-                                    {{ form_comment.comment }}
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><input type="submit" value="{% trans 'Add Comment' %}" style="display:none" /></td>
-                        </tr>
-                    </table>
-                    </form>
-                    {% endif %}                        
-                
-                    <div id="comments_container" class="lncomments">
-                        {% for tann in manager.text_annotations %}
-                            {% with added_by=tann.link.getDetails.getOwner.id %}
-                                {% include "webclient/annotations/comment.html" %}
-                            {% endwith %}
-                        {% endfor %}
-                    </div>
-            </div>
-            <div class="clear"></div>          
-            
         </div>
         {% endif %}
 

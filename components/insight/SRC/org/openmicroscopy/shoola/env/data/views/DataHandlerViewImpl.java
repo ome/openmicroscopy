@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.DataHandlerViewImpl 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,18 +20,14 @@
  */
 package org.openmicroscopy.shoola.env.data.views;
 
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchParameters;
+
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
@@ -41,8 +35,9 @@ import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.SwitchUserGroupLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import pojos.ExperimenterData;
-import pojos.ImageData;
+
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Implementation of the {@link DataHandlerView} implementation.
@@ -52,9 +47,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataHandlerViewImpl 
@@ -87,11 +79,11 @@ public class DataHandlerViewImpl
 	 
 	 /**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#pasteRndSettings(SecurityContext, long, Class, List, RndProxyDef, ImageData
-	 * 										AgentEventListener)
+	 * @see DataHandlerView#pasteRndSettings(SecurityContext, Class, List, RndProxyDef, ImageData, AgentEventListener)
 	 */
         public CallHandle pasteRndSettings(SecurityContext ctx,
-                        Class rootNodeType, List<Long> ids, RndProxyDef def, ImageData refImage, AgentEventListener observer)
+                        Class rootNodeType, List<Long> ids, RndProxyDef def,
+                        ImageData refImage, AgentEventListener observer)
         {
                 BatchCallTree cmd = new RenderingSettingsSaver(ctx, rootNodeType, ids, def, refImage);
                 return cmd.exec(observer);
@@ -184,7 +176,7 @@ public class DataHandlerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#advancedSearchFor(List, SearchDataContext,
+	 * @see DataHandlerView#advancedSearchFor(SecurityContext, SearchParameters,
 	 * 										AgentEventListener)
 	 */
 	public CallHandle advancedSearchFor(SecurityContext ctx,

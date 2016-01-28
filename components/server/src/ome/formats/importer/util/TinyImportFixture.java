@@ -7,6 +7,7 @@
 package ome.formats.importer.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.UUID;
 
 import ome.model.containers.Dataset;
@@ -22,9 +23,7 @@ import org.springframework.util.ResourceUtils;
  * classpath, and adds them to a new UUID-named dataset.
  *
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision: 1167 $, $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $
- * @see OMEROMetadataStore
- * @see ExampleUnitTest
+ * @see ome.formats.OMEROMetadataStore
  * @since 3.0-M3
  */
 public class TinyImportFixture
@@ -45,11 +44,10 @@ public class TinyImportFixture
     }
 
     /**
-     * checks for the necessary fields and initializes the {@link ImportLibrary}
-     *
-     * @throws Exception
+     * Creates a dataset and locates the test image file.
+     * @throws FileNotFoundException if the test image file could not be found
      */
-    public void setUp() throws Exception
+    public void setUp() throws FileNotFoundException
     {
         d = new Dataset();
         d.setName(UUID.randomUUID().toString());
@@ -62,6 +60,7 @@ public class TinyImportFixture
     public void tearDown() {}
 
     /** provides access to the created {@link Dataset} instance.
+     * @return the dataset
      */
     public Dataset getDataset()
     {

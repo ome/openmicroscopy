@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -52,6 +55,8 @@ import omero.cmd.Status;
  * @since 5.1.0
  */
 public class SkipHeadI extends SkipHead implements IRequest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SkipHeadI.class);
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
@@ -87,7 +92,22 @@ public class SkipHeadI extends SkipHead implements IRequest {
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("startFrom", startFrom);
+            if (request != null) {
+                arguments.addParameter("request", request.getClass().getName());
+            }
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
+        this.helper = helper;
+
         final GraphPolicy.Action startAction;
+        final WrappableRequest<GraphModify2> wrappedRequest;
 
         if (request == null) {
             throw new RuntimeException(new GraphException("must pass a request argument"));
@@ -97,7 +117,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
         } else {
             /* create the two wrapped requests */
             final Class<? extends GraphModify2> requestClass = request.getClass();
-            final WrappableRequest<GraphModify2> wrappedRequest = (WrappableRequest<GraphModify2>) request;
+            wrappedRequest = (WrappableRequest<GraphModify2>) request;
             startAction = wrappedRequest.getActionForStarting();
             graphRequestSkip = graphRequestFactory.getRequest(requestClass);
             graphRequestPerform = graphRequestFactory.getRequest(requestClass);
@@ -133,11 +153,27 @@ public class SkipHeadI extends SkipHead implements IRequest {
             }
         });
 
-        /* initialize the two wrapped requests */
-        ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
-        ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
+        try {
+            /* initialize the two wrapped requests */
+            ((IRequest) graphRequestSkip).init(helper.subhelper(graphRequestSkip, graphRequestSkipStatus));
+            ((IRequest) graphRequestPerform).init(helper.subhelper(graphRequestPerform, graphRequestPerformStatus));
+        } catch (Cancel c) {
+            /* mark own status as canceled */
+            Throwable t = c.getCause();
+            if (t == null) {
+                t = c;
+            }
+            helper.fail(new ERR(), t, "graph-fail");
+            helper.getStatus().flags.add(State.CANCELLED);
+            /* re-throw wrapped request Cancel */
+            throw c;
+        } catch (Throwable t) {
+            /* cancel because of wrapped request exception */
+            throw helper.cancel(new ERR(), t, "graph-fail");
+        }
 
-        this.helper = helper;
+        /* set step count */
+        graphRequestSkipStatus.steps = 1 + ((WrappableRequest<?>) graphRequestSkip).getStepProvidingCompleteResponse();
         helper.setSteps(graphRequestSkipStatus.steps + graphRequestPerformStatus.steps);
     }
 

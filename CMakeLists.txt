@@ -47,7 +47,11 @@ project(openmicroscopy)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-include(components/tools/OmeroCpp/cmake/Version.cmake)
+set(OMERO_CPP_DIR components/tools/OmeroCpp)
+set(OMERO_CPP_SOURCE_DIR ${PROJECT_SOURCE_DIR}/${OMERO_CPP_DIR})
+set(OMERO_CPP_BINARY_DIR ${PROJECT_BINARY_DIR}/${OMERO_CPP_DIR})
+
+include(${OMERO_CPP_DIR}/cmake/Version.cmake)
 
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
   message(FATAL_ERROR "In-tree builds are not supported; please run cmake from a separate build directory.")
@@ -56,8 +60,7 @@ endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 enable_language(CXX)
 
 list(APPEND CMAKE_MODULE_PATH
-     "${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake"
-     "${PROJECT_SOURCE_DIR}/components/tools/OmeroCpp/cmake")
+     "${OMERO_CPP_SOURCE_DIR}/cmake")
 
 include(CheckIncludeFileCXX)
 include(CheckCXXCompilerFlag)
@@ -117,13 +120,13 @@ else(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Ima
   message(STATUS "C++ and Ice sources already generated; skipping running build.py")
 endif(NOT EXISTS ${PROJECT_SOURCE_DIR}/components/blitz/generated/omero/model/Image.ice)
 
-add_subdirectory(components/tools/OmeroCpp)
+add_subdirectory(${OMERO_CPP_DIR})
 add_subdirectory(examples)
 
 set(LIBRARY_PREFIX OME)
-configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateShellConfig.cmake.in
-               ${PROJECT_BINARY_DIR}/config)
+configure_file(${OMERO_CPP_SOURCE_DIR}/cmake/TemplateShellConfig.cmake.in
+               ${PROJECT_BINARY_DIR}/config @ONLY)
 if(WIN32)
-configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateCmdConfig.cmake.in
-               ${PROJECT_BINARY_DIR}/config.bat)
+  configure_file(${OMERO_CPP_SOURCE_DIR}/cmake/TemplateCmdConfig.cmake.in
+                 ${PROJECT_BINARY_DIR}/config.bat @ONLY)
 endif()

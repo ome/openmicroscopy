@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-
 /**
  * This class represents an LSID as used by the OME-XML data model.
  * 

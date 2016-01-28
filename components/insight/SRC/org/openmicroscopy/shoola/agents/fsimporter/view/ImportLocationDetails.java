@@ -21,7 +21,7 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Provides a transfer object for import location information

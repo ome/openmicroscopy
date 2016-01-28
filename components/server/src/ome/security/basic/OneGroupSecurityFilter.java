@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -8,7 +6,6 @@
 package ome.security.basic;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +45,27 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
 
     static public final String current_group = "current_group";
 
-    private static String myFilterCondition = "(\n"
+    /**
+     * Default constructor which calls all the necessary setters for this
+     * {@link FactoryBean}. Also calls {@link #setDefaultFilterCondition(String)}.
+     * This query clause must be kept in sync with
+     * {@link #passesFilter(Session, Details, EventContext)}.
+     *
+     * @see #passesFilter(Session, Details, EventContext)
+     * @see FilterDefinitionFactoryBean#setFilterName(String)
+     * @see FilterDefinitionFactoryBean#setParameterTypes(java.util.Map)
+     * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
+     */
+    public OneGroupSecurityFilter() {
+        super();
+    }
+
+    public OneGroupSecurityFilter(Roles roles) {
+        super(roles);
+    }
+
+    protected String myFilterCondition() {
+        return "(\n"
                 // Should handle hidden groups at the top-level
                 // ticket:1784 - Allowing system objects to be read.
                 + "\n  ( group_id = :current_group AND "
@@ -61,28 +78,10 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
                 // Will need to add something about world readable here.
                 + "\n 1 = :is_share"
                 + "\n)\n";
-
-    /**
-     * default constructor which calls all the necessary setters for this
-     * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
-     * This query clause must be kept in sync with
-     * {@link #passesFilter(Details, Long, Collection, Collection, boolean)}
-     *
-     * @see #passesFilter(Details, Long, Collection, Collection, boolean)
-     * @see FilterDefinitionFactoryBean#setFilterName(String)
-     * @see FilterDefinitionFactoryBean#setParameterTypes(Properties)
-     * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
-     */
-    public OneGroupSecurityFilter() {
-        super();
-    }
-
-    public OneGroupSecurityFilter(Roles roles) {
-        super(roles);
     }
 
     public String getDefaultCondition() {
-        return String.format(myFilterCondition, roles.getUserGroupId());
+        return String.format(myFilterCondition(), roles.getUserGroupId());
     }
 
     public Map<String, String> getParameterTypes() {

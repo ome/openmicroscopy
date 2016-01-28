@@ -7,13 +7,9 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.util.List;
 import java.util.Map;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.api.StatefulServiceInterface;
 import ome.conditions.ValidationException;
 import ome.model.core.Pixels;
@@ -56,8 +52,7 @@ import omeis.providers.re.data.PlaneDef;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/12 23:28:59 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public interface RenderingEngine extends StatefulServiceInterface {
@@ -91,7 +86,7 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @return An <i>RGB</i> image ready to be displayed on screen.
      * @throws ValidationException
      *             If <code>pd</code> is <code>null</code>.
-     * @see render()
+     * @see #render(PlaneDef)
      */
     public int[] renderAsPackedInt(PlaneDef pd);
 
@@ -105,8 +100,8 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @return A compressed RGBA JPEG for display.
      * @throws ValidationException
      *             If <code>pd</code> is <code>null</code>.
-     * @see render()
-     * @see renderAsPackedInt()
+     * @see #render(PlaneDef)
+     * @see #renderAsPackedInt(PlaneDef)
      */
     public byte[] renderCompressed(PlaneDef pd);
     
@@ -115,8 +110,9 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * Performs a projection through selected optical sections of a particular 
      * timepoint with the currently active channels and renders the data for
      * display.
-     * @param algorithm {@link IProjection#MAXIMUM_INTENSITY},
-     * {@link IProjection#MEAN_INTENSITY} or {@link IProjection#SUM_INTENSITY}.
+     * @param algorithm {@link ome.api.IProjection#MAXIMUM_INTENSITY},
+     * {@link ome.api.IProjection#MEAN_INTENSITY} or
+     * {@link ome.api.IProjection#SUM_INTENSITY}.
      * @param stepping Stepping value to use while calculating the projection.
      * For example, <code>stepping=1</code> will use every optical section from
      * <code>start</code> to <code>end</code> where <code>stepping=2</code> will
@@ -134,7 +130,7 @@ public interface RenderingEngine extends StatefulServiceInterface {
      *   <li><code>end</code> is out of range</li>
      *   <li><code>start > end</code></li>
      * </ul>
-     * @see IPixels#projectPixels()
+     * @see ome.api.IProjection#projectPixels(long, PixelsType, int, int, int, List, int, int, int, String)
      */
     public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
                                             int stepping, int start, int end);
@@ -143,8 +139,9 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * Performs a projection through selected optical sections of a particular 
      * timepoint with the currently active channels, renders the data for
      * display and compresses the resulting RGBA composite image.
-     * @param algorithm {@link IProjection#MAXIMUM_INTENSITY},
-     * {@link IProjection#MEAN_INTENSITY} or {@link IProjection#SUM_INTENSITY}.
+     * @param algorithm {@link ome.api.IProjection#MAXIMUM_INTENSITY},
+     * {@link ome.api.IProjection#MEAN_INTENSITY} or
+     * {@link ome.api.IProjection#SUM_INTENSITY}.
      * @param stepping Stepping value to use while calculating the projection.
      * For example, <code>stepping=1</code> will use every optical section from
      * <code>start</code> to <code>end</code> where <code>stepping=2</code> will
@@ -162,7 +159,7 @@ public interface RenderingEngine extends StatefulServiceInterface {
      *   <li><code>end</code> is out of range</li>
      *   <li><code>start > end</code></li>
      * </ul>
-     * @see IPixels#projectPixels()
+     * @see ome.api.IProjection#projectPixels(long, PixelsType, int, int, int, List, int, int, int, String)
      */
     public byte[] renderProjectedCompressed(int algorithm, int timepoint,
                                             int stepping, int start, int end);
@@ -176,8 +173,9 @@ public interface RenderingEngine extends StatefulServiceInterface {
     public void lookupPixels(long pixelsId);
 
     /**
-     * Returns the id of the {@link RederingDef} loaded by either
-     * {@link #lookupRenderingDef(long)} or {@link #loadRenderingDef(long)}.
+     * Returns the id of the {@link ome.model.display.RenderingDef} loaded by
+     * either {@link #lookupRenderingDef(long)} or
+     * {@link #loadRenderingDef(long)}.
      */
     public long getRenderingDefId();
 
@@ -195,7 +193,7 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * Loads a specific set of rendering settings that does not necessarily
      * have to be linked to the given Pixels set. However, the rendering
      * settings <b>must</b> be linked to a compatible Pixels set as defined
-     * by {@IRenderingSettings#sanityCheckPixels(Pixels, Pixels)}.
+     * by {@link ome.api.IRenderingSettings#sanityCheckPixels(Pixels, Pixels)}.
      * @param renderingDefId The rendering definition ID.
      * @throws ValidationException If a <code>RenderingDef</code> does not
      * exist with the ID <code>renderingDefId</code> or if the
@@ -489,8 +487,9 @@ public interface RenderingEngine extends StatefulServiceInterface {
     /** Saves the current rendering settings in the database. */
     public void saveCurrentSettings();
 
-    /** Saves the current rendering settings in the database
-     * <em>as a new {@link RenderingDef} and loads the object
+    /**
+     * Saves the current rendering settings in the database
+     * as a new {@link ome.model.display.RenderingDef} and loads the object
      * into the current {@link RenderingEngine}.
      */
     public long saveAsNewSettings();
@@ -511,7 +510,6 @@ public interface RenderingEngine extends StatefulServiceInterface {
 	 * 0.01 (1%).
 	 * @throws ValidationException if the <code>percentage</code> is out of
 	 * range.
-	 * @see ICompress#setCompressionLevel()
 	 */
 	public void setCompressionLevel(float percentage);
 	
@@ -519,7 +517,6 @@ public interface RenderingEngine extends StatefulServiceInterface {
 	 * Returns the current compression level for the service.
 	 * 
 	 * @return See above.
-	 * @see ICompress#getCompressionLevel()
 	 */
 	public float getCompressionLevel();
 	

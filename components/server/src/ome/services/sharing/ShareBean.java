@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 - 2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -43,7 +41,6 @@ import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.basic.BasicSecuritySystem;
-import ome.security.basic.CurrentDetails;
 import ome.services.mail.MailUtil;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
@@ -59,7 +56,6 @@ import ome.util.Filterable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.springframework.mail.MailException;
@@ -138,9 +134,9 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
      * leakage (8037). Using the omero.group functionality (3529), this method
      * no longer needs to be public.
      *
-     * @see ticket:2219
-     * @see ticket:3529
-     * @see ticket:8037
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/2219">ticket:2219</a>
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/3529">ticket:3529</a>
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/8037">ticket:8037</a>
      */
     private Long setShareId(Long shareId) {
         String sessId = getSecuritySystem().getEventContext().getCurrentSessionUuid();
@@ -153,7 +149,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
 
     /**
-     * @see ticket:2219
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/2219">ticket:2219</a>
      */
     public void resetReadFilter(org.hibernate.Session s) {
         // ticket:2397 and ticket:2219

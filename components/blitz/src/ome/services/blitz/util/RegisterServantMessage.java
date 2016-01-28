@@ -18,7 +18,7 @@ import ome.util.messages.InternalMessage;
  * the creation of another servant from SharedResourcesI.
  *
  * @author Josh Moore, josh at glencoesoftware.com
- * @see ticket:2253
+ * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/2253">ticket:2253</a>
  */
 public class RegisterServantMessage extends FindServiceFactoryMessage {
 

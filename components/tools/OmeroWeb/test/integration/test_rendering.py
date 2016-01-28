@@ -18,8 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Simple integration tests to ensure that the CSRF middleware is enabled and
-working correctly.
+Tests copying and pasting of rendering settings in webclient
 """
 
 import omero
@@ -31,10 +30,9 @@ from weblibrary import _csrf_post_response, _get_response
 from django.core.urlresolvers import reverse
 
 
-class TestCsrf(IWebTest):
+class TestRendering(IWebTest):
     """
-    Tests to ensure that Django CSRF middleware for OMERO.web is enabled and
-    working correctly.
+    Tests copying and pasting of rendering settings from one image to another
     """
 
     def test_copy_past_rendering_settings_from_image(self):

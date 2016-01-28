@@ -7,12 +7,6 @@
 
 package omeis.providers.re.codomain;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * The Identity map. This map is always in the codomain chain.
  * 
@@ -21,8 +15,7 @@ package omeis.providers.re.codomain;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/20 10:59:54 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 class IdentityMap implements CodomainMap {

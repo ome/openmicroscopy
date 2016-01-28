@@ -1,7 +1,7 @@
 /*
  * org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipMap 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -20,16 +20,10 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.util.roi.model;
 
-//Java imports
 import java.util.HashMap;
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
-import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 
 /** 
  * 
@@ -38,10 +32,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ROIShapeRelationshipMap

@@ -11,8 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
@@ -40,7 +38,6 @@ import ome.security.SecurityFilterHolder;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.security.policy.DefaultPolicyService;
-import ome.security.policy.Policy;
 import ome.security.policy.PolicyService;
 import ome.services.messages.EventLogMessage;
 import ome.services.messages.EventLogsMessage;
@@ -77,16 +74,12 @@ import com.google.common.collect.Multimap;
  * {@link CurrentDetails} to provide the security infrastructure.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision: 1581 $, $Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun
- *          2007) $
  * @see Token
  * @see SecuritySystem
  * @see Details
  * @see Permissions
  * @since 3.0-M3
  */
-@RevisionDate("$Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun 2007) $")
-@RevisionNumber("$Revision: 1581 $")
 public class BasicSecuritySystem implements SecuritySystem,
         ApplicationContextAware, ApplicationListener<EventLogMessage> {
 
@@ -117,6 +110,10 @@ public class BasicSecuritySystem implements SecuritySystem,
     /**
      * Simplified factory method which generates all the security primitives
      * internally. Primarily useful for generated testing instances.
+     * @param sm the session manager
+     * @param sf the session factory
+     * @param cache the session cache
+     * @return a configured security system
      */
     public static BasicSecuritySystem selfConfigure(SessionManager sm,
             ServiceFactory sf, SessionCache cache) {
@@ -137,6 +134,15 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     /**
      * Main public constructor for this {@link SecuritySystem} implementation.
+     * @param interceptor the OMERO interceptor for Hibernate
+     * @param sysTypes the system types
+     * @param cd the current details
+     * @param sessionManager the session manager
+     * @param roles the OMERO roles
+     * @param sf the session factory
+     * @param tokenHolder the token holder
+     * @param filter the security filter
+     * @param policyService the policy service
      */
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
@@ -210,7 +216,7 @@ public class BasicSecuritySystem implements SecuritySystem,
      * entities silently removed from the return value. This filter does <em>
      * not</em>
      * apply to single value loads from the database. See
-     * {@link #allowLoad(Class, Details)} for more.
+     * {@link ome.security.ACLVoter#allowLoad(Session, Class, Details, long)} for more.
      * 
      * Note: this filter must be disabled on logout, otherwise the necessary
      * parameters (current user, current group, etc.) for building the filters
@@ -518,12 +524,12 @@ public class BasicSecuritySystem implements SecuritySystem,
     /**
      * 
      * It would be better to catch the
-     * {@link SecureAction#updateObject(IObject)} method in a try/finally block,
+     * {@link SecureAction#updateObject(IObject...)} method in a try/finally block,
      * but since flush can be so poorly controlled that's not possible. instead,
      * we use the one time token which is removed this Object is checked for
      * {@link #hasPrivilegedToken(IObject) privileges}.
      * 
-     * @param obj
+     * @param objs
      *            A managed (non-detached) entity. Not null.
      * @param action
      *            A code-block that will be given the entity argument with a
@@ -630,16 +636,14 @@ public class BasicSecuritySystem implements SecuritySystem,
     }
 
     /**
-     * See {@link TokenHolder#copyToken(IObject, IObject)
-
+     * @see TokenHolder#copyToken(IObject, IObject)
      */
     public void copyToken(IObject source, IObject copy) {
         tokenHolder.copyToken(source, copy);
     }
 
     /**
-     * See {@link TokenHolder#hasPrivilegedToken(IObject)
-
+     * @see TokenHolder#hasPrivilegedToken(IObject)
      */
     public boolean hasPrivilegedToken(IObject obj) {
         return tokenHolder.hasPrivilegedToken(obj);

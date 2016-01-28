@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 
-//Java imports
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -31,15 +28,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Helper class providing methods to lay out the nodes.

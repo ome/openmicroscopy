@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,17 +21,10 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.util;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.IllegalArgumentException;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Utility class to save object for import.

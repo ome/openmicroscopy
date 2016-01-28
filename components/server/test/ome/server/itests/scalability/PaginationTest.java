@@ -2,9 +2,9 @@
  *   Copyright (C) 2008-2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.scalability;
 
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

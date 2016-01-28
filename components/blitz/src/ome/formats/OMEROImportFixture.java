@@ -74,7 +74,7 @@ public class OMEROImportFixture {
     /**
      * checks for the necessary fields and initializes the {@link ImportLibrary}
      *
-     * @throws Exception
+     * @throws Exception if the import library could not be instantiated
      */
     public void setUp() throws Exception {
         this.library = new ImportLibrary(store, reader);
@@ -106,6 +106,10 @@ public class OMEROImportFixture {
 
     /**
      * Provides one complete import cycle.
+     * @param f the file to import
+     * @param name the name (ignored)
+     * @return the {@link Pixels} instance(s) created by the import
+     * @throws Exception if the import failed
      */
     public List<Pixels> fullImport(File f, String name) throws Exception {
         this.setUp();
@@ -120,19 +124,9 @@ public class OMEROImportFixture {
     }
 
     /**
-     * runs import by looping through all files and then calling:
-     * <ul>
-     * <li>{@link ImportLibrary#open(String)}</li>
-     * <li>{@link ImportLibrary#calculateImageCount(String)}</li>
-     * <li>{@link ImportLibrary#importMetadata()}</li>
-     * <li>
-     * {@link ImportLibrary#importData(long, String, ome.formats.testclient.ImportLibrary.Step)}
-     * </li>
-     * </ul>
-     *
-     * @param step
-     *            an action to take per plane. not null.
-     * @throws Exception
+     * Runs import by looping through all files and then calling
+     * {@link ImportLibrary#importCandidates(ImportConfig, ImportCandidates)}.
+     * @throws Exception if import failed in a way that is not handled by an {@link EXCEPTION_EVENT}
      */
     public void doImport() throws Exception {
         String fileName = file.getAbsolutePath();
@@ -165,6 +159,8 @@ public class OMEROImportFixture {
     /**
      * Accessor for the created pixels. Should be called before the next call to
      * {@link #doImport()}
+     * @return the {@link Pixels} instance(s) created by the import
+     * @throws Exception from an {@link EXCEPTION_EVENT} if the import failed
      */
     public List<Pixels> getPixels() throws Exception {
         if (exception != null) {

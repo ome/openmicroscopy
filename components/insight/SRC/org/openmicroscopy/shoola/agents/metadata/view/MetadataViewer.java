@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.metadata.view;
 
 
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -35,24 +32,19 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.AnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.ImageData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -68,9 +60,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface MetadataViewer
@@ -273,6 +262,13 @@ public interface MetadataViewer
 	 */
 	public JComponent getEditorUI();
 	
+	/**
+     * Returns the Editor to select the metadata.
+     * 
+     * @return See above.
+     */
+    public Editor getEditor();
+    
 	/**
 	 * Checks if the renderer has already been initialized
 	 * @return See above.
@@ -533,7 +529,7 @@ public interface MetadataViewer
 	/**
 	 * Brings up the activity options.
 	 * 
-	 * @param source   The source of the mouse pressed.
+	 * @param source The source of the mouse pressed.
 	 * @param location The location of the mouse pressed.
 	 * @param index
 	 */
@@ -556,18 +552,19 @@ public interface MetadataViewer
 	
 	/**
 	 * Reloads the renderer (asynchronous) if the passed value is
-         * <code>true</code>, discards the components if <code>false</code>.
+     * <code>true</code>, discards the components if <code>false</code>.
 	 * 
 	 * @param value Pass <code>true</code> to reload, 
 	 * 				<code>false</code> to discard.
 	 */
 	public void reloadRenderingControl(boolean value);
 	
+	/** Resets the control. */
 	public void resetRenderingControl();
 	 
 	/**
 	 * Reloads the renderer (synchronous)
-         */
+     */
 	void reloadRenderingControl();
 	
 	/** 
@@ -587,8 +584,8 @@ public interface MetadataViewer
 	/**
 	 * Updates the experimenter or the group.
 	 * 
-	 * @param data 		The object to handle.
-	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
+	 * @param data The object to handle.
+	 * @param asynch Pass <code>true</code> to save data asynchronously,
      * 					 <code>false</code> otherwise.
 	 */
 	public void updateAdminObject(Object data, boolean asynch);
@@ -616,8 +613,8 @@ public interface MetadataViewer
 	
 	/**
 	 * Sets the settings linked to a given image.
-         *
-	 * @param The map containing the rendering definitions
+     *
+	 * @param result The map containing the rendering definitions
 	 */
 	void setViewedBy(Map result);
 	
@@ -699,16 +696,22 @@ public interface MetadataViewer
 	ExperimenterData getCurrentUser();
 	
 	/**
-         * Applies the settings of a previous set image to
-         * the renderer (does not save them).
-         * See also {@link #setRndSettingsToCopy(ImageData)}
-         */
+	 * Applies the settings of a previous set image to
+	 * the renderer (does not save them).
+	 */
 	void applyCopiedRndSettings();
-	
-        /**
-         * Returns if there are copied rendering settings which could be pasted.
-         * 
-         * @return
-         */
-        boolean hasRndSettingsCopied();
+
+	/**
+	 * Returns if there are copied rendering settings which could be pasted.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasRndSettingsCopied();
+
+	/**
+	 * Returns the alternative rendering settings.
+	 *
+	 * @return See above.
+	 */
+	RndProxyDef getAlternativeRenderingSettings();
 }

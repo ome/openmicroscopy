@@ -30,17 +30,12 @@ import org.slf4j.LoggerFactory;
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision: 1167 $, $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $
  * @see OMEROMetadataStoreClient
- * @see ExampleUnitTest
  * @since 3.0-M3
  */
-// @RevisionDate("$Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $")
-// @RevisionNumber("$Revision: 1167 $")
 public class ImportFixture
 {
 
     Logger                        log = LoggerFactory.getLogger(ImportFixture.class);
-
-    @SuppressWarnings("unused")
 
     private OMEROMetadataStoreClient store;
 
@@ -77,7 +72,7 @@ public class ImportFixture
     /**
      * checks for the necessary fields and initializes the {@link ImportLibrary}
      *
-     * @throws Exception
+     * @throws Exception if setup failed
      */
     public void setUp() throws Exception
     {
@@ -106,16 +101,9 @@ public class ImportFixture
     }
 
     /**
-     * runs import by looping through all files and then calling:
-     * <ul>
-     * <li>{@link ImportLibrary#open(String)}</li>
-     * <li>{@link ImportLibrary#calculateImageCount(String)}</li>
-     * <li>{@link ImportLibrary#importMetadata()}</li>
-     * <li>{@link ImportLibrary#importData(long, String)}</li>
-     * </ul>
-     *
-     * @param step an action to take per plane. not null.
-     * @throws Exception
+     * Runs import by looping through all files and then calling
+     * {@link ImportLibrary#importImage(ImportContainer, int, int, int)}.
+     * @throws Throwable reporting a problem with import
      */
     public void doImport() throws Throwable
     {

@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-
-
-//Java imports
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -32,11 +29,8 @@ import java.io.StringWriter;
 import ome.conditions.ResourceError;
 import omero.ChecksumValidationException;
 
-//Third-party libraries
 import loci.formats.FormatException;
 import loci.formats.UnsupportedCompressionException;
-
-//Application-internal dependencies
 
 /** 
  * Reports an error occurred while importing an image.
@@ -125,7 +119,6 @@ public class ImportException
      * Constructs a new exception with the specified detail message.
      * 
      * @param message Short explanation of the problem.
-     * @param readerType The type of reader used while trying to import an image.
      */
     public ImportException(String message)
     {
@@ -139,9 +132,7 @@ public class ImportException
     /**
      * Constructs a new exception with the specified detail message and cause.
      * 
-     * @param message Short explanation of the problem.
      * @param cause The exception that caused this one to be risen.
-     * @param readerType The type of reader used while trying to import an mage.
      */
     public ImportException(Throwable cause)
     {
@@ -153,7 +144,6 @@ public class ImportException
      * 
      * @param message Short explanation of the problem.
      * @param cause The exception that caused this one to be risen.
-     * @param readerType The type of reader used while trying to import an image.
      */
     public ImportException(String message, Throwable cause)
     {

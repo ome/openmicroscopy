@@ -62,7 +62,7 @@ public class BasicMethodSecurity implements MethodSecurity {
     }
 
     /**
-     * See {@link MethodSecurity#checkMethod(Object, Method, Principal)}
+     * @see MethodSecurity#checkMethod(Object, Method, Principal, boolean)
      */
     public void checkMethod(Object o, Method m, Principal p, boolean hasPassword) {
         String[] allowedRoles = null;

@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.figures;
 
 
-//Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -34,12 +33,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
-//Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -323,7 +319,7 @@ public class MeasurePointFigure
 
     /**
      * Overridden to stop updating shape if read-only.
-     * @see AbstractAttributedFigure#setBounds(Double, Double)
+     * @see AbstractAttributedFigure#setBounds(Point2D.Double, Point2D.Double)
      */
     public void setBounds(Point2D.Double anchor, Point2D.Double lead)
     {
@@ -452,7 +448,7 @@ public class MeasurePointFigure
 
     /**
      * Implemented as specified by the {@link ROIFigure} interface.
-     * @see ROIFigure#setStatus(boolean)
+     * @see ROIFigure#setStatus(int)
      */
     public void setStatus(int status) { this.status = status; }
 

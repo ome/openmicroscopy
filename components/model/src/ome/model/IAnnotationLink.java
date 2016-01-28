@@ -8,7 +8,7 @@ package ome.model;
 
 /**
  * extension of {@link ome.model.ILink} for marking links whose child field is
- * an {@link Annotation}.
+ * an {@link ome.model.annotations.Annotation}.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.2.1

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -9,19 +7,16 @@ package ome.services.eventlogs;
 
 import ome.api.ITypes;
 import ome.conditions.InternalException;
-import ome.model.IEnum;
 import ome.model.meta.EventLog;
 import ome.util.SqlAction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 /**
  * {@link EventLogLoader} implementation which keeps tracks of the last
  * {@link EventLog} instance, and always provides the next unindexed instance.
- * Reseting that saved value would restart indexing.
+ * Resetting that saved value would restart indexing.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3

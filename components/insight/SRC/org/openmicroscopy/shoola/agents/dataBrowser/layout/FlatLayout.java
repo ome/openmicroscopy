@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.layout.FlatLayout 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
@@ -23,18 +21,14 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Recursively lays out all nodes regardless of the container.

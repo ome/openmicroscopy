@@ -7,13 +7,9 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.util.HashMap;
 import java.util.Map;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import omeis.providers.re.data.PlaneDef;
 
 /**

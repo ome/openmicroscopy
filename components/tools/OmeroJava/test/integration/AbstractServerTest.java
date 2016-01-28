@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
  *   Copyright 2010-2015 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertFalse;
@@ -15,6 +14,7 @@ import static org.testng.AssertJUnit.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,13 +37,14 @@ import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
 import omero.ApiUsageException;
+import omero.RLong;
+import omero.RType;
 import omero.ServerError;
 import omero.rtypes;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.cmd.Chmod2;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete2;
 import omero.cmd.Delete2Response;
@@ -58,7 +59,6 @@ import omero.cmd.State;
 import omero.cmd.Status;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
-import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
@@ -75,7 +75,6 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
-import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Fileset;
@@ -87,8 +86,6 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.InstrumentAnnotationLink;
 import omero.model.InstrumentAnnotationLinkI;
-import omero.model.Laser;
-import omero.model.LightEmittingDiode;
 import omero.model.LightSource;
 import omero.model.LightSourceAnnotationLink;
 import omero.model.LightSourceAnnotationLinkI;
@@ -128,13 +125,12 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.apache.commons.lang.StringUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
-import spec.AbstractTest;
 
 /**
  * Base test for integration tests.
@@ -162,7 +158,7 @@ public class AbstractServerTest extends AbstractTest {
     public String GUEST_GROUP = "guest";
 
     /** Scaling factor used for CmdCallbackI loop timings. */
-    protected long scalingFactor = 500;
+    protected long scalingFactor;
 
     /** The client object, this is the entry point to the Server. */
     protected omero.client client;
@@ -246,6 +242,16 @@ public class AbstractServerTest extends AbstractTest {
         root = newRootOmeroClient();
         tmp.__del__();
 
+        scalingFactor = 500;
+        final String timeoutString = System.getProperty("omero.test.timeout");
+        if (StringUtils.isNotBlank(timeoutString)) {
+            try {
+                scalingFactor = Long.valueOf(timeoutString);
+            } catch (NumberFormatException e) {
+                log.warn("Problem setting 'omero.test.timeout' to: {}. " +
+                         "Defaulting to {}.", timeoutString, scalingFactor);
+            }
+        }
         final EventContext ctx = newUserAndGroup("rw----");
         this.userFsDir = ctx.userName + "_" + ctx.userId + FsFile.separatorChar;
         SimpleBackOff backOff = new SimpleBackOff();
@@ -924,6 +930,23 @@ public class AbstractServerTest extends AbstractTest {
         }
     }
 
+    protected void assertAllExist(Iterable<? extends IObject> obj) throws Exception {
+        for (IObject iObject : obj) {
+            assertExists(iObject);
+        }
+    }
+
+    protected void assertExists(String className, Long id) throws ServerError {
+        assertAllExist(className, Collections.singletonList(id));
+    }
+
+    protected void assertAllExist(String className, Collection<Long> ids) throws ServerError {
+        final String hql = "SELECT COUNT(*) FROM " + className + " WHERE id IN (:ids)";
+        final List<List<RType>> results = iQuery.projection(hql, new ParametersI().addIds(ids));
+        final long count = ((RLong) results.get(0).get(0)).getValue();
+        Assert.assertEquals(count, ids.size());
+    }
+
     /**
      * Makes sure that the passed object does not exist.
      *
@@ -945,6 +968,23 @@ public class AbstractServerTest extends AbstractTest {
         for (IObject iObject : obj) {
             assertDoesNotExist(iObject);
         }
+    }
+
+    protected void assertNoneExist(Iterable<? extends IObject> obj) throws Exception {
+        for (IObject iObject : obj) {
+            assertDoesNotExist(iObject);
+        }
+    }
+
+    protected void assertDoesNotExist(String className, Long id) throws ServerError {
+        assertNoneExist(className, Collections.singletonList(id));
+    }
+
+    protected void assertNoneExist(String className, Collection<Long> ids) throws ServerError {
+        final String hql = "SELECT COUNT(*) FROM " + className + " WHERE id IN (:ids)";
+        final List<List<RType>> results = iQuery.projection(hql, new ParametersI().addIds(ids));
+        final long count = ((RLong) results.get(0).get(0)).getValue();
+        Assert.assertEquals(count, 0);
     }
 
     /**
@@ -1129,22 +1169,6 @@ public class AbstractServerTest extends AbstractTest {
 
         callback(passes, c, dc);
         return "ok";
-    }
-
-    /**
-     * Creates the command to change permissions.
-     *
-     * @param session
-     * @param type
-     * @param id
-     * @param perms
-     * @return
-     */
-    Chmod2 createChmodCommand(String type, long id, String perms) {
-        final Chmod2 chmod = new Chmod2();
-        chmod.targetObjects = ImmutableMap.of(type, Collections.singletonList(id));
-        chmod.permissions = perms;
-        return chmod;
     }
 
     /**

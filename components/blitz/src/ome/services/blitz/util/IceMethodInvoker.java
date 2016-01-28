@@ -1,14 +1,10 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 package ome.services.blitz.util;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +16,6 @@ import omero.util.IceMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.framework.Advised;
 import org.springframework.util.Assert;
 
 /**
@@ -37,8 +32,8 @@ import org.springframework.util.Assert;
  * <ul>
  * <li>Method names exact</li>
  * <li>Collections of the same type only (no arrays)</li>
- * <li>Primitivies use Ice primitives (long, int, bool,...)</li>
- * <li>Primitive wrapeprs all use RTypes (RLong, RInt, RBool,...)</li>
+ * <li>Primitives use Ice primitives (long, int, bool,...)</li>
+ * <li>Primitive wrappers all use RTypes (RLong, RInt, RBool,...)</li>
  * </ul>
  * 
  * It is also possible to have this class not handle mapping arguments and
@@ -47,9 +42,9 @@ import org.springframework.util.Assert;
  * Future:
  * <ul>
  * <li>Currently ignoring
- * 
- * @NotNull</li>
- *          </ul>
+ * {@link ome.annotations.NotNull} annotations
+ * </li>
+ * </ul>
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
@@ -77,7 +72,7 @@ public class IceMethodInvoker {
     /**
      * Create an {@link IceMethodInvoker} instance using the {@link Class} of
      * the passed argument to call
-     * {@link IceMethodInvoker#IceMethodInvoker(Class)}.
+     * {@link IceMethodInvoker#IceMethodInvoker(Class, OmeroContext)}.
      * 
      * @param srv
      *            A Non-null {@link ServiceInterface} instance.
@@ -96,7 +91,7 @@ public class IceMethodInvoker {
      * 
      * @param <S>
      *            A type which subclasses {@link ServiceInterface}
-     * @param c
+     * @param context
      *            A non-null {@link ServiceInterface} {@link Class}
      */
     public <S extends ServiceInterface> IceMethodInvoker(Class<S> k,
@@ -141,10 +136,8 @@ public class IceMethodInvoker {
      * Calls the method named in {@link Ice.Current#operation} with the
      * arguments provided mapped via the {@link IceMapper} instance. The return
      * value or any method which is thrown is equally mapped and returned.
-     * Clients of this method must check the return value for exceptions.
-     * {@link ServantHelper#throwIfNecessary(Object)} does just this, but is
-     * also called internally by {@link ServantHelper#checkVoid(Object)} and
-     * {@link ServantHelper#returnValue(Class, Object)}.
+     * Exceptions are handled by
+     * {@link IceMapper#handleException(Throwable, OmeroContext)}.
      * 
      * @param obj
      *            Instance for the call to
@@ -181,7 +174,7 @@ public class IceMethodInvoker {
             throw mapper.handleException(t, ctx);
         }
 
-        // Handling case of generics (.e.g Search.next())
+        // Handling case of generics (e.g. Search.next())
         // in which case we cannot properly handle the mapping.
         Class<?> retType = info.retType;
         if (retType == Object.class && retVal != null) {

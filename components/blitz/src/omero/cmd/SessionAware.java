@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -9,7 +7,6 @@
 package omero.cmd;
 
 import omero.ServerError;
-import omero.cmd.SessionI;
 
 /**
  * Servant which is aware of the {@link SessionI}-instance which it

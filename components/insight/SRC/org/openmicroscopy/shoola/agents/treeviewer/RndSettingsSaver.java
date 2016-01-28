@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,25 +21,20 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-//Java imports
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * Pastes the rendering settings associated to the passed set of pixels
@@ -54,9 +47,6 @@ import pojos.ScreenData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class RndSettingsSaver 
@@ -194,13 +184,14 @@ public class RndSettingsSaver
 	 * @param viewer The TreeViewer this data loader is for.
 	 *               Mustn't be <code>null</code>.
 	 * @param ctx The security context.
-	 * @param ref The time reference object.
-	 * @param pixelsID The id of the pixels of reference.
-         * @param defToPaste 'Pending' rendering settings to paste
-         * @param refImage  Image to which the rendering settings belong
+	 * @param rootType The type of nodes.
+	 * @param ids The identifiers of the nodes.
+     * @param defToPaste 'Pending' rendering settings to paste
+     * @param refImage Image to which the rendering settings belong
 	 */
 	public RndSettingsSaver(TreeViewer viewer, 
-                SecurityContext ctx, Class rootType, List<Long> ids, RndProxyDef defToPaste, ImageData refImage)
+                SecurityContext ctx, Class rootType, List<Long> ids,
+                RndProxyDef defToPaste, ImageData refImage)
         {
                 super(viewer, ctx);
                 checkRootType(rootType);
@@ -215,7 +206,6 @@ public class RndSettingsSaver
                 this.refImage = refImage;
                 ref = null;
         }
-        	
 
 	/**
 	 * Creates a new instance.
@@ -224,7 +214,7 @@ public class RndSettingsSaver
 	 *               Mustn't be <code>null</code>.
 	 * @param ctx The security context.
 	 * @param ref The time reference object.
-	 * @param pixelsID The id of the pixels of reference.
+	 * @param refImage Image to which the rendering settings belong
 	 */
 	public RndSettingsSaver(TreeViewer viewer, SecurityContext ctx,
 			TimeRefObject ref, ImageData refImage)

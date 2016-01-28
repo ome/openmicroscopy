@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.FSFileSystemView 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,31 +21,18 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-//Java imports
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
 import javax.swing.filechooser.FileSystemView;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.grid.RepositoryPrx;
-import omero.model.Image;
-import omero.model.IObject;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
-import pojos.DataObject;
-import pojos.FileData;
-import pojos.ImageData;
-import pojos.MultiImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileData;
+import omero.gateway.model.ImageData;
 
 
 /** 
@@ -58,9 +43,6 @@ import pojos.MultiImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class FSFileSystemView 
@@ -118,110 +100,7 @@ public class FSFileSystemView
     	}
     	return null;
     }
-    
-    /**
-     * Populates the collections of files.
-     * 
-     * @param files 	The files to handle.
-     * @param elements  The elements from the <code>FileSystem</code>
-     */
-    /*
-    private void populate(FileData root, 
-    		Vector<DataObject> files, List<FileSet> elements)
-    {
-    	if (elements == null) return;
-		Iterator<FileSet> i = elements.iterator();
-		File f;
-		MultiImageData multiImg;
-		Iterator j;
-		List<ImageData> components;
-		FileSet fs;
-		String name;
-		int count = 0;
-		OriginalFile of;
-		List<Image> images;
-		OriginalFile file = null;
-		ImageData image;
-		String parentName;
-		int index;
-		boolean dir;
-		FileData data;
-		while (i.hasNext()) {
-			fs = i.next();
-			dir = fs.dir;
-			file = fs.parentFile;
-			name = fs.fileName;
-			count = fs.imageCount;
-			if (count == 0) {
-				if (file == null) {
-					of = new OriginalFileI();
-					of.setName(omero.rtypes.rstring(name));
-					file = of;
-				} 
-				data = new FileData(file, dir);
-				data.setRepositoryPath(root.getAbsolutePath());
-				files.addElement(data);
-			} else {
-				images = fs.imageList;
-				count = images.size();
-				if (count == 1) {
-					image = new ImageData(images.get(0));
-					data = new FileData(file);
-					data.setRepositoryPath(root.getAbsolutePath());
-					if (image.getId() < 0)
-						image.setName(data.getName());
-					image.setPathToFile(data.getAbsolutePath());
-					image.setReference(file);
-					files.addElement(image);
-				} else if (count > 1) {
-					multiImg = new MultiImageData(file);
-					multiImg.setRepositoryPath(root.getAbsolutePath());
-					parentName = multiImg.getName();
-					j = images.iterator();
-					components = new ArrayList<ImageData>();
-					index = 0;
-					while (j.hasNext()) {
-						image = new ImageData((Image) j.next()); 
-						image.setParentFilePath(multiImg.getAbsolutePath(), 
-								index);
-						name = image.getName();
-						if (name == null || name.length() == 0 || 
-								name.equals(NO_NAME)) {
-							image.setName(parentName+"_"+index);
-						}
-						components.add(image);
-						index++;
-					}
-					multiImg.setComponents(components);
-					files.addElement(multiImg);
-				}
-			}
-		}
-    }
-   */
-    /**
-     * Sorts the passed images by index. This should only be invoked to 
-     * handle.
-     * 
-     * @param images The images to handle.
-     */
-    private void sortImageByIndex(List<ImageData> images)
-    {
-    	if (images == null || images.size() == 0) return;
-    	Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-                int i1 = ((ImageData) o1).getIndex(),
-                          i2 = ((ImageData) o2).getIndex();
-                int v = 0;
-                if (i1 < i2) v = -1;
-                else if (i1 > i2) v = 1;
-                return -v;
-            }
-        };
-        Collections.sort(images, c);
-    }
-    
+
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -234,7 +113,6 @@ public class FSFileSystemView
 			throw new IllegalArgumentException("No repositories specified.");
 		this.userID = userID;
 		this.repositories = repositories;
-		//config = new RepositoryListConfig(1, true, true, false, true, false);
 	}
 
 	/**
@@ -245,9 +123,11 @@ public class FSFileSystemView
 	public long getUserID() { return userID; }
 	
     /**
-	 * Overridden to handle <code>FileData</code>.
-	 * @see FileSystemView#isRoot(FileData)
-	 */
+     * Checks if the file is the root.
+     *
+     * @param f The file to handle.
+     * @return See above.
+     */
     public boolean isRoot(FileData f)
     {
     	if (f == null) return false;
@@ -287,7 +167,6 @@ public class FSFileSystemView
      * Registers the passed file. Returns the updated data object.
      * 
      * @param file The file to register.
-     * @param userID The id of the owner of the directory to register.
      * @return See above.
      */
     public DataObject register(DataObject file)
@@ -407,7 +286,6 @@ public class FSFileSystemView
      * @param dir 			The directory to handle.
      * @param useFileHiding Pass <code>true</code> to return the files not
      * 						hidden, <code>false</code> otherwise.
-     *  @see FileSystemView#getFiles(FileData, boolean)
      */
     public DataObject[] getFiles(FileData dir, boolean useFileHiding)
     	throws FSAccessException

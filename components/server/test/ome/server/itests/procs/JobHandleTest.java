@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.procs;
 
 import java.lang.reflect.Field;
@@ -28,8 +27,6 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.ContextFilter;
 import omero.ApiUsageException;
-import omero.model.JobStatusI;
-import omero.util.IceMapper;
 
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;

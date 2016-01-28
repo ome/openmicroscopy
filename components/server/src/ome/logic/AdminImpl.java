@@ -1046,7 +1046,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * Helpers which unconditionally moves the object to the common space. This
      * can be used by other methods like {@link #uploadMyUserPhoto(String, String, byte[])}
      *
-     * @param not null object. Should be linked to the current session.
+     * @param obj a model object, linked to the current session; never {@code null}
      */
     public void internalMoveToCommonSpace(IObject obj) {
         /* Can this next line be removed? - ajp */

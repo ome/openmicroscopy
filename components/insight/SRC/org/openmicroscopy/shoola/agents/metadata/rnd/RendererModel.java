@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.rnd.RendererModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -35,30 +31,35 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+import omero.log.LogMessage;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
+
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import pojos.ChannelData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.XMLAnnotationData;
+
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * The Model component in the <code>Renderer</code> MVC triad.
@@ -175,6 +176,9 @@ class RendererModel
     /** Map hosting the extra dimension if available.*/
     private Map<Integer, ModuloInfo> modulo;
 
+    /** he alternative rendering settings if any.*/
+    private RndProxyDef def;
+
 	/**
 	 * Creates a new instance.
 	 *
@@ -182,9 +186,10 @@ class RendererModel
 	 * @param rndControl Reference to the component that controls the
 	 *                   rendering settings. Mustn't be <code>null</code>.
 	 * @param rndIndex The index associated to the renderer.
+	 * @param def The alternative rendering settings if any.
 	 */
 	RendererModel(SecurityContext ctx, RenderingControl rndControl,
-			int rndIndex)
+			int rndIndex, RndProxyDef def)
 	{
 		if (rndControl == null)
 			throw new NullPointerException("No rendering control.");
@@ -196,6 +201,7 @@ class RendererModel
 		globalMinChannels = null;
 		plane = new PlaneDef();
 		plane.slice = omero.romio.XY.value;
+		this.def = def;
 	}
 
 	/**
@@ -1095,9 +1101,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeY()
+	Length getPixelsSizeY()
 	{ 
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeY();
 	}
 
@@ -1106,9 +1113,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeX()
+	Length getPixelsSizeX()
 	{
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeX();
 	}
 	
@@ -1117,9 +1125,10 @@ class RendererModel
 	 *
 	 * @return See above.
 	 */
-	double getPixelsSizeZ()
+	Length getPixelsSizeZ()
 	{
-		if (rndControl == null) return -1;
+		if (rndControl == null) 
+		    return new LengthI(1, UnitsLength.PIXEL);
 		return rndControl.getPixelsPhysicalSizeZ();
 	}
 
@@ -1133,6 +1142,13 @@ class RendererModel
 		if (rndControl == null) return null;
 		return rndControl.getRndSettingsCopy();
 	}
+
+	/**
+     * Returns the alternative rendering settings.
+     *
+     * @return See above.
+     */
+    RndProxyDef getAlternativeRndSettings() { return def; }
 
     /**
      * Returns the initial rendering settings.
@@ -1401,7 +1417,7 @@ class RendererModel
         */
 	boolean isModified() {
 	    if(rndControl!=null) {
-	        return !rndControl.isSameSettings(rndDef, false);
+	        return !rndControl.isSameSettings(rndDef, true);
 	    }
 	    return false;
 	}

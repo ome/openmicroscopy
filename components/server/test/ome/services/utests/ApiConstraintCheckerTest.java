@@ -4,9 +4,8 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.services.utests;
 
-// Java imports
+package ome.services.utests;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -22,12 +21,9 @@ import ome.services.RenderingBean;
 
 import org.testng.annotations.Test;
 
-// Application-internal dependencies
-
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since Omero 3.0
  */
 public class ApiConstraintCheckerTest extends TestCase {

@@ -53,10 +53,26 @@ class TestClientConstructors(lib.ITest):
         except:
             c.__del__()
 
-    def testInitializationDataConstructor(self):
+    def testEmptyInitializationDataConstructor(self):
         id = Ice.InitializationData()
+        # With no argument id.properties is empty
         id.properties = Ice.createProperties()
         id.properties.setProperty("omero.host", self.host)
+        id.properties.setProperty("omero.port", str(self.port))
+        id.properties.setProperty("omero.user", "root")
+        id.properties.setProperty("omero.pass", self.rootpasswd)
+        c = omero.client(id=id)
+        try:
+            c.createSession()
+            c.closeSession()
+            c.createSession()
+            c.closeSession()
+        finally:
+            c.__del__()
+
+    def testInitializationDataConstructor(self):
+        id = Ice.InitializationData()
+        id.properties = Ice.createProperties([])
         id.properties.setProperty("omero.user", "root")
         id.properties.setProperty("omero.pass", self.rootpasswd)
         c = omero.client(id=id)

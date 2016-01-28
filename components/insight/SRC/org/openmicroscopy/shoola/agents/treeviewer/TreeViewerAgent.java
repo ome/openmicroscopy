@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treemng.TreeViewerAgent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,11 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.HashSet;
@@ -35,24 +30,17 @@ import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 
-//Third-party libraries
-
-
-
-
-
-
-
-
-
-
 import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
-//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.LaunchViewer;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.ResetRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
@@ -74,23 +62,26 @@ import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * The TreeViewer agent. This agent manages and presents the
@@ -99,9 +90,6 @@ import pojos.ScreenData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class TreeViewerAgent
@@ -498,13 +486,12 @@ public class TreeViewerAgent
     /** Display the save dialog when used in plugin mode.*/
     private void handleSaveEvent(SaveEvent evt)
     {
-        if (evt == null) return;
         ExperimenterData exp = (ExperimenterData) registry.lookup(
                 LookupNames.CURRENT_USER_DETAILS);
-        if (exp == null) 
-            return;
+        if (evt == null || exp == null) return;
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         SaveResultsAction a = new SaveResultsAction(viewer, LookupNames.IMAGE_J);
+        a.setSaveIndex(evt.getSaveIndex());
         a.actionPerformed(
                 new ActionEvent(new JButton(), ActionEvent.ACTION_PERFORMED, ""));
     }
@@ -524,6 +511,59 @@ public class TreeViewerAgent
         viewer.download(evt.getFolder(), evt.isOverride());
     }
 
+    /**
+     * Updates the view when the mode is changed.
+     *
+     * @param evt The event to handle.
+     */
+    private void handleScriptDisplay(ScriptDisplay evt)
+    {
+        if (evt == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.showMenu(TreeViewer.AVAILABLE_SCRIPTS_MENU, evt.getSource(),
+                evt.getLocation());
+    }
+
+    /**
+     * Resets the rendering settings.
+     *
+     * @param evt The event to handle.
+     */
+    private void handleResetRndSettings(ResetRndSettings evt)
+    {
+        if (evt == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.resetRndSettings(evt.getImageID(), evt.getSettings());
+    }
+
+    /**
+     * Opens the image
+     *
+     * @param evt The event to handle.
+     */
+    private void handleLaunchViewer(LaunchViewer evt)
+    {
+        if (evt == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        ViewImageObject data = evt.getData();
+        if (data == null) return;
+        RndProxyDef def = viewer.getSelectedViewedBy();
+        if (def != null) {
+            data.setSelectedRndDef(def.getDataID());
+        }
+        getRegistry().getEventBus().post(
+                new ViewImage(evt.getSecurityContext(), data, null));
+    }
+    
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -592,6 +632,9 @@ public class TreeViewerAgent
         bus.register(this, SearchSelectionEvent.class);
         bus.register(this, SaveEvent.class);
         bus.register(this, DownloadEvent.class);
+        bus.register(this, ScriptDisplay.class);
+        bus.register(this, ResetRndSettings.class);
+        bus.register(this, LaunchViewer.class);
     }
 
     /**
@@ -658,6 +701,13 @@ public class TreeViewerAgent
             handleSaveEvent((SaveEvent) e);
 		else if (e instanceof DownloadEvent)
             handleDownloadEvent((DownloadEvent) e);
+        else if (e instanceof ScriptDisplay) {
+            handleScriptDisplay((ScriptDisplay) e);
+        } else if (e instanceof ResetRndSettings) {
+            handleResetRndSettings((ResetRndSettings) e);
+        } else if (e instanceof LaunchViewer) {
+            handleLaunchViewer((LaunchViewer) e);
+        }
 	}
 
 }

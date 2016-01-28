@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
@@ -38,6 +35,7 @@ import javax.swing.JViewport;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
@@ -47,19 +45,18 @@ import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.PlateAcquisitionData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Determines and sets the icon corresponding to a data object.
@@ -70,9 +67,6 @@ import pojos.TagAnnotationData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class TreeCellRenderer
@@ -576,11 +570,6 @@ public class TreeCellRenderer
         	} else {
         		icon = FILE_TEXT_ICON; 
         	}
-        } else if (usrObject instanceof MultiImageData) {
-        	MultiImageData mi = (MultiImageData) usrObject;
-        	if (mi.getId() > 0) 
-        		icon = IMAGE_DIRECTORY_ICON;
-        	else icon = IMAGE_DIRECTORY_UNREGISTERED_ICON;
         } else if (usrObject instanceof FileData) {
         	FileData f = (FileData) usrObject;
         	if (f.isDirectory()) {
@@ -686,39 +675,55 @@ public class TreeCellRenderer
         		droppedAllowed = false;
         	}
         }
+        
         setIcon(FILE_TEXT_ICON);
-        if (!(value instanceof TreeImageDisplay)) return this;
+        
+        if (!(value instanceof TreeImageDisplay)) 
+            return this;
+        
         node = (TreeImageDisplay) value;
         int w = 0;
         FontMetrics fm = getFontMetrics(getFont());
         Object ho = node.getUserObject();
-        if (node.getLevel() == 0) {// && !(ho instanceof FileData)) {
-        	if (ho instanceof ExperimenterData) setIcon(OWNER_ICON);
-        	else setIcon(ROOT_ICON);
-            if (getIcon() != null) w += getIcon().getIconWidth();
+        if (node.getLevel() == 0) {
+        	if (ho instanceof ExperimenterData) 
+        	    setIcon(OWNER_ICON);
+        	else 
+        	    setIcon(ROOT_ICON);
+        	
+            if (getIcon() != null)
+                w += getIcon().getIconWidth();
             w += getIconTextGap();
             w += fm.stringWidth(getText());
             setPreferredSize(new Dimension(w, fm.getHeight()));
+            
             Color c = node.getHighLight();
-            if (c == null) c = tree.getForeground();
+            if (c == null) 
+                c = tree.getForeground();
             setForeground(c);
-            if (!sel) setBorderSelectionColor(getBackground());
-            else setTextColor(getBackgroundSelectionColor());
+            
+            if (!sel)
+                setBorderSelectionColor(getBackground());
+            else 
+                setTextColor(getBackgroundSelectionColor());
             return this;
         } 
         setIcon(node);
-        if (numberChildrenVisible) setText(node.getNodeText());
-        else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
+        
         Color c = node.getHighLight();
-        if (c == null) c = tree.getForeground();
+        if (c == null)
+            c = tree.getForeground();
         setForeground(c);
-        if (!sel) setBorderSelectionColor(getBackground());
-        else setTextColor(getBackgroundSelectionColor());
-        if (getIcon() != null) w += getIcon().getIconWidth();
-        else w += SIZE.width;
+        
+        if (!sel) 
+            setBorderSelectionColor(getBackground());
+        else 
+            setTextColor(getBackgroundSelectionColor());
+        
         w = getPreferredWidth();
-        setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
+        
+        setPreferredSize(new Dimension(w, fm.getHeight()+4));
         setEnabled(node.isSelectable());
         return this;
     }
@@ -730,12 +735,17 @@ public class TreeCellRenderer
      */
     private int getPreferredWidth()
     {
+        String text = node.getNodeName();
+        if (numberChildrenVisible) 
+            text = node.getNodeText();
+        
         FontMetrics fm = getFontMetrics(getFont());
         int w = getIconGap();
         xText = w;
         if (node instanceof TreeFileSet)
-            w +=  fm.stringWidth(getText())+40;
-        else w += fm.stringWidth(getText());
+            w +=  fm.stringWidth(text)+40;
+        else
+            w += fm.stringWidth(text);
         return w;
     }
 
@@ -752,50 +762,60 @@ public class TreeCellRenderer
         w += getIconTextGap();
         return w;
     }
-    
+
+    @Override
+    public String getText() {
+        if (ref != null && !super.getText().equals(Browser.LOADING_MSG)
+                && !super.getText().equals(Browser.EMPTY_MSG)) {
+            // trim the text so that it fits into the given space
+            JViewport vp = ref.getViewport();
+            int w = vp.getSize().width;
+            FontMetrics fm = getFontMetrics(getFont());
+            String text = node.getNodeName();
+            if (numberChildrenVisible) 
+                text = node.getNodeText();
+            int v = getPreferredSize().width;
+            Rectangle r = getBounds();
+            w = w-r.x;
+            if (v > w && node.isPartialName()) {
+                //truncate the text
+                int targetWidth = (w - getIconGap() - 5);
+                String value = text;
+                int l = text.length();
+                int valueWidth = fm.stringWidth(value);
+                while (valueWidth > targetWidth) {
+                    value = UIUtilities.formatPartialName(text, --l);
+                    valueWidth = fm.stringWidth(value);
+                }
+                return value;
+            }
+            return text;
+        }
+        return super.getText();
+    }
+
     /**
      * Overridden to highlight the destination of the target.
-     * @see paintComponent(Graphics)
+     * @see #paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {
         if (ref == null) {
             ref = (JScrollPane) UIUtilities.findParent(this, JScrollPane.class);
         }
-    	if (isTargetNode) {
-			if (!droppedAllowed) {
-				if (selected) g.setColor(backgroundSelectionColor);
-				else g.setColor(backgroundNonSelectionColor);
-				
-			} else g.setColor(draggedColor);
-			g.fillRect(xText, 0, getSize().width, getSize().height);
-		}
-    	if (ref != null) {
-    	    JViewport vp = ref.getViewport();
-    	    int w = vp.getSize().width;
-            FontMetrics fm = getFontMetrics(getFont());
-            String text = node.getNodeName();
-            if (numberChildrenVisible) text = node.getNodeText();
-            int v = getPreferredSize().width;
-            Rectangle r = getBounds();
-            w = w-r.x;
-            if (v > w) {
-                //truncate the text
-                v = fm.stringWidth(text);
-                int charWidth = fm.charWidth('A');
-                int vv = (w-getIconGap()-5)/charWidth;
-                if (vv < 0) vv = 0;
-                String value = UIUtilities.formatPartialName(text, vv);
-                setText(value);
-                w = getPreferredWidth();
-                Dimension d = new Dimension(w, fm.getHeight()+4);
-                setSize(d);//4 b/c GTK L&F
-                setPreferredSize(d);//4 b/c GTK L&F
-            }
-    	}
-    	selected = false;
-    	isTargetNode = false;
-    	droppedAllowed = false;
-    	super.paintComponent(g);
-	}
+        if (isTargetNode) {
+            if (!droppedAllowed) {
+                if (selected) g.setColor(backgroundSelectionColor);
+                else g.setColor(backgroundNonSelectionColor);
+                
+            } else g.setColor(draggedColor);
+            g.fillRect(xText, 0, getSize().width, getSize().height);
+        }
+        selected = false;
+        isTargetNode = false;
+        droppedAllowed = false;
+        super.paintComponent(g);
+    }
+
+    
 }

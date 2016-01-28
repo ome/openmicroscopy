@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
-//Java imports
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,17 +30,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
-import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 /**
@@ -192,6 +186,17 @@ class RendererUI
     }
 
     /**
+     * Resets the settings.
+     *
+     * @param settings the value to set.
+     */
+    void resetViewedBy(RndProxyDef settings)
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.resetViewedBy(settings);
+    }
+
+    /**
      * This is a method which is triggered from the {@link RendererControl} 
      * if the color model has changed.
      */
@@ -289,7 +294,24 @@ class RendererUI
     {
         if (CollectionUtils.isEmpty(results)) return;
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-        RndProxyDef activeDef = CollectionUtils.isEmpty(model.getRenderingControls()) ? null : model.getRenderingControls().get(0).getRndSettingsCopy();
+        RndProxyDef activeDef = null;
+        if (model.getAlternativeRndSettings() != null) {
+            activeDef = model.getAlternativeRndSettings();
+        } else {
+            Iterator<ViewedByItem> i = results.iterator();
+            ViewedByItem item;
+            while (i.hasNext()) {
+                item = i.next();
+                if (item.isSelected()) {
+                    activeDef = item.getRndDef();
+                    item.setSelected(false);
+                }
+            }
+            if (activeDef == null && 
+                CollectionUtils.isNotEmpty(model.getRenderingControls())) {
+                activeDef = model.getRenderingControls().get(0).getRndSettingsCopy();
+            }
+        }
         pane.displayViewedBy(results, activeDef);
     }
 
@@ -314,4 +336,14 @@ class RendererUI
         pane.onChannelUpdated();
     }
 
+    /**
+     * Returns the selected rendering settings if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedDef()
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        return pane.getSelectedDef();
+    }
 }

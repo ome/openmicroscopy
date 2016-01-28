@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.ui.DataObjectRemover
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,7 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,17 +28,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Deletes a collection of objects.
@@ -50,9 +45,6 @@ import pojos.DataObject;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DataObjectRemover 
@@ -93,7 +85,7 @@ public class DataObjectRemover
     
     /**
      * Notifies that an error occurred.
-     * @see UserNotifierLoader#onException(String)
+     * @see UserNotifierLoader#onException(String, Throwable)
      */
     protected void onException(String message, Throwable ex)
     { 

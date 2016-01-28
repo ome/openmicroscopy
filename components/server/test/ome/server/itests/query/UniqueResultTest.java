@@ -1,16 +1,13 @@
 /*
- *   $Id$
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.query;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
-import ome.api.IContainer;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.containers.Project;

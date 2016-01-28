@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.ui.OpenObjectLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,19 +20,19 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
 import java.io.File;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Downloads if the passed object is a file or an archived image
@@ -45,9 +43,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class OpenObjectLoader 
@@ -98,16 +93,17 @@ public class OpenObjectLoader
     	File f;
     	if (object instanceof ImageData) {
     		ImageData image = (ImageData) object;
-    		path += image.getName();
-    		path += image.getId();
-    		path += "."+OMETIFFFilter.OME_TIFF;
+    		String name = image.getName();
+    		name += image.getName();
+    		name += "_"+image.getId();
+    		path += UIUtilities.replaceNonWordCharacters(name)+"."+OMETIFFFilter.OME_TIFF;
     		f = new File(path);
     		f.deleteOnExit();
     		handle = ivView.exportImageAsOMETiff(ctx, image.getId(), f, null,
     				this);
     	} else {
     		FileAnnotationData fa = (FileAnnotationData) object;
-    		path += fa.getFileName();
+    		path += UIUtilities.replaceNonWordCharacters(fa.getFileName());
     		f = new File(path);
     		f.deleteOnExit();
     		handle = mhView.loadFile(ctx, f, fa.getId(), 

@@ -23,14 +23,15 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 import java.util.ArrayList;
 import java.util.List;
 
+import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
 
 
 /**
@@ -63,7 +64,7 @@ public class MeasurementsSaver
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param data The data to save.
-     * @param imageID The image to link the roi to.
+     * @param image The image to link the roi to.
      * @param userID The owner of the rois.
      */
     public MeasurementsSaver(Importer viewer, SecurityContext ctx,

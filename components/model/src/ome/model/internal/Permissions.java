@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.model.internal;
 
 import java.io.IOException;
@@ -29,7 +30,6 @@ import javax.persistence.Column;
 import javax.persistence.Transient;
 
 import ome.conditions.ApiUsageException;
-import ome.model.IObject;
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
 import static ome.model.internal.Permissions.Flag.*;
@@ -205,10 +205,8 @@ public class Permissions implements Serializable {
 
     /**
      * returns the order of the bit representing the given {@link Flag}. This
-     * is dependent on the internal representation of {@link Permission} and
+     * is dependent on the internal representation of {@link Permissions} and
      * should only be used when necessary.
-     *
-     * @see ome.tools.hibernate.SecurityFilter
      */
     public static int bit(Flag flag) {
         return flag.bit();
@@ -218,8 +216,6 @@ public class Permissions implements Serializable {
      * returns the order of the bit representing the given {@link Role} and
      * {@link Right}. This is dependent on the internal representation of
      * {@link Permissions} and should only be used when necessary.
-     * 
-     * @see ome.tools.hibernate.SecurityFilter
      */
     public static int bit(Role role, Right right) {
         return right.mask() << role.shift();

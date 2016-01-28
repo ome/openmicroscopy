@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.DataObjectTransfer 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,26 +21,20 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-//Java imports
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.RequestCallback;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
-import pojos.DataObject;
+import omero.gateway.model.DataObject;
 
 /** 
  * Command to move between groups the passed objects.
@@ -64,7 +56,7 @@ public class DataObjectTransfer extends BatchCallTree
      * Creates a {@link BatchCall} to transfer the specified objects.
      * 
      * @param ctx The security context.
-     * @param value The objects to transfer.
+     * @param values The objects to transfer.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeTransferCall(final SecurityContext ctx,
@@ -88,7 +80,7 @@ public class DataObjectTransfer extends BatchCallTree
     }
     
     /**
-     * Adds the {@link #call} to the computation tree.
+     * Adds the {@link #makeTransferCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
@@ -123,7 +115,7 @@ public class DataObjectTransfer extends BatchCallTree
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
 	 * 
-     * @param valus The collection of object to transfer.
+     * @param value The collection of object to transfer.
      */
     public DataObjectTransfer(TransferableObject value)
     {

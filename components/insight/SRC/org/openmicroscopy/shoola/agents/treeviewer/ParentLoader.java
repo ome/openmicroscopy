@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.ParentLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,16 +21,12 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-//Java imports
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * Loads the parents of the specified annotation.
@@ -57,7 +51,7 @@ public class ParentLoader
      * @param viewer	The Editor this data loader is for.
      * 					Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param values The groups or experimenters to delete.
+     * @param data The file annotation to handle.
      */
     public ParentLoader(TreeViewer viewer, SecurityContext ctx,
     		FileAnnotationData data)

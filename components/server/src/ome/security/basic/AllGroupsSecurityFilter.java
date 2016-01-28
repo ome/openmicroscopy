@@ -62,30 +62,20 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
 
     static public final String filterName = "securityFilter";
 
-    private static String myFilterCondition = String.format(
-                  "\n( "
-                + "\n  1 = :is_share OR "
-                + "\n  1 = :is_admin OR "
-                + "\n  (group_id in (:leader_of_groups)) OR "
-                + "\n  (owner_id = :current_user AND %s) OR " // 1st arg U
-                + "\n  (group_id in (:member_of_groups) AND %s) OR " // 2nd arg G
-                + "\n  (%s) " // 3rd arg W
-                + "\n)"
-                + "\n", isGranted(USER, READ), isGranted(GROUP, READ),
-                isGranted(WORLD, READ));
-
     final SqlAction sql;
 
     /**
-     * default constructor which calls all the necessary setters for this
-     * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
+     * Default constructor which calls all the necessary setters for this
+     * {@link FactoryBean}. Also calls {@link #setDefaultFilterCondition(String)}.
      * This query clause must be kept in sync with
-     * {@link #passesFilter(Details, Long, Collection, Collection, boolean)}
+     * {@link #passesFilter(Session, Details, EventContext)}.
      *
-     * @see #passesFilter(Details, Long, Collection, Collection, boolean)
+     * @see #passesFilter(Session, Details, EventContext)
      * @see FilterDefinitionFactoryBean#setFilterName(String)
-     * @see FilterDefinitionFactoryBean#setParameterTypes(Properties)
+     * @see FilterDefinitionFactoryBean#setParameterTypes(java.util.Map)
      * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
+     *
+     * @param sql an SQL action instance
      */
     public AllGroupsSecurityFilter(SqlAction sql) {
         this(sql, new Roles());
@@ -96,8 +86,22 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         this.sql = sql;
     }
 
+    protected String myFilterCondition() {
+        return String.format(
+                "\n( "
+                + "\n  1 = :is_share OR "
+                + "\n  1 = :is_admin OR "
+                + "\n  (group_id in (:leader_of_groups)) OR "
+                + "\n  (owner_id = :current_user AND %s) OR " // 1st arg U
+                + "\n  (group_id in (:member_of_groups) AND %s) OR " // 2nd arg G
+                + "\n  (%s) " // 3rd arg W
+                + "\n)"
+                + "\n", isGranted(USER, READ), isGranted(GROUP, READ),
+                isGranted(WORLD, READ));
+    }
+
     public String getDefaultCondition() {
-        return String.format(myFilterCondition, roles.getUserGroupId());
+        return myFilterCondition();
     }
 
     public Map<String, String> getParameterTypes() {
@@ -216,6 +220,9 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
         return rv;
     }
 
+    /*
+     * @see ome.model.internal.Permissions#bit(Role, Right)
+     */
     protected static String isGranted(Role role, Right right) {
         String bit = "" + Permissions.bit(role, right);
         String isGranted = String

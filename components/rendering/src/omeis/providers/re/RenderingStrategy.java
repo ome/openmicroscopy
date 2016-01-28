@@ -7,16 +7,14 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.io.IOException;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.enums.RenderingModel;
+
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;

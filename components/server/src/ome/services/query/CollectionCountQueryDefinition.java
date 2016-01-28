@@ -14,27 +14,22 @@
 
 package ome.services.query;
 
-// Java imports
 import java.sql.SQLException;
 import java.util.Collection;
 
-// Third-party libraries
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
-// Application-internal dependencies
 import ome.parameters.Parameters;
 import ome.tools.lsid.LsidUtils;
 
 /**
  * counts the number of members in a collection. This query is used by the
- * {@link ome.api.IContainer IContainer} interface (possbly among others) to add
+ * {@link ome.api.IContainer IContainer} interface (possibly among others) to add
  * information to outgoing results.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
- * @see Details#getCounts()
  */
 public class CollectionCountQueryDefinition extends Query {
 

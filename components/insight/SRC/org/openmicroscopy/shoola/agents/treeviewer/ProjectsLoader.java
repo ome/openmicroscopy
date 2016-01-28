@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,20 +21,15 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ProjectData;
+import omero.gateway.model.ProjectData;
 
 /** 
  * Loads the datasets/images contained in the project hosted by the passed 
@@ -48,9 +41,6 @@ import pojos.ProjectData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class ProjectsLoader 
@@ -74,7 +64,6 @@ public class ProjectsLoader
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      * @param userID The user's identifier.
-     * @param groupID The group's identifier.
      */
     public ProjectsLoader(TreeViewer viewer, SecurityContext ctx, 
     		TreeImageDisplay node, long userID)

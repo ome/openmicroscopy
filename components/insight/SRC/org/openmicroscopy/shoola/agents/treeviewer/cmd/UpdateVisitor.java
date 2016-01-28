@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,12 +21,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,8 +31,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
 
 /** 
  * Updates the object e.g. name.
@@ -50,9 +41,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class UpdateVisitor

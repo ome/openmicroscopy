@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.PreviewCanvas 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -56,6 +56,9 @@ class PreviewCanvas
 	/** The image to paint. */
 	private BufferedImage image;
 	
+	/** Flag indicating if interpolation is used */
+	private boolean interpolate = true;
+	
 	/** Creates a new instance. */
 	PreviewCanvas()
 	{
@@ -73,7 +76,18 @@ class PreviewCanvas
 		repaint();
 	}
 	
-	/**
+    /**
+     * Sets the interpolation flag
+     * 
+     * @param interpolate
+     *            Pass <code>false</code> to disable interpolation (enabled by
+     *            default)
+     */
+    public void setInterpolate(boolean interpolate) {
+        this.interpolate = interpolate;
+    }
+
+    /**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
      */
@@ -86,10 +100,8 @@ class PreviewCanvas
         double xFactor = (double)d.width/(double)image.getWidth();
         double yFactor = (double)d.height/(double)image.getHeight();
         double factor = xFactor < yFactor ? xFactor : yFactor;
-        int w = (int)(image.getWidth()*factor);
-        int h = (int)(image.getHeight()*factor);
-        BufferedImage scaledImage = Factory.scaleBufferedImage(image, w, h);
-
+        BufferedImage scaledImage = Factory.magnifyImage(image, factor, 0, interpolate);
+        
         int x = (d.width - scaledImage.getWidth()) / 2;
         int y = (d.height - scaledImage.getHeight()) / 2;
 
@@ -101,7 +113,7 @@ class PreviewCanvas
         g2D.setColor(getForeground());
         
         // paint the image
-        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+        ImagePaintingFactory.setGraphicRenderingSettings(g2D, interpolate);
         g2D.drawImage(scaledImage, null, x, y);
         g2D.dispose();
     }

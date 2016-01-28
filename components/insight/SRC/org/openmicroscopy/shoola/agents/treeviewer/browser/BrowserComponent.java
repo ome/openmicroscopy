@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserComponent
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,10 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
-//Java imports
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -45,14 +41,9 @@ import javax.swing.JTree;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-//Third-party libraries
-
-
-
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
@@ -78,25 +69,24 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import com.google.common.collect.Sets;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -280,8 +270,7 @@ class BrowserComponent
     private boolean hasDataToSave(TreeImageDisplay node)
     {
         if (model.getParentModel().hasDataToSave()) {
-        	//toSelectAfterSave = node;
-        	model.getParentModel().showPreSavingDialog();
+        	model.getParentModel().saveMetadata();
         	return false;
         }
         return false;
@@ -572,7 +561,13 @@ class BrowserComponent
     						TreeImageSet expNode)
     {
         if (model.getState() != LOADING_LEAVES) return;
-        if (leaves == null) throw new NullPointerException("No leaves.");
+        if (leaves == null || leaves.isEmpty())  {
+            view.setLeavesViews(Collections.EMPTY_SET, parent);
+            model.setState(READY);
+            fireStateChange();
+            return;
+        }
+        
         Object ho = expNode.getUserObject();
         if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
         	throw new IllegalArgumentException("Node not valid");
@@ -1105,7 +1100,7 @@ class BrowserComponent
 			 throw new IllegalStateException("This method cannot be invoked "+
 	                "in the DISCARDED state.");
 		 PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
-		 accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+		 accept(v);
 		 view.repaint();
 	}
 
@@ -1134,12 +1129,7 @@ class BrowserComponent
 				if (expNode == null) return;  
 				Object ho = expNode.getUserObject();
 				if (!(ho instanceof ExperimenterData)) return;
-        		if (uo instanceof MultiImageData) {
-        			MultiImageData mi = (MultiImageData) uo;
-        			model.setState(LOADING_LEAVES);
-					setLeaves(mi.getComponents(), (TreeImageSet) n, 
-							(TreeImageSet) exp);
-        		} else if (uo instanceof FileData) {
+        		if (uo instanceof FileData) {
         			FileData dir = (FileData) uo;
         			if (dir.isHidden()) return;
         			if (dir.isDirectory()) {
@@ -2086,8 +2076,6 @@ class BrowserComponent
 				if (img.getIndex() >= 0) {
 					TreeImageDisplay pd = d.getParentDisplay();
 					if (pd == null) return false;
-					if (!(pd.getUserObject() instanceof MultiImageData))
-						return false;
 					file = (DataObject) pd.getUserObject();
 				}
 			}

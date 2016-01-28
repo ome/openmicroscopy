@@ -42,6 +42,10 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
      */
     protected final ProcessPrx process;
 
+    public ProcessCallbackI(ProcessCallbackI pcb) throws ServerError {
+        this(pcb.adapter, pcb.id.category, pcb.process);
+    }
+    
     public ProcessCallbackI(omero.client client, ProcessPrx process)
     throws ServerError {
         this(client, process, true);
@@ -77,10 +81,6 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
      * Should only be used if the default logic of the process methods is kept
      * in place. If "q.put" does not get called, this method will always
      * block for the given milliseconds.
-     *
-     * @param ms
-     * @return
-     * @throws InterruptedException
      */
     public Action block(long ms) throws InterruptedException {
         if (poll) {

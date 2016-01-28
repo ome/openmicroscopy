@@ -20,7 +20,7 @@ package ome.system.metrics;
 
 
 /**
- * Thin-interface around {@link com.codahale.metrics.Metrics}.
+ * Thin-interface around {@link com.codahale.metrics.MetricSet}.
  */
 public interface Metrics {
 

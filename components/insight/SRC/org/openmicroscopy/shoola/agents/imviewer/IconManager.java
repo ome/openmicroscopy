@@ -292,13 +292,16 @@ public class IconManager
     
     /** The <code>Read Write Group</code> icon. */
     public static final int           READ_WRITE_GROUP = 79;
-    
+
+    /** The <code>Analysis</code> icon. */
+    public static final int ANALYSIS_RUN = 80;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 79;
-    
+    private static final int          MAX_ID = 80;
+
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
     
@@ -382,6 +385,7 @@ public class IconManager
         relPaths[READ_LINK_GROUP] = "group_read_annotate16.png";
         relPaths[PUBLIC_GROUP] = "group_public_read16.png";
         relPaths[READ_WRITE_GROUP] = "group_read_write16.png";
+        relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
     }
     
     /** The sole instance. */

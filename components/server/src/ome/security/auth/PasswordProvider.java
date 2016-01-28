@@ -14,7 +14,7 @@ import ome.security.SecuritySystem;
 /**
  * Authentication interface responsible for checking and changing passwords. In
  * addition, a {@link PasswordProvider implementation} may claim to know nothing
- * for a particular user name. See {@link #checkPassword(String, String)} for
+ * for a particular user name. See {@link #checkPassword(String, String, boolean)} for
  * more information.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
@@ -29,7 +29,7 @@ public interface PasswordProvider {
      * user name. In general, if this method returns false, then checkPassword
      * will return null or false for all possible passwords. However, some
      * providers (like the LDAP provider) may create a user to synchronize with
-     * some backend during a call to {@link #checkPassword(String, String)}.
+     * some backend during a call to {@link #checkPassword(String, String, boolean)}.
      * {@link #hasPassword(String)} will not do this. This is typically only of
      * importance during {@link #changePassword(String, String)} since a
      * provider which is not responsible for a password should not attempt to

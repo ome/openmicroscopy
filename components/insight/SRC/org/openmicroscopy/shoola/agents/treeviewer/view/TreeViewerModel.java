@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerModel
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,11 +18,9 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
-
-//Java imports
+import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
@@ -39,10 +35,8 @@ import java.util.Set;
 
 import javax.activation.FileDataSource;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -84,22 +78,23 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.gateway.SecurityContext;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 
 /** 
@@ -114,9 +109,6 @@ import pojos.TagAnnotationData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 class TreeViewerModel
@@ -675,21 +667,12 @@ class TreeViewerModel
 	 * @param klass The type of nodes to handle.
 	 */
         void firePasteRenderingSettings(List<Long> ids, Class klass) {
-                long id = refImage.getId();
-                List<Long> toKeep = new ArrayList<Long>();
-                Iterator<Long> i = ids.iterator();
-                long id1;
-                while (i.hasNext()) {
-                        id1 = i.next();
-                        if (id1 != id) toKeep.add(id1);
-                }
-                if (toKeep.size() == 0) return;
                 state = TreeViewer.SETTINGS_RND;
                 SecurityContext ctx = getSecurityContext();
                 if (ctx == null) {
                         ctx = new SecurityContext(refImage.getGroupId());
                 }
-                currentLoader = new RndSettingsSaver(component, ctx, klass, toKeep, refRndSettings, refImage);
+                currentLoader = new RndSettingsSaver(component, ctx, klass, ids, refRndSettings, refImage);
                 currentLoader.load();
 	}
 
@@ -1280,11 +1263,12 @@ class TreeViewerModel
 	 * Loads the scripts.
 	 * 
 	 * @param location The location of the mouse.
+	 * @param invoker The invoker.
 	 */
-	void loadScripts(Point location)
+	void loadScripts(Point location, Component invoker)
 	{
 		ScriptsLoader loader = new ScriptsLoader(component,
-				getSecurityContext(null), false, location);
+				getSecurityContext(null), false, location, invoker);
 		loader.load();
 	}
 	
@@ -1590,4 +1574,5 @@ class TreeViewerModel
     {
         return TreeViewerAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
     }
+
 }

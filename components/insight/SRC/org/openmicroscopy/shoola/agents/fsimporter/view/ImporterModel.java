@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -56,19 +54,24 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.ServerInformation;
+
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import com.google.common.io.Files;
 
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.ScreenData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.ScreenData;
 
 /** 
  * The Model component in the <code>Importer</code> MVC triad.
@@ -84,9 +87,6 @@ import pojos.ScreenData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 class ImporterModel
@@ -121,7 +121,13 @@ class ImporterModel
 
     /** The id of the user to import for.*/
     private long userId;
-    
+
+    /**
+     * The result object used to determine setting when saving rois/measurement
+     * post import.
+     */
+    private ResultsObject object;
+
 	/** Initializes the model.*/
 	private void initialize()
 	{
@@ -436,7 +442,7 @@ class ImporterModel
 	void fireDataCreation(ObjectToCreate data)
 	{
 		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
-		ctx.setServerInformation(this.ctx.getHostName(), this.ctx.getPort());
+		ctx.setServerInformation(this.ctx.getServerInformation());
 		ctx.setExperimenter(data.getExperimenter());
 		DataObjectCreator loader = new DataObjectCreator(component, ctx,
 				data.getChild(), data.getParent());
@@ -621,7 +627,9 @@ class ImporterModel
             Map<Integer, List<ROIData>> indexes =
                 new HashMap<Integer, List<ROIData>>();
             int index;
+            boolean mif = false;
             if (CollectionUtils.isNotEmpty(files)) {
+                mif = true;
                 Iterator<FileObject> j = files.iterator();
                 FileObject o;
                 while (j.hasNext()) {
@@ -630,6 +638,9 @@ class ImporterModel
                         index = o.getIndex();
                         rois = reader.readImageJROI(-1, (ImagePlus) o.getFile());
                         indexes.put(index, rois);
+                        if (index < 0) {
+                            mif = false;
+                        }
                     }
                 }
             }
@@ -644,11 +655,14 @@ class ImporterModel
                 id = data.getId();
                 index = data.getSeries();
                 //First check overlay
+                rois = null;
                 if (indexes.containsKey(index)) {
                    rois = indexes.get(index);
                    linkRoisToImage(id, rois);
                 } else {
-                   rois = reader.readImageJROI(id, img);
+                   if (!mif) {
+                       rois = reader.readImageJROI(id, img);
+                   }
                 }
                 //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {
@@ -680,9 +694,19 @@ class ImporterModel
     private File createFile(String imageName)
     {
         File dir = Files.createTempDir();
-        String name = "ImageJ-"+FilenameUtils.getBaseName(
-                FilenameUtils.removeExtension(imageName))+"-Results-";
-        name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String name;
+        String fileName = null;
+        if (object != null) {
+            fileName = object.getTableName();
+        }
+        if (CommonsLangUtils.isBlank(fileName)) {
+            name = "ImageJ-"+FilenameUtils.getBaseName(
+                    FilenameUtils.removeExtension(imageName))+"-Results-";
+            name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        } else {
+            name = FilenameUtils.removeExtension(fileName);
+        }
+        
         name += ".csv";
         try {
             File f = new File(dir, name);
@@ -715,5 +739,16 @@ class ImporterModel
             i.next().setImage(new ImageI(imageID, false));
         }
     }
+
+    /**
+     * Sets the results object.
+     *
+     * @param object The object to set.
+     */
+    void setResultsObject(ResultsObject object)
+    {
+        this.object = object;
+    }
+
 
 }

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -14,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IPixels;
-import ome.api.IRenderingSettings;
 import ome.api.ThumbnailStore;
 import ome.model.IObject;
 import ome.model.core.Pixels;

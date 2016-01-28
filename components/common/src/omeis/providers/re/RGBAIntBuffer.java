@@ -7,13 +7,7 @@
 
 package omeis.providers.re;
 
-
-// Java imports
 import java.util.Arrays;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * Holds the data of an <i>RGBA</i> image. The image data is stored as a 
@@ -25,8 +19,7 @@ import java.util.Arrays;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1574 $ $Date:
- *          2005/06/22 17:09:48 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public class RGBAIntBuffer extends RGBBuffer {

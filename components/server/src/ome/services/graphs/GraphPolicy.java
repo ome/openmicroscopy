@@ -21,6 +21,7 @@ package ome.services.graphs;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -89,7 +90,7 @@ public abstract class GraphPolicy {
 
         /**
          * the user's ability to change permissions on the object, as judged by
-         * {@link ome.security.ACLVoter#allowChmod(IObject, ome.model.internal.Details)}
+         * {@link ome.security.ACLVoter#allowChmod(IObject)}
          */
         CHMOD,
 
@@ -124,11 +125,11 @@ public abstract class GraphPolicy {
         /** the current permissions on the object */
         public final Set<Ability> permissions;
 
-        /** the current plan for the object, may be mutated by {@link Policy#review(Map, Details, Map, Set)} */
+        /** the current plan for the object, may be mutated by {@link GraphPolicy#review(Map, Details, Map, Set, boolean)} */
         public Action action;
 
         /**
-         * the current <q>orphan</q> state of the object, may be mutated by {@link Policy#review(Map, Details, Map, Set)};
+         * the current <q>orphan</q> state of the object, may be mutated by {@link GraphPolicy#review(Map, Details, Map, Set, boolean)};
          * applies only if {@link #action} is {@link Action#EXCLUDE}
          */
         public Orphan orphan;
@@ -177,11 +178,22 @@ public abstract class GraphPolicy {
     }
 
     /**
-     * A stateful graph policy must override this method to provide a clone that has fresh state.
+     * The predicates that have been registered with {@link GraphPolicy#registerPredicate(GraphPolicyRulePredicate)}.
+     */
+    protected final Map<String, GraphPolicyRulePredicate> predicates = new HashMap<String, GraphPolicyRulePredicate>();
+
+    /**
+     * Create a clone of this graph policy that has fresh state.
      * @return an instance ready to begin a new graph traversal
      */
-    public GraphPolicy getCleanInstance() {
-        return this;
+    public abstract GraphPolicy getCleanInstance();
+
+    /**
+     * Use the given predicate in executing this graph policy.
+     * @param predicate a graph policy predicate
+     */
+    public void registerPredicate(GraphPolicyRulePredicate predicate) {
+        predicates.put(predicate.getName(), predicate);
     }
 
     /**
@@ -198,8 +210,8 @@ public abstract class GraphPolicy {
     public abstract boolean isCondition(String name);
 
     /**
-     * Any model object about which policy may be asked is first passed to {@link #noteDetails(IObject, String, long)} before
-     * {@link #review(Map, Details, Map, Set)}. Each object is passed only once.
+     * Any model object about which policy may be asked is first passed to {@link #noteDetails(Session, IObject, String, long)} before
+     * {@link GraphPolicy#review(Map, Details, Map, Set, boolean)}. Each object is passed only once.
      * Subclasses overriding this method probably ought also override {@link #getCleanInstance()}.
      * @param session the Hibernate session, for obtaining more information about the object
      * @param object an unloaded model object about which policy may be asked
@@ -207,7 +219,9 @@ public abstract class GraphPolicy {
      * @param id the ID of the object
      */
     public void noteDetails(Session session, IObject object, String realClass, long id) {
-        /* This method is a no-op that subclasses may override. */
+        for (final GraphPolicyRulePredicate predicate : predicates.values()) {
+            predicate.noteDetails(session, object, realClass, id);
+        }
     }
 
     /**
@@ -235,11 +249,11 @@ public abstract class GraphPolicy {
      * An {@link Action#EXCLUDE}d object, once changed from that, may not change back to {@link Action#EXCLUDE}.
      * An {@link Action#OUTSIDE} object, once changed to that, may not change back from {@link Action#OUTSIDE}.
      * {@link Orphan} values matter only for {@link Action#EXCLUDE}d objects.
-     * Given {@link Orphan#RELEVANT} if {@link Action#IS_LAST} or {@link Action#IS_NOT_LAST} can be returned,
+     * Given {@link Orphan#RELEVANT} if {@link Orphan#IS_LAST} or {@link Orphan#IS_NOT_LAST} can be returned,
      * or could be if after {@link Orphan#RELEVANT} is returned then resolved for the other object,
      * then appropriate values should be returned accordingly.
-     * If {@link Action#RELEVANT} is returned for an object then this method may be called again with
-     * {@link Action#IS_LAST} or {@link Action#IS_NOT_LAST}.
+     * If {@link Orphan#RELEVANT} is returned for an object then this method may be called again with
+     * {@link Orphan#IS_LAST} or {@link Orphan#IS_NOT_LAST}.
      * Class properties' <code>String</code> representation is <code>package.DeclaringClass.propertyName</code>.
      * @param linkedFrom map from class property to objects for which the property links to the root object
      * @param rootObject the object at the center of this review

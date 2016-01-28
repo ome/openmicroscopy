@@ -23,13 +23,6 @@
 
 package org.openmicroscopy.shoola.env.config;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Holds the configuration information for the <i>OMERO</i> entry in the
  * container's configuration file.
@@ -40,9 +33,6 @@ package org.openmicroscopy.shoola.env.config;
  *              <a href="mailto:a.falconi@dundee.ac.uk">
  *                  a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class OMEROInfo
@@ -95,10 +85,10 @@ public class OMEROInfo
      * This is the only constructor and should have package visibility because 
      * instances of this class can only be created (meaningfully) within this
      * package. However, we made it public to ease testing.
-     *   
+     *
      * @param port The value of the <code>port</code> sub-tag.
      * @param portSSL The value of the <code>portSSL</code> sub-tag.
-     * @param hostname The value of the <code>hostname</code> sub-tag.
+     * @param hostName The value of the <code>hostname</code> sub-tag.
      * @param encrypted The value of the <code>encrypted</code> sub-tag.
      * @throws ConfigException If <code>port</code> can't be parsed into an 
      *                          integer.

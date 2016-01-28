@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroMetadataService 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,17 +20,11 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
 import omero.model.Binning;
@@ -53,15 +45,20 @@ import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
 
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
+import omero.gateway.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import pojos.AnnotationData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
+
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * List of methods to retrieve metadata.
@@ -71,9 +68,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface OmeroMetadataService
@@ -574,12 +568,10 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Returns the number of files of a given type. The specified type is 
-	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
-	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
+	 * Returns the number of files of a given type.
 	 * 
 	 * @param ctx The security context.
-	 * @param userUD The user's identifier.
+	 * @param userID The user's identifier.
 	 * @param fileType One of the constants above.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -592,9 +584,7 @@ public interface OmeroMetadataService
 
 	/**
 	 * Loads the files specified by the given type. Returns a collection
-	 * of <code>FileAnnotationData</code>s. The specified type is 
-	 * one of the following values: {@link #EDITOR_PROTOCOL}, 
-	 * {@link #EDITOR_EXPERIMENT} or {@link #OTHER}.
+	 * of <code>FileAnnotationData</code>s.
 	 * 
 	 * @param ctx The security context.
 	 * @param fileType One of the constants above. 
@@ -734,7 +724,7 @@ public interface OmeroMetadataService
 	 * @param annotationType The type of annotation to load.
 	 * @param nsInclude The annotation's name space to include if any.
 	 * @param nsExlcude The annotation's name space to exclude if any.
-	 * @return 
+	 * @return See above
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
@@ -759,4 +749,21 @@ public interface OmeroMetadataService
 	public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
 	        Class<?> rootType, List<Long> rootIDs)
 	                throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Add (resp. removes) annotations to (resp. from) the objects if any.
+     *
+     * @param ctx The security context.
+     * @param toAdd Collection of annotations to add.
+     * @param toRemove Collection of annotations to remove.
+     * @param userID The id of the user.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                   in.
+     * @throws DSAccessException        If an error occurred while trying to 
+     *                                  retrieve data from OMEDS service.
+     */
+    public void saveAnnotationData(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID)
+        throws DSOutOfServiceException, DSAccessException;
 }

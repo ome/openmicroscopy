@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
+
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -40,6 +42,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
 
+
+
+import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
@@ -130,7 +135,10 @@ class ObjectManager
 	
 	/** Reference to the View. */
 	private MeasurementViewerUI 		view;
-	
+
+	/** Reference to the Model. */
+    private MeasurementViewerControl control;
+
 	/** 
 	 * The table selection listener attached to the table displaying the 
 	 * objects.
@@ -161,8 +169,10 @@ class ObjectManager
 							objectsTable.getSelectedRow());
 					if (node == null) return;
 					Object nodeValue = node.getUserObject();
-					if (nodeValue instanceof ROIShape) 
-						view.selectFigure(((ROIShape) nodeValue).getFigure());
+					view.clearInspector();
+					if (nodeValue instanceof ROIShape) {
+					    view.selectFigure(((ROIShape) nodeValue).getFigure());
+					}
 					int col = objectsTable.getSelectedColumn();
 					int row = objectsTable.getSelectedRow();
 					
@@ -211,15 +221,19 @@ class ObjectManager
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param view 	Reference to the control. Mustn't be <code>null</code>.
-	 * @param model	Reference to the Model. Mustn't be <code>null</code>.
+	 * @param view Reference to the view. Mustn't be <code>null</code>.
+	 * @param controller Reference to the control. Mustn't be <code>null</code>.
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	ObjectManager(MeasurementViewerUI view, MeasurementViewerModel model)
+	ObjectManager(MeasurementViewerUI view, MeasurementViewerControl control,
+	        MeasurementViewerModel model)
 	{
 		if (view == null) throw new IllegalArgumentException("No view.");
 		if (model == null) throw new IllegalArgumentException("No model.");
+		if (control == null) throw new IllegalArgumentException("No control.");
 		this.view = view;
 		this.model = model;
+		this.control = control;
 		initComponents();
 		buildGUI();
 	}
@@ -486,5 +500,38 @@ class ObjectManager
 	 */
 	public int getIndex() { return INDEX; }
 
-}
+	/** Loads the tags.*/
+	void loadTags()
+	{
+	    control.loadTags();
+	}
 	
+	/**
+	 * Returns a collection of all figures selected
+	 * If a ROI is selected, all the figures hosted will that ROI will be
+	 * returned.
+	 * @return See above.
+	 */
+	Collection<Figure> getSelectedFiguresFromTables()
+	{
+	    List l = objectsTable.getSelectedObjects();
+        if (CollectionUtils.isEmpty(l)) return null;
+        Iterator i = l.iterator();
+        Object o;
+        ROI roi;
+        ROIShape shape;
+        List<Figure> list = new ArrayList<Figure>();
+        while (i.hasNext()) {
+            o =  i.next();
+            if (o instanceof ROI) {
+                roi = (ROI) o;
+                list.addAll(roi.getAllFigures());
+            } else if (o instanceof ROIShape) {
+                shape = (ROIShape) o;
+                list.add(shape.getFigure());
+            }
+        }
+        return list;
+	}
+}
+

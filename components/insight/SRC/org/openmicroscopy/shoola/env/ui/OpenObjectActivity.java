@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.OpenObjectActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import omero.gateway.SecurityContext;
 
 /** 
  * Activity to open an image or a file.
@@ -117,14 +119,15 @@ public class OpenObjectActivity
 		    if (name != null) {
 		        name = name.toLowerCase();
 		        //Always use BF to open the file if Fiji or ImageJ
-		        if (name.contains("fiji") || name.contains("imagej")) {
-		            path = null;
-		            List<String> args = new ArrayList<String>();
-		            args.add("-eval");
-		            args.add("run('Bio-Formats Importer',"
-		                    + "'open=["+f.getAbsolutePath()+"]')");
-		            data.setCommandLineArguments(args);
-		        }
+                if (name.contains("fiji") || name.contains("imagej")) {
+                    path = null;
+                    List<String> args = new ArrayList<String>();
+                    args.add("-eval");
+                    args.add("run('Bio-Formats Importer'," + "'open=["
+                            + UIUtilities.replaceWindowsPathSeparator(f.getAbsolutePath())
+                            + "]')");
+                    data.setCommandLineArguments(args);
+                }
 		    }
 		}
 		viewer.openApplication(parameters.getApplication(), path);

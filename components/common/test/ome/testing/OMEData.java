@@ -7,7 +7,6 @@
 
 package ome.testing;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +21,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
 
-// Application-internal dependencies
-
 /**
  * abstract data container for testing. Sub-classes can set whatever values it
  * would like in <code>init()</code>. After the OMEData instance is inserted
@@ -33,7 +30,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 1.0
  * @since 1.0
  */
 public class OMEData {

@@ -49,7 +49,7 @@ public interface ChmodStrategy {
      * differ from the current settings. In any case,
      * this method is intended to return quickly.
      * Once the change takes place, it will be necessary
-     * to run {@link #check(IObject, String)} to
+     * to run {@link #check(IObject, Object)} to
      * guarantee that no invalid links are present.
      */
     void chmod(IObject obj, String permissions);

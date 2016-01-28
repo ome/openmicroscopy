@@ -42,6 +42,9 @@ from django.template import RequestContext
 from django.views.defaults import page_not_found
 from django.core.urlresolvers import reverse
 
+from django.views.debug import get_exception_reporter_filter
+from django.utils.encoding import force_text
+
 from omeroweb.feedback.sendfeedback import SendFeedback
 from omeroweb.feedback.forms import ErrorForm, CommentForm
 
@@ -60,17 +63,11 @@ def get_user_agent(request):
 ###############################################################################
 def send_feedback(request):
     error = None
-    form = ErrorForm(data=request.REQUEST.copy())
+    form = ErrorForm(data=request.POST.copy())
     if form.is_valid():
-        error = request.REQUEST['error']
-        comment = None
-        if (request.REQUEST.get('comment', None) is not None and
-                request.REQUEST['comment'] != ""):
-            comment = request.REQUEST['comment']
-        email = None
-        if (request.REQUEST.get('email', None) is not None and
-                request.REQUEST['email'] != ""):
-            email = request.REQUEST['email']
+        error = form.cleaned_data['error']
+        comment = form.cleaned_data['comment']
+        email = form.cleaned_data['email']
         try:
             sf = SendFeedback(settings.FEEDBACK_URL)
             sf.send_feedback(error=error, comment=comment, email=email,
@@ -85,7 +82,7 @@ def send_feedback(request):
                  % (settings.LOGDIR, datetime.datetime.now())), "w")
             try:
                 try:
-                    fileObj.write(request.REQUEST['error'])
+                    fileObj.write(request.POST['error'])
                 except:
                     logger.error('handler500: Error could not be saved.')
                     logger.error(traceback.format_exc())
@@ -109,13 +106,10 @@ def send_comment(request):
     form = CommentForm()
 
     if request.method == "POST":
-        form = CommentForm(data=request.REQUEST.copy())
+        form = CommentForm(data=request.POST.copy())
         if form.is_valid():
-            comment = request.REQUEST['comment']
-            email = None
-            if (request.REQUEST['email'] is not None or
-                    request.REQUEST['email'] != ""):
-                email = request.REQUEST['email']
+            comment = form.cleaned_data['comment']
+            email = form.cleaned_data['email']
             try:
                 sf = SendFeedback(settings.FEEDBACK_URL)
                 sf.send_feedback(comment=comment, email=email,
@@ -133,19 +127,6 @@ def send_comment(request):
     c = RequestContext(request, context)
     return HttpResponse(t.render(c))
 
-
-def custom_server_error(request, error500):
-    """
-    Custom 500 error handler.
-
-    Templates: `500.html`
-    Context: ErrorForm
-    """
-    form = ErrorForm(initial={'error': error500})
-    context = {'form': form}
-    t = template_loader.get_template('500.html')
-    c = RequestContext(request, context)
-    return HttpResponse(t.render(c))
 
 ##############################################################################
 # handlers
@@ -166,21 +147,34 @@ def handler500(request):
     If debug is True, Django returns it's own debug error page
     """
     logger.error('handler500: Server error')
+
     as_string = '\n'.join(traceback.format_exception(*sys.exc_info()))
     logger.error(as_string)
 
     try:
-        request_repr = repr(request)
+        error_filter = get_exception_reporter_filter(request)
+        try:
+            request_repr = '\n{}'.format(
+                force_text(error_filter.get_request_repr(request)))
+        except:
+            request_repr = error_filter.get_request_repr(request)
     except:
-        request_repr = "Request repr() unavailable"
+        try:
+            request_repr = repr(request)
+        except:
+            request_repr = "Request unavailable"
 
-    error500 = "%s\n\n%s" % (as_string, request_repr)
+    error500 = "%s\n%s" % (as_string, request_repr)
 
     # If AJAX, return JUST the error message (not within html page)
     if request.is_ajax():
         return HttpResponseServerError(error500)
 
-    return custom_server_error(request, error500)
+    form = ErrorForm(initial={'error': error500})
+    context = {'form': form}
+    t = template_loader.get_template('500.html')
+    c = RequestContext(request, context)
+    return HttpResponse(t.render(c))
 
 
 def handler404(request):

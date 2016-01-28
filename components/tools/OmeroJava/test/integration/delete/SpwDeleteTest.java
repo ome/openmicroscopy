@@ -1,27 +1,24 @@
 /*
- * $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.delete;
 
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 import ome.xml.model.OME;
 import omero.cmd.Delete2;
 import omero.cmd.graphs.ChildOption;
+import omero.gateway.util.Requests;
 import omero.model.Experiment;
-import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Screen;
@@ -29,11 +26,7 @@ import omero.model.WellSample;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 import static org.testng.AssertJUnit.*;
-import ome.specification.XMLMockObjects;
-import ome.specification.XMLWriter;
 
 /**
  * Tests for deleting screen/plate/wells
@@ -78,10 +71,7 @@ public class SpwDeleteTest extends AbstractServerTest {
         // see XMLMockObjects.createScreen()
         scalingFactor *= 1*2*2*2*2;
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(),
-                Collections.singletonList(screen.getId().getValue()));
+        final Delete2 dc = Requests.delete("Screen", screen.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(screen);
@@ -109,12 +99,8 @@ public class SpwDeleteTest extends AbstractServerTest {
         Screen screen = plate.copyScreenLinks().get(0).getParent();
         long sid = screen.getId().getValue();
 
-        final Delete2 dc = new Delete2();
-        final ChildOption option = new ChildOption();
-        option.excludeType = Collections.singletonList(Plate.class.getSimpleName());
-        dc.childOptions = Collections.singletonList(option);
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Screen.class.getSimpleName(), Collections.singletonList(sid));
+        final ChildOption option = Requests.option(null, "Plate");
+        final Delete2 dc = Requests.delete("Screen", sid, option);
         callback(true, client, dc);
 
         assertDoesNotExist(screen);

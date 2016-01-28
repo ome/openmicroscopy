@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treemng.browser.Browser
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -20,13 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
-
-
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.util.Collection;
@@ -36,9 +29,6 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -47,12 +37,12 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Defines the interface provided by the browser component.
@@ -64,9 +54,6 @@ import pojos.ImageData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public interface Browser
@@ -219,6 +206,15 @@ public interface Browser
      * The browser's title corresponding to {@link #ADMIN_EXPLORER} type.
      */
     public static final String     ADMIN_TITLE = "Administration";
+    
+    /** The text of the dummy default node. */
+    public static final String     LOADING_MSG = "Loading...";
+    
+    /** 
+     * The text of the node added to a {@link TreeImageSet} node
+     * containing no element.
+     */
+    public static final String     EMPTY_MSG = "Empty";
     
     /**
      * Sets the selected {@link TreeImageDisplay node}.
@@ -681,10 +677,10 @@ public interface Browser
 	/**
 	 * Brings up the menu to manage the data.
 	 * 
-	 * @param index		The index of the menu.
-	 * @param invoker   The component that requested the pop-up menu.
-	 * @param loc       The point at which to display the menu, relative to the
-	 *                  <code>component</code>'s coordinates.
+	 * @param index The index of the menu.
+	 * @param source The component that requested the pop-up menu.
+	 * @param point The point at which to display the menu, relative to the
+	 *            <code>component</code>'s coordinates.
 	 */
 	void showMenu(int index, Component source, Point point);
 
@@ -839,8 +835,7 @@ public interface Browser
 	 * Sets the nodes to copy or cut depending on the passed index.
 	 * 
 	 * @param nodes The nodes to copy or paste.
-	 * @param index One of the following constants:
-	 *              {@link #CUT_AND_PASTE} or {@link #COPY_AND_PASTE}.
+	 * @param index One of the constants defined by this class.
 	 */
 	void setNodesToCopy(TreeImageDisplay[] nodes, int index);
 

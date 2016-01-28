@@ -97,6 +97,18 @@ public class RequestCallback
 	}
 	
 	/**
+     * Creates a new instance.
+     * @param ccb The CmdCallbackI to pass through
+     * @throws ServerError Thrown if an error occurred while initializing the
+     *                     call-back.
+     */
+    RequestCallback(CmdCallbackI ccb)
+        throws ServerError
+    {
+        super(ccb);
+    }
+	
+	/**
 	 * Sets the adapter. 
 	 * 
 	 * @param adapter The value to set.

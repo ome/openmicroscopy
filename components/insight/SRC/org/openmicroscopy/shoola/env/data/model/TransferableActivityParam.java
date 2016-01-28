@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.TransferableActivityParam 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -23,18 +21,12 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Icon;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 /** 
  * Parameters required to move a collection of objects between groups.
@@ -108,8 +100,8 @@ public class TransferableActivityParam
 	public int getNumber()
 	{
 		int number = 0;
-		Map<SecurityContext, List<pojos.DataObject>> map = object.getSource();
-		Iterator<List<pojos.DataObject>> i = map.values().iterator();
+		Map<SecurityContext, List<omero.gateway.model.DataObject>> map = object.getSource();
+		Iterator<List<omero.gateway.model.DataObject>> i = map.values().iterator();
 		while (i.hasNext()) {
 			number += i.next().size();
 		}

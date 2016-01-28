@@ -28,6 +28,9 @@ package org.openmicroscopy.shoola.env.log;
 
 //Third-party libraries
 import ij.IJ;
+import omero.log.LogMessage;
+
+import omero.log.Logger;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;

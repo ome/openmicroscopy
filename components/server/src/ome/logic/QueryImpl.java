@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -76,7 +74,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     private HibernateTemplate getHibernateTemplate() {
         return new HibernateTemplate(getSessionFactory(), false);
     }
-    
+
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
@@ -147,13 +145,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     // ~ INTERFACE METHODS
     // =========================================================================
 
-    /**
-     * @see ome.api.IQuery#get(java.lang.Class, long)
-     * @see org.hibernate.Session#load(java.lang.Class, java.io.Serializable)
-     * @DEV.TODO weirdness here; learn more about CGLIB initialization.
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
+    // TODO weirdness here; learn more about CGLIB initialization.
     public IObject get(final Class klass, final long id)
             throws ValidationException {
         return (IObject) getHibernateTemplate().execute(
@@ -169,7 +164,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                                     String
                                             .format(
                                                     "The requested object (%s,%s) is not available.\n"
-                                                            + "Please use IQuery.find to deteremine existance.\n",
+                                                            + "Please use IQuery.find to determine existence.\n",
                                                     klass.getName(), id));
                         }
 
@@ -180,13 +175,10 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 });
     }
 
-    /**
-     * @see ome.api.IQuery#find(java.lang.Class, long)
-     * @see org.hibernate.Session#get(java.lang.Class, java.io.Serializable)
-     * @DEV.TODO weirdness here; learn more about CGLIB initialization.
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
+    // TODO weirdness here; learn more about CGLIB initialization.
     public IObject find(final Class klass, final long id) {
         return (IObject) getHibernateTemplate().execute(
                 new HibernateCallback() {
@@ -201,9 +193,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 });
     }
 
-    /**
-     * @see ome.api.IQuery#getByClass(java.lang.Class)
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAll(final Class<T> klass,
@@ -224,9 +214,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 });
     }
 
-    /**
-     * @see ome.api.IQuery#findByExample(ome.model.IObject)
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> T findByExample(final T example)
@@ -246,15 +234,12 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 }
                 // Never reached!
                 return null;
-                
+
             }
         });
     }
 
-    /**
-     * @see ome.api.IQuery#findAllByExample(ome.model.IObject,
-     *      ome.parameters.Filter)
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAllByExample(final T example,
@@ -273,10 +258,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 });
     }
 
-    /**
-     * @see ome.api.IQuery#findByString(java.lang.Class, java.lang.String,
-     *      java.lang.String)
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> T findByString(final Class<T> klass,
@@ -302,10 +284,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         });
     }
 
-    /**
-     * @see ome.api.IQuery#findAllByString(java.lang.Class, java.lang.String,
-     *      java.lang.String, boolean, ome.parameters.Filter)
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAllByString(final Class<T> klass,
@@ -334,10 +313,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 });
     }
 
-    /**
-     * @see ome.api.IQuery#findByQuery(java.lang.String,
-     *      ome.parameters.Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> T findByQuery(String queryName, Parameters params)
@@ -380,13 +356,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                         + "has returned more than one Object\n"
                         + "findBy methods must return a single value.\n"
                         + "Please try findAllBy methods for queries which return Lists.");
-
     }
-    
-    /**
-     * @see ome.api.IQuery#findAllByQuery(java.lang.String,
-     *      ome.parameters.Parameters)
-     */
+
+    @Override
     @RolesAllowed("user")
     public <T extends IObject> List<T> findAllByQuery(String queryName,
             Parameters params) {
@@ -394,10 +366,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         return execute(q);
     }
 
-    /**
-     * @see ome.api.IQuery#findAllByFullText(java.lang.String,
-     *      ome.parameters.Parameteres)
-     */
+    @Override
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAllByFullText(final Class<T> type,
@@ -435,6 +404,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     // ~ Aggregations
     // =========================================================================
 
+    @Override
     @SuppressWarnings("unchecked")
     @RolesAllowed("user")
     public List<Object[]> projection(final String query, Parameters p) {
@@ -452,6 +422,18 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                     rv.set(i, new Object[]{obj});
                 }
             }
+        }
+        for (int i = 0; i < size; i++) {
+            Object[] x = (Object[]) rv.get(i);
+            if (x != null && x.length == 1 && x[0] instanceof Map) {
+                Map<Object, Object> y = (Map<Object, Object>) x[0];
+                for (Map.Entry<Object, Object> z : y.entrySet()) {
+                    if (z != null && z.getKey().toString().endsWith("_details_permissions")) {
+                        z.setValue(new ome.util.PermDetails((IObject) z.getValue()));
+                    }
+                }
+            }
+
         }
         return rv;
     }
@@ -532,9 +514,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     // ~ Others
     // =========================================================================
 
-    /**
-     * @see IQuery#refresh(IObject)
-     */
+    @Override
     public <T extends IObject> T refresh(T iObject) throws ApiUsageException {
         getHibernateTemplate().refresh(iObject);
         return iObject;
@@ -544,9 +524,11 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     // =========================================================================
 
     /**
-     * responsible for applying the information provided in a
-     * {@link ome.parameters.Filter} to a {@link org.hibernate.Critieria}
+     * Responsible for applying the information provided in a
+     * {@link ome.parameters.Filter} to a {@link org.hibernate.Criteria}
      * instance.
+     * @param c a criteria instance
+     * @param f a filter to limit a query
      */
     protected void parseFilter(Criteria c, Filter f) {
         // ticket:1232 - Reverting for 4.0

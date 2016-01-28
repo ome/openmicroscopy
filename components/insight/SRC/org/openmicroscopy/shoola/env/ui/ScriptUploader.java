@@ -23,13 +23,14 @@
 package org.openmicroscopy.shoola.env.ui;
 
 
-//Java imports
-//Third-party libraries
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.ValidationException;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -113,6 +114,36 @@ public class ScriptUploader
 			if (value < 0) onException(MESSAGE_RESULT, null);
 			else activity.endActivity(result); 
 		}
+    }
+
+    @Override
+    public void handleException(Throwable exc) {
+        if (exc instanceof ValidationException) {
+            ValidationException e = (ValidationException) exc;
+            StringBuilder sb = new StringBuilder();
+            sb.append("Script was rejected because its validation failed, details:\n\n");
+            Boolean read = null;
+            BufferedReader in = new BufferedReader(new StringReader(e.message));
+            String line = null;
+            try {
+                while ((line = in.readLine()) != null) {
+                    if (line.matches("\\-{10,}")) {
+                        if (read == null) {
+                            read = Boolean.TRUE;
+                            continue;
+                        } else
+                            break;
+                    }
+                    if (Boolean.TRUE.equals(read)) {
+                        sb.append(line + "\n");
+                    }
+                }
+            } catch (IOException e1) {
+            }
+            registry.getUserNotifier().notifyError("Script Validation failed",
+                    sb.toString());
+        } else
+            super.handleException(exc);
     }
 	
 }

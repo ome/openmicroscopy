@@ -17,16 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.api.local.LocalQuery;
 import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
-import ome.security.SecuritySystem;
-import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.TimelineI;
-import ome.services.sessions.SessionManager;
 import omero.RTime;
 import omero.ServerError;
 import omero.api.AMD_ITimeline_countByPeriod;

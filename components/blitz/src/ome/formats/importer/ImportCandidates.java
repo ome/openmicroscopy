@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -31,10 +29,6 @@ import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import ome.formats.ImageNameMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
-import omero.model.Pixels;
-import omero.model.PixelsI;
-import omero.model.PixelsType;
-import omero.model.PixelsTypeI;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -55,11 +49,11 @@ public class ImportCandidates extends DirectoryWalker
 
     /**
      * Event raised during a pass through the directory structure given to
-     * {@link ImportCandidates}. A {@link Scanning} event will not necessarily
+     * {@link ImportCandidates}. A {@link SCANNING} event will not necessarily
      * be raised for every file or directory, but the values will be valid for
      * each event.
      *
-     * If {@link #totalFiles} is less than 0, then the directory is currently be
+     * If {@link #totalFiles} is less than 0, then the directory is currently being
      * scanned and the count is unknown. Once {@link #totalFiles} is positive,
      * it will remain constant.
      *
@@ -128,7 +122,7 @@ public class ImportCandidates extends DirectoryWalker
     final private long start = System.currentTimeMillis();
 
     /**
-     * Time take for {@link IFormatReader#setId()}
+     * Time taken for {@link IFormatReader#setId()}
      */
     long readerTime = 0;
 
@@ -181,9 +175,8 @@ public class ImportCandidates extends DirectoryWalker
     }
 
     /**
-     * Main constructor which iterates over all the paths calling
-     * {@link #walk(File, Collection)} and permitting a descent to the given
-     * depth.
+     * Main constructor which starts depth-first descent into all the paths
+     * and permits a descent to the given depth.
      *
      * @param depth
      *            number of directory levels to search down.
@@ -254,8 +247,11 @@ public class ImportCandidates extends DirectoryWalker
      * other software layers. The format is: 1) any empty lines are ignored, 2)
      * any blocks of comments separate groups, 3) each group is begun by the
      * "key", 4) all other files in a group will also be imported.
-     *
-     * Similar logic is contained in {@link Groups#print()} but it does not
+     * 
+     * The ordering of the used files is taken into account.
+     */
+    /*
+     * Similar logic is contained in Groups.print() below but that does not
      * take the ordering of the used files into account.
      */
     public void print()
@@ -341,7 +337,7 @@ public class ImportCandidates extends DirectoryWalker
     }
 
     /**
-     * @return all containers as a array list
+     * @return all containers as an array list
      */
     public List<ImportContainer> getContainers()
     {
@@ -471,7 +467,7 @@ public class ImportCandidates extends DirectoryWalker
 
     /**
      * Retrieves Image names for each image that Bio-Formats has detected.
-     * @return See A list of Image names, in the order of <i>series</i>.
+     * @return a list of Image names, in the order of <i>series</i>.
      */
     private List<String> getImageNames() {
         List<String> toReturn = new ArrayList<String>();
@@ -538,9 +534,9 @@ public class ImportCandidates extends DirectoryWalker
     /**
      * Handle a file import
      *
-     * @param file - file selected
-     * @param depth - depth of scan
-     * @param collection
+     * @param file the selected file
+     * @param depth the depth of the scan
+     * @param collection the result objects, ignored
      */
     @Override
     public void handleFile(File file, int depth, Collection collection) {
@@ -585,7 +581,7 @@ public class ImportCandidates extends DirectoryWalker
     }
 
     /**
-     * The {@link Groups} class servers as an algorithm for sorting the usedBy
+     * The {@link Groups} class serves as an algorithm for sorting the usedBy
      * map from the {@link ImportCandidates#walk(File, Collection)} method.
      * These objects should never leave the outer class.
      *

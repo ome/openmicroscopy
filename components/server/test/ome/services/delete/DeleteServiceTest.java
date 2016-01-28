@@ -6,7 +6,6 @@
 package ome.services.delete;
 
 import java.io.FileNotFoundException;
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;

@@ -28,8 +28,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
-import ome.services.blitz.repo.path.FilePathRestrictionInstance;
-import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 

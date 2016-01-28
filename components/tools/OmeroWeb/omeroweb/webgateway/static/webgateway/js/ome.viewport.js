@@ -326,6 +326,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
           }
         _this.viewportimg.get(0).setUpTiles(img_w, img_h, tile_w, tile_h, init_zoom, zoom_levels, hrefProvider, thref, cx, cy, zoomLevelScaling, nominalMagnification);
     }
+
+    // Turn off interpolation if disabled
+    if (!_this.loadedImg.interpolate) {
+      _this.setPixelated(true);
+    }
     
     _load(function () {
       //_this.refresh();
@@ -1008,7 +1013,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     /* Channels (verbose as IE7 does not support Array.filter */
     var chs = [];
     var channels = this.loadedImg.channels;
-    for (i=0; i<channels.length; i++) {
+    for (var i=0; i<channels.length; i++) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;

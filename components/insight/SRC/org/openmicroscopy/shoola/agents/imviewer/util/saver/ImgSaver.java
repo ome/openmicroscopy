@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 
-
-
-//Java imports
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -43,9 +40,6 @@ import java.util.regex.Pattern;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
@@ -67,14 +61,11 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @authorAndrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public class ImgSaver
@@ -219,32 +210,33 @@ public class ImgSaver
     /**
      * Creates a single image.
      * 
-     * @param image		The image to create.
-     * @param constrain	The constrain indicating to add the scale bar.
-     * @param name		The name of the image.
-     * @throws EncoderException 
+     * @param image The image to create.
+     * @param constraint The constraint indicating to add the scale bar.
+     * @param name The name of the image.
+     * @throws EncoderException
      * @throws IOException
      */
-    private void writeSingleImage(BufferedImage image, boolean constrain, 
-    							String name) throws EncoderException, IOException
+    private void writeSingleImage(BufferedImage image, boolean constraint,
+            String name)
+                    throws EncoderException, IOException
     {
-    	int width = image.getWidth();
+        int width = image.getWidth();
         int h = image.getHeight();
         String v = getUnitBarValue(); 
         int s = (int) model.getUnitBarSize();
-        
-        BufferedImage newImage = new BufferedImage(width, h, 
-                					BufferedImage.TYPE_INT_RGB);
+
+        BufferedImage newImage = new BufferedImage(width, h,
+                BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = (Graphics2D) newImage.getGraphics();
         ImagePaintingFactory.setGraphicRenderingSettings(g2);
         //Paint the original image.
         g2.drawImage(image, null, 0, 0); 
-        
-        if (constrain)
+
+        if (constraint)
             ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
         writeImage(newImage, name);
     }
-    
+
     /**
      * Displays the preview dialog with images depending on the 
      * saving type.

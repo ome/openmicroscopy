@@ -1,5 +1,3 @@
-import java.util.List;
-
 import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
 import omero.api.ServiceFactoryPrx;

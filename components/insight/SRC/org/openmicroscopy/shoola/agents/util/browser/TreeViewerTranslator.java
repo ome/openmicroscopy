@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.agents.treemng.TreeViewerTranslator
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,12 +18,9 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.util.browser;
 
 
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,11 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
@@ -51,39 +43,37 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PlateData;
-import pojos.PlateAcquisitionData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
 
 /**
  * This class contains a collection of utility static methods that transform
- * an hierarchy of {@link DataObject}s into a visualisation tree.
+ * an hierarchy of {@link DataObject}s into a visualization tree.
  * The tree is then displayed in the TreeViewer. For example,
  * A list of Projects-Datasets is passed to the
- * {@link #transformHierarchy(Set, long, long)} method and transforms into a set
+ * {@link #transformHierarchy(Collection)} method and transforms into a set
  * of TreeImageSet-TreeImageSet.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *         <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
-
  * @since OME2.2
  */
 public class TreeViewerTranslator
 {
 
     /**
-     * Transforms a {@link DatasetData} into a visualisation object i.e.
+     * Transforms a {@link DatasetData} into a visualization object i.e.
      * a {@link TreeCheckNode}.
      *
      * @param data The {@link DatasetData} to transform.
@@ -244,6 +234,7 @@ public class TreeViewerTranslator
             DataObject tmp;
             ProjectData p;
             ScreenData screen;
+            PlateData plate;
             while (i.hasNext()) {
                 tmp = (DataObject) i.next();
                 if (EditorUtil.isReadable(tmp)) {
@@ -260,6 +251,11 @@ public class TreeViewerTranslator
                         screen = (ScreenData) tmp;
                         tag.addChildDisplay(
                                 transformScreen(screen, screen.getPlates()));
+                    }
+                    else if (tmp instanceof PlateData) {
+                        plate = (PlateData) tmp;
+                        tag.addChildDisplay(
+                                transformPlate(plate, null));
                     }
                 }
             }
@@ -374,8 +370,7 @@ public class TreeViewerTranslator
 
     /**
      * Transforms a set of {@link DataObject}s into their corresponding 
-     * visualization objects. The elements of the set can either be
-     * {@link ProjectData}, {@link CategoryGroupData} or {@link ImageData}.
+     * visualization objects.
      *
      * @param dataObjects The collection of {@link DataObject}s to transform.
      * @return A set of visualization objects.
@@ -792,28 +787,6 @@ public class TreeViewerTranslator
             }
         }
         return nodes;
-    }
-
-    /**
-     * Transforms the passed objects.
-     *
-     * @param object The object to handle.
-     * @return See above.
-     */
-    public static TreeImageDisplay transformMultiImage(MultiImageData object)
-    {
-        if (object == null) return null;
-        List<ImageData> images = object.getComponents();
-        if (CollectionUtils.isNotEmpty(images)) {
-            TreeImageSet node = new TreeImageSet(object);
-            node.setChildrenLoaded(Boolean.valueOf(true));
-            node.setNumberItems(images.size());
-            Iterator<ImageData> i = images.iterator();
-            while (i.hasNext())
-                node.addChildDisplay(transformImage(i.next()));
-            return node;
-        } 
-        return new TreeImageNode(object);
     }
 
     /**

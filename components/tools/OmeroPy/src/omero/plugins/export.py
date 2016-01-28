@@ -20,7 +20,7 @@ Example Usage:
   omero export --file new.ome.xml --type XML Image:1
   omero export --file output-dir  --iterate  Dataset:2
 
-If --iterate is used used, the only supported obj is Dataset:<id>
+If --iterate is used, the only supported obj is Dataset:<id>
 """
 
 

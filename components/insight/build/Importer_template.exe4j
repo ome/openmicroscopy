@@ -29,7 +29,7 @@
   </splashScreen>
   <java mainClass="@MAIN_CLASS@" vmParameters="@VM_PARAMETERS@"
     arguments="containerImporter.xml" allowVMPassthroughParameters="true" preferredVM=""
-    minVersion="1.6" maxVersion="" allowBetaVM="false" jdkOnly="false">
+    minVersion="1.7" maxVersion="" allowBetaVM="false" jdkOnly="false">
     <searchSequence>
       <registry />
       <envVar name="JAVA_HOME" />

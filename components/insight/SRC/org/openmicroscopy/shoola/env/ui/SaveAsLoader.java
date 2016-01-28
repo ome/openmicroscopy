@@ -22,16 +22,10 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
@@ -94,7 +88,7 @@ public class SaveAsLoader
 	
 	/**
 	 * Saves the images as JPEG.
-	 * @see EditorLoader#load()
+	 * @see UserNotifierLoader#load()
 	 */
 	public void load()
 	{

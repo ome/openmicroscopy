@@ -1,19 +1,15 @@
 /*
  * omeis.providers.re.RGBBuffer
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package omeis.providers.re;
 
-
-// Java imports
 import java.util.Arrays;
 
-// Third-party libraries
-
-// Application-internal dependencies
+import com.google.common.math.IntMath;
 
 /**
  * Holds the data of an <i>RGB</i> image. The image data is stored in three
@@ -24,8 +20,7 @@ import java.util.Arrays;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/22 17:09:48 $) </small>
+ * @version 2.2
  * @since OME2.2
  */
 public class RGBIntBuffer extends RGBBuffer {
@@ -66,7 +61,7 @@ public class RGBIntBuffer extends RGBBuffer {
     public RGBIntBuffer(int sizeX1, int sizeX2) {
         this.sizeX1 = sizeX1;
         this.sizeX2 = sizeX2;
-        dataBuf = new int[sizeX1 * sizeX2];
+        dataBuf = new int[IntMath.checkedMultiply(sizeX1, sizeX2)];
     }
 
     /**

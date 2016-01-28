@@ -96,7 +96,7 @@
                         <optional name="writingMode" type="string"/><!-- r-tb | rl-tb | tb-rl | lr | rl | tb -->
                  </properties>
         </type>
-        <type id="ome.model.roi.Rect" discriminator="rect" superclass="ome.model.roi.Shape">
+        <type id="ome.model.roi.Rectangle" discriminator="rect" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="x" type="double"/>
                         <optional name="y" type="double"/>

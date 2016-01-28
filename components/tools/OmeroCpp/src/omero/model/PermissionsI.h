@@ -67,7 +67,7 @@ public:
     virtual void ice_postUnmarshal(); // For setting __immutable
 
     virtual bool isRestricted(const std::string& restriction, const Ice::Current& current = Ice::Current());
-    virtual bool isDisallow(const int restriction, const Ice::Current& current = Ice::Current());
+    virtual bool isDisallow(::Ice::Int restriction, const Ice::Current& current = Ice::Current());
     virtual bool canAnnotate(const Ice::Current& current = Ice::Current());
     virtual bool canDelete(const Ice::Current& current = Ice::Current());
     virtual bool canEdit(const Ice::Current& current = Ice::Current());

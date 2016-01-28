@@ -422,7 +422,7 @@ install(FILES ${OMERO_CLIENT_STATIC_UTIL_HEADERS}
 set(LIBRARY_PREFIX OMERO_ICE)
 set(LIBRARY_NAME omero-ice)
 set(LIBRARY_HEADER omero/RTypes.h)
-configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+configure_file(${OMERO_CPP_SOURCE_DIR}/cmake/TemplateConfig.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake
         DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)
@@ -430,7 +430,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-ice-config.cmake
 set(LIBRARY_PREFIX OMERO_CLIENT)
 set(LIBRARY_NAME omero-client)
 set(LIBRARY_HEADER omero/client.h)
-configure_file(${PROJECT_SOURCE_DIR}/components/bioformats/cpp/cmake/TemplateConfig.cmake.in
+configure_file(${OMERO_CPP_SOURCE_DIR}/cmake/TemplateConfig.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/omero-client-config.cmake
         DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake)

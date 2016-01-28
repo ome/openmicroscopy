@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -19,26 +19,26 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration.chgrp;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
+
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import omero.ServerError;
 import omero.cmd.Chgrp2;
-import omero.model.Dataset;
+import omero.gateway.util.Requests;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
@@ -47,13 +47,9 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 import static org.testng.AssertJUnit.*;
 
 /**
- *
- *
  * @author Scott Littlewood, <a
  *         href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
@@ -111,11 +107,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
         loginUser(imageOwnerContext);
 
         // Perform the move operation as original user
-        final Chgrp2 dc = new Chgrp2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(originalImageId));
-        dc.groupId = targetGroup.getId().getValue();
+        final Chgrp2 dc = Requests.chgrp("Image", originalImageId, targetGroup.getId().getValue());
         callback(true, client, dc);
 
         // check the roi has been moved to target group
@@ -355,7 +347,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
         roi.setImage(image);
 
         for (int i = 0; i < 3; i++) {
-            Rect rect = new RectI();
+            Rectangle rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(20));
             rect.setWidth(rdouble(40));

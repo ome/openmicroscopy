@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.figures;
 
 
-//Java imports
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
@@ -32,13 +31,10 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-
-//Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.TextFigure;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
@@ -54,9 +50,6 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class MeasureTextFigure 
@@ -189,7 +182,7 @@ public class MeasureTextFigure
 		
 	/**
 	 * Overridden to stop updating shape if read-only.
-	 * @see AbstractAttributedFigure#setBounds(Double, Double)
+	 * @see AbstractAttributedFigure#setBounds(Point2D.Double, Point2D.Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
 	{
@@ -277,13 +270,13 @@ public class MeasureTextFigure
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#setStatus(boolean)}
+	 * @see ROIFigure#setStatus(int)
 	 */
 	public void setStatus(int status) { this.status = status; }
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#getStatus()}
+	 * @see ROIFigure#getStatus()
 	 */
 	public int getStatus() { return status; }
 	

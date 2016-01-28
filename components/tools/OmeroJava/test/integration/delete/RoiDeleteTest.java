@@ -1,24 +1,22 @@
 /*
- * $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration.delete;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
@@ -32,8 +30,8 @@ import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
-import omero.model.Rect;
-import omero.model.RectI;
+import omero.model.Rectangle;
+import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiAnnotationLink;
 import omero.model.RoiAnnotationLinkI;
@@ -43,10 +41,8 @@ import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-
 import static org.testng.AssertJUnit.*;
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /**
  * Tests for deleting rois and images which have rois.
@@ -76,10 +72,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(i1.getId().getValue()));
+        final Delete2 dc = Requests.delete("Image", i1.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(i1);
@@ -102,10 +95,10 @@ public class RoiDeleteTest extends AbstractServerTest {
         Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
@@ -152,10 +145,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         // Now delete the rois.
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Roi.class.getSimpleName(),
-                Collections.singletonList(roiID));
+        final Delete2 dc = Requests.delete("Roi", roiID);
         callback(true, client, dc);
         assertDoesNotExist(roi);
         l = svc.getRoiMeasurements(image.getId().getValue(), options);
@@ -178,10 +168,10 @@ public class RoiDeleteTest extends AbstractServerTest {
         Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
         roi.setImage(image);
-        Rect rect;
+        Rectangle rect;
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
-            rect = new RectI();
+            rect = new RectangleI();
             rect.setX(rdouble(10));
             rect.setY(rdouble(10));
             rect.setWidth(rdouble(10));
@@ -228,11 +218,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         // Now delete the plate
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Plate.class.getSimpleName(),
-                Collections.singletonList(p.getId()
-                        .getValue()));
+        final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
         callback(true, client, dc);
         assertDoesNotExist(p);
         assertDoesNotExist(roi);

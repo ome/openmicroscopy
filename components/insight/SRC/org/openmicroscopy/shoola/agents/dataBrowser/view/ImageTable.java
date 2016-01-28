@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.ImageTable 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
@@ -58,8 +54,8 @@ import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 
-import pojos.DataObject;
-import pojos.ImageData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
 
 /** 
  * Tree table displaying the hierarchy.

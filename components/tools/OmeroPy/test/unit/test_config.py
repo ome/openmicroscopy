@@ -10,6 +10,7 @@
 """
 
 import os
+import errno
 import pytest
 from omero.config import ConfigXml, xml
 from omero.util.temp_files import create_path
@@ -328,3 +329,29 @@ class TestConfig(object):
                 del os.environ["OMERO_CONFIG"]
             else:
                 os.environ["OMERO_CONFIG"] = old
+
+    def testCannotCreate(self):
+        d = create_path(folder=True)
+        d.chmod(0555)
+        filename = str(d / "config.xml")
+        with pytest.raises(IOError) as excinfo:
+            ConfigXml(filename).close()
+        assert excinfo.value.errno == errno.EACCES
+
+    def testCannotCreateLock(self):
+        d = create_path(folder=True)
+        filename = str(d / "config.xml")
+        lock_filename = "%s.lock" % filename
+        with open(lock_filename, "w") as fo:
+            fo.write("dummy\n")
+        os.chmod(lock_filename, 0444)
+        with pytest.raises(IOError) as excinfo:
+            ConfigXml(filename).close()
+        assert excinfo.value.errno == errno.EACCES
+
+    def testCannotRead(self):
+        p = create_path()
+        p.chmod(0)
+        with pytest.raises(IOError) as excinfo:
+            ConfigXml(str(p)).close()
+        assert excinfo.value.errno == errno.EACCES

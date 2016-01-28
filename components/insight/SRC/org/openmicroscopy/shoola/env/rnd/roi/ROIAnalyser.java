@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.env.rnd.roi;
 
 
-//Java imports
 import java.awt.Point;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,14 +28,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-import org.openmicroscopy.shoola.env.rnd.data.DataSourceException;
+
+import omero.gateway.Gateway;
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DataSourceException;
+
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+
+import omero.gateway.model.PixelsData;
 
 /** 
  * Does some basic statistic analysis on a collection of {@link ROIShape} 
@@ -82,7 +81,23 @@ public class ROIAnalyser
     {
         if (z < 0 || sizeZ <= z) return false;
         if (t < 0 || sizeT <= t) return false;
-        return true;
+        return true; 
+    }
+    
+    /**
+     * Checks if z and t match the given plane.
+     * 
+     * @param z
+     *            The z plane to check
+     * @param t
+     *            The t plane to check
+     * @param plane
+     *            The plane to check against
+     * @return See above
+     */
+    private boolean matchesPlane(int z, int t, Coord3D plane) {
+        return (z == plane.getZSection() || plane.getZSection() < 0)
+                && (t == plane.getTimePoint() || plane.getTimePoint() < 0);
     }
 
     /**
@@ -102,22 +117,17 @@ public class ROIAnalyser
      * Creates a new instance to analyze the pixels set accessible through
      * <code>source</code>.
      * 
-     * @param source Gateway to the raw data of the pixels set this iterator
+     * @param gateway Gateway to the raw data of the pixels set this iterator
      *               will work on. Mustn't be <code>null</code>.
-     * @param sizeZ The number of z-sections.
-     * @param sizeT The number of timepoints.
-     * @param size The number of channels.
-     * @param sizeX The number of pixels along the x-axis.
-     * @param sizeY The number of pixels along the y-axis.
+     * @param pixels The pixels to analyze.
      */
-    public ROIAnalyser(DataSink source, int sizeZ, int sizeT, int sizeC, int
-            sizeX, int sizeY)
+    public ROIAnalyser(Gateway gateway, PixelsData pixels)
     {
         //Constructor will check source and dims.
-        runner = new PointIterator(source, sizeZ, sizeT, sizeC, sizeX, sizeY);
-        this.sizeZ = sizeZ;
-        this.sizeT = sizeT;
-        this.sizeC = sizeC;
+        runner = new PointIterator(gateway, pixels);
+        this.sizeZ = pixels.getSizeZ();
+        this.sizeT = pixels.getSizeT();
+        this.sizeC = pixels.getSizeC();
     }
 
     /**
@@ -127,16 +137,17 @@ public class ROIAnalyser
      * @param ctx The security context.
      * @param shapes The shapes to analyze.
      * @param channels Collection of selected channels.
+     * @param plane The plane to analyze the shapes for, can be <code>null</code>
      * @return A map whose keys are the {@link ROIShape} objects specified
      *         and whose values are a map (keys: channel index, value
-     *         the corresponding {@link ROIShapeStats} objects computed by
+     *         the corresponding {@link AbstractROIShapeStats} objects computed by
      *         this method).
      * @throws DataSourceException  If an error occurs while retrieving plane
      *                              data from the pixels source.
      */
-    public Map<ROIShape, Map<Integer, ROIShapeStats>> analyze(
+    public Map<ROIShape, Map<Integer, AbstractROIShapeStats>> analyze(
             SecurityContext ctx, ROIShape[] shapes,
-            Collection<Integer> channels)
+            Collection<Integer> channels, Coord3D plane)
     throws DataSourceException
     {
         if (shapes == null) throw new NullPointerException("No shapes.");
@@ -144,10 +155,10 @@ public class ROIAnalyser
             throw new IllegalArgumentException("No shapes defined.");
         if (CollectionUtils.isEmpty(channels))
             throw new IllegalArgumentException("No channels defined.");
-        Map<ROIShape, Map<Integer, ROIShapeStats>>
-        r = new HashMap<ROIShape, Map<Integer, ROIShapeStats>>();
-        ROIShapeStats computer;
-        Map<Integer, ROIShapeStats> stats;
+        Map<ROIShape, Map<Integer, AbstractROIShapeStats>>
+        r = new HashMap<ROIShape, Map<Integer, AbstractROIShapeStats>>();
+        AbstractROIShapeStats computer;
+        Map<Integer, AbstractROIShapeStats> stats;
         Iterator<Integer> j;
         int n = channels.size();
         Integer w;
@@ -157,24 +168,26 @@ public class ROIAnalyser
             shape = shapes[i];
             close = i == shapes.length-1;
             if (checkPlane(shape.getZ(), shape.getT())) {
-                stats = new HashMap<Integer, ROIShapeStats>(n);
-                j = channels.iterator();
-                List<Point> points = shape.getFigure().getPoints();
-                int count = 0;
-                boolean last = false;
-                while (j.hasNext()) {
-                    w = j.next();
-                    if (checkChannel(w.intValue())) {
-                        computer =  new ROIShapeStats();
-                        runner.register(computer);
-                        if (close) {
-                            last = count == channels.size()-1;
+                stats = new HashMap<Integer, AbstractROIShapeStats>(n);
+                if (plane == null || matchesPlane(shape.getZ(), shape.getT(), plane)) {
+                    j = channels.iterator();
+                    List<Point> points = shape.getFigure().getPoints();
+                    int count = 0;
+                    boolean last = false;
+                    while (j.hasNext()) {
+                        w = j.next();
+                        if (checkChannel(w.intValue())) {
+                            computer =  new ROIShapeStatsSimple();
+                            runner.register(computer);
+                            if (close) {
+                                last = count == channels.size()-1;
+                            }
+                            runner.iterate(ctx, shape, points, w.intValue(), last);
+                            runner.remove(computer);
+                            stats.put(w, computer);
                         }
-                        runner.iterate(ctx, shape, points, w.intValue(), last);
-                        runner.remove(computer);
-                        stats.put(w, computer);
+                        count++;
                     }
-                    count++;
                 }
                 r.put(shape, stats);
             }

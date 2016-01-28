@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroImageService
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,11 +18,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -34,31 +29,33 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
+import omero.ValidationException;
 import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import omero.gateway.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.RenderingServiceException;
+
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.ROIData;
-import pojos.WorkflowData;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 
 /** 
  * List of methods to view images or thumbnails.
@@ -158,9 +155,10 @@ public interface OmeroImageService
     /**
      * Returns true if a connection is available for the given
      * {@link SecurityContext}. This is equivalent to being able to
-     * access a {@link Connector};
+     * access a <code>Connector</code>.
      *
      * @param ctx The security context.
+     * @return See above.
      */
 	public boolean isAlive(SecurityContext ctx)
 	    throws DSOutOfServiceException;
@@ -481,7 +479,6 @@ public interface OmeroImageService
 	 *  
 	 * @param object The object hosting the information about the file to import.
 	 * @param importable The file to import. Mustn't be <code>null</code>.
-	 * @param userID The id of the user.
      * @param close Pass <code>true</code> to close the import, 
      * <code>false</code> otherwise.
 	 * @return See above.
@@ -553,15 +550,12 @@ public interface OmeroImageService
 	
 	/**
 	 * Exports the passed image as an XML file.
-	 * 
-	 * @param index One of the export contants defined by this class.
+	 *
+	 * @param ctx The security context.
+	 * @param index One of the export constants defined by this class.
 	 * @param imageID The ID of the image.
 	 * @param folder  The folder where to export the image.
 	 * @param target The selected schema.
-	 * @param ctx The security context.
-	 * @param imageID The ID of the image.
-	 * @param folder The folder where to export the image.
-	 * @param target Host information about the downgrade style sheets.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -585,7 +579,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public List<ROIData> saveROI(SecurityContext ctx, long imageID,
+	public Collection<ROIData> saveROI(SecurityContext ctx, long imageID,
 		long userID, List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException;
 
@@ -663,7 +657,6 @@ public interface OmeroImageService
 	 * Returns all the scripts with a UI.
 	 * 
 	 * @param ctx The security context.
-	 * @param userID The id of the experimenter or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -722,9 +715,10 @@ public interface OmeroImageService
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
+	 * @throws ValidationException      If the script validation failed
 	 */
 	public Object uploadScript(SecurityContext ctx, ScriptObject script)
-		throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException, ValidationException;
 	
 	/**
 	 * Retrieves the thumbnails corresponding to the passed collection of
@@ -745,37 +739,6 @@ public interface OmeroImageService
 	public Map<DataObject, BufferedImage> getFSThumbnailSet(SecurityContext ctx,
 		List<DataObject> files, int maxLength, long userID)
 		throws DSAccessException, DSOutOfServiceException, FSAccessException;
-	
-	/**
-	 * Returns all the available workflows from the server for the user.
-	 * 
-	 * @param ctx The security context.
-	 * @param userID The users id.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public List<WorkflowData> retrieveWorkflows(SecurityContext ctx,
-		long userID)
-		throws DSAccessException, DSOutOfServiceException;
-	
-	/**
-	 * Adds the workflows to the server for the user.
-	 * 
-	 * @param ctx The security context.
-	 * @param workflows See above.
-	 * @param userID The id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public  Object storeWorkflows(SecurityContext ctx,
-		List<WorkflowData> workflows, long userID) 
-		throws DSAccessException, DSOutOfServiceException;
 
 	/**
 	 * Retrieves the thumbnails corresponding to the passed collection of

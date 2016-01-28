@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerUI
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -24,8 +22,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -110,10 +106,10 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.GroupData;
-import pojos.ImageData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
 
 /** 
  * The {@link ImViewer} view.
@@ -472,7 +468,7 @@ class ImViewerUI
 	 */
 	private JMenu createScaleBarLengthSubMenu(ViewerPreferences pref)
 	{
-		scaleBarMenu = new JMenu(SCALE_BAR_TEXT+model.getUnits()+")");
+		scaleBarMenu = new JMenu(SCALE_BAR_TEXT+LengthI.lookupSymbol(model.getScaleBarUnit())+")");
 		scaleBarGroup = new ButtonGroup();
 		if (pref != null && pref.getScaleBarIndex() > 0)
 			defaultIndex = pref.getScaleBarIndex();
@@ -562,7 +558,7 @@ class ImViewerUI
 				controller.getAction(ImViewerControl.UNIT_BAR));
 		unitBarItem.setSelected(model.isUnitBar());
 		unitBarItem.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
-		scaleBarMenu.setText(SCALE_BAR_TEXT+model.getUnits()+")");
+		scaleBarMenu.setText(SCALE_BAR_TEXT+LengthI.lookupSymbol(model.getScaleBarUnit())+")");
 	}
 	
 	/**
@@ -1322,7 +1318,7 @@ class ImViewerUI
 	{
 		int n;
 		int max = model.getMaxZ();
-		double d = model.getPixelsSizeZ();
+		double d = model.getPixelsSizeZ().getValue();
 		String units;
 		Length o;
 		StringBuffer buffer = new StringBuffer();
@@ -1450,38 +1446,18 @@ class ImViewerUI
 	            }
 	            toolTipText = "";
 	            toolTipText += "Stage coordinates: ";
+	            DecimalFormat format = new DecimalFormat("0.##");
                 if (!notSet.contains(EditorUtil.POSITION_X)) {
-                    if (details.get(EditorUtil.POSITION_X) instanceof BigResult) {
-                        toolTipText += "x=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_X),
-                                EditorUtil.POSITION_X);
-                    } else {
-                        toolTipText += "x="
-                                + details.get(EditorUtil.POSITION_X) + " ";
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_X);
+                    toolTipText += "x="+format.format(l.getValue())+" "+l.getSymbol();
                 }
                 if (!notSet.contains(EditorUtil.POSITION_Y)) {
-                    if (details.get(EditorUtil.POSITION_Y) instanceof BigResult) {
-                        toolTipText += "y=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_Y),
-                                EditorUtil.POSITION_Y);
-                    } else {
-                        toolTipText += "y="
-                                + details.get(EditorUtil.POSITION_Y) + " ";
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_Y);
+                    toolTipText += "y="+format.format(l.getValue())+" "+l.getSymbol();
                 }
                 if (!notSet.contains(EditorUtil.POSITION_Z)) {
-                    if (details.get(EditorUtil.POSITION_Z) instanceof BigResult) {
-                        toolTipText += "z=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_Z),
-                                EditorUtil.POSITION_Z);
-                    } else {
-                        toolTipText += "z="
-                                + details.get(EditorUtil.POSITION_Z);
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_Z);
+                    toolTipText += "z="+format.format(l.getValue())+" "+l.getSymbol();
                 }
 	            tips.add(toolTipText);
 	            comp.setToolTipText(UIUtilities.formatToolTipText(tips));

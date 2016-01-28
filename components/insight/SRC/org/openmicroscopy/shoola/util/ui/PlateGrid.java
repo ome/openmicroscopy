@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -38,10 +36,6 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * Displays a grid.
  *
@@ -50,9 +44,6 @@ import javax.swing.table.TableColumn;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class PlateGrid 
@@ -239,10 +230,9 @@ public class PlateGrid
 	}
 	
 	/**
-	 * Sets the selected cell.
+	 * Sets the selected cells.
 	 * 
-	 * @param row 	 The row identifying the cell.
-	 * @param column The column identifying the cell.
+	 * @param cells The selected cells.
 	 */
 	public void selectCells(List<Point> cells)
 	{

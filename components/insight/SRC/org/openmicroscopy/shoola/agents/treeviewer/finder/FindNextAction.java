@@ -23,27 +23,18 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.finder;
 
-
-//Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to find the next occurence of the phrase.
+ * Action to find the next occurrence of the phrase.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$Date: )
- * </small>
  * @since OME2.2
  */
 public class FindNextAction
@@ -54,7 +45,7 @@ public class FindNextAction
     private static final String NAME = "Find Next";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Finds the next occurence of " +
+    private static final String DESCRIPTION = "Finds the next occurrence of " +
 	  											"the phrase.";
     
     /** 
@@ -100,7 +91,7 @@ public class FindNextAction
     }
 
     /**
-     * Finds the next occurence of the phrase.
+     * Finds the next occurrence of the phrase.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) { model.findNext(); }

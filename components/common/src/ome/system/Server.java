@@ -7,12 +7,8 @@
 
 package ome.system;
 
-// Java imports
 import java.util.Properties;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 
 /**
@@ -26,8 +22,7 @@ import ome.conditions.ApiUsageException;
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0
- * @see ome.system.ServiceFactory <small> (<b>Internal version:</b> $Rev$
- *      $Date$) </small>
+ * @see ome.system.ServiceFactory
  * @since 1.0
  */
 public class Server {
@@ -53,7 +48,7 @@ public class Server {
     /**
      * standard constructor which users {@link #DEFAULT_PORT}.
      * 
-     * @param server
+     * @param serverHost
      *            Not null.
      */
     public Server(String serverHost) {

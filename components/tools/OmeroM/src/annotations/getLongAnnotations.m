@@ -1,4 +1,4 @@
-function las = getLongAnnotations(session, ids)
+function las = getLongAnnotations(session, ids, varargin)
 % GETTAGANNOTATIONS Retrieve long annotations from the OMERO server
 %
 %   las = getLongAnnotations(session, ids) returns all the long annotations
@@ -35,4 +35,4 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
 % Return long annotations
-las = getAnnotations(session, ids, 'long');
+las = getAnnotations(session, ids, 'long', varargin{:});

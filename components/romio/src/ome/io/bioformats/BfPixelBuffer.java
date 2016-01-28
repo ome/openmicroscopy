@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.io.bioformats;
 
 import java.awt.Dimension;
@@ -21,13 +20,9 @@ import loci.formats.CoreMetadata;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
-import loci.formats.in.TiffReader;
-import loci.formats.tiff.IFD;
-import loci.formats.tiff.IFDList;
 import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelBufferException;
 import ome.io.nio.RomioPixelBuffer;
 import ome.util.PixelData;
 

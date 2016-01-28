@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -40,7 +38,7 @@ public abstract class AbstractStatefulBean implements SelfConfigurableService,
     /**
      * True if any write operation took place on this bean.
      * Allows for updating the database representation if needed.
-     * @see ticket:#1961
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/1961">ticket:1961</a>
      */
     protected transient boolean modified;
 

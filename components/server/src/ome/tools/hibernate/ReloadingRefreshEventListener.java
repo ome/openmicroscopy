@@ -20,8 +20,6 @@ import org.hibernate.event.RefreshEventListener;
 import org.hibernate.util.IdentityMap;
 
 // Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 
@@ -33,8 +31,6 @@ import ome.model.IObject;
  * @version $Revision$, $Date$
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public class ReloadingRefreshEventListener implements RefreshEventListener {
 
     private static final long serialVersionUID = 4292680015211981832L;

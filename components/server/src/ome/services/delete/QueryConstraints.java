@@ -16,7 +16,7 @@ import ome.security.AdminAction;
 
 /**
  * {@link AdminAction} which queries all {@link Dataset datasets} and
- * {@link Annotation annotations} belonging to the given {@link Image}
+ * retrieve {@link Image images} linked to the datasets.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3

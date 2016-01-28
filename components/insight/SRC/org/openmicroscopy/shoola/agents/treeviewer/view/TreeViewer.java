@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
@@ -32,12 +28,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.JFrame;
 
-//Third-party libraries
-
 import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -49,13 +43,17 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.ImageCheckerResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
 
 
 /** 
@@ -89,9 +87,6 @@ import pojos.ImageData;
 * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 * @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
 * @since OME2.2
 */
 public interface TreeViewer
@@ -444,9 +439,8 @@ public interface TreeViewer
 	/**
 	 * Sets the root of the retrieved hierarchies. 
 	 * 
-	 * @param rootID    	The Id of the root.
-	 * @param experimenters	The experimenters or <code>null</code> if 
-	 * 						the level is {@link #GROUP_ROOT}.
+	 * @param rootID The Id of the root.
+	 * @param experimenters The experimenters or <code>null</code>.
 	 */
 	public void setHierarchyRoot(long rootID, 
 			List<ExperimenterData> experimenters);
@@ -553,7 +547,7 @@ public interface TreeViewer
 	 * Sets the nodes to copy or cut depending on the passed index.
 	 * 
 	 * @param nodes The nodes to copy or paste.
-	 * @param index One of the following constants:
+	 * @param index One of the constants:
 	 *              {@link #CUT_AND_PASTE} or {@link #COPY_AND_PASTE}.
 	 */
 	public void setNodesToCopy(TreeImageDisplay[] nodes, int index);
@@ -586,7 +580,12 @@ public interface TreeViewer
 	 * another object.
 	 */
 	public void showPreSavingDialog();
-
+	
+	/**
+	 * Saves the metadata
+	 */
+    public void saveMetadata();
+    
 	/** 
 	 * Retrieves the user groups. 
 	 * 
@@ -845,15 +844,17 @@ public interface TreeViewer
 	 * <code>null</code> or of size <code>0</code> all the nodes have been
 	 * deleted.
 	 * 
-	 * @param nodes The collection of nodes that couldn't be deleted.
+	 * @param notDeleted The collection of nodes that couldn't be deleted.
 	 */
 	public void onNodesDeleted(Collection<DataObject> notDeleted);
 	
 	/** 
 	 * Refreshes the view when nodes have been <code>Cut/Paste</code> or
 	 * <code>Copy/Paste</code>. 
+	 * 
+	 * @param target The target node (can be <code>null</code>)
 	 */
-	public void onNodesMoved();
+	public void onNodesMoved(DataObject target);
 
 	/** Displays the tag wizard. */
 	public void showTagWizard();
@@ -898,8 +899,8 @@ public interface TreeViewer
 	 * Sets the collection of archived files.
 	 * 
 	 * @param folder The folder where to save the files.
-	 * @param files  The collection of files to handle.
-	 * @param data	 The third party application or <code>null</code>.
+	 * @param data The third party application or <code>null</code>.
+     * @param o The collection of files to handle.
 	 */
 	void setDownloadedFiles(File folder, ApplicationData data, Collection o);
 
@@ -923,13 +924,6 @@ public interface TreeViewer
 
 	/** Shows or hides the Metadata View. */
 	void setMetadataVisibility();
-	
-	/**
-	 * Returns all the scripts currently stored into the system.
-	 * 
-	 * @return See above.
-	 */
-	public Map<Long, String> getScriptsAsString();
 
 	/**
 	 * Returns <code>true</code> if the currently logged in user is 
@@ -1043,7 +1037,7 @@ public interface TreeViewer
 	/**
 	 * Sets the collection of available scripts.
 	 * 
-	 * @param scripts The available scripts.
+	 * @param result The available scripts.
 	 * @param location The location of the mouse click.
 	 */
 	void setAvailableScripts(List result, Point location);
@@ -1188,5 +1182,27 @@ public interface TreeViewer
      * @return See above.
      */
     boolean isSystemGroup(long groupID, String key);
+
+    /**
+     * Returns the objects selected in the central panel.
+     *
+     * @return See above.
+     */
+    Collection<DataObject> getSelectedObjectsFromBrowser();
+    
+    /**
+     * Resets the rendering settings.
+     *
+     * @param imageID The image id.
+     * @param settings The settings to reset
+     */
+    void resetRndSettings(long imageID, RndProxyDef settings);
+
+    /**
+     * Returns the rendering setting of the selected viewed by item if any.
+     *
+     * @return See above.
+     */
+    RndProxyDef getSelectedViewedBy();
 
 }

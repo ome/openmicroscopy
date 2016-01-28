@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -19,7 +17,6 @@ import ome.services.fulltext.BridgeHelper;
 import ome.services.fulltext.SimpleLuceneOptions;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
 
@@ -39,7 +36,7 @@ public class ProjectWithImageNameBridge extends BridgeHelper {
      * with a slightly reduced boost value. The field name of the image name is
      * "image_name" but the values are also added to the
      * {@link BridgeHelper#COMBINED} field via the
-     * {@link #add(Document, String, String, org.apache.lucene.document.Field.Store, org.apache.lucene.document.Field.Index, Float)}
+     * {@link #add(Document, String, String, LuceneOptions)}
      * method.
      */
     @Override

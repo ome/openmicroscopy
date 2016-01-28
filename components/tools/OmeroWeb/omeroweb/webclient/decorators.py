@@ -87,12 +87,6 @@ class login_required(omeroweb.decorators.login_required):
         if request.session.get('shares') is None:
             request.session['shares'] = dict()
             changes = True
-        if request.session.get('imageInBasket') is None:
-            request.session['imageInBasket'] = set()
-            changes = True
-        if request.session.get('basket_counter') is None:
-            request.session['basket_counter'] = 0
-            changes = True
         if changes:
             request.session.modified = True
 
@@ -124,8 +118,6 @@ class render_response(omeroweb.decorators.render_response):
         context.setdefault('ome', {})   # don't overwrite existing ome
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
-        context['ome']['basket_counter'] = request.session.get(
-            'basket_counter', 0)
         context['ome']['user_id'] = request.session.get('user_id', None)
         context['ome']['group_id'] = request.session.get('group_id', None)
         context['ome']['active_group'] = request.session.get(
@@ -144,13 +136,6 @@ class render_response(omeroweb.decorators.render_response):
                 context['ui']['dropdown_menu'] = request.session.get(
                     'server_settings').get('ui').get('dropdown_menu')
 
-        if (settings.WEBSTART and
-            (not settings.WEBSTART_ADMINS_ONLY or
-             (conn.isAdmin() or (settings.WEBSTART_ADMINS_ONLY and
-                                 len(list(conn.listOwnedGroups())) > 0)))):
-
-            context['insight_url'] = request.build_absolute_uri(
-                reverse("webstart_insight"))
         self.load_settings(request, context, conn)
 
     def load_settings(self, request, context, conn):

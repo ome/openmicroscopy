@@ -38,6 +38,7 @@ from threading import Lock
 from path import path
 
 from omero_ext.argparse import ArgumentError
+from omero_ext.argparse import ArgumentTypeError
 from omero_ext.argparse import ArgumentParser
 from omero_ext.argparse import FileType
 from omero_ext.argparse import Namespace
@@ -305,7 +306,7 @@ class NewFileType(FileType):
     """
     def __call__(self, s):
         if s != "-" and os.path.exists(s):
-            raise ValueError("File exists: %s" % s)
+            raise ArgumentTypeError("File exists: %s" % s)
         return FileType.__call__(self, s)
 
 
@@ -316,7 +317,7 @@ class ExistingFile(FileType):
     """
     def __call__(self, s):
         if s != "-" and not os.path.exists(s):
-            raise ValueError("File does not exist: %s" % s)
+            raise ArgumentTypeError("File does not exist: %s" % s)
         if s != "-":
             return FileType.__call__(self, s)
         else:
@@ -331,9 +332,9 @@ class DirectoryType(FileType):
     def __call__(self, s):
         p = path(s)
         if not p.exists():
-            raise ValueError("Directory does not exist: %s" % s)
+            raise ArgumentTypeError("Directory does not exist: %s" % s)
         elif not p.isdir():
-            raise ValueError("Path is not a directory: %s" % s)
+            raise ArgumentTypeError("Path is not a directory: %s" % s)
         return str(p.abspath())
 
 
@@ -1442,6 +1443,33 @@ def argv(args=sys.argv):
 # Specific argument types
 
 
+class ExperimenterArg(object):
+
+    def __init__(self, arg):
+        self.orig = arg
+        self.usr = None
+        try:
+            self.usr = long(arg)
+        except ValueError:
+            if ":" in arg:
+                parts = arg.split(":", 1)
+                if parts[0] == "User" or "Experimenter":
+                    try:
+                        self.usr = long(parts[1])
+                    except ValueError:
+                        pass
+
+    def lookup(self, client):
+        if self.usr is None:
+            import omero
+            a = client.sf.getAdminService()
+            try:
+                self.usr = a.lookupExperimenter(self.orig).id.val
+            except omero.ApiUsageException:
+                pass
+        return self.usr
+
+
 class ExperimenterGroupArg(object):
 
     def __init__(self, arg):
@@ -1645,9 +1673,7 @@ class GraphControl(CmdControl):
             "--list", action="store_true",
             help="Print a list of all available graph specs")
         parser.add_argument(
-            "--list-details", action="store_true",
-            help="Print a list of all available graph specs along with "
-            "detailed info")
+            "--list-details", action="store_true", help=SUPPRESS)
         parser.add_argument(
             "--report", action="store_true",
             help="Print more detailed report of each action")
@@ -1682,7 +1708,7 @@ class GraphControl(CmdControl):
         client = self.ctx.conn(args)
         if args.list_details or args.list:
             cb = None
-            req = omero.cmd.GraphSpecList()
+            req = omero.cmd.LegalGraphTargets(self.cmd_type()())
             try:
                 try:
                     speclist, status, cb = self.response(client, req)
@@ -1697,41 +1723,28 @@ class GraphControl(CmdControl):
             if err:
                 self.ctx.die(367, err)
 
-            specs = speclist.list
-            specmap = dict()
-            for s in specs:
-                specmap[s.type] = s
-            keys = sorted(specmap)
-
-            if args.list_details:
-                for key in keys:
-                    spec = specmap[key]
-                    self.ctx.out("=== %s ===" % key)
-                    for k, v in spec.options.items():
-                        self.ctx.out("%s" % (k,))
-                return  # Early exit.
-            elif args.list:
-                self.ctx.out("\n".join(keys))
-                return  # Early exit.
+            specs = sorted([t.split(".")[-1] for t in speclist.targets])
+            self.ctx.out("\n".join(specs))
+            return  # Early exit.
 
         inc = []
         if args.include:
             inc = args.include.split(",")
         exc = self.default_exclude()
         if args.exclude:
-            exc = exc.extend(args.exclude.split(","))
+            exc.extend(args.exclude.split(","))
 
-        if len(inc) > 0 or len(exc) > 0:
+        if inc or exc:
             opt = omero.cmd.graphs.ChildOption()
-            if len(inc) > 0:
+            if inc:
                 opt.includeType = inc
-            if len(exc) > 0:
+            if exc:
                 opt.excludeType = exc
 
         commands = args.obj
         for req in commands:
             req.dryRun = args.dry_run
-            if len(inc) > 0 or len(exc) > 0:
+            if inc or exc:
                 req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
                 req.request.childOptions = req.childOptions
@@ -1831,11 +1844,39 @@ class GraphControl(CmdControl):
         objects = []
         for req in doall.requests:
             for type in req.targetObjects.keys():
-                ids = ",".join(map(str, req.targetObjects[type]))
+                ids = self._order_and_range_ids(req.targetObjects[type])
                 if isinstance(req, omero.cmd.SkipHead):
                     type += ("/" + req.startFrom[0])
-                objects.append('%s %s' % (type, ids))
-        return "%s %s... " % (cmd_type, ', '.join(objects))
+                objects.append('%s:%s' % (type, ids))
+        return "%s %s " % (cmd_type, ' '.join(objects))
+
+    def _get_object_ids(self, objDict):
+        import collections
+        objIds = {}
+        for k in objDict.keys():
+            if objDict[k]:
+                objIds[k] = self._order_and_range_ids(objDict[k])
+        newIds = collections.OrderedDict(sorted(objIds.items()))
+        objIds = collections.OrderedDict()
+        for k in newIds:
+            key = k[k.rfind('.')+1:]
+            objIds[key] = newIds[k]
+        return objIds
+
+    def _order_and_range_ids(self, ids):
+        from itertools import groupby
+        from operator import itemgetter
+        out = ""
+        ids = sorted(ids)
+        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
+            g = map(str, map(itemgetter(1), g))
+            out += g[0]
+            if len(g) > 2:
+                out += "-" + g[-1]
+            elif len(g) == 2:
+                out += "," + g[1]
+            out += ","
+        return out.rstrip(",")
 
 
 class UserGroupControl(BaseControl):

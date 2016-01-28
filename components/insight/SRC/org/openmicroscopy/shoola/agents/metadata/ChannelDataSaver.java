@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.ChannelDataSaver
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,22 +22,18 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import pojos.ChannelData;
-import pojos.DataObject;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
 
 /**
  * Updates the channels for images related to the specified data object.
@@ -68,8 +62,8 @@ public class ChannelDataSaver
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param pixelsID The id of the pixels set.
-     * @param userID The id of the user.
+     * @param channels The channels to handle.
+     * @param parent The parent of the channels.
      */
     public ChannelDataSaver(Editor viewer, SecurityContext ctx,
             List<ChannelData> channels, DataObject parent)

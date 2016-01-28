@@ -13,6 +13,9 @@ function fa = writeFileAnnotation(session, filePath, varargin)
 %    fa = writeFileAnnotation(session, filePath, 'description',
 %    description) also sets the description of the file annotation.
 %
+%    fa = writeFileAnnotation(session, filePath, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        fa = writeFileAnnotation(session, filePath)
@@ -48,6 +51,7 @@ ip.addRequired('filePath', @(x) exist(x, 'file') == 2);
 ip.addParamValue('mimetype', '', @ischar);
 ip.addParamValue('namespace', '', @ischar);
 ip.addParamValue('description', '', @ischar);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, filePath, varargin{:});
 
 % Create original file
@@ -59,7 +63,8 @@ if ~isempty(ip.Results.mimetype),
     originalFile.setMimetype(rstring(ip.Results.mimetype));
 end
 
-originalFile = updateOriginalFile(session, originalFile, filePath);
+originalFile = updateOriginalFile(...
+    session, originalFile, filePath, varargin{:});
 
 % Create a file annotation
 fa = omero.model.FileAnnotationI;
@@ -74,4 +79,9 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Save the file annotation
-fa = session.getUpdateService().saveAndReturnObject(fa);
+context = java.util.HashMap;
+if ~isempty(ip.Results.group)
+    context.put(...
+        'omero.group', java.lang.String(num2str(ip.Results.group)));
+end
+fa = session.getUpdateService().saveAndReturnObject(fa, context);

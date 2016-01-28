@@ -1,8 +1,6 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.view.GraphPane 
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
@@ -33,10 +29,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -47,16 +45,17 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import org.apache.commons.collections.CollectionUtils;
+import org.jhotdraw.draw.Figure;
+import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.log.Logger;
+import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStatsSimple;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
@@ -69,7 +68,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
-import pojos.ChannelData;
+import omero.gateway.model.ChannelData;
 
 /** 
  * Displays the intensities as a graph. 
@@ -123,7 +122,7 @@ public class GraphPane
 	private Map<Coord3D, Map<StatsType, Map>> shapeStatsList;
 	
 	/** Map of the pixel intensity values to coordinates. */
-	private Map<Coord3D, Map<Integer, double[]>> pixelStats;
+	private Map<Coord3D, Map<Integer, ROIShapeStatsSimple>> pixelStats;
 	
 	/** Map of the coordinates to a shape. */
 	private Map<Coord3D, ROIShape> shapeMap;
@@ -222,24 +221,33 @@ public class GraphPane
 		return value;
 	}
 	
-	/** The slider has changed value and the mouse button released. */
-	private void handleSliderReleased()
-	{
-		if (zSlider == null || tSlider == null) return;
-		if (coord == null) return;
-		if (state == ANALYSING) return;
-		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
-				tSlider.getValue()-1);
-		if (coord.equals(thisCoord)) return;
-		if (!pixelStats.containsKey(thisCoord)) return;
-		state = ANALYSING;
-		buildGraphsAndDisplay();
-		formatPlane();
-		if (shape != null)
-			view.selectFigure(shape.getFigure());
-		state = READY;
-	}
+    /** The slider has changed value and the mouse button released. */
+    private void handleSliderReleased() {
+        int newZ = zSlider.getValue() - 1;
+        int newT = tSlider.getValue() - 1;
+        if (checkPlane(newZ, newT)) {
+            SelectPlane evt = new SelectPlane(model.getPixelsID(),
+                    zSlider.getValue() - 1, tSlider.getValue() - 1);
+            MeasurementAgent.getRegistry().getEventBus().post(evt);
+        }
+    }
 
+	/**
+     * Controls if the specified coordinates are valid.
+     * Returns <code>true</code> if the passed values are in the correct ranges,
+     * <code>false</code> otherwise.
+     * 
+     * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
+     * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
+     * @return See above.
+     */
+    private boolean checkPlane(int z, int t)
+    {
+        if (z < 0 || model.getNumZSections() <= z) return false;
+        if (t < 0 || model.getNumTimePoints() <= t) return false;
+        return true; 
+    }
+    
 	/**
 	 * Saves the graph as JPEG or PNG.
 	 *
@@ -364,8 +372,13 @@ public class GraphPane
 	private HistogramPlot drawHistogram(String title,  List<String> channelNames,
 			List<double[]> data, List<Color> channelColours, int bins)
 	{
-		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
-			channelColours, bins, channelMinValue(), channelMaxValue());
+        HistogramPlot plot;
+        if (CollectionUtils.isNotEmpty(data))
+            plot = new HistogramPlot(title, channelNames, data, channelColours,
+                    bins, channelMinValue(), channelMaxValue());
+        else
+            plot = new HistogramPlot(title, Collections.EMPTY_LIST,
+                    Collections.EMPTY_LIST, Collections.EMPTY_LIST, bins, 0, 1);
 		plot.setXAxisName("Intensity");
 		plot.setYAxisName("Frequency");
 		return plot;
@@ -380,7 +393,7 @@ public class GraphPane
 	private void buildGraphsAndDisplay()
 	{
 		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
-		Map<Integer, double[]> data = pixelStats.get(coord);
+		Map<Integer, ROIShapeStatsSimple> data = pixelStats.get(coord);
 		if (data == null) return;
 		shape = shapeMap.get(coord);
 		double[][] dataXY;
@@ -410,7 +423,7 @@ public class GraphPane
 				if (UIUtilities.isSameColors(c, Color.white, false))
 					c = DEFAULT_COLOR;
 				channelColour.add(c);
-				values = data.get(channel);
+				values = data.get(channel).getValues();
 				if (values != null && values.length != 0) {
 					channelData.add(values);
 					
@@ -560,7 +573,7 @@ public class GraphPane
 			return;
 		}
 		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
-		pixelStats = new HashMap<Coord3D, Map<Integer, double[]>>();
+		pixelStats = new HashMap<Coord3D, Map<Integer, ROIShapeStatsSimple>>();
 		shapeMap = new HashMap<Coord3D, ROIShape>();
 		channelName = new ArrayList<String>();
 		channelColour = new ArrayList<Color>();
@@ -573,11 +586,12 @@ public class GraphPane
 		
 		Coord3D c3D;
 		Map<StatsType, Map> shapeStats;
-		Map<Integer, double[]> data;
+		Map<Integer, ROIShapeStatsSimple> data;
 		int t = model.getDefaultT();
 		int z = model.getDefaultZ();
 		boolean hasData = false;
 		int cT, cZ;
+		Set<Figure> statsMissingFigures = new HashSet<Figure>();
 		while (i.hasNext())
 		{
 			entry = (Entry) i.next();
@@ -587,18 +601,31 @@ public class GraphPane
 			cT = c3D.getTimePoint();
 			cZ = c3D.getZSection();
 			
-			minT = Math.min(minT, cT);
-			maxT = Math.max(maxT, cT);
-			minZ = Math.min(minZ, cZ);
-			maxZ = Math.max(maxZ, cZ);
-			
-			if (cT == t && cZ == z) hasData = true;
+            if (cZ == z) {
+                minT = Math.min(minT, cT);
+                maxT = Math.max(maxT, cT);
+            }
+            if (cT == t) {
+                minZ = Math.min(minZ, cZ);
+                maxZ = Math.max(maxZ, cZ);
+            }
 			
 			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
 				return;
 			shapeStats = AnalysisStatsWrapper.convertStats(
 					(Map) entry.getValue());
+			
+			if (cT == t && cZ == z)  {
+			    if (shapeStats != null)
+			        // data for current plane is there, can be displayed
+			        hasData = true;
+			    else
+			        // data is missing for current plane, analysis has to be
+			        // kicked off for the specific figure
+			        statsMissingFigures.add(shape.getFigure());
+			}
+			
 			if (shapeStats != null) {
 				shapeStatsList.put(c3D, shapeStats);
 				data = shapeStats.get(StatsType.PIXELDATA);
@@ -606,6 +633,8 @@ public class GraphPane
 			}
 		}
 		if (!hasData) {
+		    if (!statsMissingFigures.isEmpty())
+		        controller.analyseFigures(statsMissingFigures);
 			buildHistogramNoSelection();
 			return;
 		}
@@ -613,6 +642,8 @@ public class GraphPane
 		minZ = minZ+1;
 		minT = minT+1;
 		maxT = maxT+1;
+		zSlider.removeChangeListener(this);
+		tSlider.removeChangeListener(this);
 		zSlider.setMaximum(maxZ);
 		zSlider.setMinimum(minZ);
 		tSlider.setMaximum(maxT);
@@ -621,6 +652,8 @@ public class GraphPane
 		tSlider.setVisible(maxT != minT);
 		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
 		zSlider.setValue(model.getCurrentView().getZSection()+1);
+		zSlider.addChangeListener(this);
+        tSlider.addChangeListener(this);
 		formatPlane();
 		buildGraphsAndDisplay();
 	}
@@ -645,10 +678,7 @@ public class GraphPane
 		Object src = evt.getSource();
 		if (src == zSlider || src == tSlider) {
 			formatPlane();
-			OneKnobSlider slider = (OneKnobSlider) src;
-			if (!slider.isDragging()) {
-				handleSliderReleased();
-			}
+			handleSliderReleased();
 		}
 	}
 

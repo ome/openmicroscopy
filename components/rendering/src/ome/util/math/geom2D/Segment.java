@@ -7,12 +7,6 @@
 
 package ome.util.math.geom2D;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * A segment in the Euclidean space <b>R</b><sup>2</sup>.
  * 
@@ -43,8 +37,7 @@ public class Segment {
      * Creates a new instance.
      * 
 	 * @param originX1 The origin of the segment's first element.
-	 * @param originX2 The origin of the segment's first element.
-     * @param o The origin point of the segment.
+	 * @param originX2 The origin of the segment's second element.
      * @param endX1 The end point's first element.
      * @param endX2 The end point's second element.
      */
@@ -75,7 +68,7 @@ public class Segment {
     /**
      * Returns the point of this line defined by <code>k</code>. More
      * precisely, this method returns the
-     * <code>{@link #origin}+k{@link #direction}</code> point.
+     * <code>{@code origin}+k{@code direction}</code> point.
      * 
      * @param k
      *            The coefficient to select the point. Must be in the range
@@ -94,8 +87,8 @@ public class Segment {
     /**
      * Tells whether a specified point lies on this line.
      * 
-     * @param p
-     *            The point to test. Mustn't be <code>null</code>.
+     * @param x1 The first element of the point to test
+     * @param x2 The second element of the point to test
      * @return <code>true</code> if <code>p</code> lies on this line,
      *         <code>false</code> otherwise.
      */
@@ -132,7 +125,8 @@ public class Segment {
     
     /**
      * Performs an equality test based on a point on this line defined
-     * by <code>k</code> as in {@link getPoint()} and another given point.
+     * by <code>k</code> as in {@link #getPoint(double)} and another given
+     * point.
      * @param k The coefficient to select the point. Must be in the range
      * <code>[0, 1]</code>.
      * @param x1 The point to test's first element.

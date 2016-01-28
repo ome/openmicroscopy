@@ -2,6 +2,7 @@
  *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test;
 
 import java.lang.reflect.Method;
@@ -16,8 +17,6 @@ import org.jmock.core.Stub;
 
 import ome.services.blitz.repo.LegacyRepositoryI;
 
-import omero.api.RawFileStorePrx;
-import omero.api._RawFileStoreTie;
 import omero.grid.InternalRepositoryPrx;
 
 public class FakeAdapter implements Stub {

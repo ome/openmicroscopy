@@ -7,12 +7,6 @@
 
 package omeis.providers.re.quantum;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * This class implements the {@link QuantumMap} interface. Each method is a
  * wrapper around the {@link Math#pow(double, double)} method, which returns the

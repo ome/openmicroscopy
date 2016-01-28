@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.GeneralPaneUI 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,44 +21,62 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
-//Java imports
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 
-
-//Third-party libraries
-import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
-//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPane.AnnotationType;
+import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.PlateAcquisitionData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.WellSampleData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Component displaying the annotation.
@@ -70,17 +86,21 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
-class GeneralPaneUI 
-	extends JPanel//JScrollPane
+class GeneralPaneUI extends JPanel
 {
-
+    /** The text for the id. */
+    private static final String ID_TEXT = "ID: ";
+    
+    /** The text for the owner. */
+    private static final String OWNER_TEXT = "Owner: ";
+    
+    /** Text indicating to edit the name. */
+    private static final String EDIT_NAME_TEXT = "Edit the name";
+    
 	/** The default text. */
-	private static final String			DETAILS = "'s details";
+	private static final String			DETAILS = " Details";
 	
 	/** Reference to the controller. */
 	private EditorControl				controller;
@@ -94,12 +114,6 @@ class GeneralPaneUI
 	/** The UI component displaying the object's properties. */
 	private PropertiesUI				propertiesUI;
 	
-	/** The UI component displaying the textual annotations. */
-	private TextualAnnotationsUI		textualAnnotationsUI;
-	
-	/** Component hosting the tags, rating, URLs and attachments. */
-	private AnnotationDataUI			annotationUI;
-	
 	/** The component hosting the {@link #browser}. */
 	private JXTaskPane 					browserTaskPane;
 
@@ -107,7 +121,25 @@ class GeneralPaneUI
 	private JXTaskPane 					propertiesTaskPane;
 	
 	/** The component hosting the annotation component. */
-	private JXTaskPane 					annotationTaskPane;
+    private AnnotationTaskPane                  tagsTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  roiTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  mapTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  attachmentTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  otherTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  ratingTaskPane;
+    
+    /** The component hosting the annotation component. */
+    private AnnotationTaskPane                  commentTaskPane;
 	
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
@@ -121,6 +153,25 @@ class GeneralPaneUI
 	/** The tool bar.*/
 	private ToolBar toolbar;
 	
+	/** The button to filter the annotations i.e. show all, mine, others. */
+    private JButton                         filterButton;
+    
+    /** The current annotation filter level */
+    private Filter annotationsFilter;
+    
+    private EditableTextComponent namePane;
+    
+    boolean nameModified = false;
+    
+    /** The component hosting the id of the <code>DataObject</code>. */
+    private JTextField              idLabel;
+    
+    /** 
+     * The component hosting the owner of the <code>DataObject</code>.
+     * if not the current user. 
+     */
+    private JLabel              ownerLabel;
+    
 	/**;
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
@@ -139,14 +190,55 @@ class GeneralPaneUI
        browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
        browserTaskPane.addPropertyChangeListener(controller);
 		
+       namePane = new EditableTextComponent(model.canEdit(), false, EDIT_NAME_TEXT);
+       namePane.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if(evt.getPropertyName().equals(EditableTextComponent.EDIT_PROPERTY)) {
+                    updateName((String)evt.getNewValue());
+                    nameModified = true;
+                    view.saveData(true);
+                    nameModified = false;
+                }
+            }
+        });
+       
+       idLabel = new JTextField();
+       idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
+       idLabel.setEditable(false);
+       idLabel.setBorder(BorderFactory.createEmptyBorder());
+       
+       ownerLabel = new JLabel();
+       ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       ownerLabel.setFont(ownerLabel.getFont().deriveFont(Font.BOLD));
+       
+       IconManager icons = IconManager.getInstance();
+       annotationsFilter = Filter.SHOW_ALL;
+       filterButton = new JButton(annotationsFilter.name);
+       filterButton.setToolTipText("Filter tags and attachments.");
+       UIUtilities.unifiedButtonLookAndFeel(filterButton);
+       Font font = filterButton.getFont();
+       filterButton.setFont(font.deriveFont(font.getStyle(), 
+               font.getSize()-2));
+       filterButton.setIcon(icons.getIcon(IconManager.UP_DOWN_9_12));
+       filterButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+       filterButton.addMouseListener(new MouseAdapter() {
+           /** 
+            * Brings up the menu. 
+            * @see MouseListener#mouseReleased(MouseEvent)
+            */
+           public void mouseReleased(MouseEvent me)
+           {
+               Object source = me.getSource();
+               if (source instanceof Component)
+                   displayFilterMenu((Component) source, me.getPoint());
+           } 
+       });
+       
 		propertiesUI = new PropertiesUI(model, controller);
-		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
-		annotationUI = new AnnotationDataUI(view, model, controller);
 
 		components = new ArrayList<AnnotationUI>();
 		components.add(propertiesUI);
-		components.add(textualAnnotationsUI);
-		components.add(annotationUI);
 		Iterator<AnnotationUI> i = components.iterator();
 		while (i.hasNext()) {
 			i.next().addPropertyChangeListener(EditorControl.SAVE_PROPERTY,
@@ -154,28 +246,78 @@ class GeneralPaneUI
 		}
 		previews = new ArrayList<PreviewPanel>();
 		propertiesTaskPane = EditorUtil.createTaskPane("");
-		propertiesTaskPane.setCollapsed(false);
 		propertiesTaskPane.add(propertiesUI);
+		propertiesTaskPane.setCollapsed(false);
 		
-		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
-		annotationTaskPane.setCollapsed(false);
-		
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 1;
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new GridBagLayout());
-		p.add(annotationUI,c );
-		c.gridy++;
-		p.add(new JSeparator(), c);
-		c.gridy++;
-		p.add(textualAnnotationsUI, c);
-		annotationTaskPane.add(p);
+		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAGS, view, model, controller);
+	    
+	    roiTaskPane = new AnnotationTaskPane(AnnotationType.ROIS, view, model, controller);
+	    
+	    mapTaskPane = new AnnotationTaskPane(AnnotationType.MAP, view, model, controller);
+	    
+	    attachmentTaskPane = new AnnotationTaskPane(AnnotationType.ATTACHMENTS, view, model, controller);
+	    
+	    otherTaskPane = new AnnotationTaskPane(AnnotationType.OTHER, view, model, controller);
+	    
+	    ratingTaskPane = new AnnotationTaskPane(AnnotationType.RATING, view, model, controller);
+	    
+	    commentTaskPane = new AnnotationTaskPane(AnnotationType.COMMENTS, view, model, controller); 
 	}
 	
+	/**
+     * Creates and displays the menu 
+     * @param src The invoker.
+     * @param p   The location where to show the menu.
+     */
+    private void displayFilterMenu(Component src, Point p)
+    {
+        JPopupMenu menu = new JPopupMenu();
+        ButtonGroup group = new ButtonGroup();
+        JCheckBoxMenuItem item = createFilterMenuItem(Filter.SHOW_ALL);
+        group.add(item);
+        menu.add(item);
+        item = createFilterMenuItem(Filter.ADDED_BY_ME);
+        group.add(item);
+        menu.add(item);
+        item = createFilterMenuItem(Filter.ADDED_BY_OTHERS);
+        group.add(item);
+        menu.add(item);
+        menu.show(src, p.x, p.y);
+    }
+    
+    /**
+     * Creates a menu item.
+     * 
+     * @param index The index associated to the item.
+     * @return See above.
+     */
+    private JCheckBoxMenuItem createFilterMenuItem(final Filter filter)
+    {
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(filter.name);
+        Font f = item.getFont();
+        item.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+        item.setSelected(filter == annotationsFilter);
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                annotationsFilter = filter;
+                filterButton.setText(annotationsFilter.name);
+                applyFilter();
+            }
+        });
+        return item;
+    }
+    
+    private void applyFilter() {
+        tagsTaskPane.filter(annotationsFilter);
+        roiTaskPane.filter(annotationsFilter);
+        mapTaskPane.filter(annotationsFilter);
+        attachmentTaskPane.filter(annotationsFilter);
+        ratingTaskPane.filter(annotationsFilter);
+        otherTaskPane.filter(annotationsFilter);
+        commentTaskPane.filter(annotationsFilter);
+    }
+    
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
@@ -193,13 +335,50 @@ class GeneralPaneUI
 		add(toolbar, c);
 		c.gridy++;
 		
-		add(propertiesTaskPane, c);
+		namePane.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+		add(namePane, c);
 		c.gridy++;
 		
-		add(annotationTaskPane, c);
+		idLabel.setBorder(BorderFactory.createEmptyBorder(2,2,0,2));
+		add(idLabel, c);
 		c.gridy++;
+		
+		JPanel p = new JPanel(new BorderLayout());
+		p.setBorder(BorderFactory.createEmptyBorder(0,2,2,2));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(ownerLabel, BorderLayout.WEST);
+		p.add(filterButton, BorderLayout.EAST);
+		add(p, c);
+		c.gridy++;
+		
+        add(propertiesTaskPane, c);
+        c.gridy++;
+        
+		add(tagsTaskPane, c);
+        c.gridy++;
+      
+        // Don't show, not yet implemented, put it back in for 5.2.1
+        //add(roiTaskPane, c);
+        //c.gridy++;
+        
+        add(mapTaskPane, c);
+        c.gridy++;
+        
+        add(attachmentTaskPane, c);
+        c.gridy++;
+        
+        add(ratingTaskPane, c);
+        c.gridy++;
+        
+        add(commentTaskPane, c);
+        c.gridy++;
         
         add(browserTaskPane, c);
+        c.gridy++;
+        
+        otherTaskPane.setVisible(false);
+        add(otherTaskPane, c);
+        c.gridy++;
         
         UIUtilities.addFiller(this, c, true);
 	}
@@ -237,14 +416,52 @@ class GeneralPaneUI
                 buildGUI();
                 init = true;
             }
-            propertiesUI.buildUI();
-            annotationUI.buildUI();
-            textualAnnotationsUI.buildUI();
-            propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
             
             boolean multi = model.isMultiSelection();
-            boolean showBrowser = false;
+            
+            namePane.buildUI(model.getRefObjectName(), model.canEdit());
+            
             Object refObject = model.getRefObject();
+            
+            String text = model.getObjectTypeAsString(refObject);
+            if (model.getRefObjectID() > 0)
+                text += " "+ID_TEXT+model.getRefObjectID();
+            if (refObject instanceof WellSampleData) {
+                WellSampleData wsd = (WellSampleData) refObject;
+                text += " (Image ID: "+wsd.getImage().getId()+")";
+            }
+            idLabel.setText(text);
+            
+            String ownerName = model.getOwnerName();
+            ownerLabel.setText("");
+            if(multi) {
+                // on multiselection 'misuse' the owner label to indicate
+                // that the user can still annotate the objects
+                StringBuffer buffer = new StringBuffer();
+                buffer.append("Annotate the selected ");
+                buffer.append(model.getObjectTypeAsString(refObject));
+                buffer.append("s");
+                ownerLabel.setText(buffer.toString());
+            }
+            else if (ownerName != null && ownerName.length() > 0) {
+                ownerLabel.setText(OWNER_TEXT+ownerName);
+            }
+            
+            propertiesUI.buildUI();
+            
+            tagsTaskPane.refreshUI();
+            roiTaskPane.refreshUI();
+            mapTaskPane.refreshUI();
+            attachmentTaskPane.refreshUI(); 
+            ratingTaskPane.refreshUI();
+            commentTaskPane.refreshUI();  
+            
+            otherTaskPane.setVisible(!model.getAllOtherAnnotations().isEmpty());
+            otherTaskPane.refreshUI();
+            
+            propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
+           
+            boolean showBrowser = false;
     
             if (refObject instanceof ImageData && !multi && model.getChannelData()==null) {
                 propertiesUI.onChannelDataLoading();
@@ -271,9 +488,12 @@ class GeneralPaneUI
                 else
                     browserTaskPane.setTitle("Located in");
             }
-            
+      
+            namePane.setVisible(!multi);
+            idLabel.setVisible(!multi);
             propertiesTaskPane.setVisible(!multi);
-    
+      
+   
             revalidate();
         }
 	
@@ -294,24 +514,57 @@ class GeneralPaneUI
 	DataToSave prepareDataToSave()
 	{
 		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
+		
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
+		toAdd.addAll(tagsTaskPane.getAnnotationsToSave());
+		toAdd.addAll(attachmentTaskPane.getAnnotationsToSave());
+		toAdd.addAll(otherTaskPane.getAnnotationsToSave());
+		toAdd.addAll(ratingTaskPane.getAnnotationsToSave());
+		toAdd.addAll(mapTaskPane.getAnnotationsToSave());
+		toAdd.addAll(commentTaskPane.getAnnotationsToSave());
+
 		List<Object> toRemove = new ArrayList<Object>();
-		List<AnnotationData> l = annotationUI.getAnnotationToSave();
-		//To add
-		if (CollectionUtils.isNotEmpty(l))
-			toAdd.addAll(l);
-		l = textualAnnotationsUI.getAnnotationToSave();
-		if (CollectionUtils.isNotEmpty(l))
-			toAdd.addAll(l);
-		//To remove
-		List<Object> ll = annotationUI.getAnnotationToRemove();
-		if (CollectionUtils.isNotEmpty(ll))
-			toRemove.addAll(ll);
-		ll = textualAnnotationsUI.getAnnotationToRemove();
-		if (CollectionUtils.isNotEmpty(ll))
-			toRemove.addAll(ll);
+		toRemove.addAll(tagsTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(attachmentTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(otherTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(ratingTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(mapTaskPane.getAnnotationsToRemove());
+		toRemove.addAll(commentTaskPane.getAnnotationsToRemove());
 		
 		return new DataToSave(toAdd, toRemove);
+	}
+	
+	void updateName(String name) {
+	    Object object =  model.getRefObject();
+        if (object instanceof ProjectData) {
+            ProjectData p = (ProjectData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof DatasetData) {
+            DatasetData p = (DatasetData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof ImageData) {
+            ImageData p = (ImageData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof TagAnnotationData) {
+            TagAnnotationData p = (TagAnnotationData) object;
+          if (name.length() > 0) p.setTagValue(name);
+        } else if (object instanceof ScreenData) {
+            ScreenData p = (ScreenData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof PlateData) {
+            PlateData p = (PlateData) object;
+          if (name.length() > 0) p.setName(name);
+        } else if (object instanceof WellSampleData) {
+            WellSampleData well = (WellSampleData) object;
+            ImageData img = well.getImage();
+          if (name.length() > 0) img.setName(name);
+        } else if (object instanceof FileData) {
+            FileData f = (FileData) object;
+            if (f.getId() > 0) return;
+        } else if (object instanceof PlateAcquisitionData) {
+            PlateAcquisitionData pa = (PlateAcquisitionData) object;
+          if (name.length() > 0) pa.setName(name);
+        }
 	}
 	
 	/** Updates display when the parent of the root node is set. */
@@ -333,32 +586,20 @@ class GeneralPaneUI
 		}	
 		clearData(oldObject);
 		propertiesUI.clearDisplay();
-		annotationUI.clearDisplay();
-    	textualAnnotationsUI.clearDisplay();
+    	
+    	tagsTaskPane.clearDisplay();
+        roiTaskPane.clearDisplay();
+        mapTaskPane.clearDisplay();
+        attachmentTaskPane.clearDisplay();
+        otherTaskPane.clearDisplay();
+        ratingTaskPane.clearDisplay();
+        commentTaskPane.clearDisplay();
+        
     	browserTaskPane.removeAll();
     	browserTaskPane.setCollapsed(true);
+    	
 		revalidate();
 		repaint();
-	}
-	
-	/**
-	 * Returns the list of tags currently selected by the user.
-	 * 
-	 * @return See above.
-	 */
-	List<TagAnnotationData> getCurrentTagsSelection()
-	{
-		return annotationUI.getCurrentTagsSelection();
-	}
-	
-	/**
-	 * Returns the list of attachments currently selected by the user.
-	 * 
-	 * @return See above.
-	 */
-	List<FileAnnotationData> getCurrentAttachmentsSelection() 
-	{
-		return annotationUI.getCurrentAttachmentsSelection();
 	}
 	
 	/** Shows the image's info. */
@@ -391,7 +632,26 @@ class GeneralPaneUI
 			pp = p.next();
 			if (pp.hasDataToSave()) return true;
 		}
-		return false;
+		
+		if(tagsTaskPane.hasDataToSave())
+		    return true;
+        
+		if(mapTaskPane.hasDataToSave())
+            return true;
+		
+		if(attachmentTaskPane.hasDataToSave())
+            return true;
+		
+		if(otherTaskPane.hasDataToSave())
+            return true;
+		
+		if(ratingTaskPane.hasDataToSave())
+            return true;
+		
+		if(commentTaskPane.hasDataToSave())
+            return true;
+		
+		return nameModified;
 	}
 	
 	/** 
@@ -409,6 +669,9 @@ class GeneralPaneUI
 			ui.clearDisplay();
 		}
 		setCursor(Cursor.getDefaultCursor());
+		nameModified = false;
+		idLabel.setText("");
+		ownerLabel.setText("");
 	}
 	
 	/**
@@ -441,7 +704,7 @@ class GeneralPaneUI
 	 */
 	boolean attachFiles(File[] files)
 	{ 
-		return annotationUI.attachFiles(files); 
+	    return ((AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI()).attachFiles(files);
 	}
 
 	/**
@@ -451,7 +714,7 @@ class GeneralPaneUI
 	 */
 	void removeAttachedFile(Object file)
 	{ 
-		annotationUI.removeAttachedFile(file);
+	    ((AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI()).removeAttachedFile(file);
 	}
 	
 	/**
@@ -461,7 +724,7 @@ class GeneralPaneUI
 	 */
 	List<FileAnnotationData> removeAttachedFiles()
 	{
-		return annotationUI.removeAttachedFiles();
+	    return ((AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI()).removeAttachedFiles();
 	}
 	
 	/**
@@ -471,7 +734,7 @@ class GeneralPaneUI
 	 */
 	List<TagAnnotationData> removeTags()
 	{
-		return annotationUI.removeTags();
+	    return ((TagsTaskPaneUI) tagsTaskPane.getTaskPaneUI()).removeTags();
 	}
 	
 	/**
@@ -481,7 +744,7 @@ class GeneralPaneUI
 	 */
 	List<AnnotationData> removeOtherAnnotations()
 	{
-		return annotationUI.removeOtherAnnotation();
+	    return ((OtherTaskPaneUI) otherTaskPane.getTaskPaneUI()).removeOtherAnnotation();
 	}
 	
 	/**
@@ -492,7 +755,7 @@ class GeneralPaneUI
 	 */
 	boolean hasAttachmentsToUnlink()
 	{ 
-		return annotationUI.hasAttachmentsToUnlink();
+	    return ((AttachmentsTaskPaneUI)attachmentTaskPane.getTaskPaneUI()).hasAttachmentsToUnlink();
 	}
 	
 	/**
@@ -503,7 +766,7 @@ class GeneralPaneUI
 	 */
 	boolean hasTagsToUnlink()
 	{
-		return annotationUI.hasTagsToUnlink();
+	    return ((TagsTaskPaneUI)tagsTaskPane.getTaskPaneUI()).hasTagsToUnlink();
 	}
 	
 	/**
@@ -514,29 +777,60 @@ class GeneralPaneUI
 	 */
 	boolean hasOtherAnnotationsToUnlink()
 	{
-		return annotationUI.hasOtherAnnotationsToUnlink();
+	    return ((OtherTaskPaneUI)otherTaskPane.getTaskPaneUI()).hasOtherAnnotationsToUnlink();
 	}
 	
 	/**
-	 * Removes the annotation from the view.
-	 * 
-	 * @param annotation The annotation to remove.
-	 */
-	void removeObject(DataObject annotation)
-	{
-		if (annotation == null) return;
-		if (annotation instanceof TagAnnotationData ||
-			annotation instanceof TermAnnotationData ||
-			annotation instanceof XMLAnnotationData ||
-			annotation instanceof LongAnnotationData ||
-			annotation instanceof DoubleAnnotationData ||
-			annotation instanceof BooleanAnnotationData)
-			annotationUI.removeAnnotation((AnnotationData) annotation);
-		else if (annotation instanceof TextualAnnotationData)
-			textualAnnotationsUI.removeTextualAnnotation(
-					(TextualAnnotationData) annotation);
-	}
-	
+     * Removes a annotation from the view.
+     * 
+     * @param annotation The annotation to remove.
+     */
+    void removeAnnotation(AnnotationData annotation)
+    {
+        if (annotation == null)
+            return;
+        
+        List<AnnotationData> toKeep = new ArrayList<AnnotationData>();
+        AnnotationData data;
+        if (annotation instanceof TagAnnotationData) {
+            List<TagAnnotationData> tags = getCurrentTagsSelection();
+            Iterator<TagAnnotationData> i = tags.iterator();
+            while (i.hasNext()) {
+                data = i.next();
+                if (data.getId() != annotation.getId())
+                    toKeep.add(data);
+            }
+            handleObjectsSelection(TagAnnotationData.class, toKeep);
+        } else if (annotation instanceof TermAnnotationData ||
+                annotation instanceof XMLAnnotationData ||
+                annotation instanceof BooleanAnnotationData ||
+                annotation instanceof LongAnnotationData ||
+                annotation instanceof DoubleAnnotationData) {
+            List<AnnotationData> tags = getCurrentOtherSelection();
+            Iterator<AnnotationData> i = tags.iterator();
+            while (i.hasNext()) {
+                data = i.next();
+                if (data.getId() != annotation.getId())
+                    toKeep.add(data);
+            }
+            handleObjectsSelection(AnnotationData.class, toKeep);
+        } 
+        else if(annotation instanceof TextualAnnotationData) {
+            ((CommentsTaskPaneUI)commentTaskPane.getTaskPaneUI()).removeTextualAnnotation((TextualAnnotationData)annotation);
+        }
+        
+    }
+    
+    List<TagAnnotationData> getCurrentTagsSelection() {
+        TagsTaskPaneUI p = (TagsTaskPaneUI) tagsTaskPane.getTaskPaneUI();
+        return p.getCurrentSelection();
+    }
+    
+    List<AnnotationData> getCurrentOtherSelection() {
+        OtherTaskPaneUI p = (OtherTaskPaneUI) otherTaskPane.getTaskPaneUI();
+        return p.getCurrentSelection();
+    }
+    
 	/**
 	 * Handles the selection of objects via the selection wizard.
 	 * 
@@ -545,14 +839,38 @@ class GeneralPaneUI
 	 */
 	void handleObjectsSelection(Class type, Collection objects)
 	{
-		if (objects == null) return;
-		annotationUI.handleObjectsSelection(type, objects, true);
+        if (objects == null)
+            return;
+
+        if (TagAnnotationData.class.equals(type)) 
+            ((TagsTaskPaneUI)tagsTaskPane.getTaskPaneUI()).handleObjectsSelection(type, objects, true);
+        else if (FileAnnotationData.class.equals(type)) 
+            ((AttachmentsTaskPaneUI)attachmentTaskPane.getTaskPaneUI()).handleObjectsSelection(type, objects, true);
+        else if (AnnotationData.class.equals(type)) 
+            ((OtherTaskPaneUI)otherTaskPane.getTaskPaneUI()).handleObjectsSelection(type, objects, true);
 	}
 	
 	/** Updates the UI when the related nodes have been set.*/
 	void onRelatedNodesSet()
 	{
-		annotationUI.onRelatedNodesSet();
+	    nameModified = false;
+	    tagsTaskPane.onRelatedNodesSet();
+	    roiTaskPane.onRelatedNodesSet();
+	    mapTaskPane.onRelatedNodesSet();
+	    attachmentTaskPane.onRelatedNodesSet();
+	    otherTaskPane.onRelatedNodesSet();
+	    ratingTaskPane.onRelatedNodesSet();
+	    commentTaskPane.onRelatedNodesSet();
 	}
 	
+	/**
+     * Returns the selected FileAnnotations or an empty Collection
+     * if there are no FileAnnotations
+     * 
+     * @return See above
+     */
+	public Collection<FileAnnotationData> getSelectedFileAnnotations() {
+	    AttachmentsTaskPaneUI p = (AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI();
+	    return p.getSelectedFileAnnotations();
+	}
 }

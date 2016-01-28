@@ -1,4 +1,4 @@
-function tas = getTimestampAnnotations(session, ids)
+function tas = getTimestampAnnotations(session, ids, varargin)
 % GETTIMESTAMPANNOTATIONS Retrieve timestamp annotations from the OMERO server
 %
 %   tas = getTimestampAnnotations(session, ids) returns all the timestamp 
@@ -36,4 +36,4 @@ ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
 % Return tag annotations
-tas = getAnnotations(session, ids, 'timestamp');
+tas = getAnnotations(session, ids, 'timestamp', varargin{:});

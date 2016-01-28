@@ -7,7 +7,6 @@
 
 package ome.util;
 
-// Java imports
 import java.io.Closeable;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -17,18 +16,14 @@ import java.util.logging.Logger;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * various tools needed throughout Omero.
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 1.0
  * @since 1.0
- * @DEV.TODO Grinder issues should be moved to test component to reduce deps.
+ * TODO Grinder issues should be moved to test component to reduce deps.
  */
 public class Utils {
 
@@ -99,7 +94,6 @@ public class Utils {
      * primarily used in Grinder to discover what methods to call
      * 
      * @param clazz
-     * @return
      */
     public static <T> String[] getObjectVoidMethods(Class<T> clazz) {
         final Set<String> set = new HashSet<String>();

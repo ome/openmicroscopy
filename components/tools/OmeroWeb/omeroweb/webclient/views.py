@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2008-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2008-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,10 +26,12 @@ import copy
 import os
 import datetime
 import Ice
+from Ice import Exception as IceException
 import logging
 import traceback
 import json
 import re
+import sys
 
 from time import time
 
@@ -45,17 +47,18 @@ from omero.gateway.utils import toBoolean
 from django.conf import settings
 from django.template import loader as template_loader
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, HttpResponseBadRequest
 from django.template import RequestContext as Context
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
-
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
 from webclient_utils import _formatReport, _purgeCallback
-from forms import GlobalSearchForm, ShareForm, BasketShareForm, ContainerForm
+from forms import GlobalSearchForm, ContainerForm
+from forms import ShareForm, BasketShareForm
 from forms import ContainerNameForm, ContainerDescriptionForm
 from forms import CommentAnnotationForm, TagsAnnotationForm,  UsersForm
 from forms import MetadataFilterForm, MetadataDetectorForm
@@ -65,8 +68,6 @@ from forms import MetadataStageLabelForm, MetadataLightSourceForm
 from forms import MetadataDichroicForm, MetadataMicroscopeForm
 from forms import FilesAnnotationForm, WellIndexForm, NewTagsAnnotationFormSet
 
-from controller.index import BaseIndex
-from controller.basket import BaseBasket
 from controller.container import BaseContainer
 from controller.history import BaseCalendar
 from controller.search import BaseSearch
@@ -76,17 +77,25 @@ from omeroweb.webadmin.forms import LoginForm
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webgateway.marshal import chgrpMarshal
 
 from omeroweb.feedback.views import handlerInternalError
 
 from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
-from omeroweb.webclient.show import Show, IncorrectMenuError
+from omeroweb.webclient.show import Show, IncorrectMenuError, paths_to_object
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
 from omeroweb.decorators import get_client_ip
 from omeroweb.webgateway.util import getIntOrDefault
+
+from omero.model import ProjectI, DatasetI, ImageI, \
+    ScreenI, PlateI, \
+    ProjectDatasetLinkI, DatasetImageLinkI, \
+    ScreenPlateLinkI
+from omero import ApiUsageException, ServerError, CmdError
+from omero.rtypes import rlong, rlist
 
 import tree
 
@@ -95,8 +104,77 @@ logger = logging.getLogger(__name__)
 logger.info("INIT '%s'" % os.getpid())
 
 
+def get_long_or_default(request, name, default):
+    """
+    Retrieves a parameter from the request. If the parameter is not present
+    the default is returned
+
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+    """
+    val = None
+    val_raw = request.GET.get(name, default)
+    if val_raw is not None:
+        val = long(val_raw)
+    return val
+
+
+def get_longs(request, name):
+    """
+    Retrieves parameters from the request. If the parameters are not present
+    an empty list is returned
+
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+    """
+    vals = []
+    vals_raw = request.GET.getlist(name)
+    for val_raw in vals_raw:
+        vals.append(long(val_raw))
+    return vals
+
+
+def get_bool_or_default(request, name, default):
+    """
+    Retrieves a parameter from the request. If the parameter is not present
+    the default is returned
+
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+    """
+    val = default
+    val_raw = request.GET.get(name)
+    if val_raw is not None:
+        if val_raw.lower() == 'true' or int(val_raw) == 1:
+            val = True
+    return val
+
+
 ##############################################################################
-# views controll
+# custom index page
+
+
+@never_cache
+@render_response()
+def custom_index(request, conn=None, **kwargs):
+    context = {"version": omero_version, 'build_year': build_year}
+
+    if settings.INDEX_TEMPLATE is not None:
+        try:
+            template_loader.get_template(settings.INDEX_TEMPLATE)
+            context['template'] = settings.INDEX_TEMPLATE
+        except Exception:
+            context['template'] = 'webclient/index.html'
+            context["error"] = traceback.format_exception(*sys.exc_info())[-1]
+    else:
+        context['template'] = 'webclient/index.html'
+
+    return context
+
+
+##############################################################################
+# views
+
 
 def login(request):
     """
@@ -115,8 +193,7 @@ def login(request):
     conn = None
     error = None
 
-    server_id = request.REQUEST.get('server')
-    form = LoginForm(data=request.REQUEST.copy())
+    form = LoginForm(data=request.POST.copy())
     useragent = 'OMERO.web'
     if form.is_valid():
         username = form.cleaned_data['username']
@@ -127,8 +204,11 @@ def login(request):
         connector = Connector(server_id, is_secure)
 
         # TODO: version check should be done on the low level, see #5983
+        compatible = True
+        if settings.CHECK_VERSION:
+            compatible = connector.check_version(useragent)
         if (server_id is not None and username is not None and
-                password is not None and connector.check_version(useragent)):
+                password is not None and compatible):
             conn = connector.create_connection(
                 useragent, username, password, userip=get_client_ip(request))
             if conn is not None:
@@ -159,35 +239,36 @@ def login(request):
                         del request.session['server_settings']
                     # do we ned to display server version ?
                     # server_version = conn.getServerVersion()
-                    if request.REQUEST.get('noredirect'):
+                    if request.POST.get('noredirect'):
                         return HttpResponse('OK')
-                    url = request.REQUEST.get("url")
+                    url = request.GET.get("url")
                     if url is None or len(url) == 0:
                         try:
                             url = parse_url(settings.LOGIN_REDIRECT)
                         except:
                             url = reverse("webindex")
                     return HttpResponseRedirect(url)
-                elif username == "guest":
-                    error = ("Guest account is for internal OMERO use only."
-                             " Not for login.")
                 else:
                     error = "This user is not active."
 
-    if request.method == 'POST' and server_id is not None:
-        connector = Connector(server_id, True)
         if not connector.is_server_up(useragent):
             error = "Server is not responding, please contact administrator."
-        elif not connector.check_version(useragent):
-            error = ("Client version does not match server, please contact"
-                     " administrator.")
+        elif not settings.CHECK_VERSION:
+            error = ("Connection not available, please check your"
+                     " credentials and version compatibility.")
         else:
-            error = ("Connection not available, please check your user name"
-                     " and password.")
-    url = request.REQUEST.get("url")
+            if not compatible:
+                error = ("Client version does not match server,"
+                         " please contact administrator.")
+            else:
+                error = ("Connection not available, please check your"
+                         " user name and password.")
+
+    url = request.GET.get("url")
 
     template = "webclient/login.html"
     if request.method != 'POST':
+        server_id = request.GET.get('server', request.POST.get('server'))
         if server_id is not None:
             initial = {'server': unicode(server_id)}
             form = LoginForm(initial=initial)
@@ -221,67 +302,6 @@ def keepalive_ping(request, conn=None, **kwargs):
 
 
 @login_required()
-@render_response()
-def feed(request, conn=None, **kwargs):
-    """
-    Viewing this page doesn't perform any action. All we do here is assemble
-    various data for display.
-    Last imports, tag cloud etc are retrived via separate AJAX calls.
-    """
-    template = "webclient/index/index.html"
-
-    controller = BaseIndex(conn)
-
-    context = {'controller': controller}
-    context['template'] = template
-    return context
-
-
-@login_required()
-@render_response()
-def index_last_imports(request, conn=None, **kwargs):
-    """
-    Gets the most recent imports - Used in an AJAX call by home page.
-    """
-
-    controller = BaseIndex(conn)
-    controller.loadLastAcquisitions()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_last_imports.html"
-    return context
-
-
-@login_required()
-@render_response()
-def index_most_recent(request, conn=None, **kwargs):
-    """
-    Gets the most recent 'shares' and 'share' comments. Used by the homepage
-    via AJAX call
-    """
-
-    controller = BaseIndex(conn)
-    controller.loadMostRecent()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_most_recent.html"
-    return context
-
-
-@login_required()
-@render_response()
-def index_tag_cloud(request, conn=None, **kwargs):
-    """ Gets the most used Tags. Used by the homepage via AJAX call """
-
-    controller = BaseIndex(conn)
-    controller.loadTagCloud()
-
-    context = {'controller': controller}
-    context['template'] = "webclient/index/index_tag_cloud.html"
-    return context
-
-
-@login_required()
 def change_active_group(request, conn=None, url=None, **kwargs):
     """
     Simply changes the request.session['active_group'] which is then used by
@@ -301,14 +321,12 @@ def switch_active_group(request, active_group=None):
     queries.
     """
     if active_group is None:
-        active_group = request.REQUEST.get('active_group')
+        active_group = request.GET.get('active_group')
     active_group = int(active_group)
     if ('active_group' not in request.session or
             active_group != request.session['active_group']):
         request.session.modified = True
         request.session['active_group'] = active_group
-        request.session['imageInBasket'] = set()        # empty basket
-        request.session['basket_counter'] = 0
 
 
 @login_required(login_redirect='webindex')
@@ -354,8 +372,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':
-        template = "webclient/data/container_tags.html"
+        template = "webclient/data/containers.html"
     else:
+        # E.g. search/search.html
         template = "webclient/%s/%s.html" % (menu, menu)
 
     # tree support
@@ -366,10 +385,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         first_sel = show.first_selected
     except IncorrectMenuError, e:
         return HttpResponseRedirect(e.uri)
-    init = {
-        'initially_open': show.initially_open,
-        'initially_select': show.initially_select
-    }
+    # We get the owner of the top level object, E.g. Project
+    # Actual api_paths_to_object() is retrieved by jsTree once loaded
     initially_open_owner = show.initially_open_owner
 
     # need to be sure that tree will be correct omero.group
@@ -377,7 +394,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         switch_active_group(request, first_sel.details.group.id.val)
 
     # search support
-    global_search_form = GlobalSearchForm(data=request.REQUEST.copy())
+    init = {}
+    global_search_form = GlobalSearchForm(data=request.POST.copy())
     if menu == "search":
         if global_search_form.is_valid():
             init['query'] = global_search_form.cleaned_data['search_query']
@@ -402,7 +420,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     users = tuple(users)
 
     # check any change in experimenter...
-    user_id = request.REQUEST.get('experimenter')
+    user_id = request.GET.get('experimenter')
     if initially_open_owner is not None:
         if (request.session.get('user_id', None) != -1):
             # if we're not already showing 'All Members'...
@@ -414,7 +432,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if user_id is not None:
         form_users = UsersForm(
             initial={'users': users, 'empty_label': None, 'menu': menu},
-            data=request.REQUEST.copy())
+            data=request.GET.copy())
         if not form_users.is_valid():
             if user_id != -1:           # All users in group is allowed
                 user_id = None
@@ -444,6 +462,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         myColleagues.sort(key=lambda x: x.getLastName().lower())
 
     context = {
+        'menu': menu,
         'init': init,
         'myGroups': myGroups,
         'new_container_form': new_container_form,
@@ -456,6 +475,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
+    context['page_size'] = settings.PAGE
     context['template'] = template
 
     return context
@@ -494,22 +514,640 @@ def group_user_content(request, url=None, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
+def api_group_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        member_id = get_long_or_default(request, 'member', -1)
+    except ValueError as e:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the groups
+        groups = tree.marshal_groups(conn=conn,
+                                     member_id=member_id,
+                                     page=page,
+                                     limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'groups': groups})
+
+
+@login_required()
+def api_experimenter_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the experimenters
+        experimenters = tree.marshal_experimenters(conn=conn,
+                                                   group_id=group_id,
+                                                   page=page,
+                                                   limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'experimenters': experimenters})
+
+
+@login_required()
+def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
+    # Validate parameter
+    try:
+        experimenter_id = long(experimenter_id)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid experimenter id')
+
+    try:
+        # Get the experimenter
+        experimenter = tree.marshal_experimenter(
+            conn=conn, experimenter_id=experimenter_id)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'experimenter': experimenter})
+
+
+@login_required()
+def api_container_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group', -1)
+        experimenter_id = get_long_or_default(request, 'id', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # While this interface does support paging, it does so in a
+    # very odd way. The results per page is enforced per query so this
+    # will actually get the limit for projects, datasets (without
+    # parents), screens and plates (without parents). This is fine for
+    # the first page, but the second page may not be what is expected.
+
+    try:
+        # Get the projects
+        projects = tree.marshal_projects(conn=conn,
+                                         group_id=group_id,
+                                         experimenter_id=experimenter_id,
+                                         page=page,
+                                         limit=limit)
+
+        # Get the orphaned datasets (without project parents)
+        datasets = tree.marshal_datasets(conn=conn,
+                                         orphaned=True,
+                                         group_id=group_id,
+                                         experimenter_id=experimenter_id,
+                                         page=page,
+                                         limit=limit)
+
+        # Get the screens for the current user
+        screens = tree.marshal_screens(conn=conn,
+                                       group_id=group_id,
+                                       experimenter_id=experimenter_id,
+                                       page=page,
+                                       limit=limit)
+
+        # Get the orphaned plates (without project parents)
+        plates = tree.marshal_plates(conn=conn,
+                                     orphaned=True,
+                                     group_id=group_id,
+                                     experimenter_id=experimenter_id,
+                                     page=page,
+                                     limit=limit)
+
+        # Get the orphaned images container
+        orphaned = tree.marshal_orphaned(conn=conn,
+                                         group_id=group_id,
+                                         experimenter_id=experimenter_id,
+                                         page=page,
+                                         limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'projects': projects,
+                             'datasets': datasets,
+                             'screens': screens,
+                             'plates': plates,
+                             'orphaned': orphaned})
+
+
+@login_required()
+def api_dataset_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group', -1)
+        project_id = get_long_or_default(request, 'id', None)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the datasets
+        datasets = tree.marshal_datasets(conn=conn,
+                                         project_id=project_id,
+                                         group_id=group_id,
+                                         page=page,
+                                         limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'datasets': datasets})
+
+
+@login_required()
+def api_image_list(request, conn=None, **kwargs):
+    ''' Get a list of images
+        Specifiying dataset_id will return only images in that dataset
+        Specifying experimenter_id will return orpahned images for that
+        user
+        The orphaned images will include images which belong to the user
+        but are not in any dataset belonging to the user
+        Currently specifying both, experimenter_id will be ignored
+
+    '''
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group', -1)
+        dataset_id = get_long_or_default(request, 'id', None)
+        orphaned = get_bool_or_default(request, 'orphaned', False)
+        load_pixels = get_bool_or_default(request, 'sizeXYZ', False)
+        thumb_version = get_bool_or_default(request, 'thumbVersion', False)
+        date = get_bool_or_default(request, 'date', False)
+        experimenter_id = get_long_or_default(request,
+                                              'experimenter_id', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # Share ID is in kwargs from api/share_images/<id>/ which will create
+    # a share connection in @login_required.
+    # We don't support ?share_id in query string since this would allow a
+    # share connection to be created for ALL urls, instead of just this one.
+    share_id = 'share_id' in kwargs and long(kwargs['share_id']) or None
+
+    try:
+        # Get the images
+        images = tree.marshal_images(conn=conn,
+                                     orphaned=orphaned,
+                                     experimenter_id=experimenter_id,
+                                     dataset_id=dataset_id,
+                                     share_id=share_id,
+                                     load_pixels=load_pixels,
+                                     group_id=group_id,
+                                     page=page,
+                                     date=date,
+                                     thumb_version=thumb_version,
+                                     limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'images': images})
+
+
+@login_required()
+def api_plate_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group', -1)
+        screen_id = get_long_or_default(request, 'id', None)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get the plates
+        plates = tree.marshal_plates(conn=conn,
+                                     screen_id=screen_id,
+                                     group_id=group_id,
+                                     page=page,
+                                     limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'plates': plates})
+
+
+@login_required()
+def api_plate_acquisition_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        plate_id = get_long_or_default(request, 'id', None)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # Orphaned PlateAcquisitions are not possible so querying without a
+    # plate is an error
+    if plate_id is None:
+        return HttpResponseBadRequest('id (plate) must be specified')
+
+    try:
+        # Get the plate acquisitions
+        plate_acquisitions = tree.marshal_plate_acquisitions(
+            conn=conn, plate_id=plate_id, page=page, limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'acquisitions': plate_acquisitions})
+
+
+def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
+    """ This is just used internally by api_link DELETE below """
+    if parent_type == 'orphaned':
+        return None
+    link_type = None
+    if parent_type == 'experimenter':
+        if child_type == 'dataset' or child_type == 'plate':
+            # This will be a requested link if a dataset or plate is
+            # moved from the de facto orphaned datasets/plates, it isn't
+            # an error, but no link actually needs removing
+            return None
+    elif parent_type == 'project':
+        if child_type == 'dataset':
+            link_type = 'ProjectDatasetLink'
+    elif parent_type == 'dataset':
+        if child_type == 'image':
+            link_type = 'DatasetImageLink'
+    elif parent_type == 'screen':
+        if child_type == 'plate':
+            link_type = 'ScreenPlateLink'
+
+    if not link_type:
+        raise Http404("json data needs 'parent_type' and 'child_type'")
+
+    params = omero.sys.ParametersI()
+    params.addIds(child_ids)
+
+    qs = conn.getQueryService()
+    q = """
+        from %s olink
+        where olink.child.id in (:ids)
+        """ % link_type
+    if parent_id:
+        params.add('pid', rlong(parent_id))
+        q += " and olink.parent.id = :pid"
+
+    res = qs.findAllByQuery(q, params, conn.SERVICE_OPTS)
+
+    if parent_id is not None and len(res) == 0:
+        raise Http404("No link found for %s-%s to %s-%s"
+                      % (parent_type, parent_id, child_type, child_ids))
+    return link_type, res
+
+
+@login_required()
+def api_links(request, conn=None, **kwargs):
+    """ Creates or Deletes links between objects specified by a json
+    blob in the request body.
+    e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+    When creating a link, fails silently if ValidationException
+    (E.g. adding an image to a Dataset that already has that image).
+    """
+
+    def create_link(parent_type, parent_id, child_type, child_id):
+        # TODO Handle more types of link
+        if parent_type == 'experimenter':
+            if child_type == 'dataset' or child_type == 'plate':
+                # This is actually not a link that needs creating, this
+                # dataset/plate is an orphan
+                return 'orphan'
+        if parent_type == 'project':
+            project = ProjectI(long(parent_id), False)
+            if child_type == 'dataset':
+                dataset = DatasetI(long(child_id), False)
+                l = ProjectDatasetLinkI()
+                l.setParent(project)
+                l.setChild(dataset)
+                return l
+        elif parent_type == 'dataset':
+            dataset = DatasetI(long(parent_id), False)
+            if child_type == 'image':
+                image = ImageI(long(child_id), False)
+                l = DatasetImageLinkI()
+                l.setParent(dataset)
+                l.setChild(image)
+                return l
+        elif parent_type == 'screen':
+            screen = ScreenI(long(parent_id), False)
+            if child_type == 'plate':
+                plate = PlateI(long(child_id), False)
+                l = ScreenPlateLinkI()
+                l.setParent(screen)
+                l.setChild(plate)
+                return l
+        return None
+
+    response = {'success': False}
+
+    # Handle link creation/deletion
+    json_data = json.loads(request.body)
+
+    # json is [parent_type][parent_id][child_type][childIds]
+    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+
+    linksToSave = []
+    for parent_type, parents in json_data.items():
+        if parent_type == "orphaned":
+            continue
+        for parent_id, children in parents.items():
+            for child_type, child_ids in children.items():
+                if request.method == 'DELETE':
+                    objLnks = get_object_links(conn, parent_type,
+                                               parent_id,
+                                               child_type,
+                                               child_ids)
+                    if objLnks is None:
+                        continue
+                    linkType, links = objLnks
+                    linkIds = [r.id.val for r in links]
+                    logger.info("api_link: Deleting %s links" % len(linkIds))
+                    conn.deleteObjects(linkType, linkIds)
+                    # webclient needs to know what is orphaned
+                    linkType, remainingLinks = get_object_links(conn,
+                                                                parent_type,
+                                                                None,
+                                                                child_type,
+                                                                child_ids)
+                    # return remaining links in same format as json above
+                    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+                    for rl in remainingLinks:
+                        pid = rl.parent.id.val
+                        cid = rl.child.id.val
+                        # Deleting links still in progress above - ignore these
+                        if pid == int(parent_id):
+                            continue
+                        if parent_type not in response:
+                            response[parent_type] = {}
+                        if pid not in response[parent_type]:
+                            response[parent_type][pid] = {child_type: []}
+                        response[parent_type][pid][child_type].append(cid)
+
+                elif request.method == 'POST':
+                    for child_id in child_ids:
+                        parent_id = int(parent_id)
+                        link = create_link(parent_type, parent_id,
+                                           child_type, child_id)
+                        if link and link != 'orphan':
+                            linksToSave.append(link)
+
+    if request.method == 'POST' and len(linksToSave) > 0:
+        # Need to set context to correct group (E.g parent group)
+        p = conn.getQueryService().get(parent_type.title(), parent_id,
+                                       conn.SERVICE_OPTS)
+        conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
+        logger.info("api_link: Saving %s links" % len(linksToSave))
+
+        try:
+            # We try to save all at once, for speed.
+            conn.saveArray(linksToSave)
+            response['success'] = True
+        except:
+            logger.info("api_link: Exception on saveArray with %s links"
+                        % len(linksToSave))
+            # If this fails, e.g. ValidationException because link
+            # already exists, try to save individual links
+            for l in linksToSave:
+                try:
+                    conn.saveObject(l)
+                except:
+                    pass
+            response['success'] = True
+
+    elif request.method == 'DELETE':
+        # If we got here, DELETE was OK
+        response['success'] = True
+
+    # Currently we don't use the response for anything.
+    # Could return more info in future if useful?
+    return HttpJsonResponse(response)
+
+
+@login_required()
+def api_paths_to_object(request, conn=None, **kwargs):
+    """
+    This finds the paths to objects in the hierarchy. It returns only
+    the path, not the object hierarchy itself.
+
+    An example usage is for the 'show' functionality
+    Example to go to the image with id 1 somewhere in the tree.
+    http://localhost:8000/webclient/?show=image-1
+
+    This method can tell the webclient exactly what needs to be
+    dynamically loaded to display this in the jstree.
+    """
+
+    try:
+        experimenter_id = get_long_or_default(request, 'experimenter', None)
+        project_id = get_long_or_default(request, 'project', None)
+        dataset_id = get_long_or_default(request, 'dataset', None)
+        image_id = get_long_or_default(request, 'image', None)
+        screen_id = get_long_or_default(request, 'screen', None)
+        plate_id = get_long_or_default(request, 'plate', None)
+        acquisition_id = get_long_or_default(request, 'run', None)
+        # acquisition will override 'run' if both are specified as they are
+        # the same thing
+        acquisition_id = get_long_or_default(request, 'acquisition',
+                                             acquisition_id)
+        well_id = request.GET.get('well', None)
+        group_id = get_long_or_default(request, 'group', None)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    paths = paths_to_object(conn, experimenter_id, project_id, dataset_id,
+                            image_id, screen_id, plate_id, acquisition_id,
+                            well_id, group_id)
+    return HttpJsonResponse({'paths': paths})
+
+
+@login_required()
+def api_tags_and_tagged_list(request, conn=None, **kwargs):
+    if request.method == 'GET':
+        return api_tags_and_tagged_list_GET(request, conn, **kwargs)
+    elif request.method == 'DELETE':
+        return api_tags_and_tagged_list_DELETE(request, conn, **kwargs)
+
+
+def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
+    ''' Get a list of tags
+        Specifiying tag_id will return any sub-tags, sub-tagsets and
+        objects tagged with that id
+        If no tagset_id is specifed it will return tags which have no
+        parent
+    '''
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        group_id = get_long_or_default(request, 'group', -1)
+        tag_id = get_long_or_default(request, 'id', None)
+        experimenter_id = get_long_or_default(request, 'experimenter_id', -1)
+        orphaned = get_bool_or_default(request, 'orphaned', False)
+        load_pixels = get_bool_or_default(request, 'sizeXYZ', False)
+        date = get_bool_or_default(request, 'date', False)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    try:
+        # Get ALL data (all owners) under specified tags
+        if tag_id is not None:
+            tagged = tree.marshal_tagged(conn=conn,
+                                         experimenter_id=experimenter_id,
+                                         tag_id=tag_id,
+                                         group_id=group_id,
+                                         page=page,
+                                         load_pixels=load_pixels,
+                                         date=date,
+                                         limit=limit)
+        else:
+            tagged = {}
+
+        tagged['tags'] = tree.marshal_tags(conn=conn,
+                                           orphaned=orphaned,
+                                           experimenter_id=experimenter_id,
+                                           tag_id=tag_id,
+                                           group_id=group_id,
+                                           page=page,
+                                           limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse(tagged)
+
+
+def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
+    ''' Delete the listed tags by ids
+
+    '''
+    # Get parameters
+    try:
+        tag_ids = get_longs(request, 'id')
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    dcs = list()
+
+    handle = None
+    try:
+        for tag_id in tag_ids:
+            dcs.append(omero.cmd.Delete('/Annotation', tag_id))
+        doall = omero.cmd.DoAll()
+        doall.requests = dcs
+        handle = conn.c.sf.submit(doall, conn.SERVICE_OPTS)
+
+        try:
+            conn._waitOnCmd(handle)
+        finally:
+            handle.close()
+
+    except CmdError as e:
+        return HttpResponseBadRequest(e.message)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse('')
+
+
+@login_required()
+def api_share_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = get_long_or_default(request, 'page', 1)
+        limit = get_long_or_default(request, 'limit', settings.PAGE)
+        member_id = get_long_or_default(request, 'member_id', -1)
+        owner_id = get_long_or_default(request, 'owner_id', -1)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid parameter value')
+
+    # Like with api_container_list, this is a combination of
+    # results which will each be able to return up to the limit in page
+    # size
+
+    try:
+        # Get the shares
+        shares = tree.marshal_shares(conn=conn,
+                                     member_id=member_id,
+                                     owner_id=owner_id,
+                                     page=page,
+                                     limit=limit)
+        # Get the discussions
+        discussions = tree.marshal_discussions(conn=conn,
+                                               member_id=member_id,
+                                               owner_id=owner_id,
+                                               page=page,
+                                               limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse({'shares': shares, 'discussions': discussions})
+
+
+@login_required()
 @render_response()
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
               o3_type=None, o3_id=None, conn=None, **kwargs):
     """
-    This loads data for the tree, via AJAX calls.
-    The template is specified by query string. E.g. icon, table, tree.
-    By default this loads Projects and Datasets.
-    E.g. /load_data?view=tree provides data for the tree as <li>.
+    This loads data for the center panel, via AJAX calls.
+    Used for Datasets, Plates & Orphaned Images.
     """
 
     # get page
     page = getIntOrDefault(request, 'page', 1)
-
-    # get view
-    view = str(request.REQUEST.get('view', None))
+    # limit = get_long_or_default(request, 'limit', settings.PAGE)
 
     # get index of the plate
     index = getIntOrDefault(request, 'index', 0)
@@ -543,91 +1181,55 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
 
     # load data & template
     template = None
+    template = "webclient/data/containers_icon.html"
     if 'orphaned' in kw:
+        # We need to set group context since we don't have a container Id
+        groupId = request.session.get('active_group')
+        if groupId is None:
+            groupId = conn.getEventContext().groupId
+        conn.SERVICE_OPTS.setOmeroGroup(groupId)
         manager.listOrphanedImages(filter_user_id, page)
-        if view == 'icon':
-            template = "webclient/data/containers_icon.html"
-        else:
-            template = "webclient/data/container_subtree.html"
-    elif len(kw.keys()) > 0:
-        if 'dataset' in kw:
-            # we need the sizeX and sizeY for these
-            load_pixels = (view == 'icon')
-            filter_user_id = None   # Show images belonging to all users
-            manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
-                                        page, load_pixels=load_pixels)
-            if view == 'icon':
-                template = "webclient/data/containers_icon.html"
-            else:
-                template = "webclient/data/container_subtree.html"
-        elif 'plate' in kw or 'acquisition' in kw:
-            if view == 'tree':
-                # Only used when pasting Plate into Screen - load Acquisition
-                # in tree
-                template = "webclient/data/container_subtree.html"
-            else:
-                fields = manager.getNumberOfFields()
-                if fields is not None:
-                    form_well_index = WellIndexForm(
-                        initial={'index': index, 'range': fields})
-                    if index == 0:
-                        index = fields[0]
+    elif 'dataset' in kw:
+        # we need the sizeX and sizeY for these
+        load_pixels = True
+        filter_user_id = None   # Show images belonging to all users
+        manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
+                                    page, load_pixels=load_pixels)
+    elif 'plate' in kw or 'acquisition' in kw:
+        fields = manager.getNumberOfFields()
+        if fields is not None:
+            form_well_index = WellIndexForm(
+                initial={'index': index, 'range': fields})
+            if index == 0:
+                index = fields[0]
 
-                # We don't know what our menu is so we're setting it to None.
-                # Should only raise an exception below if we've been asked to
-                # show some tags which we don't care about anyway in this
-                # context.
-                show = Show(conn, request, None)
-                # Constructor does no loading.  Show.first_selected must be
-                # called first in order to set up our initial state correctly.
-                try:
-                    first_selected = show.first_selected
-                    if first_selected is not None:
-                        wells_to_select = list()
-                        paths = show.initially_open + show.initially_select
-                        for path in paths:
-                            m = Show.PATH_REGEX.match(path)
-                            if m is None:
-                                continue
-                            if m.group('object_type') == 'well':
-                                wells_to_select.append(m.group('value'))
-                        context['select_wells'] = ','.join(wells_to_select)
-                except IncorrectMenuError:
-                    pass
+        # We don't know what our menu is so we're setting it to None.
+        # Should only raise an exception below if we've been asked to
+        # show some tags which we don't care about anyway in this
+        # context.
+        show = Show(conn, request, None)
+        # Constructor does no loading.  Show.first_selected must be
+        # called first in order to set up our initial state correctly.
+        try:
+            first_selected = show.first_selected
+            if first_selected is not None:
+                wells_to_select = list()
+                paths = show.initially_open + show.initially_select
+                for path in paths:
+                    m = Show.PATH_REGEX.match(path)
+                    if m is None:
+                        continue
+                    if m.group('object_type') == 'well':
+                        wells_to_select.append(m.group('value'))
+                context['select_wells'] = ','.join(wells_to_select)
+        except IncorrectMenuError:
+            pass
 
-                context['baseurl'] = reverse('webgateway').rstrip('/')
-                context['form_well_index'] = form_well_index
-                template = "webclient/data/plate.html"
-    else:
-        if view == 'tree':
-            # Replicate the semantics of listContainerHierarchy's filtering
-            # and experimenter population.
-            if filter_user_id is not None:
-                if filter_user_id == -1:
-                    filter_user_id = None
-                else:
-                    manager.experimenter = conn.getObject(
-                        "Experimenter", filter_user_id
-                    )
-            else:
-                filter_user_id = conn.getEventContext().userId
-            # Projects
-            context['projects'] = tree.marshal_projects(conn, filter_user_id)
-            # Datasets
-            context['datasets'] = tree.marshal_datasets(conn, filter_user_id)
-            # Screens
-            context['screens'] = tree.marshal_screens(conn, filter_user_id)
-            # Plates
-            context['plates'] = tree.marshal_plates(conn, filter_user_id)
-            # Images (orphaned)
-            context['orphans'] = conn.countOrphans("Image", filter_user_id)
-            template = "webclient/data/containers_tree.html"
-        elif view == 'icon':
-            template = "webclient/data/containers_icon.html"
-        else:
-            template = "webclient/data/containers.html"
+        context['baseurl'] = reverse('webgateway').rstrip('/')
+        context['form_well_index'] = form_well_index
+        context['index'] = index
+        template = "webclient/data/plate.html"
 
-    context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -651,7 +1253,7 @@ def load_chgrp_groups(request, conn=None, **kwargs):
     groups = {}
     owners = {}
     for dtype in ("Project", "Dataset", "Image", "Screen", "Plate"):
-        oids = request.REQUEST.get(dtype, None)
+        oids = request.GET.get(dtype, None)
         if oids is not None:
             for o in conn.getObjects(dtype, oids.split(",")):
                 ownerIds.append(o.getDetails().owner.id.val)
@@ -715,40 +1317,37 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     manager.listContainerHierarchy(owner)
     template = 'webclient/data/chgrp_target_tree.html'
 
-    show_projects = target_type in ('project', 'dataset')
     context = {
         'manager': manager,
         'target_type': target_type,
-        'show_projects': show_projects,
         'template': template}
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
 def load_searching(request, form=None, conn=None, **kwargs):
     """
     Handles AJAX calls to search
     """
-
     manager = BaseSearch(conn)
 
     foundById = []
     # form = 'form' if we are searching. Get query from request...
+    r = request.GET or request.POST
     if form is not None:
-        query_search = request.REQUEST.get('query').replace("+", " ")
+        query_search = r.get('query').replace("+", " ")
         template = "webclient/search/search_details.html"
 
-        onlyTypes = request.REQUEST.getlist("datatype")
-        fields = request.REQUEST.getlist("field")
-        searchGroup = request.REQUEST.get('searchGroup', None)
-        ownedBy = request.REQUEST.get('ownedBy', None)
+        onlyTypes = r.getlist("datatype")
+        fields = r.getlist("field")
+        searchGroup = r.get('searchGroup', None)
+        ownedBy = r.get('ownedBy', None)
 
-        useAcquisitionDate = toBoolean(
-            request.REQUEST.get('useAcquisitionDate'))
-        startdate = request.REQUEST.get('startdateinput', None)
+        useAcquisitionDate = toBoolean(r.get('useAcquisitionDate'))
+        startdate = r.get('startdateinput', None)
         startdate = startdate is not None and smart_str(startdate) or None
-        enddate = request.REQUEST.get('enddateinput', None)
+        enddate = r.get('enddateinput', None)
         enddate = enddate is not None and smart_str(enddate) or None
         date = None
         if startdate is not None:
@@ -802,63 +1401,31 @@ def load_searching(request, form=None, conn=None, **kwargs):
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
 @render_response()
-def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
+def load_data_by_tag(request, conn=None, **kwargs):
     """
-    Loads data for the tag tree and center panel.
+    Loads data for the center panel.
     Either get the P/D/I etc under tags, or the images etc under a tagged
     Dataset or Project.
     @param o_type       'tag' or 'project', 'dataset'.
     """
 
-    if (request.REQUEST.get("o_type") is not None and
-            len(request.REQUEST.get("o_type")) > 0):
-        o_type = request.REQUEST.get("o_type")
-        try:
-            o_id = long(request.REQUEST.get("o_id"))
-        except:
-            pass
-
-    # check view
-    view = request.REQUEST.get("view")
-
-    # prepare forms
-    filter_user_id = request.session.get('user_id')
-
-    # prepare data
-    kw = dict()
-    if o_type is not None and o_id > 0:
-        kw[str(o_type)] = long(o_id)
+    o_id = getIntOrDefault(request, "o_id", None)
+    if o_id is None:
+        return handlerInternalError(
+            request, "Need to specify tag id as ?o_id=id")
 
     try:
-        manager = BaseContainer(conn, **kw)
+        manager = BaseContainer(conn, tag=o_id)
     except AttributeError, x:
         return handlerInternalError(request, x)
 
-    if o_id is not None:
-        if o_type == "tag":
-            manager.loadDataByTag()
-            if view == "tree":
-                template = "webclient/data/container_tags_containers.html"
-            elif view == "icon":
-                template = "webclient/data/containers_icon.html"
+    manager.loadDataByTag()
+    template = "webclient/data/containers_icon.html"
 
-        elif o_type == "dataset":
-            manager.listImagesInDataset(o_id, filter_user_id)
-            template = "webclient/data/container_tags_subtree.html"
-    else:
-        manager.loadTags(filter_user_id)
-        template = "webclient/data/container_tags_tree.html"
-    # load data
-
-    context = {
-        'manager': manager,
-        'insight_ns': omero.rtypes.rstring(
-            omero.constants.metadata.NSINSIGHTTAGSET).val}
-    context['template_view'] = view
-    context['isLeader'] = conn.isLeader()
-    context['template'] = template
+    context = {'manager': manager,
+               'template': template}
     return context
 
 
@@ -1076,6 +1643,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
         else:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
+            context['canExportAsJpg'] = manager.canExportAsJpg(request)
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
     context['manager'] = manager
@@ -1100,8 +1668,6 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
                           **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel.
-    Currently this doesn't do much except launch the view-port plugin using
-    the image Id (and share Id if necessary)
     """
     context = {}
 
@@ -1477,39 +2043,40 @@ def getObjects(request, conn=None):
     These objects are required by the form superclass to populate hidden
     fields, so we know what we're annotating on submission
     """
+    r = request.GET or request.POST
     images = (
-        len(request.REQUEST.getlist('image')) > 0 and
-        list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or
+        len(r.getlist('image')) > 0 and
+        list(conn.getObjects("Image", r.getlist('image'))) or
         list())
     datasets = (
-        len(request.REQUEST.getlist('dataset')) > 0 and
+        len(r.getlist('dataset')) > 0 and
         list(conn.getObjects(
-            "Dataset", request.REQUEST.getlist('dataset'))) or
+            "Dataset", r.getlist('dataset'))) or
         list())
     projects = (
-        len(request.REQUEST.getlist('project')) > 0 and
+        len(r.getlist('project')) > 0 and
         list(conn.getObjects(
-            "Project", request.REQUEST.getlist('project'))) or
+            "Project", r.getlist('project'))) or
         list())
     screens = (
-        len(request.REQUEST.getlist('screen')) > 0 and
-        list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or
+        len(r.getlist('screen')) > 0 and
+        list(conn.getObjects("Screen", r.getlist('screen'))) or
         list())
     plates = (
-        len(request.REQUEST.getlist('plate')) > 0 and
-        list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or
+        len(r.getlist('plate')) > 0 and
+        list(conn.getObjects("Plate", r.getlist('plate'))) or
         list())
     acquisitions = (
-        len(request.REQUEST.getlist('acquisition')) > 0 and
+        len(r.getlist('acquisition')) > 0 and
         list(conn.getObjects(
-            "PlateAcquisition", request.REQUEST.getlist('acquisition'))) or
+            "PlateAcquisition", r.getlist('acquisition'))) or
         list())
-    shares = (len(request.REQUEST.getlist('share')) > 0 and
-              [conn.getShare(request.REQUEST.getlist('share')[0])] or list())
+    shares = (len(r.getlist('share')) > 0 and
+              [conn.getShare(r.getlist('share')[0])] or list())
     wells = list()
-    if len(request.REQUEST.getlist('well')) > 0:
+    if len(r.getlist('well')) > 0:
         index = getIntOrDefault(request, 'index', 0)
-        for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
+        for w in conn.getObjects("Well", r.getlist('well')):
             w.index = index
             wells.append(w)
     return {
@@ -1522,15 +2089,16 @@ def getIds(request):
     """
     Used by forms to indicate the currently selected objects prepared above
     """
+    r = request.GET or request.POST
     selected = {
-        'images': request.REQUEST.getlist('image'),
-        'datasets': request.REQUEST.getlist('dataset'),
-        'projects': request.REQUEST.getlist('project'),
-        'screens': request.REQUEST.getlist('screen'),
-        'plates': request.REQUEST.getlist('plate'),
-        'acquisitions': request.REQUEST.getlist('acquisition'),
-        'wells': request.REQUEST.getlist('well'),
-        'shares': request.REQUEST.getlist('share')}
+        'images': r.getlist('image'),
+        'datasets': r.getlist('dataset'),
+        'projects': r.getlist('project'),
+        'screens': r.getlist('screen'),
+        'plates': r.getlist('plate'),
+        'acquisitions': r.getlist('acquisition'),
+        'wells': r.getlist('well'),
+        'shares': r.getlist('share')}
     return selected
 
 
@@ -1557,29 +2125,7 @@ def batch_annotate(request, conn=None, **kwargs):
     form_comment = CommentAnnotationForm(initial=initial)
     index = getIntOrDefault(request, 'index', 0)
 
-    manager = BaseContainer(conn)
-    batchAnns = manager.loadBatchAnnotations(objs)
-    # get average values for User ratings and Other ratings.
-    r = [r['ann'].getLongValue() for r in batchAnns['UserRatings']]
-    userRatingAvg = r and sum(r) / len(r) or 0
-    # get all ratings and summarise
-    allratings = [a['ann'] for a in batchAnns['UserRatings']]
-    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
-    ratings = manager.getGroupedRatings(allratings)
-
-    figScripts = manager.listFigureScripts(objs)
-    filesetInfo = None
-    iids = []
-    if 'well' in objs and len(objs['well']) > 0:
-        iids = [w.getWellSample(index).image().getId() for w in objs['well']]
-    if 'image' in objs and len(objs['image']) > 0:
-        iids = [i.getId() for i in objs['image']]
-    if len(iids) > 0:
-        filesetInfo = conn.getFilesetFilesInfo(iids)
-        archivedInfo = conn.getArchivedFilesInfo(iids)
-        filesetInfo['count'] += archivedInfo['count']
-        filesetInfo['size'] += archivedInfo['size']
-
+    # get groups for selected objects - setGroup() and create links
     obj_ids = []
     obj_labels = []
     groupIds = set()
@@ -1595,6 +2141,32 @@ def batch_annotate(request, conn=None, **kwargs):
                 'type': key.title(), 'id': o.id, 'name': o.getName()})
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
+    groupId = list(groupIds)[0]
+    conn.SERVICE_OPTS.setOmeroGroup(groupId)
+
+    manager = BaseContainer(conn)
+    batchAnns = manager.loadBatchAnnotations(objs)
+    # get average values for User ratings and Other ratings.
+    r = [r['ann'].getLongValue() for r in batchAnns['UserRatings']]
+    userRatingAvg = r and sum(r) / len(r) or 0
+    # get all ratings and summarise
+    allratings = [a['ann'] for a in batchAnns['UserRatings']]
+    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
+    ratings = manager.getGroupedRatings(allratings)
+
+    figScripts = manager.listFigureScripts(objs)
+    canExportAsJpg = manager.canExportAsJpg(request, objs)
+    filesetInfo = None
+    iids = []
+    if 'well' in objs and len(objs['well']) > 0:
+        iids = [w.getWellSample(index).image().getId() for w in objs['well']]
+    if 'image' in objs and len(objs['image']) > 0:
+        iids = [i.getId() for i in objs['image']]
+    if len(iids) > 0:
+        filesetInfo = conn.getFilesetFilesInfo(iids)
+        archivedInfo = conn.getArchivedFilesInfo(iids)
+        filesetInfo['count'] += archivedInfo['count']
+        filesetInfo['size'] += archivedInfo['size']
 
     context = {
         'form_comment': form_comment,
@@ -1605,6 +2177,7 @@ def batch_annotate(request, conn=None, **kwargs):
         'batch_ann': True,
         'index': index,
         'figScripts': figScripts,
+        'canExportAsJpg': canExportAsJpg,
         'filesetInfo': filesetInfo,
         'annotationBlocked': annotationBlocked,
         'userRatingAvg': userRatingAvg,
@@ -1691,7 +2264,7 @@ def annotate_file(request, conn=None, **kwargs):
     if request.method == 'POST':
         # handle form submission
         form_file = FilesAnnotationForm(
-            initial=initial, data=request.REQUEST.copy())
+            initial=initial, data=request.POST.copy())
         if form_file.is_valid():
             # Link existing files...
             files = form_file.cleaned_data['files']
@@ -1744,10 +2317,13 @@ def annotate_rating(request, conn=None, **kwargs):
     """
     rating = getIntOrDefault(request, 'rating', 0)
     oids = getObjects(request, conn)
+    well_index = getIntOrDefault(request, 'index', 0)
 
     # add / update rating
     for otype, objs in oids.items():
         for o in objs:
+            if isinstance(o._obj, omero.model.WellI):
+                o = o.getWellSample(well_index).image()
             o.setRating(rating)
 
     # return a summary of ratings
@@ -1795,7 +2371,7 @@ def annotate_comment(request, conn=None, **kwargs):
 
     # Handle form submission...
     form_multi = CommentAnnotationForm(initial=initial,
-                                       data=request.REQUEST.copy())
+                                       data=request.POST.copy())
     if form_multi.is_valid():
         # In each case below, we pass the {'object_type': [ids]} map
         content = form_multi.cleaned_data['comment']
@@ -2012,9 +2588,9 @@ def annotate_tags(request, conn=None, **kwargs):
     if request.method == 'POST':
         # handle form submission
         form_tags = TagsAnnotationForm(
-            initial=initial, data=request.REQUEST.copy())
+            initial=initial, data=request.POST.copy())
         newtags_formset = NewTagsAnnotationFormSet(
-            prefix='newtags', data=request.REQUEST.copy())
+            prefix='newtags', data=request.POST.copy())
         # Create new tags or Link existing tags...
         if form_tags.is_valid() and newtags_formset.is_valid():
             # filter down previously selected tags to the ones linked by
@@ -2094,15 +2670,15 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
     channelNames = {}
     nameDict = {}
     for i in range(sizeC):
-        cname = request.REQUEST.get("channel%d" % i, None)
+        cname = request.POST.get("channel%d" % i, None)
         if cname is not None:
             cname = smart_str(cname)[:255]      # Truncate to fit in DB
             channelNames["channel%d" % i] = cname
             nameDict[i+1] = cname
     # If the 'Apply to Dataset' button was used to submit...
-    if request.REQUEST.get('confirm_apply', None) is not None:
+    if request.POST.get('confirm_apply', None) is not None:
         # plate-123 OR dataset-234
-        parentId = request.REQUEST.get('parentId', None)
+        parentId = request.POST.get('parentId', None)
         if parentId is not None:
             ptype = parentId.split("-")[0].title()
             pid = long(parentId.split("-")[1])
@@ -2129,7 +2705,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
     @param action:      "addnewcontainer", (creates a new Project, Dataset,
                         Screen), "editname", "savename", "editdescription",
                         "savedescription",  (used as GET and POST for in-line
-                        editing), "paste", "move", "remove",
+                        editing),
                         "removefromshare", (tree P/D/I moving etc)
                         "delete", "deletemany"      (delete objects)
     @param o_type:      "dataset", "project", "image", "screen", "plate",
@@ -2154,7 +2730,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             manager = BaseContainer(conn, **kw)
         except AttributeError, x:
             return handlerInternalError(request, x)
-    elif o_type in ("share", "sharecomment"):
+    elif o_type in ("share", "sharecomment", "chat"):
         manager = BaseShare(conn, o_id)
     else:
         manager = BaseContainer(conn)
@@ -2168,7 +2744,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                                         args=["edit", o_type, o_id]))
         if o_type is not None and hasattr(manager, o_type) and o_id > 0:
             # E.g. Parent o_type is 'project'...
-            form = ContainerForm(data=request.REQUEST.copy())
+            form = ContainerForm(data=request.POST.copy())
             if form.is_valid():
                 logger.debug(
                     "Create new in %s: %s" % (o_type, str(form.cleaned_data)))
@@ -2183,20 +2759,20 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
                 return HttpJsonResponse(rdict)
-        elif request.REQUEST.get('folder_type') in ("project", "screen",
-                                                    "dataset"):
+        elif request.POST.get('folder_type') in ("project", "screen",
+                                                 "dataset"):
             # No parent specified. We can create orphaned 'project', 'dataset'
             # etc.
-            form = ContainerForm(data=request.REQUEST.copy())
+            form = ContainerForm(data=request.POST.copy())
             if form.is_valid():
                 logger.debug("Create new: %s" % (str(form.cleaned_data)))
                 name = form.cleaned_data['name']
                 description = form.cleaned_data['description']
-                folder_type = request.REQUEST.get('folder_type')
+                folder_type = request.POST.get('folder_type')
                 if folder_type == "dataset":
                     oid = manager.createDataset(
                         name, description,
-                        img_ids=request.REQUEST.get('img_ids', None))
+                        img_ids=request.POST.getlist('image', None))
                 else:
                     oid = getattr(manager, "create" +
                                   folder_type.capitalize())(name, description)
@@ -2210,6 +2786,43 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 return HttpJsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
+    elif action == 'add':
+        template = "webclient/public/share_form.html"
+        experimenters = list(conn.getExperimenters())
+        experimenters.sort(key=lambda x: x.getOmeName().lower())
+        if o_type == "share":
+            img_ids = request.GET.getlist('image',
+                                          request.POST.getlist('image'))
+            images_to_share = list(conn.getObjects("Image", img_ids))
+            if request.method == 'POST':
+                form = BasketShareForm(
+                    initial={'experimenters': experimenters,
+                             'images': images_to_share},
+                    data=request.POST.copy())
+                if form.is_valid():
+                    images = form.cleaned_data['image']
+                    message = form.cleaned_data['message']
+                    expiration = form.cleaned_data['expiration']
+                    members = form.cleaned_data['members']
+                    # guests = request.POST['guests']
+                    enable = form.cleaned_data['enable']
+                    host = "%s?server=%i" % (request.build_absolute_uri(
+                        reverse("load_template", args=["public"])),
+                        int(conn.server_id))
+                    shareId = manager.createShare(
+                        host, images, message, members, enable, expiration)
+                    return HttpResponse("shareId:%s" % shareId)
+            else:
+                initial = {
+                    'experimenters': experimenters,
+                    'images': images_to_share,
+                    'enable': True,
+                    'selected': request.GET.getlist('image')
+                }
+                form = BasketShareForm(initial=initial)
+        template = "webclient/public/share_form.html"
+        context = {'manager': manager, 'form': form}
+
     elif action == 'edit':
         # form for editing an Object. E.g. Project etc. TODO: not used now?
         if o_type == "share" and o_id > 0:
@@ -2228,7 +2841,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 initial['expiration'] = \
                     manager.share.getExpireDate().strftime("%Y-%m-%d")
             form = ShareForm(initial=initial)  # 'guests':share.guestsInShare,
-            context = {'share': manager, 'form': form}
+            context = {'manager': manager, 'form': form}
         elif hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/data/container_form.html"
@@ -2244,20 +2857,21 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
             form = ShareForm(initial={'experimenters': experimenters},
-                             data=request.REQUEST.copy())
+                             data=request.POST.copy())
             if form.is_valid():
                 logger.debug("Update share: %s" % (str(form.cleaned_data)))
                 message = form.cleaned_data['message']
                 expiration = form.cleaned_data['expiration']
                 members = form.cleaned_data['members']
-                # guests = request.REQUEST['guests']
+                # guests = request.POST['guests']
                 enable = form.cleaned_data['enable']
                 host = "%s?server=%i" % (request.build_absolute_uri(
                     reverse("load_template", args=["public"])),
                     int(conn.server_id))
                 manager.updateShareOrDiscussion(
                     host, message, members, enable, expiration)
-                return HttpResponse("DONE")
+                r = "enable" if enable else "disable"
+                return HttpResponse(r)
             else:
                 template = "webclient/public/share_form.html"
                 context = {'share': manager, 'form': form}
@@ -2284,7 +2898,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             return HttpResponseRedirect(reverse("manage_action_containers",
                                         args=["edit", o_type, o_id]))
         if hasattr(manager, o_type) and o_id > 0:
-            form = ContainerNameForm(data=request.REQUEST.copy())
+            form = ContainerNameForm(data=request.POST.copy())
             if form.is_valid():
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
@@ -2321,7 +2935,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 "Action '%s' on the '%s' id:%s cannot be complited"
                 % (action, o_type, o_id))
         if hasattr(manager, o_type) and o_id > 0:
-            form = ContainerDescriptionForm(data=request.REQUEST.copy())
+            form = ContainerDescriptionForm(data=request.POST.copy())
             if form.is_valid():
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 description = form.cleaned_data['description']
@@ -2339,41 +2953,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 return HttpJsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
-    elif action == 'paste':
-        # Handles 'paste' action from the jsTree. Destination in POST
-        destination = request.REQUEST['destination'].split('-')
-        rv = manager.paste(destination)
-        if rv:
-            rdict = {'bad': 'true', 'errs': rv}
-            return HttpJsonResponse(rdict)
-        else:
-            rdict = {'bad': 'false'}
-            return HttpJsonResponse(rdict)
-    elif action == 'move':
-        # Handles drag-and-drop moving of objects in jsTree.
-        # Also handles 'remove' of Datasets (moves to 'Experimenter' parent)
-        parent = request.REQUEST['parent'].split('-')
-        # source = request.REQUEST['source'].split('-')
-        destination = request.REQUEST['destination'].split('-')
-        rv = None
-        try:
-            if parent[1] == destination[1]:
-                rv = "Error: Cannot move to the same place."
-        except Exception, x:
-            rdict = {'bad': 'true', 'errs': str(x)}
-        else:
-            if rv is None:
-                rv = manager.move(parent, destination)
-            if rv:
-                rdict = {'bad': 'true', 'errs': rv}
-            else:
-                rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
     elif action == 'remove':
-        # Handles 'remove' of Images from jsTree, removal of comment, tag from
+        # Handles removal of comment, tag from
         # Object etc.
         # E.g. image-123  or image-1|image-2
-        parents = request.REQUEST['parent']
+        parents = request.POST['parent']
         try:
             manager.remove(parents.split('|'), index)
         except Exception, x:
@@ -2384,7 +2968,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)
     elif action == 'removefromshare':
-        image_id = request.REQUEST.get('source')
+        image_id = request.POST.get('source')
         try:
             manager.removeImage(image_id)
         except Exception, x:
@@ -2395,8 +2979,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         return HttpJsonResponse(rdict)
     elif action == 'delete':
         # Handles delete of a file attached to object.
-        child = toBoolean(request.REQUEST.get('child'))
-        anns = toBoolean(request.REQUEST.get('anns'))
+        child = toBoolean(request.POST.get('child'))
+        anns = toBoolean(request.POST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {
@@ -2420,16 +3004,16 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
     elif action == 'deletemany':
         # Handles multi-delete from jsTree.
         object_ids = {
-            'Image': request.REQUEST.getlist('image'),
-            'Dataset': request.REQUEST.getlist('dataset'),
-            'Project': request.REQUEST.getlist('project'),
-            'Annotation': request.REQUEST.getlist('tag'),
-            'Screen': request.REQUEST.getlist('screen'),
-            'Plate': request.REQUEST.getlist('plate'),
-            'Well': request.REQUEST.getlist('well'),
-            'PlateAcquisition': request.REQUEST.getlist('acquisition')}
-        child = toBoolean(request.REQUEST.get('child'))
-        anns = toBoolean(request.REQUEST.get('anns'))
+            'Image': request.POST.getlist('image'),
+            'Dataset': request.POST.getlist('dataset'),
+            'Project': request.POST.getlist('project'),
+            'Annotation': request.POST.getlist('tag'),
+            'Screen': request.POST.getlist('screen'),
+            'Plate': request.POST.getlist('plate'),
+            'Well': request.POST.getlist('well'),
+            'PlateAcquisition': request.POST.getlist('acquisition')}
+        child = toBoolean(request.POST.get('child'))
+        anns = toBoolean(request.POST.get('anns'))
         logger.debug(
             "Delete many: child? %s anns? %s object_ids %s"
             % (child, anns, object_ids))
@@ -2458,7 +3042,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             logger.error(
                 'Failed to delete: %r' % {'did': ids, 'dtype': key},
                 exc_info=True)
-            rdict = {'bad': 'true', 'errs': str(x)}
+            # Ajax error handling will allow user to submit bug report
+            raise
         else:
             rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)
@@ -2636,15 +3221,15 @@ def download_placeholder(request, conn=None, **kwargs):
     We construct the url and query string from request: 'url' and 'ids'.
     """
 
-    format = request.REQUEST.get('format', None)
+    format = request.GET.get('format', None)
     if format is not None:
         download_url = reverse('download_as')
         zipName = 'Export_as_%s' % format
     else:
         download_url = reverse('archived_files')
         zipName = 'OriginalFileDownload'
-    targetIds = request.REQUEST.get('ids')      # E.g. image-1|image-2
-    defaultName = request.REQUEST.get('name', zipName)  # default zip name
+    targetIds = request.GET.get('ids')      # E.g. image-1|image-2
+    defaultName = request.GET.get('name', zipName)  # default zip name
     defaultName = os.path.basename(defaultName)         # remove path
 
     if targetIds is None:
@@ -2671,7 +3256,7 @@ def download_placeholder(request, conn=None, **kwargs):
             images = list(conn.getObjects("Image", imgIds))
         elif wellIds:
             try:
-                index = int(request.REQUEST.get("index", 0))
+                index = int(request.GET.get("index", 0))
             except ValueError:
                 index = 0
             wells = conn.getObjects("Well", wellIds)
@@ -2712,9 +3297,9 @@ def download_placeholder(request, conn=None, **kwargs):
     if format is not None:
         download_url = (download_url + "&format=%s"
                         % format)
-    if request.REQUEST.get('index'):
+    if request.GET.get('index'):
         download_url = (download_url + "&index=%s"
-                        % request.REQUEST.get('index'))
+                        % request.GET.get('index'))
 
     context = {
         'template': "webclient/annotations/download_placeholder.html",
@@ -2729,212 +3314,21 @@ def download_placeholder(request, conn=None, **kwargs):
 @login_required()
 @render_response()
 def load_public(request, share_id=None, conn=None, **kwargs):
-    """ Loads data for the tree in the 'public' main page. """
+    """ Loads data for the center panel in the 'public' main page. """
 
     # SUBTREE TODO:
     if share_id is None:
-        share_id = (request.REQUEST.get("o_id") is not None and
-                    long(request.REQUEST.get("o_id")) or None)
+        share_id = (request.GET.get("o_id") is not None and
+                    long(request.GET.get("o_id")) or None)
 
-    # check view
-    view = request.REQUEST.get("view")
-
-    if share_id is not None:
-        if view == 'tree':
-            template = "webclient/data/container_subtree.html"
-        elif view == 'icon':
-            template = "webclient/data/containers_icon.html"
-        controller = BaseShare(conn, share_id)
-        controller.loadShareContent()
-
-    else:
-        template = "webclient/data/containers_tree.html"
-        controller = BaseShare(conn)
-        controller.getShares()
+    template = "webclient/data/containers_icon.html"
+    controller = BaseShare(conn, share_id)
+    controller.loadShareContent()
 
     context = {'share': controller, 'manager': controller}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
-
-##################################################################
-# Basket
-
-
-@login_required(setGroupContext=True)
-@render_response()
-def basket_action(request, action=None, conn=None, **kwargs):
-    """
-    Various actions for creating a 'share' or 'discussion' (no images).
-
-    @param action:      'toshare', 'createshare'    (form to create share and
-                        handling the action itself)
-                        'todiscuss', 'createdisc'    (form to create
-                        discussion and handling the action itself)
-    """
-
-    if action == "toshare":
-        template = "webclient/basket/basket_share_action.html"
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-        experimenters = list(conn.getExperimenters())
-        experimenters.sort(key=lambda x: x.getOmeName().lower())
-        selected = [long(i) for i in request.REQUEST.getlist('image')]
-        form = BasketShareForm(initial={
-            'experimenters': experimenters,
-            'images': basket.imageInBasket,
-            'enable': True,
-            'selected': selected})
-        context = {'form': form}
-    elif action == "createshare":
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("basket_action"))
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-        experimenters = list(conn.getExperimenters())
-        experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = BasketShareForm(initial={'experimenters': experimenters,
-                                        'images': basket.imageInBasket},
-                               data=request.REQUEST.copy())
-        if form.is_valid():
-            images = form.cleaned_data['image']
-            message = form.cleaned_data['message']
-            expiration = form.cleaned_data['expiration']
-            members = form.cleaned_data['members']
-            # guests = request.REQUEST['guests']
-            enable = form.cleaned_data['enable']
-            host = "%s?server=%i" % (request.build_absolute_uri(
-                reverse("load_template", args=["public"])),
-                int(conn.server_id))
-            share = BaseShare(conn)
-            share.createShare(
-                host, images, message, members, enable, expiration)
-            return HttpResponse("success")
-        else:
-            template = "webclient/basket/basket_share_action.html"
-            context = {'form': form}
-    elif action == "todiscuss":
-        template = "webclient/basket/basket_discussion_action.html"
-        basket = BaseBasket(conn)
-        experimenters = list(conn.getExperimenters())
-        experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = ShareForm(initial={'experimenters': experimenters,
-                                  'enable': True})
-        context = {'form': form}
-    elif action == "createdisc":
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("basket_action"))
-        basket = BaseBasket(conn)
-        experimenters = list(conn.getExperimenters())
-        experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = ShareForm(initial={'experimenters': experimenters},
-                         data=request.REQUEST.copy())
-        if form.is_valid():
-            message = form.cleaned_data['message']
-            expiration = form.cleaned_data['expiration']
-            members = form.cleaned_data['members']
-            # guests = request.REQUEST['guests']
-            enable = form.cleaned_data['enable']
-            host = "%s?server=%i" % (request.build_absolute_uri(
-                reverse("load_template", args=["public"])),
-                int(conn.server_id))
-            share = BaseShare(conn)
-            share.createDiscussion(host, message, members, enable, expiration)
-            return HttpResponse("success")
-        else:
-            template = "webclient/basket/basket_discussion_action.html"
-            context = {'form': form}
-    else:
-        template = kwargs.get("template", "webclient/basket/basket.html")
-
-        basket = BaseBasket(conn)
-        basket.load_basket(request)
-
-        context = {'basket': basket}
-    context['template'] = template
-    return context
-
-
-@login_required()
-def empty_basket(request, **kwargs):
-    """ Empty the basket of images """
-
-    try:
-        del request.session['imageInBasket']
-        del request.session['basket_counter']
-    except KeyError:
-        logger.error(traceback.format_exc())
-
-    return HttpResponseRedirect(reverse("basket_action"))
-
-
-@login_required()
-def update_basket(request, **kwargs):
-    """ Add or remove images to the set in the basket """
-
-    action = None
-    if request.method == 'POST':
-        request.session.modified = True
-        try:
-            action = request.REQUEST['action']
-        except Exception:
-            logger.error(traceback.format_exc())
-            return handlerInternalError(
-                request, "Attribute error: 'action' is missed.")
-        else:
-            prod = request.REQUEST.get('productId')
-            ptype = request.REQUEST.get('productType')
-            if action == 'add':
-                images = request.REQUEST.getlist('image')
-                # datasets = request.REQUEST.getlist('datasets')
-                for i in images:
-                    flag = False
-                    for item in request.session['imageInBasket']:
-                        if item == long(i):
-                            flag = True
-                            break
-                    if not flag:
-                        request.session['imageInBasket'].add(long(i))
-                # for i in datasets:
-                #    flag = False
-                #    for item in request.session['datasetInBasket']:
-                #        if item == long(i):
-                #            flag = True
-                #            break
-                #    if not flag:
-                #        request.session['datasetInBasket'].append(long(i))
-            elif action == 'del':
-                if ptype == 'image':
-                    try:
-                        request.session['imageInBasket'].remove(long(prod))
-                    except:
-                        rv = "Error: could not remove image from the basket."
-                        return HttpResponse(rv)
-                # elif ptype == 'dataset':
-                #    try:
-                #        request.session['datasetInBasket'].remove(prod)
-                #    except:
-                #        rv = "Error: could not remove image from the basket."
-                #        return HttpResponse(rv)
-                else:
-                    rv = "Error: This action is not available"
-                    return HttpResponse(rv)
-            elif action == 'delmany':
-                images = [long(i) for i in request.REQUEST.getlist('image')]
-                for i in images:
-                    if i in request.session['imageInBasket']:
-                        request.session['imageInBasket'].remove(long(i))
-                    else:
-                        rv = "Error: could not remove image from the basket."
-                        return HttpResponse(rv)
-
-        total = len(request.session['imageInBasket'])
-        # +len(request.session['datasetInBasket'])
-        request.session['basket_counter'] = total
-        return HttpResponse(total)
-    else:
-        return handlerInternalError(
-            request, "Request method error in Basket.")
 
 
 @login_required(setGroupContext=True)
@@ -2972,7 +3366,7 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     template = "webclient/history/history_details.html"
 
     # get page
-    page = int(request.REQUEST.get('page', 1))
+    page = int(request.GET.get('page', 1))
 
     filter_user_id = request.session.get('user_id')
     controller = BaseCalendar(
@@ -3035,6 +3429,19 @@ def activities(request, conn=None, **kwargs):
     failure = 0
     new_results = []
     _purgeCallback(request)
+
+    # If we have a jobId, just process that (Only chgrp supported)
+    jobId = request.GET.get('jobId', None)
+    if jobId is not None:
+        jobId = str(jobId)
+        prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(jobId))
+        rsp = prx.getResponse()
+        if rsp is not None:
+            rv = chgrpMarshal(conn, rsp)
+            rv['finished'] = True
+        else:
+            rv = {'finished': False}
+        return rv
 
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
@@ -3489,8 +3896,8 @@ def script_ui(request, scriptId, conn=None, **kwargs):
 
         # if we got a value for this key in the page request, use this as
         # default
-        if request.REQUEST.get(key, None) is not None:
-            i["default"] = request.REQUEST.get(key, None)
+        if request.GET.get(key, None) is not None:
+            i["default"] = request.GET.get(key, None)
 
         # E.g  ""  (string) or [0] (int list) or 0.0 (float)
         i["prototype"] = unwrap(param.prototype)
@@ -3508,19 +3915,19 @@ def script_ui(request, scriptId, conn=None, **kwargs):
             "options" in Data_TypeParam):
         IDsParam["default"] = ""
         for dtype in Data_TypeParam["options"]:
-            if request.REQUEST.get(dtype, None) is not None:
+            if request.GET.get(dtype, None) is not None:
                 Data_TypeParam["default"] = dtype
-                IDsParam["default"] = request.REQUEST.get(dtype, "")
+                IDsParam["default"] = request.GET.get(dtype, "")
                 break       # only use the first match
         # if we've not found a match, check whether we have "Well" selected
         if (len(IDsParam["default"]) == 0 and
-                request.REQUEST.get("Well", None) is not None):
+                request.GET.get("Well", None) is not None):
             if "Image" in Data_TypeParam["options"]:
-                wellIds = [long(j) for j in request.REQUEST.get(
+                wellIds = [long(j) for j in request.GET.get(
                            "Well", None).split(",")]
                 wellIdx = 0
                 try:
-                    wellIdx = int(request.REQUEST.get("Index", 0))
+                    wellIdx = int(request.GET.get("Index", 0))
                 except:
                     pass
                 wells = conn.getObjects("Well", wellIds)
@@ -3560,8 +3967,8 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     Show a UI for running figure scripts
     """
 
-    imageIds = request.REQUEST.get('Image', None)    # comma - delimited list
-    datasetIds = request.REQUEST.get('Dataset', None)
+    imageIds = request.GET.get('Image', None)    # comma - delimited list
+    datasetIds = request.GET.get('Dataset', None)
     if imageIds is None and datasetIds is None:
         return HttpResponse("Need to specify /?Image=1,2 or /?Dataset=1,2")
 
@@ -3709,7 +4116,7 @@ def fileset_check(request, action, conn=None, **kwargs):
     """
     dtypeIds = {}
     for dtype in ("Image", "Dataset", "Project"):
-        ids = request.REQUEST.get(dtype, None)
+        ids = request.GET.get(dtype, None)
         if ids is not None:
             dtypeIds[dtype] = [int(i) for i in ids.split(",")]
     splitFilesets = conn.getContainerService().getImagesBySplitFilesets(
@@ -3732,6 +4139,208 @@ def fileset_check(request, action, conn=None, **kwargs):
     return context
 
 
+def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
+                  plate_ids, experimenter_id):
+    """
+    Given a list of containers and images, calculate all the descendants
+    and necessary siblings (for any filesets)
+    """
+    # TODO Handle None inputs, maybe add defaults
+    params = omero.sys.ParametersI()
+    qs = conn.getQueryService()
+
+    project_ids = set(project_ids)
+    dataset_ids = set(dataset_ids)
+    image_ids = set(image_ids)
+    fileset_ids = set([])
+    plate_ids = set(plate_ids)
+    screen_ids = set(screen_ids)
+
+    # Get any datasets for projects
+    if project_ids:
+        params.map = {}
+        params.map['pids'] = rlist([rlong(x) for x in list(project_ids)])
+        q = '''
+            select pdlink.child.id
+            from ProjectDatasetLink pdlink
+            where pdlink.parent.id in (:pids)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            dataset_ids.add(e[0].val)
+
+    # Get any plates for screens
+    if screen_ids:
+        params.map = {}
+        params.map['sids'] = rlist([rlong(x) for x in screen_ids])
+        q = '''
+            select splink.child.id
+            from ScreenPlateLink splink
+            where splink.parent.id in (:sids)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            plate_ids.add(e[0].val)
+
+    # Get any images for datasets
+    if dataset_ids:
+        params.map = {}
+        params.map['dids'] = rlist([rlong(x) for x in dataset_ids])
+        q = '''
+            select dilink.child.id,
+                   dilink.child.fileset.id
+            from DatasetImageLink dilink
+            where dilink.parent.id in (:dids)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            image_ids.add(e[0].val)
+            # Some images in Dataset may not have fileset
+            if e[1] is not None:
+                fileset_ids.add(e[1].val)
+
+    # Get any images for plates
+    # TODO Seemed no need to add the filesets for plates as it isn't possible
+    # to link it from outside of its plate. This may be true for the client,
+    # but it certainly isn't true for the model so maybe allow this to also get
+    # filesets
+    if plate_ids:
+        params.map = {}
+        params.map['plids'] = rlist([rlong(x) for x in plate_ids])
+        q = '''
+            select ws.image.id
+            from WellSample ws
+            join ws.plateAcquisition pa
+            where pa.plate.id in (:plids)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            image_ids.add(e[0].val)
+
+    # Get any extra images due to filesets
+    if fileset_ids:
+        params.map = {}
+        params.map['fsids'] = rlist([rlong(x) for x in fileset_ids])
+        q = '''
+            select image.id
+            from Image image
+            left outer join image.datasetLinks dilink
+            where image.fileset.id in (select fs.id
+                                       from Image im
+                                       join im.fileset fs
+                                       where fs.id in (:fsids)
+                                       group by fs.id
+                                       having count(im.id)>1)
+            '''
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            image_ids.add(e[0].val)
+
+    # Get any additional datasets that may need updating as their children have
+    # been snatched.
+    # TODO Need to differentiate which orphaned directories need refreshing
+    extra_dataset_ids = set([])
+    extra_orphaned = False
+    if image_ids:
+        params.map = {
+            'iids': rlist([rlong(x) for x in image_ids]),
+        }
+
+        exclude_datasets = ''
+        if dataset_ids:
+            params.map['dids'] = rlist([rlong(x) for x in dataset_ids])
+            # Make sure to allow parentless results as well as those
+            # that do not match a dataset being removed
+            exclude_datasets = '''
+                               and (
+                                    dilink.parent.id not in (:dids)
+                                    or dilink.parent.id = null
+                                   )
+                               '''
+
+        q = '''
+            select distinct dilink.parent.id
+            from Image image
+            left outer join image.datasetLinks dilink
+            where image.id in (:iids)
+            %s
+            and (select count(dilink2.child.id)
+                 from DatasetImageLink dilink2
+                 where dilink2.parent.id = dilink.parent.id
+                 and dilink2.child.id not in (:iids)) = 0
+            ''' % exclude_datasets
+
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            if e:
+                extra_dataset_ids.add(e[0].val)
+            else:
+                extra_orphaned = True
+
+    # Get any additional projects that may need updating as their children have
+    # been snatched. There is no need to check for orphans because if a dataset
+    # is being removed from somewhere else, it can not exist as an orphan.
+    extra_project_ids = set([])
+    if dataset_ids:
+        params.map = {
+            'dids': rlist([rlong(x) for x in dataset_ids])
+        }
+
+        exclude_projects = ''
+        if project_ids:
+            params.map['pids'] = rlist([rlong(x) for x in project_ids])
+            exclude_projects = 'and pdlink.parent.id not in (:pids)'
+
+        q = '''
+            select distinct pdlink.parent.id
+            from ProjectDatasetLink pdlink
+            where pdlink.child.id in (:dids)
+            %s
+            and (select count(pdlink2.child.id)
+                 from ProjectDatasetLink pdlink2
+                 where pdlink2.parent.id = pdlink.parent.id
+                 and pdlink2.child.id not in (:dids)) = 0
+            ''' % exclude_projects
+
+        for e in qs.projection(q, params, conn.SERVICE_OPTS):
+            extra_project_ids.add(e[0].val)
+
+    # We now have the complete list of objects that will change group
+    # We also have an additional list of datasets/projects that may have had
+    # snatched children and thus may need updating in the client if the
+    # dataset/project has gone from N to 0 children
+
+    result = {
+        # These objects are completely removed
+        'remove': {
+            'project': list(project_ids),
+            'dataset': list(dataset_ids),
+            'screen': list(screen_ids),
+            'plate': list(plate_ids),
+            'image': list(image_ids)
+        },
+        # These objects now have no children
+        'childless': {
+            'project': list(extra_project_ids),
+            'dataset': list(extra_dataset_ids),
+            'orphaned': extra_orphaned
+        }
+    }
+    return result
+
+
+@require_POST
+@login_required()
+def chgrpDryRun(request, conn=None, **kwargs):
+
+    group_id = getIntOrDefault(request, 'group_id', None)
+    targetObjects = {}
+    dtypes = ["Project", "Dataset", "Image", "Screen", "Plate", "Fileset"]
+    for dtype in dtypes:
+        oids = request.POST.get(dtype, None)
+        if oids is not None:
+            obj_ids = [int(oid) for oid in oids.split(",")]
+            targetObjects[dtype] = obj_ids
+
+    handle = conn.chgrpDryRun(targetObjects, group_id)
+    jobId = str(handle)
+    return HttpResponse(jobId)
+
+
 @login_required()
 def chgrp(request, conn=None, **kwargs):
     """
@@ -3739,22 +4348,22 @@ def chgrp(request, conn=None, **kwargs):
     Handles submission of chgrp form: all data in POST.
     Adds the callback handle to the request.session['callback']['jobId']
     """
-
-    group_id = request.REQUEST.get('group_id', None)
+    # Get the target group_id
+    group_id = getIntOrDefault(request, 'group_id', None)
     if group_id is None:
         raise AttributeError("chgrp: No group_id specified")
     group_id = long(group_id)
 
     def getObjectOwnerId(r):
         for t in ["Dataset", "Image", "Plate"]:
-            ids = r.REQUEST.get(t, None)
+            ids = r.POST.get(t, None)
             if ids is not None:
                 for o in list(conn.getObjects(t, ids.split(","))):
                     return o.getDetails().owner.id.val
 
     group = conn.getObject("ExperimenterGroup", group_id)
-    new_container_name = request.REQUEST.get('new_container_name', None)
-    new_container_type = request.REQUEST.get('new_container_type', None)
+    new_container_name = request.POST.get('new_container_name', None)
+    new_container_type = request.POST.get('new_container_type', None)
     container_id = None
 
     # Context must be set to owner of data, E.g. to create links.
@@ -3768,18 +4377,21 @@ def chgrp(request, conn=None, **kwargs):
     # No new container, check if target is specified
     if container_id is None:
         # E.g. "dataset-234"
-        target_id = request.REQUEST.get('target_id', None)
+        target_id = request.POST.get('target_id', None)
         container_id = (target_id is not None and target_id.split("-")[1] or
                         None)
     dtypes = ["Project", "Dataset", "Image", "Screen", "Plate"]
     for dtype in dtypes:
-        oids = request.REQUEST.get(dtype, None)
+        # Get all requested objects of this type
+        oids = request.POST.get(dtype, None)
         if oids is not None:
             obj_ids = [int(oid) for oid in oids.split(",")]
-            # if 'filesets' are specified, make sure we move ALL Fileset
-            # Images
-            fsIds = request.REQUEST.getlist('fileset')
+            # TODO Doesn't the filesets only apply to images?
+            # if 'filesets' are specified, make sure we move ALL Fileset Images
+            fsIds = request.POST.getlist('fileset')
             if len(fsIds) > 0:
+                # If a dataset is being moved and there is a split fileset
+                # then those images need to go somewhere in the new
                 if dtype == 'Dataset':
                     conn.regroupFilesets(dsIds=obj_ids, fsIds=fsIds)
                 else:
@@ -3801,7 +4413,39 @@ def chgrp(request, conn=None, **kwargs):
                 'status': 'in progress'}
             request.session.modified = True
 
-    return HttpResponse("OK")
+    # Update contains a list of images/containers that need to be
+    # updated.
+
+    project_ids = request.POST.get('Project', [])
+    dataset_ids = request.POST.get('Dataset', [])
+    image_ids = request.POST.get('Image', [])
+    screen_ids = request.POST.get('Screen', [])
+    plate_ids = request.POST.get('Plate', [])
+
+    if project_ids:
+        project_ids = [long(x) for x in project_ids.split(',')]
+    if dataset_ids:
+        dataset_ids = [long(x) for x in dataset_ids.split(',')]
+    if image_ids:
+        image_ids = [long(x) for x in image_ids.split(',')]
+    if screen_ids:
+        screen_ids = [long(x) for x in screen_ids.split(',')]
+    if plate_ids:
+        plate_ids = [long(x) for x in plate_ids.split(',')]
+
+    # TODO Change this user_id to be an experimenter_id in the request as it
+    # is possible that a user is chgrping data from another user so it is
+    # that users orphaned that will need updating. Or maybe all orphaned
+    # directories could potentially need updating?
+
+    # Create a list of objects that have been changed by this operation. This
+    # can be used by the client to visually update.
+    update = getAllObjects(conn, project_ids, dataset_ids, image_ids,
+                           screen_ids, plate_ids,
+                           request.session.get('user_id'))
+
+    # return HttpResponse("OK")
+    return HttpJsonResponse({'update': update})
 
 
 @login_required(setGroupContext=True)

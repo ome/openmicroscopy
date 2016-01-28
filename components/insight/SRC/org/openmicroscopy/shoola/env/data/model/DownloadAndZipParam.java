@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -24,15 +22,11 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 
-//Java imports
 import java.io.File;
 import java.util.List;
 import javax.swing.Icon;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * Parameters required to download and zip the files.
@@ -42,9 +36,6 @@ import pojos.FileAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class DownloadAndZipParam 
@@ -65,9 +56,8 @@ public class DownloadAndZipParam
      * @param files  The files to download.
      * @param folder The folder where 
      * @param icon   The associated icon.
-     * @param zipFolderName t
      */
-    public DownloadAndZipParam(List<FileAnnotationData> files, File folder, 
+    public DownloadAndZipParam(List<FileAnnotationData> files, File folder,
     		Icon icon)
     {
     	if (files == null || files.size() == 0)

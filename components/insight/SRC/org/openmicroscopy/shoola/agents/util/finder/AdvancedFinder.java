@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -28,6 +26,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,15 +34,17 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+import omero.gateway.model.SearchParameters;
+import omero.gateway.model.SearchScope;
+
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -52,16 +53,16 @@ import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchHelp;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
 
 /** 
  * The class actually managing the search.
@@ -71,9 +72,6 @@ import pojos.WellData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class AdvancedFinder
@@ -97,7 +95,7 @@ public class AdvancedFinder
 	private Collection tags;
 	
 	/** Host the result per group.*/
-	private AdvancedSearchResultCollection results = new AdvancedSearchResultCollection();
+	private SearchResultCollection results = new SearchResultCollection();
 	
 	/** The identifier of the group.*/
 	private long groupId;
@@ -114,25 +112,23 @@ public class AdvancedFinder
 	 * @param value The value to convert.
 	 * @return See above.
 	 */
-	private Integer convertScope(int value)
+	private SearchScope convertScope(int value)
 	{
 		switch (value) {
 			case SearchContext.TEXT_ANNOTATION:
-				return SearchParameters.TEXT_ANNOTATION;
+				return SearchScope.ANNOTATION;
 			case SearchContext.TAGS:
-				return SearchParameters.TAGS;
+				return SearchScope.ANNOTATION;
 			case SearchContext.URL_ANNOTATION:
-				return SearchParameters.URL_ANNOTATION;
+				return SearchScope.ANNOTATION;
 			case SearchContext.FILE_ANNOTATION:
-				return SearchParameters.FILE_ANNOTATION;
+				return SearchScope.ANNOTATION;
 			case SearchContext.NAME:
-				return SearchParameters.NAME;
+				return SearchScope.NAME;
 			case SearchContext.DESCRIPTION:
-				return SearchParameters.DESCRIPTION;
-			case SearchContext.CUSTOMIZED:
-				return SearchParameters.CUSTOMIZED;
+				return SearchScope.DESCRIPTION;
 			case SearchContext.ANNOTATION:
-                            return SearchParameters.ANNOTATION;
+			    return SearchScope.ANNOTATION;
 			default:
 				return null;
 		}
@@ -185,9 +181,9 @@ public class AdvancedFinder
 			context = new ArrayList<Integer>();
 			context.add(SearchContext.CUSTOMIZED);
 		}
-		List<Integer> scope = new ArrayList<Integer>(context.size());
+		Set<SearchScope> scope = new HashSet<SearchScope>();
 		Iterator i = context.iterator();
-		Integer v;
+		SearchScope v;
 		while (i.hasNext()) {
 			v = convertScope((Integer) i.next());
 			if (v != null) scope.add(v);
@@ -338,20 +334,20 @@ public class AdvancedFinder
 	
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
-	 * @see Finder#setResult(SecurityContext, Object)
+	 * @see Finder#setResult(SearchResultCollection)
 	 */
-	public void setResult(AdvancedSearchResultCollection result)
+	public void setResult(SearchResultCollection result)
 	{
             if (result.isError()) {
                 String msg = "";
                 switch (result.getError()) {
-                    case AdvancedSearchResultCollection.GENERAL_ERROR:
+                    case SearchResultCollection.GENERAL_ERROR:
                         msg = "Invalid search expression";
                         break;
-                    case AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR:
+                    case SearchResultCollection.TOO_MANY_RESULTS_ERROR:
                         msg = "Too many results, please refine your search criteria.";
                         break;
-                    case AdvancedSearchResultCollection.TOO_MANY_CLAUSES:
+                    case SearchResultCollection.TOO_MANY_CLAUSES:
                         msg = "Please try to narrow down your query. The wildcard matched too many terms.";
                         break;
                 }

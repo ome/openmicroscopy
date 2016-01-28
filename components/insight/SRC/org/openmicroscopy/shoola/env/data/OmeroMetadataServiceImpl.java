@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -36,6 +34,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ome.formats.model.UnitsFactory;
+import omero.model.PlateAnnotationLink;
 import ome.model.units.BigResult;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.Request;
@@ -63,14 +62,17 @@ import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.Pressure;
 import omero.model.ProjectAnnotationLink;
+import omero.model.ScreenAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.Temperature;
 import omero.model.TermAnnotation;
+import omero.model.WellAnnotationLink;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
@@ -80,38 +82,42 @@ import org.apache.commons.collections.ListUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
-import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.util.PojoMapper;
+import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.ROIResult;
+import omero.gateway.model.TableResult;
+
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ROIData;
-import pojos.RatingAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -124,9 +130,6 @@ import com.google.common.collect.Multimap;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 class OmeroMetadataServiceImpl 
@@ -201,7 +204,7 @@ class OmeroMetadataServiceImpl
 	{
 		List<Long> ids = new ArrayList<Long>();
 		ids.add(annotation.getId());
-		List l = gateway.findAnnotationLinks(ctx, object.getClass().getName(),
+		List l = gateway.findAnnotationLinks(ctx, object.getClass(),
 				-1, ids);
 		if (l == null) return false;
 		return l.size() > 0;
@@ -595,7 +598,7 @@ class OmeroMetadataServiceImpl
 			AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException
 	{			
-		String ioType = gateway.convertPojos(data).getName();
+		String ioType = PojoMapper.getModelType(data.getClass()).getName();
 		IObject ho = gateway.findIObject(ctx, ioType, data.getId());
 		if (ho == null) return;
 		ModelMapper.unloadCollections(ho);
@@ -689,7 +692,7 @@ class OmeroMetadataServiceImpl
 		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(TagAnnotationData.class).getName();
 			TagAnnotation ho = (TagAnnotation) gateway.findIObject(ctx, ioType,
 					id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
@@ -699,7 +702,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof TermAnnotationData && ann.isDirty()) {
 			TermAnnotationData tag = (TermAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(TermAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(TermAnnotationData.class).getName();
 			TermAnnotation ho = (TermAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setTermValue(omero.rtypes.rstring(tag.getTerm()));
@@ -709,7 +712,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof XMLAnnotationData && ann.isDirty()) {
 			XMLAnnotationData tag = (XMLAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(XMLAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(XMLAnnotationData.class).getName();
 			XmlAnnotation ho = (XmlAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getText()));
@@ -719,7 +722,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof LongAnnotationData && ann.isDirty()) {
 			LongAnnotationData tag = (LongAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(LongAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(LongAnnotationData.class).getName();
 			LongAnnotation ho = (LongAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setLongValue(omero.rtypes.rlong(tag.getDataValue()));
@@ -728,7 +731,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof DoubleAnnotationData && ann.isDirty()) {
 			DoubleAnnotationData tag = (DoubleAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(DoubleAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(DoubleAnnotationData.class).getName();
 			DoubleAnnotation ho = (DoubleAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setDoubleValue(omero.rtypes.rdouble(tag.getDataValue()));
@@ -737,7 +740,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof BooleanAnnotationData && ann.isDirty()) {
 			BooleanAnnotationData tag = (BooleanAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(BooleanAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(BooleanAnnotationData.class).getName();
 			BooleanAnnotation ho = (BooleanAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setBoolValue(omero.rtypes.rbool(tag.getValue()));
@@ -747,7 +750,7 @@ class OmeroMetadataServiceImpl
 		else if (ann instanceof MapAnnotationData && ann.isDirty()) {
 			MapAnnotationData map = (MapAnnotationData) ann;
 			id = map.getId();
-			ioType = gateway.convertPojos(MapAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(MapAnnotationData.class).getName();
 			MapAnnotation m = (MapAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			m.setMapValue((List<NamedValue>) map.getContent());
@@ -909,23 +912,21 @@ class OmeroMetadataServiceImpl
     {
         Object object = results.getRelatedObject();
         if (CollectionUtils.isNotEmpty(annotations)) {
-            List<TextualAnnotationData> 
+            List<TextualAnnotationData>
                 texts = new ArrayList<TextualAnnotationData>();
             List<TagAnnotationData> tags = new ArrayList<TagAnnotationData>();
-            List<TermAnnotationData> 
+            List<TermAnnotationData>
             terms = new ArrayList<TermAnnotationData>();
-            List<FileAnnotationData> 
+            List<FileAnnotationData>
             attachments = new ArrayList<FileAnnotationData>();
-            List<RatingAnnotationData> 
+            List<RatingAnnotationData>
             ratings = new ArrayList<RatingAnnotationData>();
-            List<XMLAnnotationData> 
+            List<XMLAnnotationData>
             xml = new ArrayList<XMLAnnotationData>();
-            List<MapAnnotationData> 
+            List<MapAnnotationData>
             maps = new ArrayList<MapAnnotationData>();
-            
-            List<AnnotationData> 
+            List<AnnotationData>
             other = new ArrayList<AnnotationData>();
-            
             Iterator i = annotations.iterator();
             AnnotationData data;
             BooleanAnnotationData b;
@@ -955,8 +956,7 @@ class OmeroMetadataServiceImpl
                 } else if (data instanceof MapAnnotationData) {
                     annotationIds.add(data.getId());
                     maps.add((MapAnnotationData) data);
-                } 
-                else {
+                } else {
                     annotationIds.add(data.getId());
                     other.add(data);
                 }
@@ -1029,10 +1029,11 @@ class OmeroMetadataServiceImpl
 	public Map<DataObject, StructuredDataResults>
 		loadStructuredData(SecurityContext ctx, List<DataObject> data,
 			long userID, boolean viewed) 
-	    throws DSOutOfServiceException, DSAccessException 
+	    throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
 			throw new IllegalArgumentException("Object not valid.");
+		
 		Map<DataObject, StructuredDataResults> 
 			results = new HashMap<DataObject, StructuredDataResults>();
 		Iterator<DataObject> i = data.iterator();
@@ -1041,13 +1042,12 @@ class OmeroMetadataServiceImpl
 		Class<?> klass = null;
 		List<Long> fids = new ArrayList<Long>();
 		ImageData img;
+		Multimap<Class<?>, Long> mm = ArrayListMultimap.create();
 		while (i.hasNext()) {
 			n = i.next();
 			if (n != null) {
 			    ids.add(n.getId());
-			    if (klass == null) {
-			        klass = n.getClass();
-			    }
+			    mm.put(n.getClass(), n.getId());
 			    if (n instanceof ImageData) {
 			        img = (ImageData) n;
 			        long fID = img.getFilesetId();
@@ -1070,7 +1070,26 @@ class OmeroMetadataServiceImpl
             usersIDs = new ArrayList<Long>(1);
             usersIDs.add(userID);
         }
-        Map map = gateway.loadAnnotations(ctx, klass, ids, null, usersIDs,
+        //Load annotations
+        for (Class<?> k : mm.keySet()) {
+            loadAnnotations(ctx, k, (List) mm.get(k), userID, data,
+                    filesetMap, results);
+        }
+		return results;
+	}
+
+	private void loadAnnotations(SecurityContext ctx, Class<?> klass,
+	        List<Long> ids, long userID, List<DataObject> data,
+	        Map<Long, Collection<AnnotationData>> filesetMap,
+	        Map<DataObject, StructuredDataResults> results)
+	throws DSOutOfServiceException, DSAccessException
+	{
+	    List<Long> usersIDs = null;
+        if (userID != -1) {
+            usersIDs = new ArrayList<Long>(1);
+            usersIDs.add(userID);
+        }
+	    Map map = gateway.loadAnnotations(ctx, klass, ids, null, usersIDs,
                 new Parameters());
         Multimap<Long, IObject> linkMap = ArrayListMultimap.create();
         if (!(klass.equals(TagAnnotationData.class) ||
@@ -1095,26 +1114,25 @@ class OmeroMetadataServiceImpl
             }
         }
         //format the results
-        i = data.iterator();
+        Iterator<DataObject> i = data.iterator();
         StructuredDataResults r;
         List<IObject> links;
+        DataObject n;
         while (i.hasNext()) {
             n = i.next();
-            if (n != null) {
+            if (n != null && ids.contains(n.getId())) {
                 r = new StructuredDataResults(n);
                 loadStructuredData(ctx, userID,
                         (Collection) map.get(n.getId()), r, false);
                 results.put(n, r);
                 if (n instanceof ImageData) {
-                    img = (ImageData) n;
+                    ImageData img = (ImageData) n;
                     r.setTransferlinks(filesetMap.get(img.getFilesetId()));
                 }
                 formatAnnotationLinks(linkMap.get(n.getId()), r);
             }
         }
-		return results;
 	}
-
 	/**
 	 * Formats the annotation links.
 	 *
@@ -1173,7 +1191,7 @@ class OmeroMetadataServiceImpl
 	{
 		if (annotation == null)
 			throw new IllegalArgumentException("DataObject cannot be null");
-		String ioType = gateway.convertPojos(type).getName();
+		String ioType = PojoMapper.getModelType(type).getName();
 		IObject ho = gateway.findIObject(ctx, ioType, id);
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
@@ -1276,7 +1294,7 @@ class OmeroMetadataServiceImpl
 			} 
 		}
 		List l = null;
-		String klass = gateway.convertPojos(type).getName();
+		Class klass = PojoMapper.getModelType(type);
 		if (ids.size() != 0)
 			l = gateway.findAnnotationLinks(ctx, klass, id, ids);
 		if (l != null) {
@@ -1372,6 +1390,10 @@ class OmeroMetadataServiceImpl
 	    List<String> toExclude = new ArrayList<String>();
 	    if (nameSpace != null) 
 	        toInclude.add(nameSpace);
+        if (TagAnnotationData.class.equals(annotationType)) {
+            po.orphan();
+            return gateway.loadTagSets(ctx, po);
+        }
 	    if (FileAnnotationData.class.equals(annotationType)) {
 	        if (!FileAnnotationData.COMPANION_FILE_NS.equals(nameSpace))
 	            toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
@@ -2362,6 +2384,22 @@ class OmeroMetadataServiceImpl
 					nodes.add(PojoMapper.asDataObject(
 							((ImageAnnotationLink) o).getParent()));
 				}
+				else if (o instanceof PlateAnnotationLink) {
+                    nodes.add(PojoMapper.asDataObject(
+                            ((PlateAnnotationLink) o).getParent()));
+                }
+				else if (o instanceof ScreenAnnotationLink) {
+                    nodes.add(PojoMapper.asDataObject(
+                            ((ScreenAnnotationLink) o).getParent()));
+                }
+				else if (o instanceof WellAnnotationLink) {
+                    nodes.add(PojoMapper.asDataObject(
+                            ((WellAnnotationLink) o).getParent()));
+                }
+				else if (o instanceof PlateAcquisitionAnnotationLink) {
+                    nodes.add(PojoMapper.asDataObject(
+                            ((PlateAcquisitionAnnotationLink) o).getParent()));
+                }
 			}
 		}
 		return nodes;
@@ -2472,5 +2510,51 @@ class OmeroMetadataServiceImpl
         if (rootType == null || CollectionUtils.isEmpty(rootIDs))
             throw new IllegalArgumentException("No node specified");
         return gateway.loadLogFiles(ctx, rootType, rootIDs);
+    }
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroMetadataService#saveData(SecurityContext, Map, Map, long)
+     */
+    public void saveAnnotationData(SecurityContext ctx,
+            Map<DataObject, List<AnnotationData>> toAdd,
+            Map<DataObject, List<AnnotationData>> toRemove, long userID)
+                    throws DSOutOfServiceException, DSAccessException
+    {
+        Entry<DataObject, List<AnnotationData>> e;
+        Iterator<Entry<DataObject, List<AnnotationData>>> j;
+        List<AnnotationData> annotations;
+        Iterator<AnnotationData> i;
+        AnnotationData ann;
+        if (toAdd != null && toAdd.size() > 0) {
+            j = toAdd.entrySet().iterator();
+            while (j.hasNext()) {
+               e = j.next();
+               annotations = prepareAnnotationToAdd(ctx, e.getValue());
+               if (annotations.size() > 0) {
+                   i = annotations.iterator();
+                   while (i.hasNext()) {
+                       ann = i.next();
+                       if (ann != null) {
+                           linkAnnotation(ctx, e.getKey(), ann);
+                       }
+                   }
+               }
+           }
+        }
+        if (toRemove != null && toRemove.size() > 0) {
+            j = toRemove.entrySet().iterator();
+            while (j.hasNext()) {
+               e = j.next();
+               annotations = e.getValue();
+               i = annotations.iterator();
+               while (i.hasNext()) {
+                   ann = i.next();
+                   if (ann != null) {
+                       removeAnnotation(ctx, ann, e.getKey());
+                   }
+               }
+           }
+        }
     }
 }

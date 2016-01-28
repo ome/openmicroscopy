@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAction 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -24,8 +22,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter.actions;
 
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -36,14 +32,11 @@ import javax.swing.Action;
 import javax.swing.Icon;
 
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.GroupData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Brings up the <code>Personal Management</code> menu.
@@ -51,9 +44,6 @@ import pojos.GroupData;
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class PersonalManagementAction 

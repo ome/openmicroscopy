@@ -7,12 +7,6 @@
 
 package ome.util.tests.common;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * No-op implementation of the {@link Runnable} interface.
  * 
@@ -21,8 +15,6 @@ package ome.util.tests.common;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/25 18:09:17 $) </small>
  * @since OME2.2
  */
 public class NullRunnable implements Runnable {

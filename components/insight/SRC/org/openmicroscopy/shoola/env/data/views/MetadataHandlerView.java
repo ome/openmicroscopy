@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.MetadataHandlerView 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,30 +20,25 @@
  */
 package org.openmicroscopy.shoola.env.data.views;
 
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Provides methods to handle the annotations.
@@ -55,9 +48,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface MetadataHandlerView
@@ -162,11 +152,12 @@ public interface MetadataHandlerView
 	 * Loads all {@link DataObject}s the given annotations ({@link FileAnnotationData}) are linked to
 	 * @param ctx The security context.
 	 * @param annotations The annotations ({@link FileAnnotationData})
-	 * @param referenceObjects The DataObjects from which the FileAnnotations should be removed
+	 * @param toBeDeletedFromIds The DataObjects from which the FileAnnotations should be removed
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle checkFileAnnotationDeletion(SecurityContext ctx, List<FileAnnotationData> annotations, List<DataObject> toBeDeletedFromIds,
+	public CallHandle checkFileAnnotationDeletion(SecurityContext ctx,
+	        List<FileAnnotationData> annotations, List<DataObject> toBeDeletedFromIds,
 			AgentEventListener observer);
 	
 	/**
@@ -305,14 +296,15 @@ public interface MetadataHandlerView
 	 * @param ctx The security context.
 	 * @param imageIDs The ids of the pixels set related to the image.
 	 * @param location The location where to store the files.
-	 * @param name The name of the image.
 	 * @param override Flag indicating to override the existing file if it
 	 *                 exists, <code>false</code> otherwise.
+	 * @param zip Pass <code>true</code> to create a zip file
+	 * @param keepOriginalPaths Pass <code>true</code> to preserve the original folder structure
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
-		File location, boolean override,
+		File location, boolean override, boolean zip, boolean keepOriginalPaths,
 		AgentEventListener observer);
 	
 	/**
@@ -492,7 +484,6 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param imageId The id of the image.
-	 * @param userID The id of the experimenter or <code>-1</code>.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFileset(SecurityContext ctx,
@@ -517,4 +508,19 @@ public interface MetadataHandlerView
 		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 		List<String> nsExlcude, AgentEventListener observer);
 
+	/**
+	 * Saves the object, adds (resp. removes) annotations to (resp. from)
+	 * the object if any.
+	 * 
+	 * @param ctx The security context.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove.
+	 * @param userID The id of the user.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+    public CallHandle annotateData(SecurityContext ctx,
+        Map<DataObject, List<AnnotationData>> toAdd,
+        Map<DataObject, List<AnnotationData>> toRemove, long userID,
+        AgentEventListener observer);
 }

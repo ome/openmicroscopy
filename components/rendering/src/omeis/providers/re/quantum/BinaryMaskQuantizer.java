@@ -7,14 +7,10 @@
 
 package omeis.providers.re.quantum;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
+
 import omeis.providers.re.data.PlaneFactory;
 
 /**
@@ -28,7 +24,7 @@ public class BinaryMaskQuantizer extends QuantumStrategy
      * Creates a new strategy.
      * 
      * @param qd Quantum definition object, contained mapping data.
-     * @param type The pixels. Must be of type <code>bit</code>.
+     * @param pixels The pixels
      */
     public BinaryMaskQuantizer(QuantumDef qd, Pixels pixels)
     {

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,42 +21,36 @@
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
-
-//Java imports
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.FileData;
-import pojos.GroupData;
-import pojos.ImageData;
-import pojos.MultiImageData;
-import pojos.PermissionData;
-import pojos.ProjectData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PermissionData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * This class contains a collection of utility static methods that transform
  * an hierarchy of {@link DataObject}s into a visualization tree.
  * The tree is then displayed in the DataBrowser. For example,
  * A list of Projects-Datasets-Images is passed to the 
- * {@link #transformProjects(Set, long, long)} method and transforms into a set
+ * {@link #transformProjects(Set)} method and transforms into a set
  * of ImageSet-ImageSet-ImageNode.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -66,9 +58,6 @@ import pojos.WellSampleData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class DataBrowserTranslator 
@@ -447,28 +436,7 @@ public class DataBrowserTranslator
         set.add(dataset);
         return transformDatasets(set);
     }
-    
-    /**
-     * Transforms the passed multi-image e.g. <code>.lei</code>  
-     * into its corresponding visualization object.
-     * 
-     * @param img The object to handle
-     * @return See above.
-     */
-    private static ImageDisplay transformMultiImage(MultiImageData img)
-    {
-    	ImageSet node = new ImageSet(img.getName(), img);
-    	formatToolTipFor(node);
-    	List<ImageData> images = img.getComponents();
-    	Iterator i = images.iterator();
-        ImageData child;
-        while (i.hasNext()) {
-            child = (ImageData) i.next();
-            linkImageTo(child, node);
-        }  
-    	return node;
-    }
-    
+
     /** 
      * Transforms a set of {@link DataObject}s into their corresponding 
      * visualization objects. The elements of the set can either be
@@ -622,14 +590,11 @@ public class DataBrowserTranslator
         Set results = new HashSet();
         DataObject ho;
         FileData f;
-        MultiImageData img;
         Iterator i = dataObjects.iterator();
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (ho instanceof MultiImageData) {
-            	results.add(transformMultiImage((MultiImageData) ho));
-            } else if (ho instanceof ImageData) {
-            	 results.add(linkImageTo((ImageData) ho, null));
+            if (ho instanceof ImageData) {
+                results.add(linkImageTo((ImageData) ho, null));
             }
         }
         return results;

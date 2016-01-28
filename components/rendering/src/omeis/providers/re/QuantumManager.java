@@ -7,19 +7,15 @@
 
 package omeis.providers.re;
 
-// Java imports
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-
-// Application-internal dependencies
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
+
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -32,8 +28,6 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date: 2005/06/10
- *          17:36:31 $) </small>
  * @since OME2.2
  */
 class QuantumManager {

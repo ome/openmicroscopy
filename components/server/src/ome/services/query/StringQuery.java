@@ -14,7 +14,6 @@
 
 package ome.services.query;
 
-// Java imports
 import java.sql.SQLException;
 import java.util.Collection;
 
@@ -33,7 +32,6 @@ import org.hibernate.Session;
  * No parsing is done until execution time.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
 public class StringQuery extends Query {

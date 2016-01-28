@@ -16,10 +16,7 @@
   </publications>
   <dependencies defaultconfmapping="build,server->default">
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
-    <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
-    <dependency org="ome" name="bio-formats" rev="${omero.version}" conf="build->build;server->runtime"/><!-- for DBEnumCheck -->
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <!-- Ice -->
     <dependency org="omero" name="omero-shares" rev="${versions.ice}"/>
@@ -31,32 +28,35 @@
     <dependency org="zeroc" name="ice-freeze" rev="${versions.ice}"/>
     <!-- j2ee replacements : jta, jndi, etc. -->
     <dependency org="geronimo-spec" name="geronimo-spec-jta" rev="1.0.1B-rc4"/>
-    <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}"/>
+    <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}" transitive="false"/>
     <!-- Public -->
     <dependency org="batik" name="batik-all" rev="${versions.batik}"/>
     <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
-    <dependency org="commons-pool" name="commons-pool" rev="${versions.commons-pool}"/>
+    <dependency org="commons-pool" name="commons-pool" rev="${versions.commons-pool}">
+        <exclude org="xml-apis"/>
+    </dependency>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
     <dependency org="com.jamonapi" name="jamon" rev="${versions.jamon}"/>
     <dependency org="quartz" name="quartz" rev="${versions.quartz}"/>
-    <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}"/>
+    <dependency org="xerces" name="xercesImpl" rev="${versions.xercesImpl}">
+        <exclude org="xml-apis"/>
+    </dependency>
     <dependency org="xml-apis" name="xml-apis" rev="${versions.xml-apis}"/>
     <dependency org="xml-apis" name="xml-apis-ext" rev="${versions.xml-apis}"/>
-    <dependency org="javax.mail" name="mail" rev="${versions.mail}"/>
-    <dependency org="org.subethamail" name="subethasmtp" rev="${versions.subethasmtp}"/>
-    <dependency org="javax.activation" name="activation" rev="${versions.activation}"/>
-    <dependency org="pdfbox" name="pdfbox" rev="${versions.pdfbox}"/><!--now org.apache.pdfbox -->
-    <dependency org="org.fontbox" name="fontbox" rev="${versions.fontbox}"/>
+    <dependency org="org.subethamail" name="subethasmtp" rev="${versions.subethasmtp}">
+        <exclude org="org.slf4j"/>
+    </dependency>
+    <dependency org="pdfbox" name="pdfbox" rev="${versions.pdfbox}"/>
+    <dependency org="edu.ucar" name="grib" rev="${versions.grib}" transitive="false"/>
+    <dependency org="edu.ucar" name="bufr" rev="${versions.bufr}" transitive="false"/>
+    <dependency org="ome" name="lwf-stubs" rev="${versions.bioformats}" transitive="false"/>
     <!-- spring -->
-    <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0"/>
-    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.context.support" rev="${versions.spring}"/>
-    <dependency org="org.springframework.security" name="spring-security-core" rev="${versions.spring-security}"/>
+    <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}"/>
+    <dependency org="org.springframework" name="spring-context-support" rev="${versions.spring}"/>
     <dependency org="org.springframework.security" name="spring-security-config" rev="${versions.spring-security}"/>
     <dependency org="org.springframework.security" name="spring-security-ldap" rev="${versions.spring-security}"/>
-    <dependency org="org.springframework.ldap" name="spring-ldap" rev="${versions.spring-ldap}-all"/>
   </dependencies>
 </ivy-module>

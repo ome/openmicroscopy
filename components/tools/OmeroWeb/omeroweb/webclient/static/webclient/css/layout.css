@@ -26,7 +26,11 @@
  */
 
 
+    /* jstree */
 
+    #Public .jstree-default ul li ul li.isDisabled a ins{
+        opacity: 0.5;
+    }
 
 
 	/* User Selection */
@@ -299,6 +303,16 @@
 					background-color:#F0F2F5;
                 }
 
+
+    /* Left Panel Tree */
+
+    #tree_details {
+        top:59px;
+        padding:0;
+        padding-top:6px;
+    }
+
+
     .hiddenField {
         display: none;
     }
@@ -545,7 +559,7 @@
 	        color: hsl(210,10%,50%);
 	    }
 
-        #chgrp_split_filesets .split_fileset {
+        .split_filesets_info .split_fileset {
             font-size: 13px;
             line-height: 15px;
         }
@@ -771,6 +785,12 @@
 				
             }
             
+                .lnfiles li input[type=checkbox] {
+                    vertical-align: middle;
+                    margin-top: 1px;
+                    margin-right: 0px;
+                    padding-right: 0px;
+                }
             
                 .lnfiles li>a {
                     text-shadow:0 1px 0 rgba(255,255,255,.4);
@@ -785,6 +805,11 @@
 					        border-radius:inherit; /* Opera 10.5, IE 9 */ 
                 }
                 
+
+                    .lnfiles li.selected {
+                        background:hsl(210,20%,85%)
+                    }
+
                     .lnfiles li a.tooltip span {
                         color:hsl(210,15%,55%);
                     }
@@ -1265,21 +1290,10 @@
 	
 	/* Center Panel Toolbar */  
 	
-	#center_panel_header .toolbar{
-		display:inline-block;
-		border:none;
-		background:none;
-		-webkit-box-shadow:none;
-		
-		-webkit-box-shadow:none; /* Saf3.0+, Chrome */
-		   -moz-box-shadow:none; /* FF3.5+ */
-		        box-shadow:none; /* Opera 10.5, IE 9.0 */
-		
-		position:absolute;
-		right:10px;
-		top:0;
-		background:none;
-		overflow:hidden !important;
+	#content_details .toolbar{
+		border-bottom: solid 1px hsl(210,10%,90%);
+		overflow: hidden;
+		background: none repeat scroll 0 0 #EFF1F4;
 	}
 
 

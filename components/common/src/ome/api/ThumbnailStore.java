@@ -26,7 +26,7 @@ import ome.annotations.Validate;
  * 
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 3.0
  * @since 3.0
  */
 public interface ThumbnailStore extends StatefulServiceInterface {
@@ -58,9 +58,9 @@ public interface ThumbnailStore extends StatefulServiceInterface {
 
     /**
      * This method manages the state of the service; it should be invoked
-     * directly after {@link setPixelsId}. If it is not invoked with a valid
-     * rendering definition ID before using the thumbnail accessor methods
-     * execution continues as if <i>renderingDefId</i> were set to
+     * directly after {@link #setPixelsId(long)}. If it is not invoked with a
+     * valid rendering definition ID before using the thumbnail accessor
+     * methods execution continues as if <i>renderingDefId</i> were set to
      * <code>null</code>.
      * 
      * @param renderingDefId
@@ -74,15 +74,17 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     public void setRenderingDefId(long renderingDefId);
 
     /**
-     * Return the id of the {@link RenderingDef} loaded in this instance.
+     * Return the id of the {@link ome.model.display.RenderingDef} loaded in
+     * this instance.
      */
     public long getRenderingDefId();
 
     /**
      * Retrieves a thumbnail for a pixels set using a given set of rendering
      * settings (RenderingDef). If the thumbnail exists in the on-disk cache 
-     * it will be returned directly, otherwise it will be created as in {@link
-     * #getThumbDirect()}, placed in the on-disk cache and returned.
+     * it will be returned directly, otherwise it will be created as in
+     * {@link #getThumbnailDirect(Integer, Integer)}, placed in the on-disk
+     * cache and returned.
      * 
      * @param sizeX
      *            the X-axis width of the thumbnail. <code>null</code>
@@ -97,20 +99,21 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             <li><i>sizeX</i> is negative</li>
      *             <li><i>sizeY</i> > pixels.sizeY</li>
      *             <li><i>sizeY</i> is negative</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             <li>{@link #setPixelsId(long)} has not yet been called</li>
      *             </ul>
      * @return a JPEG thumbnail byte buffer.
-     * @see getThumbnailDirect()
+     * @see #getThumbnailDirect(Integer, Integer)
      */
     public byte[] getThumbnail(Integer sizeX, Integer sizeY);
     
     /**
      * Retrieves a number of thumbnails for pixels sets using given sets of 
      * rendering settings (RenderingDef). If the thumbnails exist in the 
-     * on-disk cache they will be returned directly, otherwise they will be 
-     * created as in {@link #getThumbDirect()}, placed in the on-disk cache and 
-     * returned. Unlike the other thumbnail retrieval methods, this method 
-     * <b>may</b> be called without first calling {@link #setPixelsId()}.
+     * on-disk cache they will be returned directly, otherwise they will be
+     * created as in {@link #getThumbnailDirect(Integer, Integer)}, placed in
+     * the on-disk cache and returned. Unlike the other thumbnail retrieval
+     * methods, this method <b>may</b> be called without first calling
+     * {@link #setPixelsId(long)}.
      * 
      * @param sizeX
      *            the X-axis width of the thumbnail. <code>null</code>
@@ -123,7 +126,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * thumbnail byte buffers or <code>null</code> if an exception was thrown 
      * while attempting to retrieve the thumbnail for that particular Pixels
      * set.
-     * @see getThumbnail()
+     * @see #getThumbnail(Integer, Integer)
      */
     public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY, 
     		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
@@ -136,7 +139,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * side of the image will be used to calculate the size for the smaller 
      * side in order to keep the aspect ratio of the original image. Unlike the 
      * other thumbnail retrieval methods, this method <b>may</b> be called 
-     * without first calling {@link #setPixelsId()}.
+     * without first calling {@link #setPixelsId(long)}.
      * 
      * @param size
      *            the size of the longest side of the thumbnail requested.
@@ -146,7 +149,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * thumbnail byte buffers or <code>null</code> if an exception was thrown 
      * while attempting to retrieve the thumbnail for that particular Pixels
      * set.
-     * @see getThumbnailSet()
+     * @see #getThumbnailSet(Integer, Integer, Set)
      */
     public Map<Long, byte[]> getThumbnailByLongestSideSet(Integer size,
     		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
@@ -154,10 +157,11 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     /**
      * Retrieves a thumbnail for a pixels set using a given set of rendering
      * settings (RenderingDef). If the thumbnail exists in the on-disk cache it 
-     * will bereturned directly, otherwise it will be created as in {@link
-     * #getThumbDirect()}, placed in the on-disk cache and returned. The 
-     * longest side of the image will be used to calculate the size for the 
-     * smaller side in order to keep the aspect ratio of the original image.
+     * will bereturned directly, otherwise it will be created as in
+     * {@link #getThumbnailDirect(Integer, Integer)}, placed in the on-disk
+     * cache and returned. The longest side of the image will be used to
+     * calculate the size for the smaller side in order to keep the aspect
+     * ratio of the original image.
      * 
      * @param size
      *            the size of the longest side of the thumbnail requested.
@@ -166,10 +170,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             if:
      *             <ul>
      *             <li><i>size</i> > pixels.sizeX and pixels.sizeY</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             <li>{@link #setPixelsId(long)} has not yet been called</li>
      *             </ul>
      * @return a JPEG thumbnail byte buffer.
-     * @see getThumbnail()
+     * @see #getThumbnail(Integer, Integer)
      */
     public byte[] getThumbnailByLongestSide(Integer size);
 
@@ -191,10 +195,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             <li><i>sizeX</i> is negative</li>
      *             <li><i>sizeY</i> > pixels.sizeY</li>
      *             <li><i>sizeY</i> is negative</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             <li>{@link #setPixelsId(long)} has not yet been called</li>
      *             </ul>
      * @return a JPEG thumbnail byte buffer.
-     * @see getThumbnail()
+     * @see #getThumbnail(Integer, Integer)
      */
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY);
     
@@ -220,10 +224,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             <li><i>sizeY</i> is negative</li>
      *             <li><i>theZ</i> is out of range</li>
      *             <li><i>theT</i> is out of range</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             <li>{@link #setPixelsId(long)} has not yet been called</li>
      *             </ul>
      * @return a JPEG thumbnail byte buffer.
-     * @see getThumbnail()
+     * @see #getThumbnail(Integer, Integer)
      */
     public byte[] getThumbnailForSectionDirect(int theZ, int theT,
                                                Integer sizeX, Integer sizeY);
@@ -242,10 +246,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             if:
      *             <ul>
      *             <li><i>size</i> > pixels.sizeX and pixels.sizeY</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             <li>{@link #setPixelsId(long)} has not yet been called</li>
      *             </ul>
      * @return a JPEG thumbnail byte buffer.
-     * @see getThumbnailDirect()
+     * @see #getThumbnailDirect(Integer, Integer)
      */
     public byte[] getThumbnailByLongestSideDirect(Integer size);
     
@@ -265,10 +269,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             if:
      *             <ul>
      *             <li><i>size</i> > pixels.sizeX and pixels.sizeY</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             <li>{@link #setPixelsId(long)} has not yet been called</li>
      *             </ul>
      * @return a JPEG thumbnail byte buffer.
-     * @see getThumbnailDirect()
+     * @see #getThumbnailDirect(Integer, Integer)
      */
     public byte[] getThumbnailForSectionByLongestSideDirect(int theZ, int theT,
                                                             Integer size);
@@ -290,10 +294,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             <li><i>sizeX</i> is negative</li>
      *             <li><i>sizeY</i> > pixels.sizeY</li>
      *             <li><i>sizeY</i> is negative</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             <li>{@link #setPixelsId(long)} has not yet been called</li>
      *             </ul>
-     * @see getThumb()
-     * @see getThumbDirect()
+     * @see #getThumbnail(Integer, Integer)
+     * @see #getThumbnailDirect(Integer, Integer)
      */
     public void createThumbnail(Integer sizeX, Integer sizeY);
     
@@ -301,7 +305,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * Creates thumbnails for a number of pixels sets using a given set of 
      * rendering settings (RenderingDef) in the on-disk cache. Unlike the 
      * other thumbnail creation methods, this method <b>may</b> be called 
-     * without first calling {@link #setPixelsId()}. This method <b>will not</b>
+     * without first calling {@link #setPixelsId(long)}. This method <b>will not</b>
      * reset or modify rendering settings in any way. If rendering settings for
      * a pixels set are not present, thumbnail creation for that pixels set
      * <b>will not</b> be performed.
@@ -316,8 +320,8 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             <li><i>size</i> > pixels.sizeX and pixels.sizeY</li>
      *             <li><i>size</i> is negative</li>
      *             </ul>
-     * @see createThumbnail()
-     * @see createThumbnails()
+     * @see #createThumbnail(Integer, Integer)
+     * @see #createThumbnails()
      */
     public void createThumbnailsByLongestSideSet(Integer size, 
     		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
@@ -327,8 +331,8 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * settings (RenderingDef) in the on-disk cache for <b>every</b>
      * sizeX/sizeY combination already cached.
      * 
-     * @see getThumb()
-     * @see getThumbDirect()
+     * @see #getThumbnail(Integer, Integer)
+     * @see #getThumbnailDirect(Integer, Integer)
      */
     public void createThumbnails();
 
@@ -346,10 +350,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *             <ul>
      *             <li><i>sizeX</i> is negative</li>
      *             <li><i>sizeY</i> is negative</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             <li>{@link #setPixelsId(long)} has not yet been called</li>
      *             </ul>
-     * @see getThumb()
-     * @see getThumbDirect()
+     * @see #getThumbnail(Integer, Integer)
+     * @see #getThumbnailDirect(Integer, Integer)
      */
     public boolean thumbnailExists(Integer sizeX, Integer sizeY);
     

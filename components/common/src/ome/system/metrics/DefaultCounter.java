@@ -46,7 +46,7 @@ public class DefaultCounter implements Counter {
     }
 
     /**
-     * @see com.codahale.metrics.Counter#dec()}
+     * @see com.codahale.metrics.Counter#dec()
      */
     public void dec() {
         c.dec();

@@ -24,50 +24,46 @@
 package org.openmicroscopy.shoola.agents.events.measurement;
 
 
-//Java imports
 import java.util.Arrays;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * Turns the specified channel on. 
+ * Turns the specified channel on.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class SelectChannel 
-	extends RequestEvent
+public class SelectChannel
+extends RequestEvent
 {
 
-	/** The ID of the pixels set. */
+    /** The ID of the pixels set. */
     private long pixelsID;
-    
+
     /** The channel to turn on if the value is set.*/
     private List<Integer> channels;
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param pixelsID The pixels set ID.
-     * @param channel The channel to turn on.
+     * @param channels The channels to turn on.
      */
     public SelectChannel(long pixelsID, List<Integer> channels)
     {
         if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");
-      
+
         this.pixelsID = pixelsID;
         this.channels = channels;
     }
-    
+
     /**
      * Creates a new instance.
-     * 
+     *
      * @param pixelsID The pixels set ID.
      * @param channel The channel to turn on.
      */
@@ -75,24 +71,23 @@ public class SelectChannel
     {
         if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");
-      
+
         this.pixelsID = pixelsID;
         this.channels = Arrays.asList(channel);
     }
-    
+
     /**
      * Returns the channels.
-     * 
+     *
      * @return See above.
      */
     public List<Integer> getChannels() { return channels; }
-    
+
     /**
      * Returns the pixels set ID.
      * 
-     * @return See above. 
+     * @return See above.
      */
     public long getPixelsID() { return pixelsID; }
-
 
 }

@@ -71,7 +71,7 @@
                     },
                     success: function(html) {
                         $("#comment_spinner").hide();
-                        var $comment = $(html)
+                        var $comment = $($.trim(html));
                         $('#comments_container').prepend( $comment ).show();
                         $(".removeComment", $comment).hide();
                         var textArea = $('#add_comment_form textarea');
@@ -140,7 +140,7 @@
                     success: function(data) {
                         $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the list of tags
-                        var $tag = $(data);
+                        var $tag = $($.trim(data));
                         $tag.filter(".tag_annotation_wrapper").each(function(){
                             $("#"+$(this).attr("id")).remove();     // if this Tag already exists, remove it
                             $("#tags_container").prepend( this ).show();
@@ -168,7 +168,7 @@
                     success: function(data) {
                         $("#fileann_spinner").hide();
                         // update the list of file annotations and hide actions
-                        var $fileanns = $(data);
+                        var $fileanns = $($.trim(data));
                         $fileanns.filter(".file_ann_wrapper").each(function(){
                             $("#"+$(this).attr("id")).remove();     // if this File already exists, remove it
                             $("#fileanns_container").prepend( this ).show();
@@ -184,6 +184,7 @@
                         });
                         show_batch_msg("File Annotation(s) added to Objects");
                         OME.filterAnnotationsAddedBy();
+                        OME.fileAnnotationCheckboxDynamicallyAdded();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
@@ -308,7 +309,11 @@
                         // update summary
                         $("#ratingsAverage").text(data.average);
                         $("#ratingsCount").text(data.count);
-                        $("#ratingsSummary").show();
+                        if (data.count > 0) {
+                            $("#ratingsSummary").show();
+                        } else {
+                            $("#ratingsSummary").hide();
+                        }
                     });
                 }
 
@@ -450,6 +455,20 @@
             <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
                 <span></span>
             </a>
+            <div class="toolbar">
+                <input type="button" title="Select Files for Scripts"
+                    class="btn silver btn_script_dark">
+                <!-- Class "scriptButton" also on <span> as that
+                     is actually what we're clicking on.
+                -->
+                <span class="scriptButton"></span>
+            </div>
+            <script type="text/javascript">
+                $(".annotations_section .scriptButton").click(
+                    {webindex: "{% url 'webindex' %}"},
+                    OME.showScriptList
+                );
+            </script>
         {% endif %}
 			
 			
@@ -460,7 +479,15 @@
             <ul id="fileanns_container" class="lnfiles">
                 {% include "webclient/annotations/fileanns.html" %}
             </ul>
-
+            <script type="text/javascript">
+                $(".annotations_section .toolbar input[type=button]").click(
+                    OME.toggleFileAnnotationCheckboxes
+                );
+                $("#fileanns_container").on(
+                    "change", "li input[type=checkbox]",
+                    OME.fileAnnotationCheckboxChanged
+                );
+            </script>
 	</div>
 	
 

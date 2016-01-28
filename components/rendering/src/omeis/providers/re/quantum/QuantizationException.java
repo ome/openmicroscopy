@@ -7,12 +7,6 @@
 
 package omeis.providers.re.quantum;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * This exception is thrown during the quantization process if something goes
  * wrong. For example, quantization strategies that depend on an interval

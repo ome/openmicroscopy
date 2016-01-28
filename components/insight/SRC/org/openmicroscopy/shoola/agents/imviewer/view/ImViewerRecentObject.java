@@ -31,7 +31,7 @@ import javax.swing.ImageIcon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 /** 
  * Utility class where details about a recenlty viewed image are stored.

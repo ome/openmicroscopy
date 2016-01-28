@@ -21,7 +21,6 @@
 package org.openmicroscopy.shoola.util.ui;
 
 
-//Java imports
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -269,7 +268,7 @@ public class ScrollablePopupMenu
         /**
          * Required by the {@link LayoutManager} I/F but no-operation in
          * our case.
-         * @see LayoutManager#removeLayoutComponent(String, Component)
+         * @see LayoutManager#removeLayoutComponent(Component)
          */
         public void removeLayoutComponent(Component comp) {}
 

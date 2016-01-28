@@ -13,6 +13,8 @@ import time
 import library as lib
 import pytest
 import omero
+import Glacier2
+
 from omero.rtypes import rtime, rlong, rlist
 from omero.gateway import BlitzGateway
 
@@ -982,6 +984,56 @@ class TestIShare(lib.ITest):
             assert image2.id.val == rv.id.val
         finally:
             user_client.__del__()
+
+    def test13018(self):
+        """
+        Test that image in share is unavailable when share
+        is inactive or expired
+        """
+        owner = self.new_client()
+        member, mobj = self.new_client_and_user()
+
+        createTestImage(owner.sf)
+        image = owner.sf.getQueryService().findAll("Image", None)[0]
+
+        o_share = owner.sf.getShareService()
+        sid = o_share.createShare("", None, [image], [mobj], [], True)
+
+        m_share = member.sf.getShareService()
+        m_share.activate(sid)
+
+        o_share.setActive(sid, False)
+        with pytest.raises(omero.ValidationException):
+            m_share.activate(sid)
+
+        with pytest.raises(omero.ValidationException):
+            obj = omero.model.ShareI(sid, False)
+            member.sf.setSecurityContext(obj)
+
+        # test inactive share, if member has no access to the image
+        s = o_share.getShare(sid)
+        with pytest.raises(Glacier2.PermissionDeniedException):
+            self.new_client(session=s.uuid)
+
+        # activate again
+        o_share.setActive(sid, True)
+
+        # test that the image is now loadable again.
+        t_conn = self.new_client(session=s.uuid)
+        t_conn.sf.getQueryService().find("Image", image.id.val)
+
+        # test expired share, if member has no access to the image
+        expiration = long(time.time() * 1000) + 500
+        o_share.setExpiration(sid, rtime(expiration))
+        self.assert_expiration(expiration, o_share.getShare(sid))
+        time.sleep(0.5)
+
+        # Forced closing
+        o_session = owner.sf.getSessionService()
+        o_session.closeSession(o_share.getShare(sid))
+
+        with pytest.raises(Glacier2.PermissionDeniedException):
+            self.new_client(session=s.uuid)
 
     # Helpers
 

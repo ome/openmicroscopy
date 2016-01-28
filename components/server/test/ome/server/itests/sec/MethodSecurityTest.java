@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.server.itests.sec;
 
 import java.util.List;
@@ -14,8 +13,6 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
-import ome.util.checksum.ChecksumProvider;
-import ome.util.checksum.ChecksumProviderFactory;
 
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;

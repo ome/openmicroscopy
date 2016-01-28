@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.ImageDataView
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -20,23 +18,15 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.views;
 
 
-
-//Java imports
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
-import pojos.WorkflowData;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -45,15 +35,16 @@ import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
-import pojos.DataObject;
-import pojos.PixelsData;
-import pojos.ROIData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.ROIData;
 
 /** 
  * Provides methods to support image viewing and analyzing.
@@ -65,9 +56,6 @@ import pojos.ROIData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public interface ImageDataView
@@ -111,7 +99,7 @@ public interface ImageDataView
      * @param ctx The security context.
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render.
-	 * @param largeImae Pass <code>true</code> to render a large image,
+	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @param compression The compression level used.
      * @param observer  Call-back handler.
@@ -140,11 +128,12 @@ public interface ImageDataView
      * 					Mustn't be <code>null</code>.
      * @param shapes	Collection of shapes to analyze. 
      * 					Mustn't be <code>null</code>.
+     * @param plane     The plane to analyze the shapes for, can be <code>null</code>
      * @param observer	Call-back handler.
      * @return See above.
      */
     public CallHandle analyseShapes(SecurityContext ctx, PixelsData pixels,
-    		Collection channels, List shapes, AgentEventListener observer);
+    		Collection channels, List shapes, Coord3D plane, AgentEventListener observer);
     
     /**
      * Retrieves all the rendering settings associated to a given set of pixels.
@@ -276,11 +265,9 @@ public interface ImageDataView
 	/**
 	 * Imports the collection of images into the specified container.
 	 *  
-	 * @param context   The container where to import the images into or 
-	 * 					<code>null</code>.
-	 * @param userID	The id of the user.
-	 * @param groupID	The id of the group.
-	 * @param observer	Call-back handler.
+	 * @param context The container where to import the images into or 
+	 *                 <code>null</code>.
+	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle importFiles(ImportableObject context,
@@ -393,13 +380,13 @@ public interface ImageDataView
 	 * Loads the ROI if possible from the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param imageID 	The image's id.
-	 * @param userID	The user's id.
-	 * @param observer	Call-back handler.
+	 * @param imageID The image's id.
+	 * @param userID The user's id.
+	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle loadROIFromServer(SecurityContext ctx, long imageID,
-			long userID, AgentEventListener serverSideROILoader);
+			long userID, AgentEventListener observer);
 	
 	/**
 	 * Renders the image with the overlays if the passed map is not 
@@ -440,29 +427,6 @@ public interface ImageDataView
 	public CallHandle uploadScript(SecurityContext ctx, ScriptObject script,
 			AgentEventListener observer);
 
-	/**
-	 * Retrieve the users workflows.
-	 * 
-	 * @param ctx The security context.
-	 * @param userID id of the user whose workflows are to be retrieved.
-	 * @param observer Call-back handler.
-	 * @return See above.
-	 */
-	public CallHandle retrieveWorkflows(SecurityContext ctx, long userID,
-			AgentEventListener observer);
-	
-	/**
-	 * Stores the newly created  workflows.
-	 * 
-	 * @param ctx The security context.
-	 * @param workflows The new workflows.
-	 * @param userID id of the user whose workflows are to be retrieved.
-	 * @param observer Call-back handler.
-	 * @return See above.
-	 */
-	public CallHandle storeWorkflows(SecurityContext ctx, 
-		List<WorkflowData> workflows, long userID, AgentEventListener observer);
-	
 	/**
 	 * Saves the images in the specified folder as JPEG by default.
 	 * 

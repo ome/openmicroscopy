@@ -4,6 +4,7 @@
  *
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.formats;
 
 import java.text.Collator;
@@ -17,7 +18,6 @@ import ome.util.LSID;
 import omero.model.DetectorSettings;
 import omero.model.IObject;
 import omero.model.LightPath;
-import omero.model.LightSettings;
 import omero.model.ObjectiveSettings;
 import omero.model.Pixels;
 
@@ -96,7 +96,7 @@ public class OMEXMLModelComparator implements Comparator<LSID>
      * Assigns a value to a particular class based on its location in the
      * OME-XML hierarchy.
      * @param klass Class to assign a value to.
-     * @param indexed Number of class indexes that were present in its LSID.
+     * @param indexes Number of class indexes that were present in its LSID.
      * @return The value.
      */
     public int getValue(Class<? extends IObject> klass, int indexes)

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -85,7 +83,6 @@ import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
 import omero.api._ServiceFactoryOperations;
-import omero.api._StatefulServiceInterfaceOperations;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CONFIGSERVICE;
 import omero.constants.CONTAINERSERVICE;

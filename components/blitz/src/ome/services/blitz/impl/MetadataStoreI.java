@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -34,7 +32,6 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.roi.PopulateRoiJob;
 import ome.services.throttling.Adapter;
 import ome.services.util.Executor;
-import ome.services.util.Executor.SimpleWork;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
@@ -53,10 +50,7 @@ import omero.api.AMD_MetadataStore_saveToDB;
 import omero.api.AMD_MetadataStore_setPixelsFile;
 import omero.api.AMD_MetadataStore_updateObjects;
 import omero.api.AMD_MetadataStore_updateReferences;
-import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
-import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._MetadataStoreOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.SharedResourcesPrx;
@@ -68,14 +62,10 @@ import omero.util.IceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
-import Ice.UserException;
 
-/**
- */
 public class MetadataStoreI extends AbstractCloseableAmdServant implements
         _MetadataStoreOperations, ServiceFactoryAware, BlitzOnly {
 
@@ -269,9 +259,9 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
                     }
                 }));
     }
-    
+
     /**
-     * Called after some number of Passes the {@link #savedPixels} to a
+     * Called after some number of Passes the {@link #savedPlates} to a
      * background processor for further work. This happens on
      * {@link #close_async(AMD_StatefulServiceInterface_close, Current)} since
      * no further pixels can be created, but also on
@@ -300,12 +290,11 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
                             if (copy.size() == 0) {
                                 return null;
                             }
-                            
                             for (Long id : copy) {
                                 
                                 RMap inputs = omero.rtypes.rmap("Plate_ID",
                                         omero.rtypes.rlong(id));
-                                
+
                                 ScriptJob job = popRoi.createJob(_sf);
                                 InteractiveProcessorPrx prx;
                                 try {
@@ -320,9 +309,7 @@ public class MetadataStoreI extends AbstractCloseableAmdServant implements
                                     log.error(msg, e);
                                     throw new InternalException(msg);
                                 }
-                            
                             }
-                            
                             savedPlates.clear();
                             return procs;
                         }

@@ -20,11 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
-
-
-//Java imports
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,13 +36,10 @@ import java.util.Map.Entry;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
-//Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationField;
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITreeNode;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -61,10 +56,6 @@ import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
 * @since OME3.0
 */
 public class ROITreeTable 

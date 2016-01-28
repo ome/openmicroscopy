@@ -31,12 +31,12 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  */
 public class SearchEvent extends RequestEvent {
 
-    /** The search query, i. e. terms */
+    /** The search query, i.e. terms */
     private String query;
 
     /**
      * Creates a new instance
-     * @param query
+     * @param query The query.
      */
     public SearchEvent(String query) {
         this.query = query;
@@ -44,7 +44,7 @@ public class SearchEvent extends RequestEvent {
 
     /**
      * Get the query to perform search with
-     * @return
+     * @return See above.
      */
     public String getQuery() {
         return query;
@@ -52,11 +52,10 @@ public class SearchEvent extends RequestEvent {
 
     /**
      * Set the query for the search
-     * @param query
+     * @param query The query.
      */
     public void setQuery(String query) {
         this.query = query;
     }
-            
     
 }

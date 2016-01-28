@@ -21,13 +21,8 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package training;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /**
  * Helper class hosting the configuration information.

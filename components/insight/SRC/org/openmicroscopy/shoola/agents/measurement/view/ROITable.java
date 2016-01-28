@@ -831,5 +831,14 @@ public class ROITable
 		}
 		return "";
 	}
+
+	/** 
+     * Loads the tags. 
+     * 
+     *  @see ROIActionController#loadTags()
+     */
+    public void loadTags() {
+        manager.loadTags();
+    }
 }
 

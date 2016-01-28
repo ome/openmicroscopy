@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.util.StructuredDataResults 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,24 +21,20 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-//Java imports
 import java.util.Collection;
 import java.util.Map;
 
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import pojos.AnnotationData;
-import pojos.DataObject;
-import pojos.FileAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.RatingAnnotationData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * Helper class storing the various data related to a given object.
@@ -50,9 +44,6 @@ import pojos.XMLAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class StructuredDataResults
@@ -291,7 +282,7 @@ public class StructuredDataResults
 	/**
 	 * Sets the collections of annotations.
 	 * 
-	 * @param terms The value to set.
+	 * @param otherAnnotation The value to set.
 	 */
 	public void setOtherAnnotation(Collection<AnnotationData> otherAnnotation)
 	{ 
@@ -325,7 +316,7 @@ public class StructuredDataResults
 	/**
 	 * Sets the collection.
 	 * 
-	 * @param links The collection to set.
+	 * @param annotationLinks The collection to set.
 	 */
 	public void setAnnotationLinks(Collection<AnnotationLinkData> annotationLinks)
 	{
@@ -363,11 +354,11 @@ public class StructuredDataResults
 	/**
 	 * Sets the collection of {@link MapAnnotationData}.
 	 * 
-	 * @return See above.
+	 * @param mapAnnotations The value to set.
 	 */
-	public void setMapAnnotations(Collection<MapAnnotationData> mapAnnotations) {
+	public void setMapAnnotations(Collection<MapAnnotationData> mapAnnotations)
+	{
 		this.mapAnnotations = mapAnnotations;
 	}
-	
-	
+
 }

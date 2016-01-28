@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.test.mock;
 
 import java.lang.reflect.Array;
@@ -18,17 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.services.blitz.test.mock.MockFixture;
-import ome.system.Roles;
 import omero.api.IScriptPrx;
 import omero.api.ServiceFactoryPrx;
-import omero.api.ServiceFactoryPrxHelper;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.builder.ArgumentsMatchBuilder;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import Ice.ObjectPrxHelperBase;

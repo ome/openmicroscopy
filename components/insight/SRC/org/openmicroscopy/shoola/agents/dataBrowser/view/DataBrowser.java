@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
-
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -32,9 +28,6 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
@@ -42,13 +35,16 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.SecurityContext;
+import omero.gateway.model.TableResult;
+
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.DataObject;
-import pojos.ExperimenterData;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
 
 
 /** 
@@ -86,9 +82,6 @@ import pojos.ExperimenterData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface DataBrowser
@@ -367,7 +360,7 @@ public interface DataBrowser
 	 * Sets the collection of selected nodes.
 	 * 
 	 * @param nodes 		The selected nodes.
-	 * @param applciations 	The external applications previously used
+	 * @param applications 	The external applications previously used
 	 * 						to open the selected document
 	 */
 	public void setSelectedNodes(List<DataObject> nodes, List<ApplicationData>
@@ -444,7 +437,6 @@ public interface DataBrowser
      * @param description 	Textual description of the ongoing operation.
      * @param perc 			Percentage of the total work done.  
      * 						If negative, it is interpreted as not available.
-     * @see org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader
      */
     public void setSlideViewStatus(String description, int perc);
     
@@ -453,7 +445,6 @@ public interface DataBrowser
      * 
      * @param imageID The id of the image to which the thumbnail belongs.
      * @param thumb The thumbnail pixels.
-     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
      */
     public void setSlideViewImage(long imageID, BufferedImage thumb);
 
@@ -461,9 +452,6 @@ public interface DataBrowser
      * Creates a new data object containing the displayed nodes.
      * 
      * @param data 			The object to create.
-     * @param visibleNodes 	Pass <code>true</code> to add the visible nodes
-     * 						to the newly created <code>DataObject</code>,
-     * 						<code>false</code> to add the selected nodes.
      */
 	public void createDataObject(DataObject data);
 

@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui.slider;
 
-//Java imports
 import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -36,9 +35,6 @@ import javax.swing.JComponent;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -51,9 +47,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
 * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
 * @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
 * @since OME2.2
 */
 public class OneKnobSliderUI
@@ -565,8 +558,7 @@ public class OneKnobSliderUI
 		/**
 		 * Overridden to determine when a drag event ends. 
 		 * This method will also determine when the tool tip Dialog should 
-		 * stop showing. 
-		 * @see TrackListener#mouseReleased(MouseEvent)
+		 * stop showing.
 		 */
 		public void mouseReleased(MouseEvent event)
 		{
@@ -652,7 +644,6 @@ public class OneKnobSliderUI
 
 		/**
 		 * Overloaded the <code>mousePressed</code> event in the TrackListener.
-		 * @see TrackListener#mousePressed(MouseEvent)
 		 */
 		public void mousePressed(MouseEvent event) 
 		{
@@ -716,7 +707,6 @@ public class OneKnobSliderUI
 		 * as this method relied on the private member of isDragged in sliderUI.
 		 * Has to override this as we could not set the isDragging variable in
 		 * the basicSliderUI. :-( *Why private??!*
-		 * @see TrackListener#mouseDragged(MouseEvent) 
 		 */
 		public void mouseDragged(MouseEvent event) 
 		{

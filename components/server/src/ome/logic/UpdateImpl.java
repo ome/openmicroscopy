@@ -245,7 +245,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     /**
      * Note if we use anything other than merge here, functionality from
-     * {@link ome.tools.hibernate.MergeEventListener} needs to be moved to
+     * {@link ome.security.basic.MergeEventListener} needs to be moved to
      * {@link UpdateFilter} or to another event listener.
      */
     protected Long internalSave(IObject obj, ReloadFilter filter,
@@ -261,7 +261,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     /**
      * Note if we use anything other than merge here, functionality from
-     * {@link ome.tools.hibernate.MergeEventListener} needs to be moved to
+     * {@link ome.security.basic.MergeEventListener} needs to be moved to
      * {@link UpdateFilter} or to another event listener.
      */
     protected IObject internalMerge(IObject obj, UpdateFilter filter,
@@ -297,13 +297,11 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     }
 
-    @SuppressWarnings("unchecked")
     private <T> T doAction(final T graph, final UpdateAction<T> action) {
         final UpdateFilter filter = new UpdateFilter();
         return doAction(graph, filter, action);
     }
 
-    @SuppressWarnings("unchecked")
     private <T> T doAction(final T graph, final UpdateFilter filter,
             final UpdateAction<T> action) {
         final Session session = session();

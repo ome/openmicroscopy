@@ -10,6 +10,9 @@ function xa = writeXmlAnnotation(session, xml, varargin)
 %    xa = writeXmlAnnotation(session, xml, 'namespace', namespace) also
 %    sets the namespace of the XML annotation.
 %
+%    xa = writeXmlAnnotation(session, xml, 'group', groupid) also
+%    sets the group.
+%
 %    Examples:
 %
 %        xa = writeXmlAnnotation(session, xml)

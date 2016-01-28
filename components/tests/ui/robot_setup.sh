@@ -5,18 +5,20 @@ set -e
 set -u
 set -x
 
+now=$(date +"%s")
+
 HOSTNAME=${HOSTNAME:-localhost}
 PORT=${PORT:-4064}
 ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
-GROUP_NAME=${GROUP_NAME:-robot_group}
+GROUP_NAME=${GROUP_NAME:-robot_group}-$now
 GROUP_PERMS=${GROUP_PERMS:-rwra--}
-GROUP_NAME_2=${GROUP_NAME_2:-robot_group_2}
-USER_NAME=${USER_NAME:-robot_user}
+GROUP_NAME_2=${GROUP_NAME_2:-robot_group_2}-$now
+USER_NAME=${USER_NAME:-robot_user}-$now
 USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-robot_ice.config}
 IMAGE_NAME=${IMAGE_NAME:-test&sizeZ=3&sizeT=10.fake}
 TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test.fake}
-PLATE_NAME=${PLATE_NAME:-SPW&plates=1&plateRows=1&plateCols=2&fields=1&plateAcqs=1.fake}
+PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake}
 BULK_ANNOTATION_CSV=${BULK_ANNOTATION_CSV:-bulk_annotation.csv}
 
 # Create robot user and group
@@ -44,7 +46,7 @@ key=$(grep omero.sess $(bin/omero sessions file) | cut -d= -f2)
 echo "Session key: $key"
 nProjects=1
 nDatasets=1
-nImages=2
+nImages=10
 echo "Creating projects and datasets"
 for (( i=1; i<=$nProjects; i++ ))
 do
@@ -63,7 +65,7 @@ done
 
 # Create Dataset with images for deleting
 delDs=$(bin/omero obj new Dataset name='Delete')
-for (( k=1; k<=5; k++ ))
+for (( k=1; k<=10; k++ ))
 do
   bin/omero import -d $delDs $TINY_IMAGE_NAME --debug ERROR
 done
@@ -74,6 +76,19 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Use populate_metadata to upload and attach bulk annotation csv
 PYTHONPATH=$PYTHONPATH:lib/python
 python lib/python/omero/util/populate_metadata.py -k $key Plate:$plateid $BULK_ANNOTATION_CSV
+
+# Create Screen with empty plates for Create Scenario
+scrDs=$(bin/omero obj new Screen name='CreateScenario')
+for (( k=1; k<=6; k++ ))
+do
+  bin/omero import -r $scrDs $PLATE_NAME --debug ERROR
+done
+
+# Create Orphaned Images for Create Scenario
+for (( k=1; k<=10; k++ ))
+do
+  bin/omero import $TINY_IMAGE_NAME --debug ERROR
+done
 
 # Logout
 bin/omero logout

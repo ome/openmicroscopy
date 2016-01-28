@@ -19,7 +19,6 @@ import ome.security.ACLVoter;
 import ome.security.SecuritySystem;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
-import ome.security.basic.CurrentDetails;
 import ome.services.mail.MailUtil;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -36,9 +35,6 @@ import omero.cmd._HandleTie;
 import omero.cmd.graphs.GraphRequestFactory;
 import omero.sys.ParametersI;
 
-
-/**
- */
 public class AbstractGraphTest extends AbstractServantTest {
 
     Mock adapterMock;

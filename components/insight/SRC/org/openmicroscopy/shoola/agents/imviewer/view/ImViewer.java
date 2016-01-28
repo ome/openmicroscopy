@@ -1,10 +1,9 @@
-/* * org.openmicroscopy.shoola.agents.iviewer.view.ImViewer
- *
+/*
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
@@ -38,16 +35,17 @@ import javax.swing.JFrame;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.model.Length;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -65,9 +63,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 public interface ImViewer
@@ -270,9 +265,12 @@ public interface ImViewer
 	 * 
 	 * @param settings The settings set by another user.
 	 * @param userID   The id of the user who set the settings.
-	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
+	 * @param displayMode The mode used.
+	 * @param selectedSettingsID Settings used
+	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.
 	 */
-	public void activate(RndProxyDef settings, long userID, int displayMode);
+	public void activate(RndProxyDef settings, long userID, int displayMode,
+	        long selectedSettingsID);
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -379,7 +377,6 @@ public interface ImViewer
 	 * @param index    The index of the channel.
 	 * @param selected Pass <code>true</code> to select the channel,
 	 *                 <code>false</code> otherwise.
-	 * @param render   Pass <code>true</code>
 	 */
 	public void setChannelSelection(int index, boolean selected);
 
@@ -459,7 +456,7 @@ public interface ImViewer
 	 * 					 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public List getImageComponents(String colorModel, boolean includROI);
+	public List getImageComponents(String colorModel, boolean includeROI);
 
 	/**
 	 * Returns the image currently displayed.
@@ -478,25 +475,25 @@ public interface ImViewer
 	public int getDefaultT();
 
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeX();
+	public Length getPixelsSizeX();
 
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeY();
+	public Length getPixelsSizeY();
 
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	public double getPixelsSizeZ();
+	public Length getPixelsSizeZ();
 
 	/**
 	 * Returns the title of the viewer.
@@ -623,8 +620,7 @@ public interface ImViewer
 
 	/**
 	 * Returns the index of the selected tabbed pane.
-	 * One out of the following list: {@link #VIEW_INDEX}, 
-	 * {@link #ANNOTATOR_INDEX} or {@link #GRID_INDEX}.
+	 * One of the constants defined by this class.
 	 * 
 	 * @return See above.
 	 */
@@ -1022,13 +1018,6 @@ public interface ImViewer
 
 	/** Loads all the datasets available. */
 	public void loadAllContainers();
-	
-	/**
-	 * Returns the unit in microns.
-	 * 
-	 * @return See above.
-	 */
-	public double getUnitInRefUnits();
 
 	/** Makes a movie. */
 	public void makeMovie();
@@ -1112,6 +1101,14 @@ public interface ImViewer
 	 */
 	public boolean isBigImage();
 
+	/**
+     * Checks if the image can be exported, i. e. it does not exceed the maximum
+     * size for being able to get exported as jpg, png or tif
+     * 
+     * @return See above
+     */
+	public boolean isExportable();
+	
 	/** Refreshes the view. */
 	public void refresh();
 
@@ -1254,8 +1251,7 @@ public interface ImViewer
 	void onUpdatedChannels(List<ChannelData> channels);
 
 	/** 
-	 * Returns the display mode. One of the constants defined by 
-	 * {@link LookupNames}.
+	 * Returns the display mode.
 	 * 
 	 * @return See above.
 	 */
@@ -1308,30 +1304,31 @@ public interface ImViewer
     /**
      * Reloads the 'saved by' thumbnails of the the rendering panel
      */
-    public void reloadRenderingThumbs();
+    void reloadRenderingThumbs();
     
     /**
      * Returns if interpolation is enabled or not
-     * @return
+     * @return See above.
      */
-    public boolean isInterpolation();
+    boolean isInterpolation();
 
     /**
      * En-/Disables interpolation
      * 
      * @param interpolation
      */
-    public void setInterpolation(boolean interpolation);
+    void setInterpolation(boolean interpolation);
     
     /**
      * Set the {@link ImageAcquisitionData}
      * @param data The {@link ImageAcquisitionData}
      */
-    public void setImageAcquisitionData(ImageAcquisitionData data);
+    void setImageAcquisitionData(ImageAcquisitionData data);
     
     /**
      * Get the {@link ImageAcquisitionData}
      * @return See above
      */
-    public ImageAcquisitionData getImageAcquisitionData();
+    ImageAcquisitionData getImageAcquisitionData();
+
 }

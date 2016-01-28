@@ -18,7 +18,7 @@ module omero {
 
     module api {
         /**
-         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/IMetadata.html">IMetadata.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.2/api/ome/api/IMetadata.html">IMetadata.html</a>
          **/
         ["ami", "amd"] interface IMetadata extends ServiceInterface
             {

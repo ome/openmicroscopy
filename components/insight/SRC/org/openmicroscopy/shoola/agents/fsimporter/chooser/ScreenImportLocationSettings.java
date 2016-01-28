@@ -24,8 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
-import pojos.ExperimenterData;
-import pojos.GroupData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.GroupData;
 
 /** 
  * Provides cohesion of the import settings when importing screen data.

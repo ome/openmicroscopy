@@ -23,14 +23,9 @@
 package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
@@ -41,9 +36,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public class MeasurementObject
@@ -58,7 +50,7 @@ public class MeasurementObject
 	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param The object of reference.
+	 * @param reference The object of reference.
 	 */
 	public MeasurementObject(ROIShape reference)
 	{

@@ -7,7 +7,6 @@
 
 package ome.dsl;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,17 +19,13 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * represents a SemanticType <b>definition</b>.
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
+ * @version 3.0
  * @since OMERO-3.0
  */
 public abstract class SemanticType {
@@ -88,7 +83,7 @@ public abstract class SemanticType {
     /**
      * Database profile, i.e. ${omero.db.profile}.
      *
-     * @see "ticket:73"
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/73">ticket 73</a>
      */
     public final String profile;
 

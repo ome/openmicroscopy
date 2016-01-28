@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ThumbnailData
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,16 +21,11 @@
 
 package org.openmicroscopy.shoola.env.data.model;
 
-
-//Java imports
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 
-//Third-party libraries
-
-//Application-internal dependencies
-import pojos.ImageData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Holds a {@link BufferedImage} serving as a thumbnail for a given <i>OME</i>
@@ -44,9 +37,6 @@ import pojos.ImageData;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public class ThumbnailData
@@ -72,7 +62,7 @@ public class ThumbnailData
     private Boolean			requirePyramid;
     
     /** The object of reference. */
-    private pojos.DataObject refObject;
+    private omero.gateway.model.DataObject refObject;
     
     /** 
      * Exception if not possible to create the object. This should
@@ -127,7 +117,7 @@ public class ThumbnailData
      * @param validImage Passed <code>true</code> if it is a valid image, 
      * <code>false</code> otherwise.
      */
-    public ThumbnailData(pojos.DataObject refOjbect, BufferedImage thumbnail,
+    public ThumbnailData(omero.gateway.model.DataObject refOjbect, BufferedImage thumbnail,
     		boolean validImage)
     {
     	  if (refOjbect == null)
@@ -147,7 +137,7 @@ public class ThumbnailData
      * @param requirePyramid Pass <code>true</code> if a pyramid is required,
      * 						<code>false</code> otherwise.
      */
-    public ThumbnailData(pojos.DataObject refOjbect, Boolean requirePyramid)
+    public ThumbnailData(omero.gateway.model.DataObject refOjbect, Boolean requirePyramid)
     {
         this(refOjbect, null, false);
         this.requirePyramid = requirePyramid;
@@ -159,7 +149,7 @@ public class ThumbnailData
      * @param refOjbect The object of reference. Mustn't be <code>null</code>.
      * @param thumbnail The thumbnail pixels. Mustn't be <code>null</code>.
      */
-    public ThumbnailData(pojos.DataObject refOjbect, BufferedImage thumbnail)
+    public ThumbnailData(omero.gateway.model.DataObject refOjbect, BufferedImage thumbnail)
     {
     	  this(refOjbect, thumbnail, true);
     }
@@ -168,7 +158,7 @@ public class ThumbnailData
      * Sets the time the flag indicating if the image requires a pyramid to be
      * built.
      * 
-     * @param backOffForPyramid The value to set.
+     * @param requirePyramid The value to set.
      */
     public void setBackOffForPyramid(Boolean requirePyramid)
     {
@@ -266,7 +256,7 @@ public class ThumbnailData
      * 
      * @return See above.
      */
-    public pojos.DataObject getRefObject() { return refObject; }
+    public omero.gateway.model.DataObject getRefObject() { return refObject; }
     
     /**
      * Returns <code>true</code> if a pyramid is required, <code>false</code>

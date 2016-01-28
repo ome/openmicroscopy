@@ -13,7 +13,7 @@ package ome.api.local;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2
- * @see ticket:2219
+ * @see  <a href="http://trac.openmicroscopy.org/ome/ticket/2219">Trac ticket #2219</a>
  */
 public interface LocalShare extends ome.api.IShare {
 

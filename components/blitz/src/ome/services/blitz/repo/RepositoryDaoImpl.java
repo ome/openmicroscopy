@@ -137,7 +137,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     /**
      * Loads
-     * @return
+     * @return See above.
      */
     protected RawFileBean unwrapRawFileBean(RawFileStore proxy) {
         try {
@@ -614,14 +614,14 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     /**
-     * Returned original file object is "live" within the Hibernate session.
+     * Returns original file object is "live" within the Hibernate session.
      *
      * @param repoUuid
      * @param checked
      * @param mimetype
      * @param sf
      * @param sql
-     * @return
+     * @return See above.
      * @throws ServerError
      */
     public ome.model.core.OriginalFile register(final String repoUuid, final CheckedPath checked,
@@ -954,7 +954,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param checked
      * @param checksumAlgorithm 
      * @param mimetype
-     * @return
+     * @return See above.
      */
     protected List<ome.model.core.OriginalFile> createOriginalFile(
             ServiceFactory sf, SqlAction sql, String repoUuid,
@@ -997,7 +997,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
     /**
      * This method should only be used by the register public method in order to
      * guarantee that the DB is kept in sync with the file system.
-     * @param checked the path to ensure exists as a directory
+     * @param file the path to ensure exists as a directory
      * @throws ome.conditions.ResourceError
      */
     protected void internalMkdir(CheckedPath file) {
@@ -1081,6 +1081,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
     /**
      * Create a String-String map which can be used as the context for a call
      * to Executor.execute based on the group of the file object.
+     * @return See above.
      * @throws SecurityViolation if the file can't be read.
      */
     protected Map<String, String> fileContext(long fileId, Ice.Current current)
@@ -1101,7 +1102,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
      *
      * @param groupId
      * @param current
-     * @return
+     * @return See above.
      */
     protected Map<String, String> groupContext(Long groupId, Ice.Current current) {
         final Map<String, String> context = new HashMap<String, String>();

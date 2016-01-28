@@ -54,6 +54,7 @@ import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 import ome.services.query.HierarchyNavigator;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -101,6 +102,12 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             + "left outer join fetch p.annotationLinksCountPerOwner " 
             + "where p in (:list)";
 
+    /** Query to load the number of annotations per dataset. */
+    final static String loadLinksDatasets = "select d from Dataset d "
+            + "left outer join fetch d.annotationLinksCountPerOwner "
+            + "left outer join fetch d.imageLinksCountPerOwner where d " 
+            + "in (:list)";
+    
     /* A model object hierarchy navigator that is convenient for getImagesBySplitFilesets.
      * To switch its API from bare Longs to an IObject-based query interface, it is easy to implement
      * HierarchyNavigatorWrap<Class<? extends IObject>, IObject> and implement noteLookups with its methods. */
@@ -140,10 +147,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         }
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#loadContainerHierarchy(Class, Set, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
@@ -184,28 +188,60 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 datasets.addAll(p.linkedDatasetList());
             }
             if (options.isOrphan()) {
-            	if (rootNodeIds == null || rootNodeIds.size() == 0) {
-            		Iterator<Dataset> i = datasets.iterator();
-            		Set<Long> linked = new HashSet<Long>();
-            		while (i.hasNext()) {
-						linked.add(i.next().getId());
-					}
-            		q = getQueryFactory().lookup(
+                if (CollectionUtils.isEmpty(rootNodeIds)) {
+                    Iterator<Dataset> i = datasets.iterator();
+                    Set<Long> linked = new HashSet<Long>();
+                    while (i.hasNext()) {
+                        linked.add(i.next().getId());
+                    }
+                    q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
                             options.addClass(Dataset.class).addIds(rootNodeIds));
-            		List<IObject> list = iQuery.execute(q);
-            		Iterator<IObject> j = list.iterator();
-            		Long id;
-            		
-            		while (j.hasNext()) {
-            			d = (Dataset) j.next();
-						id = d.getId();
-						if (!linked.contains(id)) {
-							l.add(d);
-							datasets.add(d);
-						}
-					}
-            	}
+                    List<IObject> list = iQuery.execute(q);
+                    Iterator<IObject> j = list.iterator();
+                    Long id;
+
+                    Map<Long, Dataset> notLinked = new HashMap<Long, Dataset>();
+                    while (j.hasNext()) {
+                        d = (Dataset) j.next();
+                        id = d.getId();
+                        if (!linked.contains(id)) {
+                            notLinked.put(id, d);// not linked to user's project
+                        }
+                    }
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("select this from Project this ");
+                    sb.append("left outer join fetch this.datasetLinks pdl ");
+                    sb.append("left outer join fetch pdl.child ds ");
+                    sb.append("where ds in (:list)");
+                    if (notLinked.size() > 0) {
+                        List<Dataset> nl = new ArrayList<Dataset>();
+                        nl.addAll(notLinked.values());
+                        List<IObject> projects =
+                                iQuery.findAllByQuery(sb.toString(),
+                                new Parameters().addList("list", nl));
+                        if (projects.isEmpty()) {
+                            datasets.addAll(nl);
+                            l.addAll(nl);
+                        } else { //some datasets are in the projects
+                            for (IObject o : projects) {
+                                p = (Project) o;
+                                List<Dataset> ll = p.linkedDatasetList();
+                                for (Dataset data : ll) {
+                                    if (notLinked.containsKey(data.getId())) {
+                                        notLinked.remove(data.getId());
+                                    }
+                                }
+                            }
+                            if (notLinked.size() > 0) {
+                                nl = new ArrayList<Dataset>();
+                                nl.addAll(notLinked.values());
+                                datasets.addAll(nl);
+                                l.addAll(nl); 
+                            }
+                        }
+                    }
+                }
             }
             if (datasets.size() > 0) {
                 iQuery.findAllByQuery(loadCountsDatasets, new Parameters()
@@ -239,28 +275,60 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                 plates.addAll(p.linkedPlateList());
             }
             if (options.isOrphan()) {
-            	if (rootNodeIds == null || rootNodeIds.size() == 0) {
-            		Iterator<Plate> i = plates.iterator();
-            		Set<Long> linked = new HashSet<Long>();
-            		while (i.hasNext()) {
-						linked.add(i.next().getId());
-					}
-            		q = getQueryFactory().lookup(
+                if (CollectionUtils.isEmpty(rootNodeIds)) {
+                    Iterator<Plate> i = plates.iterator();
+                    Set<Long> linked = new HashSet<Long>();
+                    while (i.hasNext()) {
+                        linked.add(i.next().getId());
+                    }
+                    q = getQueryFactory().lookup(
                             PojosLoadHierarchyQueryDefinition.class.getName(),
                             options.addClass(Plate.class).addIds(rootNodeIds));
-            		List<IObject> list = iQuery.execute(q);
-            		Iterator<IObject> j = list.iterator();
-            		Long id;
-            		
-            		while (j.hasNext()) {
-            			plate = (Plate) j.next();
-						id = plate.getId();
-						if (!linked.contains(id)) {
-							l.add(plate);
-							plates.add(plate);
-						}
-					}
-            	}
+                    List<IObject> list = iQuery.execute(q);
+                    Iterator<IObject> j = list.iterator();
+                    Long id;
+                    Plate pp;
+                    Map<Long, Plate> notLinked = new HashMap<Long, Plate>();
+                    while (j.hasNext()) {
+                        pp = (Plate) j.next();
+                        id = pp.getId();
+                        if (!linked.contains(id)) {
+                            notLinked.put(id, pp);// not linked to user's screen
+                        }
+                    }
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("select this from Screen this ");
+                    sb.append("left outer join fetch this.plateLinks pdl ");
+                    sb.append("left outer join fetch pdl.child ds ");
+                    sb.append("where ds in (:list)");
+                    if (notLinked.size() > 0) {
+                        List<Plate> nl = new ArrayList<Plate>();
+                        nl.addAll(notLinked.values());
+                        List<IObject> screens =
+                                iQuery.findAllByQuery(sb.toString(),
+                                new Parameters().addList("list", nl));
+                        if (screens.isEmpty()) {
+                            plates.addAll(nl);
+                            l.addAll(nl);
+                        } else { //some datasets are in the projects
+                            for (IObject o : screens) {
+                                p = (Screen) o;
+                                List<Plate> ll = p.linkedPlateList();
+                                for (Plate data : ll) {
+                                    if (notLinked.containsKey(data.getId())) {
+                                        notLinked.remove(data.getId());
+                                    }
+                                }
+                            }
+                            if (notLinked.size() > 0) {
+                                nl = new ArrayList<Plate>();
+                                nl.addAll(notLinked.values());
+                                plates.addAll(nl);
+                                l.addAll(nl); 
+                            }
+                        }
+                    }
+                }
             }
             if (plates.size() > 0) {
                 iQuery.findAllByQuery(loadCountsPlates, new Parameters()
@@ -270,10 +338,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return new HashSet<IObject>(l);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#findContainerHierarchies(Class, Set, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set findContainerHierarchies(final Class rootNodeType,
@@ -333,10 +398,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
                                 + "where pdl.parent.id in (:ids) order by dil.child.id");
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getImages(Class, Set, Map)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
@@ -396,10 +458,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return new HashSet<IObject>(l);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getImagesByOptions(Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
@@ -421,10 +480,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getImagesBySplitFilesets(Map)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<Class<? extends IObject>, List<Long>> included,
@@ -496,10 +552,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return imagesBySplitFilesets;
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getUserImages(Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
@@ -520,10 +573,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#getCollectionCount(String, String, Set, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Map getCollectionCount(String type, String property, Set ids,
@@ -551,10 +601,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return results;
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#retrieveCollection(IObject, String, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Collection retrieveCollection(IObject arg0, String arg1, Parameters arg2) {
@@ -568,40 +615,28 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     // ~ WRITE
     // =========================================================================
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#createDataObject(IObject, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject createDataObject(IObject arg0, Parameters arg1) {
         return iUpdate.saveAndReturnObject(arg0);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#createDataObject(IObject[], Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject[] createDataObjects(IObject[] arg0, Parameters arg1) {
         return iUpdate.saveAndReturnArray(arg0);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#unlink(ILink[], Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void unlink(ILink[] arg0, Parameters arg1) {
         deleteDataObjects(arg0, arg1);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#link(ILink[], Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public ILink[] link(ILink[] arg0, Parameters arg1) {
@@ -612,20 +647,14 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         return links;
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#updateDataObject(IObject, Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject updateDataObject(IObject arg0, Parameters arg1) {
         return iUpdate.saveAndReturnObject(arg0);
     }
 
-    /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#updateDataObject(IObject[], Parameters)
-     */
+    @Override
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public IObject[] updateDataObjects(IObject[] arg0, Parameters arg1) {
@@ -633,22 +662,20 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#deleteDataObject(IObject, Parameters)
+     * Delete a data object.
+     * @param row the object to delete
+     * @param options the parameters to apply (ignored)
      */
-    @RolesAllowed("user")
-    @Transactional(readOnly = false)
-    public void deleteDataObject(IObject row, Parameters arg1) {
+    private void deleteDataObject(IObject row, Parameters options) {
         iUpdate.deleteObject(row);
     }
 
     /**
-     * Implemented as specified by the {@link IContainer} I/F
-     * @see IContainer#deleteDataObjects(IObject[], Parameters)
+     * Delete some data objects.
+     * @param rows the objects to delete
+     * @param options the parameters to apply (ignored)
      */
-    @RolesAllowed("user")
-    @Transactional(readOnly = false)
-    public void deleteDataObjects(IObject[] rows, Parameters options) {
+    private void deleteDataObjects(IObject[] rows, Parameters options) {
         for (IObject object : rows) {
             deleteDataObject(object, options);
         }

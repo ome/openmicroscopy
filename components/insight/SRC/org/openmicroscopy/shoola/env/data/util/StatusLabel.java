@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.StatusLabel
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -23,7 +21,6 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-//Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -56,9 +53,10 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
-import pojos.FilesetData;
-import pojos.PixelsData;
+import omero.gateway.util.PojoMapper;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.PixelsData;
 
 /**
  * Component displaying the status of a specific import.
@@ -508,7 +506,7 @@ public class StatusLabel
      * Returns <code>true</code> if the checksums have been calculated,
      * <code>false</code> otherwise.
      * 
-     * @return
+     * @return See above.
      */
     public boolean hasChecksum() { return checksumEvent != null; }
 

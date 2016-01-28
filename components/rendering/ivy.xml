@@ -16,7 +16,6 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
     <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
   </dependencies>
 </ivy-module>

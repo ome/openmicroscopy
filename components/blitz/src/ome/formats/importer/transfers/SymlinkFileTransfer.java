@@ -41,8 +41,8 @@ public class SymlinkFileTransfer extends AbstractExecFileTransfer {
      * @param file File to be copied.
      * @param location Location to copy to.
      * @throws IOException
-     * @TODO Java7: replace ln once Java6 is dropped
      */
+    // TODO Java7: replace ln once Java6 is dropped
     protected ProcessBuilder createProcessBuilder(File file, File location) {
         ProcessBuilder pb = new ProcessBuilder();
         List<String> args = new ArrayList<String>();

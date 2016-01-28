@@ -22,16 +22,16 @@ module omero {
          *
          * Note: methods on this service are protected by a "DOWNLOAD" restriction.
          *
-         * See also <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/RawFileStore.html">RawFileStore.html</a>
+         * See also <a href="http://downloads.openmicroscopy.org/latest/omero5.2/api/ome/api/RawFileStore.html">RawFileStore.html</a>
          **/
         ["ami", "amd"] interface RawFileStore extends StatefulServiceInterface
             {
 
                 /**
                  * This method manages the state of the service. This method
-                 * will throw a [omero::SecurityViolation] if for the current user
-                 * context either the file is not readable or a
-                 * [omero::constants::permissions:DOWNLOAD] restriction is in
+                 * will throw a {@link omero.SecurityViolation} if for the
+                 * current user context either the file is not readable or a
+                 * {@link omero.constants.permissions#DOWNLOAD} restriction is in
                  * place.
                  */
                 void setFileId(long fileId) throws ServerError;

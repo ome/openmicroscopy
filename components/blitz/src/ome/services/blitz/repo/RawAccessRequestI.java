@@ -20,7 +20,6 @@ package ome.services.blitz.repo;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,6 @@ import ome.io.nio.FileBuffer;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 
-import omero.ServerError;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
@@ -246,11 +244,8 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 
     /**
      * Prepend a "./" if necessary to make the path relative.
-     * TODO: this could likely be removed once the prefix is always stripped.
-     *
-     * @param arg
-     * @return
      */
+    //TODO: this could likely be removed once the prefix is always stripped.
     private String parse(String arg) {
         if (arg.startsWith("/")) {
             arg = "./" + arg;

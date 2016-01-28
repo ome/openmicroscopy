@@ -1,11 +1,9 @@
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
-import omero.model.DatasetImageLinkI;
 import omero.model.EventI;
 import omero.model.Image;
 import omero.model.ImageI;
-import omero.model.Pixels;
 import omero.model.PixelsI;
 
 import java.util.*;

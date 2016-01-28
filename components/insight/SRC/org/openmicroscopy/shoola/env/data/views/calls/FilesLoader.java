@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.FilesLoader 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-
-//Java imports
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,21 +28,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.RequestCallback;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 
-import pojos.FileAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 
 /** 
  * Loads collection of files or a specified file.

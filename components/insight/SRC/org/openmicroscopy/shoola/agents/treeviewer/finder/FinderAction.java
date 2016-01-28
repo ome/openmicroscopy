@@ -23,28 +23,17 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.finder;
 
-
-
-//Java imports
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import javax.swing.AbstractAction;
-
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 
 /** 
  * Top class that each action should extend.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$Date: )
- * </small>
  * @since OME2.2
  */
 public class FinderAction

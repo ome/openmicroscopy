@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.util.ViewedByItem 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
@@ -35,13 +32,10 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
+import omero.gateway.model.ExperimenterData;
 
 /**
  * Displays the name of the experimenter who viewed the image and how he/she
@@ -71,6 +65,9 @@ public class ViewedByItem extends JLabel {
 
     /** The image with the rendering settings. */
     private BufferedImage image;
+
+    /** Flag indicating that the item should be selected by default.*/
+    private boolean selected;
 
     /**
      * Creates a new instance.
@@ -123,6 +120,24 @@ public class ViewedByItem extends JLabel {
 
         });
     }
+
+    /**
+     * Indicates that the element should be selected by default or not.
+     *
+     * @param selected The value to set.
+     */
+    public void setSelected(boolean selected)
+    {
+        this.selected = selected;
+    }
+
+    /**
+     * Returns <code>true</code> if the item is selected,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isSelected() { return selected; }
 
     /**
      * Returns the experimenter the settings belong to.

@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -32,9 +31,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Defines the functionality of the task bar UI.
@@ -43,7 +39,7 @@ import javax.swing.JMenuItem;
  * the user to control some of the container's tasks &#151; like the connection
  * to remote services or quitting the application.</p>
  * <p>Agents that have a UI typically add an entry to the {@link #WINDOW_MENU}
- * and to the {@link #QUICK_LAUNCH_TOOLBAR} (during the linking phase) for top
+ * (during the linking phase) for top
  * level windows that the user can bring up.<br>
  * The {@link TopWindow} class has built-in functionality to provide this 
  * linkage as well as functionality to manage the display state of the window.
@@ -51,8 +47,7 @@ import javax.swing.JMenuItem;
  * inherit from {@link TopWindow}.  If an agent allows multiple simultaneous
  * instances of the same top level window, then it can use the 
  * {@link TopWindowGroup} to group all those instances together in the task bar
- * under a common {@link #WINDOW_MENU} entry and a drop-down button in the 
- * {@link #QUICK_LAUNCH_TOOLBAR}.  Like {@link TopWindow}, 
+ * under a common {@link #WINDOW_MENU} entry. Like {@link TopWindow}, 
  * {@link TopWindowGroup} also takes care of managing the display state of its
  * windows; however, it doesn't require its managed windows to inherit from 
  * {@link TopWindow}.</p> 
@@ -65,9 +60,6 @@ import javax.swing.JMenuItem;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 public interface TaskBar 

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -17,7 +15,6 @@ import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -37,7 +34,6 @@ import ome.system.Roles;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OME3.0
  */
 public interface IAdmin extends ServiceInterface {
@@ -127,7 +123,7 @@ public interface IAdmin extends ServiceInterface {
     String groupName);
 
     /**
-     * Looks up all {@link ExperimenterGroups groups} present and all related
+     * Looks up all {@link ExperimenterGroup groups} present and all related
      * {@link Experimenter experimenters}. The experimenters' groups are also
      * loaded.
      * 
@@ -233,8 +229,8 @@ public interface IAdmin extends ServiceInterface {
     long uploadMyUserPhoto(String filename, String format, byte[] data);
 
     /**
-     * Retrieve the {@link ome.model.core.OriginalFile} objectd attached to this
-     * user as specified by {@link #uploadMyUserPhoto(String, String, byte[]).
+     * Retrieve the {@link ome.model.core.OriginalFile} object attached to this
+     * user as specified by {@link #uploadMyUserPhoto(String, String, byte[])}.
      * The return value is order by the most recently modified file first.
      *
      * @return file objects. Possibly empty.
@@ -291,7 +287,7 @@ public interface IAdmin extends ServiceInterface {
      * 
      * @param newUser
      *            a new {@link Experimenter} instance
-     * @parm group group name of the default group for this user
+     * @param group group name of the default group for this user
      * @return id of the newly created {@link Experimenter}
      */
     long createUser(@NotNull
@@ -303,8 +299,7 @@ public interface IAdmin extends ServiceInterface {
      * "System" (administration) group as default and will also be in the "user"
      * group.
      * 
-     * @param newUser
-     *            a new {@link Experimenter} instance
+     * @param newSystemUser  a new {@link Experimenter} instance
      * @return id of the newly created {@link Experimenter}
      */
     long createSystemUser(@NotNull
@@ -353,8 +348,7 @@ public interface IAdmin extends ServiceInterface {
      * If no permissions is set, the default will be {@link Permissions#USER_PRIVATE},
      * i.e. a group in which no user can see the other group member's data.
      * 
-     * @param newGroup
-     *            a new {@link ExperimenterGroup} instance. Not null.
+     * @param group  a new {@link ExperimenterGroup} instance. Not null.
      * @return id of the newly created {@link ExperimenterGroup}
      * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/1434">ticket:1434"</a>
      */
@@ -449,7 +443,7 @@ public interface IAdmin extends ServiceInterface {
      *
      * @param group
      *            A currently managed {@link ExperimenterGroup}. Not null.
-     * @param owners
+     * @param owner
      *            A set of currently managed {@link Experimenter}s. Not null.
      */
     void removeGroupOwners(@NotNull
@@ -534,7 +528,7 @@ public interface IAdmin extends ServiceInterface {
      * and linkable from all security contexts.
      *
      * @param iObjects
-     * @see ticket:1794
+     * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1794">ticket 1794</a>
      */
     void moveToCommonSpace(IObject... iObjects);
 
@@ -560,7 +554,7 @@ public interface IAdmin extends ServiceInterface {
             throws AuthenticationException;
 
     /**
-     * Used after an {@link ExpiredCredentialsException} instance is thrown.
+     * Used after an {@link ome.conditions.ExpiredCredentialException} instance is thrown.
      * 
      * Does not require
      */
@@ -588,7 +582,7 @@ public interface IAdmin extends ServiceInterface {
     /**
      * change the password for the current user by passing the old password.
      *
-     * @param newPassword
+     * @param oldPassword
      *            Not-null. Must pass validation in the security sub-system.
      * @param newPassword
      *            Possibly null to allow logging in with no password.

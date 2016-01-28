@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -13,34 +11,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
-
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
-import ome.api.local.LocalAdmin;
 import ome.model.core.OriginalFile;
 import ome.model.enums.ChecksumAlgorithm;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
+import ome.services.blitz.util.ParamsCache;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.delete.Deletion;
-import ome.services.graphs.GraphException;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
-import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
-
 import omero.ApiUsageException;
 import omero.RInt;
 import omero.RType;
@@ -63,7 +49,6 @@ import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
-import omero.grid.ParamsHelper;
 import omero.grid.ParamsHelper.Acquirer;
 import omero.grid.ProcessPrx;
 import omero.grid.ProcessorPrx;
@@ -78,13 +63,20 @@ import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
 import omero.util.IceMapper;
 
+import org.apache.commons.io.FilenameUtils;
+import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
+
 /**
  * implementation of the IScript service interface.
  * 
  * @author Donald MacDonald, donald@lifesci.dundee.ac.uk
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @see ome.api.IScript
  */
 public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         ServiceFactoryAware, BlitzOnly {
@@ -93,22 +85,22 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     protected ServiceFactoryI factory;
 
-    protected ParamsHelper helper;
+    protected ParamsCache cache;
 
     protected final ScriptRepoHelper scripts;
 
     protected final ChecksumProviderFactory cpf;
 
     public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts,
-            ChecksumProviderFactory cpf) {
+            ChecksumProviderFactory cpf, ParamsCache cache) {
         super(null, be);
         this.scripts = scripts;
         this.cpf = cpf;
+        this.cache = cache;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.factory = sf;
-        helper = new ParamsHelper(acquirer(), sf.getExecutor(), sf.getPrincipal());
     }
 
     protected Acquirer acquirer() throws ServerError {
@@ -178,13 +170,12 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     /**
      * Get the id of the official script with given path.
-     * 
+     *
+     * @param __cb The script context.
      * @param scriptPath
      *            {@link OriginalFile#getPath()} of the script to find id for.
      * @param __current
      *            ice context.
-     * @return The id of the script, -1 if no script found, or more than one
-     *         script with that name.
      */
     public void getScriptID_async(final AMD_IScript_getScriptID __cb,
             final String scriptPath, final Current __current)
@@ -204,11 +195,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     /**
      * Upload script to the server.
-     * 
+     *
+     * @param path Path to the script.
      * @param scriptText
      * @param __current
      *            ice context.
-     * @return id of the script.
      */
     public void uploadScript_async(final AMD_IScript_uploadScript __cb,
             final String path, final String scriptText, final Current __current) throws ServerError {
@@ -241,6 +232,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                                 "Use editScript to modify existing official scripts.");
                     } else if (fileID != null) {
                         log.info("Overwriting existing non-script: " + fileID);
+                        cache.removeParams(fileID);
                     }
                     RepoFile f = scripts.write(path, scriptText);
                     OriginalFile file = scripts.addOrReplace(f, fileID);
@@ -293,6 +285,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 } else {
                     file = writeContent(file, scriptText, __current);
                 }
+                cache.removeParams(file.getId());
                 validateParams(__current, file);
                 return null; // void
             }
@@ -303,11 +296,10 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     /**
      * Return the script with the name to the user.
      * 
-     * @param name
+     * @param id
      *            see above.
      * @param __current
      *            ice context.
-     * @return see above.
      * @throws ServerError
      *             validation, api usage.
      */
@@ -374,12 +366,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     /**
      * Return the script with the name to the user.
-     * 
-     * @param name
+     *
+     * @param id
      *            see above.
      * @param __current
      *            ice context.
-     * @return see above.
      * @throws ServerError
      *             validation, api usage.
      */
@@ -401,12 +392,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     /**
      * Get the Parameters of the script.
-     * 
+     *
      * @param id
      *            see above.
      * @param __current
      *            Ice context
-     * @return see above.
      * @throws ServerError
      *             validation, api usage.
      */
@@ -414,7 +404,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
             public Object call() throws Exception {
-                return helper.getOrCreateParams(id, __current);
+                final OriginalFile file = getOriginalFileOrNull(id, __current);
+                if (file == null) {
+                    return null;
+                }
+                return cache.getParams(id, file.getHash(), __current);
             }
         });
     }
@@ -425,7 +419,6 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * 
      * @param __current
      *            ice context,
-     * @return see above.
      * @throws ServerError
      *             validation, api usage.
      */
@@ -713,7 +706,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         try {
 
-            JobParams params = helper.getOrCreateParams(file.getId(), __current);
+            JobParams params = cache.getParams(file.getId(), file.getHash(), __current);
 
             if (params == null) {
                 throw new ApiUsageException(null, null, "Script error: no params found.");

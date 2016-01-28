@@ -133,12 +133,13 @@ button::-moz-focus-inner {
     .btn_info {background: url('../../webgateway/img/icon_info.png')center center no-repeat;}
     .btn_add {background: url('../../webgateway/img/icon_add.png')center center no-repeat;}
     .btn_edit {background: url('../../webgateway/img/icon_edit.png')center center no-repeat;}
+    .btn_script_dark {background: url('../../webgateway/img/icon_script_dark.png')center center no-repeat;}
     .btn_figscripts {background: url('../../webgateway/img/icon_figure_scripts.png') center center no-repeat;}
     .btn_fspath {background: url('../../webgateway/img/icon_fs_path.png')center center no-repeat;}
     .btn_hierarchy {background: url('../../webgateway/img/iconmonstr-sitemap-6-icon-16.png') center center no-repeat;}
     .btn_link {background: url('../../webgateway/img/icon_link.png')center center no-repeat;}
 
-	.btn_fspath, .btn_link, .btn_hierarchy {
+	.btn_fspath, .btn_link, .btn_add, .btn_hierarchy {
 	    float:right;
 	    position: relative;
 	    margin-left: 5px;
@@ -160,6 +161,20 @@ button::-moz-focus-inner {
 	    width:29px;
 	    height:18px;
 	    display:block;
+	}
+	.toolbar input.btn_script_dark {
+		margin:0;
+		padding:0;
+		width:22px;
+		height:20px;
+		display:block;
+		cursor:pointer;
+	}
+	.toolbar input.btn_script_dark.button-disabled:hover {
+		/* Overrides the default "button-disabled" class semantics for the
+		 * script button.  They are focused towards use in the toolbar.
+		 */
+		background: url('../../webgateway/img/icon_script_dark.png')center center no-repeat;
 	}
     
     .toolbar_dropdown .btn span {
@@ -544,7 +559,9 @@ button::-moz-focus-inner {
 			margin-bottom:5px;
 		}
 
-	.standard_form input[type=text], input[type=password], textarea {
+	.standard_form input[type=text],
+	.standard_form input[type=password],
+	.standard_form textarea {
 		width:70%;
 		border: solid 1px rgba(0,0,0,.2);
 		border-top: solid 1px rgba(0,0,0,.3);
@@ -559,8 +576,11 @@ button::-moz-focus-inner {
 		color:#333;
 		font-family:"HelveticaNeue-Medium", Helvetica, Arial, sans-serif
 	}
-			
-	.standard_form input[type=text]:focus, input[type=password]:focus, input[type=text]:active, input[type=password]:active {
+
+	.standard_form input[type=text]:focus,
+	.standard_form input[type=password]:focus,
+	.standard_form input[type=text]:active,
+	.standard_form input[type=password]:active {
 		border:solid 1px hsl(210,20%,50%);
 	}
 	
@@ -619,7 +639,8 @@ button::-moz-focus-inner {
 		
 	}
 			
-	.standard_form input[type="submit"]:active, input[type="submit"]:focus {
+	.standard_form input[type="submit"]:active,
+	.standard_form input[type="submit"]:focus {
 		background-image: -webkit-gradient(linear, left bottom, left top, from(hsl(210,40%,65%)), to(hsl(210,40%,60%)));
 		
 

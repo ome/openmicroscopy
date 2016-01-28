@@ -107,7 +107,7 @@ public class WindowsApplicationDataExtractor implements
 	 * 
 	 * @param applicationPath
 	 * @param fileVersionInfoSize
-	 * @return
+	 * @return See above.
 	 * @throws Exception
 	 */
 	private String getTranslation(String applicationPath,
@@ -257,10 +257,11 @@ public class WindowsApplicationDataExtractor implements
 	}
 
 	/**
+	 * Returns the command string to launch the default application for the
+     *          file specified by {@code location}.
 	 * @param location
 	 *            the location pointing to the object to be opened
-	 * @returns the command string to launch the default application for the
-	 *          file specified by {@code location}
+	 * @return See above.
 	 */
 	public String[] getDefaultOpenCommandFor(URL location) {
 		return new String[] { "cmd", "/c", "start", location.toString() };

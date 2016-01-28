@@ -20,8 +20,7 @@ import org.springframework.ldap.filter.Filter;
 import org.springframework.ldap.filter.HardcodedFilter;
 
 /**
- * Static methods for dealing with LDAP (DN) and the "password" table. Used
- * primarily by {@link ome.security.JBossLoginModule}
+ * Static methods for dealing with LDAP (DN) and the "password" table.
  *
  * @author Aleksandra Tarkowska, A.Tarkowska at dundee.ac.uk
  * @see SecuritySystem
@@ -50,7 +49,8 @@ public class LdapConfig {
 
 
     /**
-     * Sets {@link #syncOnLogin} to false and {@link #base} to null.
+     * As {@link #LdapConfig(boolean, String, String, String, String, String, boolean, String)}
+     * setting {@code syncOnLogin} to false and {@code base} to {@code null}.
      */
     public LdapConfig(boolean enabled, String newUserGroup, String userFilter,
         String groupFilter, String userMapping, String groupMapping) {
@@ -59,7 +59,8 @@ public class LdapConfig {
     }
 
     /**
-     * Sets {@link #base} to null.
+     * As {@link #LdapConfig(boolean, String, String, String, String, String, boolean, String)}
+     * setting {@code base} to {@code null}.
      */
     public LdapConfig(boolean enabled, String newUserGroup, String userFilter,
         String groupFilter, String userMapping, String groupMapping, boolean syncOnLogin) {
@@ -68,7 +69,8 @@ public class LdapConfig {
     }
 
     /**
-     * Sets {@link #newUserGroupOwner} to null.
+     * As {@link #LdapConfig(boolean, String, String, String, String, String, boolean, String, String)}
+     * setting {@code newUserGroupOwner} to {@code null}.
      */
     public LdapConfig(boolean enabled, String newUserGroup, String userFilter,
         String groupFilter, String userMapping, String groupMapping, boolean syncOnLogin,
@@ -121,10 +123,10 @@ public class LdapConfig {
      * if the base is "ou=example" and the fullDNString is
      * "cn=myuser,ou=example", then the returned DN will be "cn=myuser".
      *
-     * Note: if {@link #base} is null, then this will throw an exception.
+     * Note: if constructor argument {@code base} was {@code null} then this will throw an exception.
      *
-     * @param full Not null.
-     * @return Never null.
+     * @param fullDNString the full distinguished name, not {@code null}
+     * @return the corresponding relative distinguished name, not {@code null}
      */
     public DistinguishedName relativeDN(String fullDNString) {
         DistinguishedName full = new DistinguishedName(fullDNString);

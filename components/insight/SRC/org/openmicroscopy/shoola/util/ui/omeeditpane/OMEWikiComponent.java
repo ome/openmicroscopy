@@ -73,9 +73,12 @@ public class OMEWikiComponent
 	public static final String WIKI_DATA_OBJECT_PROPERTY = "wikiDataObject";
 	
 	/** Bounds property indicating that a data object has been selected. */
-	public static final String WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY = 
+	public static final String WIKI_DATA_OBJECT_ONE_CLICK_PROPERTY =
 		"wikiDataObjectOneClick";
-	
+
+	/** Bounds property indicating that the text has been updated. */
+    public static final String TEXT_UPDATE_PROPERTY = "textUpdate";
+
 	/** Regular expression for text. */
 	public static final String TEXTREGEX = OMEWikiConstants.TEXTREGEX;
 	
@@ -626,4 +629,9 @@ public class OMEWikiComponent
 	public Document getDocument() {
 	    return pane.getDocument();
 	}
+
+	/** Invokes when the text is modified.*/
+    void onUpdate() {
+        firePropertyChange(TEXT_UPDATE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    }
 }

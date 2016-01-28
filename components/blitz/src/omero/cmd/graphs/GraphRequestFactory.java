@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 
+import ome.model.IObject;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.services.delete.Deletion;
@@ -39,10 +40,10 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphPolicyRule;
+import ome.system.Roles;
 import omero.cmd.GraphModify2;
 import omero.cmd.Request;
 import omero.cmd.SkipHead;
-import omero.cmd.graphs.ChildOption;
 
 /**
  * Create request objects that are executed using the {@link ome.services.graphs.GraphPathBean}.
@@ -53,33 +54,47 @@ public class GraphRequestFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRequestFactory.class);
 
     private final ACLVoter aclVoter;
+    private final Roles securityRoles;
     private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
     private final Deletion deletionInstance;
+    private final ImmutableSetMultimap<Class<? extends Request>, Class<? extends IObject>> allTargets;
     private final ImmutableMap<Class<? extends Request>, GraphPolicy> graphPolicies;
     private final ImmutableSetMultimap<String, String> unnullable;
     private final ImmutableSet<String> defaultExcludeNs;
-    private final boolean isGraphsWrap;
 
     /**
      * Construct a new graph request factory.
      * @param aclVoter ACL voter for permissions checking
+     * @param securityRoles the security roles
      * @param systemTypes for identifying the system types
      * @param graphPathBean the graph path bean
      * @param deletionInstance a deletion instance for deleting files
+     * @param allTargets legal target object classes for all request classes that use the graph path bean
      * @param allRules rules for all request classes that use the graph path bean
      * @param unnullable properties that, while nullable, may not be nulled by a graph traversal operation
      * @param defaultExcludeNs the default value for an unset excludeNs field
-     * @param isGraphsWrap if {@link omero.cmd.GraphModify2} requests should substitute for the requests that they replace
      * @throws GraphException if the graph path rules could not be parsed
      */
-    public GraphRequestFactory(ACLVoter aclVoter, SystemTypes systemTypes, GraphPathBean graphPathBean, Deletion deletionInstance,
-            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs,
-            boolean isGraphsWrap) throws GraphException {
+    public GraphRequestFactory(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            Deletion deletionInstance, Map<Class<? extends Request>, List<String>> allTargets,
+            Map<Class<? extends Request>, List<GraphPolicyRule>> allRules, List<String> unnullable, Set<String> defaultExcludeNs)
+                    throws GraphException {
         this.aclVoter = aclVoter;
+        this.securityRoles = securityRoles;
         this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
         this.deletionInstance = deletionInstance;
+
+        final ImmutableSetMultimap.Builder<Class<? extends Request>, Class<? extends IObject>> allTargetsBuilder =
+                ImmutableSetMultimap.builder();
+        for (final Map.Entry<Class<? extends Request>, List<String>> rules : allTargets.entrySet()) {
+            final Class<? extends Request> requestClass = rules.getKey();
+            for (final String targetClassName : rules.getValue()) {
+                allTargetsBuilder.put(requestClass, graphPathBean.getClassForSimpleName(targetClassName));
+            }
+        }
+        this.allTargets = allTargetsBuilder.build();
 
         final ImmutableMap.Builder<Class<? extends Request>, GraphPolicy> graphPoliciesBuilder = ImmutableMap.builder();
         for (final Map.Entry<Class<? extends Request>, List<GraphPolicyRule>> rules : allRules.entrySet()) {
@@ -98,14 +113,6 @@ public class GraphRequestFactory {
         this.unnullable = unnullableBuilder.build();
 
         this.defaultExcludeNs = ImmutableSet.copyOf(defaultExcludeNs);
-
-        final String logMessage = "substituting Chgrp, Chmod, Chown, Delete requests with Chgrp2, Chmod2, Chown2, Delete2 requests";
-        if (isGraphsWrap) {
-            LOGGER.debug(logMessage);
-        } else {
-            LOGGER.warn("not " + logMessage);
-        }
-        this.isGraphsWrap = isGraphsWrap;
     }
 
     /**
@@ -116,10 +123,16 @@ public class GraphRequestFactory {
     }
 
     /**
-     * @return if {@link omero.cmd.GraphModify2} requests should substitute for the requests that they replace
+     * Get the legal target object classes for the given request.
+     * @param requestClass a request class
+     * @return the legal target object classes for that type of request
      */
-    public boolean isGraphsWrap() {
-        return isGraphsWrap;
+    public <R extends GraphModify2> Set<Class<? extends IObject>> getLegalTargets(Class<R> requestClass) {
+        final Set<Class<? extends IObject>> targetClasses = allTargets.get(requestClass);
+        if (targetClasses.isEmpty()) {
+            throw new IllegalArgumentException("no legal target classes defined for request class " + requestClass);
+        }
+        return targetClasses;
     }
 
     /**
@@ -134,19 +147,20 @@ public class GraphRequestFactory {
                 final Constructor<R> constructor = requestClass.getConstructor(GraphPathBean.class, GraphRequestFactory.class);
                 request = constructor.newInstance(graphPathBean, this);
             } else {
+                final Set<Class<? extends IObject>> targetClasses = getLegalTargets(requestClass);
                 GraphPolicy graphPolicy = graphPolicies.get(requestClass);
                 if (graphPolicy == null) {
                     throw new IllegalArgumentException("no graph traversal policy rules defined for request class " + requestClass);
                 } else {
                     graphPolicy = graphPolicy.getCleanInstance();
                 }
-                final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, SystemTypes.class,
-                        GraphPathBean.class, Deletion.class, GraphPolicy.class, SetMultimap.class);
+                final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
+                        GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class);
                 request =
-                        constructor.newInstance(aclVoter, systemTypes, graphPathBean, deletionInstance, graphPolicy, unnullable);
+                        constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
+                                targetClasses, graphPolicy, unnullable);
             }
-        } catch (Exception e) {
-            /* TODO: easier to do a ReflectiveOperationException multi-catch in Java SE 7 */
+        } catch (IllegalArgumentException | ReflectiveOperationException | SecurityException e) {
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);
         }
         return request;

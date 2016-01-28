@@ -203,10 +203,9 @@ public class ImportConfig {
     /**
      * Complete constructor. All values can be null.
      *
-     * @param prefs
-     * @param ctx
-     * @param ini
-     * @param props
+     * @param prefs user and system preference and configuration data
+     * @param ini loads {@code importer.ini} or other specified file
+     * @param props a Java properties object overriding other sources of preferences and configuration data
      */
     public ImportConfig(final Preferences prefs,
             IniFileLoader ini, Properties props) {
@@ -320,8 +319,8 @@ public class ImportConfig {
      * Modifies the logging level of everything under the
      * <code>ome.formats</code>, <code>ome.services.blitz</code>,
      * <code>ome.system</code> and <code>loci</code> packages hierarchically.
-     * @param levelString if null, then {@link #ini#getDebugLevel()} will be
-     * used.
+     * @param levelString the level to set or, if {@code null}, then the
+     * initial debug level is used as before having been changed.
      */
      public void configureDebug(String levelString) {
          Level level;
@@ -348,8 +347,8 @@ public class ImportConfig {
 
     /**
      * Create and return a new OMEROMetadataStoreClient
-     * @return - OMEORMetadataStoreClient
-     * @throws Exception
+     * @return a new OMEROMetadataStoreClient
+     * @throws Exception if the creation failed
      */
     public OMEROMetadataStoreClient createStore() throws Exception {
         if (!canLogin()) {
@@ -369,6 +368,7 @@ public class ImportConfig {
 
     /**
      * Check online to see if this is the current version
+     * @return if it is <em>not</em> the current version
      */
     public boolean isUpgradeNeeded() {
 
@@ -551,35 +551,35 @@ public class ImportConfig {
     }
 
     /**
-     * @return ini user full path
+     * @param b ini user full path
      */
     public void setUserFullPath(boolean b) {
         ini.setUserFullPath(b);
     }
 
     /**
-     * @return ini user full path
+     * @return custom image naming
      */
     public boolean getCustomImageNaming() {
         return ini.getCustomImageNaming();
     }
 
     /**
-     * @return ini user full path
+     * @param b custom image naming
      */
     public void setCustomImageNaming(boolean b) {
         ini.setCustomImageNaming(b);
     }
 
     /**
-     * @return ini user full path
+     * @return number of directories
      */
     public int getNumOfDirectories() {
         return ini.getNumOfDirectories();
     }
 
     /**
-     * @return ini user full path
+     * @param i number of directories
      */
     public void setNumOfDirectories(int i) {
         ini.setNumOfDirectories(i);
@@ -592,11 +592,12 @@ public class ImportConfig {
     /**
      * Build prompt
      *
-     * @param value
-     * @param prompt
-     * @param hide - use *s for characters
+     * @param value the value
+     * @param prompt the prompt
+     * @param hide use {@code *}s for characters
+     * @param <T> the kind of value contained by the "value" argument
      */
-    protected void prompt(Value value, String prompt, boolean hide) {
+    protected <T> void prompt(Value<T> value, String prompt, boolean hide) {
 
         String v = value.toString();
         if (hide) {
@@ -743,7 +744,7 @@ public class ImportConfig {
      * Container which thread-safely makes a generic configuration value
      * available, without requiring getters and setters.
      *
-     * @param <T>
+     * @param <T> the kind of value to associate with the key
      */
     public static abstract class Value<T> {
 
@@ -785,6 +786,7 @@ public class ImportConfig {
         /**
          * Returns the generic type contained by this holder. This does not
          * touch the persistent stores, but only accesses the value in-memory.
+         * @return the held value
          */
         public T get() {
             if (_current.get() == null)
@@ -795,6 +797,7 @@ public class ImportConfig {
         /**
          * Sets the in-memory value, which will get persisted on
          * {@link #store()} when {@link ImportConfig#saveAll()} is called.
+         * @param t the value to hold
          */
         public void set(T t) {
             _current.set(t);
@@ -811,8 +814,7 @@ public class ImportConfig {
         }
 
         /**
-         * Stores the current value back to some medium. The decision of which
-         * medium is based on the current value of {@link #which}. In each case,
+         * Stores the current value back to some medium. In each case,
          * the type-matching source is used <em>except</em> when the
          * {@link Properties} are used, since this is most likely not a
          * persistent store.

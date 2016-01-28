@@ -126,14 +126,24 @@ class TestObj(CLITest):
         assert state.get_row(2).startswith("DatasetAnnotationLink")
         path.remove()
 
-    def test_new_and_update(self):
+    def test_new_get_and_update(self):
+        name = "foo"
+        desc = "bar"
         self.args = self.login_args() + [
-            "obj", "new", "Project", "name=foo"]
+            "obj", "new", "Project", "name=%s" % name]
         state = self.go()
         project = state.get_row(0)
         self.args = self.login_args() + [
-            "obj", "update", project, "description=bar"]
+            "obj", "get", project, "name"]
+        state = self.go()
+        assert state.get_row(0) == name
+        self.args = self.login_args() + [
+            "obj", "update", project, "description=%s" % desc]
         self.go()
+        self.args = self.login_args() + [
+            "obj", "get", project, "description"]
+        state = self.go()
+        assert state.get_row(0) == desc
 
     def test_map_mods(self):
         self.args = self.login_args() + [

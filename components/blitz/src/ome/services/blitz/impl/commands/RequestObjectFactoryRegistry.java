@@ -26,8 +26,6 @@ import org.springframework.context.ApplicationContextAware;
 
 import ome.system.OmeroContext;
 
-import omero.cmd.basic.DoAllI;
-
 /**
  * Types which rely on the omero.model and omero.api objects rather than just
  * the omero.cmd types. These are typically intended as replacements for the

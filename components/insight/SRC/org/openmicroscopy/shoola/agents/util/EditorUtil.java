@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.util.EditorUtil
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -70,30 +68,30 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import com.google.common.math.DoubleMath;
 
-import pojos.AnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DetectorData;
-import pojos.DichroicData;
-import pojos.ExperimenterData;
-import pojos.FilterData;
-import pojos.FilterSetData;
-import pojos.GroupData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-import pojos.InstrumentData;
-import pojos.LightSourceData;
-import pojos.ObjectiveData;
-import pojos.PixelsData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DetectorData;
+import omero.gateway.model.DichroicData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FilterData;
+import omero.gateway.model.FilterSetData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.LightSourceData;
+import omero.gateway.model.ObjectiveData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
 
 /**
  * Collection of helper methods to format data objects.
@@ -145,7 +143,6 @@ public class EditorUtil
     public static final String MANDATORY_DESCRIPTION = "* indicates the " +
             "required fields.";
 
-
     /** Identifies the <code>Group owner</code> field. */
     public static final String GROUP_OWNER = "Group's owner";
 
@@ -190,10 +187,6 @@ public class EditorUtil
 
     /** Text describing the <code>Group</code> permission. */
     public static final String GROUP_VISIBLE = "Collaborative";
-
-    /** Text describing the <code>Group</code> permission. */
-    public static final String	 ROUP_DESCRIPTION =
-            "Visible to members of the Group only.";
 
     /** Text describing the <code>Private</code> permission. */
     public static final String PRIVATE = "Private";
@@ -240,7 +233,7 @@ public class EditorUtil
     /** Identifies the <code>Timepoints</code> field. */
     public static final String TIMEPOINTS = "Number of timepoints";
 
-    /** Identifies the <code>Timepoints</code> field. */
+    /** Identifies the <code>Channels</code> field. */
     public static final String CHANNELS = "Channels";
 
     /** Identifies the <code>PixelType</code> field. */
@@ -534,12 +527,7 @@ public class EditorUtil
     /** Collection of filters to select the supported type of scripts. */
     public static final List<CustomizedFileFilter> SCRIPTS_FILTERS;
 
-    /** List of files format with companion files.*/
-    public static final List<String> FORMATS_WITH_COMPANION;
-
     static {
-        FORMATS_WITH_COMPANION = new ArrayList<String>();
-        FORMATS_WITH_COMPANION.add("deltavision");
 
         SCRIPTS_FILTERS = new ArrayList<CustomizedFileFilter>();
         SCRIPTS_FILTERS.add(new CppFilter());
@@ -595,28 +583,41 @@ public class EditorUtil
      */
     private static String formatPixelsSize(Map details)
     {
-        String units = null;
+        UnitsLength unit = null;
         Length x = (Length) details.get(PIXEL_SIZE_X);
         Length y = (Length) details.get(PIXEL_SIZE_Y);
         Length z = (Length) details.get(PIXEL_SIZE_Z);
         Double dx = null, dy = null, dz = null;
-        NumberFormat nf = NumberFormat.getInstance();
+        NumberFormat nf = new DecimalFormat("0.00");
+        
         try {
         	x = UIUtilities.transformSize(x);
+        	unit = x.getUnit();
             dx = x.getValue();
-            units = ((LengthI)x).getSymbol();
         } catch (Exception e) {
         }
+        
         try {
-        	y = UIUtilities.transformSize(y);
-            dy = y.getValue();
-            if (units == null) units = ((LengthI)y).getSymbol();
+            if (unit == null) {
+                y = UIUtilities.transformSize(y);
+                dy = y.getValue();
+                unit = y.getUnit();
+            } else {
+                y = new LengthI(y, unit);
+                dy = y.getValue();
+            }
         } catch (Exception e) {
         }
+        
         try {
-        	z = UIUtilities.transformSize(z);
-            dz = z.getValue();
-            if (units == null) units = ((LengthI)z).getSymbol();
+            if (unit == null) {
+                z = UIUtilities.transformSize(z);
+                dz = z.getValue();
+                unit = z.getUnit();
+            } else {
+                z = new LengthI(z, unit);
+                dz = z.getValue();
+            }
         } catch (Exception e) {
         }
 
@@ -638,8 +639,8 @@ public class EditorUtil
         }
         label += ") ";
         if (value.length() == 0) return null;
-        if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROMETER);
-        return label+units+": </b>"+value;
+        if (unit == null) unit = UnitsLength.MICROMETER;
+        return label+LengthI.lookupSymbol(unit)+": </b>"+value;
     }
 
     /**
@@ -962,14 +963,6 @@ public class EditorUtil
             if (counts == null || counts.size() <= 0) {
                 return count > 0;
             }
-            int n = 1;
-            try {
-                String format = image.getFormat();
-                if (format != null &&
-                        FORMATS_WITH_COMPANION.contains(format.toLowerCase()))
-                    n = 2;
-            } catch (Exception e) {
-            }
             Iterator<Entry<Long, Long>> i = counts.entrySet().iterator();
             long value = 0;
             Entry<Long, Long> entry;
@@ -978,7 +971,7 @@ public class EditorUtil
                 value += (Long) entry.getValue();
             }
             value += count;
-            return value > n;
+            return value > 0;
         } else if (object instanceof ScreenData)
             counts = ((ScreenData) object).getAnnotationsCounts();
         else if (object instanceof PlateData)
@@ -1654,9 +1647,9 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(4);
         List<String> notSet = new ArrayList<String>();
         details.put(NAME, "");
-        details.put(POSITION_X, Double.valueOf(0));
-        details.put(POSITION_Y, Double.valueOf(0));
-        details.put(POSITION_Z, Double.valueOf(0));
+        details.put(POSITION_X, new LengthI(0, UnitsLength.REFERENCEFRAME));
+        details.put(POSITION_Y, new LengthI(0, UnitsLength.REFERENCEFRAME));
+        details.put(POSITION_Z, new LengthI(0, UnitsLength.REFERENCEFRAME));
 
         if (data == null) {
             notSet.add(NAME);
@@ -1670,40 +1663,27 @@ public class EditorUtil
         if (CommonsLangUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Length p;
-        double f;
+        
         try {
-            p = data.getPositionX(UnitsLength.REFERENCEFRAME);
-            f = 0;
-            if (p == null) {
+            Length l = data.getPositionX(null);
+            if (l == null)
                 notSet.add(POSITION_X);
-            } else
-                f = p.getValue();
-            details.put(POSITION_X, NF.format(f));
-        } catch (BigResult e) {
-            details.put(POSITION_X, e);
-        }
-
-        try {
-            p = data.getPositionY(UnitsLength.REFERENCEFRAME);
-            f = 0;
-            if (p == null) {
+            else
+                details.put(POSITION_X, l);
+            
+            l = data.getPositionY(null);
+            if (l == null)
                 notSet.add(POSITION_Y);
-            } else f = p.getValue();
-            details.put(POSITION_Y, NF.format(f));
-        } catch (BigResult e) {
-            details.put(POSITION_Y, e);
-        }
-       
-        try {
-            p = data.getPositionZ(UnitsLength.REFERENCEFRAME);
-            f = 0;
-            if (p == null) {
+            else
+                details.put(POSITION_Y, l);
+            
+            l = data.getPositionZ(null);
+            if (l == null)
                 notSet.add(POSITION_Z);
-            } else f = p.getValue();
-            details.put(POSITION_Z, NF.format(f));
-        } catch (BigResult e) {
-            details.put(POSITION_Z, e);
+            else
+                details.put(POSITION_Z, l);
+        } catch (BigResult e1) {
+            // can't be thrown when called with null argument
         }
 
         details.put(NOT_SET, notSet);
@@ -2286,9 +2266,9 @@ public class EditorUtil
         details = new LinkedHashMap<String, Object>(4);
         details.put(DELTA_T, Double.valueOf(0));
         details.put(EXPOSURE_TIME, Double.valueOf(0));
-        details.put(POSITION_X, Double.valueOf(0));
-        details.put(POSITION_Y, Double.valueOf(0));
-        details.put(POSITION_Z, Double.valueOf(0));
+        details.put(POSITION_X, new LengthI(0, UnitsLength.REFERENCEFRAME));
+        details.put(POSITION_Y, new LengthI(0, UnitsLength.REFERENCEFRAME));
+        details.put(POSITION_Z, new LengthI(0, UnitsLength.REFERENCEFRAME));
         final List<String> notSet = new ArrayList<String>(5);
         notSet.add(DELTA_T);
         notSet.add(EXPOSURE_TIME);
@@ -2301,7 +2281,7 @@ public class EditorUtil
             if (t != null)  {
                 notSet.remove(DELTA_T);
                 try {
-                    details.put(DELTA_T, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                    details.put(DELTA_T, UnitsFactory.convertTime(t, UNITS.S).getValue());
                 } catch (BigResult e) {
                     details.put(DELTA_T, e);
                 }
@@ -2310,7 +2290,7 @@ public class EditorUtil
             if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
                 try {
-                    details.put(EXPOSURE_TIME, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                    details.put(EXPOSURE_TIME, UnitsFactory.convertTime(t, UNITS.S).getValue());
                 } catch (BigResult e) {
                     details.put(EXPOSURE_TIME, e);
                 }
@@ -2319,17 +2299,17 @@ public class EditorUtil
             Length o = plane.getPositionX();
             if (o != null) {
                 notSet.remove(POSITION_X);
-                details.put(POSITION_X, NF.format(o.getValue()));
+                details.put(POSITION_X, o);
             }
             o = plane.getPositionY();
             if (o != null) {
                 notSet.remove(POSITION_Y);
-                details.put(POSITION_Y, NF.format(o.getValue()));
+                details.put(POSITION_Y, o);
             }
             o = plane.getPositionZ();
             if (o != null) {
                 notSet.remove(POSITION_Z);
-                details.put(POSITION_Z, NF.format(o.getValue()));
+                details.put(POSITION_Z, o);
             }
         }
         return details;

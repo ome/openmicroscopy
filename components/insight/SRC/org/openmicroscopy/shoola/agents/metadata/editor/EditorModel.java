@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
@@ -94,46 +92,45 @@ import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.AnnotationData;
-import pojos.BooleanAnnotationData;
-import pojos.ChannelAcquisitionData;
-import pojos.ChannelData;
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.FileData;
-import pojos.FilesetData;
-import pojos.GroupData;
-import pojos.ImageAcquisitionData;
-import pojos.ImageData;
-import pojos.InstrumentData;
-import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
-import pojos.MultiImageData;
-import pojos.PermissionData;
-import pojos.PixelsData;
-import pojos.PlateAcquisitionData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.RatingAnnotationData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.WellData;
-import pojos.WellSampleData;
-import pojos.XMLAnnotationData;
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.ChannelAcquisitionData;
+import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FileData;
+import omero.gateway.model.FilesetData;
+import omero.gateway.model.GroupData;
+import omero.gateway.model.ImageAcquisitionData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.InstrumentData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.PermissionData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.PlateAcquisitionData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 /** 
  * The Model component in the <code>EditorViewer</code> MVC triad.
@@ -153,6 +150,9 @@ import pojos.XMLAnnotationData;
 class EditorModel 
 {
 	
+    /** Default maximum export size, 12kx12kx image */
+    static long DEFAULT_MAX_EXPORT_SIZE = 144000000;
+    
 	/** Identifies <code>all</code> the objects.*/
 	static final int ALL = PermissionMenu.ALL;
 	
@@ -695,8 +695,6 @@ class EditorModel
 			if (img != null && img.getId() >= 0) name = img.getName();
 		} else if (ref instanceof FileData)
 			name = ((FileData) ref).getName();
-		else if (ref instanceof MultiImageData)
-			name = ((MultiImageData) ref).getName();
 		if (name == null) return "";
 		return name.trim();
 	}
@@ -2550,8 +2548,46 @@ class EditorModel
 	Collection<TextualAnnotationData> getTextualAnnotations()
 	{
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return null;
+		if (data == null) 
+		    return null;
+		
 		return data.getTextualAnnotations();
+	}
+	
+	/**
+	 * Get the comments of all selected objects
+	 * @return See above
+	 */
+	Collection<TextualAnnotationData> getAllTextualAnnotations() {
+	    Map<DataObject, StructuredDataResults> 
+        r = parent.getAllStructuredData();
+        if (r == null) 
+            return new ArrayList<TextualAnnotationData>();
+        
+        Entry<DataObject, StructuredDataResults> e;
+        Iterator<Entry<DataObject, StructuredDataResults>>
+        i = r.entrySet().iterator();
+
+        Collection<TextualAnnotationData> others;
+        List<TextualAnnotationData> results = new ArrayList<TextualAnnotationData>();
+        List<Long> ids = new ArrayList<Long>();
+        Iterator<TextualAnnotationData> k;
+        TextualAnnotationData other;
+        while (i.hasNext()) {
+            e = i.next();
+            others = e.getValue().getTextualAnnotations();
+            if (others != null) {
+                k = others.iterator();
+                while (k.hasNext()) {
+                    other = k.next();
+                    if (!ids.contains(other.getId())) {
+                        results.add(other);
+                        ids.add(other.getId());
+                    }
+                }
+            }
+        }
+        return results;
 	}
 	
 	/**
@@ -2561,9 +2597,10 @@ class EditorModel
 	 */
 	List getTextualAnnotationsByDate()
 	{
-		if (textualAnnotationsByDate != null)
-			return textualAnnotationsByDate;
-		textualAnnotationsByDate = (List) getTextualAnnotations();
+//		if (textualAnnotationsByDate != null)
+//			return textualAnnotationsByDate;
+		textualAnnotationsByDate = (List) 
+		        getAllTextualAnnotations();
 		sortAnnotationByDate(textualAnnotationsByDate);
 		return textualAnnotationsByDate;
 	}
@@ -3077,6 +3114,56 @@ class EditorModel
 	        downloadFiles(file, override);
 	    }
 	}
+	
+    /**
+     * Starts an asynchronous loading; preserving the original folder structure
+     * 
+     * @param path
+     *            The folder where to download the content.
+     * @param override
+     *            Flag indicating to override the existing file if it exists,
+     *            <code>false</code> otherwise.
+     */
+    void downloadOriginal(String path, boolean override) {
+        if (!(refObject instanceof ImageData))
+            return;
+
+        List<ImageData> images = new ArrayList<ImageData>();
+        List<DataObject> l = getSelectedObjects();
+        if (!CollectionUtils.isEmpty(l)) {
+            Iterator<DataObject> i = l.iterator();
+            DataObject o;
+            List<Long> filesetIds = new ArrayList<Long>();
+            long id;
+            ImageData image;
+            while (i.hasNext()) {
+                o = i.next();
+                if (isArchived(o)) {
+                    image = (ImageData) o;
+                    id = image.getFilesetId();
+                    if (id < 0)
+                        images.add(image);
+                    else if (!filesetIds.contains(id)) {
+                        images.add(image);
+                        filesetIds.add(id);
+                    }
+                }
+            }
+        }
+        if (!CollectionUtils.isEmpty(images)) {
+            DownloadArchivedActivityParam p;
+            UserNotifier un = MetadataViewerAgent.getRegistry()
+                    .getUserNotifier();
+            IconManager icons = IconManager.getInstance();
+            Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+            SecurityContext ctx = getSecurityContext();
+            p = new DownloadArchivedActivityParam(new File(path), images, icon);
+            p.setOverride(override);
+            p.setZip(false);
+            p.setKeepOriginalPaths(true);
+            un.notifyActivity(ctx, p);
+        }
+    }
 
 	/** 
 	 * Starts an asynchronous call to retrieve disk space information. 
@@ -3559,7 +3646,8 @@ class EditorModel
 			renderer.onSettingsApplied(rndControl);
 		} else {
 		    renderer = RendererFactory.createRenderer(getSecurityContext(),
-                    rndControl, getImage(), getRndIndex(), getXMLAnnotations());
+                    rndControl, getImage(), getRndIndex(), getXMLAnnotations(),
+                    parent.getAlternativeRenderingSettings());
 		}
 	}
 
@@ -4188,12 +4276,13 @@ class EditorModel
 	        Iterator i = l.iterator();
 	        while (i.hasNext()) {
 	            data = saveAsObject(i.next());
-	            if (data != null)
+	            if (data != null) {
 	                objects.add(data);
+	            }
 	        }
 	    }
 	    data = saveAsObject(getRefObject());
-	    if (data != null)
+	    if (data != null && objects.size() == 0)
 	        objects.add(data);
 	    if (objects.size() > 0) {
 	        IconManager icons = IconManager.getInstance();
@@ -4517,5 +4606,34 @@ class EditorModel
             return exp.isLDAP();
         }
         return false;
+    }
+
+    /**
+     * Checks if the image can be exported, i. e. it does not exceed the maximum
+     * size for being able to get exported as jpg, png or tif
+     * 
+     * @return See above
+     */
+    boolean isExportable() {
+        if (getPixels() == null)
+            return false;
+
+        long imgSize = (long)getPixels().getSizeX() * (long)getPixels().getSizeY();
+        long maxSize = DEFAULT_MAX_EXPORT_SIZE;
+        String tmp = (String) MetadataViewerAgent.getRegistry().lookup(
+                LookupNames.MAX_EXPORT_SIZE);
+        if (tmp != null) {
+            try {
+                maxSize = Long.parseLong(tmp);
+            } catch (NumberFormatException e) {
+                MetadataViewerAgent
+                        .getRegistry()
+                        .getLogger()
+                        .warn(this,
+                                "Non integer value provided for "
+                                        + LookupNames.MAX_EXPORT_SIZE);
+            }
+        }
+        return imgSize <= maxSize;
     }
 }

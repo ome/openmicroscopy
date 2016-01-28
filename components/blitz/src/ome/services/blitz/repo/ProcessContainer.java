@@ -96,13 +96,17 @@ public class ProcessContainer {
 
     /**
      * Called once the {@link ManagedImportProcessI} service is created.
-     * @param prx
+     * @param process The process to handle.
      */
     public void addProcess(Process process) {
         Data data = getOrCreate(process.getGroup());
         data.add(process);
     }
 
+    /**
+     * Removes the process.
+     * @param process The process to remove.
+     */
     public void removeProcess(Process process) {
         final Data data = getOrCreate(process.getGroup());
         if (data != null) {

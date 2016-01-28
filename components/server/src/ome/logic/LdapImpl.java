@@ -186,10 +186,10 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      * Apache DS (the testing framework used) does not yet support
      * :caseExactMatch:. When it does, the check here can be removed.
      *
-     * @param username
-     * @param mapper
-     * @return a non null Experimenter.
-     * @see ticket:2557
+     * @param username a user's name
+     * @param mapper the map to contexts
+     * @return a non-{@code null} Experimenter
+     * @see <a href="http://trac.openmicroscopy.org/ome/ticket/2557">Trac ticket #2557</a>
      */
     @SuppressWarnings("unchecked")
     private Experimenter mapUserName(String username, PersonContextMapper mapper) {
@@ -635,8 +635,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     /**
      * Validates password for base. Base is user's DN. When context was created
      * successful specified requirements are valid.
-     *
-     * @return boolean
+     * @param dn the user's distinguished name
+     * @param password the user's password
+     * @return boolean if the user's password is correct
      */
     public boolean validatePassword(String dn, String password) {
         try {
@@ -762,8 +763,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
      * Creates the initial context with no connection request controls in order
      * to check authentication. If authentication fails, this method throws
      * a {@link SecurityViolation}.
-     *
-     * @return {@link javax.naming.ldap.LdapContext}
+     * @param username the user's name
+     * @param password the user's password
+     * @throws SecurityViolation if authentication failed
      */
     @SuppressWarnings("unchecked")
     private void isAuthContext(String username, String password) {

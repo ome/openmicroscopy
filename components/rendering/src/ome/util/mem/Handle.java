@@ -7,12 +7,6 @@
 
 package ome.util.mem;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
  * Provides the basic machinery to share the same logical state across objects
  * with different identities.

@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay 
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.browser;
 
-
-//Java imports
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,17 +28,14 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PlateData;
-import pojos.ProjectData;
-import pojos.ScreenData;
-import pojos.TagAnnotationData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
+import omero.gateway.model.ProjectData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Represents a component in the composite structure used to visualize an
@@ -53,9 +46,6 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public abstract class TreeBrowserDisplay
@@ -106,7 +96,6 @@ public abstract class TreeBrowserDisplay
         	return ((TagAnnotationData) obj).getTagValue();
         else if (obj instanceof String) return (String) obj;
         return "";
-    		
     }
     /**
      * Constructor used by subclasses.
@@ -171,7 +160,7 @@ public abstract class TreeBrowserDisplay
     /**
      * Returns the parent node to this node in the visualization tree.
      * 
-     * @return 	The parent node or <code>null</code> if this node has no parent.
+     * @return The parent node or <code>null</code> if this node has no parent.
      *          This can happen if this node hasn't been linked yet or if it's
      *          the root node.
      */
@@ -181,7 +170,7 @@ public abstract class TreeBrowserDisplay
      * Returns all the child nodes to this node in the visualization tree.
      * Note that, although never <code>null</code>, the returned set may be
      * empty.  In particular, this is always the case for a leaf node &#151;
-     * that is an {@link TreeImageNode}.
+     * that is an {@link TreeBrowserNode}.
      * 
      * @return A <i>read-only</i> set containing all the child nodes.
      */
@@ -289,7 +278,7 @@ public abstract class TreeBrowserDisplay
     /**
      * Implemented by subclasses to call the right version of the <code>visit
      * </code> method on the specified <code>visitor</code>.
-     * This method is called by {@link #accept(TreeBrowserVisitor)} during
+     * This method is called during
      * the nodes iteration. Subclasses will just call the <code>visit</code>
      * method passing a reference to <code>this</code>.
      * 

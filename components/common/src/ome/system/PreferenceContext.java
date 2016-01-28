@@ -37,7 +37,7 @@ import com.google.common.collect.MapMaker;
  * Preferences API but in an IceGrid xml file under etc/grid of the server
  * installation. The properties are set in the config file on node startup, for
  * example in var/master/servers/Blitz-0/config/config. When the Java process
- * starts, {@link ome.services.blitz.Entry} places the values in
+ * starts, {@code ome.services.blitz.Entry} places the values in
  * {#link {@link System#getProperties()}.
  * 
  * @author Josh Moore, josh at glencoesoftware.com

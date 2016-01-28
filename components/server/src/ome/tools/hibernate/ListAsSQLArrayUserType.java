@@ -247,8 +247,6 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType, Parameteriz
         private E[] theEnumValues;
 
         /**
-         * @param clazz
-         *            the class of the enum.
          * @param theEnumValues
          *            The values of enum (by invoking .values()).
          */
@@ -305,7 +303,6 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType, Parameteriz
         return true;
     }
 
-    @SuppressWarnings("unused")
     public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
             throws HibernateException, SQLException {
 
@@ -334,14 +331,13 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType, Parameteriz
             return true;
         if (null == x || null == y)
             return false;
-        Class javaClass = returnedClass();
+        Class<?> javaClass = returnedClass();
         if (!javaClass.equals(x.getClass()) || !javaClass.equals(y.getClass()))
             return false;
 
         return x.equals(y);
     }
 
-    @SuppressWarnings("unused")
     public Object assemble(Serializable cached, Object owner)
             throws HibernateException {
         return cached;
@@ -351,7 +347,6 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType, Parameteriz
         return (Serializable) value;
     }
 
-    @SuppressWarnings("unused")
     public Object replace(Object original, Object target, Object owner)
             throws HibernateException {
         return original;

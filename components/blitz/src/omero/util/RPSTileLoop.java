@@ -76,7 +76,6 @@ public class RPSTileLoop extends TileLoop {
      * Iterates over every tile in a given pixel based on the
      * over arching dimensions and a requested maximum tile width and height.
      * @param iteration Invoker to call for each tile.
-     * @param pixel Pixel instance
      * @param tileWidth <b>Maximum</b> width of the tile requested. The tile
      * request itself will be smaller than the original tile width requested if
      * <code>x + tileWidth > sizeX</code>.

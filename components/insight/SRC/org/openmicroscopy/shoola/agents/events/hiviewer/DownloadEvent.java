@@ -44,7 +44,7 @@ public class DownloadEvent
     /**
      * Creates a new instance.
      *
-     * @param path where to download the objects
+     * @param folder where to download the objects
      * @param override Indicate to override or not the name if it already exits.
      */
     public DownloadEvent(File folder, boolean override)

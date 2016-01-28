@@ -10,6 +10,9 @@ function ta = writeTimestampAnnotation(session, value, varargin)
 %    ta = writeTimestampAnnotation(session, value, 'namespace', namespace)
 %    also sets the namespace of the annotation.
 %
+%    ta = writeTimestampAnnotation(session, value, 'group', groupid)
+%    sets the group.
+%
 %    Examples:
 %
 %        ta = writeTimestampAnnotation(session, value)
@@ -45,6 +48,7 @@ ip.addRequired('session');
 ip.addRequired('value', @isscalar);
 ip.addParamValue('description', '', @ischar);
 ip.addParamValue('namespace', '', @ischar);
+ip.addParamValue('group', [], @(x) isscalar(x) && isnumeric(x));
 ip.parse(session, value, varargin{:});
 
 % Create double annotation
@@ -62,4 +66,9 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Upload and return the annotation
-ta = session.getUpdateService().saveAndReturnObject(ta);
+context = java.util.HashMap;
+if ~isempty(ip.Results.group)
+    context.put(...
+        'omero.group', java.lang.String(num2str(ip.Results.group)));
+end
+ta = session.getUpdateService().saveAndReturnObject(ta, context);

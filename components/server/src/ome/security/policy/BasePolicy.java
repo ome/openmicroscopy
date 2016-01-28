@@ -30,7 +30,6 @@ import ome.model.IObject;
  * Simple base class for {@link Policy} implementations which always returns
  * true for {@link #isRestricted(IObject)} and always fails on
  * {@link #checkRestriction(IObject)}.
- * @param <T>
  */
 public abstract class BasePolicy implements Policy {
 

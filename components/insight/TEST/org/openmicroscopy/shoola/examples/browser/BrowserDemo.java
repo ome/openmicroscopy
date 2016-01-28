@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.examples.browser.BrowserDemo
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +20,6 @@
  */
 package org.openmicroscopy.shoola.examples.browser;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -47,13 +43,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.examples.data.Gateway;
 import org.openmicroscopy.shoola.examples.data.LoginCredentials;
-import pojos.DatasetData;
-import pojos.ImageData;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 
 /** 
  * Demo applications to browse a dataset.
@@ -63,9 +56,6 @@ import pojos.ImageData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class BrowserDemo

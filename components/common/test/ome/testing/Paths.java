@@ -6,7 +6,6 @@
  */
 package ome.testing;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,13 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ome.conditions.ApiUsageException;
-
-// Application-internal dependencies
 
 /**
  * utility class to test CGC paths. Specifying just what should and what should
@@ -31,7 +27,7 @@ import ome.conditions.ApiUsageException;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 3.0
  * @since 2.5
  */
 public class Paths {

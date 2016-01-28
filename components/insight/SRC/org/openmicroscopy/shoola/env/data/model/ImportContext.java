@@ -22,14 +22,7 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-
-
-//Java imports
 import java.util.List;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * Holds the information on where to import the files and
@@ -40,9 +33,6 @@ import java.util.List;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since 3.0-Beta4
  */
 public class ImportContext
@@ -98,7 +88,8 @@ public class ImportContext
 	/** 
 	 * Creates a new instance. 
 	 * 
-	 * @param container The location where to import the data.
+	 * @param folderAs Indicates to use the folder as a container.
+	 * @param depth The depth of the scanning.
 	 * @param files The files to import.
 	 */
 	public ImportContext(int folderAs, int depth, List<ImportableFile> files)

@@ -28,6 +28,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +41,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellEditor;
 
+import org.apache.commons.lang.StringUtils;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -109,6 +112,9 @@ class ObjectInspector
          */
         private static final List<AttributeField> attributeFields = new ArrayList<AttributeField>();
         static {
+            attributeFields.add(new AttributeField(AnnotationKeys.TAG,
+                    AnnotationDescription.annotationDescription
+                            .get(AnnotationKeys.TAG), false));
             attributeFields.add(new AttributeField(MeasurementAttributes.TEXT,
                     AnnotationDescription.annotationDescription
                             .get(AnnotationKeys.TEXT), true));
@@ -247,10 +253,11 @@ class ObjectInspector
          */
         private double parseDouble(String text) {
             double result = 1;
-            if (text != null && text.trim().length() > 0) {
+            NumberFormat nf = NumberFormat.getInstance();
+            if (StringUtils.isNotBlank(text)) {
                 try {
-                    result = Double.parseDouble(text);
-                } catch (NumberFormatException e) {
+                    result = nf.parse(text).doubleValue();
+                } catch (ParseException e) {
                 }
                 if (result < 1) {
                     result = 1;

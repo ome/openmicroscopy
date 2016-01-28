@@ -35,17 +35,18 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import com.google.common.io.Files;
 
-import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
-import pojos.ImageData;
-import pojos.ROIData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.ROIData;
 
 
 /**
@@ -77,14 +78,20 @@ public class ResultsSaver
      * Create a temporary file
      *
      * @param img The image object to handle.
+     * @param fileName The name to use if any.
      * @return See above.
      */
-    private File createFile(ImagePlus img)
+    private File createFile(ImagePlus img, String fileName)
     {
         File dir = Files.createTempDir();
-        String name = "ImageJ-"+FilenameUtils.getBaseName(
-                FilenameUtils.removeExtension(img.getTitle()))+"-Results-";
-        name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String name;
+        if (CommonsLangUtils.isBlank(fileName)) {
+            name = "ImageJ-"+FilenameUtils.getBaseName(
+                    FilenameUtils.removeExtension(img.getTitle()))+"-Results-";
+            name += new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        } else {
+            name = FilenameUtils.removeExtension(fileName);
+        }
         name += ".csv";
         try {
             File f = new File(dir, name);
@@ -128,7 +135,7 @@ public class ResultsSaver
                     ImagePlus img = (ImagePlus) file.getFile();
                     rois = reader.readImageJROIFromSources(id, img);
                     //create a tmp file.
-                    File f = createFile(img);
+                    File f = createFile(img, results.getTableName());
                     final String description = "Save ROIs Results";
                     final long imageID = id;
                     final File fi = f;
@@ -181,7 +188,7 @@ public class ResultsSaver
                     }
                     ImagePlus img = (ImagePlus) file.getFile();
                     //create a tmp file.
-                    File f = createFile(img);
+                    File f = createFile(img, results.getTableName());
                     if (f != null) {
                         final String description = "Save Table Results";
                         final long imageID = id;

@@ -4,7 +4,6 @@
     <property name="main.class" value="ome.services.fulltext.Main"/>
     <property name="import.dir" value="${basedir}/../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/version.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
 

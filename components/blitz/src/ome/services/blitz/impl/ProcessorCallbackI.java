@@ -1,9 +1,8 @@
 /*
- *   $Id$
- *
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.services.blitz.impl;
 
 import java.util.List;
@@ -12,10 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.blitz.util.ResultHolder;
-import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
-import ome.system.ServiceFactory;
 
 import omero.ServerError;
 import omero.constants.categories.PROCESSORCALLBACK;
@@ -30,8 +27,6 @@ import omero.model.Job;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
@@ -83,6 +78,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
     /**
      * Return the number of times this instance has been called in a thread
      * safe manner.
+     * @return See above.
      */
     public int getResponses() {
         return responses.get();
@@ -91,7 +87,8 @@ public class ProcessorCallbackI extends AbstractAmdServant
     /**
      * Generates a UUID-based {@link Ice.Identity} with the category of
      * {@link PROCESSORCALLBACK#value} and then calls
-     * {@link #activateAndWait(Current, Ice.Identity).
+     * {@link #activateAndWait(Current, Ice.Identity)}.
+     * @return See above.
      */
     public ProcessorPrx activateAndWait(Ice.Current current) throws ServerError {
         Ice.Identity acceptId = new Ice.Identity();
@@ -107,7 +104,7 @@ public class ProcessorCallbackI extends AbstractAmdServant
 
      * @param current
      * @param acceptId
-     * @return
+     * @return See above.
      * @throws ServerError
      */
     public ProcessorPrx activateAndWait(Ice.Current current,

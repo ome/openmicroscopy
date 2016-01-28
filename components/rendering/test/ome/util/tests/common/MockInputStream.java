@@ -7,13 +7,9 @@
 
 package ome.util.tests.common;
 
-// Java imports
 import java.io.IOException;
 import java.io.InputStream;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import util.mocks.IMock;
 import util.mocks.MethodSignature;
 import util.mocks.MockSupport;
@@ -27,8 +23,6 @@ import util.mocks.MockedCall;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/25 18:09:17 $) </small>
  * @since OME2.2
  */
 public class MockInputStream extends InputStream implements IMock {

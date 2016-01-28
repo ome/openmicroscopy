@@ -1,34 +1,29 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.LongColumn;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
-import omero.model.ImageAnnotationLink;
 import omero.model.OriginalFile;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Collections of tests for the <code>IUpdate</code> service.
@@ -111,10 +106,7 @@ public class TableTest extends AbstractServerTest {
     private void deleteTable() throws Exception {
         if (myTable != null) {
             OriginalFile f = myTable.getOriginalFile();
-            final Delete2 dc = new Delete2();
-            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    OriginalFile.class.getSimpleName(),
-                    Collections.singletonList(f.getId().getValue()));
+            final Delete2 dc = Requests.delete("OriginalFile", f.getId().getValue());
             callback(true, client, dc);
             myTable = null;
         }

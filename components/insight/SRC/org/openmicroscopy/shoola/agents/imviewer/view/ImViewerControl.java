@@ -1,11 +1,9 @@
 /*
- * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerControl
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,8 +21,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Frame;
@@ -116,12 +112,12 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
-import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.PixelsData;
-import pojos.WellSampleData;
+import omero.gateway.model.DataObject;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ImageData;
+import omero.gateway.model.PixelsData;
+import omero.gateway.model.WellSampleData;
 
 
 /** 
@@ -134,9 +130,6 @@ import pojos.WellSampleData;
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
  * @since OME2.2
  */
 class ImViewerControl
@@ -708,7 +701,11 @@ class ImViewerControl
 	 */
 	void setSelectedXYPlane(int z, int t, int bin)
 	{ 
-		model.setSelectedXYPlane(z, t, bin); 
+        boolean enableSave = z != model.getDefaultZ()
+                || t != model.getDefaultT();
+        model.setSelectedXYPlane(z, t, bin);
+        if (enableSave)
+            actionsMap.get(SAVE_RND_SETTINGS).setEnabled(true);
 	}
 
 	/**
@@ -1162,19 +1159,22 @@ class ImViewerControl
 	 */
 	public void componentMoved(ComponentEvent e) {}
 	
-	/**
-	 * Returns if interpolation is enabled or not
-	 * @return
-	 */
-        public boolean isInterpolation() {
-            return model.isInterpolation();
-        }
-    
-        /**
-         * En-/Disables interpolation
-         * @param interpolation
-         */
-        public void setInterpolation(boolean interpolation) {
-            model.setInterpolation(interpolation);
-        }
+    /**
+     * Returns if interpolation is enabled or not
+     * 
+     * @return
+     */
+    boolean isInterpolation() {
+        return model.isInterpolation();
+    }
+
+    /**
+     * En-/Disables interpolation
+     * 
+     * @param interpolation
+     */
+    void setInterpolation(boolean interpolation) {
+        model.setInterpolation(interpolation);
+        ImViewerFactory.setInterpolation(interpolation);
+    }
 }

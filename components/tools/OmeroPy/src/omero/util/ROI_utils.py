@@ -44,13 +44,61 @@ from omero.model.enums import UnitsLength
 from omero.model import LengthI
 from omero.model import EllipseI
 from omero.model import LineI
-from omero.model import RectI
+from omero.model import RectangleI
 from omero.model import PointI
 from omero.model import PolylineI
 from omero.model import PolygonI
 from omero.model import MaskI
 from omero.rtypes import rdouble, rint, rstring
 
+#
+# HELPERS
+#
+
+
+def pointsStringToXYlist(string):
+    """
+    Method for converting the string returned from
+    omero.model.ShapeI.getPoints() into list of (x,y) points.
+    E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503,
+    190,491] points2[309,427, 366,503, 190,491]"
+    or the new format: "309,427 366,503 190,491"
+    """
+    pointLists = string.strip().split("points")
+    if len(pointLists) < 2:
+        if len(pointLists) == 1 and pointLists[0]:
+            xys = pointLists[0].split()
+            xyList = [tuple(map(int, xy.split(','))) for xy in xys]
+            return xyList
+
+        msg = "Unrecognised ROI shape 'points' string: %s" % string
+        raise ValueError(msg)
+
+    firstList = pointLists[1]
+    xyList = []
+    for xy in firstList.strip(" []").split(", "):
+        x, y = xy.split(",")
+        xyList.append((int(x.strip()), int(y.strip())))
+    return xyList
+
+
+def xyListToBbox(xyList):
+    """
+    Returns a bounding box (x,y,w,h) that will contain the shape
+    represented by the XY points list
+    """
+    xList, yList = [], []
+    for xy in xyList:
+        x, y = xy
+        xList.append(x)
+        yList.append(y)
+    return (min(xList), min(yList), max(xList)-min(xList),
+            max(yList)-min(yList))
+
+
+#
+# Data implementation
+#
 
 ##
 # abstract, defines the method that call it as abstract.
@@ -372,8 +420,8 @@ class EllipseData(ShapeData, ROIDrawingI):
             self.ry.getValue(), self.shapeSettings.getSettings())
 
 ##
-# The RectangleData class contains all the manipulation and create of RectI
-# types.
+# The RectangleData class contains all the manipulation and creation of
+# RectangleI types.
 # It also accepts the ROIDrawingUtils visitor for drawing rectangles.
 #
 
@@ -420,7 +468,7 @@ class RectangleData(ShapeData, ROIDrawingI):
     # overridden, @See ShapeData#createBaseType
     #
     def createBaseType(self):
-        return RectI()
+        return RectangleI()
 
     ##
     # overridden, @See ShapeData#acceptVisitor

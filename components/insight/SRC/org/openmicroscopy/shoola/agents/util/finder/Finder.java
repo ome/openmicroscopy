@@ -22,15 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.util.finder;
 
-
-//Java imports
 import java.util.Collection;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
 
 /** 
  * Interface that every finder should implement
@@ -40,9 +34,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
  * @since OME3.0
  */
 public interface Finder
@@ -84,11 +75,10 @@ public interface Finder
 
 	/**
 	 * Sets the results of the search.
-	 * 
-	 * @param ctx The security context.
+	 *
 	 * @param result The value to set.
 	 */
-	public void setResult(AdvancedSearchResultCollection result);
+	public void setResult(SearchResultCollection result);
 
 	/** 
 	 * Sets the collection of tags. 

@@ -1,25 +1,20 @@
 /*
- * $Id$
- *
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package integration.delete;
 
-import java.util.Collections;
-import java.util.List;
+package integration.delete;
 
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import static org.testng.AssertJUnit.*;
 
@@ -45,10 +40,7 @@ public class RelatedToTest extends AbstractServerTest {
         p2 = (Pixels) iUpdate.saveAndReturnObject(p2);
         assertEquals(p1.getId(), p2.getRelatedTo().getId());
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(i1.getId().getValue()));
+        final Delete2 dc = Requests.delete("Image", i1.getId().getValue());
         callback(true, client, dc);
 
         assertDoesNotExist(i1);
@@ -79,10 +71,7 @@ public class RelatedToTest extends AbstractServerTest {
         assertNotNull(pixels);
         assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img2.getId().getValue()));
+        final Delete2 dc = Requests.delete("Image", img2.getId().getValue());
         callback(true, client, dc);
 
         String sql = "select i from Image i where i.id = :id";
@@ -122,10 +111,7 @@ public class RelatedToTest extends AbstractServerTest {
         assertNotNull(pixels);
         assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
 
-        final Delete2 dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img2.getId().getValue()));
+        final Delete2 dc = Requests.delete("Image", img2.getId().getValue());
         callback(true, client, dc);
 
         String sql = "select i from Image i where i.id = :id";

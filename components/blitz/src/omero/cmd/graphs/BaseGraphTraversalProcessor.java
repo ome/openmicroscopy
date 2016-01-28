@@ -30,7 +30,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphTraversal;
 
 /**
- * Useful methods for {@link GraphTraversal.Processor} instances to share.
+ * Useful methods for {@link ome.services.graphs.GraphTraversal.Processor} instances to share.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
