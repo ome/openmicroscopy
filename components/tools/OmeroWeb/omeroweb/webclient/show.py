@@ -467,6 +467,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
     # Hierarchies for this object
     paths = []
+    orphanedImage = False
 
     # It is probably possible to write a more generic query instead
     # of special casing each type, but it will be less readable and
@@ -530,6 +531,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
             # If it is orphaned->image
             if e[2] is None:
+                orphanedImage = True
                 path.append({
                     'type': 'orphaned',
                     'id': e[0].val
@@ -613,7 +615,8 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
     # restricted by a particular WellSample id
     # May not have acquisition (load plate from well)
     # We don't need to load the wellsample (not in tree)
-    elif lowest_type == 'well':
+    if lowest_type == 'well' or orphanedImage:
+
         q = '''
             select coalesce(sowner.id, plowner.id, aowner.id, wsowner.id),
                    slink.parent.id,
@@ -628,9 +631,12 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             left outer join plate.details.owner plowner
             left outer join plate.screenLinks slink
             left outer join slink.parent.details.owner sowner
-            where wellsample.well.id = :wid
             '''
         where_clause = []
+        if well_id is not None:
+            where_clause.append('wellsample.well.id = :wid')
+        if image_id is not None:
+            where_clause.append('wellsample.image.id = :iid')
         if acquisition_id is not None:
             where_clause.append('acquisition.id = :aid')
         if plate_id is not None:
@@ -641,7 +647,13 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             where_clause.append(
                 'coalesce(sowner.id, plowner.id, aoener.id, wowner.id) = :eid')
         if len(where_clause) > 0:
-            q += ' and ' + ' and '.join(where_clause)
+            q += 'where ' + ' and '.join(where_clause)
+
+        result = qs.projection(q, params, service_opts)
+
+        # For image, remove 'orphaned' path if we have found it in well
+        if len(result) > 0:
+            paths = []
 
         for e in qs.projection(q, params, service_opts):
             path = []
