@@ -490,7 +490,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          json.loads,
          "A list of servers the Web client can connect to."],
     "omero.web.ping_interval":
-        ["PING_INTERVAL", 60000, int, "description"],
+        ["PING_INTERVAL",
+         60000,
+         int,
+         "Timeout interval between ping invocations in seconds"],
+    "omero.web.chunk_size":
+        ["CHUNK_SIZE",
+         1048576,
+         int,
+         "Size, in bytes, of the “chunk”"],
     "omero.web.webgateway_cache":
         ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
 
