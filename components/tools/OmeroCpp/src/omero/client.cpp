@@ -63,7 +63,9 @@ namespace omero {
 
         // Strictly necessary for this class to work
         optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
+#if ICE_INT_VERSION / 100 <= 305
         optionallySetProperty(id, "Ice.ACM.Client", "0");
+#endif
         optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");
         optionallySetProperty(id, "Ice.RetryIntervals", "-1");
         optionallySetProperty(id, "Ice.Default.EndpointSelection", "Ordered");
@@ -80,12 +82,15 @@ namespace omero {
 #endif
 
         // C++ only
+#if ICE_INT_VERSION / 100 <= 305
         std::string gcInterval = id.properties->getProperty("Ice.GC.Interval");
         if ( gcInterval.length() == 0 ) {
             stringstream ssgcInt;
             ssgcInt << omero::constants::GCINTERVAL;
             id.properties->setProperty("Ice.GC.Interval", ssgcInt.str());
         }
+#endif
+        
 
         // Setting block size
         std::string blockSize = id.properties->getProperty("omero.block_size");
