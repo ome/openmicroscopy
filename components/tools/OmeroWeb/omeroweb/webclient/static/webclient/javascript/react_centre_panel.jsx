@@ -411,6 +411,14 @@
             return {'width': width, 'height': height}
         },
 
+        // After rendering, scroll selectd icon into view
+        // NB: scrollIntoViewIfNeeded() is provided by polyfill
+        componentDidUpdate: function() {
+            if (this.props.image.selected && this._icon) {
+                this._icon.scrollIntoViewIfNeeded();
+            }
+        },
+
         render: function() {
 
             var image = this.props.image,
@@ -420,12 +428,10 @@
             if (image.selected) {cls.push('ui-selected')};
             if (image.fsSelected) {cls.push('fs-selected')};
 
-            // TODO: scrollIntoViewIfNeeded() should be in componentDidUpdate(), not render()
-            // https://facebook.github.io/react/docs/component-specs.html
             return (
                 <li className={"row " + cls.join(" ")}
                     id={"image_icon-" + image.id}
-                    ref={function(icon){if (image.selected && icon){icon.scrollIntoViewIfNeeded()}} }
+                    ref={function(icon){this._icon = icon}.bind(this)}
                     data-fileset={image.data.obj.filesetId}
                     data-type="image"
                     data-id={image.id}
