@@ -76,7 +76,7 @@ public class ROITableCellRenderer
 		SHAPE_ICON = icons.getIcon(IconManager.ROISHAPE);
 		ROI_ICON = icons.getIcon(IconManager.ROISTACK);
 		ROI_OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
-		FOLDER_ICON = icons.getIcon(IconManager.RIGHT_ARROW_22);
+		FOLDER_ICON = icons.getIcon(IconManager.LINE_16);
 	}
 	
 	/** The identifier of the user currently logged in. */
@@ -116,7 +116,7 @@ public class ROITableCellRenderer
 		} else if (node.isFolderNode()) {
 		    FolderData folder = (FolderData) node.getUserObject();
 		    setIcon(FOLDER_ICON);
-            setText(folder.getName());
+            setText("Folder: "+folder.getName());
 		}
 		return this;
 	}

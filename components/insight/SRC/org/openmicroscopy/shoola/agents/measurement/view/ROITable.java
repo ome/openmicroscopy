@@ -295,23 +295,22 @@ public class ROITable
 		ROINode node = (ROINode) getNodeAtRow(row);
 		super.setValueAt(obj, row, column);
 		ROINode expandNode;
-		if (node.getUserObject() instanceof ROI)
+		if (node.isROINode())
 		{
 			ROI roi = (ROI) node.getUserObject();
 			expandNode = node;
-			if (roi.isVisible())
+			if (roi.isVisible() && !expandNode.isExpanded())
 				expandROIRow(expandNode);
-			else
-				collapseROIRow(expandNode);
 		}
-		else
+		else if (node.isShapeNode())
 		{
 			expandNode = (ROINode) node.getParent();
 			ROIShape roiShape = (ROIShape) node.getUserObject();
-			if (roiShape.getROI().isVisible())
+			if (roiShape.getROI().isVisible() && !expandNode.isExpanded())
 				expandROIRow(expandNode);
-			else
-				collapseROIRow(expandNode);
+		}
+		else if (node.isFolderNode()) {
+		    // ??
 		}
 	}
 	
