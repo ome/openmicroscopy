@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+import omero.UnloadedCollectionException;
 import omero.model.Ellipse;
 import omero.model.FolderRoiLink;
 import omero.model.Image;
@@ -105,11 +106,16 @@ public class ROIData
             }
         }
         
-        List<FolderRoiLink> folderLinks = roi.copyFolderLinks();
-        if (folderLinks != null) {
-            for (FolderRoiLink fl : folderLinks) {
-                folders.add(new FolderData(fl.getParent()));
+        try {
+            List<FolderRoiLink> folderLinks = roi.copyFolderLinks();
+            if (folderLinks != null) {
+                for (FolderRoiLink fl : folderLinks) {
+                    folders.add(new FolderData(fl.getParent()));
+                }
             }
+        }
+        catch(UnloadedCollectionException e) {
+            // folders haven't been loaded.
         }
      }
 
