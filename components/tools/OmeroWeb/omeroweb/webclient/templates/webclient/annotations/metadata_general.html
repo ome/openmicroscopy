@@ -573,6 +573,8 @@
                 // Any panes that still have 'defclose' flag, we close
                 $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
 
+
+
                 // For wells, we try to load Bulk table annotations attached to parent Screen / Plate
                 // loading just the row we need for the current well.
                 {% if manager.well %}
@@ -600,8 +602,17 @@
                                 hide: false
                             });
                     }
-                    loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
-                    loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
+                    // Load tables if tables tab is open
+                    if (open_panes.indexOf("tables") > -1) {
+                        loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
+                        loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
+                    }
+
+                    // If user opens tables tab, also load tables
+                    $('.can-collapse.closed[data-name="tables"]').click(function(){
+                        loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
+                        loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
+                    });
                 {% endif %}
             });
             
