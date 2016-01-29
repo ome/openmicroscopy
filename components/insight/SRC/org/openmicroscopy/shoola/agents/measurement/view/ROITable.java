@@ -91,8 +91,12 @@ public class ROITable
 	/** Column names of the table. */
 	private Vector<String>	columnNames;
 	
-	/** The map to relate ROI to ROINodes. */
-	private Map<String, ROINode> ROIMap;
+    /**
+     * The map to relate ROI to ROINodes. The key is the ROI hashcode,
+     * respectively folderID_ROI.hashcode(), this is necessary to distinguish
+     * between ROI nodes in different folders
+     * */
+    private Map<String, ROINode> ROIMap;
 	
 	/** List holding all ROINodes representing folders. */
     private Collection<ROINode> Folders;
@@ -353,7 +357,7 @@ public class ROITable
 	            {
 	                parent = new ROINode(shape.getROI());
 	                parent.setExpanded(true);
-	                ROIMap.put(""+shape.getROI(), parent);
+	                ROIMap.put(""+shape.getROI().hashCode(), parent);
 	                childCount = root.getChildCount();
 	                root.insert(parent, childCount);
 	            }
@@ -384,7 +388,7 @@ public class ROITable
 		            {
 		                parent = new ROINode(shape.getROI());
 		                parent.setExpanded(true);
-		                ROIMap.put(((FolderData)folder.getUserObject()).getId()+"_"+shape.getROI(), parent);
+		                ROIMap.put(((FolderData)folder.getUserObject()).getId()+"_"+shape.getROI().hashCode(), parent);
 		                childCount = folder.getChildCount();
 		                folder.insert(parent, childCount);
 		            }
@@ -536,8 +540,8 @@ public class ROITable
 	 */
 	ROINode findParent(ROI roi)
 	{
-		if (ROIMap.containsKey(roi))
-			return ROIMap.get(roi);
+		if (ROIMap.containsKey(""+roi.hashCode()))
+			return ROIMap.get(""+roi.hashCode());
 		return null;
 	}
 	

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRenderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,8 @@ import javax.swing.tree.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+
+import omero.gateway.model.FolderData;
 
 /** 
  * Basic cell renderer displaying the icon associated to an ROI or an ROIshape.
@@ -67,11 +68,15 @@ public class ROITableCellRenderer
 	/** Reference to the ROI owned by other users icon. */
 	private static Icon ROI_OTHER_OWNER_ICON;
 	
+	/** Reference to the Folder icon */
+	private static Icon FOLDER_ICON;
+	
 	static {
 		IconManager icons = IconManager.getInstance();
 		SHAPE_ICON = icons.getIcon(IconManager.ROISHAPE);
 		ROI_ICON = icons.getIcon(IconManager.ROISTACK);
 		ROI_OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
+		FOLDER_ICON = icons.getIcon(IconManager.RIGHT_ARROW_22);
 	}
 	
 	/** The identifier of the user currently logged in. */
@@ -96,18 +101,22 @@ public class ROITableCellRenderer
 			Object value, boolean selected, boolean expanded, 
 			boolean leaf, int row, boolean hasFocus)
 	{
-		Object thisObject = ((ROINode) value).getUserObject();
-		if (thisObject instanceof ROI) {
-			ROI roi = (ROI) thisObject;
+	    ROINode node = (ROINode) value;
+		if (node.isROINode()) {
+			ROI roi = (ROI) node.getUserObject();
 			if (userID == roi.getOwnerID() || roi.getOwnerID() == -1)
 				setIcon(ROI_ICON);
 			else setIcon(ROI_OTHER_OWNER_ICON);
 			TreeMap map = roi.getShapes();
 			if (map == null) setText("[0]");
 			else setText("["+map.size()+"]");
-		} else if (thisObject instanceof ROIShape) {
+		} else if (node.isShapeNode()) {
 			setIcon(SHAPE_ICON);
 			setText("");
+		} else if (node.isFolderNode()) {
+		    FolderData folder = (FolderData) node.getUserObject();
+		    setIcon(FOLDER_ICON);
+            setText(folder.getName());
 		}
 		return this;
 	}

@@ -139,7 +139,27 @@ public class ROINode
     public boolean isFolderNode() {
         return getUserObject() instanceof FolderData;
     }
-    
+
+    /**
+     * Checks if this node is a roi node
+     * 
+     * @return <code>true</code> if the ROINode represents a ROI,
+     *         <code>false</code> otherwise
+     */
+    public boolean isROINode() {
+        return getUserObject() instanceof ROI;
+    }
+
+    /**
+     * Checks if this node is a shape node
+     * 
+     * @return <code>true</code> if the ROINode represents a ROIShape,
+     *         <code>false</code> otherwise
+     */
+    public boolean isShapeNode() {
+        return getUserObject() instanceof ROIShape;
+    }
+
 	/**
 	 * Get the point in the parent where a child with coordinate should be 
 	 * inserted.
