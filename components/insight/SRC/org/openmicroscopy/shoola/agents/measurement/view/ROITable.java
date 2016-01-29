@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.ROITable 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,6 +63,8 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 
+import omero.gateway.model.FolderData;
+
 /**
  * The ROITable is the class extending the JXTreeTable, this shows the 
  * ROI as the parent object and the ROIShapes belonging to the ROI as the
@@ -89,8 +92,11 @@ public class ROITable
 	private Vector<String>	columnNames;
 	
 	/** The map to relate ROI to ROINodes. */
-	private Map<ROI, ROINode> ROIMap;
+	private Map<String, ROINode> ROIMap;
 	
+	/** List holding all ROINodes representing folders. */
+    private Collection<ROINode> Folders;
+    
 	/** The tree model. */
 	private ROITableModel	model;
 	
@@ -187,7 +193,8 @@ public class ROITable
 		this.columnNames = columnNames;
 		ToolTipManager.sharedInstance().registerComponent(this);
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
-		ROIMap = new HashMap<ROI, ROINode>();
+		ROIMap = new HashMap<String, ROINode>();
+		Folders = new ArrayList<ROINode>();
 		for (int i = 0 ; i < model.getColumnCount() ; i++)
 			getColumn(i).setResizable(true);
 		
@@ -264,7 +271,8 @@ public class ROITable
 		for (int i = 0 ; i < childCount ; i++ )
 			root.remove(0);
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
-		ROIMap = new HashMap<ROI, ROINode>();
+		ROIMap = new HashMap<String, ROINode>();
+		Folders = new ArrayList<ROINode>();
 		this.invalidate();
 		this.repaint();
 	}
@@ -331,33 +339,70 @@ public class ROITable
 	void addROIShapeList(List<ROIShape> shapeList)
 	{
 		ROINode parent = null;
+		Collection<ROINode> folders = null;
 		int childCount;
 		ROINode roiShapeNode;
 		ROINode newNode;
 		int index;
 		for (ROIShape shape : shapeList)
 		{
-			parent = findParent(shape.getROI());
-			if (parent == null)
-			{
-				parent = new ROINode(shape.getROI());
-				parent.setExpanded(true);
-				ROIMap.put(shape.getROI(), parent);
-				childCount = root.getChildCount();
-				root.insert(parent, childCount);
-			}
-			roiShapeNode = parent.findChild(shape.getCoord3D());
-			newNode = new ROINode(shape);
-			newNode.setExpanded(true);
-			if (roiShapeNode != null)
-			{
-				index = parent.getIndex(roiShapeNode);
-				parent.remove(shape.getCoord3D());
-				parent.insert(newNode, index);
-			}
-			else
-				parent.insert(newNode, 
-						parent.getInsertionPoint(shape.getCoord3D()));
+		    if(shape.getROI().getFolders().isEmpty()) {
+		        // find the ROI node
+		        parent = findParent(shape.getROI());
+	            if (parent == null)
+	            {
+	                parent = new ROINode(shape.getROI());
+	                parent.setExpanded(true);
+	                ROIMap.put(""+shape.getROI(), parent);
+	                childCount = root.getChildCount();
+	                root.insert(parent, childCount);
+	            }
+	            
+	            // get the shape node, replace if it is exists
+	            // or just add new node if it does not exists yet.
+	            roiShapeNode = parent.findChild(shape.getCoord3D());
+	            newNode = new ROINode(shape);
+	            newNode.setExpanded(true);
+	            if (roiShapeNode != null)
+	            {
+	                index = parent.getIndex(roiShapeNode);
+	                parent.remove(shape.getCoord3D());
+	                parent.insert(newNode, index);
+	            }
+	            else
+	                parent.insert(newNode, 
+	                        parent.getInsertionPoint(shape.getCoord3D()));
+		    }
+		    
+		    else {
+		        // if the ROI is organized in folders, we have to do the
+		        // same like above but for each folder.
+		        folders = findFolders(shape.getROI());
+		        for(ROINode folder : folders) {
+		            parent = findParent(shape.getROI());
+		            if (parent == null)
+		            {
+		                parent = new ROINode(shape.getROI());
+		                parent.setExpanded(true);
+		                ROIMap.put(((FolderData)folder.getUserObject()).getId()+"_"+shape.getROI(), parent);
+		                childCount = folder.getChildCount();
+		                folder.insert(parent, childCount);
+		            }
+		            
+		            roiShapeNode = parent.findChild(shape.getCoord3D());
+		            newNode = new ROINode(shape);
+		            newNode.setExpanded(true);
+		            if (roiShapeNode != null)
+		            {
+		                index = parent.getIndex(roiShapeNode);
+		                parent.remove(shape.getCoord3D());
+		                parent.insert(newNode, index);
+		            }
+		            else
+		                parent.insert(newNode, 
+		                        parent.getInsertionPoint(shape.getCoord3D()));
+		        }
+		    }			
 		}
 		model = new ROITableModel(root, columnNames);
 		this.setTreeTableModel(model);
@@ -496,6 +541,53 @@ public class ROITable
 		return null;
 	}
 	
+    /**
+     * Finds the ROI Folder nodes of the ROI.
+     * Folders which don't exist yet, will be created.
+     * 
+     * @param roi The ROI
+     * @return The folder nodes this ROI is part of
+     */
+    Collection<ROINode> findFolders(ROI roi) {
+        if(roi.getFolders().isEmpty())
+            return Collections.EMPTY_LIST;
+        
+        Collection<ROINode> insertInto = new ArrayList<ROINode>();
+        
+        for (FolderData f : roi.getFolders()) {
+            ROINode node = findFolderNode(Folders, f);
+            if (node==null) {
+                node = new ROINode(f);
+                root.insert(node, 0);
+                Folders.add(node);
+            }
+            insertInto.add(node);
+        }
+        
+        return insertInto;
+    }
+	
+    /**
+     * Find the {@link ROINode} for a certain {@link FolderData} within a
+     * collection of {@link ROINode}s
+     * 
+     * @param nodes
+     *            The collection to search through
+     * @param folder
+     *            The folder to look for
+     * @return The ROINode representing the folder or <code>null</code> if it
+     *         can't be found
+     */
+    private ROINode findFolderNode(Collection<ROINode> nodes, FolderData folder) {
+        for (ROINode n : nodes) {
+            Object obj = n.getUserObject();
+            if (obj != null && obj instanceof FolderData
+                    && ((FolderData) obj).getId() == folder.getId())
+                return n;
+        }
+        return null;
+    }
+    
 	/**
 	 * Invokes when a ROIShape has changed its properties. 
 	 * 
