@@ -2092,7 +2092,8 @@ def archived_files(request, iid=None, conn=None, **kwargs):
 
     if len(files) == 1:
         orig_file = files[0]
-        rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+        rsp = ConnCleaningHttpResponse(
+            orig_file.getFileInChunks(buf=settings.CHUNK_SIZE))
         rsp.conn = conn
         rsp['Content-Length'] = orig_file.getSize()
         # ',' in name causes duplicate headers
@@ -2104,7 +2105,8 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         zipName = request.GET.get('zipname', image.getName())
 
         try:
-            zipName = zip_archived_files(images, temp, zipName)
+            zipName = zip_archived_files(images, temp, zipName,
+                                         buf=settings.CHUNK_SIZE)
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)
