@@ -56,6 +56,14 @@
           changingPattern=".*SNAPSHOT.*"
           cache="local" descriptor="required">
         <artifact pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        <ivy pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
+      </filesystem>
+
+      <filesystem name="user-maven2" m2compatible="true" force="false"
+          checkmodified="true" changingMatcher="regexp"
+          changingPattern=".*SNAPSHOT.*"
+          cache="local" descriptor="required">
+        <artifact pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
         <ivy pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[module]-[revision].pom"/>
       </filesystem>
 
@@ -94,6 +102,7 @@
 
     <!-- Resolver for OME dependencies-->
     <chain name="ome-resolver" returnFirst="true">
+        <resolver ref="user-maven2"/>
         <resolver ref="user-maven"/>
         <resolver ref="ome-artifactory"/>
     </chain>
