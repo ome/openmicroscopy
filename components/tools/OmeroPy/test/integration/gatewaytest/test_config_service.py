@@ -26,7 +26,7 @@ def testInterpolateSetting(gatewaywrapper):
             "omero.client.viewer.interpolate_pixels", "false")
 
         gatewaywrapper.loginAsAuthor()
-        assert gatewaywrapper.gateway.getInterpolateSetting()
+        assert not gatewaywrapper.gateway.getInterpolateSetting()
 
     finally:
         # try/finally to make sure that we
