@@ -149,17 +149,21 @@
             return {data: undefined};
         },
 
+        handleWellClick: function(wellId) {
+            // update selected state for range of wells etc...
+            console.log("handleWellClick", wellId);
+            // Calls to ome.webclient.actions.js
+            //OME.well_selection_changed(selected, idx, perms);
+        },
+
         render: function() {
             var data = this.state.data,
                 iconSize = this.props.iconSize,
-                imgStyle = {
-                    width: iconSize + 'px',
-                    maxHeight: iconSize + 'px',
-                },
                 placeholderStyle = {
                     width: iconSize + 'px',
                     height: iconSize + 'px',
-                }
+                },
+                handleWellClick = this.handleWellClick;
             if (!data) {
                 return (<table />)
             }
@@ -171,11 +175,15 @@
                 var wells = data.collabels.map(function(c, colIndex){
                     var well = grid[rowIndex][colIndex]
                     if (well) {
-                        return (<td className="well" key={well.id} title={""+r+c}>
-                            <img
-                                src={"/webgateway/render_thumbnail/" + well.id + "/96/"}
-                                style={imgStyle} />
-                            </td>)
+                        return (
+                            <Well
+                                key={well.id}
+                                id={well.id}
+                                iconSize={iconSize}
+                                handleWellClick={handleWellClick}
+                                row={r}
+                                col={c} />
+                        )
                     } else {
                         return (
                             <td className="placeholder" key={r + "_" + c}>
@@ -204,6 +212,39 @@
             );
         }
     });
+
+
+    var Well = React.createClass({
+
+        handleClick: function() {
+            this.setState({selected: !this.state.selected});
+            this.props.handleWellClick(this.props.id);
+        },
+
+        getInitialState: function() {
+            return {selected: false};
+        },
+
+        render: function() {
+            var imgStyle = {
+                    width: this.props.iconSize + 'px',
+                    maxHeight: this.props.iconSize + 'px',
+                },
+                cls = "";
+            if (this.state.selected) {
+                cls = "ui-selected";
+            }
+            return (
+                <td className={"well " + cls} title={""+this.props.row+this.props.col}>
+                    <img
+
+                        src={"/webgateway/render_thumbnail/" + this.props.id + "/96/"}
+                        onClick={this.handleClick}
+                        style={imgStyle} />
+                </td>
+            )
+        }
+    })
 
     // Only export ReactPlate
     window.ReactPlate = ReactPlate;

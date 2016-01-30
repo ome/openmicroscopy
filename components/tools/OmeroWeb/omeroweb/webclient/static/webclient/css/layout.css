@@ -2157,7 +2157,7 @@ div.paging input.button_pagination {
     vertical-align: middle;
 }
 #spw table td {
-    padding: 1px;
+    padding: 2px;
     border: 1px solid #ccc;
     width: 25px;
 }
@@ -2168,8 +2168,8 @@ div.paging input.button_pagination {
     vertical-align: top;
 }
 
-#spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
-#spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
+#spw table td.ui-selecting { border: 1px dashed #555; background-color:#87ABD2;}
+#spw table td.ui-selected { border: 1px dashed #555; background-color:#87ABD2;}
 
 
 
