@@ -43,12 +43,10 @@
             var data;
             if (parentNode.type === "acquisition") {
                 // select 'run', load plate...
-                console.log("load RUN", objId);
                 data = {'run': objId};
             } else if (parentNode.type == "plate") {
                 // select 'plate', load if single 'run'
                 if (parentNode.children.length < 2) {
-                    console.log("load RUN", objId);
                     data = {'plate': objId};
                 }
             } else {
@@ -56,7 +54,6 @@
             }
 
             var url = "/webclient/api/fields/";
-            console.log("Plate componentDidMount LOADING: ", url);
             $.ajax({
                 url: url,
                 data: data,
@@ -130,7 +127,6 @@
                 fieldId = this.props.fieldId;
 
             var url = "/webgateway/plate/" + plateId + "/" + fieldId + "/";
-            console.log("PlateGrid componentDidMount. LOADING:", url);
             $.ajax({
                 url: url,
                 dataType: 'json',
@@ -146,12 +142,66 @@
         },
 
         getInitialState: function() {
-            return {data: undefined};
+            return {
+                data: undefined,
+                selectedWellIds: [],
+            }
         },
 
-        handleWellClick: function(wellId) {
+        handleWellClick: function(event, wellId) {
             // update selected state for range of wells etc...
-            console.log("handleWellClick", wellId);
+            var isWellSelected = function(wellId) {
+                return (this.state.selectedWellIds.indexOf(wellId) > -1);
+            }.bind(this);
+
+            if (event.shiftKey) {
+                // select range
+                var wellIds = [],
+                    selectedIdxs = [];
+                // make a list of all well IDs, and index of selected wells...
+                this.state.data.grid.forEach(function(row){
+                    row.forEach(function(w){
+                        if (w) {
+                            wellIds.push(w.wellId);
+                            if (isWellSelected(w.wellId)) {
+                                selectedIdxs.push(wellIds.length-1);
+                            }
+                        }
+                    });
+                });
+                // extend the range of selected wells with index of clicked well...
+                var clickedIdx = wellIds.indexOf(wellId),
+                    newSel = [],
+                    startIdx = Math.min(clickedIdx, selectedIdxs[0]),
+                    endIdx = Math.max(clickedIdx, selectedIdxs[selectedIdxs.length-1]);
+                //...and select all wells within that range
+                wellIds.forEach(function(wellId, idx){
+                    if (startIdx <= idx && idx <= endIdx) {
+                        newSel.push(wellId);
+                    }
+                });
+                this.setState({selectedWellIds: newSel});
+
+            } else if (event.metaKey) {
+                // toggle selection of well
+                var found = false;
+                // make a new list from old, removing clicked well
+                var s = this.state.selectedWellIds.map(function(id){
+                    if (wellId !== id) {
+                        return id;
+                    } else {
+                        found = true;
+                    }
+                });
+                // if well wasn't already seleced, then select it
+                if (!found) {
+                    s.push(wellId);
+                }
+                this.setState({selectedWellIds: s});
+            } else {
+                // Select only this well
+                this.setState({selectedWellIds: [wellId]});
+            }
             // Calls to ome.webclient.actions.js
             //OME.well_selection_changed(selected, idx, perms);
         },
@@ -163,6 +213,7 @@
                     width: iconSize + 'px',
                     height: iconSize + 'px',
                 },
+                selectedWellIds = this.state.selectedWellIds,
                 handleWellClick = this.handleWellClick;
             if (!data) {
                 return (<table />)
@@ -173,12 +224,15 @@
             var grid = data.grid;
             var rows = data.rowlabels.map(function(r, rowIndex){
                 var wells = data.collabels.map(function(c, colIndex){
-                    var well = grid[rowIndex][colIndex]
+                    var well = grid[rowIndex][colIndex];
                     if (well) {
+                        var selected = selectedWellIds.indexOf(well.wellId) > -1;
                         return (
                             <Well
-                                key={well.id}
-                                id={well.id}
+                                key={well.wellId}
+                                id={well.wellId}
+                                iid={well.id}
+                                selected={selected}
                                 iconSize={iconSize}
                                 handleWellClick={handleWellClick}
                                 row={r}
@@ -216,13 +270,8 @@
 
     var Well = React.createClass({
 
-        handleClick: function() {
-            this.setState({selected: !this.state.selected});
-            this.props.handleWellClick(this.props.id);
-        },
-
-        getInitialState: function() {
-            return {selected: false};
+        handleClick: function(event) {
+            this.props.handleWellClick(event, this.props.id);
         },
 
         render: function() {
@@ -231,14 +280,14 @@
                     maxHeight: this.props.iconSize + 'px',
                 },
                 cls = "";
-            if (this.state.selected) {
+            if (this.props.selected) {
                 cls = "ui-selected";
             }
             return (
                 <td className={"well " + cls} title={""+this.props.row+this.props.col}>
                     <img
 
-                        src={"/webgateway/render_thumbnail/" + this.props.id + "/96/"}
+                        src={"/webgateway/render_thumbnail/" + this.props.iid + "/96/"}
                         onClick={this.handleClick}
                         style={imgStyle} />
                 </td>
