@@ -71,12 +71,16 @@ namespace omero {
         optionallySetProperty(id, "Ice.Default.EndpointSelection", "Ordered");
         optionallySetProperty(id, "Ice.Default.PreferSecure", "1");
         optionallySetProperty(id, "Ice.Plugin.IceSSL" , "IceSSL:createIceSSL");
-#if defined (__APPLE__)
+#if ICE_INT_VERSION / 100 >= 306
+    #if defined (__APPLE__)
         optionallySetProperty(id, "IceSSL.Ciphers" , "NONE (DH_anon.*AES)");
+    #else
+        optionallySetProperty(id, "IceSSL.Ciphers" , "ADH");
+    #endif
 #else
         optionallySetProperty(id, "IceSSL.Ciphers" , "ADH");
 #endif
-        
+
         optionallySetProperty(id, "IceSSL.Protocols" , "tls1");
         optionallySetProperty(id, "IceSSL.VerifyPeer" , "0");
 
