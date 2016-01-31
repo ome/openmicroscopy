@@ -180,12 +180,15 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def getOrphanedContainerSettings(self):
         orphans = dict()
-        try:
-            orphans['enabled'] = toBoolean(
-                self.getConfigService()
-                .getConfigValue("omero.client.ui.tree.orphans.enabled"))
-        except:
+        if self.isAdmin():
             orphans['enabled'] = True
+        else:
+            try:
+                orphans['enabled'] = toBoolean(
+                    self.getConfigService()
+                    .getConfigValue("omero.client.ui.tree.orphans.enabled"))
+            except:
+                orphans['enabled'] = True
         if orphans['enabled']:
             try:
                 orphans['name'] = \
