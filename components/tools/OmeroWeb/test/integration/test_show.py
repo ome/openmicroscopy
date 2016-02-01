@@ -1566,8 +1566,8 @@ class TestShow(IWebTest):
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
 
         # Path to image in well...
-        paths = paths_to_object(self.conn, None, None, None, ws_a1.image.id.val,
-                                None, None, None, None)
+        paths = paths_to_object(self.conn, None, None, None,
+                                ws_a1.image.id.val, None, None, None, None)
         # Image is only in ONE acquisition
         assert len(paths) == 1
         assert paths[0] == expected[0]
