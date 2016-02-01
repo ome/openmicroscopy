@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.prefs.Preferences;
 
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
@@ -75,6 +76,9 @@ public class DataBrowserFactory
 	private static final DataBrowserFactory  
 						singleton = new DataBrowserFactory();
 	
+    /** The name of the thumbnail scale factor property */
+    private static final String THUMBNAIL_SCALE_FACTOR = "thumbnailScaleFactor";
+    
 	/** Discards all the tracked {@link DataBrowser}s. */
 	public static final void discardAll()
 	{
@@ -389,6 +393,25 @@ public class DataBrowserFactory
 		onGroupSwitched(true);
 	}
 	
+	/**
+     * Returns the thumbnail scale factor
+     * @return See above.
+     */
+    public static double getThumbnailScaleFactor() {
+        Preferences p = Preferences.userNodeForPackage(DataBrowserFactory.class);
+        String value = p.get(THUMBNAIL_SCALE_FACTOR, "0.5");
+        return Double.parseDouble(value);
+    }
+    
+    /**
+     * Sets the thumbnail scale factor
+     * @param d The factor
+     */
+    public static void setThumbnailScaleFactor(double d) {
+        Preferences p = Preferences.userNodeForPackage(DataBrowserFactory.class);
+        p.put(THUMBNAIL_SCALE_FACTOR, ""+d);
+    }
+    
 	/**
 	 * Returns <code>true</code> if there are rendering settings to copy,
 	 * <code>false</code> otherwise.
