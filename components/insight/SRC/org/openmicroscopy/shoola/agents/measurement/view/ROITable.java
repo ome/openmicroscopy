@@ -197,6 +197,7 @@ public class ROITable
 		this.columnNames = columnNames;
 		ToolTipManager.sharedInstance().registerComponent(this);
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
+		this.setRowHeight(34);
 		ROIMap = new HashMap<String, ROINode>();
 		Folders = new ArrayList<ROINode>();
 		for (int i = 0 ; i < model.getColumnCount() ; i++)
@@ -559,7 +560,7 @@ public class ROITable
         
         for (FolderData f : roi.getFolders()) {
             ROINode node = findFolderNode(Folders, f);
-            if (node==null) {
+            if (node == null) {
                 node = new ROINode(f);
                 root.insert(node, 0);
                 Folders.add(node);
@@ -584,7 +585,7 @@ public class ROITable
     private ROINode findFolderNode(Collection<ROINode> nodes, FolderData folder) {
         for (ROINode n : nodes) {
             Object obj = n.getUserObject();
-            if (obj != null && obj instanceof FolderData
+            if (obj instanceof FolderData
                     && ((FolderData) obj).getId() == folder.getId())
                 return n;
         }
