@@ -76,7 +76,7 @@ public class ROITableCellRenderer
 		SHAPE_ICON = icons.getIcon(IconManager.ROISHAPE);
 		ROI_ICON = icons.getIcon(IconManager.ROISTACK);
 		ROI_OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
-		FOLDER_ICON = icons.getIcon(IconManager.LINE_16);
+		FOLDER_ICON = icons.getIcon(IconManager.ROIFOLDER);
 	}
 	
 	/** The identifier of the user currently logged in. */

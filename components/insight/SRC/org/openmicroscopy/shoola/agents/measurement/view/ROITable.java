@@ -197,7 +197,7 @@ public class ROITable
 		this.columnNames = columnNames;
 		ToolTipManager.sharedInstance().registerComponent(this);
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
-		this.setRowHeight(34);
+		this.setRowHeight(25);
 		ROIMap = new HashMap<String, ROINode>();
 		Folders = new ArrayList<ROINode>();
 		for (int i = 0 ; i < model.getColumnCount() ; i++)
