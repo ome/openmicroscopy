@@ -48,7 +48,7 @@
 
         renderNothing: function(selected) {
             if (selected.length === 0) {
-                if (this.state.previousParent) {
+                if (this.previousParent) {
                     return false;
                 }
                 return true;
@@ -65,27 +65,28 @@
             }
         },
 
-        getParentNode: function(dtype, selected, inst) {
+        componentWillReceiveProps: function(nextProps) {
+            // When props change...
+            // If nothing is selected AND the previous node is valid
+            // We continue to render that node (Dataset)
+            if (nextProps.selected.length !== 0) {
+                delete(this.previousParent);
+            }
+        },
+
+        getParentNode: function(selected, inst) {
+            if (this.renderNothing(selected)) {
+                return;
+            }
+            if (selected.length === 0 && this.previousParent) {
+                return this.previousParent;
+            }
+            var dtype = selected[0].type;
             if (this.parentTypes.indexOf(dtype) > -1) {
                 return selected[0];
             }
             if (dtype === "image") {
                 return inst.get_node(inst.get_parent(selected[0]));
-            }
-        },
-
-        componentWillReceiveProps: function(nextProps) {
-            // When props change...
-            // If nothing is selected AND the previous node is valid
-            // We continue to render that node (Dataset)
-            if (nextProps.selected.length === 0) {
-                if (this.parentNode) {
-                    this.setState({'previousParent': this.parentNode.id});
-                }
-            } else {
-                // Otherwise, clear previous data
-                this.setState({'previousParent': false});
-                delete(this.parentNode);
             }
         },
 
@@ -97,16 +98,14 @@
                 dtype;
 
             var iconTable;
-            if (!this.renderNothing(selected)) {
 
-                if (selected.length === 0) {
-                    this.parentNode = inst.get_node(this.parentNode);
-                } else {
-                    dtype = selected[0].type;
-                }
+            var parentNode = this.getParentNode(selected, inst);
+
+            if (parentNode) {
+
+                dtype = parentNode.type;
 
                 if (dtype === "plate" || dtype === "acquisition") {
-                    var parentNode = selected[0];
                     var plateId = parentNode.data.id;
                     if (dtype === "acquisition") {
                         plateId = inst.get_node(inst.get_parent(parentNode)).data.id;
@@ -119,12 +118,10 @@
                     )
                 } else {
                     // handles tag, orphaned, dataset, share
-                    if (!this.parentNode) {
-                        this.parentNode = this.getParentNode(dtype, selected, inst);
-                    }
+                    this.previousParent = parentNode;
                     iconTable = (
                         <IconTable
-                            parentNode={this.parentNode}
+                            parentNode={parentNode}
                             inst={inst}
                             filterText={this.state.filterText}
                             setThumbsToDeselect={this.setThumbsToDeselect}
