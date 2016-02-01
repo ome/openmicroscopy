@@ -902,6 +902,32 @@ ALTER TABLE ${type.tableName()}_${prop.name} ALTER COLUMN value TYPE TEXT;
 #end
 #end
 
+-- The folder hierarchy should be acyclic.
+
+CREATE FUNCTION preserve_folder_tree() RETURNS "trigger" AS $$
+
+    DECLARE
+        parent_id BIGINT;
+
+    BEGIN
+        parent_id := NEW.parentfolder;
+        WHILE parent_id IS NOT NULL
+        LOOP
+            IF parent_id = NEW.id THEN
+                RAISE EXCEPTION 'folder %% would cause a cycle in the hierarchy', NEW.id;
+            ELSE
+                SELECT parentfolder INTO STRICT parent_id FROM folder WHERE id = parent_id;
+            END IF;
+        END LOOP;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER preserve_folder_tree
+    AFTER INSERT OR UPDATE ON folder
+    FOR EACH ROW EXECUTE PROCEDURE preserve_folder_tree();
+
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = '@DBVERSION@' and

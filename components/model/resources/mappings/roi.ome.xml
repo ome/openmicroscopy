@@ -15,6 +15,7 @@
                         <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
                         <optional name="image" type="ome.model.core.Image" inverse="rois"/>
                         <optional name="source" type="ome.model.core.OriginalFile"/>
+                        <parent name="folderLinks" type="ome.model.containers.FolderRoiLink" target="ome.model.containers.Folder"/>
                 </properties>
         </type>
         <abstract id="ome.model.roi.Shape" discriminator="" annotated="true">

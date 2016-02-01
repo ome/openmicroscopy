@@ -79,6 +79,7 @@ import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetI;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -123,6 +124,7 @@ import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
 import omero.sys.EventContext;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.lang.StringUtils;
@@ -1913,6 +1915,30 @@ public class AbstractServerTest extends AbstractTest {
         experimenter.setLastName(rtypes.rstring(lastName));
         experimenter.setLdap(rtypes.rbool(false));
         return experimenter;
+    }
+
+    /**
+     * Refresh a folder.
+     * @param folder the folder to refresh
+     * @return the same folder refreshed with its child folder and image link collections loaded
+     * @throws ServerError unexpected
+     */
+    protected Folder returnFolder(Folder folder) throws ServerError {
+        final String query =
+                "FROM Folder AS f LEFT OUTER JOIN FETCH f.childFolders LEFT OUTER JOIN FETCH f.imageLinks WHERE f.id = :id";
+        final Parameters params = new ParametersI().addId(folder.getId().getValue());
+        return (Folder) iQuery.findByQuery(query, params);
+    }
+
+    /**
+     * Save and refresh a folder.
+     * @param folder the folder to save and refresh
+     * @return the same folder refreshed with its child folder and image link collections loaded
+     * @throws ServerError unexpected
+     */
+    protected Folder saveAndReturnFolder(Folder folder) throws ServerError {
+        folder = (Folder) iUpdate.saveAndReturnObject(folder);
+        return returnFolder(folder);
     }
 
     /**

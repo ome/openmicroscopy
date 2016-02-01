@@ -2,9 +2,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2015 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,4 +35,25 @@
 			<to_child type="ome.model.core.Image"/>
 		</properties>
 	</link>
+    <type id="ome.model.containers.Folder" named="true" described="true" annotated="true">
+        <!-- Note: Name is optional in model-->
+        <properties>
+            <zeromany name="childFolders" type="ome.model.containers.Folder" inverse="parentFolder"/>
+            <manyzero name="parentFolder" type="ome.model.containers.Folder"/>
+            <child name="imageLinks" type="ome.model.containers.FolderImageLink" target="ome.model.core.Image"/>
+            <child name="roiLinks" type="ome.model.containers.FolderRoiLink" target="ome.model.roi.Roi"/>
+        </properties>
+    </type>
+    <link id="ome.model.containers.FolderImageLink">
+        <properties>
+            <from_parent type="ome.model.containers.Folder"/>
+            <to_child type="ome.model.core.Image"/>
+        </properties>
+    </link>
+    <link id="ome.model.containers.FolderRoiLink">
+        <properties>
+            <from_parent type="ome.model.containers.Folder"/>
+            <to_child type="ome.model.roi.Roi"/>
+        </properties>
+    </link>
 </types>
