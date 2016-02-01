@@ -74,7 +74,6 @@ done
 bin/omero import $PLATE_NAME --debug ERROR > plate_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Use populate_metadata to upload and attach bulk annotation csv
-PYTHONPATH=$PYTHONPATH:lib/python
 python lib/python/omero/util/populate_metadata.py -k $key Plate:$plateid $BULK_ANNOTATION_CSV
 
 # Create Screen with empty plates for Create Scenario
@@ -103,4 +102,3 @@ echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
 
 # Remove fake file
 rm *.fake
-rm $PLATE_NAME
