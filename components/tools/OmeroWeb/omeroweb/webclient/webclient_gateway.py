@@ -184,7 +184,6 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             orphans = json.loads(
                 self.getConfigService()
                 .getConfigValue("omero.client.ui.tree.orphans"))
-            orphans["enabled"] = toBoolean(orphans["enabled"])
         except:
             orphans = {
                 "enabled": True,
