@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import omero.ServerError;
 import omero.api.IContainerPrx;
+import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
@@ -39,6 +41,7 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.PixelsType;
 import omero.model.Well;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
@@ -1414,5 +1417,36 @@ public class BrowseFacility extends Facility {
         }
 
         return Collections.emptyList();
+    }
+    
+    /**
+     * Get a collection of all supported pixels types
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<String> getPixelsTypes(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        Collection<String> result = new ArrayList<String>();
+        try {
+            IPixelsPrx proxy = gateway.getPixelsService(ctx);
+            List<IObject> l = proxy.getAllEnumerations(PixelsType.class
+                    .getName());
+            Iterator<IObject> i = l.iterator();
+            while (i.hasNext()) {
+                PixelsType o = (PixelsType) i.next();
+                String value = o.getValue().getValue();
+                result.add(value);
+            }
+        } catch (Throwable t) {
+            handleException(this, t, "Could not get available PixelsTypes");
+        }
+        return result;
     }
 }

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -272,6 +272,12 @@ public class BrowseFacilityTest extends GatewayTest {
         Assert.assertNull(tmp);
     }
 
+    @Test
+    public void testGetPixelsTypes() throws Exception {
+        Collection<String> types = browseFacility.getPixelsTypes(rootCtx);
+        Assert.assertTrue(types.size()>0, "No pixel types retrieved.");
+    }
+    
     private void initData() throws Exception {
         this.group = createGroup();
         this.user = createExperimenter(group);
