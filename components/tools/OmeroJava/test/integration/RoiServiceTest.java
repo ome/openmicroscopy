@@ -12,11 +12,13 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import omero.ServerError;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -42,6 +44,7 @@ import omero.model.RoiI;
 import omero.model.Shape;
 import omero.model.Well;
 
+import org.hibernate.validator.AssertTrue;
 import org.testng.annotations.Test;
 
 import omero.gateway.model.FileAnnotationData;
@@ -371,4 +374,110 @@ public class RoiServiceTest extends AbstractServerTest {
         assertTrue(cols.length == columns.length);
     }
 
+    /**
+     * Compare findByImage, findByROI and findByPlane results (similar to
+     * test/integration/test_rois.py TestRois )
+     */
+    @Test
+    public void testFindByImageRoiPlane() throws Exception {
+        IRoiPrx svc = factory.getRoiService();
+        // create the roi.
+        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
+                .simpleImage());
+
+        Roi r1 = createRoi(image, 0, 0);
+        Roi r2 = createRoi(image, 0, 1);
+        Roi r3 = createRoi(image, 1, 0);
+        Roi r4 = createRoi(image, 1, 1);
+
+        RoiResult r = svc.findByImage(image.getId().getValue(),
+                new RoiOptions());
+        assertNotNull(r);
+        List<Roi> rois = r.rois;
+        assertTrue(rois.size() == 4);
+        List<Shape> shapes;
+        Roi roi;
+        Iterator<Roi> i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            shapes = roi.copyShapes();
+            assertTrue(shapes.size() == 3);
+        }
+
+        r = svc.findByRoi(r1.getId().getValue(), new RoiOptions());
+        rois = r.rois;
+        assertTrue(rois.size() == 1);
+        i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            assertTrue(roi.getId().getValue() == r1.getId().getValue());
+            shapes = roi.copyShapes();
+            assertTrue(shapes.size() == 3);
+        }
+
+        r = svc.findByRoi(r2.getId().getValue(), new RoiOptions());
+        rois = r.rois;
+        assertTrue(rois.size() == 1);
+        i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            assertTrue(roi.getId().getValue() == r2.getId().getValue());
+            shapes = roi.copyShapes();
+            assertTrue(shapes.size() == 3);
+        }
+
+        r = svc.findByPlane(image.getId().getValue(), 1, 0, new RoiOptions());
+        rois = r.rois;
+        assertTrue(rois.size() == 1);
+        i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            assertTrue(roi.getId().getValue() == r3.getId().getValue());
+            shapes = roi.copyShapes();
+            assertTrue(shapes.size() == 3);
+        }
+
+        r = svc.findByPlane(image.getId().getValue(), 1, 1, new RoiOptions());
+        rois = r.rois;
+        assertTrue(rois.size() == 1);
+        i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            assertTrue(roi.getId().getValue() == r4.getId().getValue());
+            shapes = roi.copyShapes();
+            assertTrue(shapes.size() == 3);
+        }
+    }
+    
+    /**
+     * Creates an ROI with 3 rectangluar shapes on the specified plane
+     * 
+     * @param img
+     *            The Image the ROI will be linked to
+     * @param z
+     *            The Z plane
+     * @param t
+     *            The T plane
+     * @return See above.
+     * @throws ServerError
+     *             If ROI couldn't be created
+     */
+    private Roi createRoi(Image img, int z, int t) throws ServerError {
+        Roi roi = new RoiI();
+        roi.setImage(img);
+        Rectangle rect;
+        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        for (int i = 0; i < 3; i++) {
+            rect = new RectangleI();
+            rect.setX(rdouble(10));
+            rect.setY(rdouble(10));
+            rect.setWidth(rdouble(10));
+            rect.setHeight(rdouble(10));
+            rect.setTheZ(rint(z));
+            rect.setTheT(rint(t));
+            roi.addShape(rect);
+        }
+        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        return roi;
+    }
 }

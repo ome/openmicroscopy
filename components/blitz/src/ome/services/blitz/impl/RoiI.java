@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2009-2016 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -159,7 +159,8 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 final QueryBuilder qb = new QueryBuilder();
                 qb.select("distinct r").from("Roi", "r");
                 qb.join("r.shapes", "s", false, true); // fetch
-                qb.join("r.folderLinks", "folderLinks", false, true); // fetch
+                qb.join("r.folderLinks", "folderLinks", true, true); // fetch
+                qb.join("folderLinks.parent", "folder", true, true); // fetch
                 qb.join("r.image", "i", false, false);
                 qb.where();
                 qb.and("i.id = :id");
