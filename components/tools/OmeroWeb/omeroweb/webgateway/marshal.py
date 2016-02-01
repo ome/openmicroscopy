@@ -158,6 +158,10 @@ def imageMarshal(image, key=None, request=None):
     interpolate = server_settings.get('interpolate_pixels', True)
 
     try:
+        def pixel_size_in_microns(method):
+            size = method('MICROMETER')
+            return size.getValue() if size else None
+
         rv.update({
             'interpolate': interpolate,
             'size': {'width': image.getSizeX(),
@@ -165,9 +169,9 @@ def imageMarshal(image, key=None, request=None):
                      'z': image.getSizeZ(),
                      't': image.getSizeT(),
                      'c': image.getSizeC()},
-            'pixel_size': {'x': image.getPixelSizeX(),
-                           'y': image.getPixelSizeY(),
-                           'z': image.getPixelSizeZ()},
+            'pixel_size': {'x': pixel_size_in_microns(image.getPixelSizeX),
+                           'y': pixel_size_in_microns(image.getPixelSizeY),
+                           'z': pixel_size_in_microns(image.getPixelSizeZ)},
             })
         if init_zoom is not None:
             rv['init_zoom'] = init_zoom
