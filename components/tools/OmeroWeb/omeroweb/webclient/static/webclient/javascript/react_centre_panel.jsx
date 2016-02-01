@@ -194,7 +194,7 @@
         componentDidMount: function() {
             var setIconSize = this.props.setIconSize,
                 iconSize = this.props.iconSize;
-            $(ReactDOM.findDOMNode(this.thumbSlider)).slider({
+            $(this.refs.thumbSlider).slider({
                 max: 200,
                 min: 30,
                 value: iconSize,
@@ -206,7 +206,7 @@
 
         componentWillUnmount: function() {
             // cleanup plugin
-            $(ReactDOM.findDOMNode(this._dataIcons)).slider( "destroy" );
+            $(this.refs.thumbSlider).slider( "destroy" );
         },
 
         render: function() {
@@ -214,7 +214,7 @@
                 <div className="toolbar iconTableFooter">
                     <div
                         id="thumb_size_slider"
-                        ref={function(slider){this.thumbSlider = slider}.bind(this)}
+                        ref="thumbSlider"
                         title="Zoom Thumbnails" />
                 </div>
             );
@@ -242,7 +242,7 @@
 
         componentDidMount: function() {
             var inst = this.props.inst;
-            $(ReactDOM.findDOMNode(this._dataIcons)).selectable({
+            $(this.refs.dataIcons).selectable({
                 filter: 'li.row',
                 distance: 2,
                 stop: function() {
@@ -262,7 +262,7 @@
 
         componentWillUnmount: function() {
             // cleanup plugin
-            $(ReactDOM.findDOMNode(this._dataIcons)).selectable( "destroy" );
+            $(this.refs.dataIcons).selectable( "destroy" );
         },
 
         handleIconClick: function(imageId, event) {
@@ -377,7 +377,7 @@
             return (
                 <div id="icon_table" className="iconTable">
                     <ul id="dataIcons"
-                        ref={function(dataIcons){this._dataIcons = dataIcons}.bind(this)}
+                        ref="dataIcons"
                         className={this.props.layout + "Layout"}>
                         <IconTableHeadRow />
                         {icons}
@@ -414,8 +414,8 @@
         // After rendering, scroll selectd icon into view
         // NB: scrollIntoViewIfNeeded() is provided by polyfill
         componentDidUpdate: function() {
-            if (this.props.image.selected && this._icon) {
-                this._icon.scrollIntoViewIfNeeded();
+            if (this.props.image.selected && this.refs.icon) {
+                this.refs.icon.scrollIntoViewIfNeeded();
             }
         },
 
@@ -431,7 +431,7 @@
             return (
                 <li className={"row " + cls.join(" ")}
                     id={"image_icon-" + image.id}
-                    ref={function(icon){this._icon = icon}.bind(this)}
+                    ref="icon"
                     data-fileset={image.data.obj.filesetId}
                     data-type="image"
                     data-id={image.id}
