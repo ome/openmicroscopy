@@ -442,6 +442,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "``'[\"HTTP_X_FORWARDED_PROTO_OMERO_WEB\", \"https\"]'``. "
           "For more details see :djangodoc:`secure proxy ssl header <ref/"
           "settings/#secure-proxy-ssl-header>`.")],
+    "omero.web.wsgi_args":
+        ["WSGI_ARGS",
+         None,
+         leave_none_unset,
+         ("A string representing Gunicorn additional arguments. "
+          "Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/latest/settings.html")],
 
     # Public user
     "omero.web.public.enabled":
