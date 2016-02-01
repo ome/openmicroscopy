@@ -48,6 +48,9 @@
 
         renderNothing: function(selected) {
             if (selected.length === 0) {
+                if (this.state.previousParent) {
+                    return false;
+                }
                 return true;
             }
             var dtype = selected[0].type;
@@ -71,33 +74,39 @@
             }
         },
 
-        // getNodeData: function(inst, parentNode) {
-        //     imgNodes = [];
-        //     parentNode.children.forEach(function(ch){
-        //         var childNode = inst.get_node(ch);
-        //         // Ignore non-images under tags or 'deleted' under shares
-        //         if (childNode.type == "image") {
-        //             imgNodes.push(childNode);
-        //         }
-        //     });
-
-
-        // },
+        componentWillReceiveProps: function(nextProps) {
+            // When props change...
+            // If nothing is selected AND the previous node is valid
+            // We continue to render that node (Dataset)
+            if (nextProps.selected.length === 0) {
+                if (this.parentNode) {
+                    this.setState({'previousParent': this.parentNode.id});
+                }
+            } else {
+                // Otherwise, clear previous data
+                this.setState({'previousParent': false});
+                delete(this.parentNode);
+            }
+        },
 
         // Most render nothing unless we've selected a Dataset or Image(s)
         render: function() {
             var selected = this.props.selected,
                 inst = this.props.jstree,
                 imgNodes = [],
-                parentNode,
                 dtype;
 
             var iconTable;
             if (!this.renderNothing(selected)) {
-                dtype = selected[0].type;
+
+                if (selected.length === 0) {
+                    this.parentNode = inst.get_node(this.parentNode);
+                } else {
+                    dtype = selected[0].type;
+                }
 
                 if (dtype === "plate" || dtype === "acquisition") {
-                    parentNode = selected[0];
+                    var parentNode = selected[0];
                     var plateId = parentNode.data.id;
                     if (dtype === "acquisition") {
                         plateId = inst.get_node(inst.get_parent(parentNode)).data.id;
@@ -110,10 +119,12 @@
                     )
                 } else {
                     // handles tag, orphaned, dataset, share
-                    parentNode = this.getParentNode(dtype, selected, inst);
+                    if (!this.parentNode) {
+                        this.parentNode = this.getParentNode(dtype, selected, inst);
+                    }
                     iconTable = (
                         <IconTable
-                            parentNode={parentNode}
+                            parentNode={this.parentNode}
                             inst={inst}
                             filterText={this.state.filterText}
                             setThumbsToDeselect={this.setThumbsToDeselect}
