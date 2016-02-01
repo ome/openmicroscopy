@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@ package integration.gateway;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import ome.specification.XMLMockObjects;
@@ -31,6 +32,7 @@ import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.ImportException;
 import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 import omero.gateway.model.ImportCallback;
 import omero.gateway.model.ProjectData;
 
@@ -166,5 +168,40 @@ public class TransferFacilityTest extends GatewayTest {
         rf.read(b);
         rf.close();
         return b;
+    }
+
+    @Test
+    public void testStreamImageToServer() throws Exception {
+        String type = "uint8";
+        int x = 64;
+        int y = 64;
+        int c = 3;
+        int z = 3;
+        int t = 3;
+
+        ImageData img = transferFacility.createImage(rootCtx, x, y, c, z, t, type,
+                "StreamedImage", null);
+        for (int ic = 0; ic < c; ic++) {
+            for (int iz = 0; iz < z; iz++) {
+                for (int it = 0; it < t; it++) {
+                    byte[] data = createRandomPlaneData(x, y);
+                    transferFacility.uploadPlane(rootCtx, img.getId(), ic, iz,
+                            it, data);
+                }
+            }
+        }
+
+        transferFacility.closeImage(rootCtx, img.getId());
+    }
+
+    private byte[] createRandomPlaneData(int x, int y) {
+        int size = x * y;
+        byte[] result = new byte[size];
+
+        Random r = new Random();
+        for (int i = 0; i < size; i++)
+            result[i] = (byte) r.nextInt(256);
+
+        return result;
     }
 }
