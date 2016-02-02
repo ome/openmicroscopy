@@ -357,7 +357,7 @@ public class ROINode
             case VISIBLE_COLUMN + 1:
                 return isVisible();
             default:
-                return null;
+                return "";
             }
         }
 		
