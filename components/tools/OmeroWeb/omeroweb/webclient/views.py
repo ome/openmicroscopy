@@ -641,7 +641,8 @@ def api_container_list(request, conn=None, **kwargs):
             page=page,
             limit=limit)
         # Get the orphaned images container
-        if (conn.isAdmin() or conn.isLeader() or
+        if (conn.isAdmin() or
+            conn.isLeader(gid=request.session.get('active_group')) or
             experimenter_id == conn.getUserId() or
             request.session['server_settings']
                            ['ui']['orphans']['enabled']):
