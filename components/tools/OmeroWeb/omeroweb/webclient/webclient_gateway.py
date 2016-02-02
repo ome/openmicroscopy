@@ -192,7 +192,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
                 .getConfigValue("omero.client.ui.tree.orphans"))
             for k in default.iterkeys():
                 try:
-                    orphans[k]
+                    if k == "enabled":
+                        orphans[k] = toBoolean(orphans[k])
+                    else:
+                        orphans[k]
                 except KeyError:
                     orphans[k] = default[k]
         except:
