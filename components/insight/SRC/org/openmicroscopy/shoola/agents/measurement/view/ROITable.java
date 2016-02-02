@@ -300,9 +300,8 @@ public class ROITable
 			if (roiShape.getROI().isVisible() && !expandNode.isExpanded())
 				expandROIRow(expandNode);
 		}
-		else if (node.isFolderNode()) {
-		    // ??
-		}
+		
+		repaint();
 	}
 	
 	/**
