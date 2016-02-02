@@ -7,39 +7,8 @@
 
         getInitialState: function() {
             return {
-                layout: 'icon',
                 iconSize: 65,
-                filterText: "",
             };
-        },
-
-        setLayout: function(layout) {
-            this.setState({layout: layout});
-        },
-
-        setFilterText: function(filterText) {
-            this.setState({filterText: filterText});
-            setTimeout(this.deselectHiddenThumbs, 50);
-        },
-
-        deselectHiddenThumbs: function() {
-            var imageIds = this._thumbsToDeselect;
-
-            if (imageIds.length === 0) {
-                return;
-            }
-            var inst = this.props.jstree;
-            var containerNode = OME.getTreeImageContainerBestGuess(imageIds[0]);
-            if (containerNode) {
-                imageIds.forEach(function(iid){
-                    var selectedNode = inst.locate_node('image-' + iid, containerNode)[0];
-                    inst.deselect_node(selectedNode, true);
-                });
-            }
-        },
-
-        setThumbsToDeselect: function(imageIds) {
-            this._thumbsToDeselect = imageIds;
         },
 
         setIconSize: function(size) {
@@ -118,6 +87,8 @@
                     )
                 } else {
                     // handles tag, orphaned, dataset, share
+                    // Cache this parentNode. If next selection == 0, still show this
+                    // E.g. if image in Dataset is de-selected
                     this.previousParent = parentNode;
                     iconTable = (
                         <IconTable
@@ -133,11 +104,7 @@
 
             return (
                 <div>
-                    <IconTableHeader
-                        filterText={this.state.filterText}
-                        setFilterText={this.setFilterText}
-                        layout={this.state.layout}
-                        setLayout={this.setLayout} />
+                    
                     {iconTable}
                     <IconTableFooter
                         iconSize={this.state.iconSize}
@@ -248,6 +215,44 @@
 
     var IconTable = React.createClass({
 
+        getInitialState: function() {
+            return {
+                layout: 'icon',
+                filterText: "",
+            }
+        },
+
+        setLayout: function(layout) {
+            this.setState({layout: layout});
+        },
+
+        setFilterText: function(filterText) {
+            console.log("setFilterText", filterText);
+            this.setState({filterText: filterText});
+            setTimeout(this.deselectHiddenThumbs, 50);
+        },
+
+        deselectHiddenThumbs: function() {
+            var imageIds = this._thumbsToDeselect;
+            console.log("deselectHiddenThumbs", imageIds);
+
+            if (imageIds.length === 0) {
+                return;
+            }
+            var inst = this.props.inst;
+            var containerNode = OME.getTreeImageContainerBestGuess(imageIds[0]);
+            if (containerNode) {
+                imageIds.forEach(function(iid){
+                    var selectedNode = inst.locate_node('image-' + iid, containerNode)[0];
+                    inst.deselect_node(selectedNode, true);
+                });
+            }
+        },
+
+        setThumbsToDeselect: function(imageIds) {
+            this._thumbsToDeselect = imageIds;
+        },
+
         componentDidMount: function() {
             var inst = this.props.inst;
             $(this.refs.dataIcons).selectable({
@@ -312,7 +317,7 @@
             var imgJson = [],
                 selFileSets = [],
                 thumbsToDeselect = [],
-                fltr = this.props.filterText;
+                fltr = this.state.filterText;
             // Convert jsTree nodes into json for template
             imgNodes.forEach(function(node){
                 var d = node.data.obj.date || node.data.obj.acqDate;
@@ -360,7 +365,7 @@
             });
 
             // Let parent know that some aren't shown
-            this.props.setThumbsToDeselect(thumbsToDeselect);
+            this.setThumbsToDeselect(thumbsToDeselect);
 
             // Now we know which filesets are selected, we can
             // go through all images, adding fs-selection flag if in
@@ -383,15 +388,21 @@
             }.bind(this));
 
             return (
+            <div className="centrePanel">
+                <IconTableHeader
+                        filterText={this.state.filterText}
+                        setFilterText={this.setFilterText}
+                        layout={this.state.layout}
+                        setLayout={this.setLayout} />
                 <div id="icon_table" className="iconTable">
                     <ul id="dataIcons"
                         ref="dataIcons"
-                        className={this.props.layout + "Layout"}>
+                        className={this.state.layout + "Layout"}>
                         <IconTableHeadRow />
                         {icons}
                     </ul>
                 </div>
-            );
+            </div>);
         }
     });
 

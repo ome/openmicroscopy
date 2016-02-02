@@ -102,7 +102,7 @@
             // #spw id is just for css
             // Use key: selectedField to force PlateGrid to mount on field change
             return (
-                <div className="iconTable">
+                <div className="plateContainer">
                     <div>
                         <select onChange={this.handleFieldSelect} >
                             {fieldSelect}

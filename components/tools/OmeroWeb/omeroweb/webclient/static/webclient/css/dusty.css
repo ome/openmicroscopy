@@ -930,11 +930,16 @@ button::-moz-focus-inner {
 
 
 
-	.iconTableHeader, .iconTableFooter, .iconTable {
+	.iconTableHeader, .iconTableFooter, .iconTable, .plateContainer, .centrePanel {
 		position: absolute;
 		left: 0;
 		right: 0;
 		border-right: 0;
+	}
+
+	.centrePanel {
+		top: 0;
+		bottom: 0;
 	}
 
 	.iconTableHeader {
@@ -947,13 +952,20 @@ button::-moz-focus-inner {
 		height: 25px;
 	}
 
-	.iconTable {
-		bottom:25px;
-		top:29px;
+	.iconTable, .plateContainer {
+		bottom:0;
 		overflow:auto;
 		margin-top:0px;
 	}
 
+	.iconTable {
+		top:29px;
+	}
+
+	.plateContainer {
+		top: 0;
+
+	}
 
 
 
