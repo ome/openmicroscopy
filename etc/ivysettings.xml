@@ -57,8 +57,8 @@
           cache="local" descriptor="required">
         <artifact pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[artifact]-[revision].[ext]"/>
         <ivy pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[artifact]-[revision].xml"/>
-       <!-- Ivy pattern for artifacts installed locally via Maven -->
-       <ivy pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[module]-[revision].pom"/>
+        <!-- Ivy pattern for artifacts installed locally via Maven -->
+        <ivy pattern="${local-maven2-dir}/[orgPath]/[module]/[revision]/[module]-[revision].pom"/>
       </filesystem>
 
       <!-- Remote downloads; cached to '~/.m2/repository' -->
