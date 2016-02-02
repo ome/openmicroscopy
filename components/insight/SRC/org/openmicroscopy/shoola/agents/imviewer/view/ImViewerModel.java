@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2042,8 +2042,8 @@ class ImViewerModel
 	/**
 	 * Starts an asynchronous call to render a preview of the projected image.
 	 * 
-	 * @param startZ	The lower bound of the z-section interval to project.
-	 * @param endZ		The upper bound of the z-section interval to project.
+	 * @param startZ	The lower bound of the z-section interval to project. (zero based)
+	 * @param endZ		The upper bound of the z-section interval to project. (zero based)
 	 * @param stepping	The stepping used, usually <code>1</code>.
 	 * @param type		The type of projection.
 	 */

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2352,14 +2352,14 @@ class ImViewerUI
 	int getTabbedIndex() { return model.getTabbedIndex(); }
 	
 	/**
-	 * Returns the lower bound of the z-section to project.
+	 * Returns the lower bound of the z-section to project. (zero based)
 	 * 
 	 * @return See above.
 	 */
 	int getProjectionStartZ() { return controlPane.getProjectionStartZ(); }
 	
 	/**
-	 * Returns the lower bound of the z-section to project.
+	 * Returns the lower bound of the z-section to project. (zero based)
 	 * 
 	 * @return See above.
 	 */
