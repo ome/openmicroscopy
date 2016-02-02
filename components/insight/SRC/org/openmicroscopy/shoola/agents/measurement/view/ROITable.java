@@ -30,10 +30,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
@@ -218,12 +216,10 @@ public class ROITable
 	 */
 	void selectROIShape(ROIShape shape)
 	{
-	    
 		Collection<ROINode> nodes = findNodes(shape.getROI());
 		for(ROINode node : nodes) {
     		expandROIRow(node);
     		ROINode child = node.findChild(shape);
-    		
     		int row = this.getRowForPath(child.getPath());
     		this.selectionModel.addSelectionInterval(row, row);
 		}
@@ -350,7 +346,6 @@ public class ROITable
 	            {
 	                parent = new ROINode(shape.getROI());
 	                parent.setExpanded(true);
-	                nodes.add(parent);
 	                this.nodes.add(parent);
 	                childCount = root.getChildCount();
 	                root.insert(parent, childCount);
@@ -363,7 +358,6 @@ public class ROITable
 	            roiShapeNode = parent.findChild(shape.getCoord3D());
 	            newNode = new ROINode(shape);
 	            newNode.setExpanded(true);
-	            nodes.add(newNode);
 	            this.nodes.add(newNode);
 	            if (roiShapeNode != null)
 	            {
@@ -466,16 +460,7 @@ public class ROITable
 	 */
 	void expandROIRow(ROINode parent)
 	{
-		int addedNodeIndex = root.getIndex(parent);
-		parent.setExpanded(true);
-		this.expandRow(addedNodeIndex);
-		ROINode node;
-		for (int i = 0; i < root.getChildCount(); i++)
-		{
-			node = (ROINode) root.getChildAt(i);
-			if (node.isExpanded()) 
-				expandPath(node.getPath());
-		}
+	    expandPath(parent.getPath());
 	}
 	
 	/** 
@@ -506,7 +491,6 @@ public class ROITable
 		Collection<ROINode> nodes = findNodes(roi);
 		for(ROINode node : nodes)
 		    this.expandROIRow(node);
-	//	this.scrollCellToVisible(selectedNodeIndex, 0);
 	}
 	
 	/**
@@ -541,7 +525,11 @@ public class ROITable
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 	}
 	
-	
+	/**
+	 * Find the nodes representing an ROI
+	 * @param roi The Roi
+	 * @return See above
+	 */
 	Collection<ROINode> findNodes(ROI roi) {
 	    Collection<ROINode> result = new ArrayList<ROINode>();
 	    for(ROINode node: nodes) {
