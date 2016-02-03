@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.io.InputServerStrategy
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,6 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import ome.model.units.BigResult;
 import omero.model.Length;
@@ -66,7 +65,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
@@ -171,7 +169,7 @@ class InputServerStrategy
 			edit = roi.getOwner().getId() == userID;
 		}
 		ROI newROI = component.createROI(id, id <= 0, edit,
-				roi.canDelete(), roi.canAnnotate());
+				roi.canDelete(), roi.canAnnotate(), roi.getFolders());
 		newROI.setOwnerID(roi.getOwner().getId());
 		ROIShape shape;
 		ShapeData shapeData;

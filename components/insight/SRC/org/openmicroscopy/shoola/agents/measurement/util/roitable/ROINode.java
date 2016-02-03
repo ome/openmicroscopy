@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 //Third-party libraries
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -40,6 +41,8 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
+
+import omero.gateway.model.FolderData;
 
 /**
  * The ROINode is an extension of the DefaultMutableTreeTableNode
@@ -117,6 +120,46 @@ public class ROINode
 		super(nodeName);
 		initMaps();
 	}
+	
+	/**
+     * Construct a node for a ROI Folder
+     * @param folder see above.
+     */
+    public ROINode(FolderData folder)
+    {
+        super(folder);
+        initMaps();
+    }
+
+    /**
+     * Checks if this node is a folder node
+     * 
+     * @return <code>true</code> if the ROINode represents a folder,
+     *         <code>false</code> otherwise
+     */
+    public boolean isFolderNode() {
+        return getUserObject() instanceof FolderData;
+    }
+
+    /**
+     * Checks if this node is a roi node
+     * 
+     * @return <code>true</code> if the ROINode represents a ROI,
+     *         <code>false</code> otherwise
+     */
+    public boolean isROINode() {
+        return getUserObject() instanceof ROI;
+    }
+
+    /**
+     * Checks if this node is a shape node
+     * 
+     * @return <code>true</code> if the ROINode represents a ROIShape,
+     *         <code>false</code> otherwise
+     */
+    public boolean isShapeNode() {
+        return getUserObject() instanceof ROIShape;
+    }
 
 	/**
 	 * Get the point in the parent where a child with coordinate should be 
@@ -269,7 +312,7 @@ public class ROINode
 				case ANNOTATION_COLUMN+1:
 					return AnnotationKeys.TEXT.get(roi);
 				case VISIBLE_COLUMN+1:
-					return roi.isVisible();
+					return isVisible();
 				default:
 					return null;
 			}
@@ -300,13 +343,41 @@ public class ROINode
 					return roiShape.getFigure().getAttribute(
 							MeasurementAttributes.TEXT);
 				case VISIBLE_COLUMN+1:
-					return Boolean.valueOf(roiShape.getFigure().isVisible());
+					return isVisible();
 				default:
 					return null;
 			}
-		}
+        } 
+		else if (userObject instanceof FolderData) {
+            switch (column) {
+            case ROIID_COLUMN+1:
+                return ((FolderData)userObject).getId();
+            case ANNOTATION_COLUMN+1:
+                return ((FolderData)userObject).getDescription();
+            case VISIBLE_COLUMN + 1:
+                return isVisible();
+            default:
+                return "";
+            }
+        }
+		
 		return null;
 	}
+
+    boolean isVisible() {
+        if (isROINode()) {
+            return ((ROI) getUserObject()).isVisible();
+        } else if (isShapeNode()) {
+            return ((ROIShape) getUserObject()).getFigure().isVisible();
+        } else if (isFolderNode()) {
+            for (MutableTreeTableNode node : getChildList()) {
+                if (!((ROINode) node).isVisible())
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
 	
 	/**
 	 * Get the value for the node at column
@@ -370,6 +441,20 @@ public class ROINode
 				default:
 					break;
 			}
+		} else if (userObject instanceof FolderData) {
+		    
+            switch (column) {
+            case VISIBLE_COLUMN + 1:
+                if(value instanceof Boolean) {
+                    for(MutableTreeTableNode child : getChildList()) {
+                        child.setValueAt(value, column);
+                    }
+                }
+                break;
+            default:
+                break;
+
+            }
 		}
 	}
 	

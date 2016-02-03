@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.model.ROI 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import omero.gateway.model.FolderData;
 
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -84,6 +86,9 @@ public class ROI
 	private Map<AnnotationKey, Object> 	annotations 
 										= new HashMap<AnnotationKey,Object>();
 	
+	/** The folders the ROI is part of */
+	private Collection<FolderData> folders = new ArrayList<FolderData>();
+	
 	/**
      * Forbidden annotations can't be set by the setAnnotation() operation.
      * They can only be changed by basicSetAnnotations().
@@ -119,7 +124,8 @@ public class ROI
     /**
      * Construct the ROI with id.
      * @param id see above.
-     * @param clientSide
+     * @param clientSide Flag indicating that the ROI has been created 
+     *          on the client side and not stored yet
      * @param editable Flag indicating the figure can/cannot be edited.
 	 * @param deletable Flag indicating the figure can/cannot be deleted.
 	 * @param annotatable Flag indicating the figure can/cannot be annotated.
@@ -134,6 +140,8 @@ public class ROI
 	 * Constructs the ROI with id on coordinate and initial ROIShape shape.
 	 * 
 	 * @param id The ID of the ROI.
+	 * @param clientSide Flag indicating that the ROI has been created 
+     *          on the client side and not stored yet
 	 * @param coord The coordinate of the ROIShape being constructed with the 
 	 * ROI. 
 	 * @param shape The ROIShape being constructed with the ROI.
@@ -625,4 +633,13 @@ public class ROI
 	 * @return See above.
 	 */
 	public boolean canEdit() { return editable; }
+
+	/**
+	 * Get the folders this ROI is part of 
+	 * @return See above.
+	 */
+    public Collection<FolderData> getFolders() {
+        return folders;
+    }
+    
 }

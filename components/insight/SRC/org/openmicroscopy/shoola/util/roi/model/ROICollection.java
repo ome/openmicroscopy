@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.model.ROICollection 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -27,10 +27,14 @@ package org.openmicroscopy.shoola.util.roi.model;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 
 //Third-party libraries
+
+
+import omero.gateway.model.FolderData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
@@ -130,13 +134,16 @@ public class ROICollection
 	 * @param editable Flag indicating the figure can/cannot be edited.
 	 * @param deletable Flag indicating the figure can/cannot be deleted.
 	 * @param annotatable Flag indicating the figure can/cannot be annotated.
+	 * @param folders The folders the ROI is part of
 	 * @return see above.
 	 */
 	public ROI createROI(long id, boolean clientSideObject, 
-			boolean editable, boolean deletable, boolean annotatable)
+			boolean editable, boolean deletable, boolean annotatable, Collection<FolderData> folders)
 	{
 		ROI newROI = new ROI(id, clientSideObject, editable, deletable, 
 				annotatable);
+		if (folders != null)
+		    newROI.getFolders().addAll(folders);
 		if (lastID < id) lastID = id+1;
 		roiMap.add(newROI.getID(), newROI);
 		return newROI;
