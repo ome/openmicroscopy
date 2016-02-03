@@ -13,12 +13,15 @@ import pytest
 from weblibrary import IWebTest
 
 from omero.model import PlateI, WellI, WellSampleI
+from omero.model import FileAnnotationI, OriginalFileI, PlateAnnotationLinkI
 from omero.rtypes import rint, rstring, rtime
 from omero.gateway import BlitzGateway
+from omero.grid import WellColumn, StringColumn
 from omeroweb.webgateway.plategrid import PlateGrid
 
 from django.test import Client
 from django.core.urlresolvers import reverse
+from random import random
 import json
 import time
 
@@ -195,6 +198,47 @@ def plate_wells_with_description(itest, well_grid_factory, update_service):
 
 
 @pytest.fixture()
+def plate_well_table(itest, well_grid_factory, update_service, conn):
+    """
+    Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
+    Images populated by an L{weblibrary.IWebTest} instance.
+    """
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    # Well A1 has one WellSample
+    plate.addWell(well_grid_factory({(0, 0): 1})[0])
+    plate = update_service.saveAndReturnObject(plate)
+
+    col1 = WellColumn('Well', '', [])
+    col2 = StringColumn('TestColumn', '', 64, [])
+
+    columns = [col1, col2]
+    tablename = "plate_well_table_test:%s" % str(random())
+    table = conn.c.sf.sharedResources().newTable(1, tablename)
+    table.initialize(columns)
+
+    wellIds = [w.id.val for w in plate.copyWells()]
+    print "WellIds", wellIds
+
+    data1 = WellColumn('Well', '', wellIds)
+    data2 = StringColumn('TestColumn', '', 64, ["foobar"])
+    data = [data1, data2]
+    table.addData(data)
+    table.close()
+
+    orig_file = table.getOriginalFile()
+    fileAnn = FileAnnotationI()
+    fileAnn.ns = rstring('openmicroscopy.org/omero/bulk_annotations')
+    fileAnn.setFile(OriginalFileI(orig_file.id.val, False))
+    fileAnn = conn.getUpdateService().saveAndReturnObject(fileAnn)
+    link = PlateAnnotationLinkI()
+    link.setParent(PlateI(plate.id.val, False))
+    link.setChild(FileAnnotationI(fileAnn.id.val, False))
+    update_service.saveAndReturnObject(link)
+    return plate, wellIds
+
+
+@pytest.fixture()
 def django_client(request, client):
     """Returns a logged in Django test client."""
     django_client = Client()
@@ -323,3 +367,27 @@ class TestPlateGrid(object):
         plate_grid = PlateGrid(conn, plate.id.val, 0)
         metadata = plate_grid.metadata
         assert metadata['grid'][0][0]['description'] == description
+
+
+class TestScreenPlateTables(object):
+    """
+    Tests the retrieval of tabular data attached to Plate
+    """
+
+    def test_get_plate_table(self, django_client, plate_well_table, conn):
+        """
+        Do a simple GET request to query the metadata for a single well
+        attached to the plate in JSON form
+        """
+        plate, wellIds = plate_well_table
+        wellId = wellIds[0]
+        # E.g. webgateway/table/Plate.wells/2061/query/?query=Well-2061
+        request_url = reverse('webgateway_object_table_query',
+                              args=("Plate.wells", wellId))
+        response = django_client.get(request_url,
+                                     data={'query': 'Well-%s' % wellId})
+        data = json.loads(response.content)
+        print data
+        assert data == {'data': {
+            'rows': [[wellId, 'foobar']],
+            'columns': ['Well', 'TestColumn']}}
