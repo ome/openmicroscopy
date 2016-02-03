@@ -98,4 +98,35 @@ public class FolderData extends DataObject {
     public void setDescription(String desc) {
         asFolder().setDescription(rstring(desc));
     }
+    
+    /**
+     * Get the the parent folder
+     * 
+     * @return See above.
+     */
+    public FolderData getParentFolder() {
+        Folder f = asFolder().getParentFolder();
+        return f == null ? null : new FolderData(f);
+    }
+    
+    /**
+     * Set the the parent folder
+     * 
+     * @param parent
+     *            The parent folder
+     */
+    public void setParentFolder(Folder parent) {
+        Folder f = asFolder();
+        f.setParentFolder(parent);
+    }
+    
+    /**
+     * Set the {@link Folder}
+     * 
+     * @param f
+     *            The folder
+     */
+    public void setFolder(Folder f) {
+        setValue(f);
+    }
 }

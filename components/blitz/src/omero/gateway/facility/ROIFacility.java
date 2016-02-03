@@ -43,13 +43,13 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIResult;
 import omero.gateway.util.ModelMapper;
 import omero.gateway.util.PyTablesUtils;
-import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Line;
 import omero.model.Polyline;
 import omero.model.Roi;
 import omero.model.Shape;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ROICoordinate;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
@@ -66,8 +66,12 @@ import omero.gateway.util.PojoMapper;
 
 public class ROIFacility extends Facility {
 
+    /** Reference to the DataManagerFacility */
     private DataManagerFacility dm;
-
+    
+    /** Reference to the BrowseFacility */
+    private BrowseFacility browse;
+    
     /**
      * Creates a new instance
      * @param gateway Reference to the {@link Gateway}
@@ -76,6 +80,7 @@ public class ROIFacility extends Facility {
     ROIFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.dm = gateway.getFacility(DataManagerFacility.class);
+        this.browse = gateway.getFacility(BrowseFacility.class);
     }
 
     /**
@@ -219,6 +224,21 @@ public class ROIFacility extends Facility {
                     results.add(result);
                 }
             }
+            
+            // load the ROI folders
+            Collection<FolderData> folders = browse.getFolders(ctx);
+            Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
+            for(FolderData f : folders) {
+                folderById.put(f.getId(), f);
+            }
+            
+            for(ROIResult rr : results) {
+                for(ROIData roi : rr.getROIs()) {
+                    for(FolderData folder : roi.getFolders()) {
+                        initFolders(folder, folderById);
+                    }
+                }
+            }
         } catch (Exception e) {
             handleException(this, e, "Cannot load the ROI for image: "
                     + imageID);
@@ -226,6 +246,26 @@ public class ROIFacility extends Facility {
         return results;
     }
 
+    /**
+     * Helper method for properly initializing a FolderData; i. e. making sure
+     * parent folders are loaded
+     * 
+     * @param f
+     *            The Folder
+     * @param folders
+     *            All available, loaded Folders
+     */
+    private void initFolders(FolderData f, Map<Long, FolderData> folders) {
+        FolderData f2 = folders.get(f.getId());
+        if (f2 != null) {
+            f.setFolder(f2.asFolder());
+        }
+
+        if (f.getParentFolder() != null) {
+            initFolders(f.getParentFolder(), folders);
+        }
+    }
+    
     /**
      * Save the ROI for the image to the server.
      *

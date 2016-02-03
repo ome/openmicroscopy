@@ -37,6 +37,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.ExperimenterGroup;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Well;
@@ -45,6 +46,7 @@ import omero.sys.ParametersI;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -1198,5 +1200,35 @@ public class BrowseFacility extends Facility {
         }
 
         return Collections.emptyList();
+    }
+    
+    /**
+     * Loads all folders the logged in user has access to
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            List<IObject> list = qs.findAllByQuery(
+                    "select folder from Folder as folder", null);
+            Collection<FolderData> result = new ArrayList<FolderData>();
+            for (IObject l : list) {
+                result.add(new FolderData((Folder) l));
+            }
+            return result;
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
     }
 }
