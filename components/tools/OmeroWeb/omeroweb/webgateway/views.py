@@ -2267,6 +2267,7 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     query += """
         left outer join fetch obj0.annotationLinks links
         left outer join fetch links.child
+        join fetch links.details.owner
         join fetch links.details.creationEvent
         where obj%d.id=:id""" % (len(objtype) - 1)
 
