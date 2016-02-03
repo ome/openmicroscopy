@@ -710,7 +710,7 @@ present, the user will enter a console""")
         self.checkice()
         self.check_node(args)
 
-        if args.force_rewrite:
+        if not self.check_internal_cfg() or args.force_rewrite:
             self.rewrite(args, config, force=True)
 
         if 0 == self.status(args, node_only=True):
@@ -782,8 +782,16 @@ present, the user will enter a console""")
                             args.targets)]
         self.ctx.call(command)
 
+    def check_internal_cfg(self):
+        internal_cfg = self._cfglist()[0]
+        return os.path.exists(internal_cfg)
+
     def status(self, args, node_only=False):
         self.check_node(args)
+        if not self.check_internal_cfg():
+            self.ctx.die(574, (
+                'Missing internal configuration. Run bin/omero admin rewrite'
+                ' or pass --force-rewrite.'))
         command = self._cmd("-e", "node ping %s" % self._node())
         self.ctx.rv = self.ctx.popen(command).wait()  # popen
 
@@ -900,8 +908,7 @@ present, the user will enter a console""")
         Returns true if the server was already stopped
         """
         self.check_node(args)
-        internal_cfg = self._cfglist()[0]
-        if args.force_rewrite or not os.path.exists(internal_cfg):
+        if args.force_rewrite:
             self.rewrite(args, config, force=True)
         if 0 != self.status(args, node_only=True):
             self.ctx.err("Server not running")
@@ -984,7 +991,7 @@ present, the user will enter a console""")
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
 
-        if not force:
+        if self.check_internal_cfg() and not force:
             if 0 == self.status(args, node_only=True):
                 self.ctx.die(
                     100, "Can't regenerate templates the server is running!")
