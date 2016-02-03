@@ -386,8 +386,8 @@ class TestScreenPlateTables(object):
                               args=("Plate.wells", wellId))
         response = django_client.get(request_url,
                                      data={'query': 'Well-%s' % wellId})
-        data = json.loads(response.content)
-        print data
-        assert data == {'data': {
+        rspJson = json.loads(response.content)
+        print rspJson
+        assert rspJson['data'] == {
             'rows': [[wellId, 'foobar']],
-            'columns': ['Well', 'TestColumn']}}
+            'columns': ['Well', 'TestColumn']}
