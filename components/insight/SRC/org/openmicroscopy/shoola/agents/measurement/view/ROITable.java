@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 
 import omero.gateway.model.FolderData;
 
@@ -407,7 +408,6 @@ public class ROITable
 		}
 		model = new ROITableModel(root, columnNames);
 		this.setTreeTableModel(model);
-		if (parent != null) expandROIRow(parent);
 	}
 
 	/** 
@@ -558,8 +558,8 @@ public class ROITable
             ROINode node = findFolderNode(nodes, f);
             if (node == null) {
                 node = new ROINode(f);
-                root.insert(node, 0);
                 nodes.add(node);
+                handleParentFolderNodes(node);
             }
             insertInto.add(node);
         }
@@ -568,6 +568,30 @@ public class ROITable
     }
     
     /**
+     * Adds the node to the parent; will create the parent hierarchy
+     * if it doesn't exist yet.
+     * @param node The Node
+     */
+    void handleParentFolderNodes(ROINode node) {
+        FolderData parentFolder = ((FolderData) node.getUserObject())
+                .getParentFolder();
+        if (parentFolder == null) {
+            root.insert(node, 0);
+            return;
+        }
+
+        ROINode parent = findFolderNode(nodes, parentFolder);
+        if (parent == null) {
+            parent = new ROINode(parentFolder);
+            nodes.add(parent);
+            parent.insert(node, 0);
+            handleParentFolderNodes(parent);
+        } else if (parent.findChild((FolderData) node.getUserObject()) == null) {
+            parent.insert(node, 0);
+        }
+    }
+    
+    /** 
      * Find the {@link ROINode} for a certain {@link FolderData} within a
      * collection of {@link ROINode}s
      * 
@@ -917,16 +941,45 @@ public class ROITable
 		ROINode node = (ROINode) getNodeAtRow(row);
 		if (node == null) return "";
 		Object object = node.getUserObject();
-		if (object instanceof ROI) {
+		if (node.isROINode()) {
 			ROI roi = (ROI) object;
 			return AnnotationKeys.TEXT.get(roi);
-		} else if (object instanceof ROIShape) {
+		} else if (node.isShapeNode()) {
 			ROIShape s = (ROIShape) object;
 			return ""+s.getFigure().getAttribute(MeasurementAttributes.TEXT);
+		}
+		else if(node.isFolderNode()) {
+		    FolderData f = (FolderData) object;
+		    StringBuilder sb = new StringBuilder();
+		    generatePath(f, sb, '>');
+		    return sb.toString();
 		}
 		return "";
 	}
 
+    /**
+     * Generates the path string of a {@link FolderData}
+     * 
+     * @param f
+     *            The folder
+     * @param sb
+     *            The {@link StringBuilder} the path is written to
+     * @param pathSeparator
+     *            The path separator character
+     */
+    private void generatePath(FolderData f, StringBuilder sb, char pathSeparator) {
+        sb.insert(0, f.getName());
+        FolderData parent = f.getParentFolder();
+        if (parent != null) {
+            if (parent.isLoaded()) {
+                sb.insert(0, pathSeparator);
+                generatePath(f.getParentFolder(), sb, pathSeparator);
+            } else
+                MeasurementAgent.getRegistry().getLogger()
+                        .warn(this, "FolderData hierarchy not loaded.");
+        }
+    }
+    
 	/** 
      * Loads the tags. 
      * 

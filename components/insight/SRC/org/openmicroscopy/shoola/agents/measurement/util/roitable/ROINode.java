@@ -91,6 +91,9 @@ public class ROINode
 	/** The map of the children, ROIShapes belonging to the ROINode. */
 	private TreeMap<Coord3D, ROINode>			childCoordMap;
 		
+	/** The map of the children, FolderData belonging to the ROINode. */
+    private HashMap<FolderData, ROINode>           folderMap;
+    
 	/**
 	 * Constructor for parent node. 
 	 * @param str parent type.
@@ -188,6 +191,7 @@ public class ROINode
 	{
 		childMap = new HashMap<ROIShape, ROINode>();
 		childCoordMap = new TreeMap<Coord3D, ROINode>(new Coord3D());
+		folderMap = new HashMap<FolderData, ROINode>();
 	}
 	
 	/**
@@ -216,6 +220,19 @@ public class ROINode
 		return null;
 	}
 	
+    /**
+     * Find the child node representing the given folder
+     * 
+     * @param folder
+     *            see above.
+     * @return see above.
+     */
+    public ROINode findChild(FolderData folder) {
+        if (folderMap.containsKey(folder))
+            return folderMap.get(folder);
+        return null;
+    }
+    
 	/**
 	 * Returns <code>true</code> if the node can be edited, <code>false</code>
 	 * otherwise.
@@ -251,6 +268,9 @@ public class ROINode
 			 childMap.put(shape, (ROINode) child);
 			 childCoordMap.put(shape.getCoord3D(), (ROINode) child);
 		 }
+		 else if(child.isFolderNode()) {
+		     folderMap.put((FolderData)userObject, (ROINode) child);
+		 }
 	 }
 
 	 /**
@@ -267,6 +287,9 @@ public class ROINode
 			 childMap.remove(shape);
 			 childCoordMap.remove(shape.getCoord3D());
 		 }
+		 else if(child.isFolderNode()) {
+             folderMap.remove((FolderData)userObject);
+         }
 	 }
 	 
 	 /**
