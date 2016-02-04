@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,9 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Folder;
+import omero.model.FolderImageLink;
+import omero.model.FolderImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -330,38 +333,41 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Test a specific case of using {@link Chmod2} on an image that is in a dataset.
-     * @param isImageOwner if the user who owns the dataset also owns the image
-     * @param isLinkOwner if the user who owns the dataset also linked the image to the dataset
+     * Test a specific case of using {@link Chmod2} on an image that is in a dataset or folder.
+     * @param isImageOwner if the user who owns the container also owns the image
+     * @param isLinkOwner if the user who owns the container also linked the image to the container
+     * @param isInDataset if the image is in a dataset, otherwise a folder
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chmod container test cases")
-    public void testChmodContainerReadWriteToPrivate(boolean isImageOwner, boolean isLinkOwner) throws Exception {
+    public void testChmodContainerReadWriteToPrivate(boolean isImageOwner, boolean isLinkOwner, boolean isInDataset)
+            throws Exception {
 
         /* set up the users and group for this test case */
 
-        final EventContext datasetOwner, imageOwner, linkOwner, chmodder;
+        final EventContext containerOwner, imageOwner, linkOwner, chmodder;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup("rwrw--");
+        containerOwner = newUserAndGroup("rwrw--");
 
-        final long dataGroupId = datasetOwner.groupId;
+        final long dataGroupId = containerOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
 
         if (isImageOwner) {
-            imageOwner = datasetOwner;
-            linkOwner = isLinkOwner ? datasetOwner : newUserInGroup(dataGroup, false);
+            imageOwner = containerOwner;
+            linkOwner = isLinkOwner ? containerOwner : newUserInGroup(dataGroup, false);
         } else {
             imageOwner = newUserInGroup(dataGroup, false);
-            linkOwner = isLinkOwner ? datasetOwner : imageOwner;
+            linkOwner = isLinkOwner ? containerOwner : imageOwner;
         }
 
         chmodder = newUserInGroup(dataGroup, true);
 
-        /* create a dataset */
+        /* create a container */
 
-        init(datasetOwner);
-        final Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset()).proxy();
+        init(containerOwner);
+        IObject container = isInDataset ? mmFactory.simpleDataset() : mmFactory.simpleFolder();
+        container = iUpdate.saveAndReturnObject(container).proxy();
         disconnect();
 
         /* create an image */
@@ -372,13 +378,21 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(imageId);
         disconnect();
 
-        /* move the image into the dataset */
+        /* move the image into the container */
 
         init(linkOwner);
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setParent(dataset);
-        link.setChild(image);
-        link = (DatasetImageLink) iUpdate.saveAndReturnObject(link);
+        final IObject link;
+        if (isInDataset) {
+            final DatasetImageLink linkDI = new DatasetImageLinkI();
+            linkDI.setParent((Dataset) container);
+            linkDI.setChild(image);
+            link = iUpdate.saveAndReturnObject(linkDI);
+        } else {
+            final FolderImageLink linkFI = new FolderImageLinkI();
+            linkFI.setParent((Folder) container);
+            linkFI.setChild(image);
+            link = iUpdate.saveAndReturnObject(linkFI);
+        }
         disconnect();
 
         /* perform the chmod */
@@ -391,9 +405,9 @@ public class PermissionsTest extends AbstractServerTest {
         /* check that exactly the expected object deletions have occurred */
 
         logRootIntoGroup(dataGroupId);
-        assertExists(dataset);
+        assertExists(container);
         assertExists(image);
-        if (datasetOwner == imageOwner) {
+        if (containerOwner == imageOwner) {
             assertExists(link);
         } else {
             assertDoesNotExist(link);
@@ -409,6 +423,7 @@ public class PermissionsTest extends AbstractServerTest {
         int index = 0;
         final int IS_IMAGE_OWNER = index++;
         final int IS_LINK_OWNER = index++;
+        final int IS_IN_DATASET = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
 
@@ -416,11 +431,14 @@ public class PermissionsTest extends AbstractServerTest {
 
         for (final boolean isImageOwner : booleanCases) {
             for (final boolean isLinkOwner : booleanCases) {
-                final Object[] testCase = new Object[index];
-                testCase[IS_IMAGE_OWNER] = isImageOwner;
-                testCase[IS_LINK_OWNER] = isLinkOwner;
-                // DEBUG: if (isImageOwner == true && isLinkOwner == true)
-                testCases.add(testCase);
+                for (final boolean isInDataset : booleanCases) {
+                    final Object[] testCase = new Object[index];
+                    testCase[IS_IMAGE_OWNER] = isImageOwner;
+                    testCase[IS_LINK_OWNER] = isLinkOwner;
+                    testCase[IS_IN_DATASET] = isInDataset;
+                    // DEBUG: if (isImageOwner == true && isLinkOwner == true && isInDataset = false)
+                    testCases.add(testCase);
+                }
             }
         }
 
