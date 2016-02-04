@@ -110,6 +110,13 @@ class TestAdmin(object):
         self.cli.assertStderr([])
         self.cli.assertStdout([])
 
+    def testStopAsyncRunningForceRewrite(self):
+        self.cli.checksStatus(0)  # I.e. running
+        self.cli.addCall(0)
+        self.invoke("admin stopasync --force-rewrite")
+        self.cli.assertStderr([])
+        self.cli.assertStdout([])
+
     def testStopAsyncNotRunning(self):
         self.invoke("admin rewrite")
         self.cli.checksStatus(1)  # I.e. not running
@@ -117,10 +124,24 @@ class TestAdmin(object):
         self.cli.assertStderr(["Server not running"])
         self.cli.assertStdout([])
 
+    def testStopAsyncNotRunningForceRewrite(self):
+        self.cli.checksStatus(1)  # I.e. not running
+        self.invoke("admin stopasync --force-rewrite", fails=True)
+        self.cli.assertStderr(["Server not running"])
+        self.cli.assertStdout([])
+
     def testStopNoConfig(self):
         self.invoke("admin stop", fails=True)
         self.cli.assertStderr([MISSING_CONFIGURATION_MSG])
         self.cli.assertStdout([])
+
+    def testStopNoConfigForceRewrite(self):
+        self.cli.checksStatus(0)  # I.e. running
+        self.cli.addCall(0)
+        self.cli.checksStatus(1)  # I.e. not running
+        self.invoke("admin stop --force-rewrite")
+        self.cli.assertStderr([])
+        self.cli.assertStdout(['Waiting on shutdown. Use CTRL-C to exit'])
 
     def testStop(self):
         self.invoke("admin rewrite")
