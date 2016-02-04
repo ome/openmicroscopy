@@ -75,7 +75,7 @@ if($ENV{SLICEPATH})
   set(ICE_SLICE_DIR "$ENV{SLICEPATH}")
 endif($ENV{SLICEPATH})
 # Find Ice programs, includes, slice definitions and libraries
-find_package(Ice 3.4.0 REQUIRED COMPONENTS Ice IceUtil Glacier2)
+find_package(Ice 3.5.0 REQUIRED COMPONENTS Ice IceUtil Glacier2)
 
 find_package(Threads REQUIRED)
 
