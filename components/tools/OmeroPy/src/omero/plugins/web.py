@@ -138,11 +138,10 @@ class WebControl(BaseControl):
         for x in (start, restart):
             x.add_argument(
                 "--workers", type=int, default=5,
-                help="NGINX only: the number of worker processes for handling "
-                     "requests.")
+                help="SUPPRESS.")
             x.add_argument(
                 "--worker-connections", type=int, default=1000,
-                help="NGINX only: the maximum number of simultaneous clients.")
+                help="SUPPRESS")
             x.add_argument(
                 "--wsgi-args", type=str, default="", help=SUPPRESS)
 
@@ -431,6 +430,33 @@ class WebControl(BaseControl):
             return False
         return True
 
+    def _deprecated_args(self, args, settings):
+        d_args = {}
+        try:
+            d_args['wsgi_args'] = settings.WSGI_ARGS
+        except:
+            d_args['wsgi_args'] = args.wsgi_args
+        if args.wsgi_args:
+            self.ctx.out(" `--wsgi-args` is deprecated and overwritten"
+                         " by `omero.web.wsgi_args`. ", newline=False)
+        try:
+            d_args['workers'] = settings.WSGI_WORKERS
+        except:
+            d_args['workers'] = args.workers
+        if args.wsgi_args:
+            self.ctx.out(" `--workers` is deprecated and overwritten"
+                         " by `omero.web.wsgi_workers`. ", newline=False)
+        try:
+            d_args['worker_conn'] = settings.WSGI_WORKER_CONNECTIONS
+        except:
+            d_args['worker_conn'] = args.worker_connections
+        if args.wsgi_args:
+            self.ctx.out(" `--worker-connections` is deprecated and"
+                         " overwritten by"
+                         " `omero.web.wsgi_worker_connections`. ",
+                         newline=False)
+        return d_args
+
     @config_required
     def start(self, args, settings):
         self.collectstatic()
@@ -486,13 +512,11 @@ class WebControl(BaseControl):
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
                 pass
-            try:
-                wsgiargs = settings.WSGI_ARGS
-            except:
-                wsgiargs = args.wsgi_args
-            if args.wsgi_args:
-                self.ctx.out(" `--wsgi-args` is deprecated and overwritten"
-                             " by `omero.web.wsgi_args`. ", newline=False)
+
+            # wrap all deprecated args
+            # TODO: to be removed in 5.3
+            d_args = self._deprecated_args(args, settings)
+
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " --bind %(host)s:%(port)d"
             cmd += " --workers %(workers)d "
@@ -505,9 +529,9 @@ class WebControl(BaseControl):
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT,
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
-                'workers': args.workers,
-                'worker_conn': args.worker_connections,
-                'wsgi_args': wsgiargs}).split()
+                'workers': d_args['workers'],
+                'worker_conn': d_args['worker_conn'],
+                'wsgi_args': d_args['wsgi_args']}).split()
             rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,

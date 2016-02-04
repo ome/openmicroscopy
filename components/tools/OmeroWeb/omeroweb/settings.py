@@ -449,6 +449,36 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("A string representing Gunicorn additional arguments. "
           "Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/latest/settings.html")],
+    "omero.web.wsgi_workers":
+        ["WSGI_WORKERS",
+         5,
+         int,
+         ("The number of worker processes for handling requests. "
+          "Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/stable/settings.html#workers")],
+
+    "omero.web.wsgi_worker_connections":
+        ["WSGI_WORKER_CONNECTIONS",
+         1000,
+         int,
+         ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
+          "Check Gunicorn Documentation http://docs.gunicorn.org"
+          "/en/stable/settings.html#worker-connections")],
+    "omero.web.wsgi_threads":
+        ["WSGI_THREADS",
+         1000,
+         int,
+         ("(SYNC WORKERS only) The number of worker threads for handling "
+          "requests. Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/stable/settings.html#threads")],
+    "omero.web.wsgi_timeout":
+        ["WSGI_TIMEOUT",
+         60,
+         int,
+         ("Workers silent for more than this many seconds are killed "
+          "and restarted. Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/stable/settings.html#timeout")],
+
 
     # Public user
     "omero.web.public.enabled":
