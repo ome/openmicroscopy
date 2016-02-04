@@ -112,24 +112,24 @@ public class ModelImportTarget implements ImportTarget {
     public IObject load(OMEROMetadataStoreClient client, ImportContainer ic) throws Exception {
         IQueryPrx query = client.getServiceFactory().getQueryService();
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
-        if (rest.matches("^[<>!]?name:.*")) {
+        if (rest.matches("^[-+%@]?name:.*")) {
             IObject obj;
             String name = rest.substring(rest.indexOf(":") + 1);
             String order = "desc";
-            if (rest.startsWith("<")) {
+            if (rest.startsWith("-")) {
                 order = "asc";
             }
             List<IObject> objs = (List<IObject>) query.findAllByQuery(
                 "select o from "+simpleName+" as o where o.name = :name"
                 + " order by o.id " + order,
                 new ParametersI().add("name", rstring(name)));
-            if (objs.size() == 0) {
+            if (objs.size() == 0 || rest.startsWith("@")) {
                 obj = type.newInstance();
                 Method m = type.getMethod("setName", omero.RString.class);
                 m.invoke(obj, rstring(name));
                 obj = update.saveAndReturnObject(obj);
             } else {
-                if (rest.startsWith("!") && objs.size() > 1) {
+                if (rest.startsWith("%") && objs.size() > 1) {
                     log.error("No unique {} called {}", simpleName, name);
                     throw new RuntimeException("No unique "+simpleName+" available");
                 } else {
