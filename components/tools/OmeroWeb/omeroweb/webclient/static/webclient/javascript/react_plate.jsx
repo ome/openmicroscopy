@@ -133,12 +133,51 @@
                 cache: false,
                 success: function(data) {
                     if (this.isMounted()) {
-                        this.setState({data: data});
+                        var wellIds = this.getWellIdsFromUrlQuery(data);
+                        this.setState({
+                            data: data,
+                            selectedWellIds: wellIds
+                        });
                     }
                 }.bind(this),
                     error: function(xhr, status, err) {
                 }.bind(this)
             });
+        },
+
+        // Uses the url ?show=well-123 or image-123 to get well IDs from data
+        getWellIdsFromUrlQuery: function(data) {
+            var param = OME.getURLParameter('show'),
+                wellIds = [];
+            if (param) {
+                param.split("|").forEach(function(p) {
+                    var wellId, imgId;
+                    if (p.split("-")[0] === "well") {
+                        wellId = parseInt(p.split("-")[1], 10);
+                    } else if (p.split("-")[0] === "image") {
+                        imgId = parseInt(p.split("-")[1], 10);
+                    }
+                    // Validate well Id is in this plate
+                    wellId = this.getWellId(data, wellId, imgId);
+                    if (wellId) {
+                        wellIds.push(wellId);
+                    }
+                }.bind(this));
+            }
+            return wellIds;
+        },
+
+        // Find well in data using wellId OR imageId, return wellId
+        getWellId: function (data, wellId, imageId) {
+            var wellId;
+            data.grid.forEach(function(row){
+                row.forEach(function(well) {
+                    if (well && (well.id === imageId || well.wellId === wellId)) {
+                        wellId = well.wellId;
+                    }
+                });
+            });
+            return wellId;
         },
 
         getInitialState: function() {
