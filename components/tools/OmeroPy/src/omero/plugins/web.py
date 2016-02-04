@@ -520,7 +520,39 @@ class WebControl(BaseControl):
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " --bind %(host)s:%(port)d"
             cmd += " --workers %(workers)d "
-            cmd += " --worker-connections %(worker_conn)d"
+
+            if settings.WSGI_WORKER_CLASS == "sync":
+                try:
+                    import concurrent.futures  # NOQA
+                except ImportError:
+                    self.ctx.err("[FAILED]")
+                    self.ctx.die(690,
+                                 "[ERROR] You are using sync workers. "
+                                 "Install futures.")
+                try:
+                    cmd += " --threads %d" % settings.WSGI_THREADS
+                except:
+                    pass
+            else:
+                try:
+                    import gevent  # NOQA
+                except ImportError:
+                    self.ctx.err("[FAILED]")
+                    self.ctx.die(690,
+                                 "[ERROR] You are using async workers based "
+                                 "on Greenlets via Gevent. Install gevent.")
+                try:
+                    cmd += " --worker-connections %d" % \
+                        settings.WSGI_WORKER_CONNECTIONS
+                except:
+                    pass
+                try:
+                    cmd += " --worker-class %s " % \
+                        settings.WSGI_WORKER_CLASS
+                except:
+                    pass
+
+            cmd += " --timeout %(timeout)d"
             cmd += " --max-requests %(maxrequests)d"
             cmd += " %(wsgi_args)s"
             cmd += " omeroweb.wsgi:application"
@@ -530,8 +562,9 @@ class WebControl(BaseControl):
                 'port': settings.APPLICATION_SERVER_PORT,
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
                 'workers': d_args['workers'],
-                'worker_conn': d_args['worker_conn'],
-                'wsgi_args': d_args['wsgi_args']}).split()
+                'timeout': settings.WSGI_TIMEOUT,
+                'wsgi_args': d_args['wsgi_args']
+            }).split()
             rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,

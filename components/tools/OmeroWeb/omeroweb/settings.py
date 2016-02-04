@@ -196,6 +196,7 @@ del get_event
 WSGI = "wsgi"
 WSGITCP = "wsgi-tcp"
 WSGI_TYPES = (WSGI, WSGITCP)
+WSGI_WORKER_CLASS = ("sync", "gevent")
 DEVELOPMENT = "development"
 DEFAULT_SERVER_TYPE = WSGITCP
 ALL_SERVER_TYPES = (WSGI, WSGITCP, DEVELOPMENT)
@@ -217,6 +218,14 @@ def parse_boolean(s):
 
 def parse_paths(s):
     return [os.path.normpath(path) for path in json.loads(s)]
+
+
+def check_worker_class(s):
+    if s not in WSGI_WORKER_CLASS:
+        raise ValueError(
+            "Unknown worker type: %s. Valid values are: %s"
+            % (s, WSGI_WORKER_CLASS))
+    return s
 
 
 def check_server_type(s):
@@ -444,7 +453,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "settings/#secure-proxy-ssl-header>`.")],
     "omero.web.wsgi_args":
         ["WSGI_ARGS",
-         None,
+         "",
          leave_none_unset,
          ("A string representing Gunicorn additional arguments. "
           "Check Gunicorn Documentation "
@@ -456,18 +465,24 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("The number of worker processes for handling requests. "
           "Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#workers")],
-
+    "omero.web.wsgi_worker_class":
+        ["WSGI_WORKER_CLASS",
+         "sync",
+         check_worker_class,
+         ("The default OMERO.web uses sync workers to handle most “normal” "
+          "types of workloads. Check Gunicorn Design Documentation "
+          "http://docs.gunicorn.org/en/stable/design.html")],
     "omero.web.wsgi_worker_connections":
         ["WSGI_WORKER_CONNECTIONS",
          1000,
-         int,
+         leave_none_unset_int,
          ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
           "Check Gunicorn Documentation http://docs.gunicorn.org"
           "/en/stable/settings.html#worker-connections")],
     "omero.web.wsgi_threads":
         ["WSGI_THREADS",
-         1000,
-         int,
+         5,
+         leave_none_unset_int,
          ("(SYNC WORKERS only) The number of worker threads for handling "
           "requests. Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#threads")],
