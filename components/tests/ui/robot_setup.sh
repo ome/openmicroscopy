@@ -42,7 +42,7 @@ echo "A2,Treatment,10" >> "$BULK_ANNOTATION_CSV"
 # Create robot setup
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
 # Parse the sessions file to get session key
-key=$(grep omero.sess $(bin/omero sessions file) | cut -d= -f2)
+key=$(bin/omero sessions key)
 echo "Session key: $key"
 nProjects=1
 nDatasets=1
