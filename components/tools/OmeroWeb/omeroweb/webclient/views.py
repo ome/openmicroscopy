@@ -2006,7 +2006,7 @@ def batch_annotate(request, conn=None, **kwargs):
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
     if len(groupIds) == 0:
-        raise Http404("No objects found")
+        return handlerInternalError(request, "No objects found")
     groupId = list(groupIds)[0]
     conn.SERVICE_OPTS.setOmeroGroup(groupId)
 
