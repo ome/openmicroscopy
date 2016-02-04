@@ -832,27 +832,53 @@ public class ROITable
 			"planes and must include more than one.");	
 	}
 
-	/** 
-	 * Propagates the ROI.
-	 * 
-	 * @see ROIActionController#propagateROI()
-	 */
-	public void propagateROI()
-	{
-		manager.showReadyMessage();
-		if (this.getSelectedRows().length != 1)
-		{
-			manager.showMessage("Propagate: Only one ROI may be " +
-					"propagated at a time.");
-			return;
-		}
-		ROINode node = (ROINode) this.getNodeAtRow(this.getSelectedRow());
-		Object nodeObject = node.getUserObject(); 
-		if (nodeObject instanceof ROI)
-			manager.propagateROI(((ROI)nodeObject));
-		if (nodeObject instanceof ROIShape)
-			manager.propagateROI(((ROIShape)nodeObject).getROI());
-	}
+    /**
+     * Propagates the ROI.
+     * 
+     * @see ROIActionController#propagateROI()
+     */
+    public void propagateROI() {
+        manager.showReadyMessage();
+        ROI roi = null;
+        for (int i : getSelectedRows()) {
+            ROINode n = (ROINode) this.getNodeAtRow(i);
+            Object obj = n.getUserObject();
+            if (roi != null) {
+                if (n.isROINode()) {
+                    if (((ROI) obj).getID() != roi.getID()) {
+                        manager.showMessage("Propagate: Only one ROI may be "
+                                + "propagated at a time.");
+                        return;
+                    }
+                } else if (n.isShapeNode()) {
+                    if (((ROIShape) obj).getROI().getID() != roi.getID()) {
+                        manager.showMessage("Propagate: Only one ROI may be "
+                                + "propagated at a time.");
+                        return;
+                    }
+                } else {
+                    manager.showMessage("Propagate: No ROI selected.");
+                    return;
+                }
+            } else {
+                if (n.isROINode())
+                    roi = (ROI) obj;
+                else if (n.isShapeNode())
+                    roi = ((ROIShape) obj).getROI();
+                else {
+                    manager.showMessage("Propagate: No ROI selected.");
+                    return;
+                }
+            }
+        }
+
+        if (roi != null)
+            manager.propagateROI(roi);
+        else {
+            manager.showMessage("Propagate: No ROI selected.");
+            return;
+        }
+    }
 
 	/** 
 	 * Splits the ROI.
