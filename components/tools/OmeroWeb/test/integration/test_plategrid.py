@@ -391,3 +391,9 @@ class TestScreenPlateTables(object):
         assert rspJson['data'] == {
             'rows': [[wellId, 'foobar']],
             'columns': ['Well', 'TestColumn']}
+        assert rspJson['parentId'] == plate.id.val
+        user = conn.getUser()
+        userName = "%s %s" % (user.getFirstName(), user.getLastName())
+        assert rspJson['addedBy'] == userName
+        assert rspJson['owner'] == userName
+        assert rspJson['parentType'] == "Plate"
