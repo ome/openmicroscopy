@@ -94,6 +94,7 @@ class TestAdmin(object):
             ['No descriptor given. Using etc/grid/default.xml'])
 
     def testStopAsyncRunning(self):
+        self.invoke("admin rewrite")
         self.cli.checksStatus(0)  # I.e. running
         self.cli.addCall(0)
         self.invoke("admin stopasync")
@@ -101,12 +102,14 @@ class TestAdmin(object):
         self.cli.assertStdout([])
 
     def testStopAsyncNotRunning(self):
+        self.invoke("admin rewrite")
         self.cli.checksStatus(1)  # I.e. not running
         self.invoke("admin stopasync", fails=True)
         self.cli.assertStderr(["Server not running"])
         self.cli.assertStdout([])
 
     def testStop(self):
+        self.invoke("admin rewrite")
         self.cli.checksStatus(0)  # I.e. running
         self.cli.addCall(0)
         self.cli.checksStatus(1)  # I.e. not running
@@ -120,6 +123,8 @@ class TestAdmin(object):
 
     def testStatusNodeFails(self):
 
+        self.invoke("admin rewrite")
+
         # Setup the call to bin/omero admin ice node
         popen = self.cli.createPopen()
         popen.wait().AndReturn(1)
@@ -128,6 +133,8 @@ class TestAdmin(object):
         pytest.raises(NonZeroReturnCode, self.invoke, "admin status")
 
     def testStatusSMFails(self):
+
+        self.invoke("admin rewrite")
 
         # Setup the call to bin/omero admin ice node
         popen = self.cli.createPopen()
@@ -145,6 +152,8 @@ class TestAdmin(object):
         pytest.raises(NonZeroReturnCode, self.invoke, "admin status")
 
     def testStatusPasses(self, tmpdir, monkeypatch):
+
+        self.invoke("admin rewrite")
 
         ice_config = tmpdir / 'ice.config'
         ice_config.write('omero.host=localhost\nomero.port=4064')
@@ -269,6 +278,8 @@ class TestRewrite(object):
         """Test template regeneration while the server is running"""
 
         # Call the jvmcfg command and test file genearation
+        self.cli.invoke(self.args, strict=True)
+        print self.cli.dir
         monkeypatch.setattr(AdminControl, "status", lambda *args, **kwargs: 0)
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
