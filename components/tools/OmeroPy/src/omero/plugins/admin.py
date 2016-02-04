@@ -1562,7 +1562,7 @@ OMERO Diagnostics %s
 
     def checkice(self, args=None):
         """
-        Checks for Ice version 3.4
+        Checks for Ice version compatibility.
 
         See ticket:2514, ticket:1260
         """
