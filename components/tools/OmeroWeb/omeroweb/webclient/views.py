@@ -30,7 +30,6 @@ from Ice import Exception as IceException
 import logging
 import traceback
 import json
-import re
 import sys
 
 from time import time
@@ -1363,30 +1362,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
         # manager.containers.images etc.
         manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy,
                        useAcquisitionDate, date)
-
-        # if the query is only numbers (separated by commas or spaces)
-        # we search for objects by ID
-        isIds = re.compile('^[\d ,]+$')
-        if isIds.search(query_search) is not None:
-            conn.SERVICE_OPTS.setOmeroGroup(-1)
-            idSet = set()
-            for queryId in re.split(' |,', query_search):
-                if len(queryId) == 0:
-                    continue
-                try:
-                    searchById = long(queryId)
-                    if searchById in idSet:
-                        continue
-                    idSet.add(searchById)
-                    for t in onlyTypes:
-                        t = t[0:-1]  # remove 's'
-                        if t in ('project', 'dataset', 'image', 'screen',
-                                 'plate'):
-                            obj = conn.getObject(t, searchById)
-                            if obj is not None:
-                                foundById.append({'otype': t, 'obj': obj})
-                except ValueError:
-                    pass
 
     else:
         # simply display the search home page.
