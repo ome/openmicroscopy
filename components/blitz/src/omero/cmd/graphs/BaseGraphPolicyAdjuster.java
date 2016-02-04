@@ -45,7 +45,7 @@ public abstract class BaseGraphPolicyAdjuster extends GraphPolicy {
      * @param graphPolicy the graph policy that is to be adjusted
      */
     public BaseGraphPolicyAdjuster(GraphPolicy graphPolicy) {
-        this.graphPolicy = graphPolicy.getCleanInstance();
+        this.graphPolicy = graphPolicy;
     }
 
     /**
