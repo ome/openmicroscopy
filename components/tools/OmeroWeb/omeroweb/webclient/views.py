@@ -2005,6 +2005,8 @@ def batch_annotate(request, conn=None, **kwargs):
                 'type': key.title(), 'id': o.id, 'name': o.getName()})
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
+    if len(groupIds) == 0:
+        raise Http404("No objects found")
     groupId = list(groupIds)[0]
     conn.SERVICE_OPTS.setOmeroGroup(groupId)
 
