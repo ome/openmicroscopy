@@ -211,9 +211,7 @@ public class ROINode
 	 */
 	public ROINode findChild(ROIShape shape)
 	{
-		if (childMap.containsKey(shape))
-			return childMap.get(shape);
-		return null;
+	    return childMap.get(shape);
 	}
 
 	/**
@@ -224,9 +222,7 @@ public class ROINode
 	 */
 	public ROINode findChild(Coord3D shapeCoord)
 	{
-		if (childCoordMap.containsKey(shapeCoord))
-			return childCoordMap.get(shapeCoord);
-		return null;
+	    return childCoordMap.get(shapeCoord);
 	}
 	
     /**
@@ -237,9 +233,7 @@ public class ROINode
      * @return see above.
      */
     public ROINode findChild(FolderData folder) {
-        if (folderMap.containsKey(folder))
-            return folderMap.get(folder);
-        return null;
+        return folderMap.get(folder);
     }
     
 	/**
