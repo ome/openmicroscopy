@@ -30,6 +30,10 @@ omeroDir = path(os.getcwd()) / "build"
 GRID_FILES = ["templates.xml", "default.xml", "windefault.xml"]
 ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
 
+MISSING_CONFIGURATION_MSG = (
+    "Missing internal configuration. Run bin/omero admin rewrite or pass"
+    " --force-rewrite.")
+
 
 @pytest.fixture(autouse=True)
 def tmpadmindir(tmpdir):
@@ -93,6 +97,11 @@ class TestAdmin(object):
         self.cli.assertStderr(
             ['No descriptor given. Using etc/grid/default.xml'])
 
+    def testStopAsyncNoConfig(self):
+        self.invoke("admin stopasync", fails=True)
+        self.cli.assertStderr([MISSING_CONFIGURATION_MSG])
+        self.cli.assertStdout([])
+
     def testStopAsyncRunning(self):
         self.invoke("admin rewrite")
         self.cli.checksStatus(0)  # I.e. running
@@ -108,6 +117,11 @@ class TestAdmin(object):
         self.cli.assertStderr(["Server not running"])
         self.cli.assertStdout([])
 
+    def testStopNoConfig(self):
+        self.invoke("admin stop", fails=True)
+        self.cli.assertStderr([MISSING_CONFIGURATION_MSG])
+        self.cli.assertStdout([])
+
     def testStop(self):
         self.invoke("admin rewrite")
         self.cli.checksStatus(0)  # I.e. running
@@ -120,6 +134,11 @@ class TestAdmin(object):
     #
     # STATUS
     #
+
+    def testStatusNoConfig(self):
+        self.invoke("admin status", fails=True)
+        self.cli.assertStderr([MISSING_CONFIGURATION_MSG])
+        self.cli.assertStdout([])
 
     def testStatusNodeFails(self):
 
@@ -277,7 +296,7 @@ class TestRewrite(object):
     def testForceRewrite(self, monkeypatch):
         """Test template regeneration while the server is running"""
 
-        # Call the jvmcfg command and test file genearation
+        # Call the jvmcfg command and test file generation
         self.cli.invoke(self.args, strict=True)
         monkeypatch.setattr(AdminControl, "status", lambda *args, **kwargs: 0)
         with pytest.raises(NonZeroReturnCode):
