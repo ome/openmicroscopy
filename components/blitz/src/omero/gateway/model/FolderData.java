@@ -61,10 +61,12 @@ public class FolderData extends DataObject {
      * @return See above
      */
     public String getName() {
-        omero.RString s = asFolder().getName();
-        if (s == null)
-            return null;
-        return s.getValue();
+        omero.RString n = asFolder().getName();
+        if (n == null || n.getValue() == null) {
+            throw new IllegalStateException(
+                    "The name should never have been null.");
+        }
+        return n.getValue();
     }
 
     /**
@@ -74,6 +76,10 @@ public class FolderData extends DataObject {
      *            The name
      */
     public void setName(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("The name cannot be null.");
+        }
+        setDirty(true);
         asFolder().setName(rstring(name));
     }
 
@@ -83,10 +89,8 @@ public class FolderData extends DataObject {
      * @return See above
      */
     public String getDescription() {
-        omero.RString s = asFolder().getDescription();
-        if (s == null)
-            return null;
-        return s.getValue();
+        return asFolder().getDescription() != null ? asFolder()
+                .getDescription().getValue() : null;
     }
 
     /**
@@ -96,9 +100,10 @@ public class FolderData extends DataObject {
      *            The description
      */
     public void setDescription(String desc) {
+        setDirty(true);
         asFolder().setDescription(rstring(desc));
     }
-    
+
     /**
      * Get the the parent folder
      * 
@@ -108,7 +113,7 @@ public class FolderData extends DataObject {
         Folder f = asFolder().getParentFolder();
         return f == null ? null : new FolderData(f);
     }
-    
+
     /**
      * Set the the parent folder
      * 
@@ -119,7 +124,7 @@ public class FolderData extends DataObject {
         Folder f = asFolder();
         f.setParentFolder(parent);
     }
-    
+
     /**
      * Set the {@link Folder}
      * 
