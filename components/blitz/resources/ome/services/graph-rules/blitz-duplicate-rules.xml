@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,9 @@
         <value>DatasetImageLink</value>
         <value>Project</value>
         <value>ProjectDatasetLink</value>
+        <value>Folder</value>
+        <value>FolderImageLink</value>
+        <value>FolderRoiLink</value>
 
         <!-- core -->
         <value>Channel</value>
@@ -190,15 +193,23 @@
 
         <!-- CONTAINERS -->
 
-        <!-- If a project or dataset is duplicated then duplicate their links -->
+        <!-- If a project, dataset or folder is duplicated then duplicate their links -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I]" p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [I]" p:changes="L:[I]"/>
+
+        <!-- If a folder is duplicated then duplicate its child folders. -->
+
+        <bean parent="graphPolicyRule" p:matches="Folder[I].childFolders = C:[E]" p:changes="C:[I]"/>
 
         <!-- If a container's link is duplicated then duplicate the contents. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[I].child = D:[E]" p:changes="D:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[I].child = I:[E]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="ProjectDatasetLink[I].child = D:[E]" p:changes="D:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="DatasetImageLink[I].child = I:[E]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FolderImageLink[I].child = I:[E]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FolderRoiLink[I].child = ROI:[E]" p:changes="ROI:[I]"/>
 
         <!-- Respect linking rules outside read-write groups. -->
 
@@ -213,6 +224,18 @@
 
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[I].parent = [E]/!o;perms=??ra??"
                                        p:error="duplicating {L} creates an image in another's dataset in a read-annotate group"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[I].parent = [E]/!o;perms=??r-??"
+                                       p:error="duplicating {L} creates an image in another's folder in a read-only group"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[I].parent = [E]/!o;perms=??ra??"
+                                       p:error="duplicating {L} creates an image in another's folder in a read-annotate group"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[I].parent = [E]/!o;perms=??r-??"
+                                       p:error="duplicating {L} creates a ROI in another's folder in a read-only group"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[I].parent = [E]/!o;perms=??ra??"
+                                       p:error="duplicating {L} creates a ROI in another's folder in a read-annotate group"/>
 
         <!-- CORE -->
 
