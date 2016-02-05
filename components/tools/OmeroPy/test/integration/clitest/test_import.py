@@ -391,6 +391,7 @@ class TestImport(CLITest):
         def get_arg(self, client, qualifier, spw=False):
             # For later
             self.query = client.sf.getQueryService()
+            self.qualifier = qualifier
             if spw:
                 self.kls = "Screen"
             else:
@@ -401,12 +402,17 @@ class TestImport(CLITest):
         def verify_containers(self, found1, found2):
             for attempt in (found1, found2):
                 assert self.name == self.query.get(self.kls, attempt).name.val
+            if self.qualifier == "@":
+                assert found1 != found2
+            else:
+                assert found1 == found2
 
     class NameTemplateTargetSource(TargetSource):
 
         def get_arg(self, client, qualifier, spw=False):
             # For later
             self.query = client.sf.getQueryService()
+            self.qualifier = qualifier
             if spw:
                 self.kls = "Screen"
             else:
@@ -417,7 +423,10 @@ class TestImport(CLITest):
         def verify_containers(self, found1, found2):
             assert found1
             assert found2
-            assert found1 == found2
+            if self.qualifier == "@":
+                assert found1 != found2
+            else:
+                assert found1 == found2
 
     class TemplateTargetSource(TargetSource):
 
@@ -487,7 +496,7 @@ class TestImport(CLITest):
         source.verify_containers(found1, found2)
 
     @pytest.mark.parametrize("spw", (True, False))
-    @pytest.mark.parametrize("qualifier", ("", "+", "-", "%"))
+    @pytest.mark.parametrize("qualifier", ("", "+", "-", "%", "@"))
     def testQualifiedNameModelTargetArgument(
             self, spw, qualifier, tmpdir, capfd):
 
@@ -513,7 +522,7 @@ class TestImport(CLITest):
         source.verify_containers(found1, found2)
 
     @pytest.mark.parametrize("spw", (True, False))
-    @pytest.mark.parametrize("qualifier", ("", "+", "-", "%"))
+    @pytest.mark.parametrize("qualifier", ("", "+", "-", "%", "@"))
     def testQualifiedNameTemplateTargetArgument(
             self, spw, qualifier, tmpdir, capfd):
 
