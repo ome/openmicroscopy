@@ -432,9 +432,9 @@ class TestImport(CLITest):
             return ("-T", self.template)
 
         def verify_containers(self, found1, found2):
-                assert found1
-                assert found2
-                assert found1 == found2
+            assert found1
+            assert found2
+            assert found1 == found2
 
     SOURCES = (
         LegacyIdOnlyTargetSource(),
