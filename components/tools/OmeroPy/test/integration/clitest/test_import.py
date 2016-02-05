@@ -402,6 +402,23 @@ class TestImport(CLITest):
             for attempt in (found1, found2):
                 assert self.name == self.query.get(self.kls, attempt).name.val
 
+    class NameTemplateTargetSource(TargetSource):
+
+        def get_arg(self, client, qualifier, spw=False):
+            # For later
+            self.query = client.sf.getQueryService()
+            if spw:
+                self.kls = "Screen"
+            else:
+                self.kls = "Dataset"
+            return ("-T", "regex:%sname:(?<Container1>.*)"
+                    % (qualifier))
+
+        def verify_containers(self, found1, found2):
+            assert found1
+            assert found2
+            assert found1 == found2
+
     class TemplateTargetSource(TargetSource):
 
         def __init__(self, template):
@@ -475,6 +492,32 @@ class TestImport(CLITest):
             self, spw, qualifier, tmpdir, capfd):
 
         source = self.NameModelTargetSource()
+
+        subdir = tmpdir
+        if spw:
+            fakefile = subdir.join(
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake")
+        else:
+            fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += source.get_arg(self.client, qualifier, spw)
+        self.args += [str(tmpdir)]
+
+        # Now, run the import twice and check that the
+        # pre and post container IDs match the sources'
+        # assumptions
+        found1 = self.parse_container(spw, capfd)
+        found2 = self.parse_container(spw, capfd)
+        source.verify_containers(found1, found2)
+
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("qualifier", ("", "+", "-", "%"))
+    def testQualifiedNameTemplateTargetArgument(
+            self, spw, qualifier, tmpdir, capfd):
+
+        source = self.NameTemplateTargetSource()
 
         subdir = tmpdir
         if spw:
