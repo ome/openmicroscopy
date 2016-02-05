@@ -137,13 +137,11 @@ class WebControl(BaseControl):
 
         for x in (start, restart):
             x.add_argument(
-                "--workers", type=int, default=5,
-                help="SUPPRESS.")
+                "--workers", type=int, help=SUPPRESS)
             x.add_argument(
-                "--worker-connections", type=int, default=1000,
-                help="SUPPRESS")
+                "--worker-connections", type=int, help=SUPPRESS)
             x.add_argument(
-                "--wsgi-args", type=str, default="", help=SUPPRESS)
+                "--wsgi-args", type=str, help=SUPPRESS)
 
         #
         # Advanced
@@ -455,14 +453,14 @@ class WebControl(BaseControl):
             d_args['workers'] = settings.WSGI_WORKERS
         except:
             d_args['workers'] = args.workers
-        if args.wsgi_args:
+        if args.workers:
             self.ctx.out(" `--workers` is deprecated and overwritten"
                          " by `omero.web.wsgi_workers`. ", newline=False)
         try:
             d_args['worker_conn'] = settings.WSGI_WORKER_CONNECTIONS
         except:
             d_args['worker_conn'] = args.worker_connections
-        if args.wsgi_args:
+        if args.worker_connections:
             self.ctx.out(" `--worker-connections` is deprecated and"
                          " overwritten by"
                          " `omero.web.wsgi_worker_connections`. ",

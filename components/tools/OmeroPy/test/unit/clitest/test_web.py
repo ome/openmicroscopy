@@ -310,6 +310,53 @@ class TestWeb(object):
         assert startout == o.split(os.linesep)[1]
         assert 2 == len(o.split(os.linesep))-1
 
+    @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
+    @pytest.mark.parametrize('wsgi_workers', [None, 1])
+    def testWebWorkers(self, app_server, wsgi_workers, monkeypatch, capsys):
+        self.mock_django_setting('WSGI_WORKERS', wsgi_workers, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
+        self.set_python_dir(monkeypatch)
+        self.mock_subprocess_popen(monkeypatch)
+        self.mock_subprocess_call(monkeypatch)
+        self.set_django_pid(monkeypatch)
+        start_cmd = ["start"]
+        if wsgi_workers is not None:
+            start_cmd.append("--workers=%r" % wsgi_workers)
+        self.cli.invoke(self.args + start_cmd, strict=True)
+        o, e = capsys.readouterr()
+        if wsgi_workers is not None:
+            startout = ("Starting OMERO.web...  `--workers` is deprecated"
+                        " and overwritten by `omero.web.wsgi_workers`. [OK]")
+        else:
+            startout = "Starting OMERO.web... [OK]"
+        assert startout == o.split(os.linesep)[1]
+        assert 2 == len(o.split(os.linesep))-1
+
+    @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
+    @pytest.mark.parametrize('wsgi_worker_conn', [None, 1])
+    def testWebWorkerConnections(self, app_server, wsgi_worker_conn,
+                                 monkeypatch, capsys):
+        self.mock_django_setting('WSGI_WORKER_CONNECTIONS', wsgi_worker_conn,
+                                 monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
+        self.set_python_dir(monkeypatch)
+        self.mock_subprocess_popen(monkeypatch)
+        self.mock_subprocess_call(monkeypatch)
+        self.set_django_pid(monkeypatch)
+        start_cmd = ["start"]
+        if wsgi_worker_conn is not None:
+            start_cmd.append("--worker-connections=%r" % wsgi_worker_conn)
+        self.cli.invoke(self.args + start_cmd, strict=True)
+        o, e = capsys.readouterr()
+        if wsgi_worker_conn is not None:
+            startout = ("Starting OMERO.web...  `--worker-connections` is"
+                        " deprecated and overwritten by "
+                        "`omero.web.wsgi_worker_connections`. [OK]")
+        else:
+            startout = "Starting OMERO.web... [OK]"
+        assert startout == o.split(os.linesep)[1]
+        assert 2 == len(o.split(os.linesep))-1
+
     @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
     @pytest.mark.parametrize('server_type', [
         "nginx", "nginx-development"])
@@ -363,11 +410,19 @@ class TestWeb(object):
     @pytest.mark.parametrize('server_type', ["apache", "apache22", "apache24"])
     @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('app_server', ['wsgi'])
+    @pytest.mark.parametrize('max_requests', [0, 100])
+    @pytest.mark.parametrize('processes', [5, 10])
+    @pytest.mark.parametrize('threads', [1, 5])
     @pytest.mark.parametrize('http', [False, 8081])
-    def testApacheWSGIConfig(self, server_type, prefix, app_server, http,
-                             capsys, monkeypatch):
+    def testApacheWSGIConfig(self, server_type, prefix, app_server,
+                             max_requests, processes, threads, http, capsys,
+                             monkeypatch):
 
         self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER_MAX_REQUESTS',
+                                 max_requests, monkeypatch)
+        self.mock_django_setting('WSGI_WORKERS', processes, monkeypatch)
+        self.mock_django_setting('WSGI_THREADS', threads, monkeypatch)
         self.set_python_path(monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
         upstream_name = self.add_upstream_name(prefix, monkeypatch)
@@ -396,7 +451,8 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
                 ('WSGIDaemonProcess %s ' % upstream_name +
-                 'processes=5 threads=1 '
+                 'processes=%s threads=%s ' % (processes, threads) +
+                 'maximum-requests=%s ' % (max_requests) +
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % icepath, 'lib/python/omeroweb'),
                 ('WSGIScriptAlias %s ' % prefix,
@@ -410,7 +466,8 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (http or 80)),
                 ('WSGIDaemonProcess %s ' % upstream_name +
-                 'processes=5 threads=1 '
+                 'processes=%s threads=%s ' % (processes, threads) +
+                 'maximum-requests=%s ' % (max_requests) +
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % icepath, 'lib/python/omeroweb'),
                 ('WSGIScriptAlias / ', 'lib/python/omeroweb/wsgi.py ' +
@@ -454,7 +511,7 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (80)),
                 ('WSGIDaemonProcess omeroweb ' +
-                 'processes=5 threads=1 '
+                 'processes=5 threads=5 maximum-requests=0 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % pp,
                  'lib/python/omeroweb'),
@@ -464,7 +521,7 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (80)),
                 ('WSGIDaemonProcess omeroweb ' +
-                 'processes=5 threads=1 '
+                 'processes=5 threads=5 maximum-requests=0 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % pp,
                  'lib/python/omeroweb'),
@@ -490,10 +547,6 @@ class TestWeb(object):
         self.cli.invoke(self.args, strict=True)
 
         o, e = capsys.readouterr()
-        # to be removed in 5.2
-        if "wsgi" not in app_server:
-            assert e.split(os.linesep)[0].startswith(
-                "WARNING: FastCGI support is deprecated")
         o = self.normalise_generated(o)
         d = self.compare_with_reference(server_type[0] + '.conf', o)
         assert not d, 'Files are different:\n' + d
