@@ -60,20 +60,29 @@ public class ModelImportTarget implements ImportTarget {
 
     private String simpleName;
 
-    private String prefix; 
-
-    private String rest;
+    private String prefix;
 
     private Long id;
 
+    private String discriminator;
+
+    private String template;
+
+    private String name;
 
     @SuppressWarnings("unchecked")
     @Override
     public void init(String target) {
         // Builder is responsible for only passing valid files.
-        int idx = target.indexOf(":");
-        prefix = target.substring(0, idx);
-        rest = target.substring(idx + 1);
+        String[] tokens = target.split(":",3);
+        this.prefix = tokens[0];
+        if (tokens.length == 2) {
+            this.name = tokens[1];
+            this.discriminator = "id";
+        } else {
+            this.name = tokens[2];
+            this.discriminator = tokens[1];
+        }
         type = tryClass(prefix);
         Class<?> k = omero.util.IceMap.OMEROtoOME.get(type);
         typeName = k.getName();
@@ -112,24 +121,23 @@ public class ModelImportTarget implements ImportTarget {
     public IObject load(OMEROMetadataStoreClient client, ImportContainer ic) throws Exception {
         IQueryPrx query = client.getServiceFactory().getQueryService();
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
-        if (rest.matches("^[-+%@]?name:.*")) {
+        if (discriminator.matches("^[-+%@]?name$")) {
             IObject obj;
-            String name = rest.substring(rest.indexOf(":") + 1);
             String order = "desc";
-            if (rest.startsWith("-")) {
+            if (discriminator.startsWith("-")) {
                 order = "asc";
             }
             List<IObject> objs = (List<IObject>) query.findAllByQuery(
                 "select o from "+simpleName+" as o where o.name = :name"
                 + " order by o.id " + order,
                 new ParametersI().add("name", rstring(name)));
-            if (objs.size() == 0 || rest.startsWith("@")) {
+            if (objs.size() == 0 || discriminator.startsWith("@")) {
                 obj = type.newInstance();
                 Method m = type.getMethod("setName", omero.RString.class);
                 m.invoke(obj, rstring(name));
                 obj = update.saveAndReturnObject(obj);
             } else {
-                if (rest.startsWith("%") && objs.size() > 1) {
+                if (discriminator.startsWith("%") && objs.size() > 1) {
                     log.error("No unique {} called {}", simpleName, name);
                     throw new RuntimeException("No unique "+simpleName+" available");
                 } else {
@@ -137,8 +145,11 @@ public class ModelImportTarget implements ImportTarget {
                 }
             }
             id = obj.getId().getValue();
+        } else if (discriminator.equals("id")) {
+            id = Long.valueOf(name);
         } else {
-            id = Long.valueOf(rest);
+            log.error("Unknown discriminator {}", discriminator);
+            throw new RuntimeException("Unknown discriminator "+discriminator);
         }
         return query.get(type.getSimpleName(), id);
     }
