@@ -311,6 +311,18 @@ class WebControl(BaseControl):
                 d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
             except:
                 d["WEB_PREFIX"] = "/"
+            try:
+                d["PROCESSES"] = settings.WSGI_WORKERS
+            except:
+                d["PROCESSES"] = 5
+            try:
+                d["THREADS"] = settings.WSGI_THREADS
+            except:
+                d["THREADS"] = 1
+            try:
+                d["MAX_REQUESTS"] = settings.APPLICATION_SERVER_MAX_REQUESTS
+            except:
+                d["MAX_REQUESTS"] = 0
 
         d["FASTCGI_EXTERNAL"] = '%s:%s' % (
             settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
