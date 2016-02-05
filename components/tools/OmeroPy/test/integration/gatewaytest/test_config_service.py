@@ -21,6 +21,9 @@ def testInterpolateSetting(gatewaywrapper):
     gatewaywrapper.loginAsAdmin()
     configService = gatewaywrapper.gateway.getConfigService()
 
+    defaluts = configService.getConfigDefaults()
+    defaultValue = defaluts["omero.client.viewer.interpolate_pixels"]
+
     try:
         configService.setConfigValue(
             "omero.client.viewer.interpolate_pixels", "false")
@@ -28,13 +31,18 @@ def testInterpolateSetting(gatewaywrapper):
         gatewaywrapper.loginAsAuthor()
         assert not gatewaywrapper.gateway.getInterpolateSetting()
 
-    finally:
-        # try/finally to make sure that we
-        # set back to 'true' (default value) to clean up
         gatewaywrapper.loginAsAdmin()
         configService = gatewaywrapper.gateway.getConfigService()
         configService.setConfigValue(
             "omero.client.viewer.interpolate_pixels", "true")
 
-    gatewaywrapper.loginAsAuthor()
-    assert gatewaywrapper.gateway.getInterpolateSetting()
+        gatewaywrapper.loginAsAuthor()
+        assert gatewaywrapper.gateway.getInterpolateSetting()
+
+    finally:
+        # try/finally to make sure that we
+        # set back to default value to clean up
+        gatewaywrapper.loginAsAdmin()
+        configService = gatewaywrapper.gateway.getConfigService()
+        configService.setConfigValue(
+            "omero.client.viewer.interpolate_pixels", defaultValue)
