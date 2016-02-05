@@ -63,24 +63,38 @@ public class ServerTemplateImportTarget extends TemplateImportTarget {
             return null;
         }
 
+        if (!getDiscriminator().matches("^[-+%@]?name$")) {
+            log.warn("Invalid discriminator: {}", getDiscriminator());
+            return null;
+        }
+
         String name = m.group("Container1");
         if (name == null || name.trim().length() == 0) {
             log.warn("Empty name");
             return null;
         }
 
+        String order = "desc";
+        if (getDiscriminator().startsWith("-")) {
+            order = "asc";
+        }
         if (spw) {
             Screen screen;
             List<IObject> screens = (List<IObject>) query.findAllByQuery(
                 "select o from Screen as o where o.name = :name"
-                + " order by o.id desc",
+                + " order by o.id " + order,
                 new ParametersI().add("name", rstring(name)));
-            if (screens.size() == 0) {
+            if (screens.size() == 0 || getDiscriminator().startsWith("@")) {
                 screen = new ScreenI();
                 screen.setName(omero.rtypes.rstring(name));
                 screen = (Screen) update.saveAndReturnObject(screen);
             } else {
-                screen = (Screen) screens.get(0);
+                if (getDiscriminator().startsWith("%") && screens.size() > 1) {
+                    log.warn("No unique Screen called {}", name);
+                    return null;
+                } else {
+                    screen = (Screen) screens.get(0);
+                }
             }
             return screen;
         } else {
@@ -89,12 +103,17 @@ public class ServerTemplateImportTarget extends TemplateImportTarget {
                 "select o from Dataset as o where o.name = :name"
                 + " order by o.id desc",
                 new ParametersI().add("name", rstring(name)));
-            if (datasets.size() == 0) {
+            if (datasets.size() == 0 || getDiscriminator().startsWith("@")) {
                 dataset = new DatasetI();
                 dataset.setName(omero.rtypes.rstring(name));
                 dataset = (Dataset) update.saveAndReturnObject(dataset);
             } else {
-                dataset = (Dataset) datasets.get(0);
+                if (getDiscriminator().startsWith("%") && datasets.size() > 1) {
+                    log.warn("No unique Dataset called {}", name);
+                    return null;
+                } else {
+                    dataset = (Dataset) datasets.get(0);
+                }
             }
             return dataset;
         }

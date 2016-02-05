@@ -38,16 +38,32 @@ public class TemplateImportTarget implements ImportTarget {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
+    private String discriminator;
+
     private String template;
+
+    private String target;
 
     @Override
     public void init(String target) {
-        int idx = target.indexOf(":");
-        this.template = target.substring(idx + 1);
+        // Builder is responsible for only passing valid files.
+        this.target = target;
+        String[] tokens = this.target.split(":",3);
+        if (tokens.length == 2) {
+            this.template = tokens[1];
+            this.discriminator = "+name";
+        } else {
+            this.template = tokens[2];
+            this.discriminator = tokens[1];
+        }
     }
 
     public String getTemplate() {
         return this.template;
+    }
+
+    public String getDiscriminator() {
+        return this.discriminator;
     }
 
     @Override
@@ -57,7 +73,7 @@ public class TemplateImportTarget implements ImportTarget {
         IUpdatePrx update = client.getServiceFactory().getUpdateService();
         CommentAnnotation ca = new CommentAnnotationI();
         ca.setNs(omero.rtypes.rstring(NSTARGETTEMPLATE.value));
-        ca.setTextValue(omero.rtypes.rstring(this.template));
+        ca.setTextValue(omero.rtypes.rstring(this.target));
 
         // Here we save the unix-styled path to the directory that the target
         // file was stored in. Server-side, further directories should be
