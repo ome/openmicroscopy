@@ -35,8 +35,7 @@ class TestClientConfig(lib.ITest):
             "omero.client.ui.tree.orphans.enabled", enabled)
         conn = omero.gateway.BlitzGateway(client_obj=self.client)
         orphans = conn.getOrphanedContainerSettings()
-        if enabled is None:
-            assert orphans['enabled'] == toBoolean(enabled)
+        assert orphans['enabled'] == toBoolean(enabled)
 
     @pytest.mark.parametrize("name",
                              ["Trash", "", None])
