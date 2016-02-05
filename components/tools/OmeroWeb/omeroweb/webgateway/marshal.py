@@ -159,8 +159,15 @@ def imageMarshal(image, key=None, request=None):
 
     try:
         def pixel_size_in_microns(method):
-            size = method('MICROMETER')
-            return size.getValue() if size else None
+            try:
+                size = method('MICROMETER')
+                return size.getValue() if size else None
+            except:
+                logger.warn(
+                    'Unable to convert physical pixel size to microns',
+                    exc_info=True
+                )
+                return None
 
         rv.update({
             'interpolate': interpolate,
