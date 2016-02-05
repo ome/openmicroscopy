@@ -713,7 +713,7 @@ present, the user will enter a console""")
         if not self.check_internal_cfg() or args.force_rewrite:
             self.rewrite(args, config, force=True)
 
-        if 0 == self.status(args, node_only=True):
+        if 0 == self.status(args, node_only=True, can_force_rewrite=True):
             self.ctx.die(876, "Server already running")
 
         if not args.force_rewrite:
@@ -786,12 +786,15 @@ present, the user will enter a console""")
         internal_cfg = self._cfglist()[0]
         return os.path.exists(internal_cfg)
 
-    def status(self, args, node_only=False):
+    def status(self, args, node_only=False, can_force_rewrite=False):
         self.check_node(args)
         if not self.check_internal_cfg():
-            self.ctx.die(574, (
-                'Missing internal configuration. Run bin/omero admin rewrite'
-                ' or pass --force-rewrite.'))
+            error_msg = 'Missing internal configuration.'
+            if can_force_rewrite:
+                error_msg += ' Pass --force-rewrite to the command.'
+            else:
+                error_msg += ' Run bin/omero admin rewrite.'
+            self.ctx.die(574, error_msg)
         command = self._cmd("-e", "node ping %s" % self._node())
         self.ctx.rv = self.ctx.popen(command).wait()  # popen
 
@@ -910,7 +913,7 @@ present, the user will enter a console""")
         self.check_node(args)
         if args.force_rewrite:
             self.rewrite(args, config, force=True)
-        if 0 != self.status(args, node_only=True):
+        if 0 != self.status(args, node_only=True, can_force_rewrite=True):
             self.ctx.err("Server not running")
             return True
         elif self._isWindows():

@@ -30,9 +30,9 @@ omeroDir = path(os.getcwd()) / "build"
 GRID_FILES = ["templates.xml", "default.xml", "windefault.xml"]
 ETC_FILES = ["ice.config", "master.cfg", "internal.cfg"]
 
-MISSING_CONFIGURATION_MSG = (
-    "Missing internal configuration. Run bin/omero admin rewrite or pass"
-    " --force-rewrite.")
+MISSING_CONFIGURATION_MSG = "Missing internal configuration."
+REWRITE_MSG = " Run bin/omero admin rewrite."
+FORCE_REWRITE_MSG = " Pass --force-rewrite to the command."
 
 
 @pytest.fixture(autouse=True)
@@ -99,7 +99,7 @@ class TestAdmin(object):
 
     def testStopAsyncNoConfig(self):
         self.invoke("admin stopasync", fails=True)
-        self.cli.assertStderr([MISSING_CONFIGURATION_MSG])
+        self.cli.assertStderr([MISSING_CONFIGURATION_MSG + FORCE_REWRITE_MSG])
         self.cli.assertStdout([])
 
     def testStopAsyncRunning(self):
@@ -132,7 +132,7 @@ class TestAdmin(object):
 
     def testStopNoConfig(self):
         self.invoke("admin stop", fails=True)
-        self.cli.assertStderr([MISSING_CONFIGURATION_MSG])
+        self.cli.assertStderr([MISSING_CONFIGURATION_MSG + FORCE_REWRITE_MSG])
         self.cli.assertStdout([])
 
     def testStopNoConfigForceRewrite(self):
@@ -158,7 +158,7 @@ class TestAdmin(object):
 
     def testStatusNoConfig(self):
         self.invoke("admin status", fails=True)
-        self.cli.assertStderr([MISSING_CONFIGURATION_MSG])
+        self.cli.assertStderr([MISSING_CONFIGURATION_MSG + REWRITE_MSG])
         self.cli.assertStdout([])
 
     def testStatusNodeFails(self):
