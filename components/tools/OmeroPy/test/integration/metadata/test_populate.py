@@ -50,6 +50,8 @@ from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.constants.namespaces import NSMEASUREMENT
 from omero.util.temp_files import create_path
 
+from pytest import skip
+
 
 def coord2offset(coord):
     """
@@ -146,6 +148,11 @@ class TestPopulateMetadata(BasePopulate):
         but in practice each one uses data created by the others, so for
         now just run them all together
         """
+        try:
+            import PyYAML
+            print PyYAML, "found"
+        except:
+            skip("No PyYAML found")
         self._test_parsing_context()
         self._test_bulk_to_map_annotation_context()
         self._test_delete_map_annotation_context()
