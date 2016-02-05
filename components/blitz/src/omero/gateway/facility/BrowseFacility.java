@@ -1224,6 +1224,8 @@ public class BrowseFacility extends Facility {
                                     + "left outer join fetch folder.parentFolder as parentFolder "
                                     + "left outer join fetch folder.childFolders as childFolders "
                                     + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch roiLinks.child as roi "
+                                    + "left outer join fetch roi.shapes as shapes "
                                     + "left outer join fetch folder.annotationLinks as annotationLinks "
                                     + "left outer join fetch folder.imageLinks as imageLinks",
                             null);
@@ -1266,6 +1268,8 @@ public class BrowseFacility extends Facility {
                                     + "left outer join fetch folder.parentFolder as parentFolder "
                                     + "left outer join fetch folder.childFolders as childFolders "
                                     + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch roiLinks.child as roi "
+                                    + "left outer join fetch roi.shapes as shapes "
                                     + "left outer join fetch folder.annotationLinks as annotationLinks "
                                     + "left outer join fetch folder.imageLinks as imageLinks where folder.id in (:ids)",
                             param);
@@ -1307,6 +1311,8 @@ public class BrowseFacility extends Facility {
                                     + "left outer join fetch folder.parentFolder as parentFolder "
                                     + "left outer join fetch folder.childFolders as childFolders "
                                     + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch roiLinks.child as roi "
+                                    + "left outer join fetch roi.shapes as shapes "
                                     + "left outer join fetch folder.annotationLinks as annotationLinks "
                                     + "left outer join fetch folder.imageLinks as imageLinks "
                                     + "where folder.details.owner.id = :userId",

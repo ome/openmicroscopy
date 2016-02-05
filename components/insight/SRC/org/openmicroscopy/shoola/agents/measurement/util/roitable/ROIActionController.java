@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -52,7 +52,9 @@ public interface ROIActionController
 		SPLIT,
 		PROPAGATE,
 		DELETE,
-		TAG
+		TAG,
+		ADD_TO_FOLDER,
+		REMOVE_FROM_FOLDER
 	};
 	
 	/** List of statistical actions possible. */
@@ -82,4 +84,11 @@ public interface ROIActionController
 
 	/** Load the tags.*/
     public void loadTags();
+    
+    /** Add to folder.*/
+    public void addToFolder();
+    
+    /** Remove from folder.*/
+    public void removeFromFolder();
+    
 }

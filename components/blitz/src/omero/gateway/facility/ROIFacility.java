@@ -294,6 +294,139 @@ public class ROIFacility extends Facility {
     }
 
     /**
+     * Adds ROIs to Folders
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param imageID
+     *            The image id
+     * @param roiList
+     *            The ROIs to add to the Folders
+     * @param folders
+     *            The Folders to add the ROIs to
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public void addRoisToFolders(SecurityContext ctx, long imageID,
+            Collection<ROIData> roiList, Collection<FolderData> folders)
+            throws DSOutOfServiceException, DSAccessException {
+
+        try {
+
+            // 1. Save clientside ROIs on the server
+            Collection<ROIData> roisToSave = new ArrayList<ROIData>();
+            Iterator<ROIData> it = roiList.iterator();
+            while (it.hasNext()) {
+                ROIData roi = it.next();
+                if (roi.isClientSide()) {
+                    roisToSave.add(roi);
+                    it.remove();
+                }
+            }
+
+            if (!roisToSave.isEmpty()) {
+                Collection<ROIData> saved = saveROIs(ctx, imageID, roisToSave);
+                roiList.addAll(saved);
+            }
+
+            IRoiPrx svc = gateway.getROIService(ctx);
+            RoiResult serverReturn = svc.findByImage(imageID, new RoiOptions());
+            List<Roi> serverRoiList = serverReturn.rois;
+
+            // 2. Save clientside Folders on the server
+            List<IObject> foldersToSave = new ArrayList<IObject>();
+            Iterator<FolderData> it2 = folders.iterator();
+            while (it.hasNext()) {
+                FolderData folder = it2.next();
+                if (folder.getId() < 0) {
+                    foldersToSave.add(folder.asIObject());
+                    it2.remove();
+                }
+            }
+
+            if (!foldersToSave.isEmpty()) {
+                List<Long> ids = gateway.getUpdateService(ctx)
+                        .saveAndReturnIds(foldersToSave);
+                Collection<FolderData> savedFolders = gateway.getFacility(
+                        BrowseFacility.class).getFolders(ctx, ids);
+                folders.addAll(savedFolders);
+            }
+
+            // 3. Create/Save the ROIFolderLinks
+            List<IObject> toSave = new ArrayList<IObject>();
+            for (Roi roi : serverRoiList) {
+                for (FolderData folder : folders) {
+                    boolean linkExists = false;
+                    for (FolderRoiLink link : roi.copyFolderLinks()) {
+                        if (link.getParent().getId().getValue() == folder
+                                .getId()) {
+                            linkExists = true;
+                            break;
+                        }
+                    }
+
+                    if (!linkExists) {
+                        roi.linkFolder(folder.asFolder());
+                        toSave.add(roi);
+                    }
+                }
+            }
+
+            IUpdatePrx updateService = gateway.getUpdateService(ctx);
+            updateService.saveCollection(toSave);
+        } catch (Exception e) {
+            handleException(this, e, "Cannot add ROIs to Folder ");
+        }
+    }
+
+    /**
+     * Remove the ROIs from the folders
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param imageID
+     *            The image id
+     * @param roiList
+     *            The ROIs to remove from the folders
+     * @param folders
+     *            The Folders to remove the ROIs from
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public void removeRoisFromFolders(SecurityContext ctx, long imageID,
+            Collection<ROIData> roiList, Collection<FolderData> folders)
+            throws DSOutOfServiceException, DSAccessException {
+
+        try {
+            IRoiPrx svc = gateway.getROIService(ctx);
+            RoiResult serverReturn = svc.findByImage(imageID, new RoiOptions());
+            List<Roi> serverRoiList = serverReturn.rois;
+
+            IUpdatePrx updateService = gateway.getUpdateService(ctx);
+
+            for (ROIData roi : roiList) {
+                for (Roi serverRoi : serverRoiList) {
+                    if (serverRoi.getId().getValue() == roi.getId()) {
+                        for (FolderData folder : folders) {
+                            for (FolderRoiLink link : serverRoi
+                                    .copyFolderLinks()) {
+                                if (link.getParent().getId().getValue() == folder
+                                        .getId()) {
+                                    updateService.deleteObject(link);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            handleException(this, e, "Cannot add ROIs to Folder ");
+        }
+
+    }
+    
+    /**
      * Save the ROI for the image to the server.
      *
      * @param ctx

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,10 @@ import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -43,6 +46,7 @@ import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import omero.gateway.model.DataObject;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.ROIData;
 
@@ -363,6 +367,27 @@ public interface ImageDataView
 	public CallHandle saveROI(SecurityContext ctx, long imageID, long userID,
 			List<ROIData> roiList, AgentEventListener observer);
 
+    /**
+     * Save changes to a ROI folder
+     * 
+     * @param ctx
+     *            The security context.
+     * @param imageID
+     *            The image's ID.
+     * @param userID
+     *            The user's ID.
+     * @param roiList
+     *            The list of ROI to save.
+     * @param folders
+     *            The ROI folders
+     * @param action
+     *            The action to perform
+     */
+    public CallHandle saveROIFolders(SecurityContext ctx, long imageID,
+            long userID, Collection<ROIData> roiList,
+            Collection<FolderData> folders, ROIFolderAction action,
+            AgentEventListener observer);
+    
 	/**
 	 * Exports the image as an XML file.
 	 * 

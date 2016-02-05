@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -49,17 +49,18 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationSaver;
+import org.openmicroscopy.shoola.agents.measurement.ROIFolderSaver;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.TagsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.model.ROIResult;
@@ -90,6 +91,7 @@ import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
@@ -1178,6 +1180,44 @@ class MeasurementViewerModel
 		}
 	}
 
+    /**
+     * Add ROIs to Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    void addROIsToFolder(Collection<ROIData> selectedObjects,
+            Collection<FolderData> folders) {
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), selectedObjects, folders,
+                ROIFolderAction.ADD_TO_FOLDER);
+        currentSaver.load();
+        state = MeasurementViewer.SAVING_ROI;
+    }
+
+    /**
+     * Removes ROIs from Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    void removeROIsFromFolder(Collection<ROIData> selectedObjects,
+            Collection<FolderData> folders) {
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), selectedObjects, folders,
+                ROIFolderAction.REMOVE_FROM_FOLDER);
+        currentSaver.load();
+        state = MeasurementViewer.SAVING_ROI;
+    }
+	
 	/**
 	 * Returns the collection of ROI on the image owned by the user currently
 	 * logged in

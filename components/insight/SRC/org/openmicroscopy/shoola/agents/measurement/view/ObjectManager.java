@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.ObjectManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -41,11 +41,8 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
-
-
-
-import org.apache.commons.collections.CollectionUtils;
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
@@ -63,6 +60,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import omero.gateway.model.FolderData;
+import omero.gateway.model.ROIData;
 
 /** 
  * UI Component managing a Region of Interest.
@@ -94,10 +93,6 @@ class ObjectManager
 		COLUMN_NAMES.add(AnnotationDescription.ZSECTION_STRING);
 		COLUMN_NAMES.add(AnnotationDescription.TIME_STRING);
 		COLUMN_NAMES.add(AnnotationDescription.SHAPE_STRING);
-		//columnNames.add(AnnotationDescription.annotationDescription.get(
-		//		AnnotationKeys.NAMESPACE));
-		//columnNames.add(AnnotationDescription.annotationDescription.get(
-		//		AnnotationKeys.KEYWORDS));
 		COLUMN_NAMES.add(AnnotationDescription.annotationDescription.get(
 			AnnotationKeys.TEXT));
 		COLUMN_NAMES.add("Visible");
@@ -115,8 +110,6 @@ class ObjectManager
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(2), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(3), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(4), 36);
-        //columnWidths.put(columnNames.get(5), 36);
-        //columnWidths.put(columnNames.get(6), 96);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(5), 96);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(6), 36);
 	}
@@ -533,5 +526,51 @@ class ObjectManager
         }
         return list;
 	}
+
+	/**
+     * Add ROIs to Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    public void addRoisToFolder(Collection<ROIShape> selectedObjects,
+            Collection<FolderData> folders) {
+        Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
+        for(ROIShape shape : selectedObjects) {
+            ROI roi = shape.getROI();
+            if(!rois.containsKey(roi.getID())) {
+                ROIData data = new ROIData();
+                data.setId(roi.getID());
+                data.setImage(model.getImage().asImage());
+                rois.put(roi.getID(), data);
+            }
+        }
+        model.addROIsToFolder(rois.values(), folders);
+    }
+    
+    /**
+     * Removes ROIs from Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    public void removeRoisFromFolder(Collection<ROIShape> selectedObjects,
+            Collection<FolderData> folders) {
+        Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
+        for(ROIShape shape : selectedObjects) {
+            ROI roi = shape.getROI();
+            if(!rois.containsKey(roi.getID())) {
+                ROIData data = new ROIData();
+                data.setId(roi.getID());
+                data.setImage(model.getImage().asImage());
+                rois.put(roi.getID(), data);
+            }
+        }
+        model.removeROIsFromFolder(rois.values(), folders);
+    }
 }
 

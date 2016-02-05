@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIMenuAction 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -114,6 +114,14 @@ public class ROIAction
 			case TAG:
                 setName("Tag");
                 setToolTip("Tag the selected shapes.");
+                break;
+			case ADD_TO_FOLDER:
+                setName("Add to Folder");
+                setToolTip("Adds the Rois(s) to specific Folders.");
+                break;
+            case REMOVE_FROM_FOLDER:
+                setName("Remove from Folder");
+                setToolTip("Removes the Roi(s) from specific Folders.");
 		}
 	}
 	
@@ -152,6 +160,12 @@ public class ROIAction
 				break;
 			case TAG:
                 controller.loadTags();
+                break;
+			case ADD_TO_FOLDER:
+                controller.addToFolder();
+                break;
+            case REMOVE_FROM_FOLDER:
+                controller.removeFromFolder();
 		}
 	}
 }

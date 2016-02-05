@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -41,6 +41,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -254,18 +255,13 @@ public class ViewerSorter
     {
         Object ob1 = o1.getUserObject();
         Object ob2 = o2.getUserObject();
+        if ((ob1 instanceof FolderData) && (ob2 instanceof FolderData)) {
+        	return ((FolderData) ob1).getFolderPathString().compareTo(
+        	        ((FolderData) ob2).getFolderPathString());
+        }
         if ((ob1 instanceof DataObject) && (ob2 instanceof DataObject)) {
-        	return compareDataObjects((DataObject) ob1, (DataObject) ob2);
+            return compareDataObjects((DataObject) ob1, (DataObject) ob2);
         }
-        /*
-        if ((ob1 instanceof DataObject) && (ob2 instanceof File)) {
-        	return compareObjects(o1, o2);
-        } else if ((ob2 instanceof DataObject) && (ob1 instanceof File)) {
-        	return compareObjects(o1, o2);
-        } else if ((ob1 instanceof File) && (ob2 instanceof File)) {
-        	return compareObjects(o1, o2);
-        }
-        */
         return -1;
     }
     
