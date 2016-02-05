@@ -33,6 +33,12 @@ import omero.model.FolderI;
  */
 public class FolderData extends DataObject {
 
+    /** Caches the folder path string */
+    private String folderPathString = null;
+
+    /** Caches the folder path separator character */
+    private char folderPathSeparatorChar = '>';
+
     /** Creates a new instance. */
     public FolderData() {
         setDirty(true);
@@ -134,4 +140,60 @@ public class FolderData extends DataObject {
     public void setFolder(Folder f) {
         setValue(f);
     }
+
+    
+    @Override
+    public String toString() {
+        return getFolderPathString()+" [id="+getId()+"]";
+    }
+
+    /**
+     * Returns the folder path as string
+     * 
+     * @return See above
+     */
+    public String getFolderPathString() {
+        return getFolderPathString(folderPathSeparatorChar);
+    }
+
+    /**
+     * Returns the folder path as string using a custom path separator
+     * 
+     * @param pathSeparator
+     *            The path separator character
+     * @return See above
+     */
+    public String getFolderPathString(char pathSeparator) {
+        if (folderPathString == null
+                || folderPathSeparatorChar != pathSeparator) {
+            StringBuilder sb = new StringBuilder();
+            generateFolderPath(this, sb, pathSeparator);
+            folderPathString = sb.toString();
+            folderPathSeparatorChar = pathSeparator;
+        }
+        return folderPathString;
+    }
+
+    /**
+     * Generates the path string of a {@link FolderData}
+     * 
+     * @param f
+     *            The folder
+     * @param sb
+     *            The {@link StringBuilder} the path is written to
+     * @param pathSeparator
+     *            The path separator character
+     */
+    private void generateFolderPath(FolderData f, StringBuilder sb,
+            char pathSeparator) {
+        sb.insert(0, f.getName());
+        FolderData parent = f.getParentFolder();
+        if (parent != null) {
+            if (parent.isLoaded()) {
+                sb.insert(0, " " + pathSeparator + " ");
+                generateFolderPath(f.getParentFolder(), sb, pathSeparator);
+            }
+        }
+    }
+
 }
