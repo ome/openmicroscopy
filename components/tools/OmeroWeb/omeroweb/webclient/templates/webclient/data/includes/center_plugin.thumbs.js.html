@@ -140,7 +140,8 @@ $(document).ready(function() {
         // Get the current selection
         var selected = inst.get_selected(true);
 
-        OME.renderCentrePanel(inst, selected);
+        // React entry point exported from bundle.js, built with webpack
+        renderCentrePanel.default(inst, selected);
         return;
 
         if (selected.length === 0) {
