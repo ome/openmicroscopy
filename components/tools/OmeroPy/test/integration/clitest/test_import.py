@@ -354,11 +354,17 @@ class TestImport(CLITest):
             assert self.oid == found1
             assert self.oid == found2
 
-    class IdModelTargetSource(AbstractIdTargetSource):
+    class ImplicitIdModelTargetSource(AbstractIdTargetSource):
 
         def get_arg(self, client, spw=False):
             self.create_container(client, spw=spw)
             return ("-T", "%s:%s" % (self.kls, self.oid))
+
+    class IdModelTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, spw=spw)
+            return ("-T", "%s:id:%s" % (self.kls, self.oid))
 
     class LegacyIdModelTargetSource(AbstractIdTargetSource):
 
@@ -416,6 +422,7 @@ class TestImport(CLITest):
     SOURCES = (
         LegacyIdOnlyTargetSource(),
         LegacyIdModelTargetSource(),
+        ImplicitIdModelTargetSource(),
         IdModelTargetSource(),
         TemplateTargetSource("regex:(?<Container1>.*)"),
         TemplateTargetSource(":(?<Container1>.*)"),
