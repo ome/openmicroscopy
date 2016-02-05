@@ -3,6 +3,13 @@ import Well from './Well';
 
 var PlateGrid = React.createClass({
 
+    getInitialState: function() {
+        return {
+            data: undefined,
+            selectedWellIds: [],
+        };
+    },
+
     componentDidMount: function() {
         var plateId = this.props.plateId,
             fieldId = this.props.fieldId;
@@ -59,13 +66,6 @@ var PlateGrid = React.createClass({
             });
         });
         return wId;
-    },
-
-    getInitialState: function() {
-        return {
-            data: undefined,
-            selectedWellIds: [],
-        };
     },
 
     handleWellClick: function(event, wellId) {

@@ -43,7 +43,7 @@ var Plate = React.createClass({
         return {
             fields: [],
             selectedField: undefined
-        }
+        };
     },
 
     handleFieldSelect: function(event) {

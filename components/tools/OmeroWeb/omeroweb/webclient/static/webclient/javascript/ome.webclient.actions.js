@@ -215,6 +215,12 @@ OME.handleTableClickSelection = function(event) {
 // called from click events on plate. Selected wells
 OME.well_selection_changed = function($selected, well_index, plate_class) {
 
+    // Update the buttons in the jstree as if nothing selected.
+    if (buttonsShowHide) {
+        var datatree = $.jstree.reference('#dataTree');
+        buttonsShowHide([], datatree);
+    }
+
     var selected_objs = [];
     $selected.each(function(i){
         selected_objs.push( {"id":$(this).attr('id').replace("=","-"),
