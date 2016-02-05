@@ -250,6 +250,38 @@ public class ModelMockFactory {
     }
 
     /**
+     * Creates a default project and returns it.
+     *
+     * @return See above.
+     */
+    public Project simpleProject() {
+        // prepare data
+        final Project project = new ProjectI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-project:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        project.setName(rstring(uniqueName));
+        project.setDescription(rstring(uniqueDesc));
+        return project;
+    }
+
+    /**
+     * Creates a default screen and returns it.
+     *
+     * @return See above.
+     */
+    public Screen simpleScreen() {
+        // prepare data
+        final Screen screen = new ScreenI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-screen:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        screen.setName(rstring(uniqueName));
+        screen.setDescription(rstring(uniqueDesc));
+        return screen;
+    }
+
+    /**
      * Creates a default dataset and returns it.
      *
      * @return See above.

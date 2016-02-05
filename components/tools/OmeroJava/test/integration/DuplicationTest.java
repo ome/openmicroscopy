@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -38,16 +38,25 @@ import omero.cmd.Delete2;
 import omero.cmd.Duplicate;
 import omero.cmd.DuplicateResponse;
 import omero.cmd.ERR;
+import omero.cmd.Response;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Channel;
+import omero.model.Dataset;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.DoubleAnnotationI;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Folder;
+import omero.model.FolderImageLink;
+import omero.model.FolderImageLinkI;
+import omero.model.FolderRoiLink;
+import omero.model.FolderRoiLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -61,26 +70,36 @@ import omero.model.LongAnnotationI;
 import omero.model.MapAnnotationI;
 import omero.model.Pixels;
 import omero.model.PlaneInfo;
+import omero.model.Plate;
 import omero.model.Point;
 import omero.model.PointI;
+import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.Rectangle;
 import omero.model.RectangleI;
 import omero.model.Roi;
 import omero.model.RoiI;
+import omero.model.Screen;
+import omero.model.ScreenPlateLink;
+import omero.model.ScreenPlateLinkI;
 import omero.model.Shape;
 import omero.model.StatsInfo;
 import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
 import omero.model.XmlAnnotationI;
+import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -1217,5 +1236,222 @@ public class DuplicationTest extends AbstractServerTest {
             final ERR response = (ERR) doChange(client, factory, dup, false);
             Assert.assertEquals(response.name, "bad-class");
         }
+    }
+
+    /**
+     * Test duplication of links depending on ownership and group permissions.
+     * @param groupPerms the permissions on the group in which to test
+     * @param myContainer if the parent of the link is owned by the user doing the duplication
+     * @param myContained if the child of the link is owned by the user doing the duplication
+     * @param myLink if the link is owned by the user doing the duplication
+     * @param containerType what kind of model object the parent of the link is
+     * @param containedType what kind of model object the child of the link is
+     * @throws Exception unexpected
+     */
+    @Test(dataProvider = "container permissions test cases")
+    public void testDuplicateWithContainerPermissions(String groupPerms, boolean myContainer, boolean myContained, boolean myLink,
+            Class<? extends IObject> containerType, Class<? extends IObject> containedType) throws Exception {
+        final EventContext duplicator = newUserAndGroup(groupPerms);
+        final EventContext containerOwner, containedOwner, linkOwner;
+
+        /* set up the model object owners */
+
+        if (myContainer) {
+            containerOwner = duplicator;
+        } else {
+            containerOwner = newUserInGroup();
+        }
+
+        if (myContained) {
+            containedOwner = duplicator;
+        } else if (!myContainer) {
+            containedOwner = containerOwner;
+        } else {
+            containedOwner = newUserInGroup();
+        }
+
+        if (myLink) {
+            linkOwner = duplicator;
+        } else if (!myContainer) {
+            linkOwner = containerOwner;
+        } else if (!myContained) {
+            linkOwner = containedOwner;
+        } else {
+            linkOwner = newUserInGroup();
+        }
+
+        disconnect();
+
+        /* create the model objects */
+
+        final IObject container, contained, link;
+
+        loginUser(containerOwner);
+
+        if (containerType == Project.class) {
+            container = iUpdate.saveAndReturnObject(mmFactory.simpleProject());
+        } else if (containerType == Dataset.class) {
+            container = iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        } else if (containerType == Folder.class) {
+            container = iUpdate.saveAndReturnObject(mmFactory.simpleFolder());
+        } else if (containerType == Screen.class) {
+            container = iUpdate.saveAndReturnObject(mmFactory.simpleScreen());
+        } else {
+            throw new IllegalArgumentException("container type cannot be " + containerType);
+        }
+
+        if (containerOwner != containedOwner) {
+            disconnect();
+            loginUser(containedOwner);
+        }
+
+        if (containedType == Dataset.class) {
+            contained = iUpdate.saveAndReturnObject(mmFactory.simpleDataset());
+        } else if (containedType == Image.class) {
+            contained = iUpdate.saveAndReturnObject(mmFactory.simpleImage());
+            testImages.add(contained.getId().getValue());
+        } else if (containedType == Roi.class) {
+            contained = iUpdate.saveAndReturnObject(new RoiI());
+        } else if (containedType == Plate.class) {
+            contained = iUpdate.saveAndReturnObject(mmFactory.createPlate(0, 0, 0, 0, false));
+        } else {
+            throw new IllegalArgumentException("contained type cannot be " + containedType);
+        }
+
+        if (containedOwner != linkOwner) {
+            disconnect();
+            loginUser(linkOwner);
+        }
+
+        if (containerType == Project.class && containedType == Dataset.class) {
+            final ProjectDatasetLink linkPD = new ProjectDatasetLinkI();
+            linkPD.setParent((Project) container);
+            linkPD.setChild((Dataset) contained);
+            link = iUpdate.saveAndReturnObject(linkPD);
+        } else if (containerType == Dataset.class && containedType == Image.class) {
+            final DatasetImageLink linkDI = new DatasetImageLinkI();
+            linkDI.setParent((Dataset) container);
+            linkDI.setChild((Image) contained);
+            link = iUpdate.saveAndReturnObject(linkDI);
+        } else if (containerType == Folder.class && containedType == Image.class) {
+            final FolderImageLink linkFI = new FolderImageLinkI();
+            linkFI.setParent((Folder) container);
+            linkFI.setChild((Image) contained);
+            link = iUpdate.saveAndReturnObject(linkFI);
+        } else if (containerType == Folder.class && containedType == Roi.class) {
+            final FolderRoiLink linkFR = new FolderRoiLinkI();
+            linkFR.setParent((Folder) container);
+            linkFR.setChild((Roi) contained);
+            link = iUpdate.saveAndReturnObject(linkFR);
+        } else if (containerType == Screen.class && containedType == Plate.class) {
+            final ScreenPlateLink linkSP = new ScreenPlateLinkI();
+            linkSP.setParent((Screen) container);
+            linkSP.setChild((Plate) contained);
+            link = iUpdate.saveAndReturnObject(linkSP);
+        } else {
+            throw new IllegalArgumentException("type " + containerType + " cannot contain type " + containedType);
+        }
+
+        /* duplicate the link */
+
+        if (linkOwner != duplicator) {
+            disconnect();
+            loginUser(duplicator);
+        }
+
+        final boolean expectSuccess = myContainer || "rwrw--".equals(groupPerms);
+
+        final Duplicate dup = new Duplicate();
+        dup.targetObjects =
+                ImmutableMap.of(link.getClass().getSuperclass().getSimpleName(), Arrays.asList(link.getId().getValue()));
+        final Response response = doChange(client, factory, dup, expectSuccess);
+
+        if (expectSuccess) {
+
+            /* find the duplicated link */
+
+            String linkType = null;
+            long linkId = -1;
+            for (final Map.Entry<String, List<Long>> duplicate : ((DuplicateResponse) response).duplicates.entrySet()) {
+                final String duplicateType = duplicate.getKey();
+                final List<Long> duplicateIds = duplicate.getValue();
+                if (duplicateType.endsWith("Link")) {
+                    Assert.assertNull(linkType);
+                    Assert.assertEquals(duplicateIds.size(), 1);
+                    linkType = duplicateType;
+                    linkId = duplicateIds.get(0);
+                }
+            }
+            Assert.assertNotNull(linkType);
+
+            /* check that the link parent is as before but the child is not */
+
+            final String query = "SELECT parent.id, child.id FROM " + linkType + " WHERE id = :id";
+            final Parameters params = new ParametersI().addId(linkId);
+            final List<RType> result = iQuery.projection(query, params).get(0);
+            final long parentId = ((RLong) result.get(0)).getValue();
+            final long childId = ((RLong) result.get(1)).getValue();
+
+            if (containedType == Image.class) {
+                testImages.add(childId);
+            }
+
+            Assert.assertEquals(parentId, container.getId().getValue());
+            Assert.assertNotEquals(childId, contained.getId().getValue());
+        }
+    }
+
+    /**
+     * @return group permissions for container permissions test cases
+     */
+    @DataProvider(name = "container permissions test cases")
+    public Object[][] providePrivateGroupFailureCases() {
+        int index = 0;
+        final int GROUP_PERMS = index++;
+        final int MY_CONTAINER = index++;
+        final int MY_CONTAINED = index++;
+        final int MY_LINK = index++;
+        final int CONTAINER_TYPE = index++;
+        final int CONTAINED_TYPE = index++;
+
+        final String[] permsCases = new String[]{"rwra--", "rwrw--"};
+        final boolean[] booleanCases = new boolean[]{false, true};
+        final SetMultimap<Class<? extends IObject>, Class<? extends IObject>> containmentRelations = HashMultimap.create();
+        containmentRelations.put(Project.class, Dataset.class);
+        containmentRelations.put(Dataset.class, Image.class);
+        containmentRelations.put(Folder.class, Image.class);
+        containmentRelations.put(Folder.class, Roi.class);
+        containmentRelations.put(Screen.class, Plate.class);
+
+        final List<Object[]> testCases = new ArrayList<Object[]>();
+
+        for (final String groupPerms : permsCases) {
+            for (final boolean myContainer : booleanCases) {
+                for (final boolean myContained : booleanCases) {
+                    for (final boolean myLink : booleanCases) {
+                        for (final Map.Entry<Class<? extends IObject>, Class<? extends IObject>> containmentRelation :
+                            containmentRelations.entries()) {
+                            if ((myContainer != myContained || myContainer != myLink) && "rwra--".equals(groupPerms)) {
+                                /* test case does not make sense */
+                                continue;
+                            }
+                            final Object[] testCase = new Object[index];
+                            testCase[GROUP_PERMS] = groupPerms;
+                            testCase[MY_CONTAINER] = myContainer;
+                            testCase[MY_CONTAINED] = myContained;
+                            testCase[MY_LINK] = myLink;
+                            testCase[CONTAINER_TYPE] = containmentRelation.getKey();
+                            testCase[CONTAINED_TYPE] = containmentRelation.getValue();
+                            // DEBUG: if ("rwrw--".equals(groupPerms) &&
+                            //        myContainer == true && myContained == false && myLink == true &&
+                            //        containmentRelation.getKey() == Folder.class && containmentRelation.getValue() == Image.class)
+                            testCases.add(testCase);
+                        }
+                    }
+                }
+            }
+        }
+
+        return testCases.toArray(new Object[testCases.size()][]);
     }
 }
