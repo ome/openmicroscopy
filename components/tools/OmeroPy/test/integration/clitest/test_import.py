@@ -574,6 +574,22 @@ class TestImport(CLITest):
         with pytest.raises(NonZeroReturnCode):
             self.do_import(capfd)
 
+    @pytest.mark.parametrize("kls", ("Dataset", "Screen"))
+    def testBadModelTargetDiscriminator(self, kls, tmpdir, capfd):
+
+        subdir = tmpdir
+        fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        name = "BadNameModelTargetSource-Test"
+        target = "%s:notaname:%s" % (kls, name)
+
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.do_import(capfd)
+
     @pytest.mark.parametrize("level", debug_levels)
     @pytest.mark.parametrize("prefix", [None, '--'])
     def testDebugArgument(self, tmpdir, capfd, level, prefix):
