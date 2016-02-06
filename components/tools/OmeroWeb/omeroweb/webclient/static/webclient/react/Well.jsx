@@ -16,7 +16,9 @@ var Well = React.createClass({
             cls = "ui-selected";
         }
         return (
-            <td className={"well " + cls} title={""+this.props.row+this.props.col}>
+            <td className={"well " + cls}
+                data-wellid={this.props.id}
+                title={""+this.props.row+this.props.col}>
                 <img
 
                     src={"/webgateway/render_thumbnail/" + this.props.iid + "/96/"}

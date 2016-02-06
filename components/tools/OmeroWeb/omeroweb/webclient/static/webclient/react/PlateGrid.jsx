@@ -32,6 +32,25 @@ var PlateGrid = React.createClass({
                 error: function(xhr, status, err) {
             }.bind(this)
         });
+
+        // set up drag-select on <table> (empty at this point)
+        $(this.refs.table).selectable({
+            filter: 'td.well',
+            distance: 2,
+            stop: function() {
+                var wellIds = [];
+                $(".ui-selected").each(function(){
+                    var wellId = $(this).attr('data-wellid');
+                    wellIds.push(wellId);
+                });
+                OME.well_selection_changed(wellIds, fieldIdx);
+            }
+        });
+    },
+
+    componentWillUnmount: function() {
+        // cleanup plugin
+        $(this.refs.table).selectable("destroy");
     },
 
     // Uses the url ?show=well-123 or image-123 to get well IDs from data
@@ -135,7 +154,7 @@ var PlateGrid = React.createClass({
             selectedWellIds = this.state.selectedWellIds,
             handleWellClick = this.handleWellClick;
         if (!data) {
-            return (<table />)
+            return (<table ref="table" />)
         }
         var columnNames = data.collabels.map(function(l){
             return (<th key={l}>{l}</th>);
@@ -173,7 +192,7 @@ var PlateGrid = React.createClass({
         });
 
         return (
-            <table>
+            <table ref="table">
                 <tbody>
                     <tr>
                         <th> </th>

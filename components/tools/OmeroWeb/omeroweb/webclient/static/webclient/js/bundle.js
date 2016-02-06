@@ -20552,6 +20552,25 @@ var renderCentrePanel =
 	            }.bind(this),
 	            error: function (xhr, status, err) {}.bind(this)
 	        });
+
+	        // set up drag-select on <table> (empty at this point)
+	        $(this.refs.table).selectable({
+	            filter: 'td.well',
+	            distance: 2,
+	            stop: function stop() {
+	                var wellIds = [];
+	                $(".ui-selected").each(function () {
+	                    var wellId = $(this).attr('data-wellid');
+	                    wellIds.push(wellId);
+	                });
+	                OME.well_selection_changed(wellIds, fieldIdx);
+	            }
+	        });
+	    },
+
+	    componentWillUnmount: function componentWillUnmount() {
+	        // cleanup plugin
+	        $(this.refs.table).selectable("destroy");
 	    },
 
 	    // Uses the url ?show=well-123 or image-123 to get well IDs from data
@@ -20655,7 +20674,7 @@ var renderCentrePanel =
 	            selectedWellIds = this.state.selectedWellIds,
 	            handleWellClick = this.handleWellClick;
 	        if (!data) {
-	            return _react2.default.createElement('table', null);
+	            return _react2.default.createElement('table', { ref: 'table' });
 	        }
 	        var columnNames = data.collabels.map(function (l) {
 	            return _react2.default.createElement(
@@ -20701,7 +20720,7 @@ var renderCentrePanel =
 
 	        return _react2.default.createElement(
 	            'table',
-	            null,
+	            { ref: 'table' },
 	            _react2.default.createElement(
 	                'tbody',
 	                null,
@@ -20757,7 +20776,9 @@ var renderCentrePanel =
 	        }
 	        return _react2.default.createElement(
 	            'td',
-	            { className: "well " + cls, title: "" + this.props.row + this.props.col },
+	            { className: "well " + cls,
+	                'data-wellid': this.props.id,
+	                title: "" + this.props.row + this.props.col },
 	            _react2.default.createElement('img', {
 
 	                src: "/webgateway/render_thumbnail/" + this.props.iid + "/96/",
