@@ -20549,11 +20549,11 @@ var renderCentrePanel =
 	                    });
 	                    OME.well_selection_changed(wellIds, this.props.fieldIdx);
 	                }
-	            }.bind(this),
-	            error: function (xhr, status, err) {}.bind(this)
+	            }.bind(this)
 	        });
 
 	        // set up drag-select on <table> (empty at this point)
+	        var self = this;
 	        $(this.refs.table).selectable({
 	            filter: 'td.well',
 	            distance: 2,
@@ -20561,8 +20561,9 @@ var renderCentrePanel =
 	                var wellIds = [];
 	                $(".ui-selected").each(function () {
 	                    var wellId = $(this).attr('data-wellid');
-	                    wellIds.push(wellId);
+	                    wellIds.push(parseInt(wellId, 10));
 	                });
+	                self.setState({ selectedWellIds: wellIds });
 	                OME.well_selection_changed(wellIds, fieldIdx);
 	            }
 	        });
