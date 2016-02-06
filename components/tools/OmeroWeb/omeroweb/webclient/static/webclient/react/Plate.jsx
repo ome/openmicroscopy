@@ -80,7 +80,7 @@ var Plate = React.createClass({
                         key={this.state.selectedField}
                         iconSize={this.props.iconSize}
                         plateId={this.props.plateId}
-                        fieldId={this.state.selectedField} />
+                        fieldIdx={this.state.selectedField} />
                 </div>
             </div>
         )

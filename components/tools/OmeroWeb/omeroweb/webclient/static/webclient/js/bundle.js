@@ -20493,7 +20493,7 @@ var renderCentrePanel =
 	                    key: this.state.selectedField,
 	                    iconSize: this.props.iconSize,
 	                    plateId: this.props.plateId,
-	                    fieldId: this.state.selectedField })
+	                    fieldIdx: this.state.selectedField })
 	            )
 	        );
 	    }
@@ -20524,11 +20524,18 @@ var renderCentrePanel =
 	var PlateGrid = _react2.default.createClass({
 	    displayName: 'PlateGrid',
 
+	    getInitialState: function getInitialState() {
+	        return {
+	            data: undefined,
+	            selectedWellIds: []
+	        };
+	    },
+
 	    componentDidMount: function componentDidMount() {
 	        var plateId = this.props.plateId,
-	            fieldId = this.props.fieldId;
+	            fieldIdx = this.props.fieldIdx;
 
-	        var url = "/webgateway/plate/" + plateId + "/" + fieldId + "/";
+	        var url = "/webgateway/plate/" + plateId + "/" + fieldIdx + "/";
 	        $.ajax({
 	            url: url,
 	            dataType: 'json',
@@ -20540,6 +20547,7 @@ var renderCentrePanel =
 	                        data: data,
 	                        selectedWellIds: wellIds
 	                    });
+	                    OME.well_selection_changed(wellIds, this.props.fieldIdx);
 	                }
 	            }.bind(this),
 	            error: function (xhr, status, err) {}.bind(this)
@@ -20581,19 +20589,13 @@ var renderCentrePanel =
 	        return wId;
 	    },
 
-	    getInitialState: function getInitialState() {
-	        return {
-	            data: undefined,
-	            selectedWellIds: []
-	        };
-	    },
-
 	    handleWellClick: function handleWellClick(event, wellId) {
 	        // update selected state for range of wells etc...
 	        var isWellSelected = function (wellId) {
 	            return this.state.selectedWellIds.indexOf(wellId) > -1;
 	        }.bind(this);
 
+	        var newSel = [];
 	        if (event.shiftKey) {
 	            // select range
 	            var wellIds = [],
@@ -20611,7 +20613,6 @@ var renderCentrePanel =
 	            });
 	            // extend the range of selected wells with index of clicked well...
 	            var clickedIdx = wellIds.indexOf(wellId),
-	                newSel = [],
 	                startIdx = Math.min(clickedIdx, selectedIdxs[0]),
 	                endIdx = Math.max(clickedIdx, selectedIdxs[selectedIdxs.length - 1]);
 	            //...and select all wells within that range
@@ -20620,12 +20621,11 @@ var renderCentrePanel =
 	                    newSel.push(wellId);
 	                }
 	            });
-	            this.setState({ selectedWellIds: newSel });
 	        } else if (event.metaKey) {
 	            // toggle selection of well
 	            var found = false;
 	            // make a new list from old, removing clicked well
-	            var s = this.state.selectedWellIds.map(function (id) {
+	            newSel = this.state.selectedWellIds.map(function (id) {
 	                if (wellId !== id) {
 	                    return id;
 	                } else {
@@ -20634,15 +20634,15 @@ var renderCentrePanel =
 	            });
 	            // if well wasn't already seleced, then select it
 	            if (!found) {
-	                s.push(wellId);
+	                newSel.push(wellId);
 	            }
-	            this.setState({ selectedWellIds: s });
 	        } else {
 	            // Select only this well
-	            this.setState({ selectedWellIds: [wellId] });
+	            newSel = [wellId];
 	        }
+	        this.setState({ selectedWellIds: newSel });
 	        // Calls to ome.webclient.actions.js
-	        //OME.well_selection_changed(selected, idx, perms);
+	        OME.well_selection_changed(newSel, this.props.fieldIdx);
 	    },
 
 	    render: function render() {

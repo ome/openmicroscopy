@@ -12,9 +12,9 @@ var PlateGrid = React.createClass({
 
     componentDidMount: function() {
         var plateId = this.props.plateId,
-            fieldId = this.props.fieldId;
+            fieldIdx = this.props.fieldIdx;
 
-        var url = "/webgateway/plate/" + plateId + "/" + fieldId + "/";
+        var url = "/webgateway/plate/" + plateId + "/" + fieldIdx + "/";
         $.ajax({
             url: url,
             dataType: 'json',
@@ -26,6 +26,7 @@ var PlateGrid = React.createClass({
                         data: data,
                         selectedWellIds: wellIds
                     });
+                    OME.well_selection_changed(wellIds, this.props.fieldIdx);
                 }
             }.bind(this),
                 error: function(xhr, status, err) {
@@ -74,6 +75,7 @@ var PlateGrid = React.createClass({
             return (this.state.selectedWellIds.indexOf(wellId) > -1);
         }.bind(this);
 
+        var newSel = [];
         if (event.shiftKey) {
             // select range
             var wellIds = [],
@@ -91,7 +93,6 @@ var PlateGrid = React.createClass({
             });
             // extend the range of selected wells with index of clicked well...
             var clickedIdx = wellIds.indexOf(wellId),
-                newSel = [],
                 startIdx = Math.min(clickedIdx, selectedIdxs[0]),
                 endIdx = Math.max(clickedIdx, selectedIdxs[selectedIdxs.length-1]);
             //...and select all wells within that range
@@ -100,13 +101,11 @@ var PlateGrid = React.createClass({
                     newSel.push(wellId);
                 }
             });
-            this.setState({selectedWellIds: newSel});
-
         } else if (event.metaKey) {
             // toggle selection of well
             var found = false;
             // make a new list from old, removing clicked well
-            var s = this.state.selectedWellIds.map(function(id){
+            newSel = this.state.selectedWellIds.map(function(id){
                 if (wellId !== id) {
                     return id;
                 } else {
@@ -115,15 +114,15 @@ var PlateGrid = React.createClass({
             });
             // if well wasn't already seleced, then select it
             if (!found) {
-                s.push(wellId);
+                newSel.push(wellId);
             }
-            this.setState({selectedWellIds: s});
         } else {
             // Select only this well
-            this.setState({selectedWellIds: [wellId]});
+            newSel = [wellId];
         }
+        this.setState({selectedWellIds: newSel});
         // Calls to ome.webclient.actions.js
-        //OME.well_selection_changed(selected, idx, perms);
+        OME.well_selection_changed(newSel, this.props.fieldIdx);
     },
 
     render: function() {

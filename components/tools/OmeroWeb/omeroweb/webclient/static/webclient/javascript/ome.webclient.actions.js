@@ -213,7 +213,7 @@ OME.handleTableClickSelection = function(event) {
 };
 
 // called from click events on plate. Selected wells
-OME.well_selection_changed = function($selected, well_index, plate_class) {
+OME.well_selection_changed = function(selectedWellIds, well_index) {
 
     // Update the buttons in the jstree as if nothing selected.
     if (buttonsShowHide) {
@@ -221,12 +221,9 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
         buttonsShowHide([], datatree);
     }
 
-    var selected_objs = [];
-    $selected.each(function(i){
-        selected_objs.push( {"id":$(this).attr('id').replace("=","-"),
-                "rel":$(this).attr('rel'),
-                "index":well_index,
-                "class":plate_class} );     // assume every well has same permissions as plate
+    var selected_objs = selectedWellIds.map(function(i){
+        return {"id":"well-" + i,
+                "index":well_index};
     });
 
     $("body")
