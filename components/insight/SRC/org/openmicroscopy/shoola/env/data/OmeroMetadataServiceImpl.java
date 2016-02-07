@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -594,7 +594,7 @@ class OmeroMetadataServiceImpl
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */
-	private void linkAnnotation(SecurityContext ctx, DataObject data,
+	private synchronized void linkAnnotation(SecurityContext ctx, DataObject data,
 			AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException
 	{			

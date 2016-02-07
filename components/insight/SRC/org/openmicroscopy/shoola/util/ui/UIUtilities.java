@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,6 +38,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
@@ -502,6 +503,14 @@ public class UIUtilities
 		FONTS.put("Zapfino", "cursive");
 	}
 	
+    /** Flag indicating if desktop is GNOME **/
+    private static final boolean GNOME;
+
+    static {
+        String desktop = System.getenv("XDG_CURRENT_DESKTOP");
+        GNOME = desktop != null && desktop.toLowerCase().contains("gnome");
+    }
+	
 	/**
      * Returns <code>true</code> if the passed value is textual,
      * <code>false</code> otherwise.
@@ -567,6 +576,7 @@ public class UIUtilities
 	{
 		centerOnScreen(window);
 		window.setVisible(true);
+        applyGnome3Workaround(window);
 	}
     
 	/**
@@ -2934,5 +2944,31 @@ public class UIUtilities
      */
     public static String replaceNonWordCharacters(String name) {
         return name.replaceAll("\\W", "_");
+    }
+    
+    /**
+     * As workaround for https://bugzilla.gnome.org/show_bug.cgi?id=759492 an
+     * internal repaint has to be triggered for undecorated frames in order to
+     * get displayed correctly. This is done by changing the size of the frame
+     * (making it one pixel bigger); a simple call to repaint() is not
+     * sufficient.
+     * 
+     * @param c
+     *            The {@link Component}
+     */
+    public static void applyGnome3Workaround(Component c) {
+        if (!GNOME)
+            return;
+
+        boolean undecorated = false;
+        if (c instanceof Dialog)
+            undecorated = ((Dialog) c).isUndecorated();
+        if (c instanceof Frame)
+            undecorated = ((Frame) c).isUndecorated();
+
+        if (undecorated) {
+            Dimension size = c.getSize();
+            c.setSize(new Dimension(size.width + 1, size.height + 1));
+        }
     }
 }

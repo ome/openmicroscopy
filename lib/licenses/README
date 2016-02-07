@@ -606,13 +606,6 @@
   License File: jquery.txt, gpl.txt
 
 
-  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/static/webclient/applet/OpenAstexViewer.jar
-  Project:      Open Astex Viewer
-  Web Site:     http://www.openastexviewer.net/web/
-  License:      GNU GENERAL PUBLIC LICENSE Version 3.
-  License File: lgpl-3.0.txt
-
-
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/raphael/raphael-min.js
   Project:      Raphael javascript library
   Web Site:     http://raphaeljs.com/

@@ -263,6 +263,7 @@ def leave_none_unset_int(s):
         return int(s)
 
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
+CUSTOM_HOST = CUSTOM_SETTINGS.get("omero.master.host", CUSTOM_HOST)
 # DO NOT EDIT!
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback":
@@ -441,6 +442,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "``'[\"HTTP_X_FORWARDED_PROTO_OMERO_WEB\", \"https\"]'``. "
           "For more details see :djangodoc:`secure proxy ssl header <ref/"
           "settings/#secure-proxy-ssl-header>`.")],
+    "omero.web.wsgi_args":
+        ["WSGI_ARGS",
+         None,
+         leave_none_unset,
+         ("A string representing Gunicorn additional arguments. "
+          "Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/latest/settings.html")],
 
     # Public user
     "omero.web.public.enabled":
@@ -485,16 +493,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["PING_INTERVAL", 60000, int, "description"],
     "omero.web.webgateway_cache":
         ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
-
-    # VIEWER
-    # the following parameters configure when to show/hide the 'Volume viewer'
-    # icon in the Image metadata panel
-    "omero.web.open_astex_max_side":
-        ["OPEN_ASTEX_MAX_SIDE", 400, int, None],
-    "omero.web.open_astex_min_side":
-        ["OPEN_ASTEX_MIN_SIDE", 20, int, None],
-    "omero.web.open_astex_max_voxels":
-        ["OPEN_ASTEX_MAX_VOXELS", 27000000, int, None],  # 300 x 300 x 300
 
     # PIPELINE 1.3.20
 

@@ -594,7 +594,7 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     // Check if delete will attempt to partially delete a Fileset.
     var $deleteYesBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(1)'),
         $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
-    $.get(filesetCheckUrl + OME.get_tree_selection(), function(html){
+    $.get(filesetCheckUrl + "?" + OME.get_tree_selection(), function(html){
         html = $.trim(html);
         if($('div.split_fileset', html).length > 0) {
             var $del_form_content = del_form.children().hide();
@@ -915,6 +915,73 @@ OME.fileAnnotationCheckboxDynamicallyAdded = function() {
     if (checkboxesAreVisible) {
         $("#fileanns_container input[type=checkbox]:not(:visible)").toggle();
     }
+};
+
+// Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
+OME.copyRenderingSettings = function(rdef_url, selected) {
+    if (selected.length == 1) {
+        var imageId = selected[0].data.obj.id;
+        $.getJSON(rdef_url + "?fromid=" + imageId);
+    }
+};
+
+OME.applyOwnerRenderingSettings = function(rdef_url, selected) {
+    OME.pasteRenderingSettings(rdef_url, selected);
+};
+
+OME.resetRenderingSettings = function(rdef_url, selected) {
+    OME.applyRenderingSettings(rdef_url, selected);
+};
+
+// Paste settings from 'session' to selected Objects
+OME.pasteRenderingSettings = function(rdef_url, selected) {
+    OME.applyRenderingSettings(rdef_url, selected);
+};
+
+OME.applyRenderingSettings = function(rdef_url, selected) {
+
+    var ids = [];
+
+    // Get the type of object having rendering settings applied
+    var type = selected[0].type;
+
+    // Get list of ids to be updated
+    $.each(selected, function(index, node) {
+         ids.push(node.data.obj.id);
+    });
+
+    var data = {'toids': ids};
+    if (type === 'dataset' || type === 'plate' || type === 'acquisition') {
+        data.to_type = type;
+    }
+
+    var confirmMsg = "This will save new rendering settings to " +
+        selected.length + " " + type +
+        (selected.length > 1 ? "s" : "") + ".<br> This cannot be undone.";
+
+    var rdef_confirm_dialog = OME.confirm_dialog(
+        confirmMsg,
+        function() {
+            var clicked_button_text = rdef_confirm_dialog.data("clicked_button");
+            if (clicked_button_text === "OK") {
+                $.ajax({
+                    type: "POST",
+                    dataType: 'text',
+                    traditional: true,
+                    url: rdef_url,
+                    data: data,
+                    success: function(data){
+                        // update thumbnails
+                        OME.refreshThumbnails();
+                    }
+                });
+            }
+        },
+        "Change Rendering Settings?",
+        ["OK", "Cancel"],
+        350,
+        175
+    );
 };
 
 jQuery.fn.tooltip_init = function() {

@@ -114,7 +114,9 @@
 
     <script>
 
-        var PAGE_SIZE = {{ page_size }};
+        {% if page_size %}
+            var PAGE_SIZE = {{ page_size }};
+        {% endif %}
         $(document).ready(function(){
             // initially hidden
             $("#user_dropdown ul").css('visibility', 'hidden');
