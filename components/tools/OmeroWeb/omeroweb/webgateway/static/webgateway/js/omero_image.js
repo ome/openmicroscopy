@@ -278,18 +278,16 @@
             function(result) {
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
-                    for (var col = 0; col < result.data.columns.length; col++) {
-                        var label = result.data.columns[col].escapeHTML();
-                        var value = '';
-                        for (var r = 0; r < result.data.rows.length; r++) {
-                          value += ("" + result.data.rows[r][col]).escapeHTML() + '<br />';
-                        }
-                        var row = $('<tr><td class="title"></td><td></td></tr>');
-                        row.addClass(col % 2 == 1 ? 'odd' : 'even');
-                        $('td:first-child', row).html(label + ":&nbsp;");
-                        $('td:last-child', row).html(value);
-                        table.append(row);
-                    }
+                    var html = result.data.columns.map(function(col, colIdx) {
+                        var label = col.escapeHTML();
+                        var values = result.data.rows.map(function(row){
+                            return ("" + row[colIdx]).escapeHTML();
+                        });
+                        values = values.join('<br />');
+                        var oddEvenClass = col % 2 == 1 ? 'odd' : 'even';
+                        return '<tr><td class="title ' + oddEvenClass + '">' + label + ':&nbsp;</td><td>' + values + '</td></tr>';
+                    });
+                    table.html(html.join(""));
                     if (callback) {
                         callback(result);
                     }
