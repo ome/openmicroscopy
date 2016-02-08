@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1218,8 +1218,99 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         try {
             IQueryPrx qs = gateway.getQueryService(ctx);
-            List<IObject> list = qs.findAllByQuery(
-                    "select folder from Folder as folder", null);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "left outer join fetch folder.parentFolder as parentFolder "
+                                    + "left outer join fetch folder.childFolders as childFolders "
+                                    + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.imageLinks as imageLinks",
+                            null);
+            Collection<FolderData> result = new ArrayList<FolderData>();
+            for (IObject l : list) {
+                result.add(new FolderData((Folder) l));
+            }
+            return result;
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Load the folders for the given folder ids
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param ids
+     *            The folder ids
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx,
+            Collection<Long> ids) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            ParametersI param = new ParametersI();
+            param.addIds(ids);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "left outer join fetch folder.parentFolder as parentFolder "
+                                    + "left outer join fetch folder.childFolders as childFolders "
+                                    + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.imageLinks as imageLinks where folder.id in (:ids)",
+                            param);
+            Collection<FolderData> result = new ArrayList<FolderData>();
+            for (IObject l : list) {
+                result.add(new FolderData((Folder) l));
+            }
+            return result;
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Load the folders which belong to the given user
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param userId
+     *            The user id
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx, long userId)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            ParametersI param = new ParametersI();
+            param.addLong("userId", userId);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "left outer join fetch folder.parentFolder as parentFolder "
+                                    + "left outer join fetch folder.childFolders as childFolders "
+                                    + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.imageLinks as imageLinks "
+                                    + "where folder.details.owner.id = :userId",
+                            param);
             Collection<FolderData> result = new ArrayList<FolderData>();
             for (IObject l : list) {
                 result.add(new FolderData((Folder) l));
