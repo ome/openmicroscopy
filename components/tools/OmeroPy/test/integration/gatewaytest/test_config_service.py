@@ -12,6 +12,65 @@
 
 """
 
+import pytest
+from omero.gateway.utils import toBoolean
+
+
+@pytest.mark.parametrize("enabled",
+                         ["foo", "", "False", "false",
+                          "True", "true", "", None])
+def testOrphansEnabledSetting(gatewaywrapper, enabled):
+    """
+    Tests getOrphanedImagesSettings()
+    """
+    gatewaywrapper.loginAsAdmin()
+    if enabled is None:
+        enabled = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.ui.tree.orphans.enabled']
+    gatewaywrapper.gateway.getConfigService().setConfigValue(
+        "omero.client.ui.tree.orphans.enabled", enabled)
+
+    gatewaywrapper.loginAsAuthor()
+    orphans = gatewaywrapper.gateway.getOrphanedImagesSettings()
+    assert orphans['enabled'] == toBoolean(enabled)
+
+
+@pytest.mark.parametrize("name",
+                         ["Trash", "", None])
+def testOrphansNameSetting(gatewaywrapper, name):
+    """
+    Tests conn.getOrphanedImagesSettings()
+    """
+    gatewaywrapper.loginAsAdmin()
+    if name is None:
+        name = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.ui.tree.orphans.name']
+    gatewaywrapper.gateway.getConfigService().setConfigValue(
+        "omero.client.ui.tree.orphans.name", name)
+
+    gatewaywrapper.loginAsAuthor()
+    orphans = gatewaywrapper.gateway.getOrphanedImagesSettings()
+    assert orphans['name'] == name
+
+
+@pytest.mark.parametrize("description",
+                         ["Description", "", None])
+def testOrphansDescriptionSetting(gatewaywrapper, description):
+    """
+    Tests conn.getOrphanedImagesSettings()
+    """
+    gatewaywrapper.loginAsAdmin()
+    if description is None:
+        description = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()[
+                'omero.client.ui.tree.orphans.description']
+    gatewaywrapper.gateway.getConfigService().setConfigValue(
+        "omero.client.ui.tree.orphans.description", description)
+
+    gatewaywrapper.loginAsAuthor()
+    orphans = gatewaywrapper.gateway.getOrphanedImagesSettings()
+    assert orphans['description'] == description
+
 
 def testInterpolateSetting(gatewaywrapper):
     """
