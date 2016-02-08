@@ -131,7 +131,7 @@ Create Edit User
     Input Text              id_old_password     ${ROOT PASSWORD}
     Input Text              id_password         ${user_name}new
     Input Text              id_confirmation     ${user_name}new
-    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Click Element           xpath=//button[contains(@class, "ui-button")][contains(text(), "OK")]
     Wait Until Page Contains  Password reset OK
 
     Input Text                  first_name    ${user_name}-Edited

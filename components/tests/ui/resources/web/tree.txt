@@ -15,7 +15,9 @@ ${plateIcon}                    webclient/image/folder_plate16.png
 Click Dialog Button
     [Arguments]     ${buttonText}
     # Confirm dialog (make sure we pick the currently visible dialog)
-    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), '${buttonText}')]
+    # jQuery UI buttons sometimes are <button>text and sometimes <button><span>text so we use *
+    Wait Until Page Contains Element    xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(), '${buttonText}')]
+    Click Element                       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(), '${buttonText}')]
 
 Xpath Should Have Class
     [Arguments]                     ${identifier}       ${className}
@@ -101,7 +103,7 @@ Create Container
     Input Text                  name    ${newName}
     # Make sure we pick 'OK' button from visible dialog
 
-    Click Element               xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
+    Click Dialog Button         OK
     # Wait until metadata panel reloads based on status.
     # This is work arround as unfortunately there is no Wait Until Page NOT Contains Element
     # This is important when two the same objects are created in a row.

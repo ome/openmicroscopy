@@ -35,7 +35,7 @@ User Settings
     Input Text              id_old_password     ${PASSWORD}
     Input Text              id_password         ${temp_password}
     Input Text              id_confirmation     ${temp_password}
-    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Click Element           xpath=//button[contains(@class, "ui-button")][contains(text(), "OK")]
     Wait Until Page Contains  Password reset OK
 
     # Reset Password back to original
@@ -44,7 +44,7 @@ User Settings
     Input Text              id_old_password     ${temp_password}
     Input Text              id_password         ${PASSWORD}
     Input Text              id_confirmation     ${PASSWORD}
-    Click Element           xpath=//button[contains(@class, "ui-button")]/span[contains(text(), "OK")]
+    Click Element           xpath=//button[contains(@class, "ui-button")][contains(text(), "OK")]
     Wait Until Page Contains  Password reset OK
 
 
