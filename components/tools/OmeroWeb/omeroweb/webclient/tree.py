@@ -694,7 +694,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
 
     # Load thumbnails separately
     # We want version of most recent thumbnail (max thumbId) owned by user
-    if thumb_version:
+    if thumb_version and len(images) > 0:
         userId = conn.getUserId()
         iids = [i['id'] for i in images]
         params = omero.sys.ParametersI()
