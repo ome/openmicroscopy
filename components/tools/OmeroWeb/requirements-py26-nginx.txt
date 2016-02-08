@@ -5,4 +5,3 @@
 #
 Django==1.6.11
 gunicorn>=19.3
-futures>=3.0

@@ -511,7 +511,7 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (80)),
                 ('WSGIDaemonProcess omeroweb ' +
-                 'processes=5 threads=5 maximum-requests=0 '
+                 'processes=5 threads=1 maximum-requests=0 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % pp,
                  'lib/python/omeroweb'),
@@ -521,7 +521,7 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ("<VirtualHost _default_:%s>" % (80)),
                 ('WSGIDaemonProcess omeroweb ' +
-                 'processes=5 threads=5 maximum-requests=0 '
+                 'processes=5 threads=1 maximum-requests=0 '
                  'display-name=%%{GROUP} user=%s ' % username +
                  'python-path=%s' % pp,
                  'lib/python/omeroweb'),

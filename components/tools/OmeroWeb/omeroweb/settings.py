@@ -475,14 +475,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.wsgi_worker_connections":
         ["WSGI_WORKER_CONNECTIONS",
          1000,
-         leave_none_unset_int,
+         int,
          ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
           "Check Gunicorn Documentation http://docs.gunicorn.org"
           "/en/stable/settings.html#worker-connections")],
     "omero.web.wsgi_threads":
         ["WSGI_THREADS",
-         5,
-         leave_none_unset_int,
+         1,
+         int,
          ("(SYNC WORKERS only) The number of worker threads for handling "
           "requests. Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#threads")],
