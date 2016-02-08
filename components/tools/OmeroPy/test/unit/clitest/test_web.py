@@ -102,17 +102,11 @@ class TestWeb(object):
                             raising=False)
         return static_prefix
 
-    def add_application_server(self, app_server, monkeypatch):
-        if app_server:
-            monkeypatch.setattr(settings, 'APPLICATION_SERVER', app_server,
+    def mock_django_setting(self, setting_name, setting_val, monkeypatch):
+        if setting_val:
+            monkeypatch.setattr(settings, setting_name, setting_val,
                                 raising=False)
-        return app_server
-
-    def add_static_root(self, static_root, monkeypatch):
-        if static_root:
-            monkeypatch.setattr(settings, 'STATIC_ROOT', static_root,
-                                raising=False)
-        return static_root
+        return setting_val
 
     def add_upstream_name(self, prefix, monkeypath):
         if prefix:
@@ -180,7 +174,7 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('app_server', ['wsgi', 'wsgi-tcp', 'development'])
     def testWebStart(self, app_server, monkeypatch, capsys):
-        self.add_application_server(app_server, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.set_python_dir(monkeypatch)
         self.mock_subprocess_popen(monkeypatch)
         self.mock_subprocess_call(monkeypatch)
@@ -208,7 +202,7 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('app_server', ['wsgi', 'wsgi-tcp', 'development'])
     def testWebRestart(self, app_server, monkeypatch, capsys):
-        self.add_application_server(app_server, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.set_python_dir(monkeypatch)
         self.mock_subprocess_popen(monkeypatch)
         self.set_django_pid(monkeypatch)
@@ -236,7 +230,7 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
     def testWebStop(self, app_server, monkeypatch, capsys):
-        self.add_application_server(app_server, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.set_python_dir(monkeypatch)
         self.mock_os_kill(monkeypatch)
         self.check_django_pid(monkeypatch)
@@ -252,7 +246,7 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
     def testWebBadRestart(self, app_server, monkeypatch, capsys):
-        self.add_application_server(app_server, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.set_python_dir(monkeypatch)
         self.mock_os_kill(monkeypatch)
         self.set_django_pid(monkeypatch, -999999)
@@ -276,7 +270,7 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
     def testWebStale(self, app_server, monkeypatch, capsys):
-        self.add_application_server(app_server, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.set_python_dir(monkeypatch)
         self.mock_os_kill(monkeypatch, error=True)
         self.set_django_pid(monkeypatch, -999999)
@@ -294,6 +288,28 @@ class TestWeb(object):
                   " processes by hand.") % str(self.cli.dir)
         assert stderr == e.split(os.linesep)[0]
 
+    @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
+    @pytest.mark.parametrize('wsgi_args', [None, "", '--reload'])
+    def testWebWsgiArgs(self, app_server, wsgi_args, monkeypatch, capsys):
+        self.mock_django_setting('WSGI_ARGS', wsgi_args, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
+        self.set_python_dir(monkeypatch)
+        self.mock_subprocess_popen(monkeypatch)
+        self.mock_subprocess_call(monkeypatch)
+        self.set_django_pid(monkeypatch)
+        start_cmd = ["start"]
+        if wsgi_args is not None:
+            start_cmd.append("--wsgi-args='%s'" % wsgi_args)
+        self.cli.invoke(self.args + start_cmd, strict=True)
+        o, e = capsys.readouterr()
+        if wsgi_args is not None:
+            startout = ("Starting OMERO.web...  `--wsgi-args` is deprecated"
+                        " and overwritten by `omero.web.wsgi_args`. [OK]")
+        else:
+            startout = "Starting OMERO.web... [OK]"
+        assert startout == o.split(os.linesep)[1]
+        assert 2 == len(o.split(os.linesep))-1
+
     @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
     @pytest.mark.parametrize('server_type', [
         "nginx", "nginx-development"])
@@ -306,7 +322,7 @@ class TestWeb(object):
                                 cgihost, cgiport, max_body_size, capsys,
                                 monkeypatch):
 
-        self.add_application_server(app_server, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
         upstream_name = self.add_upstream_name(prefix, monkeypatch)
         expected_cgi = self.add_hostport(cgihost, cgiport, monkeypatch)
@@ -350,8 +366,9 @@ class TestWeb(object):
     @pytest.mark.parametrize('http', [False, 8081])
     def testApacheWSGIConfig(self, server_type, prefix, app_server, http,
                              capsys, monkeypatch):
+
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.set_python_path(monkeypatch)
-        self.add_application_server(app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
         upstream_name = self.add_upstream_name(prefix, monkeypatch)
 
@@ -408,8 +425,8 @@ class TestWeb(object):
     @pytest.mark.parametrize('python_path', [None, '/python/path/location'])
     def testApacheWSGIConfigPythonPath(self, server_type, app_server,
                                        python_path, capsys, monkeypatch):
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.set_python_path(monkeypatch, python_path)
-        self.add_application_server(app_server, monkeypatch)
 
         try:
             import pwd
@@ -465,8 +482,8 @@ class TestWeb(object):
                                  capsys, monkeypatch):
         app_server = server_type[-1]
         del server_type[-1]
-        self.add_static_root(static_root, monkeypatch)
-        self.add_application_server(app_server, monkeypatch)
+        self.mock_django_setting('STATIC_ROOT', static_root, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.args += ["config"] + server_type
         self.set_templates_dir(monkeypatch)
         self.set_python_path(monkeypatch)
@@ -496,8 +513,8 @@ class TestWeb(object):
         cgiport = '12345'
         app_server = server_type[-1]
         del server_type[-1]
-        self.add_static_root(static_root, monkeypatch)
-        self.add_application_server(app_server, monkeypatch)
+        self.mock_django_setting('STATIC_ROOT', static_root, monkeypatch)
+        self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         self.add_prefix(prefix, monkeypatch)
         self.add_hostport(cgihost, cgiport, monkeypatch)
 

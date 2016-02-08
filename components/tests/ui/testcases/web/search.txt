@@ -26,7 +26,7 @@ ${XpathTable}           xpath=//table[@id='dataTable']
 ${XpathTableColumn}     xpath=//table[@id='dataTable']//tr/td[position()=3]
 ${XPathAlertText}       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//p
 ${RandomClick}          xpath=//form[@id="searching_form"]/h2
-${AlertWindow}          xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(),"OK")]
+${AlertWindow}          xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(),"OK")]
 ${SearchInProgress}     xpath=//div[@id='content_details']//img[contains(@src,'webgateway/img/spinner.gif')]
 ${QueryError}           xpath=//div[@id='content_details']//div[contains(@class,'error')]
 ${NoResultsFound}       xpath=//div[@id='content_details']//p[contains(@class,'center_message message_nodata')]

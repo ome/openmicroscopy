@@ -370,7 +370,7 @@ STRATEGY_REGISTRY["percent"] = PercentStrategy
 
 def read_settings(template_xml):
     """
-    Read the memory settings from the temlates file
+    Read the memory settings from the template file
     """
 
     rv = dict()

@@ -296,7 +296,13 @@ class ProxyStringType(object):
         self.default = default
 
     def __call__(self, s):
-        return omero.proxy_to_instance(s, default=self.default)
+        try:
+            return omero.proxy_to_instance(s, default=self.default)
+        except omero.ClientError, ce:
+            raise ValueError(str(ce))
+
+    def __repr__(self):
+        return "proxy"
 
 
 class NewFileType(FileType):
@@ -1844,11 +1850,11 @@ class GraphControl(CmdControl):
         objects = []
         for req in doall.requests:
             for type in req.targetObjects.keys():
-                ids = ",".join(map(str, req.targetObjects[type]))
+                ids = self._order_and_range_ids(req.targetObjects[type])
                 if isinstance(req, omero.cmd.SkipHead):
                     type += ("/" + req.startFrom[0])
-                objects.append('%s %s' % (type, ids))
-        return "%s %s... " % (cmd_type, ', '.join(objects))
+                objects.append('%s:%s' % (type, ids))
+        return "%s %s " % (cmd_type, ' '.join(objects))
 
     def _get_object_ids(self, objDict):
         import collections

@@ -31,7 +31,7 @@ from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
-from marshal import imageMarshal, shapeMarshal
+from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
 
 try:
     from hashlib import md5
@@ -77,6 +77,13 @@ except:  # pragma: nocover
         import ImageDraw
     except:
         logger.error('No Pillow installed')
+
+try:
+    import numpy
+    numpyInstalled = True
+except ImportError:
+    logger.error('No numpy installed')
+    numpyInstalled = False
 
 
 def index(request):
@@ -385,6 +392,8 @@ def render_roi_thumbnail(request, roiId, w=None, h=None, conn=None, **kwargs):
             elif minT == t:
                 zz.add(z)
     zList = list(zz)
+    if len(zList) == 0:
+        raise Http404("No Shapes found for ROI %s" % roiId)
     zList.sort()
     midZ = zList[len(zList)/2]
     s = shapes[(midZ, minT)]
@@ -646,6 +655,62 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
     img.save(rv, 'jpeg', quality=int(compression*100))
     jpeg = rv.getvalue()
     return HttpResponse(jpeg, content_type='image/jpeg')
+
+
+@login_required()
+def render_shape_mask(request, shapeId, conn=None, **kwargs):
+    """ Returns mask as a png (supports transparency) """
+
+    if not numpyInstalled:
+        raise NotImplementedError("numpy not installed")
+    params = omero.sys.Parameters()
+    params.map = {'id': rlong(shapeId)}
+    shape = conn.getQueryService().findByQuery(
+        "select s from Shape s where s.id = :id", params,
+        conn.SERVICE_OPTS)
+    if shape is None:
+        raise Http404("Shape ID: %s not found" % shapeId)
+    width = int(shape.getWidth().getValue())
+    height = int(shape.getHeight().getValue())
+    color = unwrap(shape.getFillColor())
+    fill = (255, 255, 0, 255)
+    if color is not None:
+        color = rgb_int2rgba(color)
+        fill = (color[0], color[1], color[2], int(color[3] * 255))
+    mask_packed = shape.getBytes()
+    # convert bytearray into something we can use
+    intarray = numpy.fromstring(mask_packed, dtype=numpy.uint8)
+    binarray = numpy.unpackbits(intarray)
+
+    # Couldn't get the 'proper' way of doing this to work,
+    # Maybe look at this again later?
+    # pixels = ""
+    # steps = len(binarray) / 8
+    # for i in range(steps):
+    #     b = binarray[i*8: (i+1)*8]
+    #     pixels += struct.pack("8B", b[0], b[1], b[2], b[3], b[4],
+    #                           b[5], b[6], b[7])
+    # for b in binarray:
+    #     pixels += struct.pack("1B", b)
+    # print 'pixels', repr(pixels)
+    # im = Image.frombytes("1", size=(4,2), data=pixels)
+
+    # Simple approach - Just set each pixel in turn
+    img = Image.new("RGBA", size=(width, height), color=(0, 0, 0, 0))
+    x = 0
+    y = 0
+    for pix in binarray:
+        if pix == 1:
+            img.putpixel((x, y), fill)
+        x += 1
+        if x > width - 1:
+            x = 0
+            y += 1
+    rv = StringIO()
+    # return a png (supports transparency)
+    img.save(rv, 'png', quality=int(100))
+    png = rv.getvalue()
+    return HttpResponse(png, content_type='image/png')
 
 
 def _get_signature_from_request(request):
@@ -2265,24 +2330,43 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     query += """
         left outer join fetch obj0.annotationLinks links
         left outer join fetch links.child
+        join fetch links.details.owner
+        join fetch links.details.creationEvent
         where obj%d.id=:id""" % (len(objtype) - 1)
+
+    ctx = conn.createServiceOptsDict()
+    ctx.setOmeroGroup("-1")
 
     try:
         obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
-                            conn.createServiceOptsDict())
+                            ctx)
     except omero.QueryException:
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
 
     if not obj:
-        return dict(error='%s with id %s not found' % (objtype, objid))
+        return dict(error='%s with id %s not found' % (objtype, objid),
+                    query=query)
 
-    return dict(data=[
-        dict(id=annotation.id.val,
-             file=annotation.file.id.val)
-        for annotation in obj.linkedAnnotationList()
-        if unwrap(annotation.getNs()) == NSBULKANNOTATIONS
-        ])
+    data = []
+    for link in obj.copyAnnotationLinks():
+        annotation = link.child
+        if unwrap(annotation.getNs()) != NSBULKANNOTATIONS:
+            continue
+        owner = annotation.details.owner
+        ownerName = "%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName))
+        addedBy = link.details.owner
+        addedByName = "%s %s" % (unwrap(addedBy.firstName),
+                                 unwrap(addedBy.lastName))
+        data.append(dict(id=annotation.id.val,
+                         file=annotation.file.id.val,
+                         parentType=objtype[0],
+                         parentId=obj.id.val,
+                         owner=ownerName,
+                         addedBy=addedByName,
+                         addedOn=unwrap(link.details.creationEvent._time)))
+    return dict(data=data)
+
 
 annotations = login_required()(jsonp(_annotations))
 
@@ -2311,9 +2395,11 @@ def _table_query(request, fileid, conn=None, **kwargs):
         return dict(
             error='Must specify query parameter, use * to retrieve all')
 
+    ctx = conn.createServiceOptsDict()
+    ctx.setOmeroGroup("-1")
+
     r = conn.getSharedResources()
-    t = r.openTable(omero.model.OriginalFileI(fileid),
-                    conn.createServiceOptsDict())
+    t = r.openTable(omero.model.OriginalFileI(fileid), ctx)
     if not t:
         return dict(error="Table %s not found" % fileid)
 
@@ -2382,5 +2468,18 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
 
     # multiple bulk annotations files could be attached, use the most recent
     # one (= the one with the highest identifier)
-    fileId = max(annotation['file'] for annotation in a['data'])
-    return _table_query(request, fileId, conn, **kwargs)
+    fileId = 0
+    ann = None
+    for annotation in a['data']:
+        if annotation['file'] > fileId:
+            fileId = annotation['file']
+            ann = annotation
+    tableData = _table_query(request, fileId, conn, **kwargs)
+    tableData['id'] = fileId
+    tableData['annId'] = ann['id']
+    tableData['owner'] = ann['owner']
+    tableData['addedBy'] = ann['addedBy']
+    tableData['parentType'] = ann['parentType']
+    tableData['parentId'] = ann['parentId']
+    tableData['addedOn'] = ann['addedOn']
+    return tableData

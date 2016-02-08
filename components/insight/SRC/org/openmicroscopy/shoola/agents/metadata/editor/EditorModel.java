@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -890,7 +890,7 @@ class EditorModel
 				return false;
 			case LookupNames.EXPERIMENTER_DISPLAY:
 			default:
-				return EditorUtil.isUserOwner(data, getUserID());
+				return EditorUtil.isUserOwner(data, getLoggedInUserID());
 		}
 	}
 
@@ -1075,14 +1075,14 @@ class EditorModel
 	 */
 	boolean isUserOwner(Object object)
 	{
-		long id = getUserID();
+		long id = getLoggedInUserID();
 		if (object == null) return false;
 		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == id);
 		if (!(object instanceof DataObject)) return false;
 		if (object instanceof FileData || object instanceof ImageData) {
 			DataObject f = (DataObject) object;
-			if (f.getId() < 0) return id == getUserID();
+			if (f.getId() < 0) return id == getLoggedInUserID();
 		} 
 		return EditorUtil.isUserOwner(object, id);
 	}
@@ -1108,7 +1108,7 @@ class EditorModel
 		AnnotationLinkData link;
 		DataObject ann = (DataObject) annotation;
 		
-		long id = getUserID();
+		long id = getLoggedInUserID();
 		
 		while (j.hasNext()) {
 			e = j.next();
@@ -1142,7 +1142,7 @@ class EditorModel
 		if (annotators == null || annotators.size() == 0) return false;
 		if (annotators.size() == 1) {
 			ExperimenterData exp = annotators.get(0);
-			long id = getUserID();
+			long id = getLoggedInUserID();
 			return exp.getId() != id;
 		}
 		return true;
@@ -1509,6 +1509,51 @@ class EditorModel
 		return (Collection<TagAnnotationData>) sorter.sort(results);
 	}
 	
+    /**
+     * Returns the collection of common tags linked to the
+     * <code>DataObject</code>s.
+     * 
+     * @return See above.
+     */
+    Collection<TagAnnotationData> getAllCommonTags() {
+        Collection<TagAnnotationData> results = getAllTags();
+        Map<DataObject, StructuredDataResults> r = parent
+                .getAllStructuredData();
+
+        if (CollectionUtils.isEmpty(results) || r == null) {
+            return new ArrayList<TagAnnotationData>();
+        }
+
+        // remove all tags which are not linked to all data objects
+        Iterator<Entry<DataObject, StructuredDataResults>> i = r.entrySet()
+                .iterator();
+        Iterator<TagAnnotationData> tagit = results.iterator();
+        while (tagit.hasNext()) {
+            TagAnnotationData next = tagit.next();
+            boolean common = true;
+            while (i.hasNext()) {
+                Entry<DataObject, StructuredDataResults> e = i.next();
+                Collection<TagAnnotationData> tags = e.getValue().getTags();
+                boolean contains = false;
+                for (TagAnnotationData otherTag : tags) {
+                    if (otherTag.getId() == next.getId()) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    common = false;
+                    break;
+                }
+            }
+
+            if (!common)
+                tagit.remove();
+        }
+
+        return results;
+    }
+    
 	/**
 	 * Returns the collection of the tags that are linked to all the selected
 	 * objects.
@@ -2329,7 +2374,7 @@ class EditorModel
 		StructuredDataResults results;
 		Iterator<RatingAnnotationData> j;
 		int n = 0;
-		long userID = getUserID();
+		long userID = getLoggedInUserID();
 		while (i.hasNext()) {
 			e = i.next();
 			results = e.getValue();
@@ -2402,7 +2447,7 @@ class EditorModel
 		RatingAnnotationData rating;
 		Map<DataObject, RatingAnnotationData> 
 		map = new HashMap<DataObject, RatingAnnotationData>();
-		long id = getUserID();
+		long id = getLoggedInUserID();
 		while (i.hasNext()) {
 			e = i.next();
 			results = e.getValue();
@@ -2486,7 +2531,7 @@ class EditorModel
 		RatingAnnotationData rating;
 		int n = 0;
 		int value = 0;
-		long userID = getUserID();
+		long userID = getLoggedInUserID();
 		while (i.hasNext()) {
 			e = i.next();
 			results = e.getValue();
@@ -3988,6 +4033,14 @@ class EditorModel
 	 */
 	long getUserID() { return parent.getUserID(); }
 
+	/**
+	 * Returns the id of the currently logged in user.
+	 * @return See above.
+	 */
+	long getLoggedInUserID() {
+	    return MetadataViewerAgent.getUserDetails().getId();
+	}
+	
 	/**
 	 * Returns the user currently logged in.
 	 * 

@@ -167,7 +167,7 @@ module omero {
   /**
    * {@link RCollection} mapped to an array on the server of a type given
    * by a random member of the RTypeSeq. Only pass consistent arrays!
-   * homogenous lists.
+   * homogeneous lists.
    **/
   ["protected"] class RArray extends RCollection
   {

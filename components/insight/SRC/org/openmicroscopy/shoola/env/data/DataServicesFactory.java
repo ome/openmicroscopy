@@ -205,13 +205,13 @@ public class DataServicesFactory
     }
     
     /**
-     * Returns <code>true</code> if the connection is fast,
-     * <code>false</code> otherwise.
+     * Returns the image quality with respect to the
+     * connection speed
      * 
      * @param connectionSpeed The connection speed.
      * @return See above.
      */
-    private int isFastConnection(int connectionSpeed)
+    private int determineImageQuality(int connectionSpeed)
     {
         switch (connectionSpeed) {
             case UserCredentials.HIGH:
@@ -606,8 +606,8 @@ public class DataServicesFactory
         registry.getLogger().info(this, msg);
 
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
-        registry.bind(LookupNames.CONNECTION_SPEED, 
-        		isFastConnection(uc.getSpeedLevel()));
+        registry.bind(LookupNames.IMAGE_QUALITY_LEVEL, 
+        		determineImageQuality(uc.getSpeedLevel()));
         
         try {
             // Load the omero client properties from the server
@@ -700,8 +700,8 @@ public class DataServicesFactory
 				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
 				reg.bind(LookupNames.USERS_DETAILS, exps);
 				reg.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
-				reg.bind(LookupNames.CONNECTION_SPEED, 
-						isFastConnection(uc.getSpeedLevel()));
+				reg.bind(LookupNames.IMAGE_QUALITY_LEVEL, 
+				        determineImageQuality(uc.getSpeedLevel()));
 				reg.bind(LookupNames.BINARY_AVAILABLE, b);
 				reg.bind(LookupNames.HELP_ON_LINE_SEARCH, url);
 			}

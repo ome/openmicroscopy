@@ -708,10 +708,10 @@ present, the user will enter a console""")
         self.checkice()
         self.check_node(args)
 
-        if args.force_rewrite:
+        if not self.check_internal_cfg() or args.force_rewrite:
             self.rewrite(args, config, force=True)
 
-        if 0 == self.status(args, node_only=True):
+        if 0 == self.status(args, node_only=True, can_force_rewrite=True):
             self.ctx.die(876, "Server already running")
 
         if not args.force_rewrite:
@@ -780,8 +780,19 @@ present, the user will enter a console""")
                             args.targets)]
         self.ctx.call(command)
 
-    def status(self, args, node_only=False):
+    def check_internal_cfg(self):
+        internal_cfg = self._cfglist()[0]
+        return os.path.exists(internal_cfg)
+
+    def status(self, args, node_only=False, can_force_rewrite=False):
         self.check_node(args)
+        if not self.check_internal_cfg():
+            error_msg = 'Missing internal configuration.'
+            if can_force_rewrite:
+                error_msg += ' Pass --force-rewrite to the command.'
+            else:
+                error_msg += ' Run bin/omero admin rewrite.'
+            self.ctx.die(574, error_msg)
         command = self._cmd("-e", "node ping %s" % self._node())
         self.ctx.rv = self.ctx.popen(command).wait()  # popen
 
@@ -900,7 +911,7 @@ present, the user will enter a console""")
         self.check_node(args)
         if args.force_rewrite:
             self.rewrite(args, config, force=True)
-        if 0 != self.status(args, node_only=True):
+        if 0 != self.status(args, node_only=True, can_force_rewrite=True):
             self.ctx.err("Server not running")
             return True
         elif self._isWindows():
@@ -981,7 +992,7 @@ present, the user will enter a console""")
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
 
-        if not force:
+        if self.check_internal_cfg() and not force:
             if 0 == self.status(args, node_only=True):
                 self.ctx.die(
                     100, "Can't regenerate templates the server is running!")
@@ -1022,7 +1033,8 @@ present, the user will enter a console""")
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
-            '@Ice.Default.Host@': config.get('Ice.Default.Host', '127.0.0.1')
+            '@omero.master.host@': config.get('omero.master.host', config.get(
+                'Ice.Default.Host', '127.0.0.1'))
             }
 
         def copy_template(input_file, output_dir):
@@ -1045,8 +1057,8 @@ present, the user will enter a console""")
                 self._get_templates_dir() / "grid" / "*default.xml"):
             copy_template(xml_file, self._get_etc_dir() / "grid")
         ice_config = self._get_templates_dir() / "ice.config"
-        substitutions['@Ice.Default.Host@'] = config.get(
-            'Ice.Default.Host', 'localhost')
+        substitutions['@omero.master.host@'] = config.get(
+            'omero.master.host', config.get('Ice.Default.Host', 'localhost'))
         copy_template(ice_config, self._get_etc_dir())
 
         return rv
@@ -1562,7 +1574,7 @@ OMERO Diagnostics %s
 
     def checkice(self, args=None):
         """
-        Checks for Ice version 3.4
+        Checks for Ice version compatibility.
 
         See ticket:2514, ticket:1260
         """
