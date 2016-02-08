@@ -440,12 +440,13 @@ class WebControl(BaseControl):
             return False
         return True
 
+    # TODO: to be removed in 5.3
     def _deprecated_args(self, args, settings):
         d_args = {}
         try:
             d_args['wsgi_args'] = settings.WSGI_ARGS
         except:
-            d_args['wsgi_args'] = args.wsgi_args
+            d_args['wsgi_args'] = args.wsgi_args or ""
         if args.wsgi_args:
             self.ctx.out(" `--wsgi-args` is deprecated and overwritten"
                          " by `omero.web.wsgi_args`. ", newline=False)
@@ -466,6 +467,48 @@ class WebControl(BaseControl):
                          " `omero.web.wsgi_worker_connections`. ",
                          newline=False)
         return d_args
+
+    def _build_run_cmd(self, settings):
+        cmd = "gunicorn -D -p %(base)s/var/django.pid"
+        cmd += " --bind %(host)s:%(port)d"
+        cmd += " --workers %(workers)d "
+
+        if settings.WSGI_WORKER_CLASS == "sync":
+            try:
+                import concurrent.futures  # NOQA
+            except ImportError:
+                self.ctx.err("[FAILED]")
+                self.ctx.die(690,
+                             "[ERROR] You are using sync workers. "
+                             "Install futures.")
+            try:
+                cmd += " --threads %d" % settings.WSGI_THREADS
+            except:
+                pass
+        else:
+            try:
+                import gevent  # NOQA
+            except ImportError:
+                self.ctx.err("[FAILED]")
+                self.ctx.die(690,
+                             "[ERROR] You are using async workers based "
+                             "on Greenlets via Gevent. Install gevent.")
+            try:
+                cmd += " --worker-connections %d" % \
+                    settings.WSGI_WORKER_CONNECTIONS
+            except:
+                pass
+            try:
+                cmd += " --worker-class %s " % \
+                    settings.WSGI_WORKER_CLASS
+            except:
+                pass
+
+        cmd += " --timeout %(timeout)d"
+        cmd += " --max-requests %(maxrequests)d"
+        cmd += " %(wsgi_args)s"
+        cmd += " omeroweb.wsgi:application"
+        return cmd
 
     @config_required
     def start(self, args, settings):
@@ -524,48 +567,9 @@ class WebControl(BaseControl):
                 pass
 
             # wrap all deprecated args
-            # TODO: to be removed in 5.3
             d_args = self._deprecated_args(args, settings)
+            cmd = self._build_run_cmd(settings)
 
-            cmd = "gunicorn -D -p %(base)s/var/django.pid"
-            cmd += " --bind %(host)s:%(port)d"
-            cmd += " --workers %(workers)d "
-
-            if settings.WSGI_WORKER_CLASS == "sync":
-                try:
-                    import concurrent.futures  # NOQA
-                except ImportError:
-                    self.ctx.err("[FAILED]")
-                    self.ctx.die(690,
-                                 "[ERROR] You are using sync workers. "
-                                 "Install futures.")
-                try:
-                    cmd += " --threads %d" % settings.WSGI_THREADS
-                except:
-                    pass
-            else:
-                try:
-                    import gevent  # NOQA
-                except ImportError:
-                    self.ctx.err("[FAILED]")
-                    self.ctx.die(690,
-                                 "[ERROR] You are using async workers based "
-                                 "on Greenlets via Gevent. Install gevent.")
-                try:
-                    cmd += " --worker-connections %d" % \
-                        settings.WSGI_WORKER_CONNECTIONS
-                except:
-                    pass
-                try:
-                    cmd += " --worker-class %s " % \
-                        settings.WSGI_WORKER_CLASS
-                except:
-                    pass
-
-            cmd += " --timeout %(timeout)d"
-            cmd += " --max-requests %(maxrequests)d"
-            cmd += " %(wsgi_args)s"
-            cmd += " omeroweb.wsgi:application"
             runserver = (cmd % {
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,

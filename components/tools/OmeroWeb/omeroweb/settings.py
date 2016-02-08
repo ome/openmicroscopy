@@ -453,7 +453,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "settings/#secure-proxy-ssl-header>`.")],
     "omero.web.wsgi_args":
         ["WSGI_ARGS",
-         "",
+         None,
          leave_none_unset,
          ("A string representing Gunicorn additional arguments. "
           "Check Gunicorn Documentation "
@@ -799,10 +799,10 @@ def process_custom_settings(
                         '%s and its deprecated key %s are both set, using %s',
                         key, dep_key, key)
             setattr(module, global_name, mapping(global_value))
-        except ValueError:
+        except ValueError, e:
             raise ValueError(
-                "Invalid %s (%s = %r) %s" % (global_name, key, global_value,
-                                             description))
+                "Invalid %s (%s = %r). %s. %s" %
+                (global_name, key, global_value, e.message, description))
         except LeaveUnset:
             pass
 
