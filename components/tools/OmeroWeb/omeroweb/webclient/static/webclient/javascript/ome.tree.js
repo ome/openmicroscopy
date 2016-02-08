@@ -335,7 +335,7 @@ $(function() {
     .jstree({
         'plugins': ['types', 'contextmenu', 'dnd', 'sort', 'locate',
                     'ometools', 'conditionalselect', 'pagination', 'fields',
-                    'truncatetext', 'childcount', 'omecut'],
+                    'truncatetext', 'childcount', 'omecut', 'filter', 'search'],
         // The jstree core
         'locate' : {
             // Returns a key for this node
@@ -350,6 +350,10 @@ $(function() {
                 }
                 return node.type + '-' + node.data.obj.id;
             }
+        },
+
+        'search' : {
+            'show_only_matches': true
         },
 
         'conditionalselect' : {

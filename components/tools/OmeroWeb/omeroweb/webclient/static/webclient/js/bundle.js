@@ -19909,8 +19909,13 @@ var renderCentrePanel =
 
 	    setFilterText: function setFilterText(filterText) {
 	        console.log("setFilterText", filterText);
-	        this.setState({ filterText: filterText });
-	        setTimeout(this.deselectHiddenThumbs, 50);
+	        var inst = this.props.inst;
+
+	        inst.search(filterText);
+	        // inst.filter(filterText);
+
+	        // this.setState({filterText: filterText});
+	        // setTimeout(this.deselectHiddenThumbs, 50);
 	    },
 
 	    deselectHiddenThumbs: function deselectHiddenThumbs() {

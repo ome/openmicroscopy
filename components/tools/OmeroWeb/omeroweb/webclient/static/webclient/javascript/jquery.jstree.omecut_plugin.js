@@ -4,6 +4,24 @@
 (function ($, undefined) {
     "use strict";
 
+    $.jstree.plugins.filter = function (options, parent) {
+
+        this.filter = function(parent, filterString) {
+            console.log("jstree.filter...", parent, filterString);
+
+            // var p = this.get_node(parent);
+            // console.log(p);
+            this.search(filterString);
+        };
+    };
+
+})(jQuery);
+
+
+
+(function ($, undefined) {
+    "use strict";
+
     // Variable to store the ome specific cut status
     var omecut = false;
     // It is impossible to manipulate these so have to have a custom set
