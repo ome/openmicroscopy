@@ -30,8 +30,10 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
@@ -332,6 +334,25 @@ public class ROITable
 	 */
 	void addROIShapeList(List<ROIShape> shapeList)
 	{
+	    // store the expanded state of the nodes
+	    Set<String> expandedNodeIds = new HashSet<String>();
+        Collection<ROINode> tmp = new ArrayList<ROINode>();
+        root.getAllDecendants(tmp);
+        for (ROINode n : tmp) {
+            if (n.isExpanded()) {
+                Object uo = n.getUserObject();
+                if (uo != null) {
+                    if (uo instanceof ROI)
+                        expandedNodeIds.add("ROI_"+((ROI) uo).getID());
+                    else if (uo instanceof ROIShape)
+                        expandedNodeIds.add("Shape_"+((ROIShape) uo).getID());
+                    else if (uo instanceof FolderData)
+                        expandedNodeIds.add("Folder_"+((FolderData) uo).getId());
+                }
+            }
+        }
+        
+        // rebuild the nodes
 		ROINode parent = null;
 		int childCount;
 		ROINode roiShapeNode;
@@ -408,6 +429,26 @@ public class ROITable
 		}
 		model = new ROITableModel(root, columnNames);
 		this.setTreeTableModel(model);
+		
+		// restore the expanded state
+        tmp.clear();
+        root.getAllDecendants(tmp);
+        for (ROINode n : tmp) {
+            Object uo = n.getUserObject();
+            if (uo != null) {
+                String id = "";
+                if (uo instanceof ROI)
+                    id = "ROI_"+((ROI) uo).getID();
+                else if (uo instanceof ROIShape)
+                    id = "Shape_"+((ROIShape) uo).getID();
+                else if (uo instanceof FolderData)
+                    id = "Folder_"+((FolderData) uo).getId();
+
+                if (expandedNodeIds.contains(id))
+                    expandNode(n);
+            }
+        }
+		
 	}
 
 	/** 

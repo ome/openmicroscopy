@@ -523,6 +523,20 @@ public class ROINode
     }
 
     /**
+     * Gathers all sub nodes of this node and adds them to the provided nodes
+     * collection (the node itself will be added to the collection, too)
+     * 
+     * @param nodes
+     *            The collection to put the sub nodes into
+     */
+    public void getAllDecendants(Collection<ROINode> nodes) {
+        nodes.add(this);
+        for (MutableTreeTableNode n : this.getChildList()) {
+            gatherNodes((ROINode) n, nodes);
+        }
+    }
+    
+    /**
      * Gathers all sub nodes of a node and adds them to the provided nodes
      * collection (the node itself will be added to the collection, too)
      * 
