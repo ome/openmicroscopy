@@ -27,6 +27,7 @@ import java.awt.geom.Point2D;
 import omero.RString;
 import omero.rtypes;
 import omero.model.PolygonI;
+import omero.model.PolylineI;
 import omero.model.Shape;
 import omero.model.Polygon;
 
@@ -57,8 +58,7 @@ public class PolygonData
     /** Creates a new instance of PolygonData. */
     public PolygonData()
     {
-        this(new ArrayList<Point2D.Double>(), new ArrayList<Point2D.Double>(),
-                new ArrayList<Point2D.Double>(), new ArrayList<Integer>());
+        this(new ArrayList<Point2D.Double>());
     }
 
     /**
@@ -75,6 +75,17 @@ public class PolygonData
     {
         super(new PolygonI(), true);
         setPoints(points, points1, points2, maskList);
+    }
+
+    /**
+     * Create a new instance of the PolylineData, set the points in the polyline.
+     *
+     * @param points See Above.
+     */
+    public PolygonData(List<Point2D.Double> points)
+    {
+        super(new PolygonI(), true);
+        setPoints(points);
     }
 
     /**
@@ -172,4 +183,22 @@ public class PolygonData
         shape.setPoints(rtypes.rstring(pointsValues));
     }
 
+    /**
+     * Sets the points in the polygon.
+     *
+     * @param points The points in the polygon.
+     */
+    public void setPoints(List<Point2D.Double> points)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Polygon shape = (Polygon) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+
+        String pointsValues =
+                toPoints(points.toArray(new Point2D.Double[points.size()]));
+        shape.setPoints(rtypes.rstring(pointsValues));
+    }
+    
 }

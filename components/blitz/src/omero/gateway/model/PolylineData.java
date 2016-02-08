@@ -44,18 +44,6 @@ public class PolylineData
     extends ShapeData
 {
 
-    /** The points in the polyline as list. */
-    private List<Point2D.Double> points;
-
-    /** The points in the polyline as list. */
-    private List<Point2D.Double> points1;
-
-    /** The points in the polyline as list. */
-    private List<Point2D.Double> points2;
-
-    /** The points in the polyline as list. */
-    private List<Integer> mask;
-
     /**
      * Creates a new instance.
      *
@@ -71,8 +59,7 @@ public class PolylineData
      */
     public PolylineData()
     {
-        this(new ArrayList<Point2D.Double>(),new ArrayList<Point2D.Double>(),
-                new ArrayList<Point2D.Double>(), new ArrayList<Integer>());
+        this(new ArrayList<Point2D.Double>());
     }
 
     /**
@@ -85,6 +72,17 @@ public class PolylineData
     {
         super(new PolylineI(), true);
         setPoints(points, points1, points2, maskList);
+    }
+
+    /**
+     * Create a new instance of the PolylineData, set the points in the polyline.
+     *
+     * @param points See Above.
+     */
+    public PolylineData(List<Point2D.Double> points)
+    {
+        super(new PolylineI(), true);
+        setPoints(points);
     }
 
     /**
@@ -179,11 +177,24 @@ public class PolylineData
 
         String pointsValues =
                 toPoints(points.toArray(new Point2D.Double[points.size()]));
-        this.points = points;
-        this.points1 = points1;
-        this.points2 = points2;
-        this.mask = maskList;
         shape.setPoints(rtypes.rstring(pointsValues));
     }
 
+    /**
+     * Sets the points in the polyline.
+     *
+     * @param points The points to set.
+     */
+    public void setPoints(List<Point2D.Double> points)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Polyline shape = (Polyline) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+
+        String pointsValues =
+                toPoints(points.toArray(new Point2D.Double[points.size()]));
+        shape.setPoints(rtypes.rstring(pointsValues));
+    }
 }
