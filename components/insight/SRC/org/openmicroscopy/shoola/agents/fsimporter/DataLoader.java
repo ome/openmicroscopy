@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -55,7 +55,10 @@ public class DataLoader
 
     /** Flag indicating that the group has been modified.*/
     private boolean changeGroup;
-
+    
+    /** Flag indicating if the loader has been cancelled */
+    private boolean cancelled = false;
+    
     /**
      * Creates a new instance.
      * 
@@ -93,11 +96,15 @@ public class DataLoader
                 -1, this);
     }
 
-    /** 
+    /**
      * Cancels the data loading.
+     * 
      * @see DataImporterLoader#load()
      */
-    public void cancel() { handle.cancel(); }
+    public void cancel() {
+        cancelled = true;
+        handle.cancel();
+    }
 
     /**
      * Feeds the result back to the viewer.
@@ -105,7 +112,7 @@ public class DataLoader
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == Importer.DISCARDED)
+        if (viewer.getState() == Importer.DISCARDED || cancelled)
             return;
         int type = Importer.PROJECT_TYPE;
         if (ScreenData.class.equals(rootType))
