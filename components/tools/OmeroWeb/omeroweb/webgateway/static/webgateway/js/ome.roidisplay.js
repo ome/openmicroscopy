@@ -31,6 +31,7 @@ $.fn.roi_display = function(options) {
         if (options != null) {
             var orig_width = options.width;
             var orig_height = options.height;
+            var webgateway_index = options.webgateway_index;    // base url
             var json_url = options.json_url;
         }
 
@@ -102,6 +103,10 @@ $.fn.roi_display = function(options) {
 
         var draw_shape = function(shape) {
             var newShape = null;
+            if (shape['type'] == 'Mask') {
+              var src = webgateway_index + 'render_shape_mask/' + shape['id'] + '/';
+              newShape = paper.image(src, shape['x'], shape['y'], shape['width'], shape['height']);
+            }
             if (shape['type'] == 'Ellipse') {
               newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
             }
