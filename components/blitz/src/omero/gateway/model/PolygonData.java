@@ -27,7 +27,6 @@ import java.awt.geom.Point2D;
 import omero.RString;
 import omero.rtypes;
 import omero.model.PolygonI;
-import omero.model.PolylineI;
 import omero.model.Shape;
 import omero.model.Polygon;
 
