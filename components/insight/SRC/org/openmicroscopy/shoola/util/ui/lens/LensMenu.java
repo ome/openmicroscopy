@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.lens.LensMenu 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -98,6 +100,9 @@ class LensMenu
 	
 	/** Group hosting the zooming check box elements. */
 	private ButtonGroup			zoomGroup;
+	
+	/** The display actions to toggle between pixel and microns display */
+	private Collection<DisplayAction> displayActions = new ArrayList<DisplayAction>();
 	
 	/**
 	 * Creates the menu which will allow the user to adjust the size of the lens.
@@ -183,8 +188,10 @@ class LensMenu
 		int i;
 		for (i = 0 ; i < DisplayAction.MAX ; i++)
 		{
-			setDisplayScale = new JCheckBoxMenuItem(new DisplayAction
-													(lensComponent, i));
+		    DisplayAction action = new DisplayAction
+                    (lensComponent, i);
+		    displayActions.add(action);
+			setDisplayScale = new JCheckBoxMenuItem(action);
 			displayUnits.add(setDisplayScale);
 			displayOptions.add(setDisplayScale);
 			setDisplayScale.setSelected(i == 1);
@@ -298,6 +305,20 @@ class LensMenu
 		}
 	}
 	
+    /**
+     * Enables or disables the action, to set the display units to microns
+     * 
+     * @param b
+     *            Pass <code>true</code> to enable the action,
+     *            <code>false</code> to disable it
+     */
+    void setMicronsMenuEnabled(boolean b) {
+        for (DisplayAction action : displayActions) {
+            if (action.getIndex() == DisplayAction.MICRON_OPTION) {
+                action.setEnabled(b);
+            }
+        }
+    }
 }
 
 
