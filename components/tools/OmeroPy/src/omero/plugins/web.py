@@ -474,17 +474,16 @@ class WebControl(BaseControl):
         cmd += " --workers %(workers)d "
 
         if settings.WSGI_WORKER_CLASS == "sync":
-            try:
-                import concurrent.futures  # NOQA
-            except ImportError:
-                self.ctx.err("[FAILED]")
-                self.ctx.die(690,
-                             "[ERROR] You are using sync workers. "
-                             "Install futures.")
-            try:
-                cmd += " --threads %d" % settings.WSGI_THREADS
-            except:
-                pass
+            t = settings.WSGI_THREADS
+            if t > 1:
+                try:
+                    import concurrent.futures  # NOQA
+                except ImportError:
+                    self.ctx.err("[FAILED]")
+                    self.ctx.die(690,
+                                 "[ERROR] You are using sync workers with "
+                                 "multiple threads. Install futures.")
+            cmd += " --threads %d" % t
         else:
             try:
                 import gevent  # NOQA
@@ -493,16 +492,9 @@ class WebControl(BaseControl):
                 self.ctx.die(690,
                              "[ERROR] You are using async workers based "
                              "on Greenlets via Gevent. Install gevent.")
-            try:
-                cmd += " --worker-connections %d" % \
-                    settings.WSGI_WORKER_CONNECTIONS
-            except:
-                pass
-            try:
-                cmd += " --worker-class %s " % \
-                    settings.WSGI_WORKER_CLASS
-            except:
-                pass
+            cmd += " --worker-connections %d" % \
+                settings.WSGI_WORKER_CONNECTIONS
+            cmd += " --worker-class %s " % settings.WSGI_WORKER_CLASS
 
         cmd += " --timeout %(timeout)d"
         cmd += " --max-requests %(maxrequests)d"
