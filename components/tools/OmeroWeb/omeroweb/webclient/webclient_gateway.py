@@ -27,6 +27,7 @@
 import cStringIO
 import traceback
 import logging
+import json
 
 from StringIO import StringIO
 
@@ -179,12 +180,27 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             return False
 
     def getOrphanedContainerSettings(self):
-        name = (self.getConfigService().getConfigValue(
-                "omero.client.ui.tree.orphans.name") or "Orphaned image")
-        description = (self.getConfigService().getConfigValue(
-                       "omero.client.ui.tree.orphans.description") or
-                       "This is a virtual container with orphaned images.")
-        return name, description
+        default = {
+            "enabled": True,
+            "name": "Orphaned Images",
+            "description": ("This is a virtual container with "
+                            "orphaned images.")
+        }
+        try:
+            orphans = json.loads(
+                self.getConfigService()
+                .getConfigValue("omero.client.ui.tree.orphans"))
+            for k in default.iterkeys():
+                try:
+                    if k == "enabled":
+                        orphans[k] = toBoolean(orphans[k])
+                    else:
+                        orphans[k]
+                except KeyError:
+                    orphans[k] = default[k]
+        except:
+            orphans = default
+        return orphans
 
     def getDropdownMenuSettings(self):
         dropdown_menu = dict()
