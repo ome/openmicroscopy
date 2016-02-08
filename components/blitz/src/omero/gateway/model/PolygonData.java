@@ -169,21 +169,7 @@ public class PolygonData
 
         String pointsValues =
                 toPoints(points.toArray(new Point2D.Double[points.size()]));
-        String points1Values =
-                toPoints(points1.toArray(new Point2D.Double[points1.size()]));
-        String points2Values =
-                toPoints(points2.toArray(new Point2D.Double[points2.size()]));
-        String maskValues = "";
-        for (int i = 0 ; i < maskList.size()-1; i++)
-            maskValues = maskValues + maskList.get(i)+",";
-        if (maskList.size() != 0)
-            maskValues = maskValues+maskList.get(maskList.size()-1)+"";
-        String pts = "points["+pointsValues+"] ";
-        pts = pts + "points1["+points1Values+"] ";
-        pts = pts + "points2["+points2Values+"] ";
-        pts = pts + "mask["+maskValues+"] ";
-
-        shape.setPoints(rtypes.rstring(pts));
+        shape.setPoints(rtypes.rstring(pointsValues));
     }
 
 }
