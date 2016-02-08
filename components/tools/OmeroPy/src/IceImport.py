@@ -7,7 +7,7 @@
 #
 
 """
-Workaround for 3.3 / 3.4 differences in Ice importing.
+Load modules with automatic updating of Ice modules.
 """
 
 import Ice
