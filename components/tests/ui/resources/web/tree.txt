@@ -9,6 +9,7 @@ ${shareIcon}                    webclient/image/left_sidebar_icon_public.png
 ${screenIcon}                   webclient/image/folder_screen16.png
 ${orphanedIcon}                 webclient/image/folder_yellow16.png
 ${plateIcon}                    webclient/image/folder_plate16.png
+${runIcon}                      webclient/image/run16.png
 
 ${datasetDetails}               xpath=//*[@id="general_tab"]/h1[contains(@data-name,'details')]/following-sibling::div
 *** Keywords ***
@@ -65,6 +66,14 @@ Select And Expand Project Dataset Image
     ${datasetId}=                       Select First Dataset With Children
     ${imageId}=                         Select First Image
     [Return]                            ${projectId}    ${datasetId}    ${imageId}
+
+Select And Expand Plate
+    ${firstNodeId}    Select First Node By Type    plate
+    [Return]          ${firstNodeId}
+
+Select And Expand Run
+    ${firstNodeId}    Select First Node By Type    acquisition
+    [Return]          ${firstNodeId}
 
 Select And Expand Image
     ${pid}    ${did}    ${imageId}      Select And Expand Project Dataset Image
@@ -240,6 +249,10 @@ Select First Plate
     ${plateId}=                     Select Node By Icon      ${plateIcon}
     Wait Until Right Panel Loads    Plate                    ${plateId}
     [Return]                        ${plateId}
+
+Select First Run
+    ${runId}=                       Select Node By Icon      ${runIcon}
+    Wait Until Right Panel Loads    Run                      ${runId}
 
 Select Orphaned Images Section
     ${firstNodeId}=                 Get NodeId By Icon       ${orphanedIcon}
