@@ -645,7 +645,7 @@ $(function() {
                             if (data.hasOwnProperty('orphaned')) {
                                 node = {
                                     'data': {'obj': data.orphaned},
-                                    'text': 'Orphaned Images',
+                                    'text': data.orphaned.name,
                                     'children': data.orphaned.childCount > 0 ? true : false,
                                     'type': 'orphaned'
                                 };
