@@ -72,36 +72,22 @@ def testOrphansDescriptionSetting(gatewaywrapper, description):
     assert orphans['description'] == description
 
 
-def testInterpolateSetting(gatewaywrapper):
+@pytest.mark.parametrize("interpolate",
+                         ["foo", "", "False", "false",
+                          "True", "true", "", None])
+def testInterpolateSetting(gatewaywrapper, interpolate):
     """
     Tests conn.getInterpolateSetting(), setting the value as Admin and
     testing the output as a regular user.
     """
     gatewaywrapper.loginAsAdmin()
-    configService = gatewaywrapper.gateway.getConfigService()
+    if interpolate is None:
+        interpolate = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()[
+                'omero.client.viewer.interpolate_pixels']
+    gatewaywrapper.gateway.getConfigService().setConfigValue(
+        "omero.client.viewer.interpolate_pixels", interpolate)
 
-    defaluts = configService.getConfigDefaults()
-    defaultValue = defaluts["omero.client.viewer.interpolate_pixels"]
-
-    try:
-        configService.setConfigValue(
-            "omero.client.viewer.interpolate_pixels", "false")
-
-        gatewaywrapper.loginAsAuthor()
-        assert not gatewaywrapper.gateway.getInterpolateSetting()
-
-        gatewaywrapper.loginAsAdmin()
-        configService = gatewaywrapper.gateway.getConfigService()
-        configService.setConfigValue(
-            "omero.client.viewer.interpolate_pixels", "true")
-
-        gatewaywrapper.loginAsAuthor()
-        assert gatewaywrapper.gateway.getInterpolateSetting()
-
-    finally:
-        # try/finally to make sure that we
-        # set back to default value to clean up
-        gatewaywrapper.loginAsAdmin()
-        configService = gatewaywrapper.gateway.getConfigService()
-        configService.setConfigValue(
-            "omero.client.viewer.interpolate_pixels", defaultValue)
+    gatewaywrapper.loginAsAuthor()
+    inter = gatewaywrapper.gateway.getInterpolateSetting()
+    assert inter == toBoolean(interpolate)
