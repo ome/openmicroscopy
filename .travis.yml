@@ -1,6 +1,6 @@
 language: java
 
-jdk: oraclejdk7
+jdk: oraclejdk8
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
 # which cache: is available
