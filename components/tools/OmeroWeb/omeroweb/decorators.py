@@ -250,7 +250,7 @@ class login_required(object):
         if request.session.get('server_settings') is None:
             request.session['server_settings'] = {'ui': {}}
             request.session['server_settings']['ui']['orphans'] = \
-                conn.getOrphanedContainerSettings()
+                conn.getOrphanedImagesSettings()
             request.session['server_settings']['ui']['dropdown_menu'] = \
                 conn.getDropdownMenuSettings()
             request.session['server_settings']['email'] = \
