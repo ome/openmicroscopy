@@ -1559,7 +1559,7 @@ class _BlitzGateway (object):
         try:
             interpolate = (
                 toBoolean(self.getConfigService().getConfigValue(
-                    "omero.client.viewer.interpolate_pixels")) or True
+                    "omero.client.viewer.interpolate_pixels"))
             )
         except:
             interpolate = True
