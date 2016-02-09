@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -118,6 +118,10 @@
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = P:[E], L.child = D:[E], P =/!o D"
                                        p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[E], L.child = I:[E], D =/!o I"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink.parent = F:[E], L.child = I:[E], F =/!o I"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink.parent = F:[E], L.child = ROI:[E], F =/!o ROI"
                                        p:changes="L:[D]/n"/>
 
         <!-- CORE -->

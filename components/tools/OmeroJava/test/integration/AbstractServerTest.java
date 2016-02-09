@@ -654,6 +654,24 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     /**
+     * Logs in the user.
+     *
+     * @param ownerEc
+     *            The context of the user.
+     * @param g
+     *            The group to log into.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    protected void loginUser(EventContext ownerEc, ExperimenterGroup g) throws Exception {
+        final omero.client client = newOmeroClient();
+        client.createSession(ownerEc.userName, ownerEc.userName);
+        client.getSession().setSecurityContext(
+                new ExperimenterGroupI(g.getId(), false));
+        init(client);
+    }
+
+    /**
      * Creates a new {@link omero.client} for root based on the current group.
      */
     protected void logRootIntoGroup() throws Exception {
