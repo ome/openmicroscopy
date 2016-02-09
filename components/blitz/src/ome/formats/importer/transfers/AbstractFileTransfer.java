@@ -54,10 +54,10 @@ public abstract class AbstractFileTransfer implements FileTransfer {
      * CLI plugin.
      */
     public enum Transfers {
-        ln(HardlinkFileTransfer.class),
+        ln(HardlinkFileTransfer2.class),
         ln_rm(MoveFileTransfer.class),
-        ln_s(SymlinkFileTransfer.class),
-        cp(CopyFileTransfer.class),
+        ln_s(SymlinkFileTransfer2.class),
+        cp(CopyFileTransfer2.class),
         cp_rm(CopyMoveFileTransfer.class),
         upload(UploadFileTransfer.class),
         upload_rm(UploadRmFileTransfer.class);
