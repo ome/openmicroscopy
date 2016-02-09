@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 5.0.7
  */
-public class CopyMoveFileTransfer extends CopyFileTransfer {
+public class CopyMoveFileTransfer extends CopyFileTransfer2 {
 
     /**
      * Deletes all copied files if there were no errors.
