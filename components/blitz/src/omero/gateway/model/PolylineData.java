@@ -66,6 +66,7 @@ public class PolylineData
      * Create a new instance of the PolylineData, set the points in the polyline.
      *
      * @param points See Above.
+     * @deprecated
      */
     public PolylineData(List<Point2D.Double> points, List<Point2D.Double> points1,
             List<Point2D.Double> points2, List<Integer> maskList)
@@ -128,6 +129,7 @@ public class PolylineData
      * Returns the points in the Polyline.
      *
      * @return See above.
+     * @deprecated
      */
     public List<Point2D.Double> getPoints1()
     {
@@ -139,6 +141,7 @@ public class PolylineData
      * Returns the points in the Polyline.
      *
      * @return See above.
+     * @deprecated
      */
     public List<Point2D.Double> getPoints2()
     {
@@ -150,6 +153,7 @@ public class PolylineData
      * Returns the points in the Polyline.
      *
      * @return See above.
+     * @deprecated
      */
     public List<Integer> getMaskPoints()
     {
@@ -164,6 +168,7 @@ public class PolylineData
      * @param points1 The points to set.
      * @param points2 The points to set.
      * @param maskList The points to set.
+     * @deprecated
      */
     public void setPoints(List<Point2D.Double> points,
             List<Point2D.Double> points1,

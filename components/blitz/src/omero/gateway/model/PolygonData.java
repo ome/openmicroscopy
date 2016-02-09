@@ -67,6 +67,7 @@ public class PolygonData
      * @param points1 The points in the polygon.
      * @param points2 The points in the polygon.
      * @param maskList The points in the polygon.
+     * @deprecated
      */
     public PolygonData(List<Point2D.Double> points,
             List<Point2D.Double> points1,
@@ -130,6 +131,7 @@ public class PolygonData
      * Returns the points in the polygon.
      *
      * @return See above.
+     * @deprecated
      */
     public List<Point2D.Double> getPoints1()
     {
@@ -141,6 +143,7 @@ public class PolygonData
      * Returns the points in the polygon.
      *
      * @return See above.
+     * @deprecated
      */
     public List<Point2D.Double> getPoints2()
     {
@@ -166,6 +169,7 @@ public class PolygonData
      * @param points1 The points in the polygon.
      * @param points2 The points in the polygon.
      * @param maskList The points in the polygon.
+     * @deprecated
      */
     public void setPoints(List<Point2D.Double> points,
             List<Point2D.Double> points1,
@@ -199,5 +203,5 @@ public class PolygonData
                 toPoints(points.toArray(new Point2D.Double[points.size()]));
         shape.setPoints(rtypes.rstring(pointsValues));
     }
-    
+
 }
