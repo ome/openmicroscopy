@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1446,38 +1446,18 @@ class ImViewerUI
 	            }
 	            toolTipText = "";
 	            toolTipText += "Stage coordinates: ";
+	            DecimalFormat format = new DecimalFormat("0.##");
                 if (!notSet.contains(EditorUtil.POSITION_X)) {
-                    if (details.get(EditorUtil.POSITION_X) instanceof BigResult) {
-                        toolTipText += "x=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_X),
-                                EditorUtil.POSITION_X);
-                    } else {
-                        toolTipText += "x="
-                                + details.get(EditorUtil.POSITION_X) + " ";
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_X);
+                    toolTipText += "x="+format.format(l.getValue())+" "+l.getSymbol();
                 }
                 if (!notSet.contains(EditorUtil.POSITION_Y)) {
-                    if (details.get(EditorUtil.POSITION_Y) instanceof BigResult) {
-                        toolTipText += "y=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_Y),
-                                EditorUtil.POSITION_Y);
-                    } else {
-                        toolTipText += "y="
-                                + details.get(EditorUtil.POSITION_Y) + " ";
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_Y);
+                    toolTipText += "y="+format.format(l.getValue())+" "+l.getSymbol();
                 }
                 if (!notSet.contains(EditorUtil.POSITION_Z)) {
-                    if (details.get(EditorUtil.POSITION_Z) instanceof BigResult) {
-                        toolTipText += "z=N/A ";
-                        ImViewerAgent.logBigResultExeption(this,
-                                details.get(EditorUtil.POSITION_Z),
-                                EditorUtil.POSITION_Z);
-                    } else {
-                        toolTipText += "z="
-                                + details.get(EditorUtil.POSITION_Z);
-                    }
+                    Length l = (Length) details.get(EditorUtil.POSITION_Z);
+                    toolTipText += "z="+format.format(l.getValue())+" "+l.getSymbol();
                 }
 	            tips.add(toolTipText);
 	            comp.setToolTipText(UIUtilities.formatToolTipText(tips));
@@ -2372,14 +2352,14 @@ class ImViewerUI
 	int getTabbedIndex() { return model.getTabbedIndex(); }
 	
 	/**
-	 * Returns the lower bound of the z-section to project.
+	 * Returns the lower bound of the z-section to project. (zero based)
 	 * 
 	 * @return See above.
 	 */
 	int getProjectionStartZ() { return controlPane.getProjectionStartZ(); }
 	
 	/**
-	 * Returns the lower bound of the z-section to project.
+	 * Returns the lower bound of the z-section to project. (zero based)
 	 * 
 	 * @return See above.
 	 */

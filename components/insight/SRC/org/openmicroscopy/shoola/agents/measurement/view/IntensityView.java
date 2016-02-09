@@ -1168,10 +1168,15 @@ class IntensityView
 			entry = (Entry) j.next();
 			shape = (ROIShape) entry.getKey();
 			c3D = shape.getCoord3D();
-			minT = Math.min(minT, c3D.getTimePoint());
-			maxT = Math.max(maxT, c3D.getTimePoint());
-			minZ = Math.min(minZ, c3D.getZSection());
-			maxZ = Math.max(maxZ, c3D.getZSection());
+			
+            if (c3D.getZSection() == cZ) {
+                minT = Math.min(minT, c3D.getTimePoint());
+                maxT = Math.max(maxT, c3D.getTimePoint());
+            }
+            if (c3D.getTimePoint() == cT) {
+                minZ = Math.min(minZ, c3D.getZSection());
+                maxZ = Math.max(maxZ, c3D.getZSection());
+            }
 			
 			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)

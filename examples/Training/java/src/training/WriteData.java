@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -77,19 +77,19 @@ public class WriteData
 
 	//The value used if the configuration file is not used. To edit*/
 	/** The server address.*/
-	private String hostName = "serverName";
+	private static String hostName = "serverName";
 
 	/** The username.*/
-	private String userName = "userName";
+	private static String userName = "userName";
 	
 	/** The password.*/
-	private String password = "password";
+	private static String password = "password";
 	
 	/** The id of an image.*/
-	private long imageId = 1;
+	private static long imageId = 1;
 	
 	/** The id of a project.*/
-	private long projectId = 1;
+	private static long projectId = 1;
 
 	//end edit
 	
@@ -124,7 +124,7 @@ public class WriteData
 	 * Create a new dataset and link it to existing project.
 	 * 
 	 */
-	private void createNewDataset(ConfigurationInfo info)
+	private void createNewDataset(long projectId)
 		throws Exception
 	{
 	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
@@ -142,19 +142,19 @@ public class WriteData
 		
 		ProjectDatasetLink link = new ProjectDatasetLinkI();
 		link.setChild(dataset);
-		link.setParent(new ProjectI(info.getProjectId(), false));
+		link.setParent(new ProjectI(projectId, false));
 		IObject r = dm.saveAndReturnObject(ctx, link);
 		//With pojo
 		link = new ProjectDatasetLinkI();
 		link.setChild(datasetData.asDataset());
-		link.setParent(new ProjectI(info.getProjectId(), false));
+		link.setParent(new ProjectI(projectId, false));
 		r = dm.saveAndReturnObject(ctx, link);
 	}
 	
 	/** 
 	 * Create a new tag and link it to existing project.
 	 */
-	private void createNewTag(ConfigurationInfo info)
+	private void createNewTag(long projectId)
 		throws Exception
 	{
 	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
@@ -169,12 +169,12 @@ public class WriteData
 		
 		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
 		link.setChild(tag);
-		link.setParent(new ProjectI(info.getProjectId(), false));
+		link.setParent(new ProjectI(projectId, false));
 		IObject r = dm.saveAndReturnObject(ctx, link);
 		//With pojo
 		link = new ProjectAnnotationLinkI();
 		link.setChild(tagData.asAnnotation());
-		link.setParent(new ProjectI(info.getProjectId(), false));
+		link.setParent(new ProjectI(projectId, false));
 		r = dm.saveAndReturnObject(ctx, link);
 	}
 	
@@ -245,7 +245,7 @@ public class WriteData
 		FileAnnotation fa = new FileAnnotationI();
 		fa.setFile(originalFile);
 		fa.setDescription(omero.rtypes.rstring(description)); // The description set above e.g. PointsModel
-		fa.setNs(omero.rtypes.rstring(ConfigurationInfo.TRAINING_NS)); // The name space you have set to identify the file annotation.
+		fa.setNs(omero.rtypes.rstring(Setup.TRAINING_NS)); // The name space you have set to identify the file annotation.
 
 		// save the file annotation.
 		fa = (FileAnnotation) dm.saveAndReturnObject(ctx, fa);
@@ -268,7 +268,7 @@ public class WriteData
 	{
 		long userId = gateway.getLoggedInUser().getId();
 		List<String> nsToInclude = new ArrayList<String>();
-		nsToInclude.add(ConfigurationInfo.TRAINING_NS);
+		nsToInclude.add(Setup.TRAINING_NS);
 		List<String> nsToExclude = new ArrayList<String>();
 		ParametersI param = new ParametersI();
 		param.exp(omero.rtypes.rlong(userId)); //load the annotation for a given user.
@@ -340,34 +340,25 @@ public class WriteData
 	
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param args The login credentials
+	 * @param imageId  The image id
+	 * @param projectId The project id
 	 */
-	WriteData(ConfigurationInfo info)
+	WriteData(String[] args, long imageId, long projectId)
 	{
-		if (info == null) {
-			info = new ConfigurationInfo();
-			info.setHostName(hostName);
-			info.setPassword(password);
-			info.setUserName(userName);
-			info.setImageId(imageId);
-			info.setProjectId(projectId);
-		}
-		
-		LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+		LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
         
 		try {
 		    ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-			image = loadImage(info.getImageId());
+			image = loadImage(imageId);
 			createFileAnnotationAndLinkToImage();
 			loadAnnotationsLinkedToImage();
-			createNewDataset(info);
-			createNewTag(info);
+			createNewDataset(projectId);
+			createNewTag(projectId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -386,7 +377,11 @@ public class WriteData
 	 */
 	public static void main(String[] args)
 	{
-		new WriteData(null);
+	    if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                    "--omero.user=" + userName, "--omero.pass=" + password };
+	    
+		new WriteData(args, imageId, projectId);
 		System.exit(0);
 	}
 

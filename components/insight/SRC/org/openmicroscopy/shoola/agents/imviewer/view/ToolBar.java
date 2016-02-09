@@ -42,13 +42,13 @@ import javax.swing.JToolBar;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.events.iviewer.ScriptDisplay;
-
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.GroupData;
@@ -377,10 +377,10 @@ class ToolBar
 		int compression = ImViewerFactory.getCompressionLevel();
 		
 		int value = (Integer) 
-			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
+			ImViewerAgent.getRegistry().lookup(LookupNames.IMAGE_QUALITY_LEVEL);
 		int setUp = view.convertCompressionLevel(value);
 		if (compression != setUp) compression = setUp;
-		if (view.isLargePlane()) {
+		if (view.isLargePlane() && value > RenderingControl.UNCOMPRESSED) {
 			compression = ImViewer.LOW;
 		}
 		int index = view.convertCompressionLevel();

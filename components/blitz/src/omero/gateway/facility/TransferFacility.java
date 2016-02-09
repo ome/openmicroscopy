@@ -67,10 +67,7 @@ public class TransferFacility extends Facility {
      * @param image The image to upload.
      * @param observer The observer to notify components of upload status.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      * @throws ImportException If an error occurred while importing data.
      */
     public void uploadImage(SecurityContext context, File image,
@@ -91,10 +88,7 @@ public class TransferFacility extends Facility {
      * @param user The owner of the image.
      * @param observer The observer to notify components of upload status.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      * @throws ImportException If an error occurred while importing data.
      */
     public void uploadImage(SecurityContext context, File image,
@@ -120,10 +114,7 @@ public class TransferFacility extends Facility {
      * @param username The OMERO user name.
      * @param groupname The group to import the data to.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public void uploadImage(SecurityContext context, File image,
             IObserver observer, String username, String groupname)
@@ -138,10 +129,7 @@ public class TransferFacility extends Facility {
      * @param imageId The identifier of the image.
      * @return See above
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
     public List<File> downloadImage(SecurityContext context, String targetPath,
             long imageId) throws DSAccessException, DSOutOfServiceException {

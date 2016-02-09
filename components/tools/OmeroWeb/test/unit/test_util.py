@@ -23,6 +23,8 @@ Simple unit tests for the "webclient_utils" module.
 """
 
 from omeroweb.webclient.webclient_utils import formatPercentFraction
+from omeroweb.webclient.webclient_utils import getDateTime
+import pytest
 
 
 class TestUtil(object):
@@ -40,3 +42,14 @@ class TestUtil(object):
         assert formatPercentFraction(0.005) == "0.5"
         assert formatPercentFraction(0.0025) == "0.3"
         assert formatPercentFraction(0.00) == "0.0"
+
+    def test_get_date_time(self):
+        """ Tests that only a full date-time string is valid """
+        assert getDateTime("2015-12-01 00:00:00") is not None
+        assert getDateTime("2015-12-01 23:59:59") is not None
+        with pytest.raises(ValueError):
+            getDateTime("12345")
+        with pytest.raises(ValueError):
+            getDateTime("invalid")
+        with pytest.raises(ValueError):
+            getDateTime("2015-12-01")

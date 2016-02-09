@@ -18,7 +18,7 @@ USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-robot_ice.config}
 IMAGE_NAME=${IMAGE_NAME:-test&sizeZ=3&sizeT=10.fake}
 TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test.fake}
-PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1.fake}
+PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake}
 
 # Create robot user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
@@ -37,7 +37,7 @@ touch $PLATE_NAME
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
 nProjects=1
 nDatasets=1
-nImages=2
+nImages=10
 echo "Creating projects and datasets"
 for (( i=1; i<=$nProjects; i++ ))
 do
@@ -56,20 +56,20 @@ done
 
 # Create Dataset with images for deleting
 delDs=$(bin/omero obj new Dataset name='Delete')
-for (( k=1; k<=5; k++ ))
+for (( k=1; k<=10; k++ ))
 do
   bin/omero import -d $delDs $TINY_IMAGE_NAME --debug ERROR
 done
 
 # Create Screen with empty plates for Create Scenario
 scrDs=$(bin/omero obj new Screen name='CreateScenario')
-for (( k=1; k<=3; k++ ))
+for (( k=1; k<=6; k++ ))
 do
   bin/omero import -r $scrDs $PLATE_NAME --debug ERROR
 done
 
 # Create Orphaned Images for Create Scenario
-for (( k=1; k<=5; k++ ))
+for (( k=1; k<=10; k++ ))
 do
   bin/omero import $TINY_IMAGE_NAME --debug ERROR
 done

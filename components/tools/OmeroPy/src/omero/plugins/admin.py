@@ -35,8 +35,6 @@ from omero.cli import UserGroupControl
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config, with_rw_config
 
-from omero.util.upgrade_check import UpgradeCheck
-
 from omero_ext import portalocker
 from omero_ext.which import whichall
 from omero_ext.argparse import FileType, SUPPRESS
@@ -1035,7 +1033,8 @@ present, the user will enter a console""")
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
-            '@Ice.Default.Host@': config.get('Ice.Default.Host', '127.0.0.1')
+            '@omero.master.host@': config.get('omero.master.host', config.get(
+                'Ice.Default.Host', '127.0.0.1'))
             }
 
         def copy_template(input_file, output_dir):
@@ -1058,8 +1057,8 @@ present, the user will enter a console""")
                 self._get_templates_dir() / "grid" / "*default.xml"):
             copy_template(xml_file, self._get_etc_dir() / "grid")
         ice_config = self._get_templates_dir() / "ice.config"
-        substitutions['@Ice.Default.Host@'] = config.get(
-            'Ice.Default.Host', 'localhost')
+        substitutions['@omero.master.host@'] = config.get(
+            'omero.master.host', config.get('Ice.Default.Host', 'localhost'))
         copy_template(ice_config, self._get_etc_dir())
 
         return rv
@@ -1180,9 +1179,7 @@ OMERO Diagnostics %s
 
         import logging
         logging.basicConfig()
-        from omero.util.upgrade_check import UpgradeCheck
-        check = UpgradeCheck("diagnostics")
-        check.run()
+        check = self.run_upgrade_check(config, "diagnostics")
         if check.isUpgradeNeeded():
             self.ctx.out("")
 
@@ -1856,13 +1853,7 @@ OMERO Diagnostics %s
         2: an error occurred whilst checking
         """
 
-        config = config.as_map()
-        upgrade_url = config.get("omero.upgrades.url", None)
-        if upgrade_url:
-            uc = UpgradeCheck(CHECKUPGRADE_USERAGENT, url=upgrade_url)
-        else:
-            uc = UpgradeCheck(CHECKUPGRADE_USERAGENT)
-        uc.run()
+        uc = self.run_upgrade_check(config, CHECKUPGRADE_USERAGENT)
         if uc.isUpgradeNeeded():
             self.ctx.die(1, uc.getUpgradeUrl())
         if uc.isExceptionThrown():

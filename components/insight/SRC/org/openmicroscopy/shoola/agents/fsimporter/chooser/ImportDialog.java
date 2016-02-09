@@ -1079,7 +1079,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	private boolean isFastConnection() {
 		int value = (Integer) ImporterAgent.getRegistry().lookup(
-				LookupNames.CONNECTION_SPEED);
+				LookupNames.IMAGE_QUALITY_LEVEL);
 		return value == RenderingControl.UNCOMPRESSED;
 	}
 

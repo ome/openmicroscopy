@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -54,22 +54,22 @@ public class ReadData {
 
     // The value used if the configuration file is not used. To edit*/
     /** The server address. */
-    private String hostName = "serverName";
+    private static String hostName = "serverName";
 
     /** The username. */
-    private String userName = "userName";
+    private static String userName = "userName";
 
     /** The password. */
-    private String password = "password";
+    private static String password = "password";
 
     /** The id of a dataset. */
-    private long datasetId = 1;
+    private static long datasetId = 1;
 
     /** The id of an image. */
-    private long imageId = 1;
+    private static long imageId = 1;
 
     /** The id of a plate. */
-    private long plateId = 1;
+    private static long plateId = 1;
 
     // end edit
 
@@ -85,7 +85,7 @@ public class ReadData {
      * If a project contains datasets, the datasets will automatically be
      * loaded.
      */
-    private void loadProjects(ConfigurationInfo info) throws Exception {
+    private void loadProjects() throws Exception {
         
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<ProjectData> projects = browse.getProjects(ctx);
@@ -116,7 +116,7 @@ public class ReadData {
      * Retrieve the datasets owned by the user currently logged in.
      */
     @SuppressWarnings("unchecked")
-    private void loadDatasets(ConfigurationInfo info) throws Exception {
+    private void loadDatasets() throws Exception {
         
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<DatasetData> datasets = browse.getDatasets(ctx);
@@ -147,10 +147,10 @@ public class ReadData {
      *            The configuration information.
      */
     @SuppressWarnings("unchecked")
-    private void loadImagesInDataset(ConfigurationInfo info) throws Exception {
+    private void loadImagesInDataset(long datasetId) throws Exception {
         
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        Collection<ImageData> images = browse.getImagesForDatasets(ctx, Arrays.asList(info.getDatasetId()));
+        Collection<ImageData> images = browse.getImagesForDatasets(ctx, Arrays.asList(datasetId));
 
         Iterator<ImageData> j = images.iterator();
         ImageData image;
@@ -165,10 +165,10 @@ public class ReadData {
     /**
      * Retrieve an image if the identifier is known.
      */
-    private void loadImage(ConfigurationInfo info) throws Exception {
+    private void loadImage(long imageId) throws Exception {
         
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        ImageData image = browse.getImage(ctx, info.getImageId());
+        ImageData image = browse.getImage(ctx, imageId);
        
         PixelsData pixels = image.getDefaultPixels();
         System.err.println(pixels.getSizeZ()); // The number of z-sections.
@@ -200,7 +200,7 @@ public class ReadData {
      * To learn about the model go to ScreenPlateWell. Note that the wells are
      * not loaded.
      */
-    private void loadScreens(ConfigurationInfo info) throws Exception {
+    private void loadScreens() throws Exception {
         
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<ScreenData> screens = browse.getScreens(ctx);
@@ -230,10 +230,10 @@ public class ReadData {
      * To learn about the model go to ScreenPlateWell. Note that the wells are
      * not loaded.
      */
-    private void loadWells(ConfigurationInfo info) throws Exception {
+    private void loadWells(long plateId) throws Exception {
         
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        Collection<WellData> wells = browse.getWells(ctx, info.getPlateId());
+        Collection<WellData> wells = browse.getWells(ctx, plateId);
 
         Iterator<WellData> i = wells.iterator();
         WellData well;
@@ -249,7 +249,7 @@ public class ReadData {
      * To learn about the model go to ScreenPlateWell. Note that the wells are
      * not loaded.
      */
-    private void loadPlate(ConfigurationInfo info) throws Exception {
+    private void loadPlate() throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<PlateData> plates = browse.getPlates(ctx);
         Iterator<PlateData> i = plates.iterator();
@@ -263,25 +263,14 @@ public class ReadData {
     /**
      * Connects and invokes the various methods.
      * 
-     * @param info
-     *            The configuration information.
+     * @param args The login credentials
+     * @param datasetId The dataset id
+     * @param plateId The plate id
+     * @param imageId The image id
      */
-    ReadData(ConfigurationInfo info) {
-        if (info == null) {
-            info = new ConfigurationInfo();
-            info.setHostName(hostName);
-            info.setPassword(password);
-            info.setUserName(userName);
-            info.setImageId(imageId);
-            info.setDatasetId(datasetId);
-            info.setPlateId(plateId);
-        }
+    ReadData(String[] args, long datasetId, long plateId, long imageId) {
 
-        LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+        LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
 
@@ -289,13 +278,13 @@ public class ReadData {
             user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
             
-            loadProjects(info);
-            loadDatasets(info);
-            loadImagesInDataset(info);
-            loadImage(info);
-            loadScreens(info);
-            loadWells(info);
-            loadPlate(info);
+            loadProjects();
+            loadDatasets();
+            loadImagesInDataset(datasetId);
+            loadImage(imageId);
+            loadScreens();
+            loadWells(plateId);
+            loadPlate();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -311,7 +300,11 @@ public class ReadData {
      * @param args
      */
     public static void main(String[] args) {
-        new ReadData(null);
+        if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                    "--omero.user=" + userName, "--omero.pass=" + password };
+        
+        new ReadData(args, datasetId, plateId, imageId);
         System.exit(0);
     }
 

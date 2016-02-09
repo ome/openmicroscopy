@@ -784,6 +784,8 @@ public class TreeCellRenderer
                 int l = text.length();
                 int valueWidth = fm.stringWidth(value);
                 while (valueWidth > targetWidth) {
+                    if (l == 0)
+                        return "";
                     value = UIUtilities.formatPartialName(text, --l);
                     valueWidth = fm.stringWidth(value);
                 }
