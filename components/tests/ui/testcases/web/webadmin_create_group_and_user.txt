@@ -6,6 +6,7 @@ Documentation       A test suite with a single test for valid login.
 ...                 the imported resource file.
 
 Resource            ../../resources/web/webadmin.txt
+Resource            ../../resources/web/tree.txt
 Resource            ../../resources/config.txt
 
 Suite Setup         Open Browser To Webadmin And Log In As Root
@@ -98,9 +99,8 @@ Create Edit Group
     
 
 Create Edit User
-    Click Link                          link=Users
-    
-    Click Link                          link=Add new User
+    Go To                                   ${USERS URL}
+    Click Link                              link=Add new User
     
     ${user_name}            Unique name     test_user
     Input Text              omename         ${user_name}
@@ -131,7 +131,7 @@ Create Edit User
     Input Text              id_old_password     ${ROOT PASSWORD}
     Input Text              id_password         ${user_name}new
     Input Text              id_confirmation     ${user_name}new
-    Click Element           xpath=//button[contains(@class, "ui-button")][contains(text(), "OK")]
+    Click Dialog Button       OK
     Wait Until Page Contains  Password reset OK
 
     Input Text                  first_name    ${user_name}-Edited
@@ -141,7 +141,7 @@ Create Edit User
 
 Check Admin Edit Self
 
-    Click Link                        link=Users 
+    Go To                             ${USERS URL}
     Click Element                     xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${ROOT FULL NAME}')]]//a[contains(@class, "btn_edit")] 
 
     Wait Until Page Contains Element  id=id_administrator
