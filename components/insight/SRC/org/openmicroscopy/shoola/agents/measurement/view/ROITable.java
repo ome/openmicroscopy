@@ -30,8 +30,10 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
@@ -60,6 +62,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 
 import omero.gateway.model.FolderData;
 
@@ -331,6 +334,25 @@ public class ROITable
 	 */
 	void addROIShapeList(List<ROIShape> shapeList)
 	{
+	    // store the expanded state of the nodes
+	    Set<String> expandedNodeIds = new HashSet<String>();
+        Collection<ROINode> tmp = new ArrayList<ROINode>();
+        root.getAllDecendants(tmp);
+        for (ROINode n : tmp) {
+            if (n.isExpanded()) {
+                Object uo = n.getUserObject();
+                if (uo != null) {
+                    if (uo instanceof ROI)
+                        expandedNodeIds.add("ROI_"+((ROI) uo).getID());
+                    else if (uo instanceof ROIShape)
+                        expandedNodeIds.add("Shape_"+((ROIShape) uo).getID());
+                    else if (uo instanceof FolderData)
+                        expandedNodeIds.add("Folder_"+((FolderData) uo).getId());
+                }
+            }
+        }
+        
+        // rebuild the nodes
 		ROINode parent = null;
 		int childCount;
 		ROINode roiShapeNode;
@@ -407,7 +429,26 @@ public class ROITable
 		}
 		model = new ROITableModel(root, columnNames);
 		this.setTreeTableModel(model);
-		if (parent != null) expandROIRow(parent);
+		
+		// restore the expanded state
+        tmp.clear();
+        root.getAllDecendants(tmp);
+        for (ROINode n : tmp) {
+            Object uo = n.getUserObject();
+            if (uo != null) {
+                String id = "";
+                if (uo instanceof ROI)
+                    id = "ROI_"+((ROI) uo).getID();
+                else if (uo instanceof ROIShape)
+                    id = "Shape_"+((ROIShape) uo).getID();
+                else if (uo instanceof FolderData)
+                    id = "Folder_"+((FolderData) uo).getId();
+
+                if (expandedNodeIds.contains(id))
+                    expandNode(n);
+            }
+        }
+		
 	}
 
 	/** 
@@ -558,8 +599,8 @@ public class ROITable
             ROINode node = findFolderNode(nodes, f);
             if (node == null) {
                 node = new ROINode(f);
-                root.insert(node, 0);
                 nodes.add(node);
+                handleParentFolderNodes(node);
             }
             insertInto.add(node);
         }
@@ -568,6 +609,30 @@ public class ROITable
     }
     
     /**
+     * Adds the node to the parent; will create the parent hierarchy
+     * if it doesn't exist yet.
+     * @param node The Node
+     */
+    void handleParentFolderNodes(ROINode node) {
+        FolderData parentFolder = ((FolderData) node.getUserObject())
+                .getParentFolder();
+        if (parentFolder == null) {
+            root.insert(node, 0);
+            return;
+        }
+
+        ROINode parent = findFolderNode(nodes, parentFolder);
+        if (parent == null) {
+            parent = new ROINode(parentFolder);
+            nodes.add(parent);
+            parent.insert(node, 0);
+            handleParentFolderNodes(parent);
+        } else if (parent.findChild((FolderData) node.getUserObject()) == null) {
+            parent.insert(node, 0);
+        }
+    }
+    
+    /** 
      * Find the {@link ROINode} for a certain {@link FolderData} within a
      * collection of {@link ROINode}s
      * 
@@ -808,27 +873,53 @@ public class ROITable
 			"planes and must include more than one.");	
 	}
 
-	/** 
-	 * Propagates the ROI.
-	 * 
-	 * @see ROIActionController#propagateROI()
-	 */
-	public void propagateROI()
-	{
-		manager.showReadyMessage();
-		if (this.getSelectedRows().length != 1)
-		{
-			manager.showMessage("Propagate: Only one ROI may be " +
-					"propagated at a time.");
-			return;
-		}
-		ROINode node = (ROINode) this.getNodeAtRow(this.getSelectedRow());
-		Object nodeObject = node.getUserObject(); 
-		if (nodeObject instanceof ROI)
-			manager.propagateROI(((ROI)nodeObject));
-		if (nodeObject instanceof ROIShape)
-			manager.propagateROI(((ROIShape)nodeObject).getROI());
-	}
+    /**
+     * Propagates the ROI.
+     * 
+     * @see ROIActionController#propagateROI()
+     */
+    public void propagateROI() {
+        manager.showReadyMessage();
+        ROI roi = null;
+        for (int i : getSelectedRows()) {
+            ROINode n = (ROINode) this.getNodeAtRow(i);
+            Object obj = n.getUserObject();
+            if (roi != null) {
+                if (n.isROINode()) {
+                    if (((ROI) obj).getID() != roi.getID()) {
+                        manager.showMessage("Propagate: Only one ROI may be "
+                                + "propagated at a time.");
+                        return;
+                    }
+                } else if (n.isShapeNode()) {
+                    if (((ROIShape) obj).getROI().getID() != roi.getID()) {
+                        manager.showMessage("Propagate: Only one ROI may be "
+                                + "propagated at a time.");
+                        return;
+                    }
+                } else {
+                    manager.showMessage("Propagate: No ROI selected.");
+                    return;
+                }
+            } else {
+                if (n.isROINode())
+                    roi = (ROI) obj;
+                else if (n.isShapeNode())
+                    roi = ((ROIShape) obj).getROI();
+                else {
+                    manager.showMessage("Propagate: No ROI selected.");
+                    return;
+                }
+            }
+        }
+
+        if (roi != null)
+            manager.propagateROI(roi);
+        else {
+            manager.showMessage("Propagate: No ROI selected.");
+            return;
+        }
+    }
 
 	/** 
 	 * Splits the ROI.
@@ -917,16 +1008,45 @@ public class ROITable
 		ROINode node = (ROINode) getNodeAtRow(row);
 		if (node == null) return "";
 		Object object = node.getUserObject();
-		if (object instanceof ROI) {
+		if (node.isROINode()) {
 			ROI roi = (ROI) object;
 			return AnnotationKeys.TEXT.get(roi);
-		} else if (object instanceof ROIShape) {
+		} else if (node.isShapeNode()) {
 			ROIShape s = (ROIShape) object;
 			return ""+s.getFigure().getAttribute(MeasurementAttributes.TEXT);
+		}
+		else if(node.isFolderNode()) {
+		    FolderData f = (FolderData) object;
+		    StringBuilder sb = new StringBuilder();
+		    generatePath(f, sb, '>');
+		    return sb.toString();
 		}
 		return "";
 	}
 
+    /**
+     * Generates the path string of a {@link FolderData}
+     * 
+     * @param f
+     *            The folder
+     * @param sb
+     *            The {@link StringBuilder} the path is written to
+     * @param pathSeparator
+     *            The path separator character
+     */
+    private void generatePath(FolderData f, StringBuilder sb, char pathSeparator) {
+        sb.insert(0, f.getName());
+        FolderData parent = f.getParentFolder();
+        if (parent != null) {
+            if (parent.isLoaded()) {
+                sb.insert(0, pathSeparator);
+                generatePath(f.getParentFolder(), sb, pathSeparator);
+            } else
+                MeasurementAgent.getRegistry().getLogger()
+                        .warn(this, "FolderData hierarchy not loaded.");
+        }
+    }
+    
 	/** 
      * Loads the tags. 
      * 

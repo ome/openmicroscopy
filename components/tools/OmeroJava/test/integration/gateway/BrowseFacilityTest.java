@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,12 +22,12 @@ package integration.gateway;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.model.Dataset;
 import omero.model.IObject;
 
 import org.testng.Assert;
@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -68,6 +69,11 @@ public class BrowseFacilityTest extends GatewayTest {
     private ScreenData screen2;
     private PlateData plate2;
     private ImageData img2;
+    
+    private FolderData userFolder1;
+    private FolderData userFolder2;
+    private FolderData userFolder3;
+    private FolderData user2Folder;
     
     @Override
     @BeforeClass(alwaysRun = true)
@@ -272,6 +278,56 @@ public class BrowseFacilityTest extends GatewayTest {
         Assert.assertNull(tmp);
     }
 
+    @Test
+    public void testGetFolders() throws DSOutOfServiceException,
+            DSAccessException {
+        SecurityContext ctx = new SecurityContext(group.getId());
+        Collection<FolderData> tmp = browseFacility.getFolders(ctx);
+        Assert.assertEquals(tmp.size(), 4);
+        Iterator<FolderData> it = tmp.iterator();
+        while (it.hasNext()) {
+            FolderData f = it.next();
+            if (f.getId() == userFolder1.getId()
+                    || f.getId() == userFolder2.getId()
+                    || f.getId() == userFolder3.getId()
+                    || f.getId() == user2Folder.getId())
+                it.remove();
+        }
+        Assert.assertTrue(tmp.isEmpty());
+    }
+    
+    @Test
+    public void testGetFoldersById() throws DSOutOfServiceException,
+            DSAccessException {
+        SecurityContext ctx = new SecurityContext(group.getId());
+
+        Collection<Long> ids = new ArrayList<Long>(2);
+        ids.add(userFolder1.getId());
+        ids.add(userFolder2.getId());
+
+        Collection<FolderData> tmp = browseFacility.getFolders(ctx, ids);
+        Assert.assertEquals(2, tmp.size());
+        Iterator<FolderData> it = tmp.iterator();
+        while (it.hasNext()) {
+            FolderData f = it.next();
+            if (f.getId() == userFolder1.getId()
+                    || f.getId() == userFolder2.getId())
+                it.remove();
+        }
+        Assert.assertTrue(tmp.isEmpty());
+    }
+    
+    @Test
+    public void testGetFoldersByUserId() throws DSOutOfServiceException,
+            DSAccessException {
+        SecurityContext ctx = new SecurityContext(user2.getGroupId());
+        Collection<FolderData> tmp = browseFacility.getFolders(ctx,
+                user2.getId());
+        Assert.assertEquals(1, tmp.size());
+        FolderData f = tmp.iterator().next();
+        Assert.assertEquals(user2Folder.getId(), f.getId());
+    }
+    
     private void initData() throws Exception {
         this.group = createGroup();
         this.user = createExperimenter(group);
@@ -287,7 +343,10 @@ public class BrowseFacilityTest extends GatewayTest {
         this.screen = createScreen(ctx);
         this.plate = createPlate(ctx, screen);
         this.img = createImage(ctx, ds);
-
+        this.userFolder1 = createFolder(ctx);
+        this.userFolder2 = createFolder(ctx);
+        this.userFolder3 = createFolder(ctx);
+        
         ctx = new SecurityContext(group.getId());
         ctx.setExperimenter(user2);
         ctx.sudo();
@@ -297,6 +356,8 @@ public class BrowseFacilityTest extends GatewayTest {
         this.screen2 = createScreen(ctx);
         this.plate2 = createPlate(ctx, screen2);
         this.img2 = createImage(ctx, ds2);
+        
+        this.user2Folder = createFolder(ctx);
     }
 
 }

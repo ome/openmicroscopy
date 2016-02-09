@@ -116,7 +116,7 @@ public class ROITableCellRenderer
 		} else if (node.isFolderNode()) {
 		    FolderData folder = (FolderData) node.getUserObject();
 		    setIcon(FOLDER_ICON);
-            setText("Folder: "+folder.getName());
+            setText("Folder: "+folder.getName()+" ["+node.getChildCount()+"]");
 		}
 		return this;
 	}

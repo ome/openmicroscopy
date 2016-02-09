@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,16 +22,20 @@ package omero.gateway.facility;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import omero.ServerError;
+import omero.api.IQueryPrx;
 import omero.api.IRoiPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RoiOptions;
@@ -43,6 +47,7 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIResult;
 import omero.gateway.util.ModelMapper;
 import omero.gateway.util.PyTablesUtils;
+import omero.model.FolderRoiLink;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -50,6 +55,8 @@ import omero.model.Line;
 import omero.model.Polyline;
 import omero.model.Roi;
 import omero.model.Shape;
+import omero.sys.ParametersI;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ROICoordinate;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
@@ -66,8 +73,12 @@ import omero.gateway.util.PojoMapper;
 
 public class ROIFacility extends Facility {
 
+    /** Reference to the DataManagerFacility */
     private DataManagerFacility dm;
-
+    
+    /** Reference to the BrowseFacility */
+    private BrowseFacility browse;
+    
     /**
      * Creates a new instance
      * @param gateway Reference to the {@link Gateway}
@@ -76,6 +87,7 @@ public class ROIFacility extends Facility {
     ROIFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.dm = gateway.getFacility(DataManagerFacility.class);
+        this.browse = gateway.getFacility(BrowseFacility.class);
     }
 
     /**
@@ -219,6 +231,21 @@ public class ROIFacility extends Facility {
                     results.add(result);
                 }
             }
+            
+            // load the ROI folders
+            Collection<FolderData> folders = browse.getFolders(ctx);
+            Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
+            for(FolderData f : folders) {
+                folderById.put(f.getId(), f);
+            }
+            
+            for(ROIResult rr : results) {
+                for(ROIData roi : rr.getROIs()) {
+                    for(FolderData folder : roi.getFolders()) {
+                        initFolders(folder, folderById);
+                    }
+                }
+            }
         } catch (Exception e) {
             handleException(this, e, "Cannot load the ROI for image: "
                     + imageID);
@@ -226,6 +253,26 @@ public class ROIFacility extends Facility {
         return results;
     }
 
+    /**
+     * Helper method for properly initializing a FolderData; i. e. making sure
+     * parent folders are loaded
+     * 
+     * @param f
+     *            The Folder
+     * @param folders
+     *            All available, loaded Folders
+     */
+    private void initFolders(FolderData f, Map<Long, FolderData> folders) {
+        FolderData f2 = folders.get(f.getId());
+        if (f2 != null) {
+            f.setFolder(f2.asFolder());
+        }
+
+        if (f.getParentFolder() != null) {
+            initFolders(f.getParentFolder(), folders);
+        }
+    }
+    
     /**
      * Save the ROI for the image to the server.
      *
@@ -503,5 +550,131 @@ public class ROIFacility extends Facility {
         }
         return new ArrayList<ROIData>();
     }
+    
+    /**
+     * Get all ROI folders for a certain image
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param imageId
+     *            The image id
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
+     */
+    public Collection<FolderData> getROIFolders(SecurityContext ctx,
+            long imageId) throws DSOutOfServiceException, DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            StringBuilder sb = new StringBuilder();
+            ParametersI param = new ParametersI();
+            param.addLong("imageId", imageId);
 
+            sb.append("select roilink from FolderRoiLink as roilink ");
+            sb.append("left outer join fetch roilink.parent as folder ");
+            sb.append("left outer join fetch roilink.child as roi ");
+            sb.append("left outer join fetch roi.image as image ");
+            sb.append("where image.id = :imageId ");
+
+            List<IObject> links = qs.findAllByQuery(sb.toString(), param);
+            Collection<FolderData> result = new ArrayList<FolderData>();
+
+            for (IObject l : links) {
+                FolderRoiLink link = (FolderRoiLink) l;
+                result.add(new FolderData(link.getParent()));
+            }
+
+            // filter out duplicate FolderData
+            // TODO: Check if this can be done in the query itself (select
+            // distinct)
+            Set<Long> ids = new HashSet<Long>();
+            Iterator<FolderData> it = result.iterator();
+            while (it.hasNext()) {
+                FolderData next = it.next();
+                if (ids.contains(next.getId())) {
+                    it.remove();
+                    continue;
+                }
+                ids.add(next.getId());
+            }
+
+            return result;
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load ROI folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Get all ROIs which are part of a certain folder
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param imageId
+     *            The image id
+     * @param folderId
+     *            The folder id
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
+     */
+    public Collection<ROIResult> loadROIsForFolder(SecurityContext ctx,
+            long imageId, long folderId) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            // TODO: This should actually happen on the server; replace
+            //      with server-side method when available
+            
+            // get all ROIResults
+            List<ROIResult> roiresults = loadROIs(ctx, imageId);
+
+            // get the ROIs of the specified folder
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            StringBuilder sb = new StringBuilder();
+            ParametersI param = new ParametersI();
+            param.addLong("folderId", folderId);
+
+            sb.append("select roilink from FolderRoiLink as roilink ");
+            sb.append("left outer join fetch roilink.parent as folder ");
+            sb.append("left outer join fetch roilink.child as roi ");
+            sb.append("where folder.id = :folderId ");
+
+            List<IObject> links = qs.findAllByQuery(sb.toString(), param);
+
+            Set<Long> roiIds = new HashSet<Long>();
+            for (IObject l : links) {
+                FolderRoiLink link = (FolderRoiLink) l;
+                roiIds.add(link.getChild().getId().getValue());
+            }
+
+            // filter the ROIResults
+            Iterator<ROIResult> it = roiresults.iterator();
+            while (it.hasNext()) {
+                ROIResult r = it.next();
+                Iterator<ROIData> it2 = r.getROIs().iterator();
+                while (it2.hasNext()) {
+                    ROIData roi = it2.next();
+                    if (!roiIds.contains(roi.getId()))
+                        it2.remove();
+                }
+
+                if (r.getROIs().isEmpty())
+                    it.remove();
+            }
+
+            return roiresults;
+
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load ROIs for folder " + folderId);
+        }
+
+        return Collections.EMPTY_LIST;
+    }
 }
