@@ -523,7 +523,7 @@ def _marshal_image_deleted(conn, image_id):
 def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                    load_pixels=False, group_id=-1, experimenter_id=-1,
                    page=1, date=False, thumb_version=False,
-                   limit=settings.PAGE):
+                   filter_text=None, limit=settings.PAGE):
 
     ''' Marshals images
 
@@ -642,6 +642,14 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                 select ws from WellSample ws
                 where ws.image.id = image.id
             )
+            """
+        )
+
+    if filter_text is not None:
+        params.add("filter_text", wrap("%"+filter_text+"%"))
+        where_clause.append(
+            """
+            image.name like :filter_text
             """
         )
 

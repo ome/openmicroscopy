@@ -19911,8 +19911,8 @@ var renderCentrePanel =
 	        console.log("setFilterText", filterText);
 	        var inst = this.props.inst;
 
-	        inst.search(filterText);
-	        // inst.filter(filterText);
+	        // inst.search(filterText);
+	        inst.filter(this.props.parentNode, filterText);
 
 	        // this.setState({filterText: filterText});
 	        // setTimeout(this.deselectHiddenThumbs, 50);

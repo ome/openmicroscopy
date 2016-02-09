@@ -707,6 +707,7 @@ def api_image_list(request, conn=None, **kwargs):
         date = get_bool_or_default(request, 'date', False)
         experimenter_id = get_long_or_default(request,
                                               'experimenter_id', -1)
+        filter_text = request.GET.get('filter', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -728,6 +729,7 @@ def api_image_list(request, conn=None, **kwargs):
                                      page=page,
                                      date=date,
                                      thumb_version=thumb_version,
+                                     filter_text=filter_text,
                                      limit=limit)
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)

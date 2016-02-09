@@ -463,6 +463,14 @@ $(function() {
                     }
                 }
 
+                // If the node is currently being filtered...
+                if (node.id !== '#') {
+                    var filter_text = $('#' + node.id).data('filter');
+                    if (filter_text && filter_text.length > 0) {
+                        payload['filter'] = $('#' + node.id).data('filter');
+                    }
+                }
+
                 // Always add the group_id from the current context
                 payload['group'] = WEBCLIENT.active_group_id;
 

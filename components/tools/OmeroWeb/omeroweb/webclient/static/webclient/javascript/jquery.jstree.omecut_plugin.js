@@ -6,12 +6,25 @@
 
     $.jstree.plugins.filter = function (options, parent) {
 
-        this.filter = function(parent, filterString) {
-            console.log("jstree.filter...", parent, filterString);
+        this.filter = function(obj, filterString) {
+            console.log("jstree.filter...", obj, filterString);
 
-            // var p = this.get_node(parent);
-            // console.log(p);
-            this.search(filterString);
+            // Copied from jstree.js
+            if(!obj) { obj = this._data.core.selected.concat(); }
+            if(!$.isArray(obj)) { obj = [obj]; }
+            if(!obj.length) { return false; }
+
+            var o, t1, t2, $node;
+            for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+                o = this.get_node(obj[t1]);
+                if(o && o.id && o.id !== '#') {
+                    // jstree uses this regex to parse node.id
+                    $node = $('#' + o.id.replace($.jstree.idregex,'\\$&'), this.element);
+                    // set the filter as data, then refresh node
+                    $node.data("filter", filterString);
+                    this.refresh_node(o);
+                }
+            }
         };
     };
 
