@@ -181,10 +181,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def getOrphanedContainerSettings(self):
         """
-        ** Deprecated ** Use :meth:`BlitzGateway.getOrphanedContainerSettings`.
+        ** Deprecated ** Use :meth:`BlitzGateway.getOrphanedImagesSettings`.
         """
         warnings.warn(
-            "Deprecated. Use BlitzGateway.getOrphanedContainerSettings()",
+            "Deprecated. Use BlitzGateway.getOrphanedImagesSettings()",
             DeprecationWarning)
         name = (self.getConfigService().getConfigValue(
                 "omero.client.ui.tree.orphans.name") or "Orphaned image")
