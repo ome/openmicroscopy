@@ -24,10 +24,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
+import omero.model.OriginalFile;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +44,10 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractFileTransfer implements FileTransfer {
 
+    static final String LINE = "\n---------------------------------------------------\n";
+
+    static final String SEPARATOR = System.getProperty("line.separator");
+    
     /**
      * Enum of well-known {@link FileTransfer} names.
      * Note: these values are also in use in the fs.py
@@ -202,6 +209,117 @@ public abstract class AbstractFileTransfer implements FileTransfer {
             }
             printLine();
             throw new CleanupFailure(failedFiles);
+        }
+    }
+
+    /**
+     * Build a path of the form "root.path/root.name/file.path/file.name".
+     *
+     * @param root the root directory
+     * @param ofile a path relative to the root
+     * @return the assembled path with separators suitable for the local filesystem
+     */
+    protected File getLocalLocation(OriginalFile root, OriginalFile ofile) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(root.getPath().getValue());
+        sb.append(File.separatorChar);
+        sb.append(root.getName().getValue());
+        sb.append(File.separatorChar);
+        sb.append(ofile.getPath().getValue());
+        sb.append(File.separatorChar);
+        sb.append(ofile.getName().getValue());
+        return new File(sb.toString());
+    }
+
+    /**
+     * Check that the target location: 1) doesn't exist and 2) is properly
+     * written to by the server. If either condition fails, no linking takes
+     * place.
+     *
+     * @param location the source file
+     * @param rawFileStore the target on the server
+     * @throws ServerError if the raw file store could not be used
+     * @throws IOException for problems with the source file
+     */
+    protected void checkLocation(File location, RawFileStorePrx rawFileStore)
+            throws ServerError, IOException {
+
+        final String uuid = UUID.randomUUID().toString();
+
+        // Safety measures
+        if (location.exists()) {
+            throw new RuntimeException(location + " exists!");
+        }
+
+        // First we guarantee that we have the right file
+        // If so, we remove it
+        try {
+            rawFileStore.write(uuid.getBytes(), 0, uuid.getBytes().length);
+        } finally {
+            rawFileStore.close();
+        }
+        try {
+            if (!location.exists()) {
+                throw failLocationCheck(location, "does not exist");
+            } else if (!location.canRead()) {
+                throw failLocationCheck(location, "cannot be read");
+            } else if (!uuid.equals(FileUtils.readFileToString(location))) {
+                throw failLocationCheck(location, "does not match check text");
+            }
+        } finally {
+            if (!location.canWrite()) {
+                throw failLocationCheck(location, "cannot be modified locally");
+            } else {
+                boolean deleted = FileUtils.deleteQuietly(location);
+                if (!deleted) {
+                    throw failLocationCheck(location, "could not be cleaned up");
+                }
+            }
+        }
+    }
+
+    protected RuntimeException failLocationCheck(File location, String msg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(LINE);
+        sb.append(String.format("Check failed: %s %s!\n", location, msg));
+        sb.append("You likely do not have access to the ManagedRepository ");
+        sb.append("for in-place import.\n");
+        sb.append("Aborting...");
+        sb.append(LINE);
+        throw new RuntimeException(sb.toString());
+    }
+    /**
+     * Check that the server can properly read the copied file.
+     *
+     * Like {@link #checkLocation(File, RawFileStorePrx)} but <em>after</em>
+     * the invocation of {@link #exec(File, File)}, there is some chance, likely
+     * due to file permissions, that the server will not be able to read the
+     * transfered file. If so, raise an exception and leave the user to cleanup
+     * and modifications.
+     */
+    protected void checkTarget(File location, TransferState state) throws ServerError {
+        try {
+            state.getUploader("r").size();
+        } catch (Throwable t) {
+            String message;
+            if (t instanceof ServerError) {
+                message = ((ServerError) t).message;
+            } else {
+                message = t.getMessage();
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append(t.getClass().getName());
+            sb.append(" : ");
+            sb.append(message);
+            sb.append("\nThe server could not check the size of the file:\n");
+            sb.append("-----------------------------------------------\n");
+            sb.append(location);
+            sb.append("\n-----------------------------------------------\n");
+            sb.append("Most likely the server process has no read access\n");
+            sb.append("and therefore in-place import cannot proceed. You\n");
+            sb.append("should delete this file manually if you are sure\n");
+            sb.append("that the original is safe.\n");
+            throw new RuntimeException(sb.toString());
         }
     }
 
