@@ -24,17 +24,23 @@ $(function() {
     // Select jstree and then cascade handle events and setup the tree.
     var jstree = $("#dataTree")
     .on('changed.jstree', function (e, data) {
+        // E.g. notify of de-selection
+        OME.tree_selection_changed(data, e);
+    })
+    //     var inst = data.instance;
+    //     buttonsShowHide(inst.get_selected(true), inst);
+
+    //     // Load on selection, but not open because that breaks key navigation
+    //     if (data.node &&
+    //         inst.is_parent(data.node) &&
+    //         !inst.is_loaded(data.node) &&
+    //         !inst.is_loading(data.node)) {
+    //         inst.load_node(data.node);
+    //     }
+    .on('select_node.jstree', function(e, data) {
+        // When selection changes, trigger change for other panels
         var inst = data.instance;
         buttonsShowHide(inst.get_selected(true), inst);
-
-        // Load on selection, but not open because that breaks key navigation
-        if (data.node &&
-            inst.is_parent(data.node) &&
-            !inst.is_loaded(data.node) &&
-            !inst.is_loading(data.node)) {
-            inst.load_node(data.node);
-        }
-
         OME.tree_selection_changed(data, e);
     })
     .on('copy_node.jstree', function(e, data) {
