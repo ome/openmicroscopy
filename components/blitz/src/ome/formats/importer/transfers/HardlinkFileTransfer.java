@@ -31,6 +31,7 @@ import java.util.List;
  * "mklink /H target source" (Windows) will work.
  *
  * @since 5.0
+ * @deprecated replaced by HardlinkFileTransfer2
  */
 public class HardlinkFileTransfer extends AbstractExecFileTransfer {
 

@@ -35,6 +35,7 @@ import omero.model.OriginalFile;
  * This is only useful where the command "ln -s source target" will work.
  *
  * @since 5.0
+ * @deprecated replaced by AbstractExecFileTransfer2
  */
 public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
 
