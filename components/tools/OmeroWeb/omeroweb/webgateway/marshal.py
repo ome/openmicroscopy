@@ -163,7 +163,7 @@ def imageMarshal(image, key=None, request=None):
                 size = method('MICROMETER')
                 return size.getValue() if size else None
             except:
-                logger.warn(
+                logger.debug(
                     'Unable to convert physical pixel size to microns',
                     exc_info=True
                 )
