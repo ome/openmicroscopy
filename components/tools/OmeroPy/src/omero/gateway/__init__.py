@@ -8979,10 +8979,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return the type of file transfer.
         One of:
         'ome.formats.importer.transfers.MoveFileTransfer',
-        'ome.formats.importer.transfers.CopyFileTransfer',
+        'ome.formats.importer.transfers.CopyFileTransfer2',
         'ome.formats.importer.transfers.CopyMoveFileTransfer',
-        'ome.formats.importer.transfers.HardlinkFileTransfer',
-        'ome.formats.importer.transfers.SymlinkFileTransfer'
+        'ome.formats.importer.transfers.HardlinkFileTransfer2',
+        'ome.formats.importer.transfers.SymlinkFileTransfer2'
 
         :rtype:     String or None
         :return:    Transfer type or None
