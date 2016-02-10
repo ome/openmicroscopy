@@ -98,7 +98,6 @@ var CentrePanel = React.createClass({
                         parentNode={parentNode}
                         inst={inst}
                         filterText={this.state.filterText}
-                        setThumbsToDeselect={this.setThumbsToDeselect}
                         iconSize={this.state.iconSize}
                         layout={this.state.layout} />
                 )

@@ -18,33 +18,7 @@ var IconTable = React.createClass({
     setFilterText: function(filterText) {
         console.log("setFilterText", filterText);
         var inst = this.props.inst;
-
-        // inst.search(filterText);
         inst.filter(this.props.parentNode, filterText);
-
-        // this.setState({filterText: filterText});
-        // setTimeout(this.deselectHiddenThumbs, 50);
-    },
-
-    deselectHiddenThumbs: function() {
-        var imageIds = this._thumbsToDeselect;
-        console.log("deselectHiddenThumbs", imageIds);
-
-        if (imageIds.length === 0) {
-            return;
-        }
-        var inst = this.props.inst;
-        var containerNode = OME.getTreeImageContainerBestGuess(imageIds[0]);
-        if (containerNode) {
-            imageIds.forEach(function(iid){
-                var selectedNode = inst.locate_node('image-' + iid, containerNode)[0];
-                inst.deselect_node(selectedNode, true);
-            });
-        }
-    },
-
-    setThumbsToDeselect: function(imageIds) {
-        this._thumbsToDeselect = imageIds;
     },
 
     componentDidMount: function() {
@@ -76,14 +50,6 @@ var IconTable = React.createClass({
         var inst = this.props.inst;
         var containerNode = OME.getTreeImageContainerBestGuess(imageId);
         var selectedNode = inst.locate_node('image-' + imageId, containerNode)[0];
-
-        // Deselect all to begin (supress jstree event)
-        // inst.deselect_all(true);
-        // inst.select_node(selectedNode, true);
-
-        // Simply allow jstree to handle selection ranges etc by delegating
-        // the event.
-        // TODO: this fails when we have some thumbnails hidden (still get selected in range)
         var keys = {
             shiftKey: event.shiftKey,
             metaKey: event.metaKey
@@ -110,7 +76,6 @@ var IconTable = React.createClass({
 
         var imgJson = [],
             selFileSets = [],
-            thumbsToDeselect = [],
             fltr = this.state.filterText;
         // Convert jsTree nodes into json for template
         imgNodes.forEach(function(node){
@@ -151,15 +116,8 @@ var IconTable = React.createClass({
                 iData.shareId = node.data.obj.shareId;
             }
 
-            if (fltr.length === 0 || iData.name.indexOf(fltr) > -1) {
-                imgJson.push(iData);
-            } else if (iData.selected) {
-                thumbsToDeselect.push(iData.id);
-            }
+            imgJson.push(iData);
         });
-
-        // Let parent know that some aren't shown
-        this.setThumbsToDeselect(thumbsToDeselect);
 
         // Now we know which filesets are selected, we can
         // go through all images, adding fs-selection flag if in
