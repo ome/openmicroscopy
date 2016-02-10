@@ -581,6 +581,8 @@ public class TreeViewerTranslator
             return transformPlate((PlateData) object, null);
         else if (object instanceof TagAnnotationData)
             return transformTag((TagAnnotationData) object);
+        else if (object instanceof FolderData)
+            return transformFolder((FolderData) object);
         throw new IllegalArgumentException("Data Type not supported.");
     }
 

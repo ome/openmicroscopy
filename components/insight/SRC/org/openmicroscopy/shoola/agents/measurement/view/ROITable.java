@@ -1049,7 +1049,7 @@ public class ROITable
     public void addToFolder() {
         addAction = true;
         Collection<Object> tmp = new ArrayList<Object>(availableFolders.values());
-        SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, MeasurementAgent.getUserDetails());
+        SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
         wiz.setTitle("Add to ROI Folders", "Select the Folders to add the ROI(s) to", IconManager.getInstance().getIcon(IconManager.ROIFOLDER));
         wiz.addPropertyChangeListener(this);
         UIUtilities.centerAndShow(wiz);
@@ -1066,7 +1066,7 @@ public class ROITable
                     inFolders.put(f.getId(), f);
             }
         }
-
+        
         SelectionWizard wiz = new SelectionWizard(null, inFolders.values(),
                 FolderData.class, MeasurementAgent.getUserDetails());
         wiz.setTitle("Remove from ROI Folders",

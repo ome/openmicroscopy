@@ -572,5 +572,17 @@ class ObjectManager
         }
         model.removeROIsFromFolder(rois.values(), folders);
     }
+    
+    /**
+     * Checks if the current image is editable by the user
+     * 
+     * @return See above.
+     */
+    public boolean canEdit() {
+        if (model.getImage() == null)
+            return false;
+        else
+            return model.getImage().canEdit();
+    }
 }
 
