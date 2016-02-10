@@ -701,8 +701,8 @@ Examples:
         """Shows the disk usage for various objects.
 
 This command shows the total disk usage of various objects including:
-ExperimenterGroup, Experimenter, Project, Dataset, Screen, Plate, Well,
-WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+ExperimenterGroup, Experimenter, Project, Dataset, Folder, Screen, Plate,
+Well, WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
 The total size returned will comprise the disk usage by all related files. Thus
 an image's size would typically include the files uploaded to a fileset,
 import log (Job), thumbnails, and, possibly, associated pixels or original
