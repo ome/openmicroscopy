@@ -9,22 +9,63 @@
         this.filter = function(obj, filterString) {
             console.log("jstree.filter...", obj, filterString);
 
-            // Copied from jstree.js
-            if(!obj) { obj = this._data.core.selected.concat(); }
-            if(!$.isArray(obj)) { obj = [obj]; }
-            if(!obj.length) { return false; }
+            if (!obj) {return false};
+            obj = this.get_node(obj);
 
-            var o, t1, t2, $node;
-            for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
-                o = this.get_node(obj[t1]);
-                if(o && o.id && o.id !== '#') {
+            // Copied from jstree.js
+            // if(!obj) { obj = this._data.core.selected.concat(); }
+            // if(!$.isArray(obj)) { obj = [obj]; }
+            // if(!obj.length) { return false; }
+
+            var selectedNodeIds = [],
+                inst = this;
+
+            var reselectNodes = function reselectNodes() {
+                console.log("LOADED", arguments);
+                inst.deselect_all(true);
+                selectedNodeIds.forEach(function(id){
+                    var n = inst.locate_node(id, obj)[0];
+                    console.log('locate_node', n);
+                    if (n) {
+                        console.log("SELECTING...", n);
+                        inst.select_node(n, true);
+                    }
+                }.bind(this));
+            }.bind(this);
+
+            $("#dataTree").one("load_node.jstree", reselectNodes);
+
+            // var o, t1, t2, $node;
+            // for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+                // obj = this.get_node(obj[t1]);
+
+                // If parent node not selected,
+                // get IDs of currently selected nodes
+                if (!this.is_selected(obj)) {
+                    this.get_selected(true).forEach(function(n){
+                        selectedNodeIds.push(n.type + "-" + n.data.obj.id);
+                    });
+                }
+                console.log('selectedNodeIds', selectedNodeIds);
+
+                // clear selection (supress jstree event)
+                this.deselect_all(true);
+                // reselectNodes();
+
+                if(obj.id && obj.id !== '#') {
                     // jstree uses this regex to parse node.id
-                    $node = $('#' + o.id.replace($.jstree.idregex,'\\$&'), this.element);
+                    var $node = $('#' + obj.id.replace($.jstree.idregex,'\\$&'), this.element);
                     // set the filter as data, then refresh node
                     $node.data("filter", filterString);
-                    this.refresh_node(o);
+
+                    // select the parent node and refresh it
+                    this.select_node(obj);
+                    this.refresh_node(obj);
                 }
-            }
+
+            // }
+            // In case this wasn't called (removed) above
+            // $("#dataTree").off("load_node.jstree", reselectNodes);
         };
     };
 
