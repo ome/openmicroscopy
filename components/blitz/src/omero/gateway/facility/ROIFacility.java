@@ -354,24 +354,28 @@ public class ROIFacility extends Facility {
 
             // 3. Create/Save the ROIFolderLinks
             List<IObject> toSave = new ArrayList<IObject>();
-            for (Roi roi : serverRoiList) {
-                for (FolderData folder : folders) {
-                    boolean linkExists = false;
-                    for (FolderRoiLink link : roi.copyFolderLinks()) {
-                        if (link.getParent().getId().getValue() == folder
-                                .getId()) {
-                            linkExists = true;
-                            break;
+            for(ROIData clientRoi : roiList) {
+                for (Roi roi : serverRoiList) {
+                    if(clientRoi.getId()==roi.getId().getValue()) {
+                        for (FolderData folder : folders) {
+                            boolean linkExists = false;
+                            for (FolderRoiLink link : roi.copyFolderLinks()) {
+                                if (link.getParent().getId().getValue() == folder
+                                        .getId()) {
+                                    linkExists = true;
+                                    break;
+                                }
+                            }
+        
+                            if (!linkExists) {
+                                roi.linkFolder(folder.asFolder());
+                                toSave.add(roi);
+                            }
                         }
-                    }
-
-                    if (!linkExists) {
-                        roi.linkFolder(folder.asFolder());
-                        toSave.add(roi);
                     }
                 }
             }
-
+            
             IUpdatePrx updateService = gateway.getUpdateService(ctx);
             updateService.saveCollection(toSave);
         } catch (Exception e) {

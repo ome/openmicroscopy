@@ -1096,7 +1096,7 @@ public class ROITable
                 type = (Class) entry.getKey();
                 if (FolderData.class.getName().equals(type.getName())) {
                     folders = (Collection<FolderData>) entry.getValue();
-                    System.out.println(folders);
+                    break;
                 }
             }
 
