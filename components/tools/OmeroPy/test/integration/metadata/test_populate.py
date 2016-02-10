@@ -149,10 +149,10 @@ class TestPopulateMetadata(BasePopulate):
         now just run them all together
         """
         try:
-            import PyYAML
-            print PyYAML, "found"
-        except:
-            skip("No PyYAML found")
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
         self._test_parsing_context()
         self._test_bulk_to_map_annotation_context()
         self._test_delete_map_annotation_context()
