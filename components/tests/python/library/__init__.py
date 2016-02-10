@@ -906,7 +906,7 @@ class ITest(object):
         Creates a new tag instance and returns the persisted object.
         :param name: The tag name. If None, a UUID string will be used
         :param client: The client to use to create the object
-        :param ns: The namespace for the annotation
+        :param ns: The namespace for the annotation. If None, do not set.
         """
         if client is None:
             client = self.client

@@ -28,7 +28,7 @@ from omero.util.metadata_utils import NSBULKANNOTATIONSRAW
 HELP = """Metadata utilities
 
 Provides access to and editing of the metadata which
-is typically shown in the right handle panel of the
+is typically shown in the right-hand panel of the
 GUI clients.
 """
 
@@ -467,7 +467,8 @@ class MetadataControl(BaseControl):
             raise Exception("Not implemented for type %s" % md.get_type())
         roiids = client.getSession().getQueryService().projection(q, params)
         roiids = [r[0].val for r in roiids]
-        self.ctx.out('\n'.join('Roi:%d' % rid for rid in roiids))
+        if roiids:
+            self.ctx.out('\n'.join('Roi:%d' % rid for rid in roiids))
 
     def populateroi(self, args):
         "Add ROIs to an object"

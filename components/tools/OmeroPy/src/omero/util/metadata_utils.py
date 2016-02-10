@@ -172,7 +172,7 @@ class KeyValueListPassThrough(object):
         Pass through a table row unchanged
         :param values: A table rows
         :return: A row in the form
-                 [(k1, v1), (k2 v2), ...]
+                 [(k1, v1), (k2, v2), ...]
         """
         assert len(rowvalues) == len(self.headers)
         return rowvalues
@@ -284,9 +284,9 @@ class KeyValueListTransformer(BulkAnnotationConfiguration):
 
     def transform(self, rowvalues):
         """
-        Transform a table rows
+        Transform a table row
         :param rowvalues: A table row
-        :return: The transformed rows in the form [(k1, v1), (k2 v2), ...].
+        :return: The transformed rows in the form [(k1, v1), (k2, v2), ...].
                  v* will be a list of length:
                  - 1 in most cases
                  - 0 if `omitempty=True` and value was empty

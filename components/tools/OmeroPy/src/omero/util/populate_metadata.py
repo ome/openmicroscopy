@@ -464,7 +464,7 @@ class ParsingContext(object):
     def subselect_plate(self, rows, names):
         """
         If we're processing a plate but the bulk-annotations file contains
-        a plate columne then select rows for this plate only
+        a plate column then select rows for this plate only
         """
         for i, name in enumerate(names):
             if name.lower() == 'plate':
@@ -913,7 +913,7 @@ class DeleteMapAnnotationContext(_QueryContext):
             parentids["PlateAcquisition"] = ids
         if parentids["PlateAcquisition"] and not isinstance(target, PlateI):
             # WellSamples are linked to PlateAcqs and Plates, so only get
-            # if they ahven't been obtained via a Plate
+            # if they haven't been obtained via a Plate
             # Also note that we do not get Wells if the parent is a
             # PlateAcquisition since this only refers to the fields in
             # the well
