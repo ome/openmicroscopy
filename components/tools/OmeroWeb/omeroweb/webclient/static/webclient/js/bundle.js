@@ -19950,6 +19950,7 @@ var renderCentrePanel =
 
 	    render: function render() {
 	        var parentNode = this.props.parentNode,
+	            childCount = parentNode.data.obj.childCount,
 	            inst = this.props.inst;
 	        var imgNodes = [];
 	        var dateFormatOptions = {
@@ -20034,6 +20035,8 @@ var renderCentrePanel =
 	            _react2.default.createElement(_IconTableHeader2.default, {
 	                filterText: this.state.filterText,
 	                setFilterText: this.setFilterText,
+	                childCount: childCount,
+	                filteredCount: imgJson.length,
 	                layout: this.state.layout,
 	                setLayout: this.setLayout }),
 	            _react2.default.createElement(
@@ -20125,6 +20128,7 @@ var renderCentrePanel =
 	            filterText = this.props.filterText;
 	        var iconBtnClass = layout === "icon" ? "checked" : "",
 	            tableBtnClass = layout === "table" ? "checked" : "";
+	        var filteredCount = this.props.filteredCount === this.props.childCount ? "" : this.props.filteredCount + " of ";
 	        return _react2.default.createElement(
 	            'div',
 	            { className: 'toolbar iconTableHeader' },
@@ -20158,6 +20162,11 @@ var renderCentrePanel =
 	                        size: 25 })
 	                ),
 	                _react2.default.createElement('span', { className: 'loading', style: { display: 'none' } })
+	            ),
+	            _react2.default.createElement(
+	                'h1',
+	                { className: 'filterCounter' },
+	                filteredCount + this.props.childCount + " images"
 	            )
 	        );
 	    }

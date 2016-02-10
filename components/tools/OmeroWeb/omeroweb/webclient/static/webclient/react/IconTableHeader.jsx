@@ -17,6 +17,7 @@ var IconTableHeader = React.createClass({
             filterText = this.props.filterText;
         var iconBtnClass = layout === "icon" ? "checked" : "",
             tableBtnClass = layout === "table" ? "checked" : "";
+        var filteredCount = this.props.filteredCount === this.props.childCount ? "": this.props.filteredCount + " of ";
         return (
             <div className="toolbar iconTableHeader">
                 <div id="layout_chooser">
@@ -44,6 +45,9 @@ var IconTableHeader = React.createClass({
                     </div>
                     <span className="loading" style={{display: 'none'}} />
                 </form>
+                <h1 className="filterCounter">
+                    {filteredCount + this.props.childCount + " images"}
+                </h1>
             </div>
         );
     }

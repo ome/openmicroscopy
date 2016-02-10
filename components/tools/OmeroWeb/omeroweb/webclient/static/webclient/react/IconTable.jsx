@@ -59,6 +59,7 @@ var IconTable = React.createClass({
 
     render: function() {
         var parentNode = this.props.parentNode,
+            childCount = parentNode.data.obj.childCount,
             inst = this.props.inst;
         var imgNodes = [];
         var dateFormatOptions = {
@@ -144,6 +145,8 @@ var IconTable = React.createClass({
             <IconTableHeader
                     filterText={this.state.filterText}
                     setFilterText={this.setFilterText}
+                    childCount={childCount}
+                    filteredCount={imgJson.length}
                     layout={this.state.layout}
                     setLayout={this.setLayout} />
             <div id="icon_table" className="iconTable">

@@ -1027,6 +1027,14 @@ button::-moz-focus-inner {
 		        transition:   opacity .2s linear; 
 		
 	}
+
+	.filterCounter {
+		padding: 8px 10px;
+		position: absolute;
+		left: 170px;
+		color: #555;
+		font-size: 13px
+	}
 	
 	
 	
