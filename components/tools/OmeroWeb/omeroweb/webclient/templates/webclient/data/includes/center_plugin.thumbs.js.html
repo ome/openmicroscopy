@@ -137,8 +137,27 @@ $(document).ready(function() {
     // E.g. omecut_plugin.js as well as the jstree in containers.html
     window.update_thumbnails_panel = function(event, data) {
 
+
         // Get the current selection
         var selected = inst.get_selected(true);
+
+        // if we're refreshing thumbnail(s) then update thumbVersion in tree first...
+        if ((event.type === "refreshThumbnails" || event.type === "refreshThumb")
+                && selected.length > 0) {
+            var parentNode
+            if (selected[0].type === "image") {
+                parentNode = inst.get_node(inst.get_parent(selected[0]));
+            } else {
+                parentNode = inst.get_node(selected[0]);
+            }
+            parentNode.children.forEach(function(ch){
+                ch = inst.get_node(ch);
+                if (event.type === "refreshThumbnails" ||
+                    (event.type === "refreshThumb" && ch.data.obj.id === data.imageId)) {
+                    ch.data.obj.thumbVersion = getRandom();
+                }
+            })
+        }
 
         // React entry point exported from bundle.js, built with webpack
         renderCentrePanel.default(inst, selected);

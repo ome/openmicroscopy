@@ -19978,6 +19978,7 @@ var renderCentrePanel =
 	                'name': node.text,
 	                'data': JSON.parse(JSON.stringify(node.data)),
 	                'selected': node.state.selected,
+	                'thumbVersion': node.data.obj.thumbVersion,
 	                'date': date
 	            };
 	            // Note fileset IDs for selected images
