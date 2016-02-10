@@ -54,7 +54,7 @@ java_test()
 {
     get_ice
     NAME=java_test
-    for dir in dsl model common rendering server blitz
+    for dir in dsl model common rendering server blitz tools/OmeroJava
     do
         fold start $dir
         ant -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
