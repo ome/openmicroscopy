@@ -57,8 +57,7 @@ public class PolygonData
     /** Creates a new instance of PolygonData. */
     public PolygonData()
     {
-        this(new ArrayList<Point2D.Double>(), new ArrayList<Point2D.Double>(),
-                new ArrayList<Point2D.Double>(), new ArrayList<Integer>());
+        this(new ArrayList<Point2D.Double>());
     }
 
     /**
@@ -68,6 +67,7 @@ public class PolygonData
      * @param points1 The points in the polygon.
      * @param points2 The points in the polygon.
      * @param maskList The points in the polygon.
+     * @deprecated
      */
     public PolygonData(List<Point2D.Double> points,
             List<Point2D.Double> points1,
@@ -75,6 +75,17 @@ public class PolygonData
     {
         super(new PolygonI(), true);
         setPoints(points, points1, points2, maskList);
+    }
+
+    /**
+     * Create a new instance of the PolylineData, set the points in the polyline.
+     *
+     * @param points See Above.
+     */
+    public PolygonData(List<Point2D.Double> points)
+    {
+        super(new PolygonI(), true);
+        setPoints(points);
     }
 
     /**
@@ -120,6 +131,7 @@ public class PolygonData
      * Returns the points in the polygon.
      *
      * @return See above.
+     * @deprecated
      */
     public List<Point2D.Double> getPoints1()
     {
@@ -131,6 +143,7 @@ public class PolygonData
      * Returns the points in the polygon.
      *
      * @return See above.
+     * @deprecated
      */
     public List<Point2D.Double> getPoints2()
     {
@@ -156,6 +169,7 @@ public class PolygonData
      * @param points1 The points in the polygon.
      * @param points2 The points in the polygon.
      * @param maskList The points in the polygon.
+     * @deprecated
      */
     public void setPoints(List<Point2D.Double> points,
             List<Point2D.Double> points1,
@@ -169,21 +183,25 @@ public class PolygonData
 
         String pointsValues =
                 toPoints(points.toArray(new Point2D.Double[points.size()]));
-        String points1Values =
-                toPoints(points1.toArray(new Point2D.Double[points1.size()]));
-        String points2Values =
-                toPoints(points2.toArray(new Point2D.Double[points2.size()]));
-        String maskValues = "";
-        for (int i = 0 ; i < maskList.size()-1; i++)
-            maskValues = maskValues + maskList.get(i)+",";
-        if (maskList.size() != 0)
-            maskValues = maskValues+maskList.get(maskList.size()-1)+"";
-        String pts = "points["+pointsValues+"] ";
-        pts = pts + "points1["+points1Values+"] ";
-        pts = pts + "points2["+points2Values+"] ";
-        pts = pts + "mask["+maskValues+"] ";
+        shape.setPoints(rtypes.rstring(pointsValues));
+    }
 
-        shape.setPoints(rtypes.rstring(pts));
+    /**
+     * Sets the points in the polygon.
+     *
+     * @param points The points in the polygon.
+     */
+    public void setPoints(List<Point2D.Double> points)
+    {
+        if (isReadOnly())
+            throw new IllegalArgumentException("Shape ReadOnly");
+        Polygon shape = (Polygon) asIObject();
+        if (shape == null) 
+            throw new IllegalArgumentException("No shape specified.");
+
+        String pointsValues =
+                toPoints(points.toArray(new Point2D.Double[points.size()]));
+        shape.setPoints(rtypes.rstring(pointsValues));
     }
 
 }
