@@ -39,6 +39,7 @@ from django.core.cache import cache
 from omeroweb.http import HttpJsonResponse
 
 from omeroweb.connector import Connector
+from omero.gateway.utils import toBoolean
 
 logger = logging.getLogger(__name__)
 
@@ -246,23 +247,25 @@ class login_required(object):
     def load_server_settings(self, conn, request):
         """Loads Client preferences from the server."""
         request.session.modified = True
+        s = conn.getOmeroClientSettings()
+        # TODO: remove in 5.3, cleanup deprecated
+        del s['omero.client.ui.menu.dropdown.everyone']
+        del s['omero.client.ui.menu.dropdown.leaders']
+        del s['omero.client.ui.menu.dropdown.colleagues']
 
-        if request.session.get('server_settings') is None:
-            request.session['server_settings'] = {'ui': {}}
-            request.session['server_settings']['ui']['orphans'] = \
-                conn.getOrphanedImagesSettings()
-            request.session['server_settings']['ui']['dropdown_menu'] = \
-                conn.getDropdownMenuSettings()
-            request.session['server_settings']['email'] = \
-                conn.getEmailSettings()
-            request.session['server_settings']['roi_limit'] = \
-                conn.getRoiLimitSetting()
-            request.session['server_settings']['initial_zoom_level'] = \
-                conn.getInitialZoomLevel()
-            request.session['server_settings']['interpolate_pixels'] = \
-                conn.getInterpolateSetting()
-            request.session['server_settings']['download_as_max_size'] = \
-                conn.getDownloadAsMaxSizeSetting()
+        server_settings = {}
+        for item, value in s.iteritems():
+            ss = server_settings
+            items = item.replace("omero.client.", "").split('.')
+            for key in items[:-1]:
+                ss = ss.setdefault(key, {})
+            if items[-1] == "enabled":
+                value = toBoolean(value)
+            ss[items[-1]] = value
+
+        request.session['server_settings'] = server_settings
+        # make extra call for omero.mail, not a part of omero.client
+        request.session['server_settings']['email'] = conn.getEmailSettings()
 
     def get_public_user_connector(self):
         """

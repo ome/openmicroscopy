@@ -520,15 +520,10 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
         newH = newW*2/3
     # Don't want the region to be bigger than a 'Big Image'!
 
-    def getConfigValue(key):
-        try:
-            return conn.getConfigService().getConfigValue(key)
-        except:
-            logger.warn("webgateway: get_shape_thumbnail() could not get"
-                        " Config-Value for %s" % key)
-            pass
-    max_plane_width = getConfigValue("omero.pixeldata.max_plane_width")
-    max_plane_height = getConfigValue("omero.pixeldata.max_plane_height")
+    max_plane_width = request.session.get('server_settings', {}) \
+        .get('pixeldata', {}).get('max_plane_width')
+    max_plane_height = request.session.get('server_settings', {}) \
+        .get('pixeldata', {}).get('max_plane_height')
     if (max_plane_width is None or max_plane_height is None or
             (newW > int(max_plane_width)) or (newH > int(max_plane_height))):
         # generate dummy image to return
@@ -1877,7 +1872,8 @@ def full_viewer(request, iid, conn=None, **kwargs):
     """
 
     rid = getImgDetailsFromReq(request)
-    server_settings = request.session.get('server_settings', {})
+    server_settings = request.session.get('server_settings', {}) \
+                                     .get('viewer', {})
     interpolate = server_settings.get('interpolate_pixels', True)
     roiLimit = server_settings.get('roi_limit', 2000)
 

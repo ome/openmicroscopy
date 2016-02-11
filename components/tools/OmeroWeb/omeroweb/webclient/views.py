@@ -641,19 +641,22 @@ def api_container_list(request, conn=None, **kwargs):
             page=page,
             limit=limit)
         # Get the orphaned images container
+        try:
+            orph_t = request \
+                .session['server_settings']['ui']['tree']['orphans']
+        except:
+            orph_t = {'enabled': True}
         if (conn.isAdmin() or
-            conn.isLeader(gid=request.session.get('active_group')) or
-            experimenter_id == conn.getUserId() or
-            request.session['server_settings']
-                           ['ui']['orphans']['enabled']):
+                conn.isLeader(gid=request.session.get('active_group')) or
+                experimenter_id == conn.getUserId() or orph_t.get('enabled')):
+
             orphaned = tree.marshal_orphaned(
                 conn=conn,
                 group_id=group_id,
                 experimenter_id=experimenter_id,
                 page=page,
                 limit=limit)
-            orphaned['name'] = \
-                request.session['server_settings']['ui']['orphans']['name']
+            orphaned['name'] = orph_t.get('name', "Orphaned Images")
             r['orphaned'] = orphaned
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
@@ -3654,8 +3657,8 @@ def list_scripts(request, conn=None, **kwargs):
 
     # group scripts into 'folders' (path), named by parent folder name
     scriptMenu = {}
-    scripts_to_ignore = conn.getConfigService().getConfigValue(
-        "omero.client.scripts_to_ignore").split(",")
+    scripts_to_ignore = request.session.get('server_settings') \
+                                       .get('scripts_to_ignore').split(",")
     for s in scripts:
         scriptId = s.id.val
         path = s.path.val
