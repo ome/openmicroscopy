@@ -20519,7 +20519,9 @@ var renderCentrePanel =
 	                        data: data,
 	                        selectedWellIds: wellIds
 	                    });
-	                    OME.well_selection_changed(wellIds, this.props.fieldIdx);
+	                    if (wellIds.length > 0) {
+	                        OME.well_selection_changed(wellIds, this.props.fieldIdx);
+	                    }
 	                }
 	            }.bind(this)
 	        });
@@ -20617,9 +20619,9 @@ var renderCentrePanel =
 	            // toggle selection of well
 	            var found = false;
 	            // make a new list from old, removing clicked well
-	            newSel = this.state.selectedWellIds.map(function (id) {
+	            this.state.selectedWellIds.forEach(function (id) {
 	                if (wellId !== id) {
-	                    return id;
+	                    newSel.push(id);
 	                } else {
 	                    found = true;
 	                }
