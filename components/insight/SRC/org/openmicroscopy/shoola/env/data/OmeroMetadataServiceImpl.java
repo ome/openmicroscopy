@@ -1405,8 +1405,6 @@ class OmeroMetadataServiceImpl
 	            toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 	        if (!FileAnnotationData.LOG_FILE_NS.equals(nameSpace))
 	            toExclude.add(FileAnnotationData.LOG_FILE_NS);
-	        if (!FileAnnotationData.TABLE_NS.equals(nameSpace))
-                toExclude.add(FileAnnotationData.TABLE_NS);
 	    }
 	    return gateway.loadSpecificAnnotation(ctx, annotationType, toInclude,
 	            toExclude, po);
@@ -2270,7 +2268,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 				exclude.add(FileAnnotationData.LOG_FILE_NS);
-				exclude.add(FileAnnotationData.TABLE_NS);
 		}
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
@@ -2304,7 +2301,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 				exclude.add(FileAnnotationData.LOG_FILE_NS);
-				exclude.add(FileAnnotationData.TABLE_NS);
 		}
 		
 		return gateway.loadSpecificAnnotation(ctx, FileAnnotationData.class,
@@ -2484,7 +2480,6 @@ class OmeroMetadataServiceImpl
 		//always exclude the log file
 		if (nsExclude == null) nsExclude = new ArrayList<String>();
 		nsExclude.add(FileAnnotationData.LOG_FILE_NS);
-		nsExclude.add(FileAnnotationData.TABLE_NS);
 		return gateway.loadSpecifiedAnnotationsLinkedTo(ctx, rootType, rootIDs,
 				annotationType, nsInclude, nsExclude, new Parameters());
 	}

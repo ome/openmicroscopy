@@ -77,7 +77,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class TablesFacility extends Facility {
-
+    
     /**
      * Creates a new instance
      * 
@@ -142,7 +142,6 @@ public class TablesFacility extends Facility {
             file = (OriginalFile) browse.findIObject(ctx, file);
 
             FileAnnotation anno = new FileAnnotationI();
-            anno.setNs(omero.rtypes.rstring(FileAnnotationData.TABLE_NS));
             anno.setFile(file);
             FileAnnotationData annotation = new FileAnnotationData(anno);
             annotation.setDescription(name);
@@ -363,13 +362,11 @@ public class TablesFacility extends Facility {
                     Arrays.asList(new Class[] { FileAnnotationData.class }),
                     null);
             for (AnnotationData anno : annos) {
-                if (anno.getNameSpace().equals(FileAnnotationData.TABLE_NS)) {
-                    long fileId = ((FileAnnotationData) anno).getFileID();
-                    OriginalFile file = new OriginalFileI(fileId, false);
-                    result.add(new FileData(file));
-                }
+                FileAnnotationData fanno = (FileAnnotationData) anno;
+                if (fanno.isTablesFile())
+                    result.add(new FileData(((FileAnnotation) fanno
+                            .asAnnotation()).getFile()));
             }
-
         } catch (Exception e) {
             handleException(this, e, "Could not load tables");
         }

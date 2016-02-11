@@ -296,9 +296,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
                 while (i.hasNext()) {
                     data = (DataObject) i.next();
                     if (data instanceof FileAnnotationData
-                            && FileAnnotationData.TABLE_NS
-                                    .equals(((FileAnnotationData) data)
-                                            .getNameSpace()))
+                            && ((FileAnnotationData)data).isTablesFile())
                         continue;
                     if (!toReplace.contains(data)) {
                         doc = new DocComponent(data, model, true, selectable);
@@ -315,9 +313,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
                 while (i.hasNext()) {
                     data = (DataObject) i.next();
                     if (data instanceof FileAnnotationData
-                            && FileAnnotationData.TABLE_NS
-                                    .equals(((FileAnnotationData) data)
-                                            .getNameSpace()))
+                            && ((FileAnnotationData)data).isTablesFile())
                         continue;
                     if (!toReplace.contains(data)) {
                         doc = new DocComponent(data, model, true, selectable);
@@ -336,9 +332,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
                 while (i.hasNext()) {
                     data = (DataObject) i.next();
                     if (data instanceof FileAnnotationData
-                            && FileAnnotationData.TABLE_NS
-                                    .equals(((FileAnnotationData) data)
-                                            .getNameSpace()))
+                            && ((FileAnnotationData)data).isTablesFile())
                         continue;
                     if (!toReplace.contains(data)) {
                         doc = new DocComponent(data, model, true, selectable);
