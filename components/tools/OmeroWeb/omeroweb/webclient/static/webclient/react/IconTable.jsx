@@ -28,6 +28,7 @@ var IconTable = React.createClass({
             distance: 2,
             stop: function() {
                 // Make the same selection in the jstree etc
+                inst.deselect_all(true);
                 $(".ui-selected").each(function(){
                     var imageId = $(this).attr('data-id');
                     var containerNode = OME.getTreeImageContainerBestGuess(imageId);
@@ -35,9 +36,6 @@ var IconTable = React.createClass({
                     inst.select_node(selectedNode, true);
                 });
             },
-            start: function() {
-                inst.deselect_all();
-            }
         });
     },
 
