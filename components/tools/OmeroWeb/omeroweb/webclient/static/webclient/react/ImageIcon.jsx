@@ -37,7 +37,11 @@ var ImageIcon = React.createClass({
 
         var image = this.props.image,
             iconSizes = this.getIconSizes(),
-            cls = [];
+            cls = [],
+            divStyle = {
+                width: this.props.iconSize + "px",
+                height: this.props.iconSize + "px",
+            };
 
         if (image.selected) {cls.push('ui-selected');}
         if (image.fsSelected) {cls.push('fs-selected');}
@@ -53,7 +57,7 @@ var ImageIcon = React.createClass({
                 tabIndex={0}
                 onClick={this.handleIconClick}
             >
-                <div className="image">
+                <div className="image" style={divStyle}>
                     <img alt="image"
                         width={iconSizes.width + "px"}
                         height={iconSizes.height + "px"}

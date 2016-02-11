@@ -20226,7 +20226,11 @@ var renderCentrePanel =
 
 	        var image = this.props.image,
 	            iconSizes = this.getIconSizes(),
-	            cls = [];
+	            cls = [],
+	            divStyle = {
+	            width: this.props.iconSize + "px",
+	            height: this.props.iconSize + "px"
+	        };
 
 	        if (image.selected) {
 	            cls.push('ui-selected');
@@ -20249,7 +20253,7 @@ var renderCentrePanel =
 	            },
 	            _react2.default.createElement(
 	                'div',
-	                { className: 'image' },
+	                { className: 'image', style: divStyle },
 	                _react2.default.createElement('img', { alt: 'image',
 	                    width: iconSizes.width + "px",
 	                    height: iconSizes.height + "px",
@@ -20634,6 +20638,7 @@ var renderCentrePanel =
 	        }
 	        this.setState({ selectedWellIds: newSel });
 	        // Calls to ome.webclient.actions.js
+	        console.log(newSel);
 	        OME.well_selection_changed(newSel, this.props.fieldIdx);
 	    },
 
