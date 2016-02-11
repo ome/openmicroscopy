@@ -39,7 +39,6 @@ import traceback
 import time
 import array
 import math
-import json
 from decimal import Decimal
 
 from gettext import gettext as _
@@ -1539,29 +1538,6 @@ class _BlitzGateway (object):
             return self.getConfigService().getClientConfigValues()
         except:
             return self.getConfigService().getClientConfigDefaults()
-
-    def getOrphanedImagesSettings(self):
-        default = {
-            "enabled": True,
-            "name": "Orphaned Images",
-            "description": ("This is a virtual container with "
-                            "orphaned images.")
-        }
-        try:
-            orphans = json.loads(
-                self.getConfigService()
-                .getConfigValue("omero.client.ui.tree.orphans"))
-            for k in default.iterkeys():
-                try:
-                    if k == "enabled":
-                        orphans[k] = toBoolean(orphans[k])
-                    else:
-                        orphans[k]
-                except KeyError:
-                    orphans[k] = default[k]
-        except:
-            orphans = default
-        return orphans
 
     def getRoiLimitSetting(self):
         try:
