@@ -12,29 +12,104 @@
 
 """
 
+import pytest
+from omero.gateway.utils import toBoolean
 
-def testInterpolateSetting(gatewaywrapper):
+
+@pytest.mark.parametrize("enabled",
+                         ["foo", "", "False", "false",
+                          "True", "true", "", None])
+def testOrphansEnabledSetting(gatewaywrapper, enabled):
+    """
+    Tests getOrphanedImagesSettings()
+    """
+    gatewaywrapper.loginAsAdmin()
+    if enabled is None:
+        enabled = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.ui.tree.orphans.enabled']
+    try:
+        gatewaywrapper.gateway.getConfigService().setConfigValue(
+            "omero.client.ui.tree.orphans.enabled", enabled)
+        gatewaywrapper.loginAsAuthor()
+        orphans = gatewaywrapper.gateway.getOrphanedImagesSettings()
+        assert orphans['enabled'] == toBoolean(enabled)
+    finally:
+        gatewaywrapper.loginAsAdmin()
+        d = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.ui.tree.orphans.enabled']
+        gatewaywrapper.gateway.getConfigService().setConfigValue(
+            "omero.client.ui.tree.orphans.enabled", d)
+
+
+@pytest.mark.parametrize("name",
+                         ["Trash", "", None])
+def testOrphansNameSetting(gatewaywrapper, name):
+    """
+    Tests conn.getOrphanedImagesSettings()
+    """
+    gatewaywrapper.loginAsAdmin()
+    if name is None:
+        name = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.ui.tree.orphans.name']
+    try:
+        gatewaywrapper.gateway.getConfigService().setConfigValue(
+            "omero.client.ui.tree.orphans.name", name)
+        gatewaywrapper.loginAsAuthor()
+        orphans = gatewaywrapper.gateway.getOrphanedImagesSettings()
+        assert orphans['name'] == name
+    finally:
+        gatewaywrapper.loginAsAdmin()
+        d = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.ui.tree.orphans.name']
+        gatewaywrapper.gateway.getConfigService().setConfigValue(
+            "omero.client.ui.tree.orphans.name", d)
+
+
+@pytest.mark.parametrize("description",
+                         ["Description", "", None])
+def testOrphansDescriptionSetting(gatewaywrapper, description):
+    """
+    Tests conn.getOrphanedImagesSettings()
+    """
+    gatewaywrapper.loginAsAdmin()
+    if description is None:
+        description = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.ui.tree.orphans.description']
+    try:
+        gatewaywrapper.gateway.getConfigService().setConfigValue(
+            "omero.client.ui.tree.orphans.description", description)
+        gatewaywrapper.loginAsAuthor()
+        orphans = gatewaywrapper.gateway.getOrphanedImagesSettings()
+        assert orphans['description'] == description
+    finally:
+        gatewaywrapper.loginAsAdmin()
+        d = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.ui.tree.orphans.description']
+        gatewaywrapper.gateway.getConfigService().setConfigValue(
+            "omero.client.ui.tree.orphans.description", d)
+
+
+@pytest.mark.parametrize("interpolate",
+                         ["foo", "", "False", "false",
+                          "True", "true", "", None])
+def testInterpolateSetting(gatewaywrapper, interpolate):
     """
     Tests conn.getInterpolateSetting(), setting the value as Admin and
     testing the output as a regular user.
     """
     gatewaywrapper.loginAsAdmin()
-    configService = gatewaywrapper.gateway.getConfigService()
-
+    if interpolate is None:
+        interpolate = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.viewer.interpolate_pixels']
     try:
-        configService.setConfigValue(
-            "omero.client.viewer.interpolate_pixels", "false")
-
+        gatewaywrapper.gateway.getConfigService().setConfigValue(
+            "omero.client.viewer.interpolate_pixels", interpolate)
         gatewaywrapper.loginAsAuthor()
-        assert not gatewaywrapper.gateway.getInterpolateSetting()
-
+        inter = gatewaywrapper.gateway.getInterpolateSetting()
+        assert inter == toBoolean(interpolate)
     finally:
-        # try/finally to make sure that we
-        # set back to 'true' (default value) to clean up
         gatewaywrapper.loginAsAdmin()
-        configService = gatewaywrapper.gateway.getConfigService()
-        configService.setConfigValue(
-            "omero.client.viewer.interpolate_pixels", "true")
-
-    gatewaywrapper.loginAsAuthor()
-    assert gatewaywrapper.gateway.getInterpolateSetting()
+        d = gatewaywrapper.gateway.getConfigService() \
+            .getConfigDefaults()['omero.client.viewer.interpolate_pixels']
+        gatewaywrapper.gateway.getConfigService().setConfigValue(
+            "omero.client.viewer.interpolate_pixels", d)

@@ -129,10 +129,8 @@ class render_response(omeroweb.decorators.render_response):
                 'server_settings').get('email', False)
             if request.session.get('server_settings').get('ui'):
                 context.setdefault('ui', {})  # don't overwrite existing ui
-                context['ui']['orphans_name'] = request.session.get(
-                    'server_settings').get('ui').get('orphans_name')
-                context['ui']['orphans_desc'] = request.session.get(
-                    'server_settings').get('ui').get('orphans_desc')
+                context['ui']['orphans'] = request.session.get(
+                    'server_settings').get('ui').get('orphans')
                 context['ui']['dropdown_menu'] = request.session.get(
                     'server_settings').get('ui').get('dropdown_menu')
 

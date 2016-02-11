@@ -27,6 +27,7 @@
 import cStringIO
 import traceback
 import logging
+import warnings
 
 from StringIO import StringIO
 
@@ -179,6 +180,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             return False
 
     def getOrphanedContainerSettings(self):
+        """
+        ** Deprecated ** Use :meth:`BlitzGateway.getOrphanedImagesSettings`.
+        """
+        warnings.warn(
+            "Deprecated. Use BlitzGateway.getOrphanedImagesSettings()",
+            DeprecationWarning)
         name = (self.getConfigService().getConfigValue(
                 "omero.client.ui.tree.orphans.name") or "Orphaned image")
         description = (self.getConfigService().getConfigValue(
