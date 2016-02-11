@@ -185,7 +185,7 @@ public class TransferFacilityTest extends GatewayTest {
             for (int iz = 0; iz < z; iz++) {
                 for (int it = 0; it < t; it++) {
                     byte[] data = createRandomPlaneData(x, y);
-                    transferFacility.uploadPlane(rootCtx, img.getId(), ic, iz,
+                    transferFacility.uploadPlane(rootCtx, img.getDefaultPixels().getId(), ic, iz,
                             it, data);
                 }
             }

@@ -65,7 +65,7 @@ public class TransferFacility extends Facility {
     /** Reference to the {@link BrowseFacility} */
     private BrowseFacility browser;
 
-    /** References to currently open pixel stores */
+    /** References to currently open pixel stores; key is the pixels id*/
     private static Map<Long, RawPixelsStorePrx> pixelStores = new ConcurrentHashMap<Long, RawPixelsStorePrx>();
 
     /**
@@ -304,8 +304,8 @@ public class TransferFacility extends Facility {
      * 
      * @param ctx
      *            The security context
-     * @param imageId
-     *            The image id
+     * @param pixelsId
+     *            The pixels id
      * @param c
      *            The channel
      * @param z
@@ -320,15 +320,15 @@ public class TransferFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public void uploadPlane(SecurityContext ctx, long imageId, int c, int z,
+    public void uploadPlane(SecurityContext ctx, long pixelsId, int c, int z,
             int t, byte[] data) throws DSOutOfServiceException,
             DSAccessException {
         try {
-            RawPixelsStorePrx store = TransferFacility.pixelStores.get(imageId);
+            RawPixelsStorePrx store = TransferFacility.pixelStores.get(pixelsId);
             if (store == null) {
                 store = gateway.getPixelsStore(ctx);
-                store.setPixelsId(imageId, false);
-                TransferFacility.pixelStores.put(imageId, store);
+                store.setPixelsId(pixelsId, false);
+                TransferFacility.pixelStores.put(pixelsId, store);
             }
             store.setPlane(data, z, c, t);
         } catch (Throwable e) {
@@ -343,26 +343,26 @@ public class TransferFacility extends Facility {
      * 
      * @param ctx
      *            The security context
-     * @param imageId
-     *            The image id
+     * @param pixelsId
+     *            The pixels id
      * @throws DSAccessException
      *             If the connection is broken, or not logged in
      * @throws DSOutOfServiceException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public void closeImage(SecurityContext ctx, long imageId)
+    public void closeImage(SecurityContext ctx, long pixelsId)
             throws DSOutOfServiceException, DSAccessException {
         try {
-            RawPixelsStorePrx store = pixelStores.get(imageId);
+            RawPixelsStorePrx store = pixelStores.get(pixelsId);
             if (store != null) {
                 store.save();
                 TransferFacility.pixelStores.remove(store);
             } else
-                throw new Exception("No RawPixelsStore for image " + imageId
+                throw new Exception("No RawPixelsStore for image with pixels id " + pixelsId
                         + " found!");
         } catch (Throwable e) {
-            handleException(this, e, "Couldn't close image " + imageId);
+            handleException(this, e, "Couldn't close image with pixels id " + pixelsId);
         }
     }
     
