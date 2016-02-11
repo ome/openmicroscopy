@@ -181,10 +181,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
     def getOrphanedContainerSettings(self):
         """
-        ** Deprecated ** Use :meth:`BlitzGateway.getOrphanedContainerSettings`.
+        ** Deprecated ** Use :meth:`BlitzGateway.getOmeroClientSettings`.
         """
         warnings.warn(
-            "Deprecated. Use BlitzGateway.getOrphanedContainerSettings()",
+            "Deprecated. Use BlitzGateway.getOmeroClientSettings()",
             DeprecationWarning)
         name = (self.getConfigService().getConfigValue(
                 "omero.client.ui.tree.orphans.name") or "Orphaned image")
@@ -194,6 +194,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         return name, description
 
     def getDropdownMenuSettings(self):
+        """
+        ** Deprecated ** Use :meth:`BlitzGateway.getOmeroClientSettings`.
+        """
+        warnings.warn(
+            "Deprecated. Use BlitzGateway.getOmeroClientSettings()",
+            DeprecationWarning)
         dropdown_menu = dict()
         if toBoolean(self.getConfigService().getConfigValue(
                      "omero.client.ui.menu.dropdown.leaders.enabled")):
