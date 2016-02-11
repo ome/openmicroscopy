@@ -648,7 +648,8 @@ def api_container_list(request, conn=None, **kwargs):
             orph_t = {'enabled': True}
         if (conn.isAdmin() or
                 conn.isLeader(gid=request.session.get('active_group')) or
-                experimenter_id == conn.getUserId() or orph_t.get('enabled')):
+                experimenter_id == conn.getUserId() or
+                orph_t.get('enabled', True)):
 
             orphaned = tree.marshal_orphaned(
                 conn=conn,
