@@ -1531,6 +1531,15 @@ class _BlitzGateway (object):
                 int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
 
+    def getOmeroClientSettings(self):
+        """
+        Returns all client properties mathcing omero.client.*
+        """
+        try:
+            return self.getConfigService().getClientConfigValues()
+        except:
+            return self.getConfigService().getClientConfigDefaults()
+
     def getOrphanedImagesSettings(self):
         default = {
             "enabled": True,
