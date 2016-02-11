@@ -24,7 +24,7 @@ Decorators for use with OMERO.web applications.
 """
 
 import logging
-
+import traceback
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden, StreamingHttpResponse
 
@@ -246,26 +246,35 @@ class login_required(object):
 
     def load_server_settings(self, conn, request):
         """Loads Client preferences from the server."""
-        request.session.modified = True
-        s = conn.getOmeroClientSettings()
-        # TODO: remove in 5.3, cleanup deprecated
-        del s['omero.client.ui.menu.dropdown.everyone']
-        del s['omero.client.ui.menu.dropdown.leaders']
-        del s['omero.client.ui.menu.dropdown.colleagues']
+        try:
+            request.session['server_settings']
+        except:
+            request.session.modified = True
+            server_settings = {}
+            try:
+                s = conn.getOmeroClientSettings()
+                # TODO: remove in 5.3, cleanup deprecated
+                if 'omero.client.ui.menu.dropdown.everyone' in s:
+                    del s['omero.client.ui.menu.dropdown.everyone']
+                if 'omero.client.ui.menu.dropdown.leaders' in s:
+                    del s['omero.client.ui.menu.dropdown.leaders']
+                if 'omero.client.ui.menu.dropdown.colleagues' in s:
+                    del s['omero.client.ui.menu.dropdown.colleagues']
 
-        server_settings = {}
-        for item, value in s.iteritems():
-            ss = server_settings
-            items = item.replace("omero.client.", "").split('.')
-            for key in items[:-1]:
-                ss = ss.setdefault(key, {})
-            if items[-1] == "enabled":
-                value = toBoolean(value)
-            ss[items[-1]] = value
-
-        request.session['server_settings'] = server_settings
-        # make extra call for omero.mail, not a part of omero.client
-        request.session['server_settings']['email'] = conn.getEmailSettings()
+                for item, value in s.iteritems():
+                    ss = server_settings
+                    items = item.replace("omero.client.", "").split('.')
+                    for key in items[:-1]:
+                        ss = ss.setdefault(key, {})
+                    if items[-1] == "enabled":
+                        value = toBoolean(value)
+                    ss[items[-1]] = value
+            except:
+                logger.error(traceback.format_exc())
+            request.session['server_settings'] = server_settings
+            # make extra call for omero.mail, not a part of omero.client
+            request.session['server_settings']['email'] = \
+                conn.getEmailSettings()
 
     def get_public_user_connector(self):
         """
