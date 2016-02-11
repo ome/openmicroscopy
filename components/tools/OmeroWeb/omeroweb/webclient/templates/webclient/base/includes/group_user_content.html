@@ -80,7 +80,7 @@
                         {% else %}
                         <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter=-1">
                         {% endifequal %}
-                        {{ ui.dropdown_menu.everyone }}
+                        {{ ui.dropdown_menu.everyone.label }}
                         </a>
                     </li>
                 {% endif %}
