@@ -126,7 +126,7 @@ public class Resources {
         log.finest("Stopped");
     }
 
-    protected void remove(Entry entry) {
+    public void remove(Entry entry) {
         log.finest("Cleaning " + entry);
         try {
             entry.cleanup();
