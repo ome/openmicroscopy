@@ -2231,7 +2231,8 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     Retrieve annotations for object specified by object type and identifier,
     optionally traversing object model graph.
     Returns dictionary containing annotations in NSBULKANNOTATIONS namespace
-    if successful, error information otherwise
+    if successful, otherwise returns error information.
+    If the graph has multiple parents, we return annotations from all parents.
 
     Example:  /annotations/Plate/1/
               retrieves annotations for plate with identifier 1
@@ -2275,18 +2276,20 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     ctx.setOmeroGroup("-1")
 
     try:
-        obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
-                            ctx)
+        objs = q.findAllByQuery(query, omero.sys.ParametersI().addId(objid),
+                                ctx)
     except omero.QueryException:
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
 
-    if not obj:
+    if len(objs) == 0:
         return dict(error='%s with id %s not found' % (objtype, objid),
                     query=query)
 
     data = []
-    for link in obj.copyAnnotationLinks():
+    # Process all annotations from all objects...
+    links = [l for obj in objs for l in obj.copyAnnotationLinks()]
+    for link in links:
         annotation = link.child
         if unwrap(annotation.getNs()) != NSBULKANNOTATIONS:
             continue
