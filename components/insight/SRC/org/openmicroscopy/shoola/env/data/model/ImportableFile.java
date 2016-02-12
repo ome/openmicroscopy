@@ -67,6 +67,9 @@ public class ImportableFile
 	/** The file object before possible changes.*/
 	private FileObject originalFile;
 
+	/** Indicates to push the file to the offline import.*/
+	private boolean offLine;
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -80,8 +83,28 @@ public class ImportableFile
 		this.file = file;
 		this.folderAsContainer = folderAsContainer;
 		originalFile = file;
+		offLine = false;
 	}
 	
+	/**
+	 * Passes <code>true</code> to do an offline import, <code>false</code>
+	 * otherwise.
+	 *
+	 * @param offLine The specified import option.
+	 */
+	public void setOffLine(boolean offLine)
+	{
+	    this.offLine = offLine;
+	}
+
+	/**
+	 * Returns <code>true</code> to do an offline import, <code>false</code>
+     * otherwise.
+     *
+	 * @return See above.
+	 */
+	public boolean isOffLine() { return offLine; }
+
 	/**
 	 * Sets the flag indicating to create a container from the folder.
 	 * 

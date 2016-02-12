@@ -73,30 +73,31 @@ public class ImagesImporter
     private void importFile(ImportableFile importable, boolean close)
     {
         partialResult = new HashMap<ImportableFile, Object>();
-        String tokenURL = "http://localhost:8000/ome/import";
-        Communicator c;
-        CommunicatorDescriptor desc = new CommunicatorDescriptor
-            (HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
-        try {
-            c = SvcRegistry.getCommunicator(desc);
-            //Prepare json string
-            ImportRequestData data = new ImportRequestData();
-            
-            data.targetUri = importable.getOriginalFile().getAbsolutePath();
-            Gson writer = new Gson();
-            c.enqueueImport(writer.toJson(data), new StringBuilder());
-            partialResult.put(importable,  true);
-        } catch (Exception e) {
-            partialResult.put(importable, e);
+        if (importable.isOffLine()) {
+            String tokenURL = "http://localhost:8000/ome/import";
+            Communicator c;
+            CommunicatorDescriptor desc = new CommunicatorDescriptor
+                (HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
+            try {
+                c = SvcRegistry.getCommunicator(desc);
+                //Prepare json string
+                ImportRequestData data = new ImportRequestData();
+                data.targetUri = importable.getOriginalFile().getAbsolutePath();
+                Gson writer = new Gson();
+                c.enqueueImport(writer.toJson(data), new StringBuilder());
+                partialResult.put(importable,  true);
+            } catch (Exception e) {
+                partialResult.put(importable, e);
+            }
+        } else {
+            OmeroImageService os = context.getImageService();
+            try {
+                partialResult.put(importable, 
+                        os.importFile(object, importable, close));
+            } catch (Exception e) {
+                partialResult.put(importable, e);
+            }
         }
-        /*
-        OmeroImageService os = context.getImageService();
-        try {
-            partialResult.put(importable, 
-                    os.importFile(object, importable, close));
-        } catch (Exception e) {
-            partialResult.put(importable, e);
-        }*/
     }
 
     /**
