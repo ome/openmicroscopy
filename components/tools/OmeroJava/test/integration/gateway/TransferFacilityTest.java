@@ -191,7 +191,7 @@ public class TransferFacilityTest extends GatewayTest {
             }
         }
 
-        transferFacility.closeImage(rootCtx, img.getId());
+        transferFacility.closeImage(rootCtx, img.getDefaultPixels().getId());
     }
 
     private byte[] createRandomPlaneData(int x, int y) {
