@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -142,8 +142,8 @@ public class ProjectionParam
 	 * Creates a new instance.
 	 * 
 	 * @param pixelsID 	The id of the pixels set to project.
-	 * @param startZ	The first z-section to project.	
-	 * @param endZ		The last z-section to project.
+	 * @param startZ	The first z-section to project.	(zero based)
+	 * @param endZ		The last z-section to project. (zero based)
 	 * @param stepping	The stepping used while projecting.
 	 * @param algorithm	The projection's algorithm.	
 	 * @param startT	The first timepoint to project. 
@@ -216,14 +216,14 @@ public class ProjectionParam
 	public int getEndT() { return endT; }
 	
 	/**
-	 * Returns the first z-section to project. 
+	 * Returns the first z-section to project. (zero based)
 	 * 
 	 * @return See above.
 	 */
 	public int getStartZ() { return startZ; }
 	
 	/**
-	 * Returns the last z-section to project. 
+	 * Returns the last z-section to project.  (zero based)
 	 * 
 	 * @return See above.
 	 */

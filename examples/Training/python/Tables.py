@@ -12,10 +12,12 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 import omero
+import os
 import omero.grid
 from omero.gateway import BlitzGateway
+from omero.util.populate_metadata import ParsingContext
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
-from Parse_OMERO_Properties import datasetId
+from Parse_OMERO_Properties import datasetId, plateId
 
 #
 # .. _python_omero_tables_code_samples:
@@ -127,6 +129,25 @@ orig_table_file = conn.getObject(
     "OriginalFile", attributes={'name': tablename})    # if name is unique
 savedTable = conn.c.sf.sharedResources().openTable(orig_table_file._obj)
 print "Opened table with row-count:", savedTable.getNumberOfRows()
+
+
+# Populate a table on a Plate from a csv file.
+# =================================================================
+colNames = "Well, Well Type, Concentration\n"
+csvLines = [
+    colNames,
+    "A1, Control, 0\n",
+    "A2, Treatment, 5\n",
+    "A3, Treatment, 10\n"]
+with open('data.csv', 'w') as csvData:
+    csvData.writelines(csvLines)
+plate = conn.getObject("Plate", plateId)
+target_object = plate._obj
+client = conn.c
+ctx = ParsingContext(client, target_object, 'data.csv')
+ctx.parse()
+ctx.write_to_omero()
+os.remove('data.csv')
 
 
 # Close connection:

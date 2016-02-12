@@ -119,17 +119,21 @@ public class PopupHint {
         if (!popup.isVisible()) {
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             Dimension textDim = text.getPreferredSize();
+            
+            if (component.isShowing()) {
+                // make sure the hint is not shown outside the screen area
+                int xOffset = 0;
+                int xScreen = component.getLocationOnScreen().x + textDim.width;
+                if (xScreen > (screenSize.width - 5)) {
+                    xOffset = xScreen - screenSize.width + 5;
+                }
 
-            // make sure the hint is not shown outside the screen area
-            int xOffset = 0;
-            int xScreen = component.getLocationOnScreen().x + textDim.width;
-            if (xScreen > (screenSize.width - 5)) {
-                xOffset = xScreen - screenSize.width + 5;
-            }
-
-            int x = component.getLocation().x - xOffset;
-            int y = component.getLocation().y - textDim.height - 5;
-            popup.show(component, x, y);
+                int x = component.getLocation().x - xOffset;
+                int y = component.getLocation().y - textDim.height - 5;
+                popup.show(component, x, y);
+            } else
+                UIUtilities.centerAndShow(popup);
+            
             hideTimer.start();
         } else {
             hideTimer.restart();

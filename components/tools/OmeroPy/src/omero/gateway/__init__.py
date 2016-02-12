@@ -1559,7 +1559,7 @@ class _BlitzGateway (object):
         try:
             interpolate = (
                 toBoolean(self.getConfigService().getConfigValue(
-                    "omero.client.viewer.interpolate_pixels")) or True
+                    "omero.client.viewer.interpolate_pixels"))
             )
         except:
             interpolate = True
@@ -3882,6 +3882,7 @@ class _BlitzGateway (object):
                                 * 'Well'
                                 * 'Annotation'
                                 * 'OriginalFile'
+                                * 'Roi'
                                 * 'Image/Pixels/Channel'
 
                                 As of OMERO 4.4.0 the correct case is now

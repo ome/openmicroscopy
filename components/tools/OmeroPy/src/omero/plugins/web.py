@@ -36,7 +36,7 @@ Example Nginx developer usage:
     omero config set omero.web.application_server.max_requests 1
     omero web config nginx-development --http=8000 >> nginx.conf
     nginx -c `pwd`/nginx.conf
-    omero web start --wsgi-args ' --reload'
+    omero web start
     omero web status
     omero web stop
     nginx -s stop
@@ -144,10 +144,7 @@ class WebControl(BaseControl):
                 "--worker-connections", type=int, default=1000,
                 help="NGINX only: the maximum number of simultaneous clients.")
             x.add_argument(
-                "--wsgi-args", type=str, default="",
-                help=("NGINX only: additional arguments. "
-                      "Check Gunicorn Documentation"
-                      "http://docs.gunicorn.org/en/latest/settings.html"))
+                "--wsgi-args", type=str, default="", help=SUPPRESS)
 
         #
         # Advanced
@@ -482,13 +479,20 @@ class WebControl(BaseControl):
             except ImportError:
                 self.ctx.err("[FAILED]")
                 self.ctx.die(690,
-                             "ERROR: FastCGI support was removed in "
+                             "[ERROR] FastCGI support was removed in "
                              "OMERO 5.2. Install Gunicorn and update "
                              "config.")
             try:
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
                 pass
+            try:
+                wsgiargs = settings.WSGI_ARGS
+            except:
+                wsgiargs = args.wsgi_args
+            if args.wsgi_args:
+                self.ctx.out(" `--wsgi-args` is deprecated and overwritten"
+                             " by `omero.web.wsgi_args`. ", newline=False)
             cmd = "gunicorn -D -p %(base)s/var/django.pid"
             cmd += " --bind %(host)s:%(port)d"
             cmd += " --workers %(workers)d "
@@ -503,7 +507,7 @@ class WebControl(BaseControl):
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
                 'workers': args.workers,
                 'worker_conn': args.worker_connections,
-                'wsgi_args': args.wsgi_args}).split()
+                'wsgi_args': wsgiargs}).split()
             rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,

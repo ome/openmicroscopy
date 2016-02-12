@@ -20,8 +20,13 @@
 #
 
 import logging
+import datetime
 
 logger = logging.getLogger(__name__)
+
+
+def getDateTime(timeString):
+    return datetime.datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S")
 
 
 def formatPercentFraction(value):
