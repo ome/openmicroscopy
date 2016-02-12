@@ -68,7 +68,6 @@ import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * {@link Facility} to interact with OMERO.tables
@@ -358,9 +357,10 @@ public class TablesFacility extends Facility {
         Collection<FileData> result = new ArrayList<FileData>();
         try {
             MetadataFacility mf = gateway.getFacility(MetadataFacility.class);
-            List<AnnotationData> annos = mf.getAnnotations(ctx, parent,
-                    Arrays.asList(new Class[] { FileAnnotationData.class }),
-                    null);
+            List l = new ArrayList();
+            l.add(FileAnnotationData.class);
+            List<AnnotationData> annos = mf
+                    .getAnnotations(ctx, parent, l, null);
             for (AnnotationData anno : annos) {
                 FileAnnotationData fanno = (FileAnnotationData) anno;
                 if (fanno.isTablesFile())
