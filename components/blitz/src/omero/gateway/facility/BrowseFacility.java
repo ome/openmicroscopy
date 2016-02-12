@@ -1317,15 +1317,38 @@ public class BrowseFacility extends Facility {
                                     + "left outer join fetch folder.imageLinks as imageLinks "
                                     + "where folder.details.owner.id = :userId",
                             param);
-            Collection<FolderData> result = new ArrayList<FolderData>();
+
+            Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
             for (IObject l : list) {
-                result.add(new FolderData((Folder) l));
+                FolderData f = new FolderData((Folder) l);
+                folderById.put(f.getId(), f);
             }
-            return result;
+            for (FolderData folder : folderById.values()) {
+                initFolders(folder, folderById);
+            }
+            return folderById.values();
+            
         } catch (Throwable e) {
             handleException(this, e, "Cannot load folders.");
         }
 
         return Collections.EMPTY_LIST;
+    }
+    
+    /**
+     * Helper method for properly initializing a FolderData; i. e. making sure
+     * parent folders are loaded
+     * 
+     * @param f
+     *            The Folder
+     * @param folders
+     *            All available, loaded Folders
+     */
+    private void initFolders(FolderData f, Map<Long, FolderData> folders) {
+        if (f.getParentFolder() != null && !f.getParentFolder().isLoaded()) {
+            FolderData parent = folders.get(f.getParentFolder().getId());
+            f.setParentFolder(parent.asFolder());
+            initFolders(parent, folders);
+        }
     }
 }

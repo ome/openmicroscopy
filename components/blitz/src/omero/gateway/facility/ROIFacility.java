@@ -234,43 +234,14 @@ public class ROIFacility extends Facility {
             
             // load the ROI folders
             Collection<FolderData> folders = browse.getFolders(ctx);
-            Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
-            for(FolderData f : folders) {
-                folderById.put(f.getId(), f);
-            }
+            for(ROIResult rr : results)
+                rr.setFolders(folders);
             
-            for(ROIResult rr : results) {
-                for(ROIData roi : rr.getROIs()) {
-                    for(FolderData folder : roi.getFolders()) {
-                        initFolders(folder, folderById);
-                    }
-                }
-            }
         } catch (Exception e) {
             handleException(this, e, "Cannot load the ROI for image: "
                     + imageID);
         }
         return results;
-    }
-
-    /**
-     * Helper method for properly initializing a FolderData; i. e. making sure
-     * parent folders are loaded
-     * 
-     * @param f
-     *            The Folder
-     * @param folders
-     *            All available, loaded Folders
-     */
-    private void initFolders(FolderData f, Map<Long, FolderData> folders) {
-        FolderData f2 = folders.get(f.getId());
-        if (f2 != null) {
-            f.setFolder(f2.asFolder());
-        }
-
-        if (f.getParentFolder() != null) {
-            initFolders(f.getParentFolder(), folders);
-        }
     }
     
     /**
