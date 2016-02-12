@@ -138,4 +138,18 @@ public class CommunicatorProxy
         }
     }
 
+    public void enqueueImport(String json, StringBuilder reply)
+            throws TransportException
+    {
+        ImportRequest out = new ImportRequest(json);
+        MessengerReply in = new MessengerReply(reply);
+
+        try {
+            channel.exchange(out, in);
+        } catch (IOException ioe) {
+            throw new TransportException(
+                    "Couldn't communicate with server (I/O error).", ioe);
+        }
+    }
+    
 }

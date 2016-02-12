@@ -28,12 +28,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.ImportRequestData;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.svc.SvcRegistry;
+import org.openmicroscopy.shoola.svc.communicator.Communicator;
+import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
+import org.openmicroscopy.shoola.svc.transport.HttpChannel;
+
+import com.google.gson.Gson;
 
 /** 
  * Command to import images in a container if specified.
@@ -67,13 +73,30 @@ public class ImagesImporter
     private void importFile(ImportableFile importable, boolean close)
     {
         partialResult = new HashMap<ImportableFile, Object>();
+        String tokenURL = "http://localhost:8000/ome/import";
+        Communicator c;
+        CommunicatorDescriptor desc = new CommunicatorDescriptor
+            (HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
+        try {
+            c = SvcRegistry.getCommunicator(desc);
+            //Prepare json string
+            ImportRequestData data = new ImportRequestData();
+            
+            data.targetUri = importable.getOriginalFile().getAbsolutePath();
+            Gson writer = new Gson();
+            c.enqueueImport(writer.toJson(data), new StringBuilder());
+            partialResult.put(importable,  true);
+        } catch (Exception e) {
+            partialResult.put(importable, e);
+        }
+        /*
         OmeroImageService os = context.getImageService();
         try {
             partialResult.put(importable, 
                     os.importFile(object, importable, close));
         } catch (Exception e) {
             partialResult.put(importable, e);
-        }
+        }*/
     }
 
     /**
