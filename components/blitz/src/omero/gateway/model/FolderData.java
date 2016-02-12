@@ -114,7 +114,7 @@ public class FolderData extends DataObject {
      */
     public String getDescription() {
         return asFolder().getDescription() != null ? asFolder()
-                .getDescription().getValue() : null;
+                .getDescription().getValue() : "";
     }
 
     /**
