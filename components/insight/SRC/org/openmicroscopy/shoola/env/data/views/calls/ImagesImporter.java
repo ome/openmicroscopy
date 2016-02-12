@@ -86,7 +86,6 @@ public class ImagesImporter
             try {
                 AdminService svc = context.getAdminService();
                 c = SvcRegistry.getCommunicator(desc);
-                //Prepare json string
                 ImportRequestData data = new ImportRequestData();
                 data.experimenterEmail = svc.getUserDetails().getEmail();
                 data.omeroHost = svc.getServerName();
@@ -94,9 +93,11 @@ public class ImagesImporter
                     data.omeroPort = ""+svc.getPort();
                 }
                 data.targetUri = importable.getOriginalFile().getAbsolutePath();
+                //Prepare json string
                 Gson writer = new Gson();
                 c.enqueueImport(writer.toJson(data), new StringBuilder());
-                partialResult.put(importable,  true);
+                importable.getStatus().markedAsOffLineImport();
+                partialResult.put(importable, true);
             } catch (Exception e) {
                 partialResult.put(importable, e);
             }
