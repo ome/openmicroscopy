@@ -22,10 +22,17 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -89,12 +96,39 @@ public class ImagesImporter
                 AdminService svc = context.getAdminService();
                 c = SvcRegistry.getCommunicator(desc);
                 ImportRequestData data = new ImportRequestData();
-                data.experimenterEmail = svc.getUserDetails().getEmail();
+                ExperimenterData exp = importable.getUser();
+                if (exp == null) {
+                    exp = svc.getUserDetails();
+                }
+                data.experimenterEmail = exp.getEmail();
                 data.omeroHost = svc.getServerName();
                 if (svc.getPort() > 0) {
                     data.omeroPort = ""+svc.getPort();
                 }
                 data.targetUri = importable.getOriginalFile().getAbsolutePath();
+                DataObject target = importable.getDataset();
+                if (target != null && target.getId() < 0) {
+                    data.datasetId = ""+target.getId();
+                }
+                target = importable.getParent();
+                if (target != null) {
+                    if (target instanceof ScreenData) {
+                        data.screenId = ""+target.getId();
+                    }
+                }
+                Collection<TagAnnotationData> tags = object.getTags();
+                if (CollectionUtils.isNotEmpty(tags)) {
+                    List<String> ids = new ArrayList<String>();
+                    Iterator<TagAnnotationData> i = tags.iterator();
+                    while (i.hasNext()) {
+                        target = i.next();
+                        if (target.getId() > 0) {
+                            ids.add(""+target.getId());
+                        }
+                    }
+                    data.annotationIds = ids.toArray(new String[ids.size()]);
+                }
+                data.sessionKey = "";
                 //Prepare json string
                 Gson writer = new Gson();
                 c.enqueueImport(writer.toJson(data), new StringBuilder());
