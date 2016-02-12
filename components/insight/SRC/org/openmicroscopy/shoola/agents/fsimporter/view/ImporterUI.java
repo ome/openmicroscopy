@@ -66,6 +66,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
@@ -80,9 +81,12 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -250,12 +254,28 @@ class ImporterUI extends TopWindow
 	private JPanel buildControls()
 	{
 		JPanel p = new JPanel();
-		p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
+		Boolean offline = (Boolean)
+                ImporterAgent.getRegistry().lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+		boolean visible = offline != null && offline.booleanValue();
+		JButton b = new JButton(
+		        controller.getAction(ImporterControl.RETRY_BUTTON));
+		if (visible) {
+		    p.add(b);
+		    p.add(Box.createHorizontalStrut(5));
+		}
+		b = new JButton(
+                controller.getAction(ImporterControl.SEND_BUTTON));
+		if (visible) {
+            p.add(b);
+            p.add(Box.createHorizontalStrut(5));
+        }
 		p.add(Box.createHorizontalStrut(5));
-		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
-		p.add(Box.createHorizontalStrut(5));
-		p.add(new JButton(controller.getAction(ImporterControl.CANCEL_BUTTON)));
-		p.add(Box.createHorizontalStrut(5));
+		b = new JButton(
+                controller.getAction(ImporterControl.CANCEL_BUTTON));
+		if (visible) {
+            p.add(b);
+            p.add(Box.createHorizontalStrut(5));
+        }
 		if (!model.isMaster()) {
 			p.add(new JButton(controller.getAction(
 					ImporterControl.CLOSE_BUTTON)));
