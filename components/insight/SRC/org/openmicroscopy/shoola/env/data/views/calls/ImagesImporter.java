@@ -37,6 +37,7 @@ import omero.gateway.model.TagAnnotationData;
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ImportRequestData;
@@ -97,6 +98,21 @@ public class ImagesImporter
                 (HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
             try {
                 //code not ready for sudo operation
+                //check creation of tags and containers
+                OmeroImageService os = context.getImageService();
+                Object o = os.importFile(object, importable, close);
+                if (o instanceof ImportException) {
+                    partialResult.put(importable, o);
+                    return;
+                }
+                if (o instanceof Boolean) {
+                    Boolean b = (Boolean) o;
+                    if (!b.booleanValue() ||
+                          importable.getStatus().isMarkedAsDuplicate()) {
+                        partialResult.put(importable, o);
+                        return;
+                    }
+                }
                 AdminService svc = context.getAdminService();
                 c = SvcRegistry.getCommunicator(desc);
                 ImportRequestData data = new ImportRequestData();

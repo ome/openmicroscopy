@@ -83,7 +83,9 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+
 import omero.gateway.model.ROIResult;
+
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -961,6 +963,9 @@ class OmeroImageServiceImpl
 		ImportableFile importable, boolean close) 
 		throws ImportException, DSAccessException, DSOutOfServiceException
 	{
+	    Boolean offline = (Boolean)
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		StatusLabel status = importable.getStatus();
@@ -1125,6 +1130,15 @@ class OmeroImageServiceImpl
 					}
 				}
 			}
+			if (offline != null && offline.booleanValue()) {
+                DataObject data = PojoMapper.asDataObject(ioContainer);
+                if (data instanceof DatasetData) {
+                    importable.setLocation(importable.getParent(),
+                            (DatasetData) data);
+                } else if (data instanceof ScreenData) {
+                    importable.setLocation(data, null);
+                }
+            }
 			if (ImportableObject.isArbitraryFile(file)) {
 				if (ic == null) //already check if hcs.
 					ic = gateway.getImportCandidates(ctx, object, file, status);
@@ -1158,9 +1172,15 @@ class OmeroImageServiceImpl
 					//Check after scanning
 					if (status.isMarkedAsCancel())
 						return Boolean.valueOf(false);
+					if (offline != null && offline.booleanValue()) {
+					    return Boolean.TRUE;
+					}
 					return gateway.importImageFile(ctx, object, ioContainer,
 							importIc, status, close, userName);
 				} else {
+				    if (offline != null && offline.booleanValue()) {
+                        return Boolean.TRUE;
+                    }
 					List<ImportContainer> containers = ic.getContainers();
 					hcs = isHCS(containers);
 					Map<File, StatusLabel> files = 
@@ -1202,6 +1222,9 @@ class OmeroImageServiceImpl
 				//Check after scanning
 				if (status.isMarkedAsCancel())
 					return Boolean.valueOf(false);
+				if (offline != null && offline.booleanValue()) {
+                    return Boolean.TRUE;
+                }
 				return gateway.importImageFile(ctx, object, ioContainer,
 						importIc, status, close, userName);
 			}
@@ -1216,6 +1239,9 @@ class OmeroImageServiceImpl
             }
             return new ImportException(ImportException.FILE_NOT_VALID_TEXT);
 		}
+		if (offline != null && offline.booleanValue()) {
+            return Boolean.TRUE;
+        }
 		if (status.isMarkedAsCancel()) {
 			return Boolean.valueOf(false);
 		}
