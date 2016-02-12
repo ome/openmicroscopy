@@ -1156,6 +1156,25 @@ public class FileImportComponent
 	}
 
 	/**
+	 * Returns <code>true</code> if the import has been place in the offline
+	 * import queue, <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	public boolean isOffLineImport()
+	{
+	    boolean b = statusLabel.isMarkedOffLineImport();
+	    if (b || getFile().isFile()) return b;
+	    if (components == null) return false;
+	    Iterator<FileImportComponent> i = components.values().iterator();
+	    while (i.hasNext()) {
+	        if (i.next().isOffLineImport())
+	            return true;
+	    }
+	    return false;
+	}
+
+	/**
 	 * Returns <code>true</code> if the component has imports to cancel,
 	 * <code>false</code> otherwise.
 	 * 
