@@ -251,6 +251,7 @@ class ObjectManager
 		TreeMap<Coord3D, ROIShape> shapeList;
 		Iterator<ROIShape> shapeIterator;
 		objectsTable.clear();
+		objectsTable.initFolders(getFolders());
 		while(iterator.hasNext())
 		{
 			roi = iterator.next();
@@ -306,6 +307,7 @@ class ObjectManager
 	 */
 	void addROIShapes(List<ROIShape> shapeList)
 	{
+	    objectsTable.initFolders(getFolders());
 		objectsTable.addROIShapeList(shapeList);
 	}
 	

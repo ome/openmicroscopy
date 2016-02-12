@@ -674,6 +674,23 @@ public class ROITable
         return null;
     }
     
+    /**
+     * Initializes the Folder nodes, independently from the ROIs
+     * 
+     * @param folder
+     *            The folders
+     */
+    public void initFolders(Collection<FolderData> folders) {
+        for (FolderData f : folders) {
+            ROINode node = findFolderNode(nodes, f);
+            if (node == null) {
+                node = new ROINode(f);
+                nodes.add(node);
+                handleParentFolderNodes(node);
+            }
+        }
+    }
+    
 	/**
 	 * Invokes when a ROIShape has changed its properties. 
 	 * 
