@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import com.google.gson.Gson;
 
@@ -73,6 +72,9 @@ public class ImagesImporter
 
     /** The object hosting the information for the import. */
     private ImportableObject object;
+
+    /** recycle the session key.*/
+    private String sessionKey;
 
     /**
      * Imports the file.
@@ -131,12 +133,16 @@ public class ImagesImporter
                     data.annotationIds = ids.toArray(new String[ids.size()]);
                 }
                 //create a new client //no sudo for that demo
-                omero.client cc = new omero.client(svc.getServerName(),
-                        svc.getPort());
-                //use the login credentials.
-                UserCredentials uc = (UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
-                cc.createSession(uc.getUserName(), uc.getPassword());
-                data.sessionKey = cc.getSessionId();
+                if (sessionKey == null) {
+                    omero.client cc = new omero.client(svc.getServerName(),
+                            svc.getPort());
+                    //use the login credentials.
+                    UserCredentials uc = (UserCredentials)
+                            context.lookup(LookupNames.USER_CREDENTIALS);
+                    cc.createSession(uc.getUserName(), uc.getPassword());
+                    sessionKey = cc.getSessionId();
+                }
+                data.sessionKey = sessionKey;
                 //Prepare json string
                 Gson writer = new Gson();
                 c.enqueueImport(writer.toJson(data), new StringBuilder());
