@@ -276,8 +276,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     }
 
     /**
-     * If the {@link #setResources()} has been called with a non-null
-     * value, then create an {@link Entry} which will ping the
+     * If the {@link #setResources(Resources)} has been called with a
+     * non-null value, then create an {@link Entry} which will ping the
      * {@link ServiceFactoryPrx} instance periodically to keep the import
      * from timing out. This is especially important for autoClose imports
      * since no other client is likely to keep them alive.
