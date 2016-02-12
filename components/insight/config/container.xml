@@ -173,6 +173,8 @@
     <entry name="/services/DEBUGGER/applicationNameComment">3</entry>
     <entry name="/services/DEBUGGER/postTimeout" type="integer">2000</entry>
     <entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
+    <!-- URL to do offline import -->
+    <entry name="omero.client.import.offline.url">http://localhost:8000/ome/import</entry>
   </services>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

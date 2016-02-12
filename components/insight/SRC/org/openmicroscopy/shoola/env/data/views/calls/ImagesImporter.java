@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ImportRequestData;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
@@ -38,6 +40,7 @@ import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import com.google.gson.Gson;
 
@@ -73,15 +76,23 @@ public class ImagesImporter
     private void importFile(ImportableFile importable, boolean close)
     {
         partialResult = new HashMap<ImportableFile, Object>();
-        if (importable.isOffLine()) {
-            String tokenURL = "http://localhost:8000/ome/import";
+        //To be read from config.
+        String tokenURL = (String)
+                context.lookup(LookupNames.OFFLINE_IMPORT_URL);
+        if (CommonsLangUtils.isNotBlank(tokenURL)) {
             Communicator c;
             CommunicatorDescriptor desc = new CommunicatorDescriptor
                 (HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
             try {
+                AdminService svc = context.getAdminService();
                 c = SvcRegistry.getCommunicator(desc);
                 //Prepare json string
                 ImportRequestData data = new ImportRequestData();
+                data.experimenterEmail = svc.getUserDetails().getEmail();
+                data.omeroHost = svc.getServerName();
+                if (svc.getPort() > 0) {
+                    data.omeroPort = ""+svc.getPort();
+                }
                 data.targetUri = importable.getOriginalFile().getAbsolutePath();
                 Gson writer = new Gson();
                 c.enqueueImport(writer.toJson(data), new StringBuilder());
