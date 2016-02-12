@@ -77,9 +77,11 @@ public class ImagesImporter
     {
         partialResult = new HashMap<ImportableFile, Object>();
         //To be read from config.
-        String tokenURL = (String)
-                context.lookup(LookupNames.OFFLINE_IMPORT_URL);
-        if (CommonsLangUtils.isNotBlank(tokenURL)) {
+        Boolean offline = (Boolean)
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+        if (offline != null && offline) {
+            String tokenURL = (String)
+                    context.lookup(LookupNames.OFFLINE_IMPORT_URL);
             Communicator c;
             CommunicatorDescriptor desc = new CommunicatorDescriptor
                 (HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
