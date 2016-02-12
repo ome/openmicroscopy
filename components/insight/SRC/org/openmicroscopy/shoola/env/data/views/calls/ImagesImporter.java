@@ -161,7 +161,6 @@ public class ImagesImporter
                 data.sessionKey = sessionKey;
                 //Prepare json string
                 Gson writer = new Gson();
-                System.err.println(writer.toJson(data));
                 c.enqueueImport(writer.toJson(data), new StringBuilder());
                 importable.getStatus().markedAsOffLineImport();
                 partialResult.put(importable, true);
