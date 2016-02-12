@@ -127,7 +127,7 @@ public class ImagesImporter
                 }
                 data.targetUri = importable.getOriginalFile().getAbsolutePath();
                 DataObject target = importable.getDataset();
-                if (target != null && target.getId() < 0) {
+                if (target != null && target.getId() > 0) {
                     data.datasetId = ""+target.getId();
                 }
                 target = importable.getParent();
@@ -161,6 +161,7 @@ public class ImagesImporter
                 data.sessionKey = sessionKey;
                 //Prepare json string
                 Gson writer = new Gson();
+                System.err.println(writer.toJson(data));
                 c.enqueueImport(writer.toJson(data), new StringBuilder());
                 importable.getStatus().markedAsOffLineImport();
                 partialResult.put(importable, true);

@@ -1130,7 +1130,7 @@ class OmeroImageServiceImpl
 					}
 				}
 			}
-			if (offline != null && offline.booleanValue()) {
+			if (offline != null && offline.booleanValue() && ioContainer != null) {
                 DataObject data = PojoMapper.asDataObject(ioContainer);
                 if (data instanceof DatasetData) {
                     importable.setLocation(importable.getParent(),
