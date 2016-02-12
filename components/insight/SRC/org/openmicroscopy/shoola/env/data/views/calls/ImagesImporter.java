@@ -38,6 +38,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ImportRequestData;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -93,6 +94,7 @@ public class ImagesImporter
             CommunicatorDescriptor desc = new CommunicatorDescriptor
                 (HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
             try {
+                //code not ready for sudo operation
                 AdminService svc = context.getAdminService();
                 c = SvcRegistry.getCommunicator(desc);
                 ImportRequestData data = new ImportRequestData();
@@ -128,7 +130,13 @@ public class ImagesImporter
                     }
                     data.annotationIds = ids.toArray(new String[ids.size()]);
                 }
-                data.sessionKey = "";
+                //create a new client //no sudo for that demo
+                omero.client cc = new omero.client(svc.getServerName(),
+                        svc.getPort());
+                //use the login credentials.
+                UserCredentials uc = (UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
+                cc.createSession(uc.getUserName(), uc.getPassword());
+                data.sessionKey = cc.getSessionId();
                 //Prepare json string
                 Gson writer = new Gson();
                 c.enqueueImport(writer.toJson(data), new StringBuilder());
