@@ -368,4 +368,7 @@ public class LookupNames
     /** Lookup name for the url to use to do an offline import */
     public static final String OFFLINE_IMPORT_URL = "omero.client.import.offline.url";
 
+    /** Lookup name for the flag indicating if the offline import is on/off.*/
+    public static final String OFFLINE_IMPORT_ENABLED = "omero.client.import.offline.enabled";
+
 }

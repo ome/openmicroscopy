@@ -175,6 +175,7 @@
     <entry name="/services/DEBUGGER/emailAddress">qa@openmicroscopy.org.uk</entry>
     <!-- URL to do offline import -->
     <entry name="omero.client.import.offline.url">http://localhost:8000/ome/import</entry>
+    <entry name="omero.client.import.offline.enabled" type="boolean">true</entry>
   </services>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
