@@ -20,13 +20,17 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import omero.gateway.SecurityContext;
+import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
+import omero.model.IObject;
 
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -59,11 +63,25 @@ public class ROIFolderSaver extends BatchCallTree {
             public void doCall() throws Exception {
                 ROIFacility svc = context.getGateway().getFacility(
                         ROIFacility.class);
+                DataManagerFacility dm = context.getGateway().getFacility(DataManagerFacility.class);
+                
                 if (action == ROIFolderAction.ADD_TO_FOLDER) {
                     svc.addRoisToFolders(ctx, imageID, roiList, folders);
                 }
                 if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
                     svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
+                }
+                if (action == ROIFolderAction.CREATE_FOLDER) {
+                    for(FolderData folder :folders)
+                        dm.saveAndReturnObject(ctx, folder);
+                }
+                if (action == ROIFolderAction.DELETE_FOLDER) {
+                    List<IObject> ifolders = new ArrayList<IObject>(
+                            folders.size());
+                    for (FolderData f : folders)
+                        ifolders.add((IObject) f.asFolder());
+
+                    dm.delete(ctx, ifolders);
                 }
                 result = Collections.EMPTY_LIST;
             }

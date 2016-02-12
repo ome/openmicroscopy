@@ -54,7 +54,10 @@ public interface ROIActionController
 		DELETE,
 		TAG,
 		ADD_TO_FOLDER,
-		REMOVE_FROM_FOLDER
+		REMOVE_FROM_FOLDER,
+		CREATE_FOLDER,
+		DELETE_FOLDER,
+		EDIT_FOLDER
 	};
 	
 	/** List of statistical actions possible. */
@@ -90,5 +93,14 @@ public interface ROIActionController
     
     /** Remove from folder.*/
     public void removeFromFolder();
+    
+    /** Create a new folder */
+    public void createFolder();
+    
+    /** Delete folder */
+    public void deleteFolder();
+    
+    /** Edit a folder */
+    public void editFolder();
     
 }

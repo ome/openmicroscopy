@@ -551,6 +551,16 @@ class ObjectManager
     }
     
     /**
+     * Delete Folders
+     * 
+     * @param folders
+     *            The Folders
+     */
+    public void deleteFolders(Collection<FolderData> folders) {
+        model.deleteFolders(folders);
+    }
+    
+    /**
      * Removes ROIs from Folders
      * 
      * @param selectedObjects
@@ -572,6 +582,10 @@ class ObjectManager
         }
         model.removeROIsFromFolder(rois.values(), folders);
     }
+
+    public void saveROIFolders( Collection<FolderData> folders) {
+        model.saveROIFolders(folders);
+    }
     
     /**
      * Checks if the current image is editable by the user
@@ -583,6 +597,14 @@ class ObjectManager
             return false;
         else
             return model.getImage().canEdit();
+    }
+    
+    /**
+     * Get all available folders
+     * @return See above
+     */
+    Collection<FolderData> getFolders() {
+        return model.getFolders();
     }
 }
 

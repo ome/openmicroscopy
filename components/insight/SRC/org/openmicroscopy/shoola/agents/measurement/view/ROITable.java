@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
+import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
 import javax.swing.table.TableColumn;
@@ -58,6 +59,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRe
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -69,6 +71,7 @@ import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 
 /**
@@ -112,11 +115,8 @@ public class ROITable
 	/** Flag indicating to reset the component when loading locally.*/
 	private boolean reset;
 	
-	/** Reference to available Folders; has to be a Map to avoid duplicates */
-	private Map<Long, FolderData> availableFolders = new HashMap<Long, FolderData>();
-	
-	/** Flag if the current SelectionWizard was triggered by an 'add' action */
-	private boolean addAction = true;
+	/** The type of action currently performed */
+	private CreationActionType action;
 	
 	/**
 	 * Returns <code>true</code> if all the roishapes in the shapelist 
@@ -224,6 +224,16 @@ public class ROITable
 	}
 	
 	/** 
+     * Invokes when folders are selected.
+     * 
+     * @param folders The selected folders.
+     */
+    void onSelectedFolders(List<FolderData> folders)
+    {
+        popupMenu.setFolderActionsEnabled(folders);
+    }
+	
+	/** 
 	 * Select the ROIShape in the TreeTable and move the view port of the 
 	 * table to the shape selected. 
 	 * @param shape
@@ -282,7 +292,6 @@ public class ROITable
 			root.remove(0);
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 		this.nodes.clear();
-		this.availableFolders.clear();
 		this.invalidate();
 		this.repaint();
 	}
@@ -333,8 +342,6 @@ public class ROITable
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		shapeList.add(shape);
 		addROIShapeList(shapeList);
-		for(FolderData f : shape.getROI().getFolders())
-		    availableFolders.put(f.getId(), f);
 	}
 
 	/**
@@ -857,6 +864,25 @@ public class ROITable
 	}
 	
 	/**
+     * Get the selected Folders
+     * @return see above.
+     */
+    List<FolderData> getSelectedFolders()
+    {
+        List<FolderData> result = new ArrayList<FolderData>();
+        int [] selectedRows = this.getSelectedRows();
+        for (int i = 0 ; i < selectedRows.length ; i++)
+        {
+            Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+            if (nodeObject instanceof FolderData)
+            {
+                result.add((FolderData)nodeObject);
+            }
+        }
+        return result;
+    }
+	
+	/**
 	 * Duplicates the ROI
 	 * @see ROIActionController#duplicateROI()
 	 */
@@ -988,7 +1014,6 @@ public class ROITable
 	{
 		if (MeasurementViewerControl.isRightClick(e)) {
 			Collection l = getSelectedObjects();
-			if (l == null || l.size() == 0) return;
 			Iterator i = l.iterator();
 			Object o;
 			ROI roi;
@@ -1004,7 +1029,12 @@ public class ROITable
 					list.add(shape.getFigure());
 				}
 			}
-			onSelectedFigures(list);
+			
+			if(!list.isEmpty())
+			    onSelectedFigures(list);
+			else
+			    onSelectedFolders(getSelectedFolders());
+			
 			showROIManagementMenu(this, e.getX(), e.getY());
 		}
 	}
@@ -1047,8 +1077,8 @@ public class ROITable
 
     @Override
     public void addToFolder() {
-        addAction = true;
-        Collection<Object> tmp = new ArrayList<Object>(availableFolders.values());
+        action = CreationActionType.ADD_TO_FOLDER;
+        Collection<Object> tmp = new ArrayList<Object>(manager.getFolders());
         SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
         wiz.setTitle("Add to ROI Folders", "Select the Folders to add the ROI(s) to", IconManager.getInstance().getIcon(IconManager.ROIFOLDER));
         wiz.addPropertyChangeListener(this);
@@ -1057,7 +1087,7 @@ public class ROITable
 
     @Override
     public void removeFromFolder() {
-        addAction = false;
+        action = CreationActionType.REMOVE_FROM_FOLDER;
         List<ROIShape> selectedObjects = getSelectedROIShapes();
         Map<Long, Object> inFolders = new HashMap<Long, Object>();
         for (ROIShape shape : selectedObjects) {
@@ -1075,11 +1105,40 @@ public class ROITable
         wiz.addPropertyChangeListener(this);
         UIUtilities.centerAndShow(wiz);
     }
+    
+    @Override
+    public void createFolder() {
+        action = CreationActionType.CREATE_FOLDER;
+        DataObject obj = new FolderData();
+        EditorDialog d = new EditorDialog((JFrame) null, obj, false);
+        d.addPropertyChangeListener(this);
+        UIUtilities.centerAndShow(d);
+    }
+    
+    @Override
+    public void deleteFolder() {
+        action = CreationActionType.DELETE_FOLDER;
+        List<FolderData> selection = getSelectedFolders();
+        manager.deleteFolders(selection);
+    }
+    
+    @Override
+    public void editFolder() {
+        action = CreationActionType.EDIT_FOLDER;
+        
+        List<FolderData> selection = getSelectedFolders();
+        if(selection.size()==1) {
+            DataObject obj = selection.get(0);
+            EditorDialog d = new EditorDialog((JFrame) null, obj, false, EditorDialog.EDIT_TYPE);
+            d.addPropertyChangeListener(this);
+            UIUtilities.centerAndShow(d);
+        }
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(evt
-                .getPropertyName())) {
+        String name = evt.getPropertyName();
+        if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 
             List<ROIShape> selectedObjects = getSelectedROIShapes();
             Collection<FolderData> folders = null;
@@ -1103,12 +1162,31 @@ public class ROITable
             if (folders == null)
                 return;
 
-            if (addAction) {
+            if (action==CreationActionType.ADD_TO_FOLDER) {
                 manager.addRoisToFolder(selectedObjects, folders);
-            } else {
+            } else if(action==CreationActionType.REMOVE_FROM_FOLDER){
                 manager.removeRoisFromFolder(selectedObjects, folders);
             }
         }
+        
+        if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name) ||
+                EditorDialog.CREATE_PROPERTY.equals(name)) {
+            FolderData parent = null;
+            List<FolderData> sel = getSelectedFolders();
+            if (sel.size() == 1)
+                parent = sel.get(0);
+            
+            Collection<FolderData> toSave = new ArrayList<FolderData>();
+            
+            FolderData folder = (FolderData) evt.getNewValue();
+            if(action == CreationActionType.CREATE_FOLDER && parent!=null) {
+                folder.setParentFolder(parent.asFolder());
+            }
+            
+            toSave.add(folder);
+            
+            manager.saveROIFolders(Collections.singleton(folder));
+        } 
     }
     
     

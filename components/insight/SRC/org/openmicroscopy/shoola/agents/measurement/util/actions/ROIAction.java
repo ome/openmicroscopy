@@ -117,11 +117,23 @@ public class ROIAction
                 break;
 			case ADD_TO_FOLDER:
                 setName("Add to Folder");
-                setToolTip("Adds the Rois(s) to specific Folders.");
+                setToolTip("Adds the Rois to specific Folders.");
                 break;
             case REMOVE_FROM_FOLDER:
                 setName("Remove from Folder");
-                setToolTip("Removes the Roi(s) from specific Folders.");
+                setToolTip("Removes the Rois from specific Folders.");
+                break;
+            case CREATE_FOLDER:
+                setName("Create Folder");
+                setToolTip("Creates a new Folder.");
+                break;
+            case DELETE_FOLDER:
+                setName("Delete Folders");
+                setToolTip("Deletes the Folders.");
+                break;
+            case EDIT_FOLDER:
+                setName("Edit Folder");
+                setToolTip("Edit Folder.");
 		}
 	}
 	
@@ -166,6 +178,15 @@ public class ROIAction
                 break;
             case REMOVE_FROM_FOLDER:
                 controller.removeFromFolder();
+                break;
+            case CREATE_FOLDER:
+                controller.createFolder();
+                break;
+            case DELETE_FOLDER:
+                controller.deleteFolder();
+                break;
+            case EDIT_FOLDER:
+                controller.editFolder();
 		}
 	}
 }

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,10 +33,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 //Third-party libraries
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-
-import org.jhotdraw.draw.Figure;
+import omero.gateway.model.FolderData;
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.CreationActionType;
@@ -121,6 +121,47 @@ public class ROIPopupMenu
 		createROICreationOptions();
 	}
 
+    /**
+     * Sets the flag to access the action to manage ROI Folders.
+     * 
+     * @param folders
+     *            The selected Folders.
+     */
+    public void setFolderActionsEnabled(List<FolderData> folders) {
+        Iterator<FolderData> i = folders.iterator();
+        int delete = 0;
+        int edit = 0;
+        FolderData folder;
+        while (i.hasNext()) {
+            folder = i.next();
+            if (folder.canEdit())
+                edit++;
+            if (folder.canDelete())
+                delete++;
+        }
+
+        Iterator<ROIAction> j = actions.iterator();
+        ROIAction action;
+        boolean db = delete == folders.size();
+        boolean eb = edit == 1 && folders.size() == 1;
+        while (j.hasNext()) {
+            action = j.next();
+            switch (action.getCreationActionType()) {
+            case CREATE_FOLDER:
+                action.setEnabled(true);
+                break;
+            case DELETE_FOLDER:
+                action.setEnabled(db);
+                break;
+            case EDIT_FOLDER:
+                action.setEnabled(eb);
+                break;
+            default:
+                action.setEnabled(false);
+            }
+        }
+    }
+    
 	/**
 	 * Sets the flag to access the action to manage ROIs.
 	 * 

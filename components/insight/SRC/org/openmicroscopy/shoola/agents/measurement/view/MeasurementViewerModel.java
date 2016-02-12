@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -210,6 +211,9 @@ class MeasurementViewerModel
 
     /** Collection of existing tags if any. */
     private Collection existingTags;
+    
+    /** Collection of existing folders if any. */
+    private Collection<FolderData> folders;
 
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary.
@@ -614,6 +618,22 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	Collection getMeasurementResults() { return measurementResults; }
+
+	/**
+	 * Set the available folders
+	 * @param folders The folders
+	 */
+    void setFolders(Collection<FolderData> folders) {
+        this.folders = folders;
+    }
+
+    /**
+     * Get the available folders
+     * @return See above
+     */
+    Collection<FolderData> getFolders() {
+        return folders == null ? Collections.EMPTY_LIST : folders;
+    }
 
 	/**
 	 * Sets the server ROIS.
@@ -1195,6 +1215,40 @@ class MeasurementViewerModel
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),
                 getImageID(), exp.getId(), selectedObjects, folders,
                 ROIFolderAction.ADD_TO_FOLDER);
+        currentSaver.load();
+        state = MeasurementViewer.SAVING_ROI;
+    }
+    
+    /**
+     * Delete Folders
+     * 
+     * @param folders
+     *            The Folders
+     */
+    void deleteFolders(Collection<FolderData> folders) {
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), null, folders,
+                ROIFolderAction.DELETE_FOLDER);
+        currentSaver.load();
+        state = MeasurementViewer.SAVING_ROI;
+    }
+    
+    /**
+     * Add ROIs to Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    void saveROIFolders(Collection<FolderData> folders) {
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), null, folders,
+                ROIFolderAction.CREATE_FOLDER);
         currentSaver.load();
         state = MeasurementViewer.SAVING_ROI;
     }
