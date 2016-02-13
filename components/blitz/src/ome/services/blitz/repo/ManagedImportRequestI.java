@@ -292,7 +292,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 public boolean check() {
                     try {
                         if (sf != null) {
-                            log.info("-------------->keepalive");
                             sf.keepAlive(null);
                             return true;
                         }
