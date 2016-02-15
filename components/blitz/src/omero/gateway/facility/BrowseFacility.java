@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import omero.ServerError;
 import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
@@ -453,22 +452,7 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            List<IObject> projects = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ProjectData.class).getName(), null, null);
-
-            Collection<ProjectData> result = new ArrayList<ProjectData>(
-                    projects.size());
-            for (IObject proj : projects)
-                result.add((ProjectData) PojoMapper.asDataObject(proj));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load projects");
-        }
-
-        return Collections.emptyList();
+           return getProjects(ctx, -1);
     }
 
     /**
@@ -487,30 +471,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
-            return Collections.emptyList();
-        
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-
-            List<Long> idsList = new ArrayList<Long>(ids.size());
-            for (long id : ids)
-                idsList.add(id);
-
-            List<IObject> projects = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ProjectData.class).getName(), idsList, null);
-
-            Collection<ProjectData> result = new ArrayList<ProjectData>(
-                    projects.size());
-            for (IObject proj : projects)
-                result.add((ProjectData) PojoMapper.asDataObject(proj));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load projects");
-        }
-
-        return Collections.emptyList();
+        return getProjects(ctx, -1, ids);
     }
 
     /**
@@ -518,8 +479,8 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the owner
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getProjects(SecurityContext)} )
      * @return A collection of {@link ProjectData}s
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
@@ -529,9 +490,12 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
+            
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> projects = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ProjectData.class).getName(), null, param);
@@ -554,8 +518,8 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the owner
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getProjects(SecurityContext, Collection)} )
      * @param ids
      *            The ids of the projects to fetch
      * @return A collection of {@link ProjectData}s
@@ -567,7 +531,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -577,8 +541,11 @@ public class BrowseFacility extends Facility {
             for (long id : ids)
                 idsList.add(id);
 
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
 
             List<IObject> projects = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ProjectData.class).getName(), idsList, param);
@@ -611,22 +578,7 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(DatasetData.class).getName(), null, null);
-
-            Collection<DatasetData> result = new ArrayList<DatasetData>(
-                    datasets.size());
-            for (IObject ds : datasets)
-                result.add((DatasetData) PojoMapper.asDataObject(ds));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load datasets");
-        }
-
-        return Collections.emptyList();
+        return getDatasets(ctx, -1);
     }
 
     /**
@@ -645,33 +597,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
-            return Collections.emptyList();
-        
-        try {
-            ParametersI param = new ParametersI();
-            param.leaves();
-
-            IContainerPrx service = gateway.getPojosService(ctx);
-
-            List<Long> idsList = new ArrayList<Long>(ids.size());
-            for (long id : ids)
-                idsList.add(id);
-
-            List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(DatasetData.class).getName(), idsList, param);
-
-            Collection<DatasetData> result = new ArrayList<DatasetData>(
-                    datasets.size());
-            for (IObject ds : datasets)
-                result.add((DatasetData) PojoMapper.asDataObject(ds));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load datasets");
-        }
-
-        return Collections.emptyList();
+        return getDatasets(ctx, -1, ids);
     }
 
     /**
@@ -680,7 +606,8 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId
-     *            The id of the user
+     *            The id of the user (if <code><0</code> see
+     *            {@link #getDatasets(SecurityContext)} )
      * @return A collection of {@link DatasetData}s
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
@@ -690,11 +617,13 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            if (ownerId < 0)
-                return Collections.emptyList();
             
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
+            
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
             
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
@@ -718,8 +647,8 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getDatasets(SecurityContext, Collection)} )
      * @param ids
      *            The ids of the datasets to load
      * @return A collection of {@link DatasetData}s
@@ -731,7 +660,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty() || ownerId < 0)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -742,7 +671,8 @@ public class BrowseFacility extends Facility {
                 idsList.add(id);
 
             ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
+            if (ownerId >= 0)
+                param.exp(omero.rtypes.rlong(ownerId));
             param.leaves();
 
             List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
@@ -776,22 +706,7 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            List<IObject> screens = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ScreenData.class).getName(), null, null);
-
-            Collection<ScreenData> result = new ArrayList<ScreenData>(
-                    screens.size());
-            for (IObject s : screens)
-                result.add((ScreenData) PojoMapper.asDataObject(s));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load screens");
-        }
-
-        return Collections.emptyList();
+        return getScreens(ctx, -1);
     }
 
     /**
@@ -810,30 +725,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
-            return Collections.emptyList();
-        
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-
-            List<Long> idsList = new ArrayList<Long>(ids.size());
-            for (long id : ids)
-                idsList.add(id);
-
-            List<IObject> screens = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ScreenData.class).getName(), idsList, null);
-
-            Collection<ScreenData> result = new ArrayList<ScreenData>(
-                    screens.size());
-            for (IObject s : screens)
-                result.add((ScreenData) PojoMapper.asDataObject(s));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load screens");
-        }
-
-        return Collections.emptyList();
+        return getScreens(ctx, -1, ids);
     }
 
     /**
@@ -841,8 +733,8 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getScreens(SecurityContext)} )
      * @return A collection of {@link ScreenData}s
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
@@ -852,12 +744,12 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            if (ownerId < 0)
-                return Collections.emptyList();
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
             
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> screens = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ScreenData.class).getName(), null, param);
@@ -880,8 +772,8 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getScreens(SecurityContext, Collection)} )
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link ScreenData}s
@@ -893,7 +785,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty() || ownerId < 0)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -903,9 +795,12 @@ public class BrowseFacility extends Facility {
             for (long id : ids)
                 idsList.add(id);
 
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
+            
             List<IObject> screens = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ScreenData.class).getName(), idsList, param);
 
@@ -937,22 +832,7 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public Collection<PlateData> getPlates(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            List<IObject> plates = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(PlateData.class).getName(), null, null);
-
-            Collection<PlateData> result = new ArrayList<PlateData>(
-                    plates.size());
-            for (IObject p : plates)
-                result.add((PlateData) PojoMapper.asDataObject(p));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load plates");
-        }
-
-        return Collections.emptyList();
+        return getPlates(ctx, -1);
     }
 
     /**
@@ -971,30 +851,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty())
-            return Collections.emptyList();
-        
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-
-            List<Long> idsList = new ArrayList<Long>(ids.size());
-            for (long id : ids)
-                idsList.add(id);
-
-            List<IObject> plates = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(PlateData.class).getName(), idsList, null);
-
-            Collection<PlateData> result = new ArrayList<PlateData>(
-                    plates.size());
-            for (IObject p : plates)
-                result.add((PlateData) PojoMapper.asDataObject(p));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load plates");
-        }
-
-        return Collections.emptyList();
+        return getPlates(ctx, -1, ids);
     }
 
     /**
@@ -1002,8 +859,8 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getPlates(SecurityContext)} )
      * @return A collection of {@link PlateData}s
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
@@ -1013,12 +870,12 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            if (ownerId < 0)
-                return Collections.emptyList();
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
             
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
                     .getModelType(PlateData.class).getName(), null, param);
@@ -1041,8 +898,8 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getPlates(SecurityContext, Collection)} )
      * @param ids
      *            The ids of the plates to load
      * @return A collection of {@link PlateData}s
@@ -1054,7 +911,7 @@ public class BrowseFacility extends Facility {
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty() || ownerId < 0)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -1064,8 +921,11 @@ public class BrowseFacility extends Facility {
             for (long id : ids)
                 idsList.add(id);
 
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
             
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
                     .getModelType(PlateData.class).getName(), idsList, param);
@@ -1318,13 +1178,16 @@ public class BrowseFacility extends Facility {
      */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null || ids.isEmpty() || ownerId < 0)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
+            
             List<Long> idsList = new ArrayList<Long>(ids.size());
             for (long id : ids)
                 idsList.add(id);
