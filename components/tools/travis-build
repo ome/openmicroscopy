@@ -65,6 +65,9 @@ java_test()
     # format statement, any use must be escaped as '%%'.
     if [[ "2" -ne $(git grep -E '[^%]%[^%]' components/dsl/resources/ome/dsl/  | wc -l) ]]; then exit 2; fi
 
+    # Check for IDE auto-import of certainly unintended Java package.
+    git grep -q '^import edu\.emory\.mathcs\.backport\.' && exit 2
+
     # make sure that the current db script has no code-generated
     # foreign key names in it
     dist/bin/omero db script "" "" ome -f- | grep -LiE "fk[a-z]*[0-9]+[a-z0-9]{5}" && {
