@@ -41,9 +41,7 @@ import omero.model.Temperature;
 import omero.model.TemperatureI;
 import omero.model.enums.UnitsTemperature;
 
-import org.hibernate.mapping.Array;
 import org.testng.Assert;
-import org.testng.Assert.ThrowingRunnable;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -156,17 +154,22 @@ public class MetadataFacilityTest extends GatewayTest {
         List<AnnotationData> annos = annoMap.get(img);
         Assert.assertEquals(annos.size(), 1);
         Assert.assertEquals(tag.getId(), annos.get(0).getId());
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testGetSpecificAnnotationsException()
+            throws ExecutionException, DSOutOfServiceException,
+            DSAccessException {
+        final MetadataFacility mdf = gw.getFacility(MetadataFacility.class);
 
         // Test if exception is thrown when types are mixed.
-        Assert.expectThrows(IllegalArgumentException.class,
-                new ThrowingRunnable() {
+        final List<DataObject> objs = new ArrayList<DataObject>();
+        objs.add(img);
+        objs.add(new ProjectData());
 
-                    @Override
-                    public void run() throws Throwable {
-                        objs.add(new ProjectData());
-                        mdf.getAnnotations(rootCtx, objs, types, null);
-                    }
+        final List<Class<? extends AnnotationData>> types = new ArrayList<Class<? extends AnnotationData>>();
+        types.add(TagAnnotationData.class);
 
-                });
+        mdf.getAnnotations(rootCtx, objs, types, null);
     }
 }
