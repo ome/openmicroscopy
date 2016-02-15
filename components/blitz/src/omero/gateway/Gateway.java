@@ -165,34 +165,34 @@ public class Gateway {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     
     /** Thread pool for asynchronous method calls */
-    private ExecutorService executors;
+    private ExecutorService executorService;
     
     /**
      * Creates a new Gateway instance
      * @param log A {@link Logger}
      */
     public Gateway(Logger log) {
-        this(log, null);
+        this(log, null, null);
     }
 
     /**
      * Creates a new Gateway instance
-     * @param log A {@link Logger}
-     * @param cacheService A {@link CacheService}, can be <code>null</code>
+     * 
+     * @param log
+     *            A {@link Logger}
+     * @param cacheService
+     *            A {@link CacheService}, can be <code>null</code>
+     * @param executorService
+     *            A {@link ExecutorService} for handling asynchronous tasks, can
+     *            be <code>null</code> (in which case the Java built-in cached
+     *            thread pool will be used)
      */
-    public Gateway(Logger log, CacheService cacheService) {
+    public Gateway(Logger log, CacheService cacheService,
+            ExecutorService executorService) {
         this.log = log;
         this.cacheService = cacheService;
-        this.executors = Executors.newCachedThreadPool();
-    }
-
-    /**
-     * Access the {@link ExecutorService} for running async tasks
-     * 
-     * @return See above.
-     */
-    public ExecutorService getExecutorService() {
-        return executors;
+        this.executorService = executorService == null ? Executors
+                .newCachedThreadPool() : executorService;
     }
 
     /**
@@ -203,7 +203,7 @@ public class Gateway {
      * @return The callback reference
      */
     public <T> Future<T> submit(Callable<T> task) {
-        return executors.submit(task);
+        return executorService.submit(task);
     }
     
     // Public connection handling methods
@@ -239,17 +239,17 @@ public class Gateway {
      */
     public void disconnect() {
         // shutdown still running asynchronous tasks
-        executors.shutdown();
+        executorService.shutdown();
         try {
-            if (!executors.awaitTermination(30, TimeUnit.SECONDS)) {
-                executors.shutdownNow();
-                if (!executors.awaitTermination(30, TimeUnit.SECONDS))
+            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+                if (!executorService.awaitTermination(30, TimeUnit.SECONDS))
                     getLogger()
                             .warn(this,
                                     "Could not terminate all asynchronous tasks");
             }
         } catch (InterruptedException ie) {
-            executors.shutdownNow();
+            executorService.shutdownNow();
             Thread.currentThread().interrupt();
         }
         
