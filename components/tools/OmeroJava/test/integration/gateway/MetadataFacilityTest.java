@@ -22,6 +22,7 @@ package integration.gateway;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -40,14 +41,18 @@ import omero.model.Temperature;
 import omero.model.TemperatureI;
 import omero.model.enums.UnitsTemperature;
 
+import org.hibernate.mapping.Array;
 import org.testng.Assert;
+import org.testng.Assert.ThrowingRunnable;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageAcquisitionData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.ProjectData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TextualAnnotationData;
 
@@ -132,5 +137,36 @@ public class MetadataFacilityTest extends GatewayTest {
                 found++;
         }
         Assert.assertEquals(found, 2);
+    }
+    
+    @Test
+    public void testGetSpecificAnnotations() throws ExecutionException,
+            DSOutOfServiceException, DSAccessException {
+        final MetadataFacility mdf = gw.getFacility(MetadataFacility.class);
+        final List<DataObject> objs = new ArrayList<DataObject>();
+        objs.add(img);
+
+        final List<Class<? extends AnnotationData>> types = new ArrayList<Class<? extends AnnotationData>>();
+        types.add(TagAnnotationData.class);
+
+        Map<DataObject, List<AnnotationData>> annoMap = mdf.getAnnotations(
+                rootCtx, objs, types, null);
+        Assert.assertEquals(1, annoMap.size());
+
+        List<AnnotationData> annos = annoMap.get(img);
+        Assert.assertEquals(annos.size(), 1);
+        Assert.assertEquals(tag.getId(), annos.get(0).getId());
+
+        // Test if exception is thrown when types are mixed.
+        Assert.expectThrows(IllegalArgumentException.class,
+                new ThrowingRunnable() {
+
+                    @Override
+                    public void run() throws Throwable {
+                        objs.add(new ProjectData());
+                        mdf.getAnnotations(rootCtx, objs, types, null);
+                    }
+
+                });
     }
 }

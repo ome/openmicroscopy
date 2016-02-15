@@ -177,14 +177,15 @@ public class MetadataFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @param objects
-     *            The {@link DataObject}s to load the annotations for
+     *            The {@link DataObject}s to load the annotations for (have to
+     *            be all of the same type)
      * @param annotationTypes
      *            The type of annotations to load (can be <code>null</code>)
      * @param userIds
      *            Only load annotations of certain users (can be
      *            <code>null</code>, i. e. all users)
-     * @return Lists of {@link AnnotationData}s mapped to the {@link DataObject}s
-     *         they are attached to.
+     * @return Lists of {@link AnnotationData}s mapped to the {@link DataObject}
+     *         s they are attached to.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -203,6 +204,10 @@ public class MetadataFacility extends Facility {
         for (DataObject obj : objects) {
             if (type == null)
                 type = PojoMapper.getModelType(obj.getClass()).getName();
+            else if (!type.equals(PojoMapper.getModelType(obj.getClass())
+                    .getName()))
+                throw new IllegalArgumentException(
+                        "All objects have to be the same type");
             ids.add(obj.getId());
         }
 
