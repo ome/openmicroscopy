@@ -329,8 +329,8 @@ public class ImportContainer
                 : rstring(getUserSpecifiedDescription());
         // Creating a new list so that later additions aren't propagated
         // to further images. trac:13074
-        settings.userSpecifiedAnnotationList = new ArrayList<Annotation>(
-                getCustomAnnotationList());
+        settings.userSpecifiedAnnotationList = getCustomAnnotationList() == null ? null :
+            new ArrayList<Annotation>(getCustomAnnotationList());
 
         // 5.0.x: pass an annotation
         if (config.autoClose.get()) {
