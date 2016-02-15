@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,13 +33,13 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Arrays;
+import java.util.concurrent.Future;
 
 import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
-import omero.gateway.facility.Callback;
 import omero.model.IObject;
 import omero.model.PixelsType;
 
@@ -137,50 +137,21 @@ public class DataManagerFacilityTest extends GatewayTest {
 
     @Test
     public void testAttachFile() throws Exception {
-        File tmp = File.createTempFile("tmp", "file");
-        File tmp2 = File.createTempFile("tmp2", "file");
+        File tmp = File.createTempFile("attachedFile", "file");
         BufferedWriter out = new BufferedWriter(new FileWriter(tmp));
         out.write("Just a test");
         out.close();
-        out = new BufferedWriter(new FileWriter(tmp2));
-        out.write("Just a test - 2");
-        out.close();
-        
+
         DatasetData ds = new DatasetData();
         ds.setName(UUID.randomUUID().toString());
         ds = (DatasetData) datamanagerFacility.saveAndReturnObject(rootCtx, ds);
 
-        // async test
-        Callback cb = new Callback() {
+        Future<FileAnnotationData> cb = datamanagerFacility.attachFile(rootCtx,
+                tmp, "text/plain", "test", null, ds);
+        FileAnnotationData fa = cb.get();
 
-            @Override
-            public void handleResult(Object result) {
-                Assert.assertNotNull(result, "File upload was not successful!");
-                Assert.assertTrue(((FileAnnotationData) result).getId() >= 0,
-                        "File upload was not successful!");
-            }
-
-            @Override
-            public void handleException(Throwable t) {
-                Assert.assertTrue(false, "File upload was not successful!");
-            }
-
-        };
-
-        datamanagerFacility.attachFile(rootCtx, tmp, "text/plain", "test", null, ds, cb);
-
-        while (!cb.isFinished()) {
-            Thread.sleep(100);
-        }
-        
-        // sync test
-        FileAnnotationData fa = datamanagerFacility.attachFile(rootCtx, tmp2, "text/plain", "test", null, ds, null);
-        Assert.assertNotNull(fa, "File upload was not successful!");
-        Assert.assertTrue(fa.getId() >= 0,
-                "File upload was not successful!");
-        
+        Assert.assertTrue(fa.getFileName().startsWith("attachedFile"));
         tmp.delete();
-        tmp2.delete();
     }
     
     @Test
