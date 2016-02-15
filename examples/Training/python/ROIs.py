@@ -91,8 +91,9 @@ ellipse.theT = rint(theT)
 ellipse.textValue = rstring("test-Ellipse")
 
 # Create an ROI containing 2 shapes on same plane
-# NB: OMERO.insight client doesn't support this
-# The ellipse is removed later (see below)
+# NB: OMERO.insight client doesn't support display
+# of multiple shapes on a single plane.
+# Therefore the ellipse is removed later (see below)
 createROI(image, [rect, ellipse])
 
 # create an ROI with single line shape
@@ -178,7 +179,7 @@ createROI(image, [point])
 
 
 def pointsToString(points):
-    """ Returns strange format supported by Insight """
+    """ Returns legacy format supported by Insight """
     points = ["%s,%s" % (p[0], p[1]) for p in points]
     csv = ", ".join(points)
     return "points[%s] points1[%s] points2[%s]" % (csv, csv, csv)

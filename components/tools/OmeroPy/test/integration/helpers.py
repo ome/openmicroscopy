@@ -35,3 +35,26 @@ def createTestImage(session):
                                       "description", dataset=None)
 
     return image.getId().getValue()
+
+
+def createImageWithPixels(client, name, sizes={}):
+        """
+        Create a new image with pixels
+        """
+        pixelsService = client.sf.getPixelsService()
+        queryService = client.sf.getQueryService()
+
+        pixelsType = queryService.findByQuery(
+            "from PixelsType as p where p.value='int8'", None)
+        assert pixelsType is not None
+
+        sizeX = "x" in sizes and sizes["x"] or 1
+        sizeY = "y" in sizes and sizes["y"] or 1
+        sizeZ = "z" in sizes and sizes["z"] or 1
+        sizeT = "t" in sizes and sizes["t"] or 1
+        sizeC = "c" in sizes and sizes["c"] or 1
+        channelList = range(1, sizeC+1)
+        id = pixelsService.createImage(
+            sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
+            name, description=None)
+        return id

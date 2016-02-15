@@ -50,7 +50,7 @@ class CLITest(AbstractCLITest):
     def setup_method(self, method):
         self.args = self.login_args()
 
-    def create_object(self, object_type):
+    def create_object(self, object_type, name=""):
         # create object
         if object_type == 'Dataset':
             new_object = omero.model.DatasetI()
@@ -62,7 +62,7 @@ class CLITest(AbstractCLITest):
             new_object = omero.model.ScreenI()
         elif object_type == 'Image':
             new_object = self.new_image()
-        new_object.name = rstring("")
+        new_object.name = rstring(name)
         new_object = self.update.saveAndReturnObject(new_object)
 
         # check object has been created
