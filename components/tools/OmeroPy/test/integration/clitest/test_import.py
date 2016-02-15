@@ -251,7 +251,7 @@ class TestImport(CLITest):
 
         assert len(stateful) == 0
 
-    @pytest.mark.parametrize("args", [
+    CA_TESTS = [
         (False, 'Adler-32'),  # one underscore only
         (True, 'Adler-32'),
         (True, 'CRC-32'),
@@ -259,7 +259,11 @@ class TestImport(CLITest):
         (True, 'MD5-128'),
         (True, 'Murmur3-32'),
         (True, 'Murmur3-128'),
-        (True, 'SHA1-160')])
+        (True, 'SHA1-160')]
+    CA_NAMES = ["%s-%s" % (x[1], x[0] and "underscore" or "legacy")
+                for x in CA_TESTS]
+
+    @pytest.mark.parametrize("args", CA_TESTS, ids=CA_NAMES)
     def testChecksumAlgorithm(self, tmpdir, capfd, args):
         """Test checksum algorithm argument"""
 
