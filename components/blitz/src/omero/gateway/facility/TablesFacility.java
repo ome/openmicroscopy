@@ -338,7 +338,7 @@ public class TablesFacility extends Facility {
     }
 
     /**
-     * Get all available tables for a the specified object
+     * Get all available tables for the specified object
      * 
      * @param ctx
      *            The {@link SecurityContext}
