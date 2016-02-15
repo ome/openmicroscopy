@@ -30,7 +30,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import omero.ServerError;
 import omero.api.IContainerPrx;
@@ -602,33 +604,25 @@ public class DataManagerFacility extends Facility {
     }
     
     /**
-     * Uploads and attaches a file to the provided {@link DataObject} (if
-     * provided)
+     * Attaches a {@link File} to a {@link DataObject}
      * 
      * @param ctx
-     *            {@link SecurityContext}
+     *            The {@link SecurityContext}
      * @param file
-     *            The {@link File} to upload/attach
+     *            The {@link File} to attach
      * @param mimetype
-     *            The mime type of the file (can be <code>null</code>)
+     *            The mimetype of the file (can be <code>null</code>)
      * @param description
-     *            The description (can be <code>null</code>)
+     *            A description (can be <code>null</code>)
      * @param namespace
      *            The namespace (can be <code>null</code>)
      * @param target
-     *            The {@link DataObject} to attach the file to (can be
-     *            <code>null</code>)
-     * @param callback
-     *            If no {@link Callback} is provided, the method will block
-     *            until the task is finished, otherwise the upload runs
-     *            asynchronously and the {@link Callback} handle gets notified
-     *            about the outcome
-     * @return The {@link FileAnnotationData} if no {@link Callback} handle was
-     *         provided, <code>null</code> otherwise
+     *            The {@link DataObject} to attach the file to
+     * @return The {@link Future} {@link FileAnnotationData}
      */
-    public FileAnnotationData attachFile(final SecurityContext ctx,
+    public Future<FileAnnotationData> attachFile(final SecurityContext ctx,
             final File file, String mimetype, final String description,
-            final String namespace, final DataObject target, Callback callback) {
+            final String namespace, final DataObject target) {
         final String name = file.getName();
         String absolutePath = file.getAbsolutePath();
         final String path = absolutePath.substring(0, absolutePath.length()
@@ -640,12 +634,11 @@ public class DataManagerFacility extends Facility {
         else
             mime = mimetype;
 
-        final Callback cb = callback != null ? callback : new Callback();
-
-        Runnable r = new Runnable() {
+        Callable<FileAnnotationData> c = new Callable<FileAnnotationData>() {
             @Override
-            public void run() {
+            public FileAnnotationData call() throws Exception {
                 RawFileStorePrx rawFileStore = null;
+                FileInputStream stream = null;
                 try {
                     OriginalFile originalFile = new OriginalFileI();
                     originalFile.setName(omero.rtypes.rstring(name));
@@ -661,30 +654,27 @@ public class DataManagerFacility extends Facility {
 
                     rawFileStore = gateway.getRawFileService(ctx);
                     rawFileStore.setFileId(originalFile.getId().getValue());
-                    FileInputStream stream = new FileInputStream(file);
+                    stream = new FileInputStream(file);
                     long pos = 0;
                     int rlen;
                     byte[] buf = new byte[INC];
                     ByteBuffer bbuf;
-                    while (((rlen = stream.read(buf)) > 0) && !cb.isCancelled()) {
+                    while (((rlen = stream.read(buf)) > 0)) {
+                        if (Thread.currentThread().isInterrupted()) {
+                            stream.close();
+                            try {
+                                rawFileStore.close();
+                            } catch (ServerError e) {
+                            }
+                            return null;
+                        }
                         rawFileStore.write(buf, pos, rlen);
                         pos += rlen;
                         bbuf = ByteBuffer.wrap(buf);
                         bbuf.limit(rlen);
                     }
-                    stream.close();
-
-                    if (cb.isCancelled()) {
-                        try {
-                            rawFileStore.close();
-                        } catch (ServerError e) {
-                        }
-                        cb.setResult(null);
-                        return;
-                    }
 
                     originalFile = rawFileStore.save();
-
                     FileAnnotation fa = new FileAnnotationI();
                     fa.setFile(originalFile);
                     if (description != null)
@@ -693,13 +683,15 @@ public class DataManagerFacility extends Facility {
                     fa = (FileAnnotation) saveAndReturnObject(ctx, fa);
 
                     if (target != null)
-                        cb.setResult(attachAnnotation(ctx,
-                                new FileAnnotationData(fa), target));
+                        return attachAnnotation(ctx,
+                                new FileAnnotationData(fa), target);
                     else
-                        cb.setResult(new FileAnnotationData(fa));
-                } catch (Throwable t) {
-                    cb.setException(t);
+                        return new FileAnnotationData(fa);
+                } catch (Exception t) {
+                    throw t;
                 } finally {
+                    if (stream != null)
+                        stream.close();
                     if (rawFileStore != null) {
                         try {
                             rawFileStore.close();
@@ -710,13 +702,7 @@ public class DataManagerFacility extends Facility {
             }
         };
 
-        if (callback != null) {
-            (new Thread(r)).start();
-            return null;
-        }
-        
-        r.run();
-        return (FileAnnotationData) cb.result;
+        return gateway.submit(c);
     }
     
     /**

@@ -29,7 +29,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -160,6 +164,9 @@ public class Gateway {
     /** The PropertyChangeSupport */
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     
+    /** Thread pool for asynchronous method calls */
+    private ExecutorService executors;
+    
     /**
      * Creates a new Gateway instance
      * @param log A {@link Logger}
@@ -176,8 +183,29 @@ public class Gateway {
     public Gateway(Logger log, CacheService cacheService) {
         this.log = log;
         this.cacheService = cacheService;
+        this.executors = Executors.newCachedThreadPool();
     }
 
+    /**
+     * Access the {@link ExecutorService} for running async tasks
+     * 
+     * @return See above.
+     */
+    public ExecutorService getExecutorService() {
+        return executors;
+    }
+
+    /**
+     * Submits an async task
+     * 
+     * @param task
+     *            The task
+     * @return The callback reference
+     */
+    public <T> Future<T> submit(Callable<T> task) {
+        return executors.submit(task);
+    }
+    
     // Public connection handling methods
 
     /**
@@ -210,6 +238,21 @@ public class Gateway {
      * Disconnects from the server
      */
     public void disconnect() {
+        // shutdown still running asynchronous tasks
+        executors.shutdown();
+        try {
+            if (!executors.awaitTermination(30, TimeUnit.SECONDS)) {
+                executors.shutdownNow();
+                if (!executors.awaitTermination(30, TimeUnit.SECONDS))
+                    getLogger()
+                            .warn(this,
+                                    "Could not terminate all asynchronous tasks");
+            }
+        } catch (InterruptedException ie) {
+            executors.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+        
         boolean online = isNetworkUp(false);
         List<Connector> connectors = getAllConnectors();
         Iterator<Connector> i = connectors.iterator();
