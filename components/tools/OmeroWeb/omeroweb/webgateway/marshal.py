@@ -244,10 +244,10 @@ def shapeMarshal(shape):
         # TODO: support for mask
     elif shape_type == omero.model.EllipseI:
         rv['type'] = 'Ellipse'
-        rv['cx'] = shape.getCx().getValue()
-        rv['cy'] = shape.getCy().getValue()
-        rv['rx'] = shape.getRx().getValue()
-        rv['ry'] = shape.getRy().getValue()
+        rv['cx'] = shape.getX().getValue()
+        rv['cy'] = shape.getY().getValue()
+        rv['rx'] = shape.getRadiusX().getValue()
+        rv['ry'] = shape.getRadiusY().getValue()
     elif shape_type == omero.model.PolylineI:
         rv['type'] = 'PolyLine'
         rv['points'] = stringToSvg(shape.getPoints().getValue())
@@ -259,8 +259,8 @@ def shapeMarshal(shape):
         rv['y2'] = shape.getY2().getValue()
     elif shape_type == omero.model.PointI:
         rv['type'] = 'Point'
-        rv['cx'] = shape.getCx().getValue()
-        rv['cy'] = shape.getCy().getValue()
+        rv['cx'] = shape.getX().getValue()
+        rv['cy'] = shape.getY().getValue()
     elif shape_type == omero.model.PolygonI:
         rv['type'] = 'Polygon'
         # z = closed line
