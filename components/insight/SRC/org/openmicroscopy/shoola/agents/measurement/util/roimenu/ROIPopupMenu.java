@@ -128,6 +128,40 @@ public class ROIPopupMenu
      *            The selected Folders.
      */
     public void setFolderActionsEnabled(List<FolderData> folders) {
+        // Disable roi actions
+        Iterator<ROIAction> j = actions.iterator();
+        while (j.hasNext()) {
+            ROIAction action = j.next();
+            switch (action.getCreationActionType()) {
+            case ADD_TO_FOLDER:
+                action.setEnabled(false);
+                break;
+            case DELETE:
+                action.setEnabled(false);
+                break;
+            case DUPLICATE:
+                action.setEnabled(false);
+                break;
+            case MERGE:
+                action.setEnabled(false);
+                break;
+            case PROPAGATE:
+                action.setEnabled(false);
+                break;
+            case REMOVE_FROM_FOLDER:
+                action.setEnabled(false);
+                break;
+            case SPLIT:
+                action.setEnabled(false);
+                break;
+            case TAG:
+                action.setEnabled(false);
+                break;
+            default:
+                break;
+            }
+        }
+        
         Iterator<FolderData> i = folders.iterator();
         int delete = 0;
         int edit = 0;
@@ -140,15 +174,17 @@ public class ROIPopupMenu
                 delete++;
         }
 
-        Iterator<ROIAction> j = actions.iterator();
+        j = actions.iterator();
         ROIAction action;
         boolean db = delete == folders.size();
         boolean eb = edit == 1 && folders.size() == 1;
+        boolean cb = folders.size() == 0
+                || (folders.size() == 1 && folders.get(0).canEdit());
         while (j.hasNext()) {
             action = j.next();
             switch (action.getCreationActionType()) {
             case CREATE_FOLDER:
-                action.setEnabled(true);
+                action.setEnabled(cb);
                 break;
             case DELETE_FOLDER:
                 action.setEnabled(db);
@@ -157,7 +193,7 @@ public class ROIPopupMenu
                 action.setEnabled(eb);
                 break;
             default:
-                action.setEnabled(false);
+                break;
             }
         }
     }
@@ -167,8 +203,24 @@ public class ROIPopupMenu
 	 * 
 	 * @param figures The selected figure.
 	 */
-	public void setActionsEnabled(Collection<Figure> figures)
+	public void setFigureActionsEnabled(Collection<Figure> figures)
 	{
+	    // Disable folder actions
+	    Iterator<ROIAction> j = actions.iterator();
+        while (j.hasNext()) {
+            ROIAction action = j.next();
+            switch (action.getCreationActionType()) {
+            case DELETE_FOLDER:
+                action.setEnabled(false);
+                break;
+            case EDIT_FOLDER:
+                action.setEnabled(false);
+                break;
+            default:
+                break;
+            }
+        }
+	    
 		Iterator<Figure> i = figures.iterator();
 		Figure figure;
 		int readable = 0;
@@ -186,7 +238,7 @@ public class ROIPopupMenu
 				}
 			}
 		}
-		Iterator<ROIAction> j = actions.iterator();
+		j = actions.iterator();
 		if (readable != figures.size()) { //some read-only
 			while (j.hasNext()) {
 				j.next().setEnabled(false);
@@ -195,20 +247,40 @@ public class ROIPopupMenu
 			ROIAction action;
 			boolean db = delete == figures.size();
 			boolean eb = edit == figures.size();
-			while (j.hasNext()) {
-				action = j.next();
-				switch (action.getCreationActionType()) {
-					case DUPLICATE:
-						action.setEnabled(true);
-						break;
-					case DELETE:
-						action.setEnabled(db);
-						break;
-					default:
-						action.setEnabled(eb);
-				}
-			}
-		}
+            while (j.hasNext()) {
+                action = j.next();
+                switch (action.getCreationActionType()) {
+                case DUPLICATE:
+                    action.setEnabled(eb);
+                    break;
+                case DELETE:
+                    action.setEnabled(db);
+                    break;
+                case ADD_TO_FOLDER:
+                    action.setEnabled(eb);
+                    break;
+                case CREATE_FOLDER:
+                    action.setEnabled(true);
+                    break;
+                case MERGE:
+                    action.setEnabled(eb);
+                    break;
+                case PROPAGATE:
+                    action.setEnabled(eb);
+                    break;
+                case REMOVE_FROM_FOLDER:
+                    action.setEnabled(eb);
+                    break;
+                case SPLIT:
+                    action.setEnabled(eb);
+                    break;
+                case TAG:
+                    action.setEnabled(eb);
+                default:
+                    break;
+                }
+            }
+        }
 	}
 
 	/**

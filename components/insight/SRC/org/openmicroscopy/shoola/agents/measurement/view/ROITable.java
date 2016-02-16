@@ -44,6 +44,8 @@ import java.util.Map.Entry;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
@@ -117,6 +119,16 @@ public class ROITable
 	
 	/** The type of action currently performed */
 	private CreationActionType action;
+	
+	/** Holds the previously used selection, used for resetting the selection */
+	private int[] previousSelectionIndices;
+	
+	/**
+	 * The type of objects selected
+	 */
+	enum SelectionType {
+	    ROIS, SHAPES, FOLDERS, MIXED
+	}
 	
 	/**
 	 * Returns <code>true</code> if all the roishapes in the shapelist 
@@ -211,7 +223,57 @@ public class ROITable
 		setTreeCellRenderer(new ROITableCellRenderer());
 		popupMenu = new ROIPopupMenu(this);
 		reset = false;
+		
+		// make sure either shapes or folders can be selected, not both
+        selectionModel.addListSelectionListener(new ListSelectionListener() {
+            boolean active = true;
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!active)
+                    return;
+
+                if (getSelectionType(getSelectedObjects()) == SelectionType.MIXED
+                        && previousSelectionIndices != null) {
+                    active = false;
+                    selectionModel.clearSelection();
+                    for (int i : previousSelectionIndices)
+                        selectionModel.addSelectionInterval(i, i);
+                    active = true;
+                } else
+                    previousSelectionIndices = getSelectedRows();
+            }
+        });
 	}
+	
+    /**
+     * Determines which type of objects are selected
+     * 
+     * @param selection
+     *            The objects
+     * @return The {@link SelectionType}
+     */
+    SelectionType getSelectionType(List selection) {
+        SelectionType result = null;
+        for (Object obj : selection) {
+            SelectionType tmp = null;
+            if (obj instanceof ROI)
+                tmp = SelectionType.ROIS;
+            else if (obj instanceof ROIShape)
+                tmp = SelectionType.SHAPES;
+            else if (obj instanceof FolderData)
+                tmp = SelectionType.FOLDERS;
+
+            if (result == null) {
+                result = tmp;
+            } else {
+                if (result != tmp) {
+                    return SelectionType.MIXED;
+                }
+            }
+        }
+        return result;
+    }
 	
 	/** 
 	 * Invokes when new figures are selected.
@@ -220,7 +282,7 @@ public class ROITable
 	 */
 	void onSelectedFigures(Collection<Figure> figures)
 	{
-		popupMenu.setActionsEnabled(figures);
+		popupMenu.setFigureActionsEnabled(figures);
 	}
 	
 	/** 
@@ -743,6 +805,7 @@ public class ROITable
 			}
 		}
 		ROIShape roiShape;
+		FolderData folder;
 		for (int i = 0 ; i < selectedRows.length ; i++)
 		{	
 			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
@@ -752,7 +815,14 @@ public class ROITable
 				if (!roiMap.containsKey(roiShape.getID()))
 					selectedList.add(roiShape);
 			}
+			
+			else if (nodeObject instanceof FolderData)
+            {
+			    folder = (FolderData) nodeObject;
+                selectedList.add(folder);
+            }
 		}
+		
 		return selectedList;
 	}
 
@@ -1030,28 +1100,21 @@ public class ROITable
 	protected void onMousePressed(MouseEvent e)
 	{
 		if (MeasurementViewerControl.isRightClick(e)) {
-			Collection l = getSelectedObjects();
-			Iterator i = l.iterator();
-			Object o;
-			ROI roi;
-			ROIShape shape;
-			List<Figure> list = new ArrayList<Figure>();
-			while (i.hasNext()) {
-				o =  i.next();
-				if (o instanceof ROI) {
-					roi = (ROI) o;
-					list.addAll(roi.getAllFigures());
-				} else if (o instanceof ROIShape) {
-					shape = (ROIShape) o;
-					list.add(shape.getFigure());
-				}
-			}
-			
-			if(!list.isEmpty())
-			    onSelectedFigures(list);
-			else
-			    onSelectedFolders(getSelectedFolders());
-			
+		    
+		    List<ROIShape> shapes = getSelectedROIShapes();
+		    List<FolderData> folders = getSelectedFolders();
+		    
+		    if(!shapes.isEmpty()) {
+		        List<Figure> list = new ArrayList<Figure>();
+	            for(ROIShape s : shapes) {
+	                list.add(s.getFigure());
+	            }
+		        onSelectedFigures(list);
+		    }
+		    else if(!folders.isEmpty()) {
+		        onSelectedFolders(folders);
+		    }
+		    
 			showROIManagementMenu(this, e.getX(), e.getY());
 		}
 	}

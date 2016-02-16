@@ -166,6 +166,10 @@ class ObjectManager
 					if (nodeValue instanceof ROIShape) {
 					    view.selectFigure(((ROIShape) nodeValue).getFigure());
 					}
+					if(nodeValue instanceof FolderData) {
+					 // if folder is selected clear figure selection
+					    view.selectFigure(null);
+					}
 					int col = objectsTable.getSelectedColumn();
 					int row = objectsTable.getSelectedRow();
 					
@@ -173,16 +177,24 @@ class ObjectManager
 				}
 				else
 				{
-					ROIShape shape;
-					for (int i = 0; i < index.length; i++)
-					{
-						shape = objectsTable.getROIShapeAtRow(index[i]);
-						if (shape != null)
-						{
-							view.selectFigure(shape.getFigure());
-							requestFocus();
-						}
-					}
+                    ROIShape shape;
+                    for (int i = 0; i < index.length; i++) {
+                        shape = objectsTable.getROIShapeAtRow(index[i]);
+                        if (shape != null) {
+                            view.selectFigure(shape.getFigure());
+                        } else {
+                            // if folder is selected clear figure selection
+                            ROINode node = (ROINode) objectsTable
+                                    .getNodeAtRow(index[i]);
+                            if (node != null) {
+                                Object nodeValue = node.getUserObject();
+                                if (nodeValue instanceof FolderData) {
+                                    view.selectFigure(null);
+                                    break;
+                                }
+                            }
+                        }
+                    }
 				}
 			}
 		};
