@@ -3461,7 +3461,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseRadiusX(Double radiusX, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setRx(toRType(radiusX));
+        o.setRadiusX(toRType(radiusX));
     }
 
     /* (non-Javadoc)
@@ -3471,7 +3471,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseRadiusY(Double radiusY, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setRy(toRType(radiusY));
+        o.setRadiusY(toRType(radiusY));
     }
 
     /* (non-Javadoc)
@@ -3554,7 +3554,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseX(Double x, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setCx(toRType(x));
+        o.setX(toRType(x));
     }
 
     /* (non-Javadoc)
@@ -3564,7 +3564,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseY(Double y, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setCy(toRType(y));
+        o.setY(toRType(y));
     }
 
     ////////Experiment/////////
@@ -6316,7 +6316,7 @@ public class OMEROMetadataStoreClient
     public void setPointX(Double x, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setCx(toRType(x));
+        o.setX(toRType(x));
     }
 
     /* (non-Javadoc)
@@ -6326,7 +6326,7 @@ public class OMEROMetadataStoreClient
     public void setPointY(Double y, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setCy(toRType(y));
+        o.setY(toRType(y));
     }
 
     //////// Polyline /////////
