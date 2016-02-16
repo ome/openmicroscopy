@@ -42,9 +42,9 @@ namespace omero {
     namespace sys {
 
 	/**
-	 * Ice versions 3.4.x and 3.5beta have a bug preventing the
-	 * use of IceUtil::Handle (generated classes such as
-	 * omero::sys::Parameters are derived from both
+	 * Ice versions 3.4 and 3.5 (3.6 needs evaluating) have a bug
+	 * preventing the use of IceUtil::Handle (generated classes
+	 * such as omero::sys::Parameters are derived from both
 	 * IceUtil::Shared and IceInternal::GCShared which both
 	 * provide __incRef() and __decRef() and so the Handle class
 	 * can't call them without causing a compilation failure.
