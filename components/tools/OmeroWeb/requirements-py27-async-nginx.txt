@@ -1,8 +1,0 @@
-# Python installation requirements for OMERO.web
-# ==============================================
-#
-#     pip install -r requirements-py27-async-nginx.txt
-#
-Django>=1.8,<1.9
-gunicorn>=19.3
-gevent>=0.13

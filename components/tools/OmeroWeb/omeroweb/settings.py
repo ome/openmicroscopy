@@ -196,7 +196,6 @@ del get_event
 WSGI = "wsgi"
 WSGITCP = "wsgi-tcp"
 WSGI_TYPES = (WSGI, WSGITCP)
-WSGI_WORKER_CLASS = ("sync", "gevent")
 DEVELOPMENT = "development"
 DEFAULT_SERVER_TYPE = WSGITCP
 ALL_SERVER_TYPES = (WSGI, WSGITCP, DEVELOPMENT)
@@ -218,14 +217,6 @@ def parse_boolean(s):
 
 def parse_paths(s):
     return [os.path.normpath(path) for path in json.loads(s)]
-
-
-def check_worker_class(s):
-    if s not in WSGI_WORKER_CLASS:
-        raise ValueError(
-            "Unknown worker type: %s. Valid values are: %s"
-            % (s, WSGI_WORKER_CLASS))
-    return s
 
 
 def check_server_type(s):
@@ -465,27 +456,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("The number of worker processes for handling requests. "
           "Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#workers")],
-    "omero.web.wsgi_worker_class":
-        ["WSGI_WORKER_CLASS",
-         "sync",
-         check_worker_class,
-         ("The default OMERO.web uses sync workers to handle most “normal” "
-          "types of workloads. Check Gunicorn Design Documentation "
-          "http://docs.gunicorn.org/en/stable/design.html")],
-    "omero.web.wsgi_worker_connections":
-        ["WSGI_WORKER_CONNECTIONS",
-         1000,
-         int,
-         ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
-          "Check Gunicorn Documentation http://docs.gunicorn.org"
-          "/en/stable/settings.html#worker-connections")],
-    "omero.web.wsgi_threads":
-        ["WSGI_THREADS",
-         1,
-         int,
-         ("(SYNC WORKERS only) The number of worker threads for handling "
-          "requests. Check Gunicorn Documentation "
-          "http://docs.gunicorn.org/en/stable/settings.html#threads")],
     "omero.web.wsgi_timeout":
         ["WSGI_TIMEOUT",
          60,
@@ -739,10 +709,52 @@ DEPRECATED_SETTINGS_MAPPINGS = {
 
 del CUSTOM_HOST
 
+
+def check_worker_class(c):
+    if c == "gevent":
+        try:
+            import gevent  # NOQA
+        except ImportError:
+            raise ImportError("You are using async workers based "
+                              "on Greenlets via Gevent. Install gevent")
+    return c
+
+
+def check_threading(t):
+    if t > 1:
+        try:
+            import concurrent.futures  # NOQA
+        except ImportError:
+            raise ImportError("You are using sync workers with "
+                              "multiple threads. Install futures")
+    return t
+
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
 # a ticket that needs to be resolved before a release either by moving the
 # setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
-DEVELOPMENT_SETTINGS_MAPPINGS = {}
+DEVELOPMENT_SETTINGS_MAPPINGS = {
+    "omero.web.wsgi_worker_class":
+        ["WSGI_WORKER_CLASS",
+         "sync",
+         check_worker_class,
+         ("The default OMERO.web uses sync workers to handle most “normal” "
+          "types of workloads. Check Gunicorn Design Documentation "
+          "http://docs.gunicorn.org/en/stable/design.html")],
+    "omero.web.wsgi_worker_connections":
+        ["WSGI_WORKER_CONNECTIONS",
+         1000,
+         int,
+         ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
+          "Check Gunicorn Documentation http://docs.gunicorn.org"
+          "/en/stable/settings.html#worker-connections")],
+    "omero.web.wsgi_threads":
+        ["WSGI_THREADS",
+         1,
+         check_threading,
+         ("(SYNC WORKERS only) The number of worker threads for handling "
+          "requests. Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/stable/settings.html#threads")],
+}
 
 
 def map_deprecated_settings(settings):
@@ -803,6 +815,10 @@ def process_custom_settings(
             raise ValueError(
                 "Invalid %s (%s = %r). %s. %s" %
                 (global_name, key, global_value, e.message, description))
+        except ImportError, e:
+            raise ImportError(
+                "ImportError: %s. %s (%s = %r).\n%s" %
+                (e.message, global_name, key, global_value, description))
         except LeaveUnset:
             pass
 
