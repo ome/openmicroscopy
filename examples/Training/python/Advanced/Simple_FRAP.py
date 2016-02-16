@@ -50,10 +50,10 @@ def getEllipses(conn, imageId):
     for roi in result.rois:
         for shape in roi.copyShapes():
             if type(shape) == omero.model.EllipseI:
-                cx = int(shape.getCx().getValue())
-                cy = int(shape.getCy().getValue())
-                rx = int(shape.getRx().getValue())
-                ry = int(shape.getRy().getValue())
+                cx = int(shape.getX().getValue())
+                cy = int(shape.getY().getValue())
+                rx = int(shape.getRadiusX().getValue())
+                ry = int(shape.getRadiusY().getValue())
                 z = int(shape.getTheZ().getValue())
                 t = int(shape.getTheT().getValue())
                 ellipses[t] = {'cx': cx, 'cy': cy, 'rx': rx, 'ry': ry, 'z': z}
