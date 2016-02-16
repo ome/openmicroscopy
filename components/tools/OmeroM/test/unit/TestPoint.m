@@ -42,8 +42,8 @@ classdef TestPoint < TestShape
         
         function testValidPoint(self)
             assertTrue(isa(self.shape, 'omero.model.PointI'));
-            assertEqual(self.shape.getCx().getValue(), self.x);
-            assertEqual(self.shape.getCy().getValue(), self.y);
+            assertEqual(self.shape.getX().getValue(), self.x);
+            assertEqual(self.shape.getY().getValue(), self.y);
         end
         
         function testEmptyInput(self)
