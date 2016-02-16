@@ -181,6 +181,10 @@ class ImportControl(BaseControl):
             help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
         java_group.add_argument(
+            "-T", "--target", dest="java_target",
+            help="OMERO target specification (**)",
+            metavar="TARGET")
+        java_group.add_argument(
             "--debug", choices=DEBUG_CHOICES, dest="java_debug",
             help="Turn debug logging on (**)",
             metavar="LEVEL")
@@ -235,6 +239,7 @@ class ImportControl(BaseControl):
             "java_l": "-l",
             "java_d": "-d",
             "java_r": "-r",
+            "java_target": ("--target",),
             "java_name": ("--name",),
             "java_description": ("--description",),
             "java_plate_name": ("--plate_name",),

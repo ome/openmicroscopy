@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -84,6 +84,9 @@ public interface Importer
 
     /** Flag to denote the <i>Importing</i> state. */
     public static final int IMPORTING = 4;
+    
+    /** Flag to denote the <i>Loading</i> state. */
+    public static final int LOADING = 5;
 
     /**
      * Starts the data loading process when the current state is {@link #NEW}
