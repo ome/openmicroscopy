@@ -838,11 +838,11 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             shape.theZ = rint(0)
             shape.theT = rint(0)
             values = columns[4].values
-            shape.cx = rdouble(float(values[i]))
+            shape.x = rdouble(float(values[i]))
             values = columns[3].values
-            shape.cy = rdouble(float(values[i]))
-            shape.rx = diameter
-            shape.ry = diameter
+            shape.y = rdouble(float(values[i]))
+            shape.radiusX = diameter
+            shape.radiusY = diameter
             roi.addShape(shape)
             roi.image = unloaded_image
             roi.linkAnnotation(unloaded_file_annotation)
@@ -879,9 +879,9 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             shape.theZ = rint(0)
             shape.theT = rint(0)
             values = columns[3].values
-            shape.cx = rdouble(float(values[i]))
+            shape.x = rdouble(float(values[i]))
             values = columns[2].values
-            shape.cy = rdouble(float(values[i]))
+            shape.y = rdouble(float(values[i]))
             roi.addShape(shape)
             roi.image = unloaded_image
             roi.linkAnnotation(unloaded_file_annotation)
@@ -1202,8 +1202,8 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                 shape = PointI()
                 shape.theZ = rint(0)
                 shape.theT = rint(0)
-                shape.cx = rdouble(float(columns['Cell: cgX'].values[i]))
-                shape.cy = rdouble(float(columns['Cell: cgY'].values[i]))
+                shape.x = rdouble(float(columns['Cell: cgX'].values[i]))
+                shape.y = rdouble(float(columns['Cell: cgY'].values[i]))
                 roi.addShape(shape)
                 roi.image = unloaded_image
                 roi.linkAnnotation(unloaded_file_annotation)
@@ -1214,8 +1214,8 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                 shape = PointI()
                 shape.theZ = rint(0)
                 shape.theT = rint(0)
-                shape.cx = rdouble(float(columns['Nucleus: cgX'].values[i]))
-                shape.cy = rdouble(float(columns['Nucleus: cgY'].values[i]))
+                shape.x = rdouble(float(columns['Nucleus: cgX'].values[i]))
+                shape.y = rdouble(float(columns['Nucleus: cgY'].values[i]))
                 roi.addShape(shape)
                 roi.image = unloaded_image
                 roi.linkAnnotation(unloaded_file_annotation)

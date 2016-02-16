@@ -382,19 +382,19 @@ class EllipseData(ShapeData, ROIDrawingI):
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ)
         ellipse.setTheT(self.coord.theZ)
-        ellipse.setCx(self.cx)
-        ellipse.setCy(self.cy)
-        ellipse.setRx(self.rx)
-        ellipse.setRy(self.ry)
+        ellipse.setX(self.cx)
+        ellipse.setY(self.cy)
+        ellipse.setRadiusX(self.rx)
+        ellipse.setRadiusY(self.ry)
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
-        self.cx = roi.getCx()
-        self.cy = roi.getCy()
-        self.rx = roi.getRx()
-        self.ry = roi.getRy()
+        self.cx = roi.getX()
+        self.cy = roi.getY()
+        self.rx = roi.getRadiusX()
+        self.ry = roi.getRadiusY()
 
     ##
     # overridden, @See ShapeData#createBaseType
