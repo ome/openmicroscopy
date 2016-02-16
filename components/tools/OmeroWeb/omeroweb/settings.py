@@ -717,7 +717,7 @@ def check_worker_class(c):
         except ImportError:
             raise ImportError("You are using async workers based "
                               "on Greenlets via Gevent. Install gevent")
-    return c
+    return str(c)
 
 
 def check_threading(t):
@@ -727,7 +727,7 @@ def check_threading(t):
         except ImportError:
             raise ImportError("You are using sync workers with "
                               "multiple threads. Install futures")
-    return t
+    return int(t)
 
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
 # a ticket that needs to be resolved before a release either by moving the
