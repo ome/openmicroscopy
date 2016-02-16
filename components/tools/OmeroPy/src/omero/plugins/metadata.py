@@ -500,7 +500,8 @@ class MetadataControl(BaseControl):
                 meas.parse_and_populate()
 
 try:
-    register("metadata", MetadataControl, HELP)
+    if "OMERO_DEV_PLUGINS" in os.environ:
+        register("metadata", MetadataControl, HELP)
 except NameError:
     if __name__ == "__main__":
         cli = CLI()
