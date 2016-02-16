@@ -36,7 +36,7 @@ ip.parse(x, y, rx, varargin{:});
 
 % Create an Ellipse shape
 ellipse = omero.model.EllipseI;
-ellipse.setCx(rdouble(x));
-ellipse.setCy(rdouble(y));
-ellipse.setRx(rdouble(rx));
-ellipse.setRy(rdouble(ip.Results.ry));
+ellipse.setX(rdouble(x));
+ellipse.setY(rdouble(y));
+ellipse.setRadiusX(rdouble(rx));
+ellipse.setRadiusY(rdouble(ip.Results.ry));
