@@ -619,10 +619,10 @@ public class OmeroReader extends FormatReader {
 
         EllipseI shape1 = (EllipseI) shape;
 
-        double x1 = shape1.getCx().getValue();
-        double y1 = shape1.getCy().getValue();
-        double width = shape1.getRx().getValue();
-        double height = shape1.getRy().getValue();
+        double x1 = shape1.getX().getValue();
+        double y1 = shape1.getY().getValue();
+        double width = shape1.getRadiusX().getValue();
+        double height = shape1.getRadiusY().getValue();
 
         String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
         store.setEllipseID(polylineID, roiNum, shapeNum);
@@ -653,8 +653,8 @@ public class OmeroReader extends FormatReader {
             MetadataStore store, int roiNum, int shapeNum) {
 
         PointI shape1 = (PointI) shape;
-        double ox1 = shape1.getCx().getValue();
-        double oy1 = shape1.getCy().getValue();
+        double ox1 = shape1.getX().getValue();
+        double oy1 = shape1.getY().getValue();
 
         String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
         store.setPointID(polylineID, roiNum, shapeNum);
