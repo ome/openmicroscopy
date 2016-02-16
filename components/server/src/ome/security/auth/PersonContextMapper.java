@@ -39,6 +39,7 @@ public class PersonContextMapper extends OmeroModelContextMapper {
         Experimenter person = new Experimenter();
         person.setOmeName(get("omeName", ctx));
         person.setFirstName(get("firstName", ctx));
+        person.setMiddleName(get("middleName", ctx));
         person.setLastName(get("lastName", ctx));
         person.setInstitution(get("institution", ctx));
         person.setEmail(get("email", ctx));
@@ -64,6 +65,7 @@ public class PersonContextMapper extends OmeroModelContextMapper {
 
         final String inst = cfg.getUserAttribute("institution");
         final String email = cfg.getUserAttribute("email");
+        final String middleName = cfg.getUserAttribute("middleName");
         final String[] attrs = new String[]{
             "dn",
             attribute,
@@ -71,7 +73,8 @@ public class PersonContextMapper extends OmeroModelContextMapper {
             cfg.getUserAttribute("firstName"),
             cfg.getUserAttribute("lastName"),
             inst == null ? "dn" : inst,
-            email == null ? "dn" : email
+            email == null ? "dn" : email,
+            middleName == null ? "dn" : middleName,
         };
         controls.setReturningAttributes(attrs);
         return controls;

@@ -168,6 +168,7 @@ module omero {
         const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
         const string NSAUTOCLOSE = "openmicroscopy.org/omero/import/autoClose";
+        const string NSTARGETTEMPLATE = "openmicroscopy.org/omero/import/targetTemplate";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSLOGFILE = "openmicroscopy.org/omero/import/logFile";
         const string NSFILETRANSFER = "openmicroscopy.org/omero/import/fileTransfer";
