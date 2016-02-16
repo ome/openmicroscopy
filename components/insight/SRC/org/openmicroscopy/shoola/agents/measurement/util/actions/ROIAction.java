@@ -134,6 +134,10 @@ public class ROIAction
             case EDIT_FOLDER:
                 setName("Edit Folder");
                 setToolTip("Edit Folder.");
+                break;
+            case MOVE_FOLDER:
+                setName("Move Folder");
+                setToolTip("Move Folder to another Folder.");
 		}
 	}
 	
@@ -187,6 +191,9 @@ public class ROIAction
                 break;
             case EDIT_FOLDER:
                 controller.editFolder();
+                break;
+            case MOVE_FOLDER:
+                controller.moveFolder();
 		}
 	}
 }

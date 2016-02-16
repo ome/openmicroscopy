@@ -57,7 +57,8 @@ public interface ROIActionController
 		REMOVE_FROM_FOLDER,
 		CREATE_FOLDER,
 		DELETE_FOLDER,
-		EDIT_FOLDER
+		EDIT_FOLDER,
+		MOVE_FOLDER
 	};
 	
 	/** List of statistical actions possible. */
@@ -102,5 +103,8 @@ public interface ROIActionController
     
     /** Edit a folder */
     public void editFolder();
+    
+    /** Move folder */
+    public void moveFolder();
     
 }

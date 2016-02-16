@@ -67,22 +67,19 @@ public class ROIFolderSaver extends BatchCallTree {
                 
                 if (action == ROIFolderAction.ADD_TO_FOLDER) {
                     svc.addRoisToFolders(ctx, imageID, roiList, folders);
-                }
-                if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
+                } else if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
                     svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
-                }
-                if (action == ROIFolderAction.CREATE_FOLDER) {
-                    for(FolderData folder :folders)
+                } else if (action == ROIFolderAction.CREATE_FOLDER) {
+                    for (FolderData folder : folders)
                         dm.saveAndReturnObject(ctx, folder);
-                }
-                if (action == ROIFolderAction.DELETE_FOLDER) {
+                } else if (action == ROIFolderAction.DELETE_FOLDER) {
                     List<IObject> ifolders = new ArrayList<IObject>(
                             folders.size());
                     for (FolderData f : folders)
                         ifolders.add((IObject) f.asFolder());
 
                     dm.delete(ctx, ifolders);
-                }
+                } 
                 result = Collections.EMPTY_LIST;
             }
         };

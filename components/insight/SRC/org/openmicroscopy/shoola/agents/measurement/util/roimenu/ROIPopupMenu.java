@@ -192,6 +192,9 @@ public class ROIPopupMenu
             case EDIT_FOLDER:
                 action.setEnabled(eb);
                 break;
+            case MOVE_FOLDER:
+                action.setEnabled(eb);
+                break;
             default:
                 break;
             }
@@ -214,6 +217,9 @@ public class ROIPopupMenu
                 action.setEnabled(false);
                 break;
             case EDIT_FOLDER:
+                action.setEnabled(false);
+                break;
+            case MOVE_FOLDER:
                 action.setEnabled(false);
                 break;
             default:

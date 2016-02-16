@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.SelectionDialog;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -691,6 +692,16 @@ public class ROITable
         return insertInto;
     }
     
+    private ROINode getFolderNode(FolderData f) {
+        for (ROINode node : nodes) {
+            if (node.isFolderNode()) {
+                if (((FolderData) node.getUserObject()).getId() == f.getId())
+                    return node;
+            }
+        }
+        return null;
+    }
+    
     /**
      * Adds the node to the parent; will create the parent hierarchy
      * if it doesn't exist yet.
@@ -1218,6 +1229,30 @@ public class ROITable
             UIUtilities.centerAndShow(d);
         }
     }
+    
+    @Override
+    public void moveFolder() {
+        action = CreationActionType.MOVE_FOLDER;
+        
+        Collection<DataObject> tmp = new ArrayList<DataObject>();
+        for (FolderData folder : manager.getFolders()) {
+            if (!folder.copyChildFolders().isEmpty())
+                tmp.add(folder);
+            else {
+                ROINode node = getFolderNode(folder);
+                if (node != null && node.getChildCount() > 0
+                        && ((ROINode) node.getChildAt(0)).isROINode())
+                    tmp.add(folder);
+            }
+        }
+        
+        List<FolderData> selection = getSelectedFolders();
+        if(selection.size()==1) {
+            SelectionDialog d = new SelectionDialog(tmp, "Destination Folder", "Move to selected Folder:", true);
+            d.addPropertyChangeListener(this);
+            UIUtilities.centerAndShow(d);
+        }
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -1271,6 +1306,19 @@ public class ROITable
             
             manager.saveROIFolders(Collections.singleton(folder));
         } 
+        
+        if (SelectionDialog.OBJECT_SELECTION_PROPERTY.equals(name)) {
+            FolderData folder = getSelectedFolders().get(0);
+            FolderData target = (FolderData) evt.getNewValue();
+            folder.setParentFolder(target.asFolder());
+            manager.saveROIFolders(Collections.singleton(folder));
+        }
+
+        if (SelectionDialog.NONE_SELECTION_PROPERTY.equals(name)) {
+            FolderData folder = getSelectedFolders().get(0);
+            folder.setParentFolder(null);
+            manager.saveROIFolders(Collections.singleton(folder));
+        }
     }
     
     
