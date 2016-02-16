@@ -244,6 +244,29 @@ class login_required(object):
             return self.allowPublic
         return False
 
+    def _cleanup_deprecated(self, s):
+        # TODO: remove in 5.3, cleanup deprecated
+        if 'omero.client.ui.tree.orphans.enabled' not in s:
+            s['omero.client.ui.tree.orphans.enabled'] = True
+
+        if 'omero.client.ui.menu.dropdown.everyone.label' not in s:
+            s['omero.client.ui.menu.dropdown.everyone.label'] = \
+                s['omero.client.ui.menu.dropdown.everyone']
+        if 'omero.client.ui.menu.dropdown.leaders.label' not in s:
+            s['omero.client.ui.menu.dropdown.leaders.label'] = \
+                s['omero.client.ui.menu.dropdown.leaders']
+        if 'omero.client.ui.menu.dropdown.colleagues.label' not in s:
+            s['omero.client.ui.menu.dropdown.colleagues.label'] = \
+                s['omero.client.ui.menu.dropdown.colleagues']
+
+        if 'omero.client.ui.menu.dropdown.everyone' in s:
+            del s['omero.client.ui.menu.dropdown.everyone']
+        if 'omero.client.ui.menu.dropdown.leaders' in s:
+            del s['omero.client.ui.menu.dropdown.leaders']
+        if 'omero.client.ui.menu.dropdown.colleagues' in s:
+            del s['omero.client.ui.menu.dropdown.colleagues']
+        return s
+
     def load_server_settings(self, conn, request):
         """Loads Client preferences from the server."""
         try:
@@ -252,15 +275,7 @@ class login_required(object):
             request.session.modified = True
             server_settings = {}
             try:
-                s = conn.getOmeroClientSettings()
-                # TODO: remove in 5.3, cleanup deprecated
-                if 'omero.client.ui.menu.dropdown.everyone' in s:
-                    del s['omero.client.ui.menu.dropdown.everyone']
-                if 'omero.client.ui.menu.dropdown.leaders' in s:
-                    del s['omero.client.ui.menu.dropdown.leaders']
-                if 'omero.client.ui.menu.dropdown.colleagues' in s:
-                    del s['omero.client.ui.menu.dropdown.colleagues']
-
+                s = self._cleanup_deprecated(conn.getOmeroClientSettings())
                 for item, value in s.iteritems():
                     ss = server_settings
                     items = item.replace("omero.client.", "").split('.')
