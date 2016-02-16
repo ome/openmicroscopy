@@ -251,13 +251,24 @@ class TestImport(CLITest):
 
         assert len(stateful) == 0
 
-    @pytest.mark.parametrize("arg", [
-        '--checksum-algorithm', '--checksum_algorithm'])
-    @pytest.mark.parametrize("algorithm", [
-        'Adler-32', 'CRC-32', 'File-Size-64', 'MD5-128', 'Murmur3-32',
-        'Murmur3-128', 'SHA1-160'])
-    def testChecksumAlgorithm(self, tmpdir, capfd, arg, algorithm):
+    CA_TESTS = [
+        (False, 'Adler-32'),  # one underscore only
+        (True, 'Adler-32'),
+        (True, 'CRC-32'),
+        (True, 'File-Size-64'),
+        (True, 'MD5-128'),
+        (True, 'Murmur3-32'),
+        (True, 'Murmur3-128'),
+        (True, 'SHA1-160')]
+    CA_NAMES = ["%s-%s" % (x[1], x[0] and "underscore" or "legacy")
+                for x in CA_TESTS]
+
+    @pytest.mark.parametrize("args", CA_TESTS, ids=CA_NAMES)
+    def testChecksumAlgorithm(self, tmpdir, capfd, args):
         """Test checksum algorithm argument"""
+
+        dash, algorithm = args
+        arg = dash and '--checksum-algorithm' or '--checksum_algorithm'
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
