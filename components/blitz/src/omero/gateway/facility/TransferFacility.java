@@ -22,8 +22,8 @@ package omero.gateway.facility;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.Arrays;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import ome.formats.importer.IObserver;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;

@@ -1533,7 +1533,6 @@ class TestShow(IWebTest):
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
-        ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
         plate_acquisition2 = ws_a2.plateAcquisition
 
@@ -1565,6 +1564,13 @@ class TestShow(IWebTest):
                 assert False, 'Did not find in results: %s' % str(e)
 
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
+
+        # Path to image in well...
+        paths = paths_to_object(self.conn, None, None, None,
+                                ws_a1.image.id.val, None, None, None, None)
+        # Image is only in ONE acquisition
+        assert len(paths) == 1
+        assert paths[0] == expected[0]
 
     def test_well_restrict_acquisition_multi(self,
                                              screen_plate_run_well_multi):

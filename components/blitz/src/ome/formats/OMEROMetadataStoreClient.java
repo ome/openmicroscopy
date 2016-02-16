@@ -263,6 +263,8 @@ public class OMEROMetadataStoreClient
      */
     private Map<String, String[]> referenceStringCache;
 
+    private LSID screenKey;
+
     /** Our model processors. Will be called on saveToDB(). */
     private List<ModelProcessor> modelProcessors;
 
@@ -1370,6 +1372,10 @@ public class OMEROMetadataStoreClient
     @Override
     public void setUserSpecifiedTarget(IObject target)
     {
+        if (target instanceof Screen && null != screenKey) {
+          log.info("deleting screen ref in favor of user-specified one");
+          referenceCache.remove(screenKey);
+        }
         this.userSpecifiedTarget = target;
     }
 
@@ -1925,8 +1931,8 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param projectId the ID of the project
-     * @return the project
+     * @param projectId
+     * @return project with given id
      */
     public Project getProject(long projectId)
     {
@@ -6816,8 +6822,8 @@ public class OMEROMetadataStoreClient
     public void setScreenPlateRef(String plate, int screenIndex,
             int plateRefIndex)
     {
-        LSID key = new LSID(Screen.class, screenIndex);
-        addReference(key, new LSID(plate));
+        screenKey = new LSID(Screen.class, screenIndex);
+        addReference(screenKey, new LSID(plate));
     }
 
     /* (non-Javadoc)
