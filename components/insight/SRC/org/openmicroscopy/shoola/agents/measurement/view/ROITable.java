@@ -1158,7 +1158,11 @@ public class ROITable
     @Override
     public void addToFolder() {
         action = CreationActionType.ADD_TO_FOLDER;
-        Collection<Object> tmp = new ArrayList<Object>(manager.getFolders());
+        Collection<Object> tmp = new ArrayList<Object>();
+        for(FolderData folder : manager.getFolders()) {
+            if(folder.copyChildFolders().isEmpty())
+                tmp.add(folder);
+        }
         SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
         wiz.setTitle("Add to ROI Folders", "Select the Folders to add the ROI(s) to", IconManager.getInstance().getIcon(IconManager.ROIFOLDER));
         wiz.addPropertyChangeListener(this);
