@@ -48,7 +48,7 @@ public interface SmartShape {
          * 
          * @param points the points
          * @return false if iterating through the points list and dereferencing
-         *         the cx and cy fields would cause a
+         *         the x and y fields would cause a
          *         {@link NullPointerException}
          */
         public static boolean checkNonNull(List<Point> points) {
@@ -57,7 +57,7 @@ public interface SmartShape {
             }
 
             for (Point point : points) {
-                if (point == null || point.cx == null || point.cy == null) {
+                if (point == null || point.x == null || point.y == null) {
                     return false;
                 }
             }
@@ -66,7 +66,7 @@ public interface SmartShape {
         }
 
         public static void appendDbPoint(StringBuilder sb, Point p) {
-            appendDbPoint(sb, p.cx.getValue(), p.cy.getValue());
+            appendDbPoint(sb, p.x.getValue(), p.y.getValue());
         }
 
         public static void appendDbPoint(StringBuilder sb, double cx, double cy) {
@@ -78,7 +78,7 @@ public interface SmartShape {
         }
 
         public static void appendSvgPoint(StringBuilder sb, Point p) {
-            appendSvgPoint(sb, p.cx.getValue(), p.cy.getValue());
+            appendSvgPoint(sb, p.x.getValue(), p.y.getValue());
         }
 
         public static void appendSvgPoint(StringBuilder sb, double cx, double cy) {
@@ -107,8 +107,8 @@ public interface SmartShape {
             StringBuilder sb = new StringBuilder(points.size() * 16);
             boolean first = true;
             for (Point point : points) {
-                double cx = point.getCx().getValue();
-                double cy = point.getCy().getValue();
+                double cx = point.getX().getValue();
+                double cy = point.getY().getValue();
                 first = appendSegement(sb, first, cx, cy);
             }
             if (close) {
@@ -146,8 +146,8 @@ public interface SmartShape {
             PointsHandler ph = new DefaultPointsHandler() {
                 public void point(float x, float y) throws ParseException {
                     SmartPointI sp = new SmartPointI();
-                    sp.setCx(rdouble(x));
-                    sp.setCy(rdouble(y));
+                    sp.setX(rdouble(x));
+                    sp.setY(rdouble(y));
                     points.add(sp);
                 }
             };
@@ -177,23 +177,23 @@ public interface SmartShape {
 
             List<Point> points = new ArrayList<Point>();
             SmartPointI tl = new SmartPointI();
-            tl.setCx(x0);
-            tl.setCy(y0);
+            tl.setX(x0);
+            tl.setY(y0);
             points.add(tl);
 
             SmartPointI tr = new SmartPointI();
-            tr.setCx(x1);
-            tr.setCy(y0);
+            tr.setX(x1);
+            tr.setY(y0);
             points.add(tr);
 
             SmartPointI br = new SmartPointI();
-            br.setCx(x1);
-            br.setCy(y1);
+            br.setX(x1);
+            br.setY(y1);
             points.add(br);
 
             SmartPointI bl = new SmartPointI();
-            bl.setCx(x0);
-            bl.setCy(y1);
+            bl.setX(x0);
+            bl.setY(y1);
             points.add(bl);
 
             return points;
