@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -111,10 +113,10 @@ public class TablesFacility extends Facility {
                 name = UUID.randomUUID().toString();
 
             String[] columnNames = data.getColumnNames() != null ? data
-                    .getColumnNames() : new String[0];
+                    .getColumnNames() : ArrayUtils.EMPTY_STRING_ARRAY;
 
             String[] description = data.getDescriptions() != null ? data
-                    .getDescriptions() : new String[0];
+                    .getDescriptions() : ArrayUtils.EMPTY_STRING_ARRAY;
 
             Column[] columns = new Column[data.getTypes().length];
             for (int i = 0; i < data.getTypes().length; i++) {
@@ -402,11 +404,8 @@ public class TablesFacility extends Facility {
             int l = 0;
             for (int i = 0; i < data.length; i++) {
                 Double[] src = (Double[]) data[i];
-                double[] dst = new double[src.length];
-                for (int j = 0; j < src.length; j++)
-                    dst[j] = src[j];
-                d[i] = dst;
-                l = dst.length;
+                d[i] = ArrayUtils.toPrimitive(src);
+                l = d[i].length;
             }
             c = new DoubleArrayColumn(header, description, l, d);
         }
@@ -430,11 +429,8 @@ public class TablesFacility extends Facility {
             int l = 0;
             for (int i = 0; i < data.length; i++) {
                 Float[] src = (Float[]) data[i];
-                float[] dst = new float[src.length];
-                for (int j = 0; j < src.length; j++)
-                    dst[j] = src[j];
-                d[i] = dst;
-                l = dst.length;
+                d[i] = ArrayUtils.toPrimitive(src);
+                l = d[i].length;
             }
             c = new FloatArrayColumn(header, description, l, d);
         }
@@ -451,11 +447,8 @@ public class TablesFacility extends Facility {
             int l = 0;
             for (int i = 0; i < data.length; i++) {
                 Long[] src = (Long[]) data[i];
-                long[] dst = new long[src.length];
-                for (int j = 0; j < src.length; j++)
-                    dst[j] = src[j];
-                d[i] = dst;
-                l = dst.length;
+                d[i] = ArrayUtils.toPrimitive(src);
+                l = d[i].length;
             }
             c = new LongArrayColumn(header, description, l, d);
         }
