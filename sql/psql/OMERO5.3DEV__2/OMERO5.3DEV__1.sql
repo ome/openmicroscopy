@@ -54,7 +54,12 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.3DEV',  2,            'OMERO5.3DEV',   1);
 
--- TODO
+UPDATE shape SET x = cx, y = cy WHERE cx IS NOT NULL OR cy IS NOT NULL;
+
+ALTER TABLE shape DROP COLUMN cx;
+ALTER TABLE shape DROP COLUMN cy;
+ALTER TABLE shape RENAME COLUMN rx TO radiusx;
+ALTER TABLE shape RENAME COLUMN ry TO radiusy;
 
 --
 -- FINISHED

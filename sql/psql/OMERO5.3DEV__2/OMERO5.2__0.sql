@@ -652,7 +652,12 @@ $$ LANGUAGE plpgsql;
 
 -- ... up to patch 2:
 
--- TODO
+UPDATE shape SET x = cx, y = cy WHERE cx IS NOT NULL OR cy IS NOT NULL;
+
+ALTER TABLE shape DROP COLUMN cx;
+ALTER TABLE shape DROP COLUMN cy;
+ALTER TABLE shape RENAME COLUMN rx TO radiusx;
+ALTER TABLE shape RENAME COLUMN ry TO radiusy;
 
 --
 -- FINISHED
