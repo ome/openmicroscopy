@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 //Java imports
 import java.awt.Component;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.TreeMap;
 
 import javax.swing.Icon;
@@ -33,6 +35,7 @@ import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -116,9 +119,30 @@ public class ROITableCellRenderer
 		} else if (node.isFolderNode()) {
 		    FolderData folder = (FolderData) node.getUserObject();
 		    setIcon(FOLDER_ICON);
-            setText("Folder: "+folder.getName()+" ["+node.getChildCount()+"]");
+		    Collection<Long> roisInFolder = new HashSet<Long>();
+		    gatherROIs(node, roisInFolder);
+            setText("Folder: "+folder.getName()+" ["+roisInFolder.size()+"]");
 		}
 		return this;
 	}
 	
+    /**
+     * Gathers all ROIs in the branch below the given node
+     * 
+     * @param node
+     *            The node
+     * @param rois
+     *            The ROIs
+     */
+    void gatherROIs(ROINode node, Collection<Long> rois) {
+        Object uo = node.getUserObject();
+        if (uo instanceof ROI) {
+            rois.add(((ROI) uo).getID());
+        } else if (node.getChildCount() > 0) {
+            for (int i = 0; i < node.getChildCount(); i++) {
+                ROINode child = (ROINode) node.getChildAt(i);
+                gatherROIs(child, rois);
+            }
+        }
+    }
 }
