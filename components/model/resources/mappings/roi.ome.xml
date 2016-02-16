@@ -97,17 +97,17 @@
         </type>
         <type id="ome.model.roi.Ellipse" discriminator="ellipse" superclass="ome.model.roi.Shape">
                 <properties>
-                        <optional name="cx" type="double"/>
-                        <optional name="cy" type="double"/>
-                        <optional name="rx" type="double"/>
-                        <optional name="ry" type="double"/>
+                        <optional name="x" type="double"/>
+                        <optional name="y" type="double"/>
+                        <optional name="radiusX" type="double"/>
+                        <optional name="radiusY" type="double"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
         <type id="ome.model.roi.Point" discriminator="point" superclass="ome.model.roi.Shape">
                 <properties>
-                        <optional name="cx" type="double"/>
-                        <optional name="cy" type="double"/>
+                        <optional name="x" type="double"/>
+                        <optional name="y" type="double"/>
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
