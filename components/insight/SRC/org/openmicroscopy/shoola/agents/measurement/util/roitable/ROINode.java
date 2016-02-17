@@ -465,6 +465,10 @@ public class ROINode
             case VISIBLE_COLUMN + 1:
                 if(value instanceof Boolean) {
                     this.visible = (Boolean) value;
+                    for (int i = 0; i < getChildCount(); i++) {
+                        ROINode child = (ROINode) getChildAt(i);
+                        propateFolderVisibility(this.visible, child);
+                    }
                     updateShapeVisibility();
                 }
                 break;
@@ -488,6 +492,24 @@ public class ROINode
         }
     }
 
+    /**
+     * Propagates the visibility status down to all subfolders of the given node
+     * 
+     * @param vis
+     *            The visibility status
+     * @param node
+     *            The node
+     */
+    private void propateFolderVisibility(boolean vis, ROINode node) {
+        if (!node.isFolderNode())
+            return;
+        node.setValueAt((Boolean) vis, VISIBLE_COLUMN + 1);
+        for (int i = 0; i < node.getChildCount(); i++) {
+            ROINode child = (ROINode) node.getChildAt(i);
+            propateFolderVisibility(vis, child);
+        }
+    }
+    
     /**
      * Determines the visibility of a shape node with respect to the folders'
      * visibility the shape is part of.
