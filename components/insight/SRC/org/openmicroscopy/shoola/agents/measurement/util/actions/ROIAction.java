@@ -117,11 +117,11 @@ public class ROIAction
                 break;
 			case ADD_TO_FOLDER:
                 setName("Add to Folder");
-                setToolTip("Adds the Rois to specific Folders.");
+                setToolTip("Adds the ROIs to specific Folders.");
                 break;
             case REMOVE_FROM_FOLDER:
                 setName("Remove from Folder");
-                setToolTip("Removes the Rois from specific Folders.");
+                setToolTip("Removes the ROIs from specific Folders.");
                 break;
             case CREATE_FOLDER:
                 setName("Create Folder");
