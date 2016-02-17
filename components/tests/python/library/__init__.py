@@ -96,6 +96,7 @@ class ITest(object):
             cls.__clients.add(cls.root)
             cls.root.setAgent("OMERO.py.root_test")
             cls.root.createSession("root", rootpass)
+            cls.root.getSession().keepAlive(None)
         except:
             raise Exception("Could not initiate a root connection")
 
