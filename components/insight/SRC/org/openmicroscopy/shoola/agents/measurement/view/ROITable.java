@@ -762,6 +762,8 @@ public class ROITable
                 handleParentFolderNodes(node);
             }
         }
+        model = new ROITableModel(root, columnNames);
+        this.setTreeTableModel(model);
     }
     
 	/**
