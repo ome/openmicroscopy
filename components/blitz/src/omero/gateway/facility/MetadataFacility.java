@@ -184,8 +184,8 @@ public class MetadataFacility extends Facility {
      * @param userIds
      *            Only load annotations of certain users (can be
      *            <code>null</code>, i. e. all users)
-     * @return Lists of {@link AnnotationData}s mapped to the {@link DataObject}
-     *         s they are attached to.
+     * @return Lists of {@link AnnotationData} mapped to the {@link DataObject}
+     *         they are attached to.
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
