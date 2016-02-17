@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -90,6 +90,7 @@ public abstract class Facility {
      *            Reference to the {@link Gateway}
      * @return See above
      * @throws ExecutionException
+     *             If the {@link Facility} can't be retrieved or instantiated
      */
     public static <T extends Facility> T getFacility(final Class<T> type,
             final Gateway gateway) throws ExecutionException {

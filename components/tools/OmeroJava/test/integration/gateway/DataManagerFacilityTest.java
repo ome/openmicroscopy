@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,13 +20,20 @@
  */
 package integration.gateway;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Arrays;
+import java.util.concurrent.Future;
 
 import omero.RLong;
 import omero.api.IPixelsPrx;
@@ -39,9 +46,23 @@ import omero.model.PixelsType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import omero.gateway.model.AnnotationData;
+import omero.gateway.model.BooleanAnnotationData;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.LongAnnotationData;
+import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
+import omero.gateway.model.RatingAnnotationData;
+import omero.gateway.model.ScreenData;
+import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
+import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /**
  *
@@ -114,6 +135,125 @@ public class DataManagerFacilityTest extends GatewayTest {
         Assert.assertTrue(img.isEmpty());
     }
 
+    @Test
+    public void testAttachFile() throws Exception {
+        File tmp = File.createTempFile("attachedFile", "file");
+        BufferedWriter out = new BufferedWriter(new FileWriter(tmp));
+        out.write("Just a test");
+        out.close();
+
+        DatasetData ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        ds = (DatasetData) datamanagerFacility.saveAndReturnObject(rootCtx, ds);
+
+        Future<FileAnnotationData> cb = datamanagerFacility.attachFile(rootCtx,
+                tmp, "text/plain", "test", null, ds);
+        FileAnnotationData fa = cb.get();
+
+        Assert.assertTrue(fa.getFileName().startsWith("attachedFile"));
+        tmp.delete();
+    }
+    
+    @Test
+    public void testAttachAnnotation() throws Exception {
+        Queue<DataObject> targets = new LinkedList<DataObject>();
+        DatasetData ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        targets.add(ds);
+        ProjectData proj = new ProjectData();
+        proj.setName(UUID.randomUUID().toString());
+        targets.add(proj);
+        ScreenData s = new ScreenData();
+        s.setName(UUID.randomUUID().toString());
+        targets.add(s);
+        PlateData p = new PlateData();
+        p.setName(UUID.randomUUID().toString());
+        targets.add(p);
+        
+        DataObject dob = targets.poll();
+        while(dob.getId()<0) {
+            dob = datamanagerFacility.saveAndReturnObject(rootCtx, dob);
+            targets.add(dob);
+            dob = targets.poll();
+        }
+        targets.add(dob);
+        
+        long imgId = createImage(rootCtx);
+        targets.add(browseFacility.getImage(rootCtx, imgId));
+        
+        Collection<AnnotationData> annos = new ArrayList<AnnotationData>();
+        annos.add(new BooleanAnnotationData(true));
+        annos.add(new DoubleAnnotationData(5d));
+        annos.add(new LongAnnotationData(1));
+        annos.add(new MapAnnotationData());
+        annos.add(new RatingAnnotationData(3));
+        annos.add(new TagAnnotationData("test"));
+        annos.add(new TermAnnotationData("test2"));
+        annos.add(new TextualAnnotationData("test3"));
+        annos.add(new XMLAnnotationData("<test4/>"));
+        
+        for(DataObject target : targets) {
+            for(AnnotationData anno : annos) {
+                anno = datamanagerFacility.attachAnnotation(rootCtx, anno, target);
+                Assert.assertNotNull(anno);
+                Assert.assertTrue(anno.getId() >= 0);
+            }
+        }
+    }
+    
+    @Test
+    public void testCreateDataset() throws DSOutOfServiceException, DSAccessException {
+        //create dataset only
+        DatasetData ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        ds = datamanagerFacility.createDataset(rootCtx, ds, null);
+        Assert.assertNotNull(ds);
+        
+        //create dataset and project
+        ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        ProjectData proj = new ProjectData();
+        proj.setName(UUID.randomUUID().toString());
+        ds = datamanagerFacility.createDataset(rootCtx, ds, proj);
+        Assert.assertNotNull(ds);
+        
+        boolean found = false;
+        Collection<ProjectData> projects = browseFacility.getProjects(rootCtx);
+        for(ProjectData p : projects)
+            if(p.getName().equals(proj.getName())) {
+                found = true;
+                proj = p;
+                break;
+            }
+        Assert.assertTrue(found, "Project was not created!");
+        
+        found = false;
+        Collection<DatasetData> datasets = proj.getDatasets();
+        for(DatasetData d : datasets) 
+            if(d.getName().equals(ds.getName())) {
+                found = true;
+                break;
+            }
+        Assert.assertTrue(found, "Project and Dataset not successfully linked!");
+        
+        // create dataset and add to existing project
+        ds = new DatasetData();
+        ds.setName(UUID.randomUUID().toString());
+        ds = datamanagerFacility.createDataset(rootCtx, ds, proj);
+        Assert.assertNotNull(ds);
+        
+        proj = browseFacility.getProjects(rootCtx, Arrays.asList(new Long[]{proj.getId()})).iterator().next();
+        
+        found = false;
+        datasets = proj.getDatasets();
+        for(DatasetData d : datasets) 
+            if(d.getName().equals(ds.getName())) {
+                found = true;
+                break;
+            }
+        Assert.assertTrue(found, "Project and Dataset not successfully linked!");
+    }
+    
     private long createImage(SecurityContext ctx) throws Exception {
         IPixelsPrx svc = gw.getPixelsService(ctx);
         List<IObject> types = svc

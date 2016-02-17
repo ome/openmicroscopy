@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@ package integration.gateway;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import ome.specification.XMLMockObjects;
@@ -30,7 +31,10 @@ import ome.specification.XMLWriter;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.ImportException;
+import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 import omero.gateway.model.ImportCallback;
+import omero.gateway.model.ProjectData;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -60,6 +64,7 @@ public class TransferFacilityTest extends GatewayTest {
     @Test
     public void testUploadImage() throws DSAccessException,
             DSOutOfServiceException, ImportException {
+        // upload, create dataset automatically
         ImportCallback cb = new ImportCallback();
         transferFacility.uploadImage(rootCtx, testFile, cb);
 
@@ -75,6 +80,57 @@ public class TransferFacilityTest extends GatewayTest {
         PixelsData p = (PixelsData) ((Set) obj).iterator().next();
         imgId = p.getImage().getId();
 
+        Assert.assertEquals(cb.getNumberOfImportedFiles(), 1);
+        Assert.assertNull(cb.getException());
+        
+        // upload into dataset
+        DatasetData targetDS = new DatasetData();
+        targetDS.setName("Test Dataset");
+        cb = new ImportCallback();
+        transferFacility.uploadImage(rootCtx, testFile, true, null, targetDS, null, cb);
+        
+        c = 0;
+        while (!cb.isFinished() && c < 10) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+        
+        Assert.assertEquals(cb.getNumberOfImportedFiles(), 1);
+        Assert.assertNull(cb.getException());
+        
+        // upload into project and dataset 
+        ProjectData targetProj = new ProjectData();
+        targetProj.setName("Test Project");
+        targetDS = new DatasetData();
+        targetDS.setName("Test Dataset 2");
+        cb = new ImportCallback();
+        transferFacility.uploadImage(rootCtx, testFile, true, targetProj, targetDS, null, cb);
+        
+        c = 0;
+        while (!cb.isFinished() && c < 10) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+        
+        Assert.assertEquals(cb.getNumberOfImportedFiles(), 1);
+        Assert.assertNull(cb.getException());
+        
+        // upload into orphaned images
+        cb = new ImportCallback();
+        transferFacility.uploadImage(rootCtx, testFile, false, true, null, cb);
+        
+        c = 0;
+        while (!cb.isFinished() && c < 10) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+        
         Assert.assertEquals(cb.getNumberOfImportedFiles(), 1);
         Assert.assertNull(cb.getException());
     }
@@ -112,5 +168,40 @@ public class TransferFacilityTest extends GatewayTest {
         rf.read(b);
         rf.close();
         return b;
+    }
+
+    @Test
+    public void testStreamImageToServer() throws Exception {
+        String type = "uint8";
+        int x = 64;
+        int y = 64;
+        int c = 3;
+        int z = 3;
+        int t = 3;
+
+        ImageData img = transferFacility.createImage(rootCtx, x, y, c, z, t, type,
+                "StreamedImage", null);
+        for (int ic = 0; ic < c; ic++) {
+            for (int iz = 0; iz < z; iz++) {
+                for (int it = 0; it < t; it++) {
+                    byte[] data = createRandomPlaneData(x, y);
+                    transferFacility.uploadPlane(rootCtx, img.getDefaultPixels().getId(), ic, iz,
+                            it, data);
+                }
+            }
+        }
+
+        transferFacility.closeImage(rootCtx, img.getDefaultPixels().getId());
+    }
+
+    private byte[] createRandomPlaneData(int x, int y) {
+        int size = x * y;
+        byte[] result = new byte[size];
+
+        Random r = new Random();
+        for (int i = 0; i < size; i++)
+            result[i] = (byte) r.nextInt(256);
+
+        return result;
     }
 }

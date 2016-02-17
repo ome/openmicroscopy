@@ -286,6 +286,9 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
             case SHOW_ALL:
                 while (i.hasNext()) {
                     data = (DataObject) i.next();
+                    if (data instanceof FileAnnotationData
+                            && ((FileAnnotationData)data).isTablesFile())
+                        continue;
                     if (!toReplace.contains(data)) {
                         doc = new DocComponent(data, model, true, selectable);
                         doc.addPropertyChangeListener(controller);
@@ -300,6 +303,9 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
             case ADDED_BY_OTHERS:
                 while (i.hasNext()) {
                     data = (DataObject) i.next();
+                    if (data instanceof FileAnnotationData
+                            && ((FileAnnotationData)data).isTablesFile())
+                        continue;
                     if (!toReplace.contains(data)) {
                         doc = new DocComponent(data, model, true, selectable);
                         doc.addPropertyChangeListener(controller);
@@ -316,6 +322,9 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
             case ADDED_BY_ME:
                 while (i.hasNext()) {
                     data = (DataObject) i.next();
+                    if (data instanceof FileAnnotationData
+                            && ((FileAnnotationData)data).isTablesFile())
+                        continue;
                     if (!toReplace.contains(data)) {
                         doc = new DocComponent(data, model, true, selectable);
                         doc.addPropertyChangeListener(controller);

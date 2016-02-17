@@ -41,6 +41,9 @@ import omero.model.OriginalFile;
  */
 public class FileAnnotationData extends AnnotationData {
 
+    /** Mime type of a tables file */
+    public static final String TABLES_MIMETYPE = "OMERO.tables";
+    
     /**  The name space used to identify the experimenter photo. */
     public static final String EXPERIMENTER_PHOTO_NS =
             omero.constants.namespaces.NSEXPERIMENTERPHOTO.value;
@@ -284,6 +287,15 @@ public class FileAnnotationData extends AnnotationData {
         return format;
     }
 
+    /**
+     * Checks if this {@link FileAnnotationData} represents an OMERO.tables file
+     * 
+     * @return See above.
+     */
+    public boolean isTablesFile() {
+        return getOriginalMimetype().equals(TABLES_MIMETYPE);
+    }
+    
     /**
      * Sets the description of the annotation.
      *
