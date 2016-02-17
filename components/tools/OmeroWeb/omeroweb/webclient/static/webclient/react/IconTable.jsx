@@ -6,9 +6,28 @@ var IconTable = React.createClass({
 
     getInitialState: function() {
         return {
-            layout: 'icon',
-            filterText: "",
+            layout: 'icon'
         };
+    },
+
+    handleNextPage: function() {
+        console.log("nextPage");
+        this.incrementPage(1);
+    },
+
+    handlePrevPage: function() {
+        console.log("prevPage");
+        this.incrementPage(-1);
+    },
+
+    incrementPage: function(incr) {
+        var inst = this.props.inst,
+            parentNode = this.props.parentNode,
+            p = inst.get_page(parentNode) + incr;
+        if (p > 0) {
+            console.log("change page", p);
+            inst.change_page(parentNode, p);
+        }
     },
 
     setLayout: function(layout) {
@@ -17,7 +36,11 @@ var IconTable = React.createClass({
 
     setFilterText: function(filterText) {
         console.log("setFilterText", filterText);
+        // When filtering we need to begin at first page
         var inst = this.props.inst;
+        // Use _set_page to not trigger refresh...
+        inst._set_page(this.props.parentNode, 1)
+        // ...since we refresh here
         inst.filter(this.props.parentNode, filterText);
     },
 
@@ -139,10 +162,13 @@ var IconTable = React.createClass({
             );
         }.bind(this));
 
+        var filter = this.props.parentNode.data.obj.filter || "";
+        console.log("render", filter);
+
         return (
         <div className="centrePanel">
             <IconTableHeader
-                    filterText={this.state.filterText}
+                    filterText={filter}
                     setFilterText={this.setFilterText}
                     childCount={childCount}
                     filteredCount={imgJson.length}
@@ -155,6 +181,8 @@ var IconTable = React.createClass({
                     <IconTableHeadRow />
                     {icons}
                 </ul>
+                <button onClick={this.handleNextPage}>Next</button>
+                <button onClick={this.handlePrevPage}>Prev</button>
             </div>
         </div>);
     }

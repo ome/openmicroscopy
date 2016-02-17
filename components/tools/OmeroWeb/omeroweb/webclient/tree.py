@@ -520,44 +520,39 @@ def _marshal_image_deleted(conn, image_id):
     }
 
 
-def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
-                   load_pixels=False, group_id=-1, experimenter_id=-1,
-                   page=1, date=False, thumb_version=False,
-                   filter_text=None, limit=settings.PAGE):
+def count_images(conn, dataset_id=None, orphaned=False, share_id=None,
+                 group_id=-1, experimenter_id=-1, filter_text=None):
 
-    ''' Marshals images
+    q = build_query(conn, dataset_id=dataset_id,
+                    orphaned=orphaned, share_id=share_id, filter_text=filter_text,
+                    group_id=group_id, experimenter_id=experimenter_id)
 
-        @param conn OMERO gateway.
-        @type conn L{omero.gateway.BlitzGateway}
-        @param dataset_id The Dataset ID to filter by or `None` to
-        not filter by a specific dataset.
-        defaults to `None`
-        @type dataset_id L{long}
-        @param orphaned If this is to filter by orphaned data. Overridden
-        by dataset_id.
-        defaults to False
-        @type orphaned Boolean
-        @param share_id The Share ID to filter by or `None` to
-        not filter by a specific share.
-        defaults to `None`
-        @type share_id L{long}
-        @param load_pixels Whether to load the X,Y,Z dimensions
-        @type load_pixels Boolean
-        @param group_id The Group ID to filter by or -1 for all groups,
-        defaults to -1
-        @type group_id L{long}
-        @param experimenter_id The Experimenter (user) ID to filter by
-        or -1 for all experimenters
-        @type experimenter_id L{long}
-        @param page Page number of results to get. `None` or 0 for no paging
-        defaults to 1
-        @type page L{long}
-        @param limit The limit of results per page to get
-        defaults to the value set in settings.PAGE
-        @type page L{long}
+    if q is None:
+        # E.g. if no images in share
+        return 0
 
-    '''
-    images = []
+    params, from_join_clauses, where_clause, service_opts = q
+
+    countQuery = """select count(image) from %s %s
+                """ % (' '.join(from_join_clauses), build_clause(where_clause, 'where', 'and'))
+
+    print countQuery
+
+    qs = conn.getQueryService()
+
+    n = time.time()
+    rslt = qs.projection(countQuery, params, service_opts)
+    imgCount = rslt[0][0].val
+    print imgCount
+    print "count", time.time() - n
+    return imgCount
+
+
+def build_query(conn, dataset_id=None, orphaned=False, share_id=None,
+                filter_text=None, group_id=-1, experimenter_id=-1,
+                load_pixels=False, limit=settings.PAGE,
+                page=None, date=False, thumb_version=False, count_only=False):
+
     params = omero.sys.ParametersI()
     service_opts = deepcopy(conn.SERVICE_OPTS)
 
@@ -566,45 +561,13 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         group_id = -1
     service_opts.setOmeroGroup(group_id)
 
-    # Paging
-    if page is not None and page > 0:
-        params.page((page-1) * limit, limit)
-
     from_join_clauses = []
     where_clause = []
     if experimenter_id is not None and experimenter_id != -1:
         params.addId(experimenter_id)
         where_clause.append('image.details.owner.id = :id')
-    qs = conn.getQueryService()
-
-    extraValues = ""
-    if load_pixels:
-        extraValues = """
-             ,
-             pix.sizeX as sizeX,
-             pix.sizeY as sizeY,
-             pix.sizeZ as sizeZ
-             """
-
-    if date:
-        extraValues += """,
-            image.details.creationEvent.time as date,
-            image.acquisitionDate as acqDate
-            """
-
-    q = """
-        select new map(image.id as id,
-               image.name as name,
-               image.details.owner.id as ownerId,
-               image as image_details_permissions,
-               image.fileset.id as filesetId %s)
-        """ % extraValues
 
     from_join_clauses.append('Image image')
-
-    if load_pixels:
-        # We use 'left outer join', since we still want images if no pixels
-        from_join_clauses.append('left outer join image.pixels pix')
 
     # If this is a query to get images from a parent dataset
     if dataset_id is not None:
@@ -612,11 +575,6 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         from_join_clauses.append('join image.datasetLinks dlink')
         where_clause.append('dlink.parent.id = :did')
 
-    # If this is a query to get images with no parent datasets (orphans)
-    # At the moment the implementation assumes that a cross-linked
-    # object is not an orphan. We may need to change that so that a user
-    # see all the data that belongs to them that is not assigned to a container
-    # that they own.
     elif orphaned:
         orphan_where = """
                         not exists (
@@ -665,10 +623,115 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
 
         # If there are no images in the share, don't bother querying
         if not image_rids:
-            return images
+            return None
 
         params.add('iids', wrap(image_rids))
         where_clause.append('image.id in (:iids)')
+
+    if load_pixels:
+        # We use 'left outer join', since we still want images if no pixels
+        from_join_clauses.append('left outer join image.pixels pix')
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    return params, from_join_clauses, where_clause, service_opts
+
+
+def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
+                   load_pixels=False, group_id=-1, experimenter_id=-1,
+                   page=1, date=False, thumb_version=False, count_only=False,
+                   filter_text=None, limit=settings.PAGE):
+
+    ''' Marshals images
+
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param dataset_id The Dataset ID to filter by or `None` to
+        not filter by a specific dataset.
+        defaults to `None`
+        @type dataset_id L{long}
+        @param orphaned If this is to filter by orphaned data. Overridden
+        by dataset_id.
+        defaults to False
+        @type orphaned Boolean
+        @param share_id The Share ID to filter by or `None` to
+        not filter by a specific share.
+        defaults to `None`
+        @type share_id L{long}
+        @param load_pixels Whether to load the X,Y,Z dimensions
+        @type load_pixels Boolean
+        @param group_id The Group ID to filter by or -1 for all groups,
+        defaults to -1
+        @type group_id L{long}
+        @param experimenter_id The Experimenter (user) ID to filter by
+        or -1 for all experimenters
+        @type experimenter_id L{long}
+        @param page Page number of results to get. `None` or 0 for no paging
+        defaults to 1
+        @type page L{long}
+        @param limit The limit of results per page to get
+        defaults to the value set in settings.PAGE
+        @type page L{long}
+
+    '''
+
+    q = build_query(conn, dataset_id=dataset_id,
+                    orphaned=orphaned, share_id=share_id,
+                    filter_text=filter_text, group_id=group_id, experimenter_id=experimenter_id,
+                    page=page, date=date, count_only=count_only, limit=limit)
+
+    if q is None:
+        # E.g. if no images in share
+        return []
+
+    params, from_join_clauses, where_clause, service_opts = q
+
+    # params = omero.sys.ParametersI()
+    # service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # # Set the desired group context
+    # if group_id is None:
+    #     group_id = -1
+    # service_opts.setOmeroGroup(group_id)
+
+    # from_join_clauses = []
+    # where_clause = []
+    # if experimenter_id is not None and experimenter_id != -1:
+    #     params.addId(experimenter_id)
+    #     where_clause.append('image.details.owner.id = :id')
+
+    extraValues = ""
+    if load_pixels:
+        extraValues = """
+             ,
+             pix.sizeX as sizeX,
+             pix.sizeY as sizeY,
+             pix.sizeZ as sizeZ
+             """
+
+    if date:
+        extraValues += """,
+            image.details.creationEvent.time as date,
+            image.acquisitionDate as acqDate
+            """
+
+    q = """
+        select new map(image.id as id,
+               image.name as name,
+               image.details.owner.id as ownerId,
+               image as image_details_permissions,
+               image.fileset.id as filesetId %s)
+        """ % extraValues
+
+    if load_pixels:
+        # We use 'left outer join', since we still want images if no pixels
+        from_join_clauses.append('left outer join image.pixels pix')
+
+    # # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
 
     q += """
         %s %s
@@ -676,6 +739,8 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         """ % (' from ' + ' '.join(from_join_clauses),
                build_clause(where_clause, 'where', 'and'))
 
+    images = []
+    qs = conn.getQueryService()
     for e in qs.projection(q, params, service_opts):
         e = unwrap(e)[0]
         d = [e["id"],
@@ -690,13 +755,6 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if date:
             kwargs['acqDate'] = e['acqDate']
             kwargs['date'] = e['date']
-
-        # While marshalling the images, determine if there are any
-        # images mentioned in shares that are not in the results
-        # because they have been deleted
-        if share_id is not None and image_rids and e["id"] in image_rids:
-            image_rids.remove(e["id"])
-            kwargs['share_id'] = share_id
 
         images.append(_marshal_image(**kwargs))
 
@@ -727,11 +785,14 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
             if i['id'] in thumbVersions:
                 i['thumbVersion'] = thumbVersions[i['id']]
 
-    # If there were any deleted images in the share, marshal and return
-    # those
-    if share_id is not None and image_rids:
-        for image_rid in image_rids:
-            images.append(_marshal_image_deleted(conn, image_rid))
+    # If there were any deleted images in the share, that were
+    # not found in query, they are likely deleted.
+    # Marshal and return those
+    if share_id is not None and 'iids' in params.map:
+        imageIdsInShare = [i['id'] for i in images]
+        for image_rid in params.map['iids']:
+            if image_rid not in imageIdsInShare:
+                images.append(_marshal_image_deleted(conn, image_rid))
 
     return images
 

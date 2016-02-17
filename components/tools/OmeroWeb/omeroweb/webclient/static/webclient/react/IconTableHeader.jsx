@@ -39,6 +39,7 @@ var IconTableHeader = React.createClass({
                         <input
                             id="id_search"
                             type="text"
+                            defaultValue={this.props.filterText}
                             placeholder="Filter Images"
                             onKeyUp={this.handleFilterChange}
                             size={25} />

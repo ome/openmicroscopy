@@ -731,6 +731,15 @@ def api_image_list(request, conn=None, **kwargs):
                                      thumb_version=thumb_version,
                                      filter_text=filter_text,
                                      limit=limit)
+
+        imgCount = tree.count_images(conn=conn,
+                                     orphaned=orphaned,
+                                     experimenter_id=experimenter_id,
+                                     dataset_id=dataset_id,
+                                     share_id=share_id,
+                                     group_id=group_id,
+                                     filter_text=filter_text)
+
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
@@ -738,7 +747,7 @@ def api_image_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'images': images})
+    return HttpJsonResponse({'images': images, 'count': imgCount})
 
 
 @login_required()

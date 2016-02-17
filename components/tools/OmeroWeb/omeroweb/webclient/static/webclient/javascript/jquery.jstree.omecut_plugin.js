@@ -39,10 +39,8 @@
                 }
             });
 
-            // jstree uses this regex to parse node.id
-            var $node = $('#' + obj.id.replace($.jstree.idregex,'\\$&'), this.element);
-            // set the filter as data, then refresh node
-            $node.data("filter", filterString);
+            // add this to the data object...
+            obj.data.obj.filter = filterString;
 
             // refresh parent node (will re-load filtered data)
             this.refresh_node(obj);

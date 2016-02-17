@@ -19897,9 +19897,28 @@ var renderCentrePanel =
 
 	    getInitialState: function getInitialState() {
 	        return {
-	            layout: 'icon',
-	            filterText: ""
+	            layout: 'icon'
 	        };
+	    },
+
+	    handleNextPage: function handleNextPage() {
+	        console.log("nextPage");
+	        this.incrementPage(1);
+	    },
+
+	    handlePrevPage: function handlePrevPage() {
+	        console.log("prevPage");
+	        this.incrementPage(-1);
+	    },
+
+	    incrementPage: function incrementPage(incr) {
+	        var inst = this.props.inst,
+	            parentNode = this.props.parentNode,
+	            p = inst.get_page(parentNode) + incr;
+	        if (p > 0) {
+	            console.log("change page", p);
+	            inst.change_page(parentNode, p);
+	        }
 	    },
 
 	    setLayout: function setLayout(layout) {
@@ -19908,7 +19927,11 @@ var renderCentrePanel =
 
 	    setFilterText: function setFilterText(filterText) {
 	        console.log("setFilterText", filterText);
+	        // When filtering we need to begin at first page
 	        var inst = this.props.inst;
+	        // Use _set_page to not trigger refresh...
+	        inst._set_page(this.props.parentNode, 1);
+	        // ...since we refresh here
 	        inst.filter(this.props.parentNode, filterText);
 	    },
 
@@ -20028,11 +20051,14 @@ var renderCentrePanel =
 	                handleIconClick: this.handleIconClick });
 	        }.bind(this));
 
+	        var filter = this.props.parentNode.data.obj.filter || "";
+	        console.log("render", filter);
+
 	        return _react2.default.createElement(
 	            'div',
 	            { className: 'centrePanel' },
 	            _react2.default.createElement(_IconTableHeader2.default, {
-	                filterText: this.state.filterText,
+	                filterText: filter,
 	                setFilterText: this.setFilterText,
 	                childCount: childCount,
 	                filteredCount: imgJson.length,
@@ -20048,6 +20074,16 @@ var renderCentrePanel =
 	                        className: this.state.layout + "Layout" },
 	                    _react2.default.createElement(IconTableHeadRow, null),
 	                    icons
+	                ),
+	                _react2.default.createElement(
+	                    'button',
+	                    { onClick: this.handleNextPage },
+	                    'Next'
+	                ),
+	                _react2.default.createElement(
+	                    'button',
+	                    { onClick: this.handlePrevPage },
+	                    'Prev'
 	                )
 	            )
 	        );
@@ -20156,6 +20192,7 @@ var renderCentrePanel =
 	                    _react2.default.createElement('input', {
 	                        id: 'id_search',
 	                        type: 'text',
+	                        defaultValue: this.props.filterText,
 	                        placeholder: 'Filter Images',
 	                        onKeyUp: this.handleFilterChange,
 	                        size: 25 })
