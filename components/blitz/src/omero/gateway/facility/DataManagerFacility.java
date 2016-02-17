@@ -695,8 +695,6 @@ public class DataManagerFacility extends Facility {
                                 new FileAnnotationData(fa), target);
                     else
                         return new FileAnnotationData(fa);
-                } catch (Exception t) {
-                    throw t;
                 } finally {
                     if (stream != null)
                         stream.close();
