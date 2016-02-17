@@ -167,12 +167,15 @@ public class Gateway {
     /** Thread pool for asynchronous method calls */
     private ExecutorService executorService;
     
+    /** Flag to indicate that executor threads should be shutdown on disconnect */
+    private boolean executorShutdownOnDisconnect = false;
+    
     /**
      * Creates a new Gateway instance
      * @param log A {@link Logger}
      */
     public Gateway(Logger log) {
-        this(log, null, null);
+        this(log, null, null, false);
     }
 
     /**
@@ -186,13 +189,20 @@ public class Gateway {
      *            A {@link ExecutorService} for handling asynchronous tasks, can
      *            be <code>null</code> (in which case the Java built-in cached
      *            thread pool will be used)
+     * @param executorShutdownOnDisconnect
+     *            Flag to indicate that executor threads should be shutdown on
+     *            disconnect (only taken into account if an
+     *            {@link ExecutorService} was provided)
      */
     public Gateway(Logger log, CacheService cacheService,
-            ExecutorService executorService) {
+            ExecutorService executorService,
+            boolean executorShutdownOnDisconnect) {
         this.log = log;
         this.cacheService = cacheService;
         this.executorService = executorService == null ? Executors
                 .newCachedThreadPool() : executorService;
+        this.executorShutdownOnDisconnect = executorService == null ? true
+                : executorShutdownOnDisconnect;
     }
 
     /**
@@ -238,19 +248,20 @@ public class Gateway {
      * Disconnects from the server
      */
     public void disconnect() {
-        // shutdown still running asynchronous tasks
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+        if (executorShutdownOnDisconnect) {
+            // shutdown still running asynchronous tasks
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                    if (!executorService.awaitTermination(30, TimeUnit.SECONDS))
+                        getLogger().warn(this,
+                                "Could not terminate all asynchronous tasks");
+                }
+            } catch (InterruptedException ie) {
                 executorService.shutdownNow();
-                if (!executorService.awaitTermination(30, TimeUnit.SECONDS))
-                    getLogger()
-                            .warn(this,
-                                    "Could not terminate all asynchronous tasks");
+                Thread.currentThread().interrupt();
             }
-        } catch (InterruptedException ie) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
         }
         
         boolean online = isNetworkUp(false);
