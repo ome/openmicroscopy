@@ -294,45 +294,12 @@
                         });
                         values = values.join('<br />');
                         var oddEvenClass = col % 2 == 1 ? 'odd' : 'even';
+                        if (values.length === 0) {
+                            oddEvenClass += ' noTabularData';
+                        }
                         return '<tr><td class="title ' + oddEvenClass + '">' + label + ':&nbsp;</td><td>' + values + '</td></tr>';
                     });
                     table.html(html.join(""));
-                    for (var col = 0; col < result.data.columns.length; col++) {
-                        var url = false;
-                        var label = result.data.columns[col].escapeHTML();
-                        if (result.data.descriptions && result.data.descriptions[col]) {
-                            desc = result.data.descriptions[col];
-                            url = desc.url;
-                        }
-                        var values = [],
-                            v, href;
-                        for (var r = 0; r < result.data.rows.length; r++) {
-                          v = ("" + result.data.rows[r][col]).escapeHTML();
-                          if (url) {
-                            // split links on ';' and create link for each
-                            var tokens = v.split(";"),
-                                token,
-                                links = [];
-                            for (var t=0; t<tokens.length; t++) {
-                                token = $.trim(tokens[t]);
-                                href = url.replace("%s", token);
-                                token = "<a target='new' href='" + href + "'>" + token + "</a>";
-                                links.push(token);
-                            }
-                            v = links.join("; ");
-                          }
-                          values.push(v);
-                        }
-                        var value = values.join('<br />');
-                        var row = $('<tr><td class="title"></td><td></td></tr>');
-                        row.addClass(col % 2 == 1 ? 'odd' : 'even');
-                        $('td:first-child', row).html(label + ":&nbsp;");
-                        $('td:last-child', row).html(value);
-                        if (value.length === 0) {
-                            row.addClass('noTabularData');
-                        }
-                        table.append(row);
-                    }
                     if (callback) {
                         callback(result);
                     }
