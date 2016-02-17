@@ -164,6 +164,19 @@ class TestConfig(lib.ITest):
                 self.rs.setConfigValue(key, label)
             self.mock_getOmeroClientSettings(monkeypatch,
                                              self.rs.getClientConfigValues())
+            # validate old config
+            ocs = self.conn.getOmeroClientSettings()
+            not_exist = [
+                'omero.client.ui.menu.dropdown.everyone.label',
+                'omero.client.ui.menu.dropdown.leaders.label',
+                'omero.client.ui.menu.dropdown.colleagues.label',
+                'omero.client.ui.tree.orphans.enabled',
+                'omero.client.viewer.initial_zoom_level',
+                'omero.client.pixeldata.max_plane_width',
+                'omero.client.pixeldata.max_plane_height'
+            ]
+            for n in not_exist:
+                assert n not in ocs
             # test load_server_settings directly
             login_required(default_view).load_server_settings(
                 self.conn, self.r)
