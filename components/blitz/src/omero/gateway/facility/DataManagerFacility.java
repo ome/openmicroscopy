@@ -22,7 +22,10 @@ package omero.gateway.facility;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -629,9 +632,14 @@ public class DataManagerFacility extends Facility {
                 - name.length());
 
         final String mime;
-        if (mimetype == null)
-            mime = "application/octet-stream";
-        else
+        if (mimetype == null) {
+            try {
+                mimetype = Files.probeContentType(Paths.get(file.toURI()));
+            } catch (IOException e) {
+                mimetype = null;
+            }
+            mime = mimetype != null ? mimetype : "application/octet-stream";
+        } else
             mime = mimetype;
 
         Callable<FileAnnotationData> c = new Callable<FileAnnotationData>() {
