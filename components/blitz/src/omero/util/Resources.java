@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 /**
  * Container class for storing resources which should be cleaned up on close and
  * periodically checked.
- * 
+ *
  * Note: this class uses java.util.logging (JUL) rather than commons-logging
  * since it may be used on the client-side. Any use server-side will have logs
  * forwarded to log4j via slf4j.
@@ -104,6 +104,10 @@ public class Resources {
     }
 
     public void add(Entry entry) {
+        if (entry == null) {
+            log.warning("Entry null");
+            return;
+        }
         log.finest("Adding object " + entry);
         stuff.add(entry);
     }
@@ -111,9 +115,9 @@ public class Resources {
     public int size() {
         return stuff.size();
     }
-    
+
     public void cleanup() {
-        
+
         log.finest("Cleaning called");
 
         for (Entry entry : stuff) {
@@ -127,6 +131,10 @@ public class Resources {
     }
 
     public void remove(Entry entry) {
+        if (entry == null) {
+            log.warning("Entry null");
+            return;
+        }
         log.finest("Cleaning " + entry);
         try {
             entry.cleanup();
