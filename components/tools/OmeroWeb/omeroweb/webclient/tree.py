@@ -755,6 +755,8 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if date:
             kwargs['acqDate'] = e['acqDate']
             kwargs['date'] = e['date']
+        if share_id is not None:
+            kwargs['share_id'] = share_id
 
         images.append(_marshal_image(**kwargs))
 
@@ -785,12 +787,12 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
             if i['id'] in thumbVersions:
                 i['thumbVersion'] = thumbVersions[i['id']]
 
-    # If there were any deleted images in the share, that were
+    # If there were any images in the share that were
     # not found in query, they are likely deleted.
     # Marshal and return those
     if share_id is not None and 'iids' in params.map:
         imageIdsInShare = [i['id'] for i in images]
-        for image_rid in params.map['iids']:
+        for image_rid in unwrap(params.map['iids']):
             if image_rid not in imageIdsInShare:
                 images.append(_marshal_image_deleted(conn, image_rid))
 
