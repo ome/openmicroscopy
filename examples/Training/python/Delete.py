@@ -23,22 +23,19 @@ from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
-# Create a new Project
-# =================================================================
-project = omero.model.ProjectI()
-project.setName(rstring("New Project"))
-project = conn.getUpdateService().saveAndReturnObject(project)
-projectId = project.id.val
 
-# Load the Project
+# Create new Projects
 # =================================================================
-project = conn.getObject("Project", projectId)
-if project is None:
-    import sys
-    sys.stderr.write("Error: Object does not exist.\n")
-    sys.exit(1)
+def createProject():
+    project = omero.model.ProjectI()
+    project.setName(rstring("New Project"))
+    project = conn.getUpdateService().saveAndReturnObject(project)
+    projectId = project.id.val
+    return projectId
 
-print "\nProject:", project.getName()
+
+projectId1 = createProject()
+projectId2 = createProject()
 
 
 # Delete Project
@@ -46,16 +43,19 @@ print "\nProject:", project.getName()
 # You can delete a number of objects of the same type at the same
 # time. In this case 'Project'. Use deleteChildren=True if you are
 # deleting a Project and you want to delete Datasets and Images.
-obj_ids = [projectId]
+# We use wait=True so that the async delete completes.
+obj_ids = [projectId1]
 deleteChildren = False
-handle = conn.deleteObjects(
-    "Project", obj_ids, deleteAnns=True, deleteChildren=deleteChildren)
+conn.deleteObjects(
+    "Project", obj_ids, deleteAnns=True,
+    deleteChildren=deleteChildren, wait=True)
 
 
-# Retrieve callback and wait until delete completes
+# Delete Project, handling response
 # =================================================================
-# This is not necessary for the Delete to complete. Can be used
-# if you want to know when delete is finished or if there were any errors
+# If you want to know when delete is finished or if there were
+# any errors, then we can use a callback to wait for response
+handle = conn.deleteObjects("Project", [projectId2])
 cb = omero.callbacks.CmdCallbackI(conn.c, handle)
 print "Deleting, please wait."
 while not cb.block(500):

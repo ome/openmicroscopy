@@ -171,7 +171,7 @@ public class LookupNames
     public static final String USER_ADMINISTRATOR = "/users/administrator";
 
     /** Field to indicate if the connection is fast or not. */
-    public static final String CONNECTION_SPEED = "/connection/speed";
+    public static final String IMAGE_QUALITY_LEVEL = "/connection/speed";
 
     /** Field to indicate the default size of a plane. */
     public static final String PLANE_SIZE = "/services/RE/planeSize";

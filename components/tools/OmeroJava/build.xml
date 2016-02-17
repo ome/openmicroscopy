@@ -43,10 +43,6 @@
         <echo>no-op</echo>
     </target>
 
-    <target name="test-suite">
-        <echo>no-op</echo>
-    </target>
-
     <target name="pre-compile" depends="generate">
         <!-- These first tasks are "pseudo-compiles" copying in
         resources from other builds and jars to be packaged into
