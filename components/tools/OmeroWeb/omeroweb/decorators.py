@@ -39,7 +39,7 @@ from django.core.cache import cache
 from omeroweb.http import HttpJsonResponse
 
 from omeroweb.connector import Connector
-from omero.gateway.utils import toBoolean
+from omero.gateway.utils import propertiesToDict
 
 logger = logging.getLogger(__name__)
 
@@ -273,20 +273,13 @@ class login_required(object):
             request.session['server_settings']
         except:
             request.session.modified = True
-            server_settings = {}
+            request.session['server_settings'] = {}
             try:
                 s = self._cleanup_deprecated(conn.getOmeroClientSettings())
-                for item, value in s.iteritems():
-                    ss = server_settings
-                    items = item.replace("omero.client.", "").split('.')
-                    for key in items[:-1]:
-                        ss = ss.setdefault(key, {})
-                    if items[-1] == "enabled":
-                        value = toBoolean(value)
-                    ss[items[-1]] = value
+                request.session['server_settings'] = \
+                    propertiesToDict(s, prefix="omero.client.")
             except:
                 logger.error(traceback.format_exc())
-            request.session['server_settings'] = server_settings
             # make extra call for omero.mail, not a part of omero.client
             request.session['server_settings']['email'] = \
                 conn.getEmailSettings()

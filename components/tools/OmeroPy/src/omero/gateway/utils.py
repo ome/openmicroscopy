@@ -187,3 +187,22 @@ def toBoolean(val):
     trueItems = ["true", "yes", "y", "t", "1", "on"]
 
     return str(val).strip().lower() in trueItems
+
+
+def propertiesToDict(m, prefix=None):
+    """
+    Convert omero properties to nested dictionary, skipping common prefix
+    """
+
+    nested_dict = {}
+    for item, value in m.iteritems():
+        d = nested_dict
+        if prefix is not None:
+            item = item.replace(prefix, "")
+        items = item.split('.')
+        for key in items[:-1]:
+            d = d.setdefault(key, {})
+        if items[-1] == "enabled":
+            value = toBoolean(value)
+        d[items[-1]] = value
+    return nested_dict

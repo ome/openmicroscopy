@@ -17,7 +17,7 @@ from omero.gateway.utils import toBoolean
 
 
 @pytest.mark.parametrize("interpolate",
-                         ["foo", "", "False", "false",
+                         ["foo", "False", "false",
                           "True", "true", "", None])
 def testInterpolateSetting(gatewaywrapper, interpolate):
     """

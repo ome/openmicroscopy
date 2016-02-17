@@ -11,6 +11,7 @@
 
 from omero.gateway.utils import ServiceOptsDict
 from omero.gateway.utils import toBoolean
+from omero.gateway.utils import propertiesToDict
 import pytest
 
 
@@ -238,3 +239,55 @@ class TestHelpers (object):
         [False, "false", "f", "no", "n", "none", "0", "[]", "{}", "", "off"])
     def test_toBoolean_false(self, false_val):
         assert not toBoolean(false_val)
+
+    def test_propertiesToDict(self):
+        d = {
+            '1.1': '11',
+            '1.2': '12',
+            '2.1': '21',
+            '3': '3'
+        }
+        dictprop = propertiesToDict(d)
+        assert len(dictprop) == 3
+        assert set(['1', '2', '3']) - set(dictprop.keys()) == set()
+        assert len(dictprop['1']) == 2
+        assert len(dictprop['2']) == 1
+        assert dictprop['1']['1'] == '11'
+        assert dictprop['1']['2'] == '12'
+        assert dictprop['2']['1'] == '21'
+        assert dictprop['3'] == '3'
+
+    def test_propertiesToDictWithPrefix(self):
+        d = {
+            'omero.prefix.str.1': 'mystring',
+            'omero.prefix.str.2': '1',
+            'omero.prefix.int.1': 1
+        }
+        dictprop = propertiesToDict(d, prefix='omero.prefix.')
+        assert len(dictprop) == 2
+        assert set(['str', 'int']) - set(dictprop.keys()) == set()
+        assert len(dictprop['str']) == 2
+        assert len(dictprop['int']) == 1
+        assert dictprop['int']['1'] == 1
+        assert dictprop['str']['1'] == 'mystring'
+        assert dictprop['str']['2'] == '1'
+
+    def test_propertiesToDictBool(self):
+        d = {
+            'omero.prefix.strbool.false1.enabled': 'False',
+            'omero.prefix.strbool.false2.enabled': 'false',
+            'omero.prefix.strbool.true1.enabled': 'True',
+            'omero.prefix.strbool.true2.enabled': 'true',
+            'omero.prefix.bool1.enabled': False,
+            'omero.prefix.bool2.enabled': True
+        }
+        dictprop = propertiesToDict(d, prefix='omero.prefix.')
+        assert len(dictprop) == 3
+        assert set(['strbool', 'bool1', 'bool2']) - set(dictprop.keys()) == \
+            set()
+        assert not dictprop['strbool']['false1']['enabled']
+        assert not dictprop['strbool']['false2']['enabled']
+        assert dictprop['strbool']['true1']['enabled']
+        assert dictprop['strbool']['true2']['enabled']
+        assert not dictprop['bool1']['enabled']
+        assert dictprop['bool2']['enabled']
