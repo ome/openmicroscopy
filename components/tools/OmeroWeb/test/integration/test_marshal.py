@@ -23,6 +23,8 @@ Test json methods of webgateway
 
 import json
 
+from omero.model import DatasetI, DatasetImageLinkI, ImageI
+from omero.rtypes import rstring
 from django.core.urlresolvers import reverse
 
 from weblibrary import IWebTest, _get_response
@@ -35,7 +37,7 @@ class TestImgDetail(IWebTest):
 
     def test_image_detail(self):
         """
-        Download of archived files for a non-SPW Image.
+        Tests imageData json for an imported image
         """
         userName = "%s %s" % (self.user.firstName.val, self.user.lastName.val)
 
@@ -104,6 +106,7 @@ class TestImgDetail(IWebTest):
         assert imgData['meta']['wellId'] == ""
         assert imgData['meta']['imageName'] == "tinyTest.d3d.dv"
         assert imgData['meta']['datasetDescription'] == ""
+        assert imgData['meta']['datasets'] == []
         # Don't know exact timestamp of import
         assert 'imageTimestamp' in imgData['meta']
 
@@ -132,6 +135,26 @@ class TestImgDetail(IWebTest):
                 'height': 24
             }
         }
+
+        # Now test image in Datasets
+        datasetNames = ["Dataset1", "Dataset2"]
+        datasetIds = []
+        for dname in datasetNames:
+            dataset = DatasetI()
+            dataset.name = rstring(dname)
+            link = DatasetImageLinkI()
+            link.child = ImageI(iid, False)
+            link.parent = dataset
+            link = self.update.saveAndReturnObject(link)
+            datasetIds.append(link.parent.id.val)
+        datasets = [{'id': datasetIds[d], 'name': datasetNames[d], 'description': ''}
+                    for d in range(2)]
+
+        imgData = _get_response_json(self.django_client, json_url,
+                                     data, status_code=200)
+        assert imgData['meta']['datasetId'] in datasetIds
+        assert imgData['meta']['datasetName'] in datasetNames
+        assert imgData['meta']['datasets'] == datasets
 
 
 # Helpers

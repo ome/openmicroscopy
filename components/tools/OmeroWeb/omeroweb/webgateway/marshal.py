@@ -87,6 +87,8 @@ def imageMarshal(image, key=None, request=None):
                     if wellsample.well is not None:
                         w['id'] = wellsample.well.id.val
                     wells.append(w)
+        datasets.sort(key=lambda x: x['id'])
+        wells.sort(key=lambda x: x['id'])
         if len(datasets) > 0:
             ds = datasets[0]
         if len(wells) > 0:
