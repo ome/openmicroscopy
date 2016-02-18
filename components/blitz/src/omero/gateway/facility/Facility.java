@@ -99,7 +99,7 @@ public abstract class Facility {
 
             @Override
             public Facility call() throws Exception {
-                gateway.getLogger().debug(null,
+                gateway.getLogger().debug(this,
                         "Created new " + type.getSimpleName());
                 Facility facility = type.getDeclaredConstructor(Gateway.class).newInstance(
                         gateway);
