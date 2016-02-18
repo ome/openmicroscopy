@@ -270,113 +270,113 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                 } else {
                     isAssociatedEntity = property.type instanceof AssociationType;
                 }
-                    /* the property can link to entities, so process it further */
-                    String propertyPath = Joiner.on('.').join(property.path);
-                    /* find if the property is accessible (e.g., not protected) */
-                    boolean propertyIsAccessible = false;
-                    String classToInstantiateName = property.holder;
-                    Class<?> classToInstantiate = null;
-                    try {
+                /* the property can link to entities, so process it further */
+                String propertyPath = Joiner.on('.').join(property.path);
+                /* find if the property is accessible (e.g., not protected) */
+                boolean propertyIsAccessible = false;
+                String classToInstantiateName = property.holder;
+                Class<?> classToInstantiate = null;
+                try {
+                    classToInstantiate = Class.forName(classToInstantiateName);
+                    while (Modifier.isAbstract(classToInstantiate.getModifiers())) {
+                        classToInstantiateName = allSubclasses.get(classToInstantiateName).iterator().next();
                         classToInstantiate = Class.forName(classToInstantiateName);
-                        while (Modifier.isAbstract(classToInstantiate.getModifiers())) {
-                            classToInstantiateName = allSubclasses.get(classToInstantiateName).iterator().next();
-                            classToInstantiate = Class.forName(classToInstantiateName);
-                        }
-                        try {
-                            PropertyUtils.getNestedProperty(classToInstantiate.newInstance(), propertyPath);
-                            propertyIsAccessible = true;
-                        } catch (NoSuchMethodException e) {
-                            /* expected for collection properties */
-                        } catch (NestedNullException e) {
-                            log.debug("guessing " + propertyPath + " of " + property.holder + " to be accessible");
-                            propertyIsAccessible = true;
-                        }
-                    } catch (ReflectiveOperationException e) {
-                        log.error("could not probe property " + propertyPath + " of " + property.holder, e);
-                        continue;
                     }
-                    /* build property report line for log */
-                    final char arrowShaft = property.isNullable ? '-' : '=';
-                    final StringBuffer sb = new StringBuffer();
-                    sb.append(property.holder);
-                    sb.append(' ');
-                    for (final String propertyName : property.path) {
-                        sb.append(arrowShaft);
-                        sb.append(arrowShaft);
-                        sb.append(propertyName);
+                    try     {
+                        PropertyUtils.getNestedProperty(classToInstantiate.newInstance(), propertyPath);
+                        propertyIsAccessible = true;
+                    } catch (NoSuchMethodException e) {
+                        /* expected for collection properties */
+                    } catch (NestedNullException e) {
+                        log.debug("guessing " + propertyPath + " of " + property.holder + " to be accessible");
+                        propertyIsAccessible = true;
                     }
+                } catch (ReflectiveOperationException e) {
+                    log.error("could not probe property " + propertyPath + " of " + property.holder, e);
+                    continue;
+                }
+                /* build property report line for log */
+                final char arrowShaft = property.isNullable ? '-' : '=';
+                final StringBuffer sb = new StringBuffer();
+                sb.append(property.holder);
+                sb.append(' ');
+                for (final String propertyName : property.path) {
                     sb.append(arrowShaft);
                     sb.append(arrowShaft);
-                    sb.append("> ");
-                    final String valueClassName;
-                    if (isAssociatedEntity) {
+                    sb.append(propertyName);
+                }
+                sb.append(arrowShaft);
+                sb.append(arrowShaft);
+                sb.append("> ");
+                final String valueClassName;
+                if (isAssociatedEntity) {
                     valueClassName = ((AssociationType) property.type).getAssociatedEntityName(sessionFactory);
                     sb.append(valueClassName);
+                } else {
+                    valueClassName = null;
+                    sb.append("value");
+                }
+                if (property.type.isCollectionType()) {
+                    sb.append("[]");
+                }
+                if (!propertyIsAccessible) {
+                    sb.append(" (inaccessible)");
+                }
+                /* determine from which class the property is inherited, if at all */
+                String superclassWithProperty = null;
+                String currentClass = property.holder;
+                while (true) {
+                    currentClass = superclasses.get(currentClass);
+                    if (currentClass == null) {
+                        break;
+                    } else if (allPropertyNames.get(currentClass).contains(property.path.get(0))) {
+                        superclassWithProperty = currentClass;
+                    }
+                }
+                /* check if the property actually comes from an interface */
+                final String declaringClassName = superclassWithProperty == null ? property.holder : superclassWithProperty;
+                final Class<? extends IObject> interfaceForProperty =
+                        getInterfaceForProperty(declaringClassName, property.path.get(0));
+                /* report where the property is declared */
+                if (superclassWithProperty != null) {
+                    sb.append(" from ");
+                    sb.append(superclassWithProperty);
+                } else {
+                    if (interfaceForProperty != null) {
+                        sb.append(" see ");
+                        sb.append(interfaceForProperty.getName());
+                        /* It would be nice to set PropertyDetails to have the interface as the holder,
+                         * but then properties would not be unique by declarer class and instance ID. */
+                    }
+                    /* entity linkages by non-inherited properties are recorded */
+                    if (valueClassName == null && property.path.size() > 1) {
+                        /* assume that the top-level property suffices for describing simple properties */
+                        log.debug("recording " + propertyPath + " as " + property.path.get(0));
+                        propertyPath = property.path.get(0);
+                    }
+                    final Entry<String, String> classPropertyName = Maps.immutableEntry(property.holder, propertyPath);
+                    if (valueClassName == null) {
+                        simpleProperties.put(property.holder, propertyPath);
                     } else {
-                        valueClassName = null;
-                        sb.append("value");
-                    }
-                    if (property.type.isCollectionType()) {
-                        sb.append("[]");
-                    }
-                    if (!propertyIsAccessible) {
-                        sb.append(" (inaccessible)");
-                    }
-                    /* determine from which class the property is inherited, if at all */
-                    String superclassWithProperty = null;
-                    String currentClass = property.holder;
-                    while (true) {
-                        currentClass = superclasses.get(currentClass);
-                        if (currentClass == null) {
-                            break;
-                        } else if (allPropertyNames.get(currentClass).contains(property.path.get(0))) {
-                            superclassWithProperty = currentClass;
-                        }
-                    }
-                    /* check if the property actually comes from an interface */
-                    final String declaringClassName = superclassWithProperty == null ? property.holder : superclassWithProperty;
-                    final Class<? extends IObject> interfaceForProperty =
-                            getInterfaceForProperty(declaringClassName, property.path.get(0));
-                    /* report where the property is declared */
-                    if (superclassWithProperty != null) {
-                        sb.append(" from ");
-                        sb.append(superclassWithProperty);
-                    } else {
-                        if (interfaceForProperty != null) {
-                            sb.append(" see ");
-                            sb.append(interfaceForProperty.getName());
-                            /* It would be nice to set PropertyDetails to have the interface as the holder,
-                             * but then properties would not be unique by declarer class and instance ID. */
-                        }
-                        /* entity linkages by non-inherited properties are recorded */
-                        if (valueClassName == null && property.path.size() > 1) {
-                            /* assume that the top-level property suffices for describing simple properties */
-                            log.debug("recording " + propertyPath + " as " + property.path.get(0));
-                            propertyPath = property.path.get(0);
-                        }
-                        final Entry<String, String> classPropertyName = Maps.immutableEntry(property.holder, propertyPath);
-                        if (valueClassName == null) {
-                            simpleProperties.put(property.holder, propertyPath);
-                        } else {
                         linkedTo.put(property.holder, Maps.immutableEntry(valueClassName, propertyPath));
                         linkedBy.put(valueClassName, classPropertyName);
-                        }
-                        final PropertyKind propertyKind;
-                        if (property.type.isCollectionType()) {
-                            propertyKind = PropertyKind.COLLECTION;
-                        } else if (property.isNullable) {
-                            propertyKind = PropertyKind.OPTIONAL;
-                        } else {
-                            propertyKind = PropertyKind.REQUIRED;
-                        }
-                        propertyKinds.put(classPropertyName, propertyKind);
-                        if (propertyIsAccessible) {
-                            accessibleProperties.add(classPropertyName);
-                        }
                     }
-                    if (log.isDebugEnabled()) {
-                        log.debug(sb.toString());
+                    final PropertyKind propertyKind;
+                    if (property.type.isCollectionType()) {
+                        propertyKind = PropertyKind.COLLECTION;
+                    } else if (property.isNullable) {
+                        propertyKind = PropertyKind.OPTIONAL;
+                    } else {
+                        propertyKind = PropertyKind.REQUIRED;
                     }
+                    propertyKinds.put(classPropertyName, propertyKind);
+                    if (propertyIsAccessible) {
+                        accessibleProperties.add(classPropertyName);
+                    }
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug(sb.toString());
+                }
             }
         }
         log.info("initialized graph path bean with " + propertyKinds.size() + " properties");
