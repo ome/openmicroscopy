@@ -538,6 +538,18 @@ $(function() {
                     data: payload,
                     cache: false,
                     success: function (data, textStatus, jqXHR) {
+                        console.log("no converter", data, node);
+                        if (data.count && node.data) {
+                            node.data.obj.filterCount = data.count;
+                        }
+                    }
+                });
+
+                $.ajax({
+                    url: url,
+                    data: payload,
+                    cache: false,
+                    success: function (data, textStatus, jqXHR) {
                         callback.call(this, data);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
