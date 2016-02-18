@@ -488,7 +488,9 @@ class ObjectManager
 	/** Invokes when new figures are selected. */
 	void onSelectedFigures()
 	{
-		objectsTable.onSelectedFigures(model.getSelectedFigures());
+	    Collection<Object> tmp = new ArrayList<Object>();
+	    tmp.addAll(model.getSelectedFigures());
+		objectsTable.onSelection(tmp);
 	}
 	
 	/** 
@@ -521,7 +523,7 @@ class ObjectManager
 	 */
 	Collection<Figure> getSelectedFiguresFromTables()
 	{
-	    List l = objectsTable.getSelectedObjects();
+	    Collection<Object> l = objectsTable.getSelectedObjects();
         if (CollectionUtils.isEmpty(l)) return null;
         Iterator i = l.iterator();
         Object o;

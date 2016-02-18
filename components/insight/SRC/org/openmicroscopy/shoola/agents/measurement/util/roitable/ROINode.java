@@ -162,7 +162,7 @@ public class ROINode
     public boolean isROINode() {
         return getUserObject() instanceof ROI;
     }
-
+    
     /**
      * Checks if this node is a shape node
      * 
@@ -173,6 +173,32 @@ public class ROINode
         return getUserObject() instanceof ROIShape;
     }
 
+    /**
+     * Checks if this node exclusively contains ROI child nodes
+     * 
+     * @return <code>false</code> if it does not, <code>true</code> otherwise
+     *         (also if it does not contain any child nodes)
+     */
+    public boolean containsROIs() {
+        for (int i = 0; i < getChildCount(); i++)
+            if (!((ROINode) getChildAt(i)).isROINode())
+                return false;
+        return true;
+    }
+    
+    /**
+     * Checks if this node exclusively contains Folder child nodes
+     * 
+     * @return <code>false</code> if it does not, <code>true</code> otherwise
+     *         (also if it does not contain any child nodes)
+     */
+    public boolean containsFolders() {
+        for (int i = 0; i < getChildCount(); i++)
+            if (!((ROINode) getChildAt(i)).isFolderNode())
+                return false;
+        return true;
+    }
+    
 	/**
 	 * Get the point in the parent where a child with coordinate should be 
 	 * inserted.
@@ -375,11 +401,12 @@ public class ROINode
 			}
         } 
 		else if (userObject instanceof FolderData) {
+		    FolderData folder = (FolderData)userObject;
             switch (column) {
             case ROIID_COLUMN+1:
-                return ((FolderData)userObject).getId();
+                return folder.getId();
             case ANNOTATION_COLUMN+1:
-                return ((FolderData)userObject).getDescription();
+                return folder.getDescription();
             case VISIBLE_COLUMN + 1:
                 return isVisible();
             default:

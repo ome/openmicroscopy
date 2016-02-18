@@ -32,15 +32,34 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+
+
+
+
+
+
+
 //Third-party libraries
 import org.jhotdraw.draw.Figure;
 
+
+
+
+
+
+
+
+import omero.gateway.model.DataObject;
 //Application-internal dependencies
 import omero.gateway.model.FolderData;
+
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.CreationActionType;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * Displays options to manipulate a ROI.
@@ -122,172 +141,168 @@ public class ROIPopupMenu
 	}
 
     /**
-     * Sets the flag to access the action to manage ROI Folders.
+     * Enables/Disables the actions with respect to the selected objects
      * 
-     * @param folders
-     *            The selected Folders.
+     * @param selection
+     *            The selected objects
      */
-    public void setFolderActionsEnabled(List<FolderData> folders) {
-        // Disable roi actions
+    public void setActionsEnabled(Collection<Object> selection) {
         Iterator<ROIAction> j = actions.iterator();
         while (j.hasNext()) {
             ROIAction action = j.next();
-            switch (action.getCreationActionType()) {
-            case ADD_TO_FOLDER:
-                action.setEnabled(false);
-                break;
-            case DELETE:
-                action.setEnabled(false);
-                break;
-            case DUPLICATE:
-                action.setEnabled(false);
-                break;
-            case MERGE:
-                action.setEnabled(false);
-                break;
-            case PROPAGATE:
-                action.setEnabled(false);
-                break;
-            case REMOVE_FROM_FOLDER:
-                action.setEnabled(false);
-                break;
-            case SPLIT:
-                action.setEnabled(false);
-                break;
-            case TAG:
-                action.setEnabled(false);
-                break;
-            default:
-                break;
-            }
-        }
-        
-        Iterator<FolderData> i = folders.iterator();
-        int delete = 0;
-        int edit = 0;
-        FolderData folder;
-        while (i.hasNext()) {
-            folder = i.next();
-            if (folder.canEdit())
-                edit++;
-            if (folder.canDelete())
-                delete++;
-        }
-
-        j = actions.iterator();
-        ROIAction action;
-        boolean db = delete == folders.size();
-        boolean eb = edit == 1 && folders.size() == 1;
-        boolean cb = folders.size() == 0
-                || (folders.size() == 1 && folders.get(0).canEdit());
-        while (j.hasNext()) {
-            action = j.next();
-            switch (action.getCreationActionType()) {
-            case CREATE_FOLDER:
-                action.setEnabled(cb);
-                break;
-            case DELETE_FOLDER:
-                action.setEnabled(db);
-                break;
-            case EDIT_FOLDER:
-                action.setEnabled(eb);
-                break;
-            case MOVE_FOLDER:
-                action.setEnabled(eb);
-                break;
-            default:
-                break;
-            }
+            action.setEnabled(checkPermission(action.getCreationActionType(),
+                    selection));
         }
     }
     
-	/**
-	 * Sets the flag to access the action to manage ROIs.
-	 * 
-	 * @param figures The selected figure.
-	 */
-	public void setFigureActionsEnabled(Collection<Figure> figures)
-	{
-	    // Disable folder actions
-	    Iterator<ROIAction> j = actions.iterator();
+    /**
+     * Checks if a specific action is enabled
+     * 
+     * @param action
+     *            The action to check for
+     * @return See above
+     */
+    public boolean isActionEnabled(CreationActionType action) {
+        Iterator<ROIAction> j = actions.iterator();
         while (j.hasNext()) {
-            ROIAction action = j.next();
-            switch (action.getCreationActionType()) {
-            case DELETE_FOLDER:
-                action.setEnabled(false);
-                break;
-            case EDIT_FOLDER:
-                action.setEnabled(false);
-                break;
-            case MOVE_FOLDER:
-                action.setEnabled(false);
-                break;
-            default:
-                break;
+            ROIAction a = j.next();
+            if (a.getCreationActionType() == CreationActionType.REMOVE_FROM_FOLDER)
+                return a.isEnabled();
+        }
+        return false;
+    }
+
+    /**
+     * Enable/Disable a specific action
+     * 
+     * @param action
+     *            The action
+     * @param enabled
+     *            Pass <code>true</code> to enable, <code>false</code> to
+     *            disable the action
+     */
+    public void enableAction(CreationActionType action, boolean enabled) {
+        Iterator<ROIAction> j = actions.iterator();
+        while (j.hasNext()) {
+            ROIAction a = j.next();
+            if (a.getCreationActionType() == CreationActionType.REMOVE_FROM_FOLDER)
+                a.setEnabled(enabled);
+        }
+    }
+
+    /**
+     * Check a specific action should be enabled or disabled with respect to a
+     * certain object selection
+     * 
+     * @param action
+     *            The action to check for
+     * @param selection
+     *            The selected objects
+     * @return <code>true</code> if the action should be enabled,
+     *         <code>false</code> if the action should be disabled
+     */
+    private boolean checkPermission(CreationActionType action,
+            Collection<Object> selection) {
+
+        if (action == CreationActionType.CREATE_FOLDER && selection.size() == 0)
+            return true;
+
+        boolean isFolderSelection = true;
+        boolean isROISelection = true;
+
+        for (Object obj : selection) {
+            if (isROISelection
+                    && !(obj instanceof ROI || obj instanceof ROIShape)) {
+                isROISelection = false;
+            }
+            if (isFolderSelection && !(obj instanceof FolderData)) {
+                isFolderSelection = false;
             }
         }
-	    
-		Iterator<Figure> i = figures.iterator();
-		Figure figure;
-		int readable = 0;
-		int delete = 0;
-		int edit = 0;
-		ROIFigure roi;
-		while (i.hasNext()) {
-			figure = i.next();
-			if (figure instanceof ROIFigure) {
-				roi = (ROIFigure) figure;
-				if (!(roi.isReadOnly())) {
-					readable++;
-					if (roi.canEdit()) edit++;
-					if (roi.canDelete()) delete++;
-				}
-			}
-		}
-		j = actions.iterator();
-		if (readable != figures.size()) { //some read-only
-			while (j.hasNext()) {
-				j.next().setEnabled(false);
-			}
-		} else {
-			ROIAction action;
-			boolean db = delete == figures.size();
-			boolean eb = edit == figures.size();
-            while (j.hasNext()) {
-                action = j.next();
-                switch (action.getCreationActionType()) {
-                case DUPLICATE:
-                    action.setEnabled(eb);
-                    break;
-                case DELETE:
-                    action.setEnabled(db);
-                    break;
-                case ADD_TO_FOLDER:
-                    action.setEnabled(eb);
-                    break;
-                case CREATE_FOLDER:
-                    action.setEnabled(true);
-                    break;
-                case MERGE:
-                    action.setEnabled(eb);
-                    break;
-                case PROPAGATE:
-                    action.setEnabled(eb);
-                    break;
-                case REMOVE_FROM_FOLDER:
-                    action.setEnabled(eb);
-                    break;
-                case SPLIT:
-                    action.setEnabled(eb);
-                    break;
-                case TAG:
-                    action.setEnabled(eb);
-                default:
-                    break;
+
+        if (!(isFolderSelection ^ isROISelection))
+            return false;
+
+        int delete = 0;
+        int edit = 0;
+        int link = 0;
+        if (isFolderSelection) {
+            Iterator<Object> i = selection.iterator();
+            FolderData folder;
+            while (i.hasNext()) {
+                folder = (FolderData) i.next();
+                if (folder.canEdit())
+                    edit++;
+                if (folder.canDelete())
+                    delete++;
+                if (folder.canLink())
+                    link++;
+            }
+        } else {
+            Iterator<Object> i = selection.iterator();
+            Object obj;
+            ROIShape shape;
+            ROIFigure roi;
+            while (i.hasNext()) {
+                obj = i.next();
+                if (obj instanceof ROIShape) {
+                    shape = (ROIShape) obj;
+                    roi = shape.getFigure();
+                    if (!(roi.isReadOnly())) {
+                        if (roi.canEdit()) {
+                            edit++;
+                            link++;
+                        }
+                        if (roi.canDelete())
+                            delete++;
+                    }
+                }
+                if (obj instanceof ROIFigure) {
+                    roi = (ROIFigure) obj;
+                    if (!(roi.isReadOnly())) {
+                        if (roi.canEdit()) {
+                            edit++;
+                            link++;
+                        }
+                        if (roi.canDelete())
+                            delete++;
+                    }
                 }
             }
         }
-	}
+
+        switch (action) {
+        // ROI actions
+        case ADD_TO_FOLDER:
+            return isROISelection && link == selection.size();
+        case DELETE:
+            return isROISelection && delete == selection.size();
+        case DUPLICATE:
+            return isROISelection && edit == selection.size();
+        case MERGE:
+            return isROISelection && edit == selection.size();
+        case PROPAGATE:
+            return isROISelection && edit == selection.size();
+        case REMOVE_FROM_FOLDER:
+            return isROISelection && link == selection.size();
+        case SPLIT:
+            return isROISelection && edit == selection.size();
+        case TAG:
+            return isROISelection && edit == selection.size();
+
+            // Folder actions
+        case CREATE_FOLDER:
+            return isFolderSelection && link == 1 && selection.size() == 1;
+        case DELETE_FOLDER:
+            return isFolderSelection && delete == selection.size();
+        case EDIT_FOLDER:
+            return isFolderSelection && edit == 1 && selection.size() == 1;
+        case MOVE_FOLDER:
+            return isFolderSelection && link == selection.size();
+        }
+
+        return false;
+    }
 
 	/**
 	 * Returns the popup menu.

@@ -254,7 +254,7 @@ public class ROITable
      *            The objects
      * @return The {@link SelectionType}
      */
-    SelectionType getSelectionType(List selection) {
+    SelectionType getSelectionType(Collection<Object> selection) {
         SelectionType result = null;
         for (Object obj : selection) {
             SelectionType tmp = null;
@@ -276,24 +276,28 @@ public class ROITable
         return result;
     }
 	
-	/** 
-	 * Invokes when new figures are selected.
-	 * 
-	 * @param figures The selected figures.
-	 */
-	void onSelectedFigures(Collection<Figure> figures)
-	{
-		popupMenu.setFigureActionsEnabled(figures);
-	}
-	
-	/** 
-     * Invokes when folders are selected.
+    /**
+     * Invoked when the selection has changed
      * 
-     * @param folders The selected folders.
+     * @param selection
+     *            The selected Objects.
      */
-    void onSelectedFolders(List<FolderData> folders)
-    {
-        popupMenu.setFolderActionsEnabled(folders);
+    void onSelection(Collection<Object> selection) {
+        popupMenu.setActionsEnabled(selection);
+
+        if (popupMenu.isActionEnabled(CreationActionType.REMOVE_FROM_FOLDER)) {
+            // disable 'remove from folder action' if rois aren't in any folders
+            List<ROIShape> selectedObjects = getSelectedROIShapes();
+            Map<Long, Object> inFolders = new HashMap<Long, Object>();
+            for (ROIShape shape : selectedObjects) {
+                for (FolderData f : shape.getROI().getFolders()) {
+                    if (!inFolders.containsKey(f.getId()))
+                        inFolders.put(f.getId(), f);
+                }
+            }
+            popupMenu.enableAction(CreationActionType.REMOVE_FROM_FOLDER,
+                    !inFolders.isEmpty());
+        }
     }
 	
 	/** 
@@ -800,7 +804,7 @@ public class ROITable
 	 * This will only list an roi even if the roi and roishapes are selected.
 	 * @return see above.
 	 */
-	List getSelectedObjects()
+	Collection<Object> getSelectedObjects()
 	{
 		int [] selectedRows = this.getSelectedRows();
 		TreeMap<Long, Object> roiMap = new TreeMap<Long, Object>(); 
@@ -1113,21 +1117,7 @@ public class ROITable
 	protected void onMousePressed(MouseEvent e)
 	{
 		if (MeasurementViewerControl.isRightClick(e)) {
-		    
-		    List<ROIShape> shapes = getSelectedROIShapes();
-		    List<FolderData> folders = getSelectedFolders();
-		    
-		    if(!shapes.isEmpty()) {
-		        List<Figure> list = new ArrayList<Figure>();
-	            for(ROIShape s : shapes) {
-	                list.add(s.getFigure());
-	            }
-		        onSelectedFigures(list);
-		    }
-		    else if(!folders.isEmpty()) {
-		        onSelectedFolders(folders);
-		    }
-		    
+		    onSelection(getSelectedObjects());
 			showROIManagementMenu(this, e.getX(), e.getY());
 		}
 	}
@@ -1173,7 +1163,8 @@ public class ROITable
         action = CreationActionType.ADD_TO_FOLDER;
         Collection<Object> tmp = new ArrayList<Object>();
         for(FolderData folder : manager.getFolders()) {
-            if(folder.copyChildFolders().isEmpty())
+            ROINode folderNode = getFolderNode(folder);
+            if(folderNode.isLeaf() || folderNode.containsROIs())
                 tmp.add(folder);
         }
         SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
@@ -1235,25 +1226,35 @@ public class ROITable
     @Override
     public void moveFolder() {
         action = CreationActionType.MOVE_FOLDER;
-        
+
+        // subnodes and direct parent nodes of the selected nodes have to 
+        // be excluded from the available nodes
+        Set<Long> excludeIds = new HashSet<Long>();
+        for (FolderData f : getSelectedFolders()) {
+            excludeIds.add(f.getId());
+            if (f.getParentFolder() != null)
+                excludeIds.add(f.getParentFolder().getId());
+            ROINode fnode = getFolderNode(f);
+            Collection<ROINode> subNodes = new ArrayList<ROINode>();
+            fnode.getAllDecendants(subNodes);
+            for (ROINode subNode : subNodes)
+                if (subNode.isFolderNode())
+                    excludeIds.add(((FolderData) subNode.getUserObject())
+                            .getId());
+        }
+
         Collection<DataObject> tmp = new ArrayList<DataObject>();
         for (FolderData folder : manager.getFolders()) {
-            if (!folder.copyChildFolders().isEmpty())
+            ROINode folderNode = getFolderNode(folder);
+            if (!excludeIds.contains(folder.getId()) && folder.canLink()
+                    && (folderNode.isLeaf() || folderNode.containsFolders()))
                 tmp.add(folder);
-            else {
-                ROINode node = getFolderNode(folder);
-                if (node != null && node.getChildCount() > 0
-                        && ((ROINode) node.getChildAt(0)).isROINode())
-                    tmp.add(folder);
-            }
         }
-        
-        List<FolderData> selection = getSelectedFolders();
-        if(selection.size()==1) {
-            SelectionDialog d = new SelectionDialog(tmp, "Destination Folder", "Move to selected Folder:", true);
-            d.addPropertyChangeListener(this);
-            UIUtilities.centerAndShow(d);
-        }
+
+        SelectionDialog d = new SelectionDialog(tmp, "Destination Folder",
+                "Move to selected Folder:", true);
+        d.addPropertyChangeListener(this);
+        UIUtilities.centerAndShow(d);
     }
 
     @Override
