@@ -1394,35 +1394,28 @@
           nextImgId = nextImgId.split('image-')[1];
         }
       }
-
       // Enable Prev / Next buttons if available (disabled by default)
       if (prevImgId) {
-        $(".btn.prev_next_image.prev").removeAttr('disabled');
+        $(".btn.prev_next_image.prev").removeAttr('disabled')
+                                      .prop('disabled', false);
       }
       if (nextImgId) {
-        $(".btn.prev_next_image.next").removeAttr('disabled');
+        $(".btn.prev_next_image.next").removeAttr('disabled')
+                                      .prop('disabled', false);
       }
 
-    // Enable Prev / Next buttons if available (disabled by default)
-    if (prevImgId) {
-      $(".btn.prev_next_image.prev").prop('disabled', false);
-    }
-    if (nextImgId) {
-      $(".btn.prev_next_image.next").prop('disabled', false);
-    }
-
-    // Handle Prev / Next button clicks or keys
-    function nextPrevImage(direction) {
-      var id;
-      if( direction == -1 ) {
-        id = prevImgId;
-      } else {
-        id = nextImgId
+      // Handle Prev / Next button clicks or keys
+      function nextPrevImage(direction) {
+        var id;
+        if( direction == -1 ) {
+          id = prevImgId;
+        } else {
+          id = nextImgId
+        }
+        if( id ) {
+          window.location.href = "{{ viewport_server }}/img_detail/" + id
+        }
       }
-      if( id ) {
-        window.location.href = "{{ viewport_server }}/img_detail/" + id
-      }
-    }
 
       // Prev / Next keys
       $(document).keydown(function(e) {
