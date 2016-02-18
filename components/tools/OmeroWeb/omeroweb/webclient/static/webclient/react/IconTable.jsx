@@ -165,13 +165,15 @@ var IconTable = React.createClass({
         var filter = this.props.parentNode.data.obj.filter || "";
         console.log("render", filter);
 
+        var filterCount = this.props.parentNode.data.obj.filterCount;
+
         return (
         <div className="centrePanel">
             <IconTableHeader
                     filterText={filter}
                     setFilterText={this.setFilterText}
                     childCount={childCount}
-                    filteredCount={imgJson.length}
+                    filteredCount={filterCount}
                     layout={this.state.layout}
                     setLayout={this.setLayout} />
             <div id="icon_table" className="iconTable">

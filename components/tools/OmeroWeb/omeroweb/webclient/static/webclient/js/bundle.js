@@ -20054,6 +20054,8 @@ var renderCentrePanel =
 	        var filter = this.props.parentNode.data.obj.filter || "";
 	        console.log("render", filter);
 
+	        var filterCount = this.props.parentNode.data.obj.filterCount;
+
 	        return _react2.default.createElement(
 	            'div',
 	            { className: 'centrePanel' },
@@ -20061,7 +20063,7 @@ var renderCentrePanel =
 	                filterText: filter,
 	                setFilterText: this.setFilterText,
 	                childCount: childCount,
-	                filteredCount: imgJson.length,
+	                filteredCount: filterCount,
 	                layout: this.state.layout,
 	                setLayout: this.setLayout }),
 	            _react2.default.createElement(
@@ -20675,7 +20677,6 @@ var renderCentrePanel =
 	        }
 	        this.setState({ selectedWellIds: newSel });
 	        // Calls to ome.webclient.actions.js
-	        console.log(newSel);
 	        OME.well_selection_changed(newSel, this.props.fieldIdx);
 	    },
 
