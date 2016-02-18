@@ -1227,7 +1227,8 @@ public class BrowseFacility extends Facility {
                                     + "left outer join fetch roiLinks.child as roi "
                                     + "left outer join fetch roi.shapes as shapes "
                                     + "left outer join fetch folder.annotationLinks as annotationLinks "
-                                    + "left outer join fetch folder.imageLinks as imageLinks",
+                                    + "left outer join fetch folder.imageLinks as imageLinks "
+                                    + "left outer join fetch folder.details.owner as owner",
                             null);
             Collection<FolderData> result = new ArrayList<FolderData>();
             for (IObject l : list) {
@@ -1271,6 +1272,7 @@ public class BrowseFacility extends Facility {
                                     + "left outer join fetch roiLinks.child as roi "
                                     + "left outer join fetch roi.shapes as shapes "
                                     + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.details.owner as owner "
                                     + "left outer join fetch folder.imageLinks as imageLinks where folder.id in (:ids)",
                             param);
             Collection<FolderData> result = new ArrayList<FolderData>();
@@ -1315,7 +1317,8 @@ public class BrowseFacility extends Facility {
                                     + "left outer join fetch roi.shapes as shapes "
                                     + "left outer join fetch folder.annotationLinks as annotationLinks "
                                     + "left outer join fetch folder.imageLinks as imageLinks "
-                                    + "where folder.details.owner.id = :userId",
+                                    + "left outer join fetch folder.details.owner as owner "
+                                    + "where owner.id = :userId",
                             param);
 
             Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
