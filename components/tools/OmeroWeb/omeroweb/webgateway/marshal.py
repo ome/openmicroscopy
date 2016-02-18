@@ -68,6 +68,8 @@ def imageMarshal(image, key=None, request=None):
     ds = None
     wellsample = None
     well = None
+    datasets = []
+    wells = []
     try:
         # Replicating the functionality of the deprecated
         # ImageWrapper.getDataset() with shares in mind.
@@ -76,11 +78,19 @@ def imageMarshal(image, key=None, request=None):
         if parents is not None:
             for p in parents:
                 if p.OMERO_CLASS == 'Dataset':
-                    ds = p
+                    datasets.append({'id': p.id,
+                                     'name': p.name or '',
+                                     'description': p.description or ''})
                 elif p.OMERO_CLASS == 'WellSample':
                     wellsample = p
+                    w = {'wellSampleId': wellsample.id, 'id': ''}
                     if wellsample.well is not None:
-                        well = wellsample.well
+                        w['id'] = wellsample.well.id.val
+                    wells.append(w)
+        if len(datasets) > 0:
+            ds = datasets[0]
+        if len(wells) > 0:
+            well = wells[0]
     except omero.SecurityViolation, e:
         # We're in a share so the Image's parent Dataset cannot be loaded
         # or some other permissions related issue has tripped us up.
@@ -96,15 +106,17 @@ def imageMarshal(image, key=None, request=None):
             'projectName': pr and pr.name or 'Multiple',
             'projectId': pr and pr.id or None,
             'projectDescription': pr and pr.description or '',
-            'datasetName': ds and ds.name or 'Multiple',
-            'datasetId': ds and ds.id or None,
-            'datasetDescription': ds and ds.description or '',
-            'wellSampleId': wellsample and wellsample.id or '',
-            'wellId': well and well.id.val or '',
+            'datasetName': ds and ds['name'] or 'Multiple',
+            'datasetId': ds and ds['id'] or None,
+            'datasetDescription': ds and ds['description'] or '',
+            'wellSampleId': well and well['wellSampleId'] or '',
+            'wellId': well and well['id'] or '',
             'imageTimestamp': time.mktime(
                 image.getDate().timetuple()),
             'imageId': image.id,
             'pixelsType': image.getPixelsType(),
+            'datasets': datasets,
+            'wells': wells,
             },
         'perms': {
             'canAnnotate': image.canAnnotate(),
