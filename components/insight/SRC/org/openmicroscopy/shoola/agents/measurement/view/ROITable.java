@@ -41,13 +41,16 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
+
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
+import javax.swing.ListSelectionModel;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
+
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
@@ -74,6 +77,7 @@ import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 
@@ -1109,18 +1113,31 @@ public class ROITable
 					"and on separate planes.");
 	}
 	
-	/**
-	 * Extending the mouse pressed event to show menu. 
-	 * 
-	 * @param e mouse event.
-	 */
-	protected void onMousePressed(MouseEvent e)
-	{
-		if (MeasurementViewerControl.isRightClick(e)) {
-		    onSelection(getSelectedObjects());
-			showROIManagementMenu(this, e.getX(), e.getY());
-		}
-	}
+    /**
+     * Extending the mouse pressed event to show menu.
+     * 
+     * @param e
+     *            mouse event.
+     */
+    protected void onMousePressed(MouseEvent e) {
+        if (MeasurementViewerControl.isRightClick(e)) {
+            // consider right click also as selection click before handling the
+            // popup menu
+            int row = rowAtPoint(e.getPoint());
+            ListSelectionModel m = getSelectionModel();
+            if (e.isControlDown())
+                m.addSelectionInterval(row, row);
+            else if (e.isShiftDown())
+                m.addSelectionInterval(m.getAnchorSelectionIndex(), row);
+            else {
+                getSelectionModel().clearSelection();
+                m.addSelectionInterval(row, row);
+            }
+
+            onSelection(getSelectedObjects());
+            showROIManagementMenu(this, e.getX(), e.getY());
+        }
+    }
 
 	/**
 	 * Overridden to display the tool tip.
