@@ -21,6 +21,8 @@
 Test server config in decorator.
 """
 
+import json
+
 import library as lib
 
 import omero
@@ -107,16 +109,42 @@ class TestConfig(lib.ITest):
                 self.conn.getConfigService().getConfigValue(
                     default['%s.label' % d][2:-1])
         assert ss['pixeldata']['max_plane_width'] == \
-            self.conn.getConfigService().getConfigValue(
-                default['omero.client.pixeldata.max_plane_width'][2:-1])
+            int(self.conn.getConfigService().getConfigValue(
+                default['omero.client.pixeldata.max_plane_width'][2:-1]))
         assert ss['pixeldata']['max_plane_height'] == \
-            self.conn.getConfigService().getConfigValue(
-                default['omero.client.pixeldata.max_plane_height'][2:-1])
+            int(self.conn.getConfigService().getConfigValue(
+                default['omero.client.pixeldata.max_plane_height'][2:-1]))
         # compare keys in default and config loaded by decorator
         a = filter(lambda x: x not in (
             set(default.keys()) - set(deprecated)),
             set(flattenProperties(s).keys()))
         assert a == ['omero.client.email']
+
+    def testDefaultConfigConversion(self):
+        default = self.rs.getClientConfigDefaults()
+
+        # bool
+        key1 = 'omero.client.ui.tree.orphans.enabled'
+        self.rs.setConfigValue(key1, default[key1])
+
+        key11 = 'omero.client.ui.tree.orphans.name'
+        self.rs.setConfigValue(key11, default[key11])
+
+        # digit
+        key2 = 'omero.client.viewer.roi_limit'
+        self.rs.setConfigValue(key2, default[key2])
+
+        login_required(default_view).load_server_settings(self.conn, self.r)
+        ss = self.r.session['server_settings']
+
+        assert isinstance(ss['ui']['tree']['orphans']['enabled'], bool)
+        assert ss['ui']['tree']['orphans']['enabled'] == bool(default[key1])
+
+        assert isinstance(ss['ui']['tree']['orphans']['name'], str)
+        assert ss['ui']['tree']['orphans']['name'] == default[key11]
+
+        assert isinstance(ss['viewer']['roi_limit'], int)
+        assert ss['viewer']['roi_limit'] == json.loads(default[key2])
 
     @pytest.mark.parametrize("prop", ["colleagues", "leaders", "everyone"])
     @pytest.mark.parametrize("label", ["foo"])

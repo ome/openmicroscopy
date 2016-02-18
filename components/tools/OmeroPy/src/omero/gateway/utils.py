@@ -24,6 +24,7 @@
 #
 
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -202,7 +203,11 @@ def propertiesToDict(m, prefix=None):
         items = item.split('.')
         for key in items[:-1]:
             d = d.setdefault(key, {})
-        if items[-1] == "enabled":
-            value = toBoolean(value)
-        d[items[-1]] = value
+        try:
+            if value.strip().lower() in ('true', 'false'):
+                d[items[-1]] = toBoolean(value)
+            else:
+                d[items[-1]] = json.loads(value)
+        except:
+            d[items[-1]] = value
     return nested_dict

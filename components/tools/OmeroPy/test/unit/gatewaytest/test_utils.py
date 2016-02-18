@@ -252,10 +252,10 @@ class TestHelpers (object):
         assert set(['1', '2', '3']) - set(dictprop.keys()) == set()
         assert len(dictprop['1']) == 2
         assert len(dictprop['2']) == 1
-        assert dictprop['1']['1'] == '11'
-        assert dictprop['1']['2'] == '12'
-        assert dictprop['2']['1'] == '21'
-        assert dictprop['3'] == '3'
+        assert dictprop['1']['1'] == 11
+        assert dictprop['1']['2'] == 12
+        assert dictprop['2']['1'] == 21
+        assert dictprop['3'] == 3
 
     def test_propertiesToDictWithPrefix(self):
         d = {
@@ -270,7 +270,7 @@ class TestHelpers (object):
         assert len(dictprop['int']) == 1
         assert dictprop['int']['1'] == 1
         assert dictprop['str']['1'] == 'mystring'
-        assert dictprop['str']['2'] == '1'
+        assert dictprop['str']['2'] == 1
 
     def test_propertiesToDictBool(self):
         d = {
@@ -278,16 +278,29 @@ class TestHelpers (object):
             'omero.prefix.strbool.false2.enabled': 'false',
             'omero.prefix.strbool.true1.enabled': 'True',
             'omero.prefix.strbool.true2.enabled': 'true',
-            'omero.prefix.bool1.enabled': False,
-            'omero.prefix.bool2.enabled': True
+            'omero.prefix.bool.1.enabled': False,
+            'omero.prefix.bool.2.enabled': True,
+            'omero.prefix.str.1.enabled': 't',
+            'omero.prefix.str.2.enabled': 'f'
         }
         dictprop = propertiesToDict(d, prefix='omero.prefix.')
+
         assert len(dictprop) == 3
-        assert set(['strbool', 'bool1', 'bool2']) - set(dictprop.keys()) == \
+        assert set(['strbool', 'bool', 'str']) - set(dictprop.keys()) == \
             set()
+
         assert not dictprop['strbool']['false1']['enabled']
+        assert isinstance(dictprop['strbool']['false1']['enabled'], bool)
         assert not dictprop['strbool']['false2']['enabled']
+        assert isinstance(dictprop['strbool']['false2']['enabled'], bool)
         assert dictprop['strbool']['true1']['enabled']
+        assert isinstance(dictprop['strbool']['true1']['enabled'], bool)
         assert dictprop['strbool']['true2']['enabled']
-        assert not dictprop['bool1']['enabled']
-        assert dictprop['bool2']['enabled']
+        assert isinstance(dictprop['strbool']['true2']['enabled'], bool)
+        assert not dictprop['bool']['1']['enabled']
+        assert isinstance(dictprop['bool']['1']['enabled'], bool)
+        assert dictprop['bool']['2']['enabled']
+        assert isinstance(dictprop['bool']['2']['enabled'], bool)
+
+        assert dictprop['str']['1']['enabled'] == 't'
+        assert dictprop['str']['2']['enabled'] == 'f'
