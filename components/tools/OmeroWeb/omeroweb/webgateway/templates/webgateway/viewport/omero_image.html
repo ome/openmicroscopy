@@ -974,10 +974,10 @@
           </div>
 {% endblock roi_buttons %}
           <div class="odd row">
-             <button class="btn prev_next_image prev" title="Previous Image" disabled="disabled">
+             <button id="prevImage" class="btn prev_next_image" title="Previous Image" disabled="disabled">
                 <span>< Prev</span>
             </button>
-            <button class="btn prev_next_image next" title="Next Image" disabled="disabled">
+            <button id="nextImage" class="btn prev_next_image" title="Next Image" disabled="disabled">
                 <span>Next ></span>
             </button>
           </div>
@@ -1396,12 +1396,10 @@
       }
       // Enable Prev / Next buttons if available (disabled by default)
       if (prevImgId) {
-        $(".btn.prev_next_image.prev").removeAttr('disabled')
-                                      .prop('disabled', false);
+        $("#prevImage").removeAttr('disabled').prop('disabled', false);
       }
       if (nextImgId) {
-        $(".btn.prev_next_image.next").removeAttr('disabled')
-                                      .prop('disabled', false);
+        $("#nextImage").removeAttr('disabled').prop('disabled', false);
       }
 
       // Handle Prev / Next button clicks or keys
@@ -1437,12 +1435,11 @@
           e.preventDefault();
       });
 
-      $(".btn.prev_next_image").click(function(){
-          if ( $(this).hasClass('prev') ){
-              nextPrevImage(-1);
-          } else {
-              nextPrevImage(1);
-          }
+      $("#prevImage").click(function(){
+        nextPrevImage(-1);
+      });
+      $("#nextImage").click(function(){
+        nextPrevImage(1);
       });
     }
     
