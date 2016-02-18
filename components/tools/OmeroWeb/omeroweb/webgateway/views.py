@@ -2367,14 +2367,16 @@ def _table_query(request, fileid, conn=None, **kwargs):
         except:
             pass
         colDescriptions.append(desc)
-    return dict(data=dict(
+    data = dict(
         columns=[col.name for col in cols],
-        descriptions=colDescriptions,
         rows=[[col.values[0] for col in t.read(range(len(cols)), hit,
                                                hit+1).columns]
               for hit in hits],
         )
-    )
+    # Only add descriptions if they're not all empty
+    if (sum([len(d) for d in colDescriptions]) > 0):
+        data['descriptions'] = colDescriptions
+    return dict(data=data)
 
 table_query = login_required()(jsonp(_table_query))
 
