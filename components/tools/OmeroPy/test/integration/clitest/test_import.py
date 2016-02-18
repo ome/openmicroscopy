@@ -241,11 +241,11 @@ class TestImport(CLITest):
 
         # Check that there are no servants leftover
         stateful = []
-        for x in range(10):
+        for x in range(1000):
             stateful = self.client.getStatefulServices()
             if stateful:
                 import time
-                time.sleep(0.5)  # Give the backend some time to close
+                time.sleep(0.1)  # Give the backend some time to close
             else:
                 break
 
