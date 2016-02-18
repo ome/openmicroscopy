@@ -128,8 +128,8 @@ public class ROIAction
                 setToolTip("Creates a new Folder.");
                 break;
             case DELETE_FOLDER:
-                setName("Delete Folders");
-                setToolTip("Deletes the Folders.");
+                setName("Delete Folder");
+                setToolTip("Deletes the Folder.");
                 break;
             case EDIT_FOLDER:
                 setName("Edit Folder");
