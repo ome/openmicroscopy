@@ -489,6 +489,12 @@ public class ScriptingDialog
                         ((NumericalTextField) comp).setText(""+defValue);
                 }
             } else if (String.class.equals(type)) {
+                if (script.isIdentifier(name)) {
+                    identifier = new IdentifierParamPane(Long.class);
+                    identifier.setValues(refObjects);
+                    identifier.addDocumentListener(this);
+                    comp = identifier;
+                }
                 if (comp == null) {
                     comp = new JTextField();
                     if (defValue != null) {
