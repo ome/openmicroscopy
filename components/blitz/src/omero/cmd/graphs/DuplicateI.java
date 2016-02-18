@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -59,6 +59,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
+import ome.services.graphs.PermissionsPredicate;
 import ome.system.EventContext;
 import ome.system.Roles;
 import omero.cmd.Duplicate;
@@ -222,6 +223,8 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
             graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
         }
         graphPolicyAdjusters = null;
+
+        graphPolicyWithOptions.registerPredicate(new PermissionsPredicate());
 
         GraphTraversal.Processor processor = new InternalProcessor();
         if (dryRun) {

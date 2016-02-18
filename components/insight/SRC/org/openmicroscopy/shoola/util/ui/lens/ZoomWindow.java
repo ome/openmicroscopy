@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.lens.ZoomWindow.java
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -36,9 +36,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 
-import ome.model.units.BigResult;
 import omero.model.Length;
-import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
 //Third-party libraries
@@ -148,22 +146,19 @@ class ZoomWindow
 	/**
 	 * Sets the mapping from pixel size to microns along the x and y axis. 
 	 * 
-	 * @param x mapping in x axis.
-	 * @param y mapping in y axis.
+	 * @param x Length of a pixel in x axis.
+	 * @param y Length of a pixel in y axis.
 	 */
 	void setXYPixelMicron(Length x, Length y) 
 	{
-	    try {
-            Length x1 = new LengthI(x, UnitsLength.MICROMETER);
-            Length y1 = new LengthI(y, UnitsLength.MICROMETER);
-            statusPanel.setXYPixelMicron(x1.getValue(), y1.getValue());
-        } catch (BigResult e) {
-        }
-		statusPanel.repaint();
+        statusPanel.setXYPixelSizes(x, y);
+        statusPanel.repaint();
+        lensMenu.setMicronsMenuEnabled(!x.getUnit().equals(UnitsLength.PIXEL)
+                && !y.getUnit().equals(UnitsLength.PIXEL));
 	}
 	
 	/**
-	 * Sets the X,Y coordinates of the lens on the ZoomWindowUI.
+	 * Sets the X,Y coordinates of the lens on the ZoomWindowUI (in pixels).
 	 * 
 	 * @param x See above.
 	 * @param y See above.
@@ -171,7 +166,7 @@ class ZoomWindow
 	void setLensXY(int x, int y) { statusPanel.setLensXY(x, y); }
 	
 	/**
-	 * Sets the w,h size of the lens on the ZoomWindowUI.
+	 * Sets the w,h size of the lens on the ZoomWindowUI (in pixels).
 	 * 
 	 * @param w See above.
 	 * @param h See above.
@@ -242,17 +237,14 @@ class ZoomWindow
 
 	
 	public void componentHidden(ComponentEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	public void componentMoved(ComponentEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 	
 	public void componentShown(ComponentEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 	

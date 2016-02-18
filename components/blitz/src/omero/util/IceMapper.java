@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.IContainer;
 import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.ModelBased;
