@@ -185,6 +185,18 @@ public class Gateway {
      *            A {@link Logger}
      * @param cacheService
      *            A {@link CacheService}, can be <code>null</code>
+     */
+    public Gateway(Logger log, CacheService cacheService) {
+        this(log, cacheService, null, true);
+    }
+    
+    /**
+     * Creates a new Gateway instance
+     * 
+     * @param log
+     *            A {@link Logger}
+     * @param cacheService
+     *            A {@link CacheService}, can be <code>null</code>
      * @param executorService
      *            A {@link ExecutorService} for handling asynchronous tasks, can
      *            be <code>null</code> (in which case the Java built-in cached
@@ -192,7 +204,8 @@ public class Gateway {
      * @param executorShutdownOnDisconnect
      *            Flag to indicate that executor threads should be shutdown on
      *            disconnect (only taken into account if an
-     *            {@link ExecutorService} was provided)
+     *            {@link ExecutorService} was provided; the default cached
+     *            thread pool will be shut down by default)
      */
     public Gateway(Logger log, CacheService cacheService,
             ExecutorService executorService,
