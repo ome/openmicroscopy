@@ -1145,6 +1145,7 @@ public class ROITable
 		else if(node.isFolderNode()) {
 		    FolderData f = (FolderData) object;
 		    f.getFolderPathString();
+		    return "Owner: "+f.getOwner().getUserName()+"; Permissions: "+f.getPermissions();
 		}
 		return "";
 	}
