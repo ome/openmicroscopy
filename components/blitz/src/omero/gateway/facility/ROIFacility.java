@@ -297,12 +297,13 @@ public class ROIFacility extends Facility {
 
             if (!roisToSave.isEmpty()) {
                 Collection<ROIData> saved = saveROIs(ctx, imageID, roisToSave);
-                roiList.addAll(saved);
+                // explicitly use ArrayList because the passed Collection 
+                // might not support addAll()
+                Collection<ROIData> tmp = new ArrayList<ROIData>();
+                tmp.addAll(roiList);
+                tmp.addAll(saved);
+                roiList = tmp;
             }
-
-            IRoiPrx svc = gateway.getROIService(ctx);
-            RoiResult serverReturn = svc.findByImage(imageID, new RoiOptions());
-            List<Roi> serverRoiList = serverReturn.rois;
 
             // 2. Save clientside Folders on the server
             List<IObject> foldersToSave = new ArrayList<IObject>();
@@ -325,24 +326,21 @@ public class ROIFacility extends Facility {
 
             // 3. Create/Save the ROIFolderLinks
             List<IObject> toSave = new ArrayList<IObject>();
-            for(ROIData clientRoi : roiList) {
-                for (Roi roi : serverRoiList) {
-                    if(clientRoi.getId()==roi.getId().getValue()) {
-                        for (FolderData folder : folders) {
-                            boolean linkExists = false;
-                            for (FolderRoiLink link : roi.copyFolderLinks()) {
-                                if (link.getParent().getId().getValue() == folder
-                                        .getId()) {
-                                    linkExists = true;
-                                    break;
-                                }
-                            }
-        
-                            if (!linkExists) {
-                                roi.linkFolder(folder.asFolder());
-                                toSave.add(roi);
-                            }
+            for (ROIData clientRoi : roiList) {
+                Roi roi = (Roi) clientRoi.asIObject();
+                for (FolderData folder : folders) {
+                    boolean linkExists = false;
+                    for (FolderRoiLink link : roi.copyFolderLinks()) {
+                        if (link.getParent().getId().getValue() == folder
+                                .getId()) {
+                            linkExists = true;
+                            break;
                         }
+                    }
+
+                    if (!linkExists) {
+                        roi.linkFolder(folder.asFolder());
+                        toSave.add(roi);
                     }
                 }
             }
