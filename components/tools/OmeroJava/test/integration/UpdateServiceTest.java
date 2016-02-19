@@ -1224,10 +1224,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         int t = 0;
         int c = 0;
         EllipseI rect = new EllipseI();
-        rect.setCx(omero.rtypes.rdouble(v));
-        rect.setCy(omero.rtypes.rdouble(v));
-        rect.setRx(omero.rtypes.rdouble(v));
-        rect.setRy(omero.rtypes.rdouble(v));
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setRadiusX(omero.rtypes.rdouble(v));
+        rect.setRadiusY(omero.rtypes.rdouble(v));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
@@ -1276,8 +1276,8 @@ public class UpdateServiceTest extends AbstractServerTest {
         int t = 0;
         int c = 0;
         Point rect = new PointI();
-        rect.setCx(omero.rtypes.rdouble(v));
-        rect.setCy(omero.rtypes.rdouble(v));
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));

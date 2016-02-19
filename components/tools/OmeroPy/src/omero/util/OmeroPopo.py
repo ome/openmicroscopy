@@ -685,7 +685,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setCx(rdouble(cx))
+        shape.setX(rdouble(cx))
 
     ##
     # Get the centre x coord of the Ellipse
@@ -694,7 +694,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        cx = shape.getCx()
+        cx = shape.getX()
         if(cx is None):
             return 0
         return cx.getValue()
@@ -706,7 +706,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setCy(rdouble(cy))
+        shape.setY(rdouble(cy))
 
     ##
     # Get the centre y coord of the Ellipse
@@ -715,7 +715,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        cy = shape.getCy()
+        cy = shape.getY()
         if(cy is None):
             return 0
         return cy.getValue()
@@ -727,7 +727,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setRx(rdouble(rx))
+        shape.setRadiusX(rdouble(rx))
 
     ##
     # Get the radius of the x-axis of the Ellipse
@@ -736,7 +736,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        rx = shape.getRx()
+        rx = shape.getRadiusX()
         if(rx is None):
             return 0
         return rx.getValue()
@@ -748,7 +748,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setRy(rdouble(ry))
+        shape.setRadiusY(rdouble(ry))
 
     ##
     # Get the radius of the y-axis of the Ellipse
@@ -757,7 +757,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        ry = shape.getRy()
+        ry = shape.getRadiusY()
         if(ry is None):
             return 0
         return ry.getValue()

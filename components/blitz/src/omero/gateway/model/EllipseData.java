@@ -113,7 +113,7 @@ public class EllipseData
     public double getX()
     {
         Ellipse shape = (Ellipse) asIObject();
-        RDouble value = shape.getCx();
+        RDouble value = shape.getX();
         if (value == null) return 0;
         return value.getValue();
     }
@@ -130,7 +130,7 @@ public class EllipseData
         Ellipse shape = (Ellipse) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        shape.setCx(rtypes.rdouble(x));
+        shape.setX(rtypes.rdouble(x));
         setDirty(true);
     }
 
@@ -142,7 +142,7 @@ public class EllipseData
     public double getY()
     {
         Ellipse shape = (Ellipse) asIObject();
-        RDouble value = shape.getCy();
+        RDouble value = shape.getY();
         if (value == null) return 0;
         return value.getValue();
     }
@@ -159,7 +159,7 @@ public class EllipseData
         Ellipse shape = (Ellipse) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        shape.setCy(rtypes.rdouble(y));
+        shape.setY(rtypes.rdouble(y));
         setDirty(true);
     }
 
@@ -173,7 +173,7 @@ public class EllipseData
         if (isReadOnly())
             throw new IllegalArgumentException("Shape ReadOnly");
         Ellipse shape = (Ellipse) asIObject();
-        RDouble value = shape.getRx();
+        RDouble value = shape.getRadiusX();
         if (value == null) return 0;
         return value.getValue();
     }
@@ -190,7 +190,7 @@ public class EllipseData
         Ellipse shape = (Ellipse) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        shape.setRx(rtypes.rdouble(x));
+        shape.setRadiusX(rtypes.rdouble(x));
         setDirty(true);
     }
 
@@ -202,7 +202,7 @@ public class EllipseData
     public double getRadiusY()
     {
         Ellipse shape = (Ellipse) asIObject();
-        RDouble value = shape.getRy();
+        RDouble value = shape.getRadiusY();
         if (value == null) return 0;
         return value.getValue();
     }
@@ -219,7 +219,7 @@ public class EllipseData
         Ellipse shape = (Ellipse) asIObject();
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
-        shape.setRy(rtypes.rdouble(y));
+        shape.setRadiusY(rtypes.rdouble(y));
         setDirty(true);
     }
 

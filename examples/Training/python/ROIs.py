@@ -82,10 +82,10 @@ rect.textValue = rstring("test-Rectangle")
 
 # create an Ellipse shape (added to ROI below)
 ellipse = omero.model.EllipseI()
-ellipse.cx = rdouble(y)
-ellipse.cy = rdouble(x)
-ellipse.rx = rdouble(width)
-ellipse.ry = rdouble(height)
+ellipse.x = rdouble(y)
+ellipse.y = rdouble(x)
+ellipse.radiusX = rdouble(width)
+ellipse.radiusY = rdouble(height)
 ellipse.theZ = rint(theZ)
 ellipse.theT = rint(theT)
 ellipse.textValue = rstring("test-Ellipse")
@@ -170,8 +170,8 @@ createROI(image, [mask])
 
 # create an ROI with single point shape
 point = omero.model.PointI()
-point.cx = rdouble(x)
-point.cy = rdouble(y)
+point.x = rdouble(x)
+point.y = rdouble(y)
 point.theZ = rint(theZ)
 point.theT = rint(theT)
 point.textValue = rstring("test-Point")
@@ -215,14 +215,14 @@ for roi in result.rois:
             shape['height'] = s.getHeight().getValue()
         elif type(s) == omero.model.EllipseI:
             shape['type'] = 'Ellipse'
-            shape['cx'] = s.getCx().getValue()
-            shape['cy'] = s.getCy().getValue()
-            shape['rx'] = s.getRx().getValue()
-            shape['ry'] = s.getRy().getValue()
+            shape['cx'] = s.getX().getValue()
+            shape['cy'] = s.getY().getValue()
+            shape['rx'] = s.getRadiusX().getValue()
+            shape['ry'] = s.getRadiusY().getValue()
         elif type(s) == omero.model.PointI:
             shape['type'] = 'Point'
-            shape['cx'] = s.getCx().getValue()
-            shape['cy'] = s.getCy().getValue()
+            shape['cx'] = s.getX().getValue()
+            shape['cy'] = s.getY().getValue()
         elif type(s) == omero.model.LineI:
             shape['type'] = 'Line'
             shape['x1'] = s.getX1().getValue()

@@ -284,10 +284,10 @@ public class DuplicationTest extends AbstractServerTest {
         Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
         Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
         Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
-        Assert.assertEquals(duplicate.getCx().getValue(), original.getCx().getValue());
-        Assert.assertEquals(duplicate.getCy().getValue(), original.getCy().getValue());
-        Assert.assertEquals(duplicate.getRx().getValue(), original.getRx().getValue());
-        Assert.assertEquals(duplicate.getRy().getValue(), original.getRy().getValue());
+        Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
+        Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
+        Assert.assertEquals(duplicate.getRadiusX().getValue(), original.getRadiusX().getValue());
+        Assert.assertEquals(duplicate.getRadiusY().getValue(), original.getRadiusY().getValue());
     }
 
     /**
@@ -314,8 +314,8 @@ public class DuplicationTest extends AbstractServerTest {
         Assert.assertEquals(duplicate.getTheZ().getValue(), original.getTheZ().getValue());
         Assert.assertEquals(duplicate.getTheT().getValue(), original.getTheT().getValue());
         Assert.assertEquals(duplicate.getTheC().getValue(), original.getTheC().getValue());
-        Assert.assertEquals(duplicate.getCx().getValue(), original.getCx().getValue());
-        Assert.assertEquals(duplicate.getCy().getValue(), original.getCy().getValue());
+        Assert.assertEquals(duplicate.getX().getValue(), original.getX().getValue());
+        Assert.assertEquals(duplicate.getY().getValue(), original.getY().getValue());
     }
 
     /**
@@ -1009,10 +1009,10 @@ public class DuplicationTest extends AbstractServerTest {
         originalEllipse.setTheZ(omero.rtypes.rint(propertyValue++));
         originalEllipse.setTheT(omero.rtypes.rint(propertyValue++));
         originalEllipse.setTheC(omero.rtypes.rint(propertyValue++));
-        originalEllipse.setCx(omero.rtypes.rdouble(propertyValue++));
-        originalEllipse.setCy(omero.rtypes.rdouble(propertyValue++));
-        originalEllipse.setRx(omero.rtypes.rdouble(propertyValue++));
-        originalEllipse.setRy(omero.rtypes.rdouble(propertyValue++));
+        originalEllipse.setX(omero.rtypes.rdouble(propertyValue++));
+        originalEllipse.setY(omero.rtypes.rdouble(propertyValue++));
+        originalEllipse.setRadiusX(omero.rtypes.rdouble(propertyValue++));
+        originalEllipse.setRadiusY(omero.rtypes.rdouble(propertyValue++));
         originalLine.setTheZ(omero.rtypes.rint(propertyValue++));
         originalLine.setTheT(omero.rtypes.rint(propertyValue++));
         originalLine.setTheC(omero.rtypes.rint(propertyValue++));
@@ -1023,8 +1023,8 @@ public class DuplicationTest extends AbstractServerTest {
         originalPoint.setTheZ(omero.rtypes.rint(propertyValue++));
         originalPoint.setTheT(omero.rtypes.rint(propertyValue++));
         originalPoint.setTheC(omero.rtypes.rint(propertyValue++));
-        originalPoint.setCx(omero.rtypes.rdouble(propertyValue++));
-        originalPoint.setCy(omero.rtypes.rdouble(propertyValue++));
+        originalPoint.setX(omero.rtypes.rdouble(propertyValue++));
+        originalPoint.setY(omero.rtypes.rdouble(propertyValue++));
 
         originalRoi = (Roi) iUpdate.saveAndReturnObject(originalRoi);
         final Iterator<Shape> originalShapes = originalRoi.copyShapes().iterator();

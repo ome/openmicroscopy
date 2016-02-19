@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__1.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__2.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  1,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  2,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -650,6 +650,14 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS 
     END;
 $$ LANGUAGE plpgsql;
 
+-- ... up to patch 2:
+
+UPDATE shape SET x = cx, y = cy WHERE cx IS NOT NULL OR cy IS NOT NULL;
+
+ALTER TABLE shape DROP COLUMN cx;
+ALTER TABLE shape DROP COLUMN cy;
+ALTER TABLE shape RENAME COLUMN rx TO radiusx;
+ALTER TABLE shape RENAME COLUMN ry TO radiusy;
 
 --
 -- FINISHED
@@ -657,10 +665,10 @@ $$ LANGUAGE plpgsql;
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 1             AND
+          currentPatch    = 2             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__1'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__2'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

@@ -805,8 +805,8 @@ def uploadCecogObjectDetails(updateService, imageId, filePath):
             theT, className, x, y, values, description = shape
 
             point = omero.model.PointI()
-            point.cx = rdouble(x)
-            point.cy = rdouble(y)
+            point.x = rdouble(x)
+            point.y = rdouble(y)
             point.theT = rint(theT)
             point.theZ = rint(0)  # Workaround for shoola:ticket:1596
             if className:

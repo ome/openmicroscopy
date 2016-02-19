@@ -1695,7 +1695,7 @@ public class OmeroMetadata extends DummyMetadata {
         if (ellipse == null) {
             return null;
         }
-        return fromRType(ellipse.getRx());
+        return fromRType(ellipse.getRadiusX());
     }
 
     @Override
@@ -1704,7 +1704,7 @@ public class OmeroMetadata extends DummyMetadata {
         if (ellipse == null) {
             return null;
         }
-        return fromRType(ellipse.getRy());
+        return fromRType(ellipse.getRadiusY());
     }
 
     @Override
@@ -1722,7 +1722,7 @@ public class OmeroMetadata extends DummyMetadata {
         if (ellipse == null) {
             return null;
         }
-        return fromRType(ellipse.getCx());
+        return fromRType(ellipse.getX());
     }
 
     @Override
@@ -1731,7 +1731,7 @@ public class OmeroMetadata extends DummyMetadata {
         if (ellipse == null) {
             return null;
         }
-        return fromRType(ellipse.getCy());
+        return fromRType(ellipse.getY());
     }
 
     @Override
@@ -2061,7 +2061,7 @@ public class OmeroMetadata extends DummyMetadata {
         if (point == null) {
             return null;
         }
-        return fromRType(point.getCx());
+        return fromRType(point.getX());
     }
 
     @Override
@@ -2070,7 +2070,7 @@ public class OmeroMetadata extends DummyMetadata {
         if (point == null) {
             return null;
         }
-        return fromRType(point.getCy());
+        return fromRType(point.getY());
     }
 
     @Override
