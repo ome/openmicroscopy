@@ -258,6 +258,23 @@ public class ROIPopupMenu
             ROIFigure roi;
             while (i.hasNext()) {
                 obj = i.next();
+                if (obj instanceof ROI) {
+                    boolean shapeEdit = true;
+                    boolean shapeDel = true;
+                    for (ROIShape s : ((ROI) obj).getShapes().values()) {
+                        roi = s.getFigure();
+                        if (shapeEdit && !roi.canEdit())
+                            shapeEdit = false;
+                        if (shapeDel && !roi.canDelete())
+                            shapeDel = false;
+                    }
+                    if (shapeEdit) {
+                        edit++;
+                        link++;
+                    }
+                    if (shapeDel)
+                        delete++;
+                }
                 if (obj instanceof ROIShape) {
                     shape = (ROIShape) obj;
                     roi = shape.getFigure();
