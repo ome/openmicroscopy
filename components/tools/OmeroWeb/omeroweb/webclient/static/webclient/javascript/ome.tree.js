@@ -642,7 +642,7 @@ $(function() {
                     success: function (data, textStatus, jqXHR) {
 
                         // if we have a 'count' of images, update this in parent node
-                        if (data.count && node.data) {
+                        if (data.count !== undefined && node.data) {
                             node.data.obj.filterCount = data.count;
                         }
 
