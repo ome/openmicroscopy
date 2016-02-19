@@ -1532,7 +1532,7 @@ class _BlitzGateway (object):
 
     def getOmeroClientSettings(self):
         """
-        Returns all client properties mathcing omero.client.*
+        Returns all client properties matching omero.client.*
         """
         try:
             return self.getConfigService().getClientConfigValues()
