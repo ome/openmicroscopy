@@ -863,7 +863,6 @@ class MeasurementViewerUI
     	dv.addToSelection(figure);
 		List<ROIShape> roiShapeList = new ArrayList<ROIShape>();
 		roiShapeList.add(figure.getROIShape());
-		dv.grabFocus();
 		if (model.isHCSData()) {
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<ROIShape> j = roiShapeList.iterator();
