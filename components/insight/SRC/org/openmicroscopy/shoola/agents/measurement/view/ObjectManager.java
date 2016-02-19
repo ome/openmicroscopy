@@ -567,7 +567,7 @@ class ObjectManager
         }
         model.addROIsToFolder(rois.values(), folders);
     }
-    
+
     /**
      * Delete Folders
      * 
@@ -601,7 +601,9 @@ class ObjectManager
         model.removeROIsFromFolder(rois.values(), folders);
     }
 
-    public void saveROIFolders( Collection<FolderData> folders) {
+    public void saveROIFolders(Collection<FolderData> folders) {
+        if (model.hasROIToDelete() || model.hasROIToSave())
+            model.saveROIToServer(true, false);
         model.saveROIFolders(folders);
     }
     
