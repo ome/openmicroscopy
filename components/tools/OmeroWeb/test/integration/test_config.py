@@ -108,12 +108,7 @@ class TestConfig(lib.ITest):
             assert ss['ui']['menu']['dropdown'][ds[-1]]['label'] == \
                 self.conn.getConfigService().getConfigValue(
                     default['%s.label' % d][2:-1])
-        assert ss['pixeldata']['max_plane_width'] == \
-            int(self.conn.getConfigService().getConfigValue(
-                default['omero.client.pixeldata.max_plane_width'][2:-1]))
-        assert ss['pixeldata']['max_plane_height'] == \
-            int(self.conn.getConfigService().getConfigValue(
-                default['omero.client.pixeldata.max_plane_height'][2:-1]))
+
         # compare keys in default and config loaded by decorator
         a = filter(lambda x: x not in (
             set(default.keys()) - set(deprecated)),
@@ -172,9 +167,7 @@ class TestConfig(lib.ITest):
                 'omero.client.ui.menu.dropdown.leaders.label',
                 'omero.client.ui.menu.dropdown.colleagues.label',
                 'omero.client.ui.tree.orphans.enabled',
-                'omero.client.viewer.initial_zoom_level',
-                'omero.client.pixeldata.max_plane_width',
-                'omero.client.pixeldata.max_plane_height'
+                'omero.client.viewer.initial_zoom_level'
             ]
             for n in not_exist:
                 if n in default:
@@ -202,9 +195,7 @@ class TestConfig(lib.ITest):
                 'omero.client.ui.menu.dropdown.leaders.label',
                 'omero.client.ui.menu.dropdown.colleagues.label',
                 'omero.client.ui.tree.orphans.enabled',
-                'omero.client.viewer.initial_zoom_level',
-                'omero.client.pixeldata.max_plane_width',
-                'omero.client.pixeldata.max_plane_height'
+                'omero.client.viewer.initial_zoom_level'
             ]
             for n in not_exist:
                 assert n not in ocs
