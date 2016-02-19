@@ -19890,6 +19890,10 @@ var renderCentrePanel =
 
 	var _ImageIcon2 = _interopRequireDefault(_ImageIcon);
 
+	var _Pagination = __webpack_require__(168);
+
+	var _Pagination2 = _interopRequireDefault(_Pagination);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var IconTable = _react2.default.createClass({
@@ -19901,23 +19905,11 @@ var renderCentrePanel =
 	        };
 	    },
 
-	    handleNextPage: function handleNextPage() {
-	        console.log("nextPage");
-	        this.incrementPage(1);
-	    },
-
-	    handlePrevPage: function handlePrevPage() {
-	        console.log("prevPage");
-	        this.incrementPage(-1);
-	    },
-
-	    incrementPage: function incrementPage(incr) {
+	    setPage: function setPage(page) {
 	        var inst = this.props.inst,
-	            parentNode = this.props.parentNode,
-	            p = inst.get_page(parentNode) + incr;
-	        if (p > 0) {
-	            console.log("change page", p);
-	            inst.change_page(parentNode, p);
+	            parentNode = this.props.parentNode;
+	        if (page > 0) {
+	            inst.change_page(parentNode, page);
 	        }
 	    },
 
@@ -19978,6 +19970,8 @@ var renderCentrePanel =
 	            weekday: "short", year: "numeric", month: "short",
 	            day: "numeric", hour: "2-digit", minute: "2-digit"
 	        };
+	        var page = inst.get_page(parentNode),
+	            pageSize = inst.get_page_size(parentNode);
 
 	        parentNode.children.forEach(function (ch) {
 	            var childNode = inst.get_node(ch);
@@ -20077,16 +20071,11 @@ var renderCentrePanel =
 	                    _react2.default.createElement(IconTableHeadRow, null),
 	                    icons
 	                ),
-	                _react2.default.createElement(
-	                    'button',
-	                    { onClick: this.handleNextPage },
-	                    'Next'
-	                ),
-	                _react2.default.createElement(
-	                    'button',
-	                    { onClick: this.handlePrevPage },
-	                    'Prev'
-	                )
+	                _react2.default.createElement(_Pagination2.default, {
+	                    page: page,
+	                    filteredCount: filterCount,
+	                    pageSize: pageSize,
+	                    setPage: this.setPage })
 	            )
 	        );
 	    }
@@ -20805,6 +20794,83 @@ var renderCentrePanel =
 	});
 
 	exports.default = Well;
+
+/***/ },
+/* 168 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Pagination = _react2.default.createClass({
+	    displayName: 'Pagination',
+
+	    handleNextPage: function handleNextPage() {
+	        this.props.setPage(this.props.page + 1);
+	    },
+
+	    handlePrevPage: function handlePrevPage() {
+	        this.props.setPage(this.props.page - 1);
+	    },
+
+	    handleChangePage: function handleChangePage(event) {
+	        var page = parseInt(event.target.getAttribute('value'), 10);
+	        this.props.setPage(page);
+	    },
+
+	    render: function render() {
+
+	        var page = this.props.page,
+	            pageSize = this.props.pageSize,
+	            imgCount = this.props.filteredCount,
+	            pageCount = Math.ceil(imgCount / pageSize);
+
+	        var pages = [];
+	        for (var p = 1; p <= pageCount; p++) {
+	            pages.push(_react2.default.createElement('input', {
+	                key: p,
+	                disabled: p === page ? "disabled" : false,
+	                onClick: this.handleChangePage,
+	                className: 'button_pagination',
+	                type: 'button',
+	                value: p }));
+	        }
+
+	        return _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement('div', { className: 'clear' }),
+	            _react2.default.createElement(
+	                'div',
+	                { className: 'paging' },
+	                "Page: " + page,
+	                _react2.default.createElement(
+	                    'button',
+	                    { onClick: this.handlePrevPage },
+	                    'Prev'
+	                ),
+	                _react2.default.createElement(
+	                    'button',
+	                    { onClick: this.handleNextPage },
+	                    'Next'
+	                ),
+	                _react2.default.createElement('br', null),
+	                pages
+	            )
+	        );
+	    }
+	});
+
+	exports.default = Pagination;
 
 /***/ }
 /******/ ]);

@@ -2141,7 +2141,10 @@ div.paging input.button_pagination {
     border: 0;
     background-color: transparent;
     color: #1b7bc7;
-    padding: 0;
+    padding: 2px;
+}
+div.paging input.button_pagination:disabled {
+    color: black;
 }
 
 #spw {

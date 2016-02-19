@@ -75,14 +75,14 @@ $(document).ready(function() {
         }
     });
 
-    $("#content_details").on("click", "input.button_pagination", function(){
-        var page = $(this).attr('data-page');
-        page = parseInt(page, 10);
-        inst.deselect_all(true);
-        inst.change_page(parentNode, page);
-        // and then reselect the same node again to trigger update
-        inst.select_node(parentNode);
-    });
+    // $("#content_details").on("click", "input.button_pagination", function(){
+    //     var page = $(this).attr('data-page');
+    //     page = parseInt(page, 10);
+    //     inst.deselect_all(true);
+    //     inst.change_page(parentNode, page);
+    //     // and then reselect the same node again to trigger update
+    //     inst.select_node(parentNode);
+    // });
 
     // double-click handler on image - launches image viewer
     $("#content_details").on("dblclick", "li.row", function(event) {

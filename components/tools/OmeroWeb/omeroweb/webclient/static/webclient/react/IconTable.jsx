@@ -1,6 +1,7 @@
 import React from 'react';
 import IconTableHeader from './IconTableHeader';
 import ImageIcon from './ImageIcon';
+import Pagination from './Pagination';
 
 var IconTable = React.createClass({
 
@@ -10,23 +11,11 @@ var IconTable = React.createClass({
         };
     },
 
-    handleNextPage: function() {
-        console.log("nextPage");
-        this.incrementPage(1);
-    },
-
-    handlePrevPage: function() {
-        console.log("prevPage");
-        this.incrementPage(-1);
-    },
-
-    incrementPage: function(incr) {
+    setPage: function(page) {
         var inst = this.props.inst,
-            parentNode = this.props.parentNode,
-            p = inst.get_page(parentNode) + incr;
-        if (p > 0) {
-            console.log("change page", p);
-            inst.change_page(parentNode, p);
+            parentNode = this.props.parentNode;
+        if (page > 0) {
+            inst.change_page(parentNode, page);
         }
     },
 
@@ -39,7 +28,7 @@ var IconTable = React.createClass({
         // When filtering we need to begin at first page
         var inst = this.props.inst;
         // Use _set_page to not trigger refresh...
-        inst._set_page(this.props.parentNode, 1)
+        inst._set_page(this.props.parentNode, 1);
         // ...since we refresh here
         inst.filter(this.props.parentNode, filterText);
     },
@@ -87,6 +76,8 @@ var IconTable = React.createClass({
             weekday: "short", year: "numeric", month: "short",
             day: "numeric", hour: "2-digit", minute: "2-digit"
         };
+        var page = inst.get_page(parentNode),
+            pageSize = inst.get_page_size(parentNode);
 
         parentNode.children.forEach(function(ch){
             var childNode = inst.get_node(ch);
@@ -183,8 +174,11 @@ var IconTable = React.createClass({
                     <IconTableHeadRow />
                     {icons}
                 </ul>
-                <button onClick={this.handleNextPage}>Next</button>
-                <button onClick={this.handlePrevPage}>Prev</button>
+                <Pagination
+                    page={page}
+                    filteredCount={filterCount}
+                    pageSize={pageSize}
+                    setPage={this.setPage} />
             </div>
         </div>);
     }

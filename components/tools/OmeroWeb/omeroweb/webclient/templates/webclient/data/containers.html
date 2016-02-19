@@ -78,6 +78,7 @@
     WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'webgateway.views.copy_image_rdef_json' %}";
     WEBCLIENT.URLS.reset_owners_rdef_json = "{% url 'reset_owners_rdef_json' %}";
     WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
+    WEBCLIENT.PAGE = "{{ ome.page_size }}";
 
     {% ifequal menu 'usertags' %}
         WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
