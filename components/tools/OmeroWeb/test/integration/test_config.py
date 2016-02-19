@@ -146,7 +146,9 @@ class TestConfig(lib.ITest):
         assert isinstance(ss['viewer']['roi_limit'], int)
         assert ss['viewer']['roi_limit'] == json.loads(default[key2])
 
-    @pytest.mark.parametrize("prop", ["colleagues", "leaders", "everyone"])
+    @pytest.mark.parametrize("prop", ["colleagues", "leaders", "everyone",
+                                      "colleagues.label", "leaders.label",
+                                      "everyone.label"])
     @pytest.mark.parametrize("label", ["foo"])
     def testUpgradeDropdownMenuConfig(self, prop, label):
         """ Test if alias loads deprecated property value """
@@ -158,6 +160,7 @@ class TestConfig(lib.ITest):
             login_required(default_view).load_server_settings(
                 self.conn, self.r)
             s = self.r.session.get('server_settings', {})
+            prop = prop.replace(".label", "")
             assert s['ui']['menu']['dropdown'][prop]['label'] == label
         finally:
             self.rs.setConfigValue(key, d[key])
