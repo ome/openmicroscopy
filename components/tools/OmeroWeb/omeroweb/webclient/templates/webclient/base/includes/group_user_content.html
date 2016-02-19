@@ -72,7 +72,7 @@
 
 {% for grp in groups %}
             <ul title="Switch to this Group and User" class="usersList" id="groupMembers-{{ grp.id }}" style="top:0px">
-                {% if grp.all %}
+                {% if ui.dropdown_menu.everyone.enabled and grp.all %}
                     <li>
                         {% ifequal grp.id active_group.id %}
                         <a href="{{ current_url }}?experimenter=-1">
