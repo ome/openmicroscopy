@@ -39,8 +39,10 @@ import javax.swing.JPopupMenu;
 
 
 
+
 //Third-party libraries
 import org.jhotdraw.draw.Figure;
+
 
 
 
@@ -55,6 +57,7 @@ import omero.gateway.model.FolderData;
 
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.CreationActionType;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -204,9 +207,19 @@ public class ROIPopupMenu
     private boolean checkPermission(CreationActionType action,
             Collection<Object> selection) {
 
-        if (action == CreationActionType.CREATE_FOLDER && selection.size() == 0)
-            return true;
-
+        if (action == CreationActionType.CREATE_FOLDER) {
+            if (selection.size() == 0)
+                return true;
+            if (selection.size() == 1) {
+                Object obj = selection.iterator().next();
+                if (obj instanceof FolderData) {
+                    FolderData f = (FolderData) obj;
+                    return f.copyROILinks().isEmpty();
+                }
+            }
+            return false;
+        }
+           
         boolean isFolderSelection = true;
         boolean isROISelection = true;
 
