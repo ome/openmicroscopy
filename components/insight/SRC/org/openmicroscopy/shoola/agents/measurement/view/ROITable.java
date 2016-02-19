@@ -1125,13 +1125,15 @@ public class ROITable
             // popup menu
             int row = rowAtPoint(e.getPoint());
             ListSelectionModel m = getSelectionModel();
-            if (e.isControlDown())
-                m.addSelectionInterval(row, row);
-            else if (e.isShiftDown())
-                m.addSelectionInterval(m.getAnchorSelectionIndex(), row);
-            else {
-                getSelectionModel().clearSelection();
-                m.addSelectionInterval(row, row);
+            if (!m.isSelectedIndex(row)) {
+                if (e.isControlDown())
+                    m.addSelectionInterval(row, row);
+                else if (e.isShiftDown())
+                    m.addSelectionInterval(m.getAnchorSelectionIndex(), row);
+                else {
+                    getSelectionModel().clearSelection();
+                    m.addSelectionInterval(row, row);
+                }
             }
 
             onSelection(getSelectedObjects());
