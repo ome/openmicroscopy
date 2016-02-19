@@ -160,8 +160,8 @@ class TestConfig(lib.ITest):
         finally:
             self.rs.setConfigValue(key, d[key])
 
-    def mock_getOmeroClientSettings(self, monkeypatch, default):
-        def get_omeroClientSettings(*args, **kwargs):
+    def mock_getClientSettings(self, monkeypatch, default):
+        def get_clientSettings(*args, **kwargs):
             not_exist = [
                 'omero.client.ui.menu.dropdown.everyone.label',
                 'omero.client.ui.menu.dropdown.leaders.label',
@@ -174,8 +174,8 @@ class TestConfig(lib.ITest):
                     del default[n]
             return default
         monkeypatch.setattr(omero.gateway.BlitzGateway,
-                            'getOmeroClientSettings',
-                            get_omeroClientSettings)
+                            'getClientSettings',
+                            get_clientSettings)
 
     @pytest.mark.parametrize("prop", ["colleagues", "leaders", "everyone"])
     @pytest.mark.parametrize("label", ["foo"])
@@ -186,10 +186,10 @@ class TestConfig(lib.ITest):
         try:
             if label is not None:
                 self.rs.setConfigValue(key, label)
-            self.mock_getOmeroClientSettings(monkeypatch,
-                                             self.rs.getClientConfigValues())
+            self.mock_getClientSettings(monkeypatch,
+                                        self.rs.getClientConfigValues())
             # validate old config
-            ocs = self.conn.getOmeroClientSettings()
+            ocs = self.conn.getClientSettings()
             not_exist = [
                 'omero.client.ui.menu.dropdown.everyone.label',
                 'omero.client.ui.menu.dropdown.leaders.label',

@@ -275,7 +275,7 @@ class login_required(object):
             request.session.modified = True
             request.session['server_settings'] = {}
             try:
-                s = self._cleanup_deprecated(conn.getOmeroClientSettings())
+                s = self._cleanup_deprecated(conn.getClientSettings())
                 request.session['server_settings'] = \
                     propertiesToDict(s, prefix="omero.client.")
             except:
