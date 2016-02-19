@@ -325,22 +325,28 @@ public class ROIFacility extends Facility {
             }
 
             // 3. Create/Save the ROIFolderLinks
+            IRoiPrx svc = gateway.getROIService(ctx);
+            RoiResult serverReturn = svc.findByImage(imageID, new RoiOptions());
+            List<Roi> serverRoiList = serverReturn.rois;
             List<IObject> toSave = new ArrayList<IObject>();
             for (ROIData clientRoi : roiList) {
-                Roi roi = (Roi) clientRoi.asIObject();
-                for (FolderData folder : folders) {
-                    boolean linkExists = false;
-                    for (FolderRoiLink link : roi.copyFolderLinks()) {
-                        if (link.getParent().getId().getValue() == folder
-                                .getId()) {
-                            linkExists = true;
-                            break;
-                        }
-                    }
+                for (Roi roi : serverRoiList) {
+                    if (clientRoi.getId() == roi.getId().getValue()) {
+                        for (FolderData folder : folders) {
+                            boolean linkExists = false;
+                            for (FolderRoiLink link : roi.copyFolderLinks()) {
+                                if (link.getParent().getId().getValue() == folder
+                                        .getId()) {
+                                    linkExists = true;
+                                    break;
+                                }
+                            }
 
-                    if (!linkExists) {
-                        roi.linkFolder(folder.asFolder());
-                        toSave.add(roi);
+                            if (!linkExists) {
+                                roi.linkFolder(folder.asFolder());
+                                toSave.add(roi);
+                            }
+                        }
                     }
                 }
             }

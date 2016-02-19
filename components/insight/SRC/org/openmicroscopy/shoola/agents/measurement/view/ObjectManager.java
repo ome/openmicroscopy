@@ -544,7 +544,7 @@ class ObjectManager
         return list;
 	}
 
-	/**
+    /**
      * Add ROIs to Folders
      * 
      * @param selectedObjects
@@ -556,13 +556,20 @@ class ObjectManager
             Collection<FolderData> folders) {
         Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
         OutputServerStrategy oss = new OutputServerStrategy();
-        for(ROIShape shape : selectedObjects) {
+        for (ROIShape shape : selectedObjects) {
             ROI roi = shape.getROI();
-            try {
-                ROIData data = oss.createServerROI(roi, model.getImage());
+            if (roi.isClientSide()) {
+                try {
+                    ROIData data = oss.createServerROI(roi, model.getImage());
+                    rois.put(roi.getID(), data);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                ROIData data = new ROIData();
+                data.setId(roi.getID());
+                data.setImage(model.getImage().asImage());
                 rois.put(roi.getID(), data);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         model.addROIsToFolder(rois.values(), folders);
@@ -602,8 +609,8 @@ class ObjectManager
     }
 
     public void saveROIFolders(Collection<FolderData> folders) {
-        if (model.hasROIToDelete() || model.hasROIToSave())
-            model.saveROIToServer(true, false);
+        if (model.hasROIToSave())
+            model.saveROIToServer(false, false);
         model.saveROIFolders(folders);
     }
     

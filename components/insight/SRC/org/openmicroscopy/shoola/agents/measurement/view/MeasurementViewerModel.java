@@ -1180,8 +1180,8 @@ class MeasurementViewerModel
 			if (async) {
 				currentSaver = new ROISaver(component, getSecurityContext(),
 						getImageID(), exp.getId(), roiList, close);
-				currentSaver.load();
 				state = MeasurementViewer.SAVING_ROI;
+				currentSaver.load();
 				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc =
