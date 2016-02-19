@@ -73,7 +73,7 @@ import omero.model.enums.UnitsLength;
  * @version 3.0
  * @since 3.0-Beta4
  */
-class OutputServerStrategy 
+public class OutputServerStrategy 
 {
 	
 	/** The ROIComponent to serialize. */
@@ -193,7 +193,7 @@ class OutputServerStrategy
 	 * @return See above.
 	 * @throws Exception If an error occurred while parsing the ROI.
 	 */
-	private ROIData createServerROI(ROI roi, ImageData image) 
+	public ROIData createServerROI(ROI roi, ImageData image) 
 		throws Exception
 	{
 		ROIData roiData = new ROIData();
@@ -638,7 +638,7 @@ class OutputServerStrategy
 	}
 	
 	/** Creates a new instance. */
-	OutputServerStrategy() {}
+	public OutputServerStrategy() {}
 
 	/**
 	 * Writes the ROI from the ROI component to the server. 

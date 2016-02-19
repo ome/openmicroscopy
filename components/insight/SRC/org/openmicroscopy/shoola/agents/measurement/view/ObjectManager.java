@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescrip
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.io.OutputServerStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -554,13 +555,14 @@ class ObjectManager
     public void addRoisToFolder(Collection<ROIShape> selectedObjects,
             Collection<FolderData> folders) {
         Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
+        OutputServerStrategy oss = new OutputServerStrategy();
         for(ROIShape shape : selectedObjects) {
             ROI roi = shape.getROI();
-            if(!rois.containsKey(roi.getID())) {
-                ROIData data = new ROIData();
-                data.setId(roi.getID());
-                data.setImage(model.getImage().asImage());
+            try {
+                ROIData data = oss.createServerROI(roi, model.getImage());
                 rois.put(roi.getID(), data);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         model.addROIsToFolder(rois.values(), folders);
