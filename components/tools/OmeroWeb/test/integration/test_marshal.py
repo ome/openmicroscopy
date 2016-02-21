@@ -147,8 +147,9 @@ class TestImgDetail(IWebTest):
             link.parent = dataset
             link = self.update.saveAndReturnObject(link)
             datasetIds.append(link.parent.id.val)
-        datasets = [{'id': datasetIds[d], 'name': datasetNames[d], 'description': ''}
-                    for d in range(2)]
+        datasets = [{'id': datasetIds[d],
+                     'name': datasetNames[d],
+                     'description': ''} for d in range(2)]
 
         imgData = _get_response_json(self.django_client, json_url,
                                      data, status_code=200)
