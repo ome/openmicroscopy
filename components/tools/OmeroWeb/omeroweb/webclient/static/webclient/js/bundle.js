@@ -20165,7 +20165,10 @@ var renderCentrePanel =
 	            filterText = this.props.filterText;
 	        var iconBtnClass = layout === "icon" ? "checked" : "",
 	            tableBtnClass = layout === "table" ? "checked" : "";
-	        var filteredCount = this.props.filteredCount === this.props.childCount ? "" : this.props.filteredCount + " of ";
+	        var filteredMsg = this.props.childCount + " images";
+	        if (this.props.filteredCount != undefined && this.props.filteredCount != this.props.childCount) {
+	            filteredMsg = this.props.filteredCount + " of " + filteredMsg;
+	        }
 	        return _react2.default.createElement(
 	            'div',
 	            { className: 'toolbar iconTableHeader' },
@@ -20204,7 +20207,7 @@ var renderCentrePanel =
 	            _react2.default.createElement(
 	                'h1',
 	                { className: 'filterCounter' },
-	                filteredCount + this.props.childCount + " images"
+	                filteredMsg
 	            )
 	        );
 	    }
