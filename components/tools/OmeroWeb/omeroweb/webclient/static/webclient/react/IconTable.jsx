@@ -14,9 +14,20 @@ var IconTable = React.createClass({
     setPage: function(page) {
         var inst = this.props.inst,
             parentNode = this.props.parentNode;
-        if (page > 0) {
-            inst.change_page(parentNode, page);
+        if (page < 1) return;
+
+        // refreshing when images are selected breaks sync with jsTree
+        // Select parent before refreshing...
+        if (!inst.is_selected(parentNode)) {
+            inst.deselect_all(true);
+            inst.select_node(parentNode);
         }
+
+        // Tiny delay to make sure that node is not unloaded (during refresh)
+        // when the select_node trigger from above causes re-render of Centre Panel
+        setTimeout(function(){
+            inst.change_page(parentNode, page);
+        }, 10);
     },
 
     setLayout: function(layout) {
