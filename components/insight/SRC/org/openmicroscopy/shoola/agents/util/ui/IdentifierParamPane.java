@@ -71,9 +71,13 @@ class IdentifierParamPane
     /** Flag indicating that a value is required. */
     private boolean required;
 
+    /** The class required by the identifiers.*/
+    private Class<?> sourceType;
+
     /** Initializes the components.*/
     private void initializeComponents()
     {
+        sourceType = null;
         field = new JTextField(ScriptComponent.COLUMNS);
         IconManager icons = IconManager.getInstance();
         infoButton = new JButton(icons.getIcon(IconManager.INFO));
@@ -139,6 +143,16 @@ class IdentifierParamPane
         this.required = required;
         initializeComponents();
         buildGUI(showInfo);
+    }
+
+    /**
+     * Sets the source.
+     *
+     * @param sourceType The reference e.g. string
+     */
+    void setSourceType(Class<?> sourceType)
+    {
+        this.sourceType = sourceType;
     }
 
     /**
@@ -251,6 +265,19 @@ class IdentifierParamPane
     List<Object> isReady()
     {
         if (!required) return null;
+        return getValues();
+    }
+
+    /**
+     * Returns the values to pass to the script.
+     * @return See above.
+     */
+    Object getValuesAsObject()
+    {
+        if (!required) return null;
+        if (String.class.equals(sourceType)) {
+            return field.getText();
+        }
         return getValues();
     }
 

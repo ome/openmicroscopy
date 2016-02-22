@@ -398,7 +398,7 @@ class ScriptComponent
         } else if (c instanceof ComplexParamPane) {
             return ((ComplexParamPane) c).getValue(); 
         } else if (c instanceof IdentifierParamPane) {
-            return ((IdentifierParamPane) c).isReady();
+            return ((IdentifierParamPane) c).getValuesAsObject();
         }
         return null;
     }

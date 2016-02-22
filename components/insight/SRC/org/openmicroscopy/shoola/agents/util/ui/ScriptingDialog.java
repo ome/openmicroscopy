@@ -491,6 +491,7 @@ public class ScriptingDialog
             } else if (String.class.equals(type)) {
                 if (script.isIdentifier(name)) {
                     identifier = new IdentifierParamPane(Long.class);
+                    identifier.setSourceType(String.class);
                     identifier.setValues(refObjects);
                     identifier.addDocumentListener(this);
                     comp = identifier;
