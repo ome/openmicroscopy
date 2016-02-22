@@ -22,16 +22,20 @@ package omero.gateway.facility;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import omero.ServerError;
+import omero.api.IQueryPrx;
 import omero.api.IRoiPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RoiOptions;
@@ -43,16 +47,19 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIResult;
 import omero.gateway.util.ModelMapper;
 import omero.gateway.util.PyTablesUtils;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Line;
 import omero.model.Polyline;
 import omero.model.Roi;
 import omero.model.Shape;
+import omero.sys.ParametersI;
 import omero.gateway.model.ROICoordinate;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.util.PojoMapper;
+
 
 
 /**
