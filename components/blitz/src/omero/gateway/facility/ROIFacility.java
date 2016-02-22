@@ -284,31 +284,34 @@ public class ROIFacility extends Facility {
 
         try {
 
-            // 1. Save clientside ROIs on the server
+            // 1. Load the ROIs from the server
+            IRoiPrx svc = gateway.getROIService(ctx);
+            RoiResult serverReturn = svc.findByImage(imageID, new RoiOptions());
+            Map<Long, Roi> serverRoiList = new HashMap<Long, Roi>();
+            for(Roi r : serverReturn.rois)
+                serverRoiList.put(r.getId().getValue(), r);
+            
+            
+            // 2. Save clientside ROIs on the server
             Collection<ROIData> roisToSave = new ArrayList<ROIData>();
-            Iterator<ROIData> it = roiList.iterator();
-            while (it.hasNext()) {
-                ROIData roi = it.next();
-                if (roi.isClientSide()) {
+            for(ROIData roi : roiList) {
+                if (!serverRoiList.containsKey(roi.getId())) {
                     roisToSave.add(roi);
-                    it.remove();
                 }
             }
 
             if (!roisToSave.isEmpty()) {
-                Collection<ROIData> saved = saveROIs(ctx, imageID, roisToSave);
-                // explicitly use ArrayList because the passed Collection 
-                // might not support addAll()
-                Collection<ROIData> tmp = new ArrayList<ROIData>();
-                tmp.addAll(roiList);
-                tmp.addAll(saved);
-                roiList = tmp;
+                saveROIs(ctx, imageID, roisToSave);
+                serverReturn = svc.findByImage(imageID, new RoiOptions());
+                serverRoiList.clear();
+                for(Roi r : serverReturn.rois)
+                    serverRoiList.put(r.getId().getValue(), r);
             }
 
-            // 2. Save clientside Folders on the server
+            // 3. Save clientside Folders on the server
             List<IObject> foldersToSave = new ArrayList<IObject>();
             Iterator<FolderData> it2 = folders.iterator();
-            while (it.hasNext()) {
+            while (it2.hasNext()) {
                 FolderData folder = it2.next();
                 if (folder.getId() < 0) {
                     foldersToSave.add(folder.asIObject());
@@ -324,13 +327,11 @@ public class ROIFacility extends Facility {
                 folders.addAll(savedFolders);
             }
 
-            // 3. Create/Save the ROIFolderLinks
-            IRoiPrx svc = gateway.getROIService(ctx);
-            RoiResult serverReturn = svc.findByImage(imageID, new RoiOptions());
-            List<Roi> serverRoiList = serverReturn.rois;
+            // 4. Create/Save the ROIFolderLinks
             List<IObject> toSave = new ArrayList<IObject>();
             for (ROIData clientRoi : roiList) {
-                for (Roi roi : serverRoiList) {
+                // find the corresponding fully initialized server side roi
+                for (Roi roi : serverRoiList.values()) {
                     if (clientRoi.getId() == roi.getId().getValue()) {
                         for (FolderData folder : folders) {
                             boolean linkExists = false;
@@ -347,6 +348,7 @@ public class ROIFacility extends Facility {
                                 toSave.add(roi);
                             }
                         }
+                        break;
                     }
                 }
             }

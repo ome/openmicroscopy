@@ -41,6 +41,11 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
+
+
+
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTable;
@@ -55,14 +60,23 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.OutputServerStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+
+import omero.gateway.exception.DSAccessException;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
+import omero.log.LogMessage;
 
 /** 
  * UI Component managing a Region of Interest.
@@ -554,18 +568,11 @@ class ObjectManager
      */
     public void addRoisToFolder(Collection<ROIShape> selectedObjects,
             Collection<FolderData> folders) {
+        saveROIs();
         Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
-        OutputServerStrategy oss = new OutputServerStrategy();
         for (ROIShape shape : selectedObjects) {
             ROI roi = shape.getROI();
-            if (roi.isClientSide()) {
-                try {
-                    ROIData data = oss.createServerROI(roi, model.getImage());
-                    rois.put(roi.getID(), data);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
+            if (!rois.containsKey(roi.getID())) {
                 ROIData data = new ROIData();
                 data.setId(roi.getID());
                 data.setImage(model.getImage().asImage());
@@ -582,6 +589,7 @@ class ObjectManager
      *            The Folders
      */
     public void deleteFolders(Collection<FolderData> folders) {
+        saveROIs();
         model.deleteFolders(folders);
     }
     
@@ -595,6 +603,7 @@ class ObjectManager
      */
     public void removeRoisFromFolder(Collection<ROIShape> selectedObjects,
             Collection<FolderData> folders) {
+        saveROIs();
         Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
         for(ROIShape shape : selectedObjects) {
             ROI roi = shape.getROI();
@@ -609,8 +618,7 @@ class ObjectManager
     }
 
     public void saveROIFolders(Collection<FolderData> folders) {
-        if (model.hasROIToSave())
-            model.saveROIToServer(false, false);
+        saveROIs();
         model.saveROIFolders(folders);
     }
     
@@ -632,6 +640,29 @@ class ObjectManager
      */
     Collection<FolderData> getFolders() {
         return model.getFolders();
+    }
+    
+    /**
+     * Save ROIs if there are unsaved ROIs
+     */
+    private void saveROIs() {
+        if (model.hasROIToSave()) {
+            Registry reg = MeasurementAgent.getRegistry();
+            List<ROIData> roiList = model.getROIData();
+            ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                    .getUserDetails();
+            OmeroImageService svc = reg.getImageService();
+            try {
+                svc.saveROI(model.getSecurityContext(), model.getImageID(),
+                        exp.getId(), roiList);
+
+            } catch (Exception e) {
+                reg.getUserNotifier().notifyWarning("Could not save ROIs",
+                        "Failed to save some unsaved ROIs");
+                reg.getLogger().warn(this,
+                        new LogMessage("Could not save ROIs", e));
+            }
+        }
     }
 }
 
