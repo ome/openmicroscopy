@@ -57,11 +57,13 @@ public class BrowseFacilityTest extends GatewayTest {
     private ExperimenterData user2; // has proj, ds and img
     private ExperimenterData user3; // has no data
 
+    private ImageData img0;
+    
     private ProjectData proj;
     private DatasetData ds;
     private ScreenData screen;
     private PlateData plate;
-    private ImageData img;
+    private ImageData img1;
 
     private ProjectData proj2;
     private DatasetData ds2;
@@ -205,24 +207,34 @@ public class BrowseFacilityTest extends GatewayTest {
     }
 
     @Test
+    public void testGetOrphanedImages() throws DSOutOfServiceException, DSAccessException {
+        SecurityContext ctx = new SecurityContext(group.getId());
+
+        // get orphaned images for user
+        Collection<ImageData> result = browseFacility.getOrphanedImages(ctx, user.getId());
+        Assert.assertEquals(result.size(), 1);
+        Assert.assertEquals(result.iterator().next().getId(), img0.getId());
+    }
+    
+    @Test
     public void testGetImages() throws DSOutOfServiceException, DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
 
         // get images of the root user
         Collection<ImageData> result = browseFacility.getUserImages(ctx);
-        Assert.assertEquals(result.size(), 2);
+        Assert.assertEquals(result.size(), 3);
         
         // get specific image
         Collection<Long> ids = new ArrayList<Long>(1);
-        ids.add(img.getId());
+        ids.add(img1.getId());
         result = browseFacility.getImages(ctx, ids);
         Assert.assertEquals(result.size(), 1);
-        Assert.assertEquals(result.iterator().next().getId(), img.getId());
+        Assert.assertEquals(result.iterator().next().getId(), img1.getId());
 
         // get specific image for user
         result = browseFacility.getImages(ctx, user.getId(), ids);
         Assert.assertEquals(result.size(), 1);
-        Assert.assertEquals(result.iterator().next().getId(), img.getId());
+        Assert.assertEquals(result.iterator().next().getId(), img1.getId());
 
         // Get images for user2
         ids.clear();
@@ -247,8 +259,8 @@ public class BrowseFacilityTest extends GatewayTest {
 
         obj = browseFacility.findIObject(ctx,
                 PojoMapper.getModelType(ImageData.class).getName(),
-                img.getId(), true);
-        Assert.assertEquals(img.getId(), obj.getId().getValue());
+                img1.getId(), true);
+        Assert.assertEquals(img1.getId(), obj.getId().getValue());
 
         ScreenData s = browseFacility.findObject(rootCtx, ScreenData.class,
                 screen.getId(), true);
@@ -282,11 +294,13 @@ public class BrowseFacilityTest extends GatewayTest {
         ctx.setExperimenter(user);
         ctx.sudo();
 
+        this.img0 = createImage(ctx, null);
+        
         this.proj = createProject(ctx);
         this.ds = createDataset(ctx, proj);
         this.screen = createScreen(ctx);
         this.plate = createPlate(ctx, screen);
-        this.img = createImage(ctx, ds);
+        this.img1 = createImage(ctx, ds);
 
         ctx = new SecurityContext(group.getId());
         ctx.setExperimenter(user2);
