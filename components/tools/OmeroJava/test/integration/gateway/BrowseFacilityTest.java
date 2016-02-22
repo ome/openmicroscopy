@@ -248,31 +248,48 @@ public class BrowseFacilityTest extends GatewayTest {
     public void testFindIObject() throws DSOutOfServiceException,
             DSAccessException {
         SecurityContext ctx = new SecurityContext(group.getId());
-        
-        IObject obj = browseFacility.findIObject(ctx, ds.asIObject());
-        Assert.assertEquals(ds.getId(), obj.getId().getValue());
 
+        // find iobject from IObject
+        IObject obj = browseFacility.findIObject(ctx, ds.asIObject());
+        Assert.assertEquals(obj.getId().getValue(), ds.getId());
+
+        // find iobject by classname string and id
         obj = browseFacility.findIObject(ctx,
                 PojoMapper.getModelType(ProjectData.class).getName(),
                 proj.getId());
-        Assert.assertEquals(proj.getId(), obj.getId().getValue());
+        Assert.assertEquals(obj.getId().getValue(), proj.getId());
 
-        obj = browseFacility.findIObject(ctx,
+        // find iobject by classname string and id, across all groups
+        obj = browseFacility.findIObject(rootCtx,
                 PojoMapper.getModelType(ImageData.class).getName(),
                 img1.getId(), true);
-        Assert.assertEquals(img1.getId(), obj.getId().getValue());
-
-        ScreenData s = browseFacility.findObject(rootCtx, ScreenData.class,
-                screen.getId(), true);
-        Assert.assertEquals(screen.getId(), s.getId());
+        Assert.assertEquals(obj.getId().getValue(), img1.getId());
     }
 
     @Test
     public void testFindObject() throws DSOutOfServiceException,
             DSAccessException {
-        ScreenData s = browseFacility.findObject(rootCtx, ScreenData.class,
-                screen.getId(), true);
-        Assert.assertEquals(screen.getId(), s.getId());
+        SecurityContext ctx = new SecurityContext(group.getId());
+        
+        // find object by pojo name string and id
+        ImageData i = (ImageData) browseFacility.findObject(ctx,
+                "ImageData", img0.getId());
+        Assert.assertEquals(i.getId(), img0.getId());
+
+        // find object by pojo name string and id across groups
+        i = (ImageData) browseFacility.findObject(rootCtx, "ImageData",
+                img1.getId(), true);
+        Assert.assertEquals(i.getId(), img1.getId());
+
+        // find object by pojo class and id
+        i = browseFacility
+                .findObject(ctx, ImageData.class, img0.getId());
+        Assert.assertEquals(i.getId(), img0.getId());
+
+        // find object by pojo class and id across groups
+        i = browseFacility.findObject(rootCtx, ImageData.class,
+                img1.getId(), true);
+        Assert.assertEquals(i.getId(), img1.getId());
     }
     
     @Test
