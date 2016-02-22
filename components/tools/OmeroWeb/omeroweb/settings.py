@@ -494,6 +494,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webgateway_cache":
         ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
 
+    # VIEWER
+    "omero.web.viewer.view":
+        ["VIEWER_VIEW",
+         'omeroweb.webclient.views.image_viewer',
+         str,
+         ("Django view which handles display of, or redirection to, the "
+          "desired full image viewer.")],
+
     # PIPELINE 1.3.20
 
     # Pipeline is an asset packaging library for Django, providing both CSS
