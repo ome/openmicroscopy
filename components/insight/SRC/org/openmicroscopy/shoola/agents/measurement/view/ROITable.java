@@ -1184,7 +1184,7 @@ public class ROITable
         Collection<Object> tmp = new ArrayList<Object>();
         for(FolderData folder : manager.getFolders()) {
             ROINode folderNode = getFolderNode(folder);
-            if(folderNode.isLeaf() || folderNode.containsROIs())
+            if((folderNode.isLeaf() || folderNode.containsROIs()) && folder.canLink())
                 tmp.add(folder);
         }
         SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
