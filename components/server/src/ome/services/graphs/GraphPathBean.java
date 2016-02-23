@@ -101,6 +101,12 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /* classes indexed by their simple name */
     private final Map<String, Class<? extends IObject>> classesBySimpleName = new HashMap<String, Class<? extends IObject>>();
 
+    /* only direct superclasses of mapped entities */
+    private final Map<String, String> superclasses = new HashMap<String, String>();
+
+    /* only direct subclasses of mapped entities */
+    private final SetMultimap<String, String> subclasses = HashMultimap.create();
+
     /* direct and indirect superclasses of mapped entities */
     private final SetMultimap<String, String> allSuperclasses = HashMultimap.create();
 
@@ -116,14 +122,23 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /* how nullable properties are */
     private final HashMap<Entry<String, String>, PropertyKind> propertyKinds = new HashMap<Entry<String, String>, PropertyKind>();
 
+    /* the Hibernate type of each property */
+    private final Map<Entry<String, String>, Type> propertyTypes = new HashMap<Entry<String, String>, Type>();
+
+    /* the declaring interface of each property */
+    private final Map<Entry<String, String>, String> implementedInterfaces = new HashMap<Entry<String, String>, String>();
+
     /* which properties are accessible */
     private final Set<Entry<String, String>> accessibleProperties = new HashSet<Entry<String, String>>();
 
     /* the identifier properties of classes */
     private final Map<String, String> classIdProperties = new HashMap<String, String>();
 
-    /* the properties of classes that have simple values */
-    private final SetMultimap<String, String> simpleProperties = HashMultimap.create();
+    /* the properties of classes that have simple values, recording full nesting */
+    private final SetMultimap<String, String> simplePropertiesNested = HashMultimap.create();
+
+    /* the properties of classes that have simple values, with only the top-level name */
+    private final SetMultimap<String, String> simplePropertiesDirect = HashMultimap.create();
 
     /**
      * The application context after refresh should contain a usable Hibernate session factory.
@@ -188,7 +203,6 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      */
     private void initialize(SessionFactoryImplementor sessionFactory) {
         /* note all the direct superclasses */
-        final Map<String, String> superclasses = new HashMap<String, String>();
         final Map<String, ClassMetadata> classesMetadata = sessionFactory.getAllClassMetadata();
         for (final String className : classesMetadata.keySet()) {
             try {
@@ -202,6 +216,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                             final Class<?> actualSubclass = Class.forName(subclassName);
                             if (actualSubclass.getSuperclass() == actualClass) {
                                 superclasses.put(subclassName, className);
+                                subclasses.put(className, subclassName);
                             }
                         }
                     }
@@ -271,7 +286,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                     isAssociatedEntity = property.type instanceof AssociationType;
                 }
                 /* the property can link to entities, so process it further */
-                String propertyPath = Joiner.on('.').join(property.path);
+                final String fullPropertyPath = Joiner.on('.').join(property.path);
                 /* find if the property is accessible (e.g., not protected) */
                 boolean propertyIsAccessible = false;
                 String classToInstantiateName = property.holder;
@@ -283,16 +298,16 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                         classToInstantiate = Class.forName(classToInstantiateName);
                     }
                     try     {
-                        PropertyUtils.getNestedProperty(classToInstantiate.newInstance(), propertyPath);
+                        PropertyUtils.getNestedProperty(classToInstantiate.newInstance(), fullPropertyPath);
                         propertyIsAccessible = true;
                     } catch (NoSuchMethodException e) {
                         /* expected for collection properties */
                     } catch (NestedNullException e) {
-                        log.debug("guessing " + propertyPath + " of " + property.holder + " to be accessible");
+                        log.debug("guessing " + fullPropertyPath + " of " + property.holder + " to be accessible");
                         propertyIsAccessible = true;
                     }
                 } catch (ReflectiveOperationException e) {
-                    log.error("could not probe property " + propertyPath + " of " + property.holder, e);
+                    log.error("could not probe property " + fullPropertyPath + " of " + property.holder, e);
                     continue;
                 }
                 /* build property report line for log */
@@ -323,43 +338,43 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                     sb.append(" (inaccessible)");
                 }
                 /* determine from which class the property is inherited, if at all */
+                final String shortPropertyPath = property.path.get(0);
                 String superclassWithProperty = null;
                 String currentClass = property.holder;
                 while (true) {
                     currentClass = superclasses.get(currentClass);
                     if (currentClass == null) {
                         break;
-                    } else if (allPropertyNames.get(currentClass).contains(property.path.get(0))) {
+                    } else if (allPropertyNames.get(currentClass).contains(shortPropertyPath)) {
                         superclassWithProperty = currentClass;
                     }
                 }
                 /* check if the property actually comes from an interface */
                 final String declaringClassName = superclassWithProperty == null ? property.holder : superclassWithProperty;
                 final Class<? extends IObject> interfaceForProperty =
-                        getInterfaceForProperty(declaringClassName, property.path.get(0));
+                        getInterfaceForProperty(declaringClassName, shortPropertyPath);
                 /* report where the property is declared */
                 if (superclassWithProperty != null) {
                     sb.append(" from ");
                     sb.append(superclassWithProperty);
                 } else {
+                    final Entry<String, String> classPropertyFullName = Maps.immutableEntry(property.holder, fullPropertyPath);
                     if (interfaceForProperty != null) {
                         sb.append(" see ");
-                        sb.append(interfaceForProperty.getName());
+                        final String implementedInterface = interfaceForProperty.getName();
+                        sb.append(implementedInterface);
+                        implementedInterfaces.put(classPropertyFullName, implementedInterface);
                         /* It would be nice to set PropertyDetails to have the interface as the holder,
                          * but then properties would not be unique by declarer class and instance ID. */
                     }
+                    final Entry<String, String> classPropertyShortName = Maps.immutableEntry(property.holder, shortPropertyPath);
                     /* entity linkages by non-inherited properties are recorded */
-                    if (valueClassName == null && property.path.size() > 1) {
-                        /* assume that the top-level property suffices for describing simple properties */
-                        log.debug("recording " + propertyPath + " as " + property.path.get(0));
-                        propertyPath = property.path.get(0);
-                    }
-                    final Entry<String, String> classPropertyName = Maps.immutableEntry(property.holder, propertyPath);
                     if (valueClassName == null) {
-                        simpleProperties.put(property.holder, propertyPath);
+                        simplePropertiesNested.put(property.holder, fullPropertyPath);
+                        simplePropertiesDirect.put(property.holder, shortPropertyPath);
                     } else {
-                        linkedTo.put(property.holder, Maps.immutableEntry(valueClassName, propertyPath));
-                        linkedBy.put(valueClassName, classPropertyName);
+                        linkedTo.put(property.holder, Maps.immutableEntry(valueClassName, fullPropertyPath));
+                        linkedBy.put(valueClassName, classPropertyFullName);
                     }
                     final PropertyKind propertyKind;
                     if (property.type.isCollectionType()) {
@@ -369,10 +384,18 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
                     } else {
                         propertyKind = PropertyKind.REQUIRED;
                     }
-                    propertyKinds.put(classPropertyName, propertyKind);
+                    propertyKinds.put(classPropertyFullName, propertyKind);
                     if (propertyIsAccessible) {
-                        accessibleProperties.add(classPropertyName);
+                        accessibleProperties.add(classPropertyFullName);
                     }
+                    if (valueClassName == null && !fullPropertyPath.equals(shortPropertyPath)) {
+                        /* note simple properties also as non-nested */
+                        propertyKinds.put(classPropertyShortName, propertyKind);
+                        if (propertyIsAccessible) {
+                            accessibleProperties.add(classPropertyShortName);
+                        }
+                    }
+                    propertyTypes.put(classPropertyFullName, property.type);
                 }
                 if (log.isDebugEnabled()) {
                     log.debug(sb.toString());
@@ -406,6 +429,23 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     }
 
     /**
+     * Get all the classes mapped by Hibernate.
+     * @return the classes
+     */
+    public Collection<String> getAllClasses() {
+        return classIdProperties.keySet();
+    }
+
+    /**
+     * Get the direct superclass of the given class, if any.
+     * @param className the name of a class
+     * @return the class' direct superclass, may be {@code null}
+     */
+    public String getDirectSuperclassOf(String className) {
+        return superclasses.get(className);
+    }
+
+    /**
      * Get the superclasses of the given class, if any.
      * @param className the name of a class
      * @return the class' superclasses, never {@code null}
@@ -425,6 +465,15 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
         superclassesReflexive.add(className);
         superclassesReflexive.addAll(superclasses);
         return superclassesReflexive;
+    }
+
+    /**
+     * Get the direct subclasses of the given class, if any.
+     * @param className the name of a class
+     * @return the class' direct subclasses, never {@code null}
+     */
+    public Set<String> getDirectSubclassesOf(String className) {
+        return subclasses.get(className);
     }
 
     /**
@@ -478,6 +527,26 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     }
 
     /**
+     * Get the Hibernate type of a specific class property.
+     * @param className the name of a class
+     * @param propertyName the name of a property declared, not just inherited, by that class
+     * @return the Hibernate type of the property
+     */
+    public Type getPropertyType(String className, String propertyName) {
+        return propertyTypes.get(Maps.immutableEntry(className, propertyName));
+    }
+
+    /**
+     * Get the interface whose method is implemented by a specific class property, if any.
+     * @param className the name of a class
+     * @param propertyName the name of a property declared, not just inherited, by that class
+     * @return the implemented interface, may be {@code null}
+     */
+    public String getInterfaceImplemented(String className, String propertyName) {
+        return implementedInterfaces.get(Maps.immutableEntry(className, propertyName));
+    }
+
+    /**
      * Find if the given property can be accessed.
      * @param className the name of a class
      * @param propertyName the name of a property declared, not just inherited, by that class
@@ -499,9 +568,10 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /**
      * Get the <q>simple</q> properties for the given class, not linking to other mapped classes.
      * @param className the name of a class
+     * @param isNested if nested properties should have all components given separately with dot-notation
      * @return the <q>simple</q> properties of the given class; never {@code null}
      */
-    public Set<String> getSimpleProperties(String className) {
-        return simpleProperties.get(className);
+    public Set<String> getSimpleProperties(String className, boolean isNested) {
+        return (isNested ? simplePropertiesNested : simplePropertiesDirect).get(className);
     }
 }
