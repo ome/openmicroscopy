@@ -367,24 +367,7 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         List<AnnotationData> comments = getAnnotationToSave();
 
         if (!comments.isEmpty()) {
-            model.fireAnnotationSaving(
-                    new DataToSave(comments, Collections.emptyList()), null,
-                    true);
-
-            TextualAnnotationData data = (TextualAnnotationData) comments
-                    .get(0);
-            TextualAnnotationComponent comp = new TextualAnnotationComponent(
-                    model, data);
-            comp.addPropertyChangeListener(controller);
-            comp.setAreaColor(bgColor);
-            add(comp, constraints);
-            constraints.gridy++;
-
-            if (bgColor == UIUtilities.BACKGROUND_COLOUR_ODD)
-                bgColor = UIUtilities.BACKGROUND_COLOUR_EVEN;
-            else
-                bgColor = UIUtilities.BACKGROUND_COLOUR_ODD;
-
+            view.saveData(true);
             commentArea.setText("");
         }
     }
