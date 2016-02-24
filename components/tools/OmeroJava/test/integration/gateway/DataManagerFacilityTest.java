@@ -22,7 +22,9 @@ package integration.gateway;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,11 +32,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Arrays;
 import java.util.concurrent.Future;
-
 import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.gateway.SecurityContext;
@@ -155,6 +157,61 @@ public class DataManagerFacilityTest extends GatewayTest {
     }
     
     @Test
+    /**
+     * Checks the performance of multiple parallel file attachment uploads.
+     * Should not be slower than 1.5x of single file attachment uploads.
+     * @throws Exception
+     */
+    public void testPerformanceAttachFile() throws Exception {
+        File[] files = new File[25];
+        for (int i = 0; i < files.length; i++) {
+            files[i] = createFile(100);
+        }
+
+        DatasetData ds = new DatasetData();
+        ds.setName("Big_File_Attachments");
+        ds = (DatasetData) datamanagerFacility.saveAndReturnObject(rootCtx, ds);
+
+        long start = System.currentTimeMillis();
+        Future<FileAnnotationData> f = datamanagerFacility.attachFile(rootCtx,
+                files[0], "application/octet-stream", "test", null, ds);
+        f.get();
+        long singleUploadDuration = System.currentTimeMillis() - start;
+
+        start = System.currentTimeMillis();
+        Future<FileAnnotationData>[] futures = new Future[files.length];
+        for (int i = 0; i < files.length; i++) {
+            futures[i] = datamanagerFacility.attachFile(rootCtx, files[i],
+                    "application/octet-stream", "test", null, ds);
+        }
+
+        boolean finished = false;
+        while (!finished) {
+            finished = true;
+            for (int i = 0; i < futures.length; i++) {
+                if (!futures[i].isDone()) {
+                    finished = false;
+                    break;
+                }
+            }
+            if (finished)
+                break;
+            Thread.sleep(100);
+        }
+        long duration = System.currentTimeMillis() - start;
+        long durationPerFile = duration / files.length;
+
+        for (int i = 0; i < files.length; i++) {
+            files[i].delete();
+        }
+
+        Assert.assertTrue(durationPerFile < singleUploadDuration * 1.5,
+                "Parallel file attachment upload is significantly slower than single upload ("
+                        + durationPerFile + " vs " + singleUploadDuration
+                        + " ms)");
+    }
+    
+    @Test
     public void testAttachAnnotation() throws Exception {
         Queue<DataObject> targets = new LinkedList<DataObject>();
         DatasetData ds = new DatasetData();
@@ -265,6 +322,29 @@ public class DataManagerFacilityTest extends GatewayTest {
         RLong id = svc.createImage(10, 10, 10, 10, channels,
                 (PixelsType) types.get(1), "test", "");
         return id.getValue();
+    }
+    
+    private File createFile(int sizeInMb) {
+        try {
+            File tmp = File.createTempFile(System.currentTimeMillis()+"_attachedFile", "file");
+            
+            FileOutputStream fos = new FileOutputStream(tmp);
+            
+            Random r = new Random();
+            byte[] data = new byte[1024];
+            r.nextBytes(data);
+            
+            int size = 0;
+            while(size < (sizeInMb*1024*1024)) {
+                fos.write(data);
+                size += 1024;
+            }
+            fos.close();
+            
+            return tmp;
+        } catch (IOException e) {
+        }
+        return null;
     }
 
 }
