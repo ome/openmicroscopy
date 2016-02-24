@@ -20718,6 +20718,7 @@ var renderCentrePanel =
 	                        key: well.wellId,
 	                        id: well.wellId,
 	                        iid: well.id,
+	                        thumbUrl: well.thumb_url,
 	                        selected: selected,
 	                        iconSize: iconSize,
 	                        handleWellClick: handleWellClick,
@@ -20806,7 +20807,7 @@ var renderCentrePanel =
 	                title: "" + this.props.row + this.props.col },
 	            _react2.default.createElement('img', {
 
-	                src: "/webgateway/render_thumbnail/" + this.props.iid + "/96/",
+	                src: this.props.thumbUrl,
 	                onClick: this.handleClick,
 	                style: imgStyle })
 	        );

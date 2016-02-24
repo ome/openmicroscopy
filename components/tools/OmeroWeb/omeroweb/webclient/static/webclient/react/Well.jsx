@@ -21,7 +21,7 @@ var Well = React.createClass({
                 title={""+this.props.row+this.props.col}>
                 <img
 
-                    src={"/webgateway/render_thumbnail/" + this.props.iid + "/96/"}
+                    src={this.props.thumbUrl}
                     onClick={this.handleClick}
                     style={imgStyle} />
             </td>
