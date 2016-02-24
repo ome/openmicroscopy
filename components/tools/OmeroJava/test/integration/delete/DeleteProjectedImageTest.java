@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4.9
  */
-public class DeleteProjectedImageTest  extends AbstractServerTest {
+public class DeleteProjectedImageTest extends AbstractServerTest {
 
     /** Indicates to delete the source image. */
     private static final int SOURCE_IMAGE = 0;
