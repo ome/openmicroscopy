@@ -20305,7 +20305,7 @@ var renderCentrePanel =
 	                _react2.default.createElement('img', { alt: 'image',
 	                    width: iconSizes.width + "px",
 	                    height: iconSizes.height + "px",
-	                    src: "/webgateway/render_thumbnail/" + image.id + "/?version=" + image.thumbVersion,
+	                    src: WEBCLIENT.URLS.webindex + "render_thumbnail/" + image.id + "/?version=" + thumbVersion,
 	                    title: image.name })
 	            ),
 	            _react2.default.createElement(
