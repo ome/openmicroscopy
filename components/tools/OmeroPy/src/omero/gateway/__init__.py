@@ -1530,6 +1530,15 @@ class _BlitzGateway (object):
                 int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
 
+    def getClientSettings(self):
+        """
+        Returns all client properties matching omero.client.*
+        """
+        try:
+            return self.getConfigService().getClientConfigValues()
+        except:
+            return self.getConfigService().getClientConfigDefaults()
+
     def getRoiLimitSetting(self):
         try:
             roi_limit = (int(self.getConfigService().getConfigValue(
