@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import omero.model.Pixels;
 import omero.sys.EventContext;
 
 import org.springframework.util.ResourceUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -45,6 +47,9 @@ public class DeleteProjectedImageTest extends AbstractServerTest {
 
     /** Indicates to delete the both images. */
     private static final int BOTH_IMAGES = 2;
+
+    /* the IDs of the images left over by the tests */
+    private final List<Long> remainingImageIds = new ArrayList<Long>();
 
     /**
      * Imports the small dv.
@@ -151,11 +156,13 @@ public class DeleteProjectedImageTest extends AbstractServerTest {
             assertNull(iQuery.find(Image.class.getSimpleName(), id));
             //check that the projected image is still there
             assertNotNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            remainingImageIds.add(projectedID);
             break;
         case PROJECTED_IMAGE:
             assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
            //check that the original image is still there
             assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
+            remainingImageIds.add(id);
             break;
         case BOTH_IMAGES:
             assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
@@ -179,6 +186,16 @@ public class DeleteProjectedImageTest extends AbstractServerTest {
         final Delete2 delete = Requests.delete("Image", Arrays.asList(id, projectedID));
         final HandlePrx handle = client.getSession().submit(delete);
         new CmdCallbackI(client, handle).loop(50, scalingFactor);
+    }
+
+    /**
+     * Delete the images left over from the tests.
+     * @throws Exception unexpected
+     */
+    @AfterClass
+    public void cleanUpRemainingImages() throws Exception {
+        doChange(root, root.getSession(), Requests.delete("Image", remainingImageIds), true);
+        remainingImageIds.clear();
     }
 
     /**
