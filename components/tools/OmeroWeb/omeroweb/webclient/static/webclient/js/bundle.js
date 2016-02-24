@@ -20269,10 +20269,16 @@ var renderCentrePanel =
 	        var image = this.props.image,
 	            iconSizes = this.getIconSizes(),
 	            cls = [],
+	            thumbVersion = image.thumbVersion,
 	            divStyle = {
 	            width: this.props.iconSize + "px",
 	            height: this.props.iconSize + "px"
 	        };
+
+	        // if thumb is not yet created, don't cache!
+	        if (thumbVersion === -1) {
+	            thumbVersion = (Math.random() + "").slice(2);
+	        }
 
 	        if (image.selected) {
 	            cls.push('ui-selected');
