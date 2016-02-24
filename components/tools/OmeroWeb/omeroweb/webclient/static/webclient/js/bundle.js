@@ -20847,6 +20847,8 @@ var renderCentrePanel =
 	            pageSize = this.props.pageSize,
 	            imgCount = this.props.filteredCount,
 	            pageCount = Math.ceil(imgCount / pageSize);
+	        var prevEnabled = page > 1,
+	            nextEnabled = page < pageCount;
 
 	        var pages = [];
 	        for (var p = 1; p <= pageCount; p++) {
@@ -20869,12 +20871,12 @@ var renderCentrePanel =
 	                "Page: " + page,
 	                _react2.default.createElement(
 	                    'button',
-	                    { onClick: this.handlePrevPage },
+	                    { disabled: !prevEnabled, onClick: this.handlePrevPage },
 	                    'Prev'
 	                ),
 	                _react2.default.createElement(
 	                    'button',
-	                    { onClick: this.handleNextPage },
+	                    { disabled: !nextEnabled, onClick: this.handleNextPage },
 	                    'Next'
 	                ),
 	                _react2.default.createElement('br', null),

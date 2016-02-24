@@ -2137,6 +2137,11 @@ div.paging {
     margin: 0;
     padding: 10px 0px 30px 0px;
 }
+/* prev/next buttons */
+div.paging button {
+	margin-left: 5px;
+}
+/* page numbers <input> */
 div.paging input.button_pagination {
     border: 0;
     background-color: transparent;
