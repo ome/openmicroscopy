@@ -147,6 +147,12 @@ Returns a thumbnail jpeg of the OMERO Shape. See
 L{views.render_shape_thumbnail}. Uses current rendering settings.
 """
 
+render_shape_mask = (r'^render_shape_mask/(?P<shapeId>[0-9]+)/$',
+                     'webgateway.views.render_shape_mask')
+"""
+Returns a mask for the specified shape
+"""
+
 render_birds_eye_view = (
     r'^render_birds_eye_view/(?P<iid>[0-9]+)/(?:(?P<size>[0-9]+)/)?$',
     'webgateway.views.render_birds_eye_view')
@@ -410,6 +416,7 @@ urlpatterns = patterns(
     render_col_plot,
     render_roi_thumbnail,
     render_shape_thumbnail,
+    render_shape_mask,
     render_thumbnail,
     render_birds_eye_view,
     render_ome_tiff,
