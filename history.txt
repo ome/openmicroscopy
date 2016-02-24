@@ -1,6 +1,34 @@
 OMERO version history
 =====================
 
+5.2.2 (February 2016)
+---------------------
+
+A bug-fix release covering all components. Improvements include:
+
+-  measurement tool fixes
+-  support for units in the OMERO.web image viewer scalebar
+-  OMERO.web fixes to improve synchronicity when deleting many images
+-  better handling of dates in search
+-  client support for map annotations in OME.tiff
+-  fixes for displaying bulk annotations script in OMERO.insight
+-  OMERO.web clean-up to remove defunct volume viewer
+
+Developer updates include:
+
+-  OMERO.tables documentation extended
+-  updating 'What's New for developers' to clarify that ``pogos`` has been
+   renamed as ``omero.gateway.model``
+-  dynamic scripts functionality documented
+
+System administrator updates include:
+
+-  new configurations for fixing OMERO.web download issues
+-  documentation of hard-linking issues for in-place import on linux systems
+
+Note that the OMERO Virtual Appliance has been discontinued and will not be
+updated for version 5.2.2 or any later releases.
+
 5.2.1 (December 2015)
 ---------------------
 
