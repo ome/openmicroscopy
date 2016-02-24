@@ -566,6 +566,17 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     }
 
     /**
+     * Get the <q>simple</q> non-nested properties for the given class, not linking to other mapped classes.
+     * @param className the name of a class
+     * @return the <q>simple</q> properties of the given class; never {@code null}
+     * @deprecated instead use {@link #getSimpleProperties(String, boolean)} setting {@code isNested} to {@code false}
+     */
+    @Deprecated
+    public Set<String> getSimpleProperties(String className) {
+        return getSimpleProperties(className, false);
+    }
+
+    /**
      * Get the <q>simple</q> properties for the given class, not linking to other mapped classes.
      * @param className the name of a class
      * @param isNested if nested properties should have all components given separately with dot-notation
