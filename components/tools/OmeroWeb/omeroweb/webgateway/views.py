@@ -681,7 +681,8 @@ def render_shape_mask(request, shapeId, conn=None, **kwargs):
     binarray = numpy.unpackbits(intarray)
 
     # Couldn't get the 'proper' way of doing this to work,
-    # Maybe look at this again later?
+    # TODO: look at this again later. Faster than simple way below:
+    # E.g. takes ~2 seconds for 1984 x 1984 mask
     # pixels = ""
     # steps = len(binarray) / 8
     # for i in range(steps):
@@ -690,10 +691,11 @@ def render_shape_mask(request, shapeId, conn=None, **kwargs):
     #                           b[5], b[6], b[7])
     # for b in binarray:
     #     pixels += struct.pack("1B", b)
-    # print 'pixels', repr(pixels)
-    # im = Image.frombytes("1", size=(4,2), data=pixels)
+    # im = Image.frombytes("1", size=(width, height), data=pixels)
 
     # Simple approach - Just set each pixel in turn
+    # E.g. takes ~12 seconds for 1984 x 1984 mask with most pixels '1'
+    # Or ~5 seconds for same size mask with most pixels "0"
     img = Image.new("RGBA", size=(width, height), color=(0, 0, 0, 0))
     x = 0
     y = 0
