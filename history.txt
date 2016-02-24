@@ -17,7 +17,7 @@ A bug-fix release covering all components. Improvements include:
 Developer updates include:
 
 -  OMERO.tables documentation extended
--  updating 'What's New for developers' to clarify that ``pogos`` has been
+-  updating 'What's New for developers' to clarify that ``pojos`` has been
    renamed as ``omero.gateway.model``
 -  dynamic scripts functionality documented
 
