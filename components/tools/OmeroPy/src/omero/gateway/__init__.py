@@ -4723,7 +4723,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
             return fpath
         return f.id
 
-    def getFileInChunks(self):
+    def getFileInChunks(self, buf=2621440):
         """
         Returns a generator yielding chunks of the file data.
 
@@ -4731,7 +4731,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
         :rtype:     Generator
         """
 
-        return self.getFile().getFileInChunks()
+        return self.getFile().getFileInChunks(buf=buf)
 
 AnnotationWrapper._register(FileAnnotationWrapper)
 

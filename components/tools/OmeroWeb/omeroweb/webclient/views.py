@@ -2932,7 +2932,8 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
         return handlerInternalError(
             request, "Original File does not exists (id:%s)." % (fileId))
 
-    rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+    rsp = ConnCleaningHttpResponse(
+        orig_file.getFileInChunks(buf=settings.CHUNK_SIZE))
     rsp.conn = conn
     mimetype = orig_file.mimetype
     if mimetype == "text/x-python":
@@ -3045,7 +3046,8 @@ def download_annotation(request, annId, conn=None, **kwargs):
         return handlerInternalError(
             request, "Annotation does not exist (id:%s)." % (annId))
 
-    rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
+    rsp = ConnCleaningHttpResponse(
+        ann.getFileInChunks(buf=settings.CHUNK_SIZE))
     rsp.conn = conn
     rsp['Content-Type'] = 'application/force-download'
     rsp['Content-Length'] = ann.getFileSize()
