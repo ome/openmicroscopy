@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,17 +63,12 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.OutputServerStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
-import omero.gateway.exception.DSAccessException;
-import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
@@ -568,20 +564,37 @@ class ObjectManager
      */
     public void addRoisToFolder(Collection<ROIShape> selectedObjects,
             Collection<FolderData> folders) {
-        saveROIs();
-        Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
+        List<ROIData> allRois = model.getROIData();
+        Map<Long, ROIData> selectedRois = new HashMap<Long, ROIData>();
         for (ROIShape shape : selectedObjects) {
-            ROI roi = shape.getROI();
-            if (!rois.containsKey(roi.getID())) {
-                ROIData data = new ROIData();
-                data.setId(roi.getID());
-                data.setImage(model.getImage().asImage());
-                rois.put(roi.getID(), data);
+            if (!selectedRois.containsKey(shape.getID())) {
+                ROIData rd = findROI(allRois, shape.getROI());
+                if (rd != null)
+                    selectedRois.put(shape.getID(), rd);
             }
         }
-        model.addROIsToFolder(rois.values(), folders);
+        model.addROIsToFolder(allRois, selectedRois.values(), folders);
     }
-
+    
+    /**
+     * Find an {@link ROIData} within a collection by it's {@link ROI} uuid
+     * 
+     * @param coll
+     *            The collection of {@link ROIData}
+     * @param roi
+     *            The {@link ROI} to search for
+     * @return See above.
+     */
+    private ROIData findROI(Collection<ROIData> coll, ROI roi) {
+        Iterator<ROIData> it = coll.iterator();
+        while (it.hasNext()) {
+            ROIData next = it.next();
+            if (next.getUuid().equals(roi.getUUID()))
+                return next;
+        }
+        return null;
+    }
+    
     /**
      * Delete Folders
      * 
@@ -605,9 +618,11 @@ class ObjectManager
             Collection<FolderData> folders) {
         saveROIs();
         Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
-        for(ROIShape shape : selectedObjects) {
+        for (ROIShape shape : selectedObjects) {
             ROI roi = shape.getROI();
-            if(!rois.containsKey(roi.getID())) {
+            if (roi.isClientSide())
+                continue;
+            if (!rois.containsKey(roi.getID())) {
                 ROIData data = new ROIData();
                 data.setId(roi.getID());
                 data.setImage(model.getImage().asImage());
@@ -644,8 +659,9 @@ class ObjectManager
     
     /**
      * Save ROIs if there are unsaved ROIs
+     * @return The saved ROIs
      */
-    private void saveROIs() {
+    private Collection<ROIData> saveROIs() {
         if (model.hasROIToSave()) {
             Registry reg = MeasurementAgent.getRegistry();
             List<ROIData> roiList = model.getROIData();
@@ -653,7 +669,7 @@ class ObjectManager
                     .getUserDetails();
             OmeroImageService svc = reg.getImageService();
             try {
-                svc.saveROI(model.getSecurityContext(), model.getImageID(),
+                return svc.saveROI(model.getSecurityContext(), model.getImageID(),
                         exp.getId(), roiList);
 
             } catch (Exception e) {
@@ -663,6 +679,7 @@ class ObjectManager
                         new LogMessage("Could not save ROIs", e));
             }
         }
+        return Collections.EMPTY_LIST;
     }
 }
 

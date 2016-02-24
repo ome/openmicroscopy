@@ -351,7 +351,7 @@ class ImageDataViewImpl
 	
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#saveROI(long, Long, long, AgentEventListener)
+     * @see ImageDataView#saveROI(long, Long, long, List, AgentEventListener)
      */
 	public CallHandle saveROI(SecurityContext ctx, long imageID, long userID,
 			List<ROIData> roiList, AgentEventListener observer)
@@ -363,18 +363,18 @@ class ImageDataViewImpl
     /**
      * Implemented as specified by the view interface.
      * 
-     * @see ImageDataView#saveROIFolder(SecurityContext, long, long, Collection,
+     * @see ImageDataView#saveROIFolders(SecurityContext, long, long, Collection, Collection,
      *      Collection, ROIFolderAction, AgentEventListener)
      */
     public CallHandle saveROIFolders(SecurityContext ctx, long imageID,
-            long userID, Collection<ROIData> roiList,
+            long userID, Collection<ROIData> allROIs, Collection<ROIData> roiList,
             Collection<FolderData> folders, ROIFolderAction action,
             AgentEventListener observer) {
-        BatchCallTree cmd = new ROIFolderSaver(ctx, imageID, userID, roiList,
+        BatchCallTree cmd = new ROIFolderSaver(ctx, imageID, userID, allROIs, roiList,
                 folders, action);
         return cmd.exec(observer);
     }
-
+    
 	/**
      * Implemented as specified by the view interface.
      * @see ImageDataView#exportImageAsOMETiff(SecurityContext, long, File, Target,

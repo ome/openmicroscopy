@@ -378,15 +378,17 @@ public interface ImageDataView
      *            The user's ID.
      * @param roiList
      *            The list of ROI to save.
+     * @param allROIs
+     *            All ROIs
      * @param folders
      *            The ROI folders
      * @param action
      *            The action to perform
      */
     public CallHandle saveROIFolders(SecurityContext ctx, long imageID,
-            long userID, Collection<ROIData> roiList,
-            Collection<FolderData> folders, ROIFolderAction action,
-            AgentEventListener observer);
+            long userID, Collection<ROIData> allROIs,
+            Collection<ROIData> roiList, Collection<FolderData> folders,
+            ROIFolderAction action, AgentEventListener observer);
     
 	/**
 	 * Exports the image as an XML file.

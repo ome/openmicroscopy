@@ -193,10 +193,11 @@ public class OutputServerStrategy
 	 * @return See above.
 	 * @throws Exception If an error occurred while parsing the ROI.
 	 */
-	public ROIData createServerROI(ROI roi, ImageData image) 
+	private ROIData createServerROI(ROI roi, ImageData image) 
 		throws Exception
 	{
 		ROIData roiData = new ROIData();
+		roiData.setUuid(roi.getUUID());
 		roiData.setClientSide(roi.isClientSide());
 		if (!roi.isClientSide())
 			roiData.setId(roi.getID());
@@ -638,7 +639,7 @@ public class OutputServerStrategy
 	}
 	
 	/** Creates a new instance. */
-	public OutputServerStrategy() {}
+	OutputServerStrategy() {}
 
 	/**
 	 * Writes the ROI from the ROI component to the server. 

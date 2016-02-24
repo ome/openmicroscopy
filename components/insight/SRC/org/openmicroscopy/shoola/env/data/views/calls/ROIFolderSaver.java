@@ -28,10 +28,13 @@ import java.util.List;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
+import omero.gateway.util.Pojos;
 import omero.model.IObject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -57,6 +60,7 @@ public class ROIFolderSaver extends BatchCallTree {
      */
     private BatchCall makeSaveCall(final SecurityContext ctx,
             final long imageID, final long userID,
+            final Collection<ROIData> allROIs,
             final Collection<ROIData> roiList,
             final Collection<FolderData> folders, final ROIFolderAction action) {
         return new BatchCall("save ROI") {
@@ -66,6 +70,10 @@ public class ROIFolderSaver extends BatchCallTree {
                 DataManagerFacility dm = context.getGateway().getFacility(DataManagerFacility.class);
                 
                 if (action == ROIFolderAction.ADD_TO_FOLDER) {
+                    Collection<ROIData> notSelected = relativeComplement(
+                            roiList, allROIs);
+                    if (!notSelected.isEmpty())
+                        svc.saveROIs(ctx, imageID, notSelected);
                     svc.addRoisToFolders(ctx, imageID, roiList, folders);
                 } else if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
                     svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
@@ -86,6 +94,38 @@ public class ROIFolderSaver extends BatchCallTree {
     }
 
     /**
+     * Get the relative complement of coll1 in coll2
+     * 
+     * @param coll1
+     *            The collection
+     * @param coll2
+     *            The other collection
+     * @return The elements of coll2 which are not part of coll1
+     */
+    private static Collection<ROIData> relativeComplement(
+            Collection<ROIData> coll1, Collection<ROIData> coll2) {
+        if (CollectionUtils.isEmpty(coll1))
+            return coll2;
+        if (CollectionUtils.isEmpty(coll2))
+            return Collections.EMPTY_LIST;
+
+        Collection<ROIData> result = new ArrayList<ROIData>();
+        for (ROIData t : coll2) {
+            boolean found = false;
+            for (ROIData t2 : coll1) {
+                if (t.getUuid().equals(t2.getUuid())) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                result.add(t);
+        }
+        return result;
+    }
+    
+    /**
      * Adds the {@link #saveCall} to the computation tree.
      * 
      * @see BatchCallTree#buildTree()
@@ -102,7 +142,7 @@ public class ROIFolderSaver extends BatchCallTree {
     protected Object getResult() {
         return result;
     }
-
+    
     /**
      * Creates a new instance.
      * 
@@ -112,13 +152,16 @@ public class ROIFolderSaver extends BatchCallTree {
      *            The image's ID.
      * @param userID
      *            The user's ID.
+     * @param allROIs
+     *            All ROIs
      * @param roiList
      *            The list of ROIs to save.
      */
     public ROIFolderSaver(SecurityContext ctx, long imageID, long userID,
-            Collection<ROIData> roiList, Collection<FolderData> folders,
-            ROIFolderAction action) {
-        saveCall = makeSaveCall(ctx, imageID, userID, roiList, folders, action);
+            Collection<ROIData> allROIs, Collection<ROIData> roiList,
+            Collection<FolderData> folders, ROIFolderAction action) {
+        saveCall = makeSaveCall(ctx, imageID, userID, allROIs, roiList,
+                folders, action);
     }
 
 }

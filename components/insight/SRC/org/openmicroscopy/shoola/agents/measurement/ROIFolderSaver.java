@@ -48,6 +48,9 @@ public class ROIFolderSaver extends MeasurementViewerLoader {
 
     /** The ROI data to save. */
     private Collection<ROIData> roiList;
+    
+    /** All ROIs */
+    private Collection<ROIData> allROIs;
 
     /** The ROI folders */
     private Collection<FolderData> folders;
@@ -78,11 +81,40 @@ public class ROIFolderSaver extends MeasurementViewerLoader {
     public ROIFolderSaver(MeasurementViewer viewer, SecurityContext ctx,
             long imageID, long userID, Collection<ROIData> roiList,
             Collection<FolderData> folders, ROIFolderAction action) {
+        this(viewer, ctx, imageID, userID, null, roiList, folders, action);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer
+     *            The viewer this data loader is for. Mustn't be
+     *            <code>null</code>.
+     * @param ctx
+     *            The security context.
+     * @param imageID
+     *            The id of the image the ROIs are related to.
+     * @param userID
+     *            The id of the user.
+     * @param allROIs
+     *            All ROIs
+     * @param roiList
+     *            The list of the roi id's to load.
+     * @param folders
+     *            The collection of folders
+     * @param action
+     *            The action to perform
+     */
+    public ROIFolderSaver(MeasurementViewer viewer, SecurityContext ctx,
+            long imageID, long userID, Collection<ROIData> allROIs,
+            Collection<ROIData> roiList, Collection<FolderData> folders,
+            ROIFolderAction action) {
         super(viewer, ctx);
         if (imageID < 0)
             throw new IllegalArgumentException("No image specified.");
         this.imageID = imageID;
         this.userID = userID;
+        this.allROIs = allROIs;
         this.roiList = roiList;
         this.folders = folders;
         this.action = action;
@@ -94,7 +126,8 @@ public class ROIFolderSaver extends MeasurementViewerLoader {
      * @see MeasurementViewerLoader#load()
      */
     public void load() {
-        handle = idView.saveROIFolders(ctx, imageID, userID, roiList, folders, action, this);
+        handle = idView.saveROIFolders(ctx, imageID, userID, allROIs, roiList,
+                folders, action, this);
     }
 
     /**

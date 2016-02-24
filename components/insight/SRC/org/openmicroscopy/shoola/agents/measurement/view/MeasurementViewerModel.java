@@ -1203,17 +1203,19 @@ class MeasurementViewerModel
     /**
      * Add ROIs to Folders
      * 
+     * @param allROIs
+     *            All ROIs
      * @param selectedObjects
      *            The ROIs
      * @param folders
      *            The Folders
      */
-    void addROIsToFolder(Collection<ROIData> selectedObjects,
-            Collection<FolderData> folders) {
+    void addROIsToFolder(Collection<ROIData> allROIs,
+            Collection<ROIData> selectedObjects, Collection<FolderData> folders) {
         ExperimenterData exp = (ExperimenterData) MeasurementAgent
                 .getUserDetails();
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),
-                getImageID(), exp.getId(), selectedObjects, folders,
+                getImageID(), exp.getId(), allROIs, selectedObjects, folders,
                 ROIFolderAction.ADD_TO_FOLDER);
         currentSaver.load();
         state = MeasurementViewer.SAVING_ROI;

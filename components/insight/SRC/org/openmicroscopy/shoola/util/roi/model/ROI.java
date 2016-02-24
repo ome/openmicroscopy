@@ -31,8 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import omero.gateway.model.FolderData;
+import omero.gateway.model.ROIData;
 
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -98,6 +100,9 @@ public class ROI
 	/** The identifier of the owner. */
 	private long ownerID;
 
+	/** An UUID (can be used to link an {@link ROI} to an according {@link ROIData} object)*/
+	private String uuid;
+	
 	/** 
 	 * Initializes the ROI with id and construct the TreeMap to contain 
 	 * the ROIShapes of the ROI and there mapping the coord3D they exist on.
@@ -119,7 +124,18 @@ public class ROI
    		this.editable = editable;
 		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		attachments = new AttachmentMap();
+		this.uuid = UUID.randomUUID().toString();
 	}
+	
+    /**
+     * Get the UUID (can be used to link an {@link ROI} to an according
+     * {@link ROIData} object)
+     * 
+     * @return See above.
+     */
+    public String getUUID() {
+        return uuid;
+    }
 	
     /**
      * Construct the ROI with id.

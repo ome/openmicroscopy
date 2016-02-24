@@ -64,6 +64,9 @@ public class ROIData
     /** The folders this ROI is part of */
     private Collection<FolderData> folders = new ArrayList<FolderData>();
     
+    /** An optional UUID for the object */
+    private String uuid = "";
+    
     /** Initializes the map. */
     private void initialize()
     {
@@ -317,4 +320,22 @@ public class ROIData
         return folders;
     }
 
+    /**
+     * Get the UUID
+     * 
+     * @return See above
+     */
+    public String getUuid() {
+        return uuid;
+    }
+
+    /**
+     * Set the UUID
+     * 
+     * @param uuid
+     *            The UUID
+     */
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 }
