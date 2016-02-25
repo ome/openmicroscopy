@@ -27,21 +27,30 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
+import javax.swing.ListSelectionModel;
 import javax.swing.ToolTipManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
+
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
@@ -54,16 +63,22 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.agents.util.ui.SelectionDialog;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 
+import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 
 /**
@@ -83,7 +98,7 @@ import omero.gateway.model.FolderData;
  */
 public class ROITable 
 	extends OMETreeTable
-	implements ROIActionController
+	implements ROIActionController, PropertyChangeListener
 {
 
 	/** The root node of the tree. */
@@ -106,6 +121,19 @@ public class ROITable
 
 	/** Flag indicating to reset the component when loading locally.*/
 	private boolean reset;
+	
+	/** The type of action currently performed */
+	private CreationActionType action;
+	
+	/** Holds the previously used selection, used for resetting the selection */
+	private int[] previousSelectionIndices;
+	
+	/**
+	 * The type of objects selected
+	 */
+	enum SelectionType {
+	    ROIS, SHAPES, FOLDERS, MIXED
+	}
 	
 	/**
 	 * Returns <code>true</code> if all the roishapes in the shapelist 
@@ -200,17 +228,81 @@ public class ROITable
 		setTreeCellRenderer(new ROITableCellRenderer());
 		popupMenu = new ROIPopupMenu(this);
 		reset = false;
+		
+		// make sure either shapes or folders can be selected, not both
+        selectionModel.addListSelectionListener(new ListSelectionListener() {
+            boolean active = true;
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!active)
+                    return;
+
+                if (getSelectionType(getSelectedObjects()) == SelectionType.MIXED
+                        && previousSelectionIndices != null) {
+                    active = false;
+                    selectionModel.clearSelection();
+                    for (int i : previousSelectionIndices)
+                        selectionModel.addSelectionInterval(i, i);
+                    active = true;
+                } else
+                    previousSelectionIndices = getSelectedRows();
+            }
+        });
 	}
 	
-	/** 
-	 * Invokes when new figures are selected.
-	 * 
-	 * @param figures The selected figures.
-	 */
-	void onSelectedFigures(Collection<Figure> figures)
-	{
-		popupMenu.setActionsEnabled(figures);
-	}
+    /**
+     * Determines which type of objects are selected
+     * 
+     * @param selection
+     *            The objects
+     * @return The {@link SelectionType}
+     */
+    SelectionType getSelectionType(Collection<Object> selection) {
+        SelectionType result = null;
+        for (Object obj : selection) {
+            SelectionType tmp = null;
+            if (obj instanceof ROI)
+                tmp = SelectionType.ROIS;
+            else if (obj instanceof ROIShape)
+                tmp = SelectionType.SHAPES;
+            else if (obj instanceof FolderData)
+                tmp = SelectionType.FOLDERS;
+
+            if (result == null) {
+                result = tmp;
+            } else {
+                if (result != tmp) {
+                    return SelectionType.MIXED;
+                }
+            }
+        }
+        return result;
+    }
+	
+    /**
+     * Invoked when the selection has changed
+     * 
+     * @param selection
+     *            The selected Objects.
+     */
+    void onSelection(Collection<Object> selection) {
+        popupMenu.setActionsEnabled(selection);
+
+        if (popupMenu.isActionEnabled(CreationActionType.REMOVE_FROM_FOLDER)) {
+            // disable 'remove from folder action' if rois aren't in any folders
+            List<ROIShape> selectedObjects = getSelectedROIShapes();
+            Map<Long, Object> inFolders = new HashMap<Long, Object>();
+            for (ROIShape shape : selectedObjects) {
+                for (FolderData f : shape.getROI().getFolders()) {
+                    if (!inFolders.containsKey(f.getId()))
+                        inFolders.put(f.getId(), f);
+                }
+            }
+            popupMenu.enableAction(CreationActionType.REMOVE_FROM_FOLDER,
+                    !inFolders.isEmpty());
+        }
+    }
 	
 	/** 
 	 * Select the ROIShape in the TreeTable and move the view port of the 
@@ -608,6 +700,16 @@ public class ROITable
         return insertInto;
     }
     
+    private ROINode getFolderNode(FolderData f) {
+        for (ROINode node : nodes) {
+            if (node.isFolderNode()) {
+                if (((FolderData) node.getUserObject()).getId() == f.getId())
+                    return node;
+            }
+        }
+        return null;
+    }
+    
     /**
      * Adds the node to the parent; will create the parent hierarchy
      * if it doesn't exist yet.
@@ -653,6 +755,25 @@ public class ROITable
         return null;
     }
     
+    /**
+     * Initializes the Folder nodes, independently from the ROIs
+     * 
+     * @param folder
+     *            The folders
+     */
+    public void initFolders(Collection<FolderData> folders) {
+        for (FolderData f : folders) {
+            ROINode node = findFolderNode(nodes, f);
+            if (node == null) {
+                node = new ROINode(f);
+                nodes.add(node);
+                handleParentFolderNodes(node);
+            }
+        }
+        model = new ROITableModel(root, columnNames);
+        this.setTreeTableModel(model);
+    }
+    
 	/**
 	 * Invokes when a ROIShape has changed its properties. 
 	 * 
@@ -687,7 +808,7 @@ public class ROITable
 	 * This will only list an roi even if the roi and roishapes are selected.
 	 * @return see above.
 	 */
-	List getSelectedObjects()
+	Collection<Object> getSelectedObjects()
 	{
 		int [] selectedRows = this.getSelectedRows();
 		TreeMap<Long, Object> roiMap = new TreeMap<Long, Object>(); 
@@ -705,6 +826,7 @@ public class ROITable
 			}
 		}
 		ROIShape roiShape;
+		FolderData folder;
 		for (int i = 0 ; i < selectedRows.length ; i++)
 		{	
 			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
@@ -714,7 +836,14 @@ public class ROITable
 				if (!roiMap.containsKey(roiShape.getID()))
 					selectedList.add(roiShape);
 			}
+			
+			else if (nodeObject instanceof FolderData)
+            {
+			    folder = (FolderData) nodeObject;
+                selectedList.add(folder);
+            }
 		}
+		
 		return selectedList;
 	}
 
@@ -843,6 +972,25 @@ public class ROITable
 	}
 	
 	/**
+     * Get the selected Folders
+     * @return see above.
+     */
+    List<FolderData> getSelectedFolders()
+    {
+        List<FolderData> result = new ArrayList<FolderData>();
+        int [] selectedRows = this.getSelectedRows();
+        for (int i = 0 ; i < selectedRows.length ; i++)
+        {
+            Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+            if (nodeObject instanceof FolderData)
+            {
+                result.add((FolderData)nodeObject);
+            }
+        }
+        return result;
+    }
+	
+	/**
 	 * Duplicates the ROI
 	 * @see ROIActionController#duplicateROI()
 	 */
@@ -965,35 +1113,33 @@ public class ROITable
 					"and on separate planes.");
 	}
 	
-	/**
-	 * Extending the mouse pressed event to show menu. 
-	 * 
-	 * @param e mouse event.
-	 */
-	protected void onMousePressed(MouseEvent e)
-	{
-		if (MeasurementViewerControl.isRightClick(e)) {
-			Collection l = getSelectedObjects();
-			if (l == null || l.size() == 0) return;
-			Iterator i = l.iterator();
-			Object o;
-			ROI roi;
-			ROIShape shape;
-			List<Figure> list = new ArrayList<Figure>();
-			while (i.hasNext()) {
-				o =  i.next();
-				if (o instanceof ROI) {
-					roi = (ROI) o;
-					list.addAll(roi.getAllFigures());
-				} else if (o instanceof ROIShape) {
-					shape = (ROIShape) o;
-					list.add(shape.getFigure());
-				}
-			}
-			onSelectedFigures(list);
-			showROIManagementMenu(this, e.getX(), e.getY());
-		}
-	}
+    /**
+     * Extending the mouse pressed event to show menu.
+     * 
+     * @param e
+     *            mouse event.
+     */
+    protected void onMousePressed(MouseEvent e) {
+        if (MeasurementViewerControl.isRightClick(e)) {
+            // consider right click also as selection click before handling the
+            // popup menu
+            int row = rowAtPoint(e.getPoint());
+            ListSelectionModel m = getSelectionModel();
+            if (!m.isSelectedIndex(row)) {
+                if (e.isControlDown())
+                    m.addSelectionInterval(row, row);
+                else if (e.isShiftDown())
+                    m.addSelectionInterval(m.getAnchorSelectionIndex(), row);
+                else {
+                    getSelectionModel().clearSelection();
+                    m.addSelectionInterval(row, row);
+                }
+            }
+
+            onSelection(getSelectedObjects());
+            showROIManagementMenu(this, e.getX(), e.getY());
+        }
+    }
 
 	/**
 	 * Overridden to display the tool tip.
@@ -1017,35 +1163,11 @@ public class ROITable
 		}
 		else if(node.isFolderNode()) {
 		    FolderData f = (FolderData) object;
-		    StringBuilder sb = new StringBuilder();
-		    generatePath(f, sb, '>');
-		    return sb.toString();
+		    f.getFolderPathString();
+		    return "Owner: "+f.getOwner().getUserName()+"; Permissions: "+f.getPermissions();
 		}
 		return "";
 	}
-
-    /**
-     * Generates the path string of a {@link FolderData}
-     * 
-     * @param f
-     *            The folder
-     * @param sb
-     *            The {@link StringBuilder} the path is written to
-     * @param pathSeparator
-     *            The path separator character
-     */
-    private void generatePath(FolderData f, StringBuilder sb, char pathSeparator) {
-        sb.insert(0, f.getName());
-        FolderData parent = f.getParentFolder();
-        if (parent != null) {
-            if (parent.isLoaded()) {
-                sb.insert(0, pathSeparator);
-                generatePath(f.getParentFolder(), sb, pathSeparator);
-            } else
-                MeasurementAgent.getRegistry().getLogger()
-                        .warn(this, "FolderData hierarchy not loaded.");
-        }
-    }
     
 	/** 
      * Loads the tags. 
@@ -1055,5 +1177,173 @@ public class ROITable
     public void loadTags() {
         manager.loadTags();
     }
+
+    @Override
+    public void addToFolder() {
+        action = CreationActionType.ADD_TO_FOLDER;
+        Collection<Object> tmp = new ArrayList<Object>();
+        for(FolderData folder : manager.getFolders()) {
+            ROINode folderNode = getFolderNode(folder);
+            if((folderNode.isLeaf() || folderNode.containsROIs()) && folder.canLink())
+                tmp.add(folder);
+        }
+        SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
+        wiz.setTitle("Add to ROI Folders", "Select the Folders to add the ROI(s) to", IconManager.getInstance().getIcon(IconManager.ROIFOLDER));
+        wiz.addPropertyChangeListener(this);
+        UIUtilities.centerAndShow(wiz);
+    }
+
+    @Override
+    public void removeFromFolder() {
+        action = CreationActionType.REMOVE_FROM_FOLDER;
+        List<ROIShape> selectedObjects = getSelectedROIShapes();
+        Map<Long, Object> inFolders = new HashMap<Long, Object>();
+        for (ROIShape shape : selectedObjects) {
+            for (FolderData f : shape.getROI().getFolders()) {
+                if (!inFolders.containsKey(f.getId()))
+                    inFolders.put(f.getId(), f);
+            }
+        }
+        
+        SelectionWizard wiz = new SelectionWizard(null, inFolders.values(),
+                FolderData.class, MeasurementAgent.getUserDetails());
+        wiz.setTitle("Remove from ROI Folders",
+                "Select the Folders to remove the ROI(s) from", IconManager
+                        .getInstance().getIcon(IconManager.ROIFOLDER));
+        wiz.addPropertyChangeListener(this);
+        UIUtilities.centerAndShow(wiz);
+    }
+    
+    @Override
+    public void createFolder() {
+        action = CreationActionType.CREATE_FOLDER;
+        DataObject obj = new FolderData();
+        EditorDialog d = new EditorDialog((JFrame) null, obj, false);
+        d.addPropertyChangeListener(this);
+        UIUtilities.centerAndShow(d);
+    }
+    
+    @Override
+    public void deleteFolder() {
+        action = CreationActionType.DELETE_FOLDER;
+        List<FolderData> selection = getSelectedFolders();
+        manager.deleteFolders(selection);
+    }
+    
+    @Override
+    public void editFolder() {
+        action = CreationActionType.EDIT_FOLDER;
+        
+        List<FolderData> selection = getSelectedFolders();
+        if(selection.size()==1) {
+            DataObject obj = selection.get(0);
+            EditorDialog d = new EditorDialog((JFrame) null, obj, false, EditorDialog.EDIT_TYPE);
+            d.addPropertyChangeListener(this);
+            UIUtilities.centerAndShow(d);
+        }
+    }
+    
+    @Override
+    public void moveFolder() {
+        action = CreationActionType.MOVE_FOLDER;
+
+        // subnodes and direct parent nodes of the selected nodes have to 
+        // be excluded from the available nodes
+        Set<Long> excludeIds = new HashSet<Long>();
+        for (FolderData f : getSelectedFolders()) {
+            excludeIds.add(f.getId());
+            if (f.getParentFolder() != null)
+                excludeIds.add(f.getParentFolder().getId());
+            ROINode fnode = getFolderNode(f);
+            Collection<ROINode> subNodes = new ArrayList<ROINode>();
+            fnode.getAllDecendants(subNodes);
+            for (ROINode subNode : subNodes)
+                if (subNode.isFolderNode())
+                    excludeIds.add(((FolderData) subNode.getUserObject())
+                            .getId());
+        }
+
+        Collection<DataObject> tmp = new ArrayList<DataObject>();
+        for (FolderData folder : manager.getFolders()) {
+            ROINode folderNode = getFolderNode(folder);
+            if (!excludeIds.contains(folder.getId()) && folder.canLink()
+                    && (folderNode.isLeaf() || folderNode.containsFolders()))
+                tmp.add(folder);
+        }
+
+        SelectionDialog d = new SelectionDialog(tmp, "Destination Folder",
+                "Move to selected Folder:", true);
+        d.addPropertyChangeListener(this);
+        UIUtilities.centerAndShow(d);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        String name = evt.getPropertyName();
+        if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+
+            List<ROIShape> selectedObjects = getSelectedROIShapes();
+            Collection<FolderData> folders = null;
+
+            Map m = (Map) evt.getNewValue();
+            if (m == null || m.size() != 1)
+                return;
+            Set set = m.entrySet();
+            Entry entry;
+            Iterator i = set.iterator();
+            Class type;
+            while (i.hasNext()) {
+                entry = (Entry) i.next();
+                type = (Class) entry.getKey();
+                if (FolderData.class.getName().equals(type.getName())) {
+                    folders = (Collection<FolderData>) entry.getValue();
+                    break;
+                }
+            }
+
+            if (folders == null)
+                return;
+
+            if (action==CreationActionType.ADD_TO_FOLDER) {
+                manager.addRoisToFolder(selectedObjects, folders);
+            } else if(action==CreationActionType.REMOVE_FROM_FOLDER){
+                manager.removeRoisFromFolder(selectedObjects, folders);
+            }
+        }
+        
+        if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name) ||
+                EditorDialog.CREATE_PROPERTY.equals(name)) {
+            FolderData parent = null;
+            List<FolderData> sel = getSelectedFolders();
+            if (sel.size() == 1)
+                parent = sel.get(0);
+            
+            Collection<FolderData> toSave = new ArrayList<FolderData>();
+            
+            FolderData folder = (FolderData) evt.getNewValue();
+            if(action == CreationActionType.CREATE_FOLDER && parent!=null) {
+                folder.setParentFolder(parent.asFolder());
+            }
+            
+            toSave.add(folder);
+            
+            manager.saveROIFolders(Collections.singleton(folder));
+        } 
+        
+        if (SelectionDialog.OBJECT_SELECTION_PROPERTY.equals(name)) {
+            FolderData folder = getSelectedFolders().get(0);
+            FolderData target = (FolderData) evt.getNewValue();
+            folder.setParentFolder(target.asFolder());
+            manager.saveROIFolders(Collections.singleton(folder));
+        }
+
+        if (SelectionDialog.NONE_SELECTION_PROPERTY.equals(name)) {
+            FolderData folder = getSelectedFolders().get(0);
+            folder.setParentFolder(null);
+            manager.saveROIFolders(Collections.singleton(folder));
+        }
+    }
+    
+    
 }
 

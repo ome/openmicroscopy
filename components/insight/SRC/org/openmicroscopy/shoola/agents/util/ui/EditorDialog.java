@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -59,6 +59,7 @@ import omero.gateway.model.BooleanAnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.DoubleAnnotationData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.LongAnnotationData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
@@ -342,6 +343,10 @@ public class EditorDialog
         } else if (data instanceof String) {
             typeName = "Error";
         }
+        else if (data instanceof FolderData) {
+            typeName = "Folder";
+            icon = im.getIcon(IconManager.ROI_FOLDER);
+        }
         switch (type) {
         case CREATE_TYPE:
             tp = new TitlePanel("Create "+typeName,
@@ -452,6 +457,13 @@ public class EditorDialog
 			d.setValue(Boolean.parseBoolean(checkBox.getSelectedItem().toString()));
         	data = d;
         }
+        else if (data instanceof FolderData) {
+            FolderData d = (FolderData) data;
+            d.setName(name);
+            String text = descriptionArea.getText().trim();
+            if (text.length() > 0) d.setDescription(text);
+            data = d;
+        }
         if (withParent) 
         	firePropertyChange(CREATE_PROPERTY, null, data);
         else 
@@ -477,7 +489,8 @@ public class EditorDialog
                 object instanceof String ||
                 object instanceof DoubleAnnotationData ||
                 object instanceof LongAnnotationData ||
-                object instanceof BooleanAnnotationData) return;
+                object instanceof BooleanAnnotationData ||
+                object instanceof FolderData) return;
         throw new IllegalArgumentException("Object not supported.");
     }
 
@@ -504,6 +517,8 @@ public class EditorDialog
         	return ""+((LongAnnotationData)data).getDataValue();
         if (data instanceof String) 
         	return data.toString();
+        if (data instanceof FolderData)
+            return ((FolderData)data).getName();
         return "";
     }
 
@@ -528,6 +543,8 @@ public class EditorDialog
             return ((XMLAnnotationData) data).getDescription();
         if (data instanceof String) 
         	return data.toString();
+        if (data instanceof FolderData)
+            return ((FolderData)data).getDescription();
         return "";
     }
 

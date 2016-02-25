@@ -22,8 +22,26 @@
 package omero.gateway.model;
 
 import static omero.rtypes.rstring;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import omero.model.Annotation;
+import omero.model.BooleanAnnotation;
+import omero.model.CommentAnnotation;
+import omero.model.DoubleAnnotation;
+import omero.model.FileAnnotation;
 import omero.model.Folder;
+import omero.model.FolderAnnotationLink;
 import omero.model.FolderI;
+import omero.model.FolderImageLink;
+import omero.model.FolderRoiLink;
+import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
+import omero.model.TagAnnotation;
+import omero.model.TermAnnotation;
+import omero.model.TimestampAnnotation;
+import omero.model.XmlAnnotation;
 
 /**
  * Pojo wrapper for an <i>OME</i> Folder.
@@ -32,6 +50,12 @@ import omero.model.FolderI;
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class FolderData extends DataObject {
+
+    /** Caches the folder path string */
+    private String folderPathString = null;
+
+    /** Caches the folder path separator character */
+    private char folderPathSeparatorChar = '>';
 
     /** Creates a new instance. */
     public FolderData() {
@@ -90,7 +114,7 @@ public class FolderData extends DataObject {
      */
     public String getDescription() {
         return asFolder().getDescription() != null ? asFolder()
-                .getDescription().getValue() : null;
+                .getDescription().getValue() : "";
     }
 
     /**
@@ -134,4 +158,144 @@ public class FolderData extends DataObject {
     public void setFolder(Folder f) {
         setValue(f);
     }
+    
+    /**
+     * Copy the list of child folders, see {@link Folder#copyChildFolders()}
+     * 
+     * @return See above.
+     */
+    public List<FolderData> copyChildFolders() {
+        Folder f = asFolder();
+        List<Folder> children = f.copyChildFolders();
+        List<FolderData> result = new ArrayList<FolderData>(children.size());
+        for (Folder child : children)
+            result.add(new FolderData(child));
+        return result;
+    }
+
+    /**
+     * Copy the list of annotation links, see
+     * {@link Folder#copyAnnotationLinks()}
+     * 
+     * @return See above.
+     */
+    public List<AnnotationData> copyAnnotationLinks() {
+        Folder f = asFolder();
+
+        List<FolderAnnotationLink> links = f.copyAnnotationLinks();
+        List<AnnotationData> result = new ArrayList<AnnotationData>(
+                links.size());
+        for (FolderAnnotationLink l : links) {
+            Annotation anno = l.getChild();
+            if (anno instanceof BooleanAnnotation) {
+                result.add(new BooleanAnnotationData((BooleanAnnotation) anno));
+            } else if (anno instanceof DoubleAnnotation) {
+                result.add(new DoubleAnnotationData((DoubleAnnotation) anno));
+            } else if (anno instanceof FileAnnotation) {
+                result.add(new FileAnnotationData((FileAnnotation) anno));
+            } else if (anno instanceof LongAnnotation) {
+                result.add(new LongAnnotationData((LongAnnotation) anno));
+            } else if (anno instanceof MapAnnotation) {
+                result.add(new MapAnnotationData((MapAnnotation) anno));
+            } else if (anno instanceof TagAnnotation) {
+                result.add(new TagAnnotationData((TagAnnotation) anno));
+            } else if (anno instanceof TermAnnotation) {
+                result.add(new TermAnnotationData((TermAnnotation) anno));
+            } else if (anno instanceof CommentAnnotation) {
+                result.add(new TextualAnnotationData((CommentAnnotation) anno));
+            } else if (anno instanceof TimestampAnnotation) {
+                result.add(new TimeAnnotationData((TimestampAnnotation) anno));
+            } else if (anno instanceof XmlAnnotation) {
+                result.add(new XMLAnnotationData((XmlAnnotation) anno));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Copy the list of image links, see {@link Folder#copyImageLinks()}
+     * 
+     * @return See above.
+     */
+    public List<ImageData> copyImageLinks() {
+        Folder f = asFolder();
+
+        List<FolderImageLink> links = f.copyImageLinks();
+        List<ImageData> result = new ArrayList<ImageData>(links.size());
+        for (FolderImageLink l : links) {
+            result.add(new ImageData(l.getChild()));
+        }
+        return result;
+    }
+
+    /**
+     * Copy the list of roi links, see {@link Folder#copyRoiLinks()}
+     * 
+     * @return See above.
+     */
+    public List<ROIData> copyROILinks() {
+        Folder f = asFolder();
+
+        List<FolderRoiLink> links = f.copyRoiLinks();
+        List<ROIData> result = new ArrayList<ROIData>(links.size());
+        for (FolderRoiLink l : links) {
+            result.add(new ROIData(l.getChild()));
+        }
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return getFolderPathString() + " [id=" + getId() + "]";
+    }
+
+    /**
+     * Returns the folder path as string
+     * 
+     * @return See above
+     */
+    public String getFolderPathString() {
+        return getFolderPathString(folderPathSeparatorChar);
+    }
+
+    /**
+     * Returns the folder path as string using a custom path separator
+     * 
+     * @param pathSeparator
+     *            The path separator character
+     * @return See above
+     */
+    public String getFolderPathString(char pathSeparator) {
+        if (folderPathString == null
+                || folderPathSeparatorChar != pathSeparator) {
+            StringBuilder sb = new StringBuilder();
+            generateFolderPath(this, sb, pathSeparator);
+            folderPathString = sb.toString();
+            folderPathSeparatorChar = pathSeparator;
+        }
+        return folderPathString;
+    }
+
+    /**
+     * Generates the path string of a {@link FolderData}
+     * 
+     * @param f
+     *            The folder
+     * @param sb
+     *            The {@link StringBuilder} the path is written to
+     * @param pathSeparator
+     *            The path separator character
+     */
+    private void generateFolderPath(FolderData f, StringBuilder sb,
+            char pathSeparator) {
+        sb.insert(0, f.getName());
+        FolderData parent = f.getParentFolder();
+        if (parent != null) {
+            if (parent.isLoaded()) {
+                sb.insert(0, " " + pathSeparator + " ");
+                generateFolderPath(f.getParentFolder(), sb, pathSeparator);
+            }
+        }
+    }
+
 }

@@ -539,11 +539,14 @@ public class IconManager
     /** The <code>Public Group</code> icon. */
     public static final int PUBLIC_GROUP_READ_WRITE = 158;
     
+    /** The <code>Folder</code> icon. */
+    public static final int ROI_FOLDER = 159;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing.
      */
-    private static int MAX_ID = 158;
+    private static int MAX_ID = 159;
 
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
@@ -710,6 +713,7 @@ public class IconManager
         relPaths[SELECTED] = "tick_check16.png";
         relPaths[NOT_SELECTED] = "empty_check16.png";
         relPaths[PUBLIC_GROUP_READ_WRITE] = "public_read16.png";
+        relPaths[ROI_FOLDER] = "ROI-foldertest-24.png";
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -838,6 +838,7 @@ class MeasurementViewerUI
     void selectFigure(ROIFigure figure)
     {
     	if (figure == null) {
+    	    model.getDrawingView().clearSelection();
     		model.getDrawingView().setToolTipText("");
     		return;
     	}
@@ -862,7 +863,6 @@ class MeasurementViewerUI
     	dv.addToSelection(figure);
 		List<ROIShape> roiShapeList = new ArrayList<ROIShape>();
 		roiShapeList.add(figure.getROIShape());
-		dv.grabFocus();
 		if (model.isHCSData()) {
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<ROIShape> j = roiShapeList.iterator();
@@ -895,7 +895,7 @@ class MeasurementViewerUI
     void setSelectedFigures(Collection figures)
     {
     	if (model.getState() != MeasurementViewer.READY) return;
-		if (figures == null) return;
+		if (figures == null || figures.isEmpty()) return;
 		Iterator i = figures.iterator();
 		ROIFigure figure;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();

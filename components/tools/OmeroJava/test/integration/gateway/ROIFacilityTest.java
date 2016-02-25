@@ -22,6 +22,7 @@ package integration.gateway;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -60,17 +61,19 @@ public class ROIFacilityTest extends GatewayTest {
 
     private ImageData img;
     private ROIFacility roifac;
+    private BrowseFacility browse;
     private Collection<ROIData> rois;
     
     private ImageData folderImg;
     private FolderData folder;
-    private Set<Long> folderRoiIds;
+    private Collection<ROIData> folderRois;
 
     @Override
     @BeforeClass(alwaysRun = true)
     protected void setUp() throws Exception {
         super.setUp();
         roifac = gw.getFacility(ROIFacility.class);
+        browse = gw.getFacility(BrowseFacility.class);
         initData();
     }
 
@@ -144,6 +147,10 @@ public class ROIFacilityTest extends GatewayTest {
                 rois.add(rd);
         Assert.assertEquals(2, rois.size());
 
+        Set<Long> folderRoiIds = new HashSet<Long>();
+        for(ROIData d : folderRois)
+            folderRoiIds.add(d.getId());
+        
         Iterator<ROIData> it = rois.iterator();
         while (it.hasNext()) {
             ROIData r = it.next();
@@ -151,6 +158,53 @@ public class ROIFacilityTest extends GatewayTest {
                 it.remove();
         }
         Assert.assertTrue(rois.isEmpty());
+    }
+    
+    @Test(dependsOnMethods = { "testRemoveROIsFromFolder" })
+    public void testAddROIsToFolder() throws Exception {
+        folder = browse
+                .getFolders(rootCtx, Collections.singletonList(folder.getId()))
+                .iterator().next();
+        Assert.assertTrue(folder.copyROILinks().isEmpty());
+        
+        roifac.addRoisToFolders(rootCtx, folderImg.getId(), folderRois,
+                Collections.singletonList(folder));
+
+        folder = browse
+                .getFolders(rootCtx, Collections.singletonList(folder.getId()))
+                .iterator().next();
+        Assert.assertEquals(2, folder.copyROILinks().size());
+
+        List<ROIResult> rrs = roifac.loadROIs(rootCtx, folderImg.getId());
+        for (ROIResult rr : rrs) {
+            for (ROIData r : rr.getROIs()) {
+                Assert.assertEquals(1, r.getFolders().size());
+            }
+        }
+
+    }
+
+    @Test(dependsOnMethods = { "testLoadRoisForFolder"})
+    public void testRemoveROIsFromFolder() throws Exception {
+        folder = browse
+                .getFolders(rootCtx, Collections.singletonList(folder.getId()))
+                .iterator().next();
+        Assert.assertEquals(2, folder.copyROILinks().size());
+        
+        roifac.removeRoisFromFolders(rootCtx, folderImg.getId(), folderRois,
+                Collections.singletonList(folder));
+
+        folder = browse
+                .getFolders(rootCtx, Collections.singletonList(folder.getId()))
+                .iterator().next();
+        Assert.assertTrue(folder.copyROILinks().isEmpty());
+
+        List<ROIResult> rrs = roifac.loadROIs(rootCtx, folderImg.getId());
+        for (ROIResult rr : rrs) {
+            for (ROIData r : rr.getROIs()) {
+                Assert.assertTrue(r.getFolders().isEmpty());
+            }
+        }
     }
     
     private void initData() throws Exception {
@@ -173,14 +227,11 @@ public class ROIFacilityTest extends GatewayTest {
                 folderImgId);
         ROIData folderRoi1 = createRectangleROI(5, 5, 10, 10);
         ROIData folderRoi2 = createRectangleROI(10, 10, 10, 10);
-        Collection<ROIData> rois = new ArrayList<ROIData>(2);
-        rois.add(folderRoi1);
-        rois.add(folderRoi2);
-        rois = roifac.saveROIs(rootCtx, folderImg.getId(), rois);
-        folderRoiIds = new HashSet<Long>();
-        for (ROIData d : rois)
-            folderRoiIds.add(d.getId());
-        folder = createRoiFolder(rootCtx, rois);
+        folderRois = new ArrayList<ROIData>(2);
+        folderRois.add(folderRoi1);
+        folderRois.add(folderRoi2);
+        folderRois = roifac.saveROIs(rootCtx, folderImg.getId(), folderRois);
+        folder = createRoiFolder(rootCtx, folderRois);
     }
     
     private FolderData createRoiFolder(SecurityContext ctx,

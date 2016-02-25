@@ -73,7 +73,7 @@ import omero.model.enums.UnitsLength;
  * @version 3.0
  * @since 3.0-Beta4
  */
-class OutputServerStrategy 
+public class OutputServerStrategy 
 {
 	
 	/** The ROIComponent to serialize. */
@@ -197,6 +197,7 @@ class OutputServerStrategy
 		throws Exception
 	{
 		ROIData roiData = new ROIData();
+		roiData.setUuid(roi.getUUID());
 		roiData.setClientSide(roi.isClientSide());
 		if (!roi.isClientSide())
 			roiData.setId(roi.getID());
