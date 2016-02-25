@@ -574,7 +574,6 @@ $(function() {
                 // If the node is currently being filtered...
                 if (node.id !== '#') {
                     var filter_text = node.data.obj.filter;
-                    console.log("filter_text", filter_text);
                     if (filter_text && filter_text.length > 0) {
                         payload['filter'] = filter_text;
                     }

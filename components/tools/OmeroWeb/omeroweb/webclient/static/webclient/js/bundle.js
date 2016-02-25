@@ -19933,13 +19933,19 @@ var renderCentrePanel =
 	        // When filtering we need to begin at first page
 	        var inst = this.props.inst;
 	        // Use _set_page to not trigger refresh...
-	        inst._set_page(this.props.parentNode, 1);
+	        if (inst._set_page) {
+	            inst._set_page(this.props.parentNode, 1);
+	        }
 	        // ...since we refresh here
 	        inst.filter(this.props.parentNode, filterText);
 	    },
 
 	    componentDidMount: function componentDidMount() {
 	        var inst = this.props.inst;
+	        // shares don't allow multi-selection
+	        if (this.props.parentNode.type === 'share') {
+	            return;
+	        }
 	        $(this.refs.dataIcons).selectable({
 	            filter: 'li.row',
 	            distance: 2,
@@ -19957,6 +19963,10 @@ var renderCentrePanel =
 	    },
 
 	    componentWillUnmount: function componentWillUnmount() {
+	        // shares don't allow multi-selection
+	        if (this.props.parentNode.type === 'share') {
+	            return;
+	        }
 	        // cleanup plugin
 	        $(this.refs.dataIcons).selectable("destroy");
 	    },
@@ -20019,21 +20029,6 @@ var renderCentrePanel =
 	                    selFileSets.push(fsId);
 	                }
 	            }
-	            // Thumb version: random to break cache if thumbnails are -1 'in progress'
-	            // or we're refresing 1 or all thumbnails
-	            // if (node.data.obj.thumbVersion != undefined ||
-	            //         event.type === "refreshThumbnails" ||
-	            //         event.type === "refreshThumb") {
-	            //     var thumbVersion = node.data.obj.thumbVersion;
-	            //     if (thumbVersion === -1 || event.type === "refreshThumbnails" || (
-	            //             event.type === "refreshThumb" && data.imageId === iData.id)) {
-	            //         thumbVersion = getRandom();
-	            //         // We cache this to prevent new thumbnails requested on every
-	            //         // selection change. Refreshing of tree will reset thumbVersion.
-	            //         node.data.obj.thumbVersion = thumbVersion;
-	            //     }
-	            //     iData.thumbVersion = thumbVersion;
-	            // }
 	            // If image is in share and share is not owned by user...
 	            if (node.data.obj.shareId && !parentNode.data.obj.isOwned) {
 	                // share ID will be needed to open image viewer
@@ -20057,6 +20052,7 @@ var renderCentrePanel =
 	            return _react2.default.createElement(_ImageIcon2.default, {
 	                image: image,
 	                key: image.id,
+	                shareId: image.shareId,
 	                iconSize: this.props.iconSize,
 	                handleIconClick: this.handleIconClick });
 	        }.bind(this));
@@ -20295,6 +20291,13 @@ var renderCentrePanel =
 	        if (image.fsSelected) {
 	            cls.push('fs-selected');
 	        }
+	        var src = WEBCLIENT.URLS.webindex + "render_thumbnail/" + image.id + "/";
+	        if (image.shareId) {
+	            src = src + image.shareId + "/";
+	        }
+	        if (thumbVersion !== undefined) {
+	            src = src + "?version=" + thumbVersion;
+	        }
 
 	        return _react2.default.createElement(
 	            'li',
@@ -20314,7 +20317,7 @@ var renderCentrePanel =
 	                _react2.default.createElement('img', { alt: 'image',
 	                    width: iconSizes.width + "px",
 	                    height: iconSizes.height + "px",
-	                    src: WEBCLIENT.URLS.webindex + "render_thumbnail/" + image.id + "/?version=" + thumbVersion,
+	                    src: src,
 	                    title: image.name })
 	            ),
 	            _react2.default.createElement(

@@ -51,6 +51,13 @@ var ImageIcon = React.createClass({
 
         if (image.selected) {cls.push('ui-selected');}
         if (image.fsSelected) {cls.push('fs-selected');}
+        var src = WEBCLIENT.URLS.webindex + "render_thumbnail/" + image.id + "/";
+        if (image.shareId) {
+            src = src + image.shareId + "/";
+        }
+        if (thumbVersion !== undefined) {
+            src = src + "?version=" + thumbVersion;
+        }
 
         return (
             <li className={"row " + cls.join(" ")}
@@ -67,7 +74,7 @@ var ImageIcon = React.createClass({
                     <img alt="image"
                         width={iconSizes.width + "px"}
                         height={iconSizes.height + "px"}
-                        src={WEBCLIENT.URLS.webindex + "render_thumbnail/" + image.id + "/?version=" + thumbVersion}
+                        src={src}
                         title={image.name} />
                 </div>
                 <div className="desc" valign="middle">

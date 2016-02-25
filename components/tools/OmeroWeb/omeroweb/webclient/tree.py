@@ -790,7 +790,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
     # If there were any images in the share that were
     # not found in query, they are likely deleted.
     # Marshal and return those
-    if share_id is not None and 'iids' in params.map:
+    if share_id is not None and 'iids' in params.map and filter_text is None:
         imageIdsInShare = [i['id'] for i in images]
         for image_rid in unwrap(params.map['iids']):
             if image_rid not in imageIdsInShare:
