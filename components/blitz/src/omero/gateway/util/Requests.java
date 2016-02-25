@@ -56,7 +56,9 @@ public class Requests {
      * @param includeType the child type to include in the request's operation
      * @param excludeType the child type to exclude from the request's operation
      * @return the new instance
+     * @deprecated use {@link Requests.ChildOptionBuilder} from {@link #option()}, see this method for an example
      */
+    @Deprecated
     public static ChildOption option(String includeType, String excludeType) {
         ChildOptionBuilder builder = option();
         if (includeType != null) {
@@ -73,7 +75,9 @@ public class Requests {
      * @param includeType the child types to include in the request's operation
      * @param excludeType the child types to exclude from the request's operation
      * @return the new instance
+     * @deprecated use {@link Requests.ChildOptionBuilder} from {@link #option()}, see this method for an example
      */
+    @Deprecated
     public static ChildOption option(List<String> includeType, List<String> excludeType) {
         ChildOptionBuilder builder = option();
         if (includeType != null) {
@@ -92,7 +96,9 @@ public class Requests {
      * @param includeNs the annotation namespace to which this option applies
      * @param excludeNs the annotation namespace to which this option does not apply
      * @return the new instance
+     * @deprecated use {@link Requests.ChildOptionBuilder} from {@link #option()}, see this method for an example
      */
+    @Deprecated
     public static ChildOption option(String includeType, String excludeType, String includeNs, String excludeNs) {
         ChildOptionBuilder builder = option();
         if (includeType != null) {
@@ -117,7 +123,9 @@ public class Requests {
      * @param includeNs the annotation namespaces to which this option applies
      * @param excludeNs the annotation namespaces to which this option does not apply
      * @return the new instance
+     * @deprecated use {@link Requests.ChildOptionBuilder} from {@link #option()}, see this method for an example
      */
+    @Deprecated
     public static ChildOption option(String includeType, String excludeType, List<String> includeNs,
             List<String> excludeNs) {
         ChildOptionBuilder builder = option();
@@ -143,7 +151,9 @@ public class Requests {
      * @param includeNs the annotation namespace to which this option applies
      * @param excludeNs the annotation namespace to which this option does not apply
      * @return the new instance
+     * @deprecated use {@link Requests.ChildOptionBuilder} from {@link #option()}, see this method for an example
      */
+    @Deprecated
     public static ChildOption option(List<String> includeType, List<String> excludeType, String includeNs, String excludeNs) {
         ChildOptionBuilder builder = option();
         if (includeType != null) {
@@ -168,7 +178,9 @@ public class Requests {
      * @param includeNs the annotation namespaces to which this option applies
      * @param excludeNs the annotation namespaces to which this option does not apply
      * @return the new instance
+     * @deprecated use {@link Requests.ChildOptionBuilder} from {@link #option()}, see this method for an example
      */
+    @Deprecated
     public static ChildOption option(List<String> includeType, List<String> excludeType, List<String> includeNs,
             List<String> excludeNs) {
         ChildOptionBuilder builder = option();
@@ -193,7 +205,9 @@ public class Requests {
      * @param targetId the target object ID
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, Long targetId, long groupId) {
         return chgrp().target(targetClass).id(targetId).toGroup(groupId).build();
     }
@@ -205,7 +219,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, Long targetId, ChildOption childOption, long groupId) {
         return chgrp().target(targetClass).id(targetId).option(childOption).toGroup(groupId).build();
     }
@@ -217,7 +233,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, Long targetId, List<ChildOption> childOptions, long groupId) {
         return chgrp().target(targetClass).id(targetId).option(childOptions).toGroup(groupId).build();
     }
@@ -229,7 +247,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, Long targetId, boolean dryRun, long groupId) {
         return chgrp().target(targetClass).id(targetId).dryRun(dryRun).toGroup(groupId).build();
     }
@@ -242,7 +262,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, Long targetId, ChildOption childOption, boolean dryRun, long groupId) {
         return chgrp().target(targetClass).id(targetId).option(childOption).dryRun(dryRun).toGroup(groupId).build();
     }
@@ -255,7 +277,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, Long targetId, List<ChildOption> childOptions, boolean dryRun, long groupId) {
         return chgrp().target(targetClass).id(targetId).option(childOptions).dryRun(dryRun).toGroup(groupId).build();
     }
@@ -266,7 +290,9 @@ public class Requests {
      * @param targetIds the target object IDs
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, List<Long> targetIds, long groupId) {
         return chgrp().target(targetClass).id(targetIds).toGroup(groupId).build();
     }
@@ -278,7 +304,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, List<Long> targetIds, ChildOption childOption, long groupId) {
         return chgrp().target(targetClass).id(targetIds).option(childOption).toGroup(groupId).build();
     }
@@ -290,7 +318,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, long groupId) {
         return chgrp().target(targetClass).id(targetIds).option(childOptions).toGroup(groupId).build();
     }
@@ -302,7 +332,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, List<Long> targetIds, boolean dryRun, long groupId) {
         return chgrp().target(targetClass).id(targetIds).dryRun(dryRun).toGroup(groupId).build();
     }
@@ -315,7 +347,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, List<Long> targetIds, ChildOption childOption, boolean dryRun, long groupId) {
         return chgrp().target(targetClass).id(targetIds).option(childOption).dryRun(dryRun).toGroup(groupId).build();
     }
@@ -328,7 +362,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, boolean dryRun,
             long groupId) {
         return chgrp().target(targetClass).id(targetIds).option(childOptions).dryRun(dryRun).toGroup(groupId).build();
@@ -339,7 +375,9 @@ public class Requests {
      * @param targetObjects the target objects
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(Map<String, List<Long>> targetObjects, long groupId) {
         return chgrp().target(targetObjects).toGroup(groupId).build();
     }
@@ -350,7 +388,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(Map<String, List<Long>> targetObjects, ChildOption childOption, long groupId) {
         return chgrp().target(targetObjects).option(childOption).toGroup(groupId).build();
     }
@@ -361,7 +401,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, long groupId) {
         return chgrp().target(targetObjects).option(childOptions).toGroup(groupId).build();
     }
@@ -372,7 +414,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(Map<String, List<Long>> targetObjects, boolean dryRun, long groupId) {
         return chgrp().target(targetObjects).dryRun(dryRun).toGroup(groupId).build();
     }
@@ -384,7 +428,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(Map<String, List<Long>> targetObjects, ChildOption childOption, boolean dryRun, long groupId) {
         return chgrp().target(targetObjects).option(childOption).dryRun(dryRun).toGroup(groupId).build();
     }
@@ -396,7 +442,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param groupId the destination group ID
      * @return the new request
+     * @deprecated use {@link Requests.Chgrp2Builder} from {@link #chgrp()}, see this method for an example
      */
+    @Deprecated
     public static Chgrp2 chgrp(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, boolean dryRun,
             long groupId) {
         return chgrp().target(targetObjects).option(childOptions).dryRun(dryRun).toGroup(groupId).build();
@@ -408,7 +456,9 @@ public class Requests {
      * @param targetId the target object ID
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, Long targetId, String permissions) {
         return chmod().target(targetClass).id(targetId).toPerms(permissions).build();
     }
@@ -420,7 +470,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, Long targetId, ChildOption childOption, String permissions) {
         return chmod().target(targetClass).id(targetId).option(childOption).toPerms(permissions).build();
     }
@@ -432,7 +484,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, Long targetId, List<ChildOption> childOptions, String permissions) {
         return chmod().target(targetClass).id(targetId).option(childOptions).toPerms(permissions).build();
     }
@@ -444,7 +498,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, Long targetId, boolean dryRun, String permissions) {
         return chmod().target(targetClass).id(targetId).dryRun(dryRun).toPerms(permissions).build();
     }
@@ -457,7 +513,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, Long targetId, ChildOption childOption, boolean dryRun, String permissions) {
         return chmod().target(targetClass).id(targetId).option(childOption).dryRun(dryRun).toPerms(permissions).build();
     }
@@ -470,7 +528,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, Long targetId, List<ChildOption> childOptions, boolean dryRun,
             String permissions) {
         return chmod().target(targetClass).id(targetId).option(childOptions).dryRun(dryRun).toPerms(permissions).build();
@@ -482,7 +542,9 @@ public class Requests {
      * @param targetIds the target object IDs
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, List<Long> targetIds, String permissions) {
         return chmod().target(targetClass).id(targetIds).toPerms(permissions).build();
     }
@@ -494,7 +556,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, List<Long> targetIds, ChildOption childOption, String permissions) {
         return chmod().target(targetClass).id(targetIds).option(childOption).toPerms(permissions).build();
     }
@@ -506,7 +570,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, String permissions) {
         return chmod().target(targetClass).id(targetIds).option(childOptions).toPerms(permissions).build();
     }
@@ -518,7 +584,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, List<Long> targetIds, boolean dryRun, String permissions) {
         return chmod().target(targetClass).id(targetIds).dryRun(dryRun).toPerms(permissions).build();
     }
@@ -531,7 +599,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, List<Long> targetIds, ChildOption childOption, boolean dryRun,
             String permissions) {
         return chmod().target(targetClass).id(targetIds).option(childOption).dryRun(dryRun).toPerms(permissions).build();
@@ -545,7 +615,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, boolean dryRun,
             String permissions) {
         return chmod().target(targetClass).id(targetIds).option(childOptions).dryRun(dryRun).toPerms(permissions).build();
@@ -556,7 +628,9 @@ public class Requests {
      * @param targetObjects the target objects
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(Map<String, List<Long>> targetObjects, String permissions) {
         return chmod().target(targetObjects).toPerms(permissions).build();
     }
@@ -567,7 +641,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(Map<String, List<Long>> targetObjects, ChildOption childOption, String permissions) {
         return chmod().target(targetObjects).option(childOption).toPerms(permissions).build();
     }
@@ -578,7 +654,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, String permissions) {
         return chmod().target(targetObjects).option(childOptions).toPerms(permissions).build();
     }
@@ -589,7 +667,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(Map<String, List<Long>> targetObjects, boolean dryRun, String permissions) {
         return chmod().target(targetObjects).dryRun(dryRun).toPerms(permissions).build();
     }
@@ -601,7 +681,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(Map<String, List<Long>> targetObjects, ChildOption childOption, boolean dryRun, String permissions) {
         return chmod().target(targetObjects).option(childOption).dryRun(dryRun).toPerms(permissions).build();
     }
@@ -613,7 +695,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param permissions the new permissions
      * @return the new request
+     * @deprecated use {@link Requests.Chmod2Builder} from {@link #chmod()}, see this method for an example
      */
+    @Deprecated
     public static Chmod2 chmod(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, boolean dryRun,
             String permissions) {
         return chmod().target(targetObjects).option(childOptions).dryRun(dryRun).toPerms(permissions).build();
@@ -625,7 +709,9 @@ public class Requests {
      * @param targetId the target object ID
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, Long targetId, long userId) {
         return chown().target(targetClass).id(targetId).toUser(userId).build();
     }
@@ -637,7 +723,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, Long targetId, ChildOption childOption, long userId) {
         return chown().target(targetClass).id(targetId).option(childOption).toUser(userId).build();
     }
@@ -649,7 +737,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, Long targetId, List<ChildOption> childOptions, long userId) {
         return chown().target(targetClass).id(targetId).option(childOptions).toUser(userId).build();
     }
@@ -661,7 +751,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, Long targetId, boolean dryRun, long userId) {
         return chown().target(targetClass).id(targetId).dryRun(dryRun).toUser(userId).build();
     }
@@ -674,7 +766,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, Long targetId, ChildOption childOption, boolean dryRun, long userId) {
         return chown().target(targetClass).id(targetId).option(childOption).dryRun(dryRun).toUser(userId).build();
     }
@@ -687,7 +781,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, Long targetId, List<ChildOption> childOptions, boolean dryRun, long userId) {
         return chown().target(targetClass).id(targetId).option(childOptions).dryRun(dryRun).toUser(userId).build();
     }
@@ -698,7 +794,9 @@ public class Requests {
      * @param targetIds the target object IDs
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, List<Long> targetIds, long userId) {
         return chown().target(targetClass).id(targetIds).toUser(userId).build();
     }
@@ -710,7 +808,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, List<Long> targetIds, ChildOption childOption, long userId) {
         return chown().target(targetClass).id(targetIds).option(childOption).toUser(userId).build();
     }
@@ -722,7 +822,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, long userId) {
         return chown().target(targetClass).id(targetIds).option(childOptions).toUser(userId).build();
     }
@@ -734,7 +836,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, List<Long> targetIds, boolean dryRun, long userId) {
         return chown().target(targetClass).id(targetIds).dryRun(dryRun).toUser(userId).build();
     }
@@ -747,7 +851,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, List<Long> targetIds, ChildOption childOption, boolean dryRun, long userId) {
         return chown().target(targetClass).id(targetIds).option(childOption).dryRun(dryRun).toUser(userId).build();
     }
@@ -760,7 +866,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, boolean dryRun,
             long userId) {
         return chown().target(targetClass).id(targetIds).option(childOptions).dryRun(dryRun).toUser(userId).build();
@@ -771,7 +879,9 @@ public class Requests {
      * @param targetObjects the target objects
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(Map<String, List<Long>> targetObjects, long userId) {
         return chown().target(targetObjects).toUser(userId).build();
     }
@@ -782,7 +892,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(Map<String, List<Long>> targetObjects, ChildOption childOption, long userId) {
         return chown().target(targetObjects).option(childOption).toUser(userId).build();
     }
@@ -793,7 +905,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, long userId) {
         return chown().target(targetObjects).option(childOptions).toUser(userId).build();
     }
@@ -804,7 +918,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(Map<String, List<Long>> targetObjects, boolean dryRun, long userId) {
         return chown().target(targetObjects).dryRun(dryRun).toUser(userId).build();
     }
@@ -816,7 +932,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(Map<String, List<Long>> targetObjects, ChildOption childOption, boolean dryRun, long userId) {
         return chown().target(targetObjects).option(childOption).dryRun(dryRun).toUser(userId).build();
     }
@@ -828,7 +946,9 @@ public class Requests {
      * @param dryRun if this request is a dry run
      * @param userId the destination user ID
      * @return the new request
+     * @deprecated use {@link Requests.Chown2Builder} from {@link #chown()}, see this method for an example
      */
+    @Deprecated
     public static Chown2 chown(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, boolean dryRun,
             long userId) {
         return chown().target(targetObjects).option(childOptions).dryRun(dryRun).toUser(userId).build();
@@ -839,7 +959,9 @@ public class Requests {
      * @param targetClass the target object class
      * @param targetId the target object ID
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, Long targetId) {
         return delete().target(targetClass).id(targetId).build();
     }
@@ -850,7 +972,9 @@ public class Requests {
      * @param targetId the target object ID
      * @param childOption how to process child objects
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, Long targetId, ChildOption childOption) {
         return delete().target(targetClass).id(targetId).option(childOption).build();
     }
@@ -861,7 +985,9 @@ public class Requests {
      * @param targetId the target object ID
      * @param childOptions how to process child objects
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, Long targetId, List<ChildOption> childOptions) {
         return delete().target(targetClass).id(targetId).option(childOptions).build();
     }
@@ -872,7 +998,9 @@ public class Requests {
      * @param targetId the target object ID
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, Long targetId, boolean dryRun) {
         return delete().target(targetClass).id(targetId).dryRun(dryRun).build();
     }
@@ -884,7 +1012,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, Long targetId, ChildOption childOption, boolean dryRun) {
         return delete().target(targetClass).id(targetId).option(childOption).dryRun(dryRun).build();
     }
@@ -896,7 +1026,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, Long targetId, List<ChildOption> childOptions, boolean dryRun) {
         return delete().target(targetClass).id(targetId).option(childOptions).dryRun(dryRun).build();
     }
@@ -906,7 +1038,9 @@ public class Requests {
      * @param targetClass the target object class
      * @param targetIds the target object IDs
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, List<Long> targetIds) {
         return delete().target(targetClass).id(targetIds).build();
     }
@@ -917,7 +1051,9 @@ public class Requests {
      * @param targetIds the target object IDs
      * @param childOption how to process child objects
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, List<Long> targetIds, ChildOption childOption) {
         return delete().target(targetClass).id(targetIds).option(childOption).build();
     }
@@ -928,7 +1064,9 @@ public class Requests {
      * @param targetIds the target object IDs
      * @param childOptions how to process child objects
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, List<Long> targetIds, List<ChildOption> childOptions) {
         return delete().target(targetClass).id(targetIds).option(childOptions).build();
     }
@@ -939,7 +1077,9 @@ public class Requests {
      * @param targetIds the target object IDs
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, List<Long> targetIds, boolean dryRun) {
         return delete().target(targetClass).id(targetIds).dryRun(dryRun).build();
     }
@@ -951,7 +1091,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, List<Long> targetIds, ChildOption childOption, boolean dryRun) {
         return delete().target(targetClass).id(targetIds).option(childOption).dryRun(dryRun).build();
     }
@@ -963,7 +1105,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, boolean dryRun) {
         return delete().target(targetClass).id(targetIds).option(childOptions).dryRun(dryRun).build();
     }
@@ -972,7 +1116,9 @@ public class Requests {
      * Create a new {@link Delete2} request.
      * @param targetObjects the target objects
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(Map<String, List<Long>> targetObjects) {
         return delete().target(targetObjects).build();
     }
@@ -982,7 +1128,9 @@ public class Requests {
      * @param targetObjects the target objects
      * @param childOption how to process child objects
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(Map<String, List<Long>> targetObjects, ChildOption childOption) {
         return delete().target(targetObjects).option(childOption).build();
     }
@@ -992,7 +1140,9 @@ public class Requests {
      * @param targetObjects the target objects
      * @param childOptions how to process child objects
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions) {
         return delete().target(targetObjects).option(childOptions).build();
     }
@@ -1002,7 +1152,9 @@ public class Requests {
      * @param targetObjects the target objects
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(Map<String, List<Long>> targetObjects, boolean dryRun) {
         return delete().target(targetObjects).dryRun(dryRun).build();
     }
@@ -1013,7 +1165,9 @@ public class Requests {
      * @param childOption how to process child objects
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(Map<String, List<Long>> targetObjects, ChildOption childOption, boolean dryRun) {
         return delete().target(targetObjects).option(childOption).dryRun(dryRun).build();
     }
@@ -1024,7 +1178,9 @@ public class Requests {
      * @param childOptions how to process child objects
      * @param dryRun if this request is a dry run
      * @return the new request
+     * @deprecated use {@link Requests.Delete2Builder} from {@link #delete()}, see this method for an example
      */
+    @Deprecated
     public static Delete2 delete(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, boolean dryRun) {
         return delete().target(targetObjects).option(childOptions).dryRun(dryRun).build();
     }
@@ -1036,7 +1192,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, String startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).startFrom(startFrom).request(request).build();
     }
@@ -1049,7 +1207,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, ChildOption childOption, String startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).option(childOption).startFrom(startFrom).request(request).build();
@@ -1063,7 +1223,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, List<ChildOption> childOptions, String startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).option(childOptions).startFrom(startFrom).request(request).build();
@@ -1077,7 +1239,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, boolean dryRun, String startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).dryRun(dryRun).startFrom(startFrom).request(request).build();
     }
@@ -1091,7 +1255,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, ChildOption childOption, boolean dryRun, String startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).option(childOption).dryRun(dryRun)
@@ -1107,7 +1273,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, List<ChildOption> childOptions, boolean dryRun,
             String startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).option(childOptions).dryRun(dryRun)
@@ -1121,7 +1289,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).startFrom(startFrom).request(request).build();
     }
@@ -1134,7 +1304,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, ChildOption childOption, List<String> startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).option(childOption).startFrom(startFrom).request(request).build();
@@ -1148,7 +1320,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, List<ChildOption> childOptions, List<String> startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).option(childOptions).startFrom(startFrom).request(request).build();
@@ -1162,7 +1336,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, boolean dryRun, List<String> startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).dryRun(dryRun).startFrom(startFrom).request(request).build();
@@ -1177,7 +1353,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, ChildOption childOption, boolean dryRun,
             List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).option(childOption).dryRun(dryRun)
@@ -1193,7 +1371,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, Long targetId, List<ChildOption> childOptions, boolean dryRun,
             List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetId).option(childOptions).dryRun(dryRun)
@@ -1207,7 +1387,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, String startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).startFrom(startFrom).request(request).build();
     }
@@ -1220,7 +1402,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, ChildOption childOption, String startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).option(childOption).startFrom(startFrom).request(request).build();
@@ -1234,7 +1418,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, String startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).option(childOptions).startFrom(startFrom).request(request).build();
@@ -1248,7 +1434,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, boolean dryRun, String startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).dryRun(dryRun).startFrom(startFrom).request(request).build();
@@ -1263,7 +1451,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, ChildOption childOption, boolean dryRun,
             String startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).option(childOption).dryRun(dryRun)
@@ -1279,7 +1469,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, boolean dryRun,
             String startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).option(childOptions).dryRun(dryRun)
@@ -1293,7 +1485,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).startFrom(startFrom).request(request).build();
     }
@@ -1306,7 +1500,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, ChildOption childOption, List<String> startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).option(childOption).startFrom(startFrom).request(request).build();
@@ -1320,7 +1516,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, List<ChildOption> childOptions,
             List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).option(childOptions).startFrom(startFrom).request(request).build();
@@ -1334,7 +1532,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, boolean dryRun, List<String> startFrom,
             GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).dryRun(dryRun).startFrom(startFrom).request(request).build();
@@ -1349,7 +1549,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, ChildOption childOption, boolean dryRun,
             List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).option(childOption).dryRun(dryRun)
@@ -1365,7 +1567,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(String targetClass, List<Long> targetIds, List<ChildOption> childOptions, boolean dryRun,
             List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetClass).id(targetIds).option(childOptions).dryRun(dryRun)
@@ -1378,7 +1582,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, String startFrom, GraphModify2 request) {
         return skipHead().target(targetObjects).startFrom(startFrom).request(request).build();
     }
@@ -1390,7 +1596,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, ChildOption childOption, String startFrom,
             GraphModify2 request) {
         return skipHead().target(targetObjects).option(childOption).startFrom(startFrom).request(request).build();
@@ -1403,7 +1611,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, String startFrom,
             GraphModify2 request) {
         return skipHead().target(targetObjects).option(childOptions).startFrom(startFrom).request(request).build();
@@ -1416,7 +1626,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, boolean dryRun, String startFrom, GraphModify2 request) {
         return skipHead().target(targetObjects).dryRun(dryRun).startFrom(startFrom).request(request).build();
     }
@@ -1429,7 +1641,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, ChildOption childOption, boolean dryRun,
             String startFrom, GraphModify2 request) {
         return skipHead().target(targetObjects).option(childOption).dryRun(dryRun).startFrom(startFrom).request(request).build();
@@ -1443,7 +1657,9 @@ public class Requests {
      * @param startFrom the class from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, boolean dryRun,
             String startFrom, GraphModify2 request) {
         return skipHead().target(targetObjects).option(childOptions).dryRun(dryRun).startFrom(startFrom).request(request).build();
@@ -1455,7 +1671,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetObjects).startFrom(startFrom).request(request).build();
     }
@@ -1467,7 +1685,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, ChildOption childOption, List<String> startFrom,
             GraphModify2 request) {
         return skipHead().target(targetObjects).option(childOption).startFrom(startFrom).request(request).build();
@@ -1480,7 +1700,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, List<String> startFrom,
             GraphModify2 request) {
         return skipHead().target(targetObjects).option(childOptions).startFrom(startFrom).request(request).build();
@@ -1493,7 +1715,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, boolean dryRun, List<String> startFrom,
             GraphModify2 request) {
         return skipHead().target(targetObjects).dryRun(dryRun).startFrom(startFrom).request(request).build();
@@ -1507,7 +1731,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, ChildOption childOption, boolean dryRun,
             List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetObjects).option(childOption).dryRun(dryRun).startFrom(startFrom).request(request).build();
@@ -1521,7 +1747,9 @@ public class Requests {
      * @param startFrom the classes from which to start the actual processing
      * @param request the processor to use
      * @return the new request
+     * @deprecated use {@link Requests.SkipHeadBuilder} from {@link #skipHead()}, see this method for an example
      */
+    @Deprecated
     public static SkipHead skipHead(Map<String, List<Long>> targetObjects, List<ChildOption> childOptions, boolean dryRun,
             List<String> startFrom, GraphModify2 request) {
         return skipHead().target(targetObjects).option(childOptions).dryRun(dryRun).startFrom(startFrom).request(request).build();
