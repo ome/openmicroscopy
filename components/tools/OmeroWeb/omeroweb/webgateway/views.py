@@ -2299,7 +2299,8 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     Retrieve annotations for object specified by object type and identifier,
     optionally traversing object model graph.
     Returns dictionary containing annotations in NSBULKANNOTATIONS namespace
-    if successful, error information otherwise
+    if successful, otherwise returns error information.
+    If the graph has multiple parents, we return annotations from all parents.
 
     Example:  /annotations/Plate/1/
               retrieves annotations for plate with identifier 1
@@ -2335,24 +2336,45 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     query += """
         left outer join fetch obj0.annotationLinks links
         left outer join fetch links.child
+        join fetch links.details.owner
+        join fetch links.details.creationEvent
         where obj%d.id=:id""" % (len(objtype) - 1)
 
+    ctx = conn.createServiceOptsDict()
+    ctx.setOmeroGroup("-1")
+
     try:
-        obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
-                            conn.createServiceOptsDict())
+        objs = q.findAllByQuery(query, omero.sys.ParametersI().addId(objid),
+                                ctx)
     except omero.QueryException:
         return dict(error='%s cannot be queried' % objtype,
                     query=query)
 
-    if not obj:
-        return dict(error='%s with id %s not found' % (objtype, objid))
+    if len(objs) == 0:
+        return dict(error='%s with id %s not found' % (objtype, objid),
+                    query=query)
 
-    return dict(data=[
-        dict(id=annotation.id.val,
-             file=annotation.file.id.val)
-        for annotation in obj.linkedAnnotationList()
-        if unwrap(annotation.getNs()) == NSBULKANNOTATIONS
-        ])
+    data = []
+    # Process all annotations from all objects...
+    links = [l for obj in objs for l in obj.copyAnnotationLinks()]
+    for link in links:
+        annotation = link.child
+        if unwrap(annotation.getNs()) != NSBULKANNOTATIONS:
+            continue
+        owner = annotation.details.owner
+        ownerName = "%s %s" % (unwrap(owner.firstName), unwrap(owner.lastName))
+        addedBy = link.details.owner
+        addedByName = "%s %s" % (unwrap(addedBy.firstName),
+                                 unwrap(addedBy.lastName))
+        data.append(dict(id=annotation.id.val,
+                         file=annotation.file.id.val,
+                         parentType=objtype[0],
+                         parentId=obj.id.val,
+                         owner=ownerName,
+                         addedBy=addedByName,
+                         addedOn=unwrap(link.details.creationEvent._time)))
+    return dict(data=data)
+
 
 annotations = login_required()(jsonp(_annotations))
 
@@ -2381,9 +2403,11 @@ def _table_query(request, fileid, conn=None, **kwargs):
         return dict(
             error='Must specify query parameter, use * to retrieve all')
 
+    ctx = conn.createServiceOptsDict()
+    ctx.setOmeroGroup("-1")
+
     r = conn.getSharedResources()
-    t = r.openTable(omero.model.OriginalFileI(fileid),
-                    conn.createServiceOptsDict())
+    t = r.openTable(omero.model.OriginalFileI(fileid), ctx)
     if not t:
         return dict(error="Table %s not found" % fileid)
 
@@ -2452,5 +2476,18 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
 
     # multiple bulk annotations files could be attached, use the most recent
     # one (= the one with the highest identifier)
-    fileId = max(annotation['file'] for annotation in a['data'])
-    return _table_query(request, fileId, conn, **kwargs)
+    fileId = 0
+    ann = None
+    for annotation in a['data']:
+        if annotation['file'] > fileId:
+            fileId = annotation['file']
+            ann = annotation
+    tableData = _table_query(request, fileId, conn, **kwargs)
+    tableData['id'] = fileId
+    tableData['annId'] = ann['id']
+    tableData['owner'] = ann['owner']
+    tableData['addedBy'] = ann['addedBy']
+    tableData['parentType'] = ann['parentType']
+    tableData['parentId'] = ann['parentId']
+    tableData['addedOn'] = ann['addedOn']
+    return tableData
