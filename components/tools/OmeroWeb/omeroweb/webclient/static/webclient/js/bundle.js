@@ -20058,8 +20058,6 @@ var renderCentrePanel =
 	        }.bind(this));
 
 	        var filter = this.props.parentNode.data.obj.filter || "";
-	        console.log("render", filter);
-
 	        var filterCount = this.props.parentNode.data.obj.filterCount;
 
 	        return _react2.default.createElement(
@@ -20224,7 +20222,7 @@ var renderCentrePanel =
 /* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -20237,16 +20235,21 @@ var renderCentrePanel =
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var ImageIcon = _react2.default.createClass({
-	    displayName: 'ImageIcon',
+	    displayName: "ImageIcon",
 
 	    handleIconClick: function handleIconClick(event) {
 	        // this.setState ({selected: true});
 	        this.props.handleIconClick(this.props.image.id, event);
 	    },
 
-	    // getInitialState: function() {
-	    //     return {selected: this.props.image.selected};
-	    // },
+	    handleIconDoubleClick: function handleIconDoubleClick() {
+	        var image = this.props.image,
+	            id = image.id,
+	            shareId = image.shareId,
+	            share = shareId ? shareId + "/" : "";
+	        var url = WEBCLIENT.URLS.webindex + share + 'img_detail/' + id + '/';
+	        OME.openPopup(url);
+	    },
 
 	    getIconSizes: function getIconSizes() {
 	        var image = this.props.image,
@@ -20300,54 +20303,55 @@ var renderCentrePanel =
 	        }
 
 	        return _react2.default.createElement(
-	            'li',
+	            "li",
 	            { className: "row " + cls.join(" "),
 	                id: "image_icon-" + image.id,
-	                ref: 'icon',
-	                'data-fileset': image.data.obj.filesetId,
-	                'data-type': 'image',
-	                'data-id': image.id,
-	                'data-perms': image.data.obj.permsCss,
+	                ref: "icon",
+	                "data-fileset": image.data.obj.filesetId,
+	                "data-type": "image",
+	                "data-id": image.id,
+	                "data-perms": image.data.obj.permsCss,
 	                tabIndex: 0,
-	                onClick: this.handleIconClick
+	                onClick: this.handleIconClick,
+	                onDoubleClick: this.handleIconDoubleClick
 	            },
 	            _react2.default.createElement(
-	                'div',
-	                { className: 'image', style: divStyle },
-	                _react2.default.createElement('img', { alt: 'image',
+	                "div",
+	                { className: "image", style: divStyle },
+	                _react2.default.createElement("img", { alt: "image",
 	                    width: iconSizes.width + "px",
 	                    height: iconSizes.height + "px",
 	                    src: src,
 	                    title: image.name })
 	            ),
 	            _react2.default.createElement(
-	                'div',
-	                { className: 'desc', valign: 'middle' },
+	                "div",
+	                { className: "desc", valign: "middle" },
 	                image.name,
 	                _react2.default.createElement(
-	                    'span',
-	                    { className: 'hidden_sort_text' },
+	                    "span",
+	                    { className: "hidden_sort_text" },
 	                    image.name
 	                )
 	            ),
 	            _react2.default.createElement(
-	                'div',
-	                { className: 'date', valign: 'middle' },
+	                "div",
+	                { className: "date", valign: "middle" },
 	                image.date
 	            ),
 	            _react2.default.createElement(
-	                'div',
-	                { className: 'sizeX', valign: 'middle' },
+	                "div",
+	                { className: "sizeX", valign: "middle" },
 	                image.data.obj.sizeX
 	            ),
 	            _react2.default.createElement(
-	                'div',
-	                { className: 'sizeY', valign: 'middle' },
+	                "div",
+	                { className: "sizeY", valign: "middle" },
 	                image.data.obj.sizeY
 	            ),
 	            _react2.default.createElement(
-	                'div',
-	                { className: 'sizeZ', valign: 'middle' },
+	                "div",
+	                { className: "sizeZ", valign: "middle" },
 	                image.data.obj.sizeZ
 	            )
 	        );

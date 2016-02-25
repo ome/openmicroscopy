@@ -165,8 +165,6 @@ var IconTable = React.createClass({
         }.bind(this));
 
         var filter = this.props.parentNode.data.obj.filter || "";
-        console.log("render", filter);
-
         var filterCount = this.props.parentNode.data.obj.filterCount;
 
         return (

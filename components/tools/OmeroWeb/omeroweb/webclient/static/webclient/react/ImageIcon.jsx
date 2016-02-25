@@ -8,9 +8,14 @@ var ImageIcon = React.createClass({
         this.props.handleIconClick(this.props.image.id, event);
     },
 
-    // getInitialState: function() {
-    //     return {selected: this.props.image.selected};
-    // },
+    handleIconDoubleClick: function() {
+        var image = this.props.image,
+            id = image.id,
+            shareId = image.shareId,
+            share = shareId ? shareId + "/" : "";
+        var url = WEBCLIENT.URLS.webindex + share + 'img_detail/' + id + '/';
+        OME.openPopup(url);
+    },
 
     getIconSizes: function() {
         var image = this.props.image,
@@ -69,6 +74,7 @@ var ImageIcon = React.createClass({
                 data-perms={image.data.obj.permsCss}
                 tabIndex={0}
                 onClick={this.handleIconClick}
+                onDoubleClick={this.handleIconDoubleClick}
             >
                 <div className="image" style={divStyle}>
                     <img alt="image"
