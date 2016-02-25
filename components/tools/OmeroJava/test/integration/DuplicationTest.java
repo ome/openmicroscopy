@@ -20,7 +20,6 @@
 package integration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,7 +100,6 @@ import org.testng.annotations.Test;
 import com.google.common.base.Objects;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
@@ -167,7 +165,7 @@ public class DuplicationTest extends AbstractServerTest {
      */
     @AfterClass
     public void deleteTestImages() throws Exception {
-        final Delete2 delete = Requests.delete("Image", testImages);
+        final Delete2 delete = Requests.delete().target("Image").id(testImages).build();
         doChange(root, root.getSession(), delete, true);
         clearTestImages();
     }
@@ -396,8 +394,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* find out which objects the duplication claims to have created */
@@ -511,9 +508,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image in dry-run mode */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
-        dup.dryRun = true;
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).dryRun().build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* find out which objects the duplication reports as being targets for processing */
@@ -565,8 +560,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image, link, and annotation */
@@ -633,9 +627,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
-        dup.typesToReference = ImmutableList.of("TextAnnotation");
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).referenceType("TextAnnotation").build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image and link, but not an annotation */
@@ -691,9 +683,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
-        dup.typesToIgnore = ImmutableList.of("IAnnotationLink");
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).ignoreType("IAnnotationLink").build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image and link, but not an annotation */
@@ -744,8 +734,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image and link, but not the attachment */
@@ -824,8 +813,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image and annotations and the links among them */
@@ -915,8 +903,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the images */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", (List<Long>) new ArrayList<Long>(originalImageIds));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageIds).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of the images, links, and annotations */
@@ -1048,8 +1035,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image, link, and annotation */
@@ -1147,10 +1133,9 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
-        dup.typesToDuplicate = ImmutableList.of("BasicAnnotation", "XmlAnnotation");
-        dup.typesToReference = ImmutableList.of("DoubleAnnotation", "TextAnnotation");
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId)
+                .duplicateType("BasicAnnotation", "XmlAnnotation")
+                .referenceType("DoubleAnnotation", "TextAnnotation").build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of an image, annotations and their links */
@@ -1226,8 +1211,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image with contradictory instructions */
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects = ImmutableMap.of("Image", Arrays.asList(originalImageId));
+        final Duplicate dup = Requests.duplicate().target("Image").id(originalImageId).build();
 
         for (int i = 0; i < 4; i++) {
             dup.typesToDuplicate = i == 0 ? null : ImmutableList.of("IAnnotationLink");
@@ -1361,9 +1345,7 @@ public class DuplicationTest extends AbstractServerTest {
 
         final boolean expectSuccess = myContainer || "rwrw--".equals(groupPerms);
 
-        final Duplicate dup = new Duplicate();
-        dup.targetObjects =
-                ImmutableMap.of(link.getClass().getSuperclass().getSimpleName(), Arrays.asList(link.getId().getValue()));
+        final Duplicate dup = Requests.duplicate().target(link).build();
         final Response response = doChange(client, factory, dup, expectSuccess);
 
         if (expectSuccess) {
