@@ -26,10 +26,13 @@ include:
 Developer updates include:
 
 -  Python API examples for creating Polygon and Mask shapes
+-  Python API example for "Populate Metadata" to create OMERO.tables for
+   Wells
 -  OMERO.tables documentation extended
 -  updated 'What's New for developers' to clarify that ``pojos`` has been
    renamed as ``omero.gateway.model``
 -  dynamic scripts functionality documented
+-  dynamic loading of omero.client server settings into HTTP sessions
 
 System administrator updates include:
 
