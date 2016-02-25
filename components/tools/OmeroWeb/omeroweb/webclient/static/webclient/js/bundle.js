@@ -19981,8 +19981,13 @@ var renderCentrePanel =
 	            weekday: "short", year: "numeric", month: "short",
 	            day: "numeric", hour: "2-digit", minute: "2-digit"
 	        };
-	        var page = inst.get_page(parentNode),
+	        // shares tree doesn't support pagination
+	        var page,
+	            pageSize = 1;
+	        if (inst.get_page) {
+	            page = inst.get_page(parentNode);
 	            pageSize = inst.get_page_size(parentNode);
+	        }
 
 	        parentNode.children.forEach(function (ch) {
 	            var childNode = inst.get_node(ch);
@@ -20165,7 +20170,11 @@ var renderCentrePanel =
 	            filterText = this.props.filterText;
 	        var iconBtnClass = layout === "icon" ? "checked" : "",
 	            tableBtnClass = layout === "table" ? "checked" : "";
-	        var filteredMsg = this.props.childCount + " images";
+	        var filteredMsg = "";
+	        // E.g. tag containers don't have childCount yet
+	        if (this.props.childCount) {
+	            filteredMsg = this.props.childCount + " images";
+	        }
 	        if (this.props.filteredCount != undefined && this.props.filteredCount != this.props.childCount) {
 	            filteredMsg = this.props.filteredCount + " of " + filteredMsg;
 	        }
@@ -20717,7 +20726,7 @@ var renderCentrePanel =
 	                    return _react2.default.createElement(_Well2.default, {
 	                        key: well.wellId,
 	                        id: well.wellId,
-	                        iid: well.id,
+	                        imageId: well.id,
 	                        thumbUrl: well.thumb_url,
 	                        selected: selected,
 	                        iconSize: iconSize,
@@ -20791,6 +20800,12 @@ var renderCentrePanel =
 	        this.props.handleWellClick(event, this.props.id);
 	    },
 
+	    handleDoubleClick: function handleDoubleClick(event) {
+	        var imageId = this.props.imageId;
+	        var url = WEBCLIENT.URLS.webindex + 'img_detail/' + imageId + '/';
+	        OME.openPopup(url);
+	    },
+
 	    render: function render() {
 	        var imgStyle = {
 	            width: this.props.iconSize + 'px',
@@ -20806,8 +20821,8 @@ var renderCentrePanel =
 	                'data-wellid': this.props.id,
 	                title: "" + this.props.row + this.props.col },
 	            _react2.default.createElement('img', {
-
 	                src: this.props.thumbUrl,
+	                onDoubleClick: this.handleDoubleClick,
 	                onClick: this.handleClick,
 	                style: imgStyle })
 	        );
@@ -20854,6 +20869,12 @@ var renderCentrePanel =
 	            pageSize = this.props.pageSize,
 	            imgCount = this.props.filteredCount,
 	            pageCount = Math.ceil(imgCount / pageSize);
+
+	        // pagination not supported/needed, or container is loading etc
+	        if (!page || !imgCount || pageCount === 1) {
+	            return _react2.default.createElement('div', null);
+	        }
+
 	        var prevEnabled = page > 1,
 	            nextEnabled = page < pageCount;
 

@@ -29,6 +29,9 @@
 
 {% block script %}
     {{ block.super }}
+    <!-- React.js based code is compiled into bundle.js by webpack -->
+    <script src="{% static 'webclient/js/bundle.js' %}"></script>
+
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-3.0.8/jstree.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
@@ -36,6 +39,10 @@
    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
 
     <script type="text/javascript">
+
+        var WEBCLIENT = {};
+        WEBCLIENT.URLS = {};
+        WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";
 
         $(document).ready(function()
         {

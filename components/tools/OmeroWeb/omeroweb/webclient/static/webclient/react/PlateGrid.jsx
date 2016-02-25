@@ -171,7 +171,7 @@ var PlateGrid = React.createClass({
                         <Well
                             key={well.wellId}
                             id={well.wellId}
-                            iid={well.id}
+                            imageId={well.id}
                             thumbUrl={well.thumb_url}
                             selected={selected}
                             iconSize={iconSize}

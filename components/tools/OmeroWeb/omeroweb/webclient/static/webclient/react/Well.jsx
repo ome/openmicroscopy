@@ -6,6 +6,12 @@ var Well = React.createClass({
         this.props.handleWellClick(event, this.props.id);
     },
 
+    handleDoubleClick: function(event) {
+        var imageId = this.props.imageId;
+        var url = WEBCLIENT.URLS.webindex + 'img_detail/' + imageId + '/';
+        OME.openPopup(url);
+    },
+
     render: function() {
         var imgStyle = {
                 width: this.props.iconSize + 'px',
@@ -20,8 +26,8 @@ var Well = React.createClass({
                 data-wellid={this.props.id}
                 title={""+this.props.row+this.props.col}>
                 <img
-
                     src={this.props.thumbUrl}
+                    onDoubleClick={this.handleDoubleClick}
                     onClick={this.handleClick}
                     style={imgStyle} />
             </td>

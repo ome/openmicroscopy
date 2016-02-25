@@ -87,8 +87,12 @@ var IconTable = React.createClass({
             weekday: "short", year: "numeric", month: "short",
             day: "numeric", hour: "2-digit", minute: "2-digit"
         };
-        var page = inst.get_page(parentNode),
+        // shares tree doesn't support pagination
+        var page, pageSize = 1;
+        if (inst.get_page) {
+            page = inst.get_page(parentNode);
             pageSize = inst.get_page_size(parentNode);
+        }
 
         parentNode.children.forEach(function(ch){
             var childNode = inst.get_node(ch);

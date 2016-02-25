@@ -17,7 +17,11 @@ var IconTableHeader = React.createClass({
             filterText = this.props.filterText;
         var iconBtnClass = layout === "icon" ? "checked" : "",
             tableBtnClass = layout === "table" ? "checked" : "";
-        var filteredMsg = this.props.childCount + " images";
+        var filteredMsg = "";
+        // E.g. tag containers don't have childCount yet
+        if (this.props.childCount) {
+            filteredMsg = this.props.childCount + " images";
+        }
         if (this.props.filteredCount != undefined && 
                 this.props.filteredCount != this.props.childCount) {
             filteredMsg = this.props.filteredCount + " of " + filteredMsg;
