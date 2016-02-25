@@ -49,6 +49,7 @@ import omero.gateway.util.ModelMapper;
 import omero.gateway.util.Pojos;
 import omero.gateway.util.PyTablesUtils;
 import omero.model.FolderRoiLink;
+import omero.model.FolderRoiLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -284,7 +285,7 @@ public class ROIFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
 
         try {
-            
+
             // 1. Save unsaved folders
             List<IObject> foldersToSave = new ArrayList<IObject>();
             Iterator<FolderData> it = folders.iterator();
@@ -304,32 +305,51 @@ public class ROIFacility extends Facility {
                 folders.addAll(savedFolders);
             }
 
+            // 2. Save ROIs
+            Collection<ROIData> saved = saveROIs(ctx, imageID, roiList);
+            Set<Long> ids = new HashSet<Long>();
+            for (ROIData d : saved) {
+                ids.add(d.getId());
+            }
+            for (ROIData d : roiList) {
+                if (!d.isClientSide())
+                    ids.add(d.getId());
+            }
             
-            // 2. Link Rois to Folders
+            // Reload the folders
+            Collection<FolderData> foldersReloaded = gateway.getFacility(
+                    BrowseFacility.class).getFolders(ctx,
+                    Pojos.extractIds(folders));
+
+            // Reload the ROIs
+            Collection<Roi> rois = loadServerRois(ctx, ids);
+
+            // 3. Link Rois to Folders
             List<IObject> toSave = new ArrayList<IObject>();
-            for (ROIData rd : roiList) {
-                Roi roi = (Roi) rd.asIObject();
-                for (FolderData folder : folders) {
+            for (Roi roi : rois) {
+                for (FolderData folder : foldersReloaded) {
                     boolean linkExists = false;
-                    if (!rd.isClientSide()) {
-                        for (FolderRoiLink link : roi.copyFolderLinks()) {
-                            if (link.getParent().getId().getValue() == folder
-                                    .getId()) {
-                                linkExists = true;
-                                break;
-                            }
+                    for (FolderRoiLink link : roi.copyFolderLinks()) {
+                        if (link.getParent().getId().getValue() == folder
+                                .getId()) {
+                            linkExists = true;
+                            break;
                         }
                     }
                     if (!linkExists) {
-                        roi.linkFolder(folder.asFolder());
-                        toSave.add(roi);
+                        FolderRoiLink link = new FolderRoiLinkI();
+                        link.setParent(folder.asFolder());
+                        link.setChild(roi);
+                        toSave.add(link);
                     }
                 }
             }
-            
-            // 3. Save ROIs
-            gateway.getUpdateService(ctx).saveCollection(toSave);
-            
+
+            // 4. Save links
+            if (!toSave.isEmpty())
+                gateway.getFacility(DataManagerFacility.class)
+                        .saveAndReturnObject(ctx, toSave, null, null);
+
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
         }
