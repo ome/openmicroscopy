@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,16 +22,20 @@ package omero.gateway.facility;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import omero.ServerError;
+import omero.api.IQueryPrx;
 import omero.api.IRoiPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RoiOptions;
@@ -50,10 +54,12 @@ import omero.model.Line;
 import omero.model.Polyline;
 import omero.model.Roi;
 import omero.model.Shape;
+import omero.sys.ParametersI;
 import omero.gateway.model.ROICoordinate;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.util.PojoMapper;
+
 
 
 /**
@@ -87,7 +93,10 @@ public class ROIFacility extends Facility {
      *            The ROI's id.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public ROIResult loadROI(SecurityContext ctx, long roiId)
             throws DSOutOfServiceException, DSAccessException {
@@ -117,7 +126,10 @@ public class ROIFacility extends Facility {
      *          The selection timepoint.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public List<ROIResult> loadROIsByPlane(SecurityContext ctx, long imageID, int z, int t)
             throws DSOutOfServiceException, DSAccessException {
@@ -144,7 +156,10 @@ public class ROIFacility extends Facility {
      *            The image's ID.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public List<ROIResult> loadROIs(SecurityContext ctx, long imageID)
             throws DSOutOfServiceException, DSAccessException {
@@ -184,7 +199,10 @@ public class ROIFacility extends Facility {
      *            The user's ID.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public List<ROIResult> loadROIs(SecurityContext ctx, long imageID,
             List<Long> measurements, long userID)
@@ -241,7 +259,10 @@ public class ROIFacility extends Facility {
      *            The list of ROI to save.
      * @return updated list of ROIData objects.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ROIData> saveROIs(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList) throws DSOutOfServiceException,
@@ -263,7 +284,10 @@ public class ROIFacility extends Facility {
      *            The list of ROI to save.
      * @return updated list of ROIData objects.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ROIData> saveROIs(SecurityContext ctx, long imageID,
             long userID, Collection<ROIData> roiList) throws DSOutOfServiceException,

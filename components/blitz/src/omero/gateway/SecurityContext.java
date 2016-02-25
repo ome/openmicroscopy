@@ -138,7 +138,7 @@ public class SecurityContext {
 
     /**
      * Set the compression level
-     * @param compression
+     * @param compression The compression ratio
      */
     public void setCompression(float compression) {
         this.compression = compression;
