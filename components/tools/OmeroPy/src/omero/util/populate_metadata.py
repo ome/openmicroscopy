@@ -135,10 +135,11 @@ class HeaderResolver(object):
         'plate': PlateColumn,
     }, **plate_keys)
 
-    def __init__(self, target_object, headers):
+    def __init__(self, target_object, headers, column_types=None):
         self.target_object = target_object
         self.headers = headers
         self.headers_as_lower = [v.lower() for v in self.headers]
+        self.types = column_types
 
     def create_columns(self):
         target_class = self.target_object.__class__
@@ -179,12 +180,15 @@ class HeaderResolver(object):
                     description = json.dumps({k: v.strip()})
             # HDF5 does not allow / in column names
             name = name.replace('/', '\\')
-            try:
-                column = self.screen_keys[header_as_lower](name, description,
-                                                           list())
-            except KeyError:
-                column = StringColumn(name, description,
-                                      self.DEFAULT_COLUMN_SIZE, list())
+            if self.types is not None:
+                column = COLUMN_TYPES[self.types[i]](name, description, list())
+            else:
+                try:
+                    column = self.screen_keys[header_as_lower](
+                        name, description, list())
+                except KeyError:
+                    column = StringColumn(
+                        name, description, self.DEFAULT_COLUMN_SIZE, list())
             columns.append(column)
         for column in columns:
             if column.__class__ is PlateColumn:
@@ -214,12 +218,15 @@ class HeaderResolver(object):
                     description = json.dumps({k: v.strip()})
             # HDF5 does not allow / in column names
             name = name.replace('/', '\\')
-            try:
-                column = self.plate_keys[header_as_lower](name, description,
-                                                          list())
-            except KeyError:
-                column = StringColumn(name, description,
-                                      self.DEFAULT_COLUMN_SIZE, list())
+            if self.types is not None:
+                column = COLUMN_TYPES[self.types[i]](name, description, list())
+            else:
+                try:
+                    column = self.plate_keys[header_as_lower](
+                        name, description, list())
+                except KeyError:
+                    column = StringColumn(
+                        name, description, self.DEFAULT_COLUMN_SIZE, list())
             columns.append(column)
         for column in columns:
             if column.__class__ is PlateColumn:
