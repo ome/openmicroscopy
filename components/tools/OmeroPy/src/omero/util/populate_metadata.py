@@ -182,7 +182,11 @@ class HeaderResolver(object):
                     description = json.dumps({k: v.strip()})
             # HDF5 does not allow / in column names
             name = name.replace('/', '\\')
-            if self.types is not None:
+            if self.types is not None and \
+                    COLUMN_TYPES[self.types[i]] is StringColumn:
+                column = COLUMN_TYPES[self.types[i]](
+                    name, description, self.DEFAULT_COLUMN_SIZE, list())
+            elif self.types is not None:
                 column = COLUMN_TYPES[self.types[i]](name, description, list())
             else:
                 try:
@@ -220,7 +224,11 @@ class HeaderResolver(object):
                     description = json.dumps({k: v.strip()})
             # HDF5 does not allow / in column names
             name = name.replace('/', '\\')
-            if self.types is not None:
+            if self.types is not None and \
+                    COLUMN_TYPES[self.types[i]] is StringColumn:
+                column = COLUMN_TYPES[self.types[i]](
+                    name, description, self.DEFAULT_COLUMN_SIZE, list())
+            elif self.types is not None:
                 column = COLUMN_TYPES[self.types[i]](name, description, list())
             else:
                 try:
@@ -545,7 +553,8 @@ class ParsingContext(object):
                     break
                 values.append(value)
                 try:
-                    if value.__class__ is not long:
+                    log.debug("Value's class: %s" % value.__class__)
+                    if value.__class__ is str:
                         column.size = max(column.size, len(value))
                 except TypeError:
                     log.error('Original value "%s" now "%s" of bad type!' % (
