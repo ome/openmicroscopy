@@ -40,8 +40,8 @@ from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
 from omero.model import PlateAcquisitionI, WellI, WellSampleI, ImageI
 from omero.model import ScreenAnnotationLinkI
 from omero.model import MapAnnotationI, NamedValue
-from omero.grid import ImageColumn, LongColumn, PlateColumn
-from omero.grid import StringColumn, WellColumn
+from omero.grid import ImageColumn, LongColumn, PlateColumn, RoiColumn
+from omero.grid import StringColumn, WellColumn, DoubleColumn, BoolColumn
 from omero.util.metadata_utils import KeyValueListPassThrough
 from omero.util.metadata_utils import KeyValueListTransformer
 from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
@@ -93,6 +93,12 @@ thread_pool = None
 PLATE_NAME_COLUMN = 'Plate Name'
 WELL_NAME_COLUMN = 'Well Name'
 IMAGE_NAME_COLUMN = 'Image Name'
+
+COLUMN_TYPES = {
+    'plate': PlateColumn, 'well': WellColumn, 'image': ImageColumn,
+    'roi': RoiColumn, 'd': DoubleColumn, 'l': LongColumn, 's': StringColumn,
+    'b': BoolColumn
+}
 
 
 class Skip(object):
@@ -1007,6 +1013,20 @@ def parse_target_object(target_object):
         return ScreenI(long(id), False)
     raise ValueError('Unsupported target object: %s' % target_object)
 
+
+def parse_column_types(column_type_list):
+    column_types = []
+    for column_type in column_type_list:
+        if column_type.lower() in COLUMN_TYPES:
+            column_types.append(column_type.lower())
+        else:
+            column_types = []
+            message = "\nColumn type '%s' unknown.\nChoose from following: %s" \
+                % (column_type, ",".join(COLUMN_TYPES.keys()))
+            raise MetadataError(message)
+    return column_types
+
+
 if __name__ == "__main__":
     try:
         options, args = getopt(sys.argv[1:], "s:p:u:w:k:c:id", ["columns="])
@@ -1027,6 +1047,7 @@ if __name__ == "__main__":
     session_key = None
     logging_level = logging.INFO
     thread_count = 1
+    column_types = None
     context_class = ParsingContext
     for option, argument in options:
         if option == "-u":
@@ -1045,6 +1066,8 @@ if __name__ == "__main__":
             logging_level = logging.DEBUG
         if option == "-t":
             thread_count = int(argument)
+        if option == "--columns":
+            column_types = parse_column_types(argument.split(','))
         if option == "-c":
             try:
                 context_class = globals()[argument]
