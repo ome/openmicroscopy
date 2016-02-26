@@ -168,6 +168,9 @@ class HeaderResolver(object):
         log.debug('Sanity check passed')
 
     def create_columns_screen(self):
+        if len(self.types) != len(self.headers):
+            message = "Number of columns and column types not equal."
+            raise MetadataError(message)
         columns = list()
         for i, header_as_lower in enumerate(self.headers_as_lower):
             name = self.headers[i]
@@ -210,6 +213,9 @@ class HeaderResolver(object):
         return columns
 
     def create_columns_plate(self):
+        if len(self.types) != len(self.headers):
+            message = "Number of columns and column types not equal."
+            raise MetadataError(message)
         columns = list()
         for i, header_as_lower in enumerate(self.headers_as_lower):
             name = self.headers[i]
@@ -252,6 +258,9 @@ class HeaderResolver(object):
         return columns
 
     def create_columns_dataset(self):
+        if len(self.types) != len(self.headers):
+            message = "Number of columns and column types not equal."
+            raise MetadataError(message)
         raise Exception('To be implemented!')
 
 
