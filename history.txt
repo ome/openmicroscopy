@@ -36,8 +36,8 @@ Developer updates include:
 
 System administrator updates include:
 
--  clarification of OMERO.web documentation, including an experimental
-   solution to resolve download issues
+-  clarification of OMERO.web documentation for nginx deployment, including an
+   experimental solution to resolve download issues
 -  documentation of hard-linking issues for in-place import on linux systems
 
 Note that the OMERO Virtual Appliance has been discontinued and will not be
