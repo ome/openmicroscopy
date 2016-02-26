@@ -558,6 +558,8 @@ public class ROINode
                 // therefore take a step of length 2 to get the folder node
                 ROINode folder = (ROINode) path.getPathComponent(path
                         .getPathCount() - 3);
+                if (folder.isRoot())
+                    return shape.isVisible();
                 if (b == null)
                     b = folder.isVisible();
                 else
