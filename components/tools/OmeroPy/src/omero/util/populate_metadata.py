@@ -1021,8 +1021,8 @@ def parse_column_types(column_type_list):
             column_types.append(column_type.lower())
         else:
             column_types = []
-            message = "\nColumn type '%s' unknown.\nChoose from following: %s" \
-                % (column_type, ",".join(COLUMN_TYPES.keys()))
+            message = "\nColumn type '%s' unknown.\nChoose from following: " \
+                "%s" % (column_type, ",".join(COLUMN_TYPES.keys()))
             raise MetadataError(message)
     return column_types
 
