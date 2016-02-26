@@ -67,17 +67,21 @@ Usage: %s [options] <target_object> <file>
 Runs metadata population code for a given object.
 
 Options:
-  -s    OMERO hostname to use [defaults to "localhost"]
-  -p    OMERO port to use [defaults to 4064]
-  -u    OMERO username to use
-  -w    OMERO password
-  -k    OMERO session key to use
-  -i    Dump measurement information and exit (no population)
-  -d    Print debug statements
-  -c    Use an alternative context (for expert users only)
+  -s            OMERO hostname to use [defaults to "localhost"]
+  -p            OMERO port to use [defaults to 4064]
+  -u            OMERO username to use
+  -w            OMERO password
+  -k            OMERO session key to use
+  --columns     Column configuration, Specify as comma separated list.
+                Supported types: plate, well, image, roi,
+                                 d (double), l (long), s (string), b (boolean)
+                Supported Boolean True Values: "yes", "true", "t", "1".
+  -i            Dump measurement information and exit (no population)
+  -d            Print debug statements
+  -c            Use an alternative context (for expert users only)
 
 Examples:
-  %s -s localhost -p 14064 -u bob Plate:6 metadata.csv
+  %s -s localhost -p 14064 -u bob --columns l,image,d,l Plate:6 metadata.csv
 
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
@@ -1005,7 +1009,7 @@ def parse_target_object(target_object):
 
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "s:p:u:w:k:c:id")
+        options, args = getopt(sys.argv[1:], "s:p:u:w:k:c:id", ["columns="])
     except GetoptError, (msg, opt):
         usage(msg)
 
