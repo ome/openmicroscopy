@@ -447,7 +447,7 @@ class ParsingContext(object):
     """Generic parsing context for CSV files."""
 
     def __init__(self, client, target_object, file=None, fileid=None,
-                 cfg=None, cfgid=None, attach=False):
+                 cfg=None, cfgid=None, attach=False, column_types=None):
         '''
         This lines should be handled outside of the constructor:
 
@@ -464,6 +464,7 @@ class ParsingContext(object):
         self.client = client
         self.target_object = target_object
         self.file = file
+        self.column_types = column_types
         self.value_resolver = ValueResolver(self.client, self.target_object)
 
     def create_annotation_link(self):
@@ -507,7 +508,8 @@ class ParsingContext(object):
         for h in rows[0]:
             if not h:
                 raise Exception('Empty column header in CSV: %s' % rows[0])
-        self.header_resolver = HeaderResolver(self.target_object, rows[0])
+        self.header_resolver = HeaderResolver(
+            self.target_object, rows[0], column_types=self.column_types)
         self.columns = self.header_resolver.create_columns()
         log.debug('Columns: %r' % self.columns)
 
@@ -1108,7 +1110,8 @@ if __name__ == "__main__":
 
         log.debug('Creating pool of %d threads' % thread_count)
         thread_pool = ThreadPool(thread_count)
-        ctx = context_class(client, target_object, file)
+        ctx = context_class(
+            client, target_object, file, column_types=column_types)
         ctx.parse()
         if not info:
             ctx.write_to_omero()
