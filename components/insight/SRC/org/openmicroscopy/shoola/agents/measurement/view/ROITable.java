@@ -128,6 +128,12 @@ public class ROITable
 	/** Holds the previously used selection, used for resetting the selection */
 	private int[] previousSelectionIndices;
 	
+    /**
+     * Reference to folders which have been recently modified (ROIs
+     * added/removed)
+     */
+    private Collection<FolderData> recentlyModifiedFolders = new ArrayList<FolderData>();
+	
 	/**
 	 * The type of objects selected
 	 */
@@ -354,7 +360,35 @@ public class ROITable
 	{
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 	}
-	
+
+    /**
+     * Get the IDs of all expanded (leaf) folders
+     * 
+     * @return See above
+     */
+    Set<Long> getExpandedFolders() {
+        Set<Long> result = new HashSet<Long>();
+        for (ROINode node : nodes) {
+            if (node.isExpanded() && node.isFolderNode() && node.containsROIs())
+                result.add(((FolderData) node.getUserObject()).getId());
+        }
+        return result;
+    }
+
+    /**
+     * Expand the Folder with the given IDs
+     * 
+     * @param ids
+     *            The folder IDs
+     */
+    void expandFolders(Collection<Long> ids) {
+        for (ROINode node : nodes) {
+            if (node.isFolderNode()
+                    && ids.contains(((FolderData) node.getUserObject()).getId()))
+                expandPath(node.getPath());
+        }
+    }
+    
 	/** Clears the table. */
 	void clear()
 	{
@@ -363,6 +397,7 @@ public class ROITable
 			root.remove(0);
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 		this.nodes.clear();
+		this.recentlyModifiedFolders.clear();
 		this.invalidate();
 		this.repaint();
 	}
@@ -1276,6 +1311,14 @@ public class ROITable
         d.addPropertyChangeListener(this);
         UIUtilities.centerAndShow(d);
     }
+    
+    /**
+     * Get the Folders which have been modified recently (by an add to/remove
+     * from folder action)
+     */
+    Collection<FolderData> getRecentlyModifiedFolders() {
+        return recentlyModifiedFolders;
+    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -1304,6 +1347,8 @@ public class ROITable
             if (folders == null)
                 return;
 
+            recentlyModifiedFolders.addAll(folders);
+            
             if (action==CreationActionType.ADD_TO_FOLDER) {
                 manager.addRoisToFolder(selectedObjects, folders);
             } else if(action==CreationActionType.REMOVE_FROM_FOLDER){

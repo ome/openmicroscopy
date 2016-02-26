@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -41,10 +42,6 @@ import javax.swing.JScrollPane;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
-
-
-
-
 
 
 //Third-party libraries
@@ -72,6 +69,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
+import omero.gateway.util.Pojos;
 import omero.log.LogMessage;
 
 /** 
@@ -265,26 +263,28 @@ class ObjectManager
     	objectsTable.showROIManagementMenu(view.getDrawingView(), x, y);
     }
     
-	/** Rebuilds Tree */
-	void rebuildTable()
-	{
-		TreeMap<Long, ROI> roiList = model.getROI();
-		Iterator<ROI> iterator = roiList.values().iterator();
-		ROI roi;
-		TreeMap<Coord3D, ROIShape> shapeList;
-		Iterator<ROIShape> shapeIterator;
-		objectsTable.clear();
-		objectsTable.initFolders(getFolders());
-		while(iterator.hasNext())
-		{
-			roi = iterator.next();
-			shapeList = roi.getShapes();
-			shapeIterator = shapeList.values().iterator();
-			while (shapeIterator.hasNext())
-				objectsTable.addROIShape(shapeIterator.next());
-		}
-		objectsTable.collapseAll();
-	}
+    /** Rebuilds Tree */
+    void rebuildTable() {
+        TreeMap<Long, ROI> roiList = model.getROI();
+        Iterator<ROI> iterator = roiList.values().iterator();
+        ROI roi;
+        TreeMap<Coord3D, ROIShape> shapeList;
+        Iterator<ROIShape> shapeIterator;
+        Set<Long> expandedFolderIds = objectsTable.getExpandedFolders();
+        expandedFolderIds.addAll(Pojos.extractIds(objectsTable
+                .getRecentlyModifiedFolders()));
+        objectsTable.clear();
+        objectsTable.initFolders(getFolders());
+        while (iterator.hasNext()) {
+            roi = iterator.next();
+            shapeList = roi.getShapes();
+            shapeIterator = shapeList.values().iterator();
+            while (shapeIterator.hasNext())
+                objectsTable.addROIShape(shapeIterator.next());
+        }
+        objectsTable.collapseAll();
+        objectsTable.expandFolders(expandedFolderIds);
+    }
 	
 	/**
 	 * Returns the name of the component.
