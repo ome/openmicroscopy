@@ -540,19 +540,30 @@ class ParsingContext(object):
 
     def parse_from_handle(self, data):
         rows = list(csv.reader(data, delimiter=','))
-        log.debug('Header: %r' % rows[0])
+        first_row_is_types = HeaderResolver.is_row_column_types(rows[0])
+        header_index = 0
+        rows_index = 1
+        if first_row_is_types:
+            header_index = 1
+            rows_index = 2
+        log.debug('Header: %r' % rows[header_index])
         for h in rows[0]:
             if not h:
-                raise Exception('Empty column header in CSV: %s' % rows[0])
+                raise Exception('Empty column header in CSV: %s'
+                                % rows[header_index])
+        if self.column_types is None and first_row_is_types:
+            self.column_types = HeaderResolver.get_column_types(rows[0])
+        log.debug('Column types: %r' % self.column_types)
         self.header_resolver = HeaderResolver(
-            self.target_object, rows[0], column_types=self.column_types)
+            self.target_object, rows[header_index],
+            column_types=self.column_types)
         self.columns = self.header_resolver.create_columns()
         log.debug('Columns: %r' % self.columns)
 
-        valuerows = rows[1:]
+        valuerows = rows[rows_index:]
         log.debug('Got %d rows', len(valuerows))
         if PlateI is self.value_resolver.target_class:
-            valuerows = self.subselect_plate(valuerows, rows[0])
+            valuerows = self.subselect_plate(valuerows, rows[header_index])
         self.populate(valuerows)
         self.post_process()
         log.debug('Column widths: %r' % self.get_column_widths())
