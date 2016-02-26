@@ -19,7 +19,7 @@ include:
 -  previous and next buttons fixed in OMERO.web image viewer
 -  delete and change group performance improvements
 -  better handling of dates in search
--  client support for map annotations in OME.tiff
+-  client support for map annotations in OME-TIFF
 -  disabled orphaned container feature
 -  OMERO.web clean-up to remove obsolete volume viewer
 
