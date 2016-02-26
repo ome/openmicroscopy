@@ -90,6 +90,8 @@ Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
 thread_pool = None
 
 # Special column names we may add depending on the data type
+BOOLEAN_TRUE = ["yes", "true", "t", "1"]
+
 PLATE_NAME_COLUMN = 'Plate Name'
 WELL_NAME_COLUMN = 'Well Name'
 IMAGE_NAME_COLUMN = 'Image Name'
@@ -432,6 +434,12 @@ class ValueResolver(object):
                 return long(self.AS_ALPHA.index(value.lower()))
         if StringColumn is column_class:
             return value
+        if LongColumn is column_class:
+            return int(value)
+        if DoubleColumn is column_class:
+            return float(value)
+        if BoolColumn is column_class:
+            return value.lower() in BOOLEAN_TRUE
         raise MetadataError('Unsupported column class: %s' % column_class)
 
 
