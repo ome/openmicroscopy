@@ -435,7 +435,7 @@ class ValueResolver(object):
         if StringColumn is column_class:
             return value
         if LongColumn is column_class:
-            return int(value)
+            return long(value)
         if DoubleColumn is column_class:
             return float(value)
         if BoolColumn is column_class:
