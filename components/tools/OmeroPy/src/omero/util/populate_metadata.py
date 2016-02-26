@@ -102,6 +102,8 @@ COLUMN_TYPES = {
     'b': BoolColumn
 }
 
+REGEX_HEADER_SPECIFIER = r'# header '
+
 
 class Skip(object):
     """Instance to denote a row skip request."""
@@ -142,6 +144,23 @@ class HeaderResolver(object):
         self.headers = headers
         self.headers_as_lower = [v.lower() for v in self.headers]
         self.types = column_types
+
+    @staticmethod
+    def is_row_column_types(row):
+        if "# header" in row[0]:
+            return True
+        return False
+
+    @staticmethod
+    def get_column_types(row):
+        if "# header" not in row[0]:
+            return None
+        get_first_type = re.compile(REGEX_HEADER_SPECIFIER)
+        column_types = [get_first_type.sub('', row[0])]
+        for column in row[1:]:
+            column_types.append(column)
+        column_types = parse_column_types(column_types)
+        return column_types
 
     def create_columns(self):
         target_class = self.target_object.__class__
