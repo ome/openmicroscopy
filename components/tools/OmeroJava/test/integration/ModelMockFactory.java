@@ -1,5 +1,5 @@
 /*
- *  Copyright 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright 2006-2016 University of Dundee. All rights reserved.
  *  Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -234,6 +234,51 @@ public class ModelMockFactory {
         Fileset fs = new FilesetI();
         fs.setTemplatePrefix(omero.rtypes.rstring("fileset-" + System.nanoTime() + "/"));
         return fs;
+    }
+
+    /**
+     * @return a new folder
+     */
+    public Folder simpleFolder() {
+        final Folder folder = new FolderI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-folder:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        folder.setName(rstring(uniqueName));
+        folder.setDescription(rstring(uniqueDesc));
+        return folder;
+    }
+
+    /**
+     * Creates a default project and returns it.
+     *
+     * @return See above.
+     */
+    public Project simpleProject() {
+        // prepare data
+        final Project project = new ProjectI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-project:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        project.setName(rstring(uniqueName));
+        project.setDescription(rstring(uniqueDesc));
+        return project;
+    }
+
+    /**
+     * Creates a default screen and returns it.
+     *
+     * @return See above.
+     */
+    public Screen simpleScreen() {
+        // prepare data
+        final Screen screen = new ScreenI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-screen:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        screen.setName(rstring(uniqueName));
+        screen.setDescription(rstring(uniqueDesc));
+        return screen;
     }
 
     /**

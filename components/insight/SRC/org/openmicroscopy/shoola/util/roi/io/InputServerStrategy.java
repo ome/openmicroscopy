@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.io.InputServerStrategy
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,6 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import ome.model.units.BigResult;
 import omero.model.Length;
@@ -66,7 +65,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
@@ -171,7 +169,7 @@ class InputServerStrategy
 			edit = roi.getOwner().getId() == userID;
 		}
 		ROI newROI = component.createROI(id, id <= 0, edit,
-				roi.canDelete(), roi.canAnnotate());
+				roi.canDelete(), roi.canAnnotate(), roi.getFolders());
 		newROI.setOwnerID(roi.getOwner().getId());
 		ROIShape shape;
 		ShapeData shapeData;
@@ -283,7 +281,6 @@ class InputServerStrategy
 					data.canAnnotate());
 		fig.setEllipse(x, y, width, height);
 		fig.setText(data.getText());
-		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
@@ -309,7 +306,6 @@ class InputServerStrategy
 		MeasurePointFigure fig = new MeasurePointFigure(data.getText(), x, y, 
 				2*r, 2*r, data.isReadOnly(), data.isClientObject(), 
 				data.canEdit(), data.canDelete(), data.canAnnotate());
-		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
@@ -334,7 +330,6 @@ class InputServerStrategy
 					data.isReadOnly(), data.isClientObject(), data.canEdit(), 
 					data.canDelete(), data.canAnnotate());
 		fig.setText(data.getText());
-		fig.setVisible(data.isVisible());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
@@ -363,7 +358,6 @@ class InputServerStrategy
 				data.canEdit(), data.canDelete(), data.canAnnotate());
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
-		fig.setVisible(data.isVisible());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
@@ -389,7 +383,6 @@ class InputServerStrategy
 		MeasureMaskFigure fig = new MeasureMaskFigure(x, y, width, 
 				height, mask, data.isReadOnly(), data.isClientObject(),
 				data.canEdit(), data.canDelete(), data.canAnnotate());
-		fig.setVisible(data.isVisible());
 		fig.setVisible(true);
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
@@ -419,7 +412,6 @@ class InputServerStrategy
 				data.isClientObject(), data.canEdit(), data.canDelete(),
 				data.canAnnotate());
 		fig.removeAllNodes();
-		fig.setVisible(data.isVisible());
 		fig.addNode(new Node(x1, y1));
 		fig.addNode(new Node(x2, y2));
 		
@@ -446,7 +438,6 @@ class InputServerStrategy
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject(), data.canEdit(),
 				data.canDelete(), data.canAnnotate());
-		fig.setVisible(data.isVisible());
 		List<Point2D.Double> points = data.getPoints();
 		List<Point2D.Double> points1 = data.getPoints1();
 		List<Point2D.Double> points2 = data.getPoints2();
@@ -507,7 +498,6 @@ class InputServerStrategy
 				data.isClientObject(), data.canEdit(), data.canDelete(),
 				data.canAnnotate());
 		fig.removeAllNodes();
-		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
 			fig.addNode(new Node(points.get(i)));
 		
@@ -536,7 +526,6 @@ class InputServerStrategy
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject(), data.canEdit(),
 				data.canDelete(), data.canAnnotate());
-		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
 			fig.addNode(new Node(i, points.get(i), points.get(i),
 			        points.get(i)));

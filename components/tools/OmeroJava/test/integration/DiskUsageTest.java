@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -48,6 +48,7 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.FileAnnotationI;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -264,7 +265,7 @@ public class DiskUsageTest extends AbstractServerTest {
      * @throws Exception unexpected
      */
     @Test
-    public void testFileSizeInContainers() throws Exception {
+    public void testFileSizeInContainersPD() throws Exception {
         final Project project = new ProjectI();
         project.setName(omero.rtypes.rstring("test project"));
         final Dataset dataset = new DatasetI();
@@ -292,6 +293,37 @@ public class DiskUsageTest extends AbstractServerTest {
         } finally {
             final ChildOption option = Requests.option(null, "Image");
             final Delete2 request = Requests.delete("Project", projectId, option);
+            doChange(request);
+        }
+    }
+
+    /**
+     * Test that the file size of the actual image file is correctly computed even when containers must be opened.
+     * Requires double recursion along Folder → Folder.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testFileSizeInContainersFF() throws Exception {
+        Folder parentFolder = (Folder) saveAndReturnFolder(mmFactory.simpleFolder()).proxy();
+        Folder middleFolder = mmFactory.simpleFolder();
+        middleFolder.setParentFolder(parentFolder);
+        middleFolder = (Folder) saveAndReturnFolder(middleFolder).proxy();
+        Folder childFolder = mmFactory.simpleFolder();
+        childFolder.setParentFolder(middleFolder);
+        childFolder.linkImage(new ImageI(imageId, false));
+        childFolder = (Folder) saveAndReturnFolder(childFolder).proxy();
+
+        final long parentFolderId = parentFolder.getId().getValue();
+
+        try {
+            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Folder", Collections.singleton(parentFolderId)));
+            Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
+            for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
+                Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
+            }
+        } finally {
+            final ChildOption option = Requests.option(null, "Image");
+            final Delete2 request = Requests.delete("Folder", parentFolderId, option);
             doChange(request);
         }
     }

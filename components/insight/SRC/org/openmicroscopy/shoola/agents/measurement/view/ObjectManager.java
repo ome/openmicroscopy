@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.ObjectManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,8 +45,10 @@ import javax.swing.tree.TreeSelectionModel;
 
 
 
-import org.apache.commons.collections.CollectionUtils;
+
+
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
@@ -58,11 +61,18 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+
+import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
+import omero.gateway.model.ROIData;
+import omero.log.LogMessage;
 
 /** 
  * UI Component managing a Region of Interest.
@@ -94,10 +104,6 @@ class ObjectManager
 		COLUMN_NAMES.add(AnnotationDescription.ZSECTION_STRING);
 		COLUMN_NAMES.add(AnnotationDescription.TIME_STRING);
 		COLUMN_NAMES.add(AnnotationDescription.SHAPE_STRING);
-		//columnNames.add(AnnotationDescription.annotationDescription.get(
-		//		AnnotationKeys.NAMESPACE));
-		//columnNames.add(AnnotationDescription.annotationDescription.get(
-		//		AnnotationKeys.KEYWORDS));
 		COLUMN_NAMES.add(AnnotationDescription.annotationDescription.get(
 			AnnotationKeys.TEXT));
 		COLUMN_NAMES.add("Visible");
@@ -115,8 +121,6 @@ class ObjectManager
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(2), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(3), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(4), 36);
-        //columnWidths.put(columnNames.get(5), 36);
-        //columnWidths.put(columnNames.get(6), 96);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(5), 96);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(6), 36);
 	}
@@ -173,6 +177,10 @@ class ObjectManager
 					if (nodeValue instanceof ROIShape) {
 					    view.selectFigure(((ROIShape) nodeValue).getFigure());
 					}
+					if(nodeValue instanceof FolderData) {
+					 // if folder is selected clear figure selection
+					    view.selectFigure(null);
+					}
 					int col = objectsTable.getSelectedColumn();
 					int row = objectsTable.getSelectedRow();
 					
@@ -180,16 +188,24 @@ class ObjectManager
 				}
 				else
 				{
-					ROIShape shape;
-					for (int i = 0; i < index.length; i++)
-					{
-						shape = objectsTable.getROIShapeAtRow(index[i]);
-						if (shape != null)
-						{
-							view.selectFigure(shape.getFigure());
-							requestFocus();
-						}
-					}
+                    ROIShape shape;
+                    for (int i = 0; i < index.length; i++) {
+                        shape = objectsTable.getROIShapeAtRow(index[i]);
+                        if (shape != null) {
+                            view.selectFigure(shape.getFigure());
+                        } else {
+                            // if folder is selected clear figure selection
+                            ROINode node = (ROINode) objectsTable
+                                    .getNodeAtRow(index[i]);
+                            if (node != null) {
+                                Object nodeValue = node.getUserObject();
+                                if (nodeValue instanceof FolderData) {
+                                    view.selectFigure(null);
+                                    break;
+                                }
+                            }
+                        }
+                    }
 				}
 			}
 		};
@@ -258,6 +274,7 @@ class ObjectManager
 		TreeMap<Coord3D, ROIShape> shapeList;
 		Iterator<ROIShape> shapeIterator;
 		objectsTable.clear();
+		objectsTable.initFolders(getFolders());
 		while(iterator.hasNext())
 		{
 			roi = iterator.next();
@@ -313,6 +330,7 @@ class ObjectManager
 	 */
 	void addROIShapes(List<ROIShape> shapeList)
 	{
+	    objectsTable.initFolders(getFolders());
 		objectsTable.addROIShapeList(shapeList);
 	}
 	
@@ -481,7 +499,9 @@ class ObjectManager
 	/** Invokes when new figures are selected. */
 	void onSelectedFigures()
 	{
-		objectsTable.onSelectedFigures(model.getSelectedFigures());
+	    Collection<Object> tmp = new ArrayList<Object>();
+	    tmp.addAll(model.getSelectedFigures());
+		objectsTable.onSelection(tmp);
 	}
 	
 	/** 
@@ -514,7 +534,7 @@ class ObjectManager
 	 */
 	Collection<Figure> getSelectedFiguresFromTables()
 	{
-	    List l = objectsTable.getSelectedObjects();
+	    Collection<Object> l = objectsTable.getSelectedObjects();
         if (CollectionUtils.isEmpty(l)) return null;
         Iterator i = l.iterator();
         Object o;
@@ -533,5 +553,133 @@ class ObjectManager
         }
         return list;
 	}
+
+    /**
+     * Add ROIs to Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    public void addRoisToFolder(Collection<ROIShape> selectedObjects,
+            Collection<FolderData> folders) {
+        List<ROIData> allRois = model.getROIData();
+        Map<Long, ROIData> selectedRois = new HashMap<Long, ROIData>();
+        for (ROIShape shape : selectedObjects) {
+            if (!selectedRois.containsKey(shape.getID())) {
+                ROIData rd = findROI(allRois, shape.getROI());
+                if (rd != null)
+                    selectedRois.put(shape.getID(), rd);
+            }
+        }
+        model.addROIsToFolder(allRois, selectedRois.values(), folders);
+    }
+    
+    /**
+     * Find an {@link ROIData} within a collection by it's {@link ROI} uuid
+     * 
+     * @param coll
+     *            The collection of {@link ROIData}
+     * @param roi
+     *            The {@link ROI} to search for
+     * @return See above.
+     */
+    private ROIData findROI(Collection<ROIData> coll, ROI roi) {
+        Iterator<ROIData> it = coll.iterator();
+        while (it.hasNext()) {
+            ROIData next = it.next();
+            if (next.getUuid().equals(roi.getUUID()))
+                return next;
+        }
+        return null;
+    }
+    
+    /**
+     * Delete Folders
+     * 
+     * @param folders
+     *            The Folders
+     */
+    public void deleteFolders(Collection<FolderData> folders) {
+        saveROIs();
+        model.deleteFolders(folders);
+    }
+    
+    /**
+     * Removes ROIs from Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    public void removeRoisFromFolder(Collection<ROIShape> selectedObjects,
+            Collection<FolderData> folders) {
+        saveROIs();
+        Map<Long, ROIData> rois = new HashMap<Long, ROIData>();
+        for (ROIShape shape : selectedObjects) {
+            ROI roi = shape.getROI();
+            if (roi.isClientSide())
+                continue;
+            if (!rois.containsKey(roi.getID())) {
+                ROIData data = new ROIData();
+                data.setId(roi.getID());
+                data.setImage(model.getImage().asImage());
+                rois.put(roi.getID(), data);
+            }
+        }
+        model.removeROIsFromFolder(rois.values(), folders);
+    }
+
+    public void saveROIFolders(Collection<FolderData> folders) {
+        saveROIs();
+        model.saveROIFolders(folders);
+    }
+    
+    /**
+     * Checks if the current image is editable by the user
+     * 
+     * @return See above.
+     */
+    public boolean canEdit() {
+        if (model.getImage() == null)
+            return false;
+        else
+            return model.getImage().canEdit();
+    }
+    
+    /**
+     * Get all available folders
+     * @return See above
+     */
+    Collection<FolderData> getFolders() {
+        return model.getFolders();
+    }
+    
+    /**
+     * Save ROIs if there are unsaved ROIs
+     * @return The saved ROIs
+     */
+    private Collection<ROIData> saveROIs() {
+        if (model.hasROIToSave()) {
+            Registry reg = MeasurementAgent.getRegistry();
+            List<ROIData> roiList = model.getROIData();
+            ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                    .getUserDetails();
+            OmeroImageService svc = reg.getImageService();
+            try {
+                return svc.saveROI(model.getSecurityContext(), model.getImageID(),
+                        exp.getId(), roiList);
+
+            } catch (Exception e) {
+                reg.getUserNotifier().notifyWarning("Could not save ROIs",
+                        "Failed to save some unsaved ROIs");
+                reg.getLogger().warn(this,
+                        new LogMessage("Could not save ROIs", e));
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
 }
 

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -51,6 +51,7 @@ import org.testng.annotations.Test;
 
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -147,6 +148,13 @@ public class GatewayTest {
                 .toString(), "test", groups, false, true);
     }
 
+    FolderData createFolder(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        FolderData folder = new FolderData();
+        folder.setName(UUID.randomUUID().toString());
+        return (FolderData) datamanagerFacility.saveAndReturnObject(ctx, folder);
+    }
+    
     ProjectData createProject(SecurityContext ctx)
             throws DSOutOfServiceException, DSAccessException {
         ProjectData proj = new ProjectData();

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -894,8 +894,8 @@ class MeasurementViewerComponent
 				if (i.hasNext())
 				{
 					roiResult = i.next();
-					if (CollectionUtils.isNotEmpty(roiResult.getROIs()))
-						hasResult = true;
+					model.setFolders(roiResult.getFolders());
+					hasResult = true;
 				}
 			}
 			

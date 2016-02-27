@@ -132,10 +132,7 @@ class ShapeSettingsData:
         self.strokeWidth.setValue(1)
         self.strokeWidth.setUnit(UnitsLength.POINT)
         self.strokeDashArray = rstring('')
-        self.strokeDashOffset = rint(0)
         self.strokeLineCap = rstring('')
-        self.strokeLineJoin = rstring('')
-        self.strokeMiterLimit = rint(0)
         self.fillColour = rint(self.GREY)
         self.fillRule = rstring('')
 
@@ -148,10 +145,7 @@ class ShapeSettingsData:
         shape.setStrokeColor(self.strokeColour)
         shape.setStrokeWidth(self.strokeWidth)
         shape.setStrokeDashArray(self.strokeDashArray)
-        shape.setStrokeDashOffset(self.strokeDashOffset)
         shape.setStrokeLineCap(self.strokeLineCap)
-        shape.setStrokeLineJoin(self.strokeLineJoin)
-        shape.setStrokeMiterLimit(self.strokeMiterLimit)
         shape.setFillColor(self.fillColour)
         shape.setFillRule(self.fillRule)
 
@@ -201,10 +195,7 @@ class ShapeSettingsData:
         self.strokeColour = roi.getStrokeColor()
         self.strokeWidth = roi.getStrokeWidth()
         self.strokeDashArray = roi.getStrokeDashArray()
-        self.strokeDashOffset = roi.getStrokeDashOffset()
         self.strokeLineCap = roi.getStrokeLineCap()
-        self.strokeLineJoin = roi.getStrokeLineJoin()
-        self.strokeMiterLimit = roi.getStrokeMiterLimit()
         self.fillColour = roi.getFillColor()
         self.fillRule = roi.getFillRule()
 
@@ -391,19 +382,19 @@ class EllipseData(ShapeData, ROIDrawingI):
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ)
         ellipse.setTheT(self.coord.theZ)
-        ellipse.setCx(self.cx)
-        ellipse.setCy(self.cy)
-        ellipse.setRx(self.rx)
-        ellipse.setRy(self.ry)
+        ellipse.setX(self.cx)
+        ellipse.setY(self.cy)
+        ellipse.setRadiusX(self.rx)
+        ellipse.setRadiusY(self.ry)
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
-        self.cx = roi.getCx()
-        self.cy = roi.getCy()
-        self.rx = roi.getRx()
-        self.ry = roi.getRy()
+        self.cx = roi.getX()
+        self.cy = roi.getY()
+        self.rx = roi.getRadiusX()
+        self.ry = roi.getRadiusY()
 
     ##
     # overridden, @See ShapeData#createBaseType

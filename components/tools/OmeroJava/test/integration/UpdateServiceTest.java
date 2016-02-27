@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2015 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import omero.ServerError;
 import omero.cmd.Delete2;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
@@ -42,6 +43,7 @@ import omero.model.EllipseI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Filter;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -101,6 +103,7 @@ import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import omero.gateway.model.BooleanAnnotationData;
@@ -476,6 +479,139 @@ public class UpdateServiceTest extends AbstractServerTest {
                 count++;
         }
         assertTrue(count == 2);
+    }
+
+    /**
+     * Test that folder hierarchies must be a strict tree.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testCreateCyclicFolders() throws ServerError {
+        Folder α = saveAndReturnFolder(mmFactory.simpleFolder());
+        Folder β = saveAndReturnFolder(mmFactory.simpleFolder());
+        Folder γ = saveAndReturnFolder(mmFactory.simpleFolder());
+        Folder δ = saveAndReturnFolder(mmFactory.simpleFolder());
+
+        γ.setParentFolder(β);
+        γ = saveAndReturnFolder(γ);
+
+        δ.setParentFolder(γ);
+        δ = saveAndReturnFolder(δ);
+
+        /* at this point δ ← γ ← β */
+
+        /* only α may be β's parent */
+
+        for (Folder parent : Arrays.asList(δ, γ, β, α)) {
+            β = returnFolder(β);
+            β.setParentFolder(returnFolder(parent));
+            try {
+                iUpdate.saveObject(β);
+                Assert.assertEquals(parent, α);
+            } catch (ServerError e) {
+                Assert.assertNotEquals(parent, α);
+            }
+        }
+
+        /* at this point δ ← γ ← β ← α */
+
+        α = returnFolder(α);
+        β = returnFolder(β);
+        γ = returnFolder(γ);
+        δ = returnFolder(δ);
+
+        Assert.assertNull(α.getParentFolder());
+        Assert.assertEquals(β.getParentFolder().getId().getValue(), α.getId().getValue());
+        Assert.assertEquals(γ.getParentFolder().getId().getValue(), β.getId().getValue());
+        Assert.assertEquals(δ.getParentFolder().getId().getValue(), γ.getId().getValue());
+    }
+
+    /**
+     * Test that parentage of a folder can be changed by {@link Folder#setParentFolder(Folder)}.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testChangeFolderParentBySetParent() throws ServerError {
+        Folder child = saveAndReturnFolder(mmFactory.simpleFolder());
+        Folder oldParent = saveAndReturnFolder(mmFactory.simpleFolder());
+        Folder newParent = saveAndReturnFolder(mmFactory.simpleFolder());
+        List<Folder> oldParentChildren, newParentChildren;
+
+        /* check that all is well with old parent */
+
+        child.setParentFolder(oldParent);
+
+        child = saveAndReturnFolder(child);
+        oldParent = returnFolder(oldParent);
+        newParent = returnFolder(newParent);
+        oldParentChildren = oldParent.copyChildFolders();
+        newParentChildren = newParent.copyChildFolders();
+
+        Assert.assertEquals(oldParentChildren.size(), 1);
+        Assert.assertEquals(newParentChildren.size(), 0);
+        Assert.assertEquals(child.getParentFolder().getId().getValue(), oldParent.getId().getValue());
+        Assert.assertEquals(oldParentChildren.get(0).getId().getValue(), child.getId().getValue());
+
+        /* change parentage */
+
+        child.setParentFolder(newParent);
+
+        /* check that all is well with new parent */
+
+        child = saveAndReturnFolder(child);
+        oldParent = returnFolder(oldParent);
+        newParent = returnFolder(newParent);
+        oldParentChildren = oldParent.copyChildFolders();
+        newParentChildren = newParent.copyChildFolders();
+
+        Assert.assertEquals(oldParentChildren.size(), 0);
+        Assert.assertEquals(newParentChildren.size(), 1);
+        Assert.assertEquals(child.getParentFolder().getId().getValue(), newParent.getId().getValue());
+        Assert.assertEquals(newParentChildren.get(0).getId().getValue(), child.getId().getValue());
+    }
+
+    /**
+     * Test that parentage of a folder can be changed by {@link Folder#addChildFolders(Folder)}.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testChangeFolderParentByAddChildFolders() throws ServerError {
+        Folder child = saveAndReturnFolder(mmFactory.simpleFolder());
+        Folder oldParent = saveAndReturnFolder(mmFactory.simpleFolder());
+        Folder newParent = saveAndReturnFolder(mmFactory.simpleFolder());
+        List<Folder> oldParentChildren, newParentChildren;
+
+        /* check that all is well with old parent */
+
+        child.setParentFolder(oldParent);
+
+        child = saveAndReturnFolder(child);
+        oldParent = returnFolder(oldParent);
+        newParent = returnFolder(newParent);
+        oldParentChildren = oldParent.copyChildFolders();
+        newParentChildren = newParent.copyChildFolders();
+
+        Assert.assertEquals(oldParentChildren.size(), 1);
+        Assert.assertEquals(newParentChildren.size(), 0);
+        Assert.assertEquals(child.getParentFolder().getId().getValue(), oldParent.getId().getValue());
+        Assert.assertEquals(oldParentChildren.get(0).getId().getValue(), child.getId().getValue());
+
+        /* change parentage */
+
+        newParent.addChildFolders(child);
+
+        /* check that all is well with new parent */
+
+        child = saveAndReturnFolder(child);
+        oldParent = returnFolder(oldParent);
+        newParent = returnFolder(newParent);
+        oldParentChildren = oldParent.copyChildFolders();
+        newParentChildren = newParent.copyChildFolders();
+
+        Assert.assertEquals(oldParentChildren.size(), 0);
+        Assert.assertEquals(newParentChildren.size(), 1);
+        Assert.assertEquals(child.getParentFolder().getId().getValue(), newParent.getId().getValue());
+        Assert.assertEquals(newParentChildren.get(0).getId().getValue(), child.getId().getValue());
     }
 
     // Annotation section
@@ -1088,10 +1224,10 @@ public class UpdateServiceTest extends AbstractServerTest {
         int t = 0;
         int c = 0;
         EllipseI rect = new EllipseI();
-        rect.setCx(omero.rtypes.rdouble(v));
-        rect.setCy(omero.rtypes.rdouble(v));
-        rect.setRx(omero.rtypes.rdouble(v));
-        rect.setRy(omero.rtypes.rdouble(v));
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setRadiusX(omero.rtypes.rdouble(v));
+        rect.setRadiusY(omero.rtypes.rdouble(v));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));
@@ -1140,8 +1276,8 @@ public class UpdateServiceTest extends AbstractServerTest {
         int t = 0;
         int c = 0;
         Point rect = new PointI();
-        rect.setCx(omero.rtypes.rdouble(v));
-        rect.setCy(omero.rtypes.rdouble(v));
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
         rect.setTheZ(omero.rtypes.rint(z));
         rect.setTheT(omero.rtypes.rint(t));
         rect.setTheC(omero.rtypes.rint(c));

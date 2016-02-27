@@ -148,17 +148,17 @@ public class GeomTool {
 
     public Point pt(double x, double y) {
         SmartPointI pt = new SmartPointI();
-        pt.setCx(rdouble(x));
-        pt.setCy(rdouble(y));
+        pt.setX(rdouble(x));
+        pt.setY(rdouble(y));
         return pt;
     }
 
     public Ellipse ellipse(double cx, double cy, double rx, double ry) {
         SmartEllipseI ellipse = new SmartEllipseI();
-        ellipse.setCx(rdouble(cx));
-        ellipse.setCy(rdouble(cy));
-        ellipse.setRx(rdouble(rx));
-        ellipse.setRy(rdouble(ry));
+        ellipse.setX(rdouble(cx));
+        ellipse.setY(rdouble(cy));
+        ellipse.setRadiusX(rdouble(rx));
+        ellipse.setRadiusY(rdouble(ry));
         return ellipse;
     }
 

@@ -487,84 +487,6 @@ class ROIData(DataObject):
                 keyList.append(coord)
         return self.roiShapes.from_keys(keyList)
 
-    ##
-    # Returns the namespace of the ROI.
-    #
-    # @return see above.
-    #
-    def setNamespaceKeywords(self, namespace, keywords):
-        roi = self.asIObject()
-        if(roi is None):
-            raise Exception("No Roi specified.")
-        if(len(keywords) == 0):
-            self.removeNamespace(namespace)
-        else:
-            map = self.getNamespaceKeywords()
-            map[namespace] = keywords
-            self.setNamespaceMap(map)
-            self.setDirty(True)
-
-    ##
-    # Remove the namespace from the ROI
-    # @param namespace See above.
-    #
-    def removeNamespace(self, namespace):
-        roi = self.asIObject()
-        if(roi is None):
-            raise Exception("No Roi specified.")
-        map = self.getNamespaceKeywords()
-        if(namespace in map.keys()):
-            del map[namespace]
-        self.setNamespaceMap(map)
-        self.setDirty(True)
-
-    ##
-    # Update the ROIData object to have the namespaces of the
-    # map, and the keywords of the map.
-    # @param map See above.
-    #
-    def setNamespaceMap(self, map):
-        roi = self.asIObject()
-        if(roi is None):
-            raise Exception("No Roi specified.")
-        roi.setNamespaces(map.keys)
-        keywords = []
-        for namespace in map.keys:
-            keywords.append(map[namespace])
-        roi.setKeywords(keywords)
-        self.setDirty(True)
-
-    ##
-    # Retrieve the namespaces of the ROI
-    # @return See above.
-    #
-    def getNamespaces(self):
-        roi = self.asIObject()
-        if(roi is None):
-            raise Exception("No Roi specified.")
-        namespaces = roi.getNamespaces()
-        if(namespaces is None):
-            return []
-        return namespaces
-
-    ##
-    # Get the keywords and namespaces as a map<namespace, keywords>
-    # @return See above.
-    #
-    def getNamespaceKeywords(self):
-        roi = self.asIObject()
-        if (roi is None):
-            raise Exception("No Roi specified.")
-        namespaces = self.getNamespaces()
-        namespaceKeywords = roi.getKeywords()
-        if(len(namespaces) != len(namespaceKeywords)):
-            raise Exception(
-                "Namespaces length does not match keywords namespace length.")
-        map = {}
-        for i in range(len(namespaces)):
-            map[namespaces[i]] = namespaceKeywords[i]
-        return map
-
 
 class ShapeData(DataObject):
 
@@ -763,7 +685,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setCx(rdouble(cx))
+        shape.setX(rdouble(cx))
 
     ##
     # Get the centre x coord of the Ellipse
@@ -772,7 +694,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        cx = shape.getCx()
+        cx = shape.getX()
         if(cx is None):
             return 0
         return cx.getValue()
@@ -784,7 +706,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setCy(rdouble(cy))
+        shape.setY(rdouble(cy))
 
     ##
     # Get the centre y coord of the Ellipse
@@ -793,7 +715,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        cy = shape.getCy()
+        cy = shape.getY()
         if(cy is None):
             return 0
         return cy.getValue()
@@ -805,7 +727,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setRx(rdouble(rx))
+        shape.setRadiusX(rdouble(rx))
 
     ##
     # Get the radius of the x-axis of the Ellipse
@@ -814,7 +736,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        rx = shape.getRx()
+        rx = shape.getRadiusX()
         if(rx is None):
             return 0
         return rx.getValue()
@@ -826,7 +748,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        shape.setRy(rdouble(ry))
+        shape.setRadiusY(rdouble(ry))
 
     ##
     # Get the radius of the y-axis of the Ellipse
@@ -835,7 +757,7 @@ class EllipseData(ShapeData):
         shape = self.asIObject()
         if(shape is None):
             raise Exception("No Shape specified.")
-        ry = shape.getRy()
+        ry = shape.getRadiusY()
         if(ry is None):
             return 0
         return ry.getValue()

@@ -48,20 +48,20 @@ classdef TestEllipse < TestShape
         
         function testSimpleEllipse(self)
             assertTrue(isa(self.shape, 'omero.model.EllipseI'));
-            assertEqual(self.shape.getCx().getValue(), self.x);
-            assertEqual(self.shape.getCy().getValue(), self.y);
-            assertEqual(self.shape.getRx().getValue(), self.rx);
-            assertEqual(self.shape.getRy().getValue(), self.ry);
+            assertEqual(self.shape.getX().getValue(), self.x);
+            assertEqual(self.shape.getY().getValue(), self.y);
+            assertEqual(self.shape.getRadiusX().getValue(), self.rx);
+            assertEqual(self.shape.getRadiusY().getValue(), self.ry);
         end
         
         function testCircle(self)
             self.createEllipse(true);
             
             assertTrue(isa(self.shape, 'omero.model.EllipseI'));
-            assertEqual(self.shape.getCx().getValue(), self.x);
-            assertEqual(self.shape.getCy().getValue(), self.y);
-            assertEqual(self.shape.getRx().getValue(), self.rx);
-            assertEqual(self.shape.getRy().getValue(), self.rx);
+            assertEqual(self.shape.getX().getValue(), self.x);
+            assertEqual(self.shape.getY().getValue(), self.y);
+            assertEqual(self.shape.getRadiusX().getValue(), self.rx);
+            assertEqual(self.shape.getRadiusY().getValue(), self.rx);
         end
         
         function testNegativeRadiusX(self)

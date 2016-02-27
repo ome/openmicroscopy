@@ -77,10 +77,30 @@
   CREATE OR REPLACE VIEW count_FilterSet_emissionFilterLink_by_owner (FilterSet_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM filtersetemissionfilterlink GROUP BY parent, owner_id ORDER BY parent;
 
+  DROP TABLE count_Folder_imageLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Folder_imageLinks_by_owner (Folder_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM folderimagelink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Folder_roiLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Folder_roiLinks_by_owner (Folder_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM folderroilink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Folder_annotationLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Folder_annotationLinks_by_owner (Folder_id, owner_id, count) AS select parent, owner_id, count(*)
+    FROM folderannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
   DROP TABLE count_Image_datasetLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Image_datasetLinks_by_owner (Image_id, owner_id, count) AS select child, owner_id, count(*)
     FROM datasetimagelink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Image_folderLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Image_folderLinks_by_owner (Image_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM folderimagelink GROUP BY child, owner_id ORDER BY child;
 
   DROP TABLE count_Image_annotationLinks_by_owner;
 
@@ -176,6 +196,11 @@
 
   CREATE OR REPLACE VIEW count_Reagent_annotationLinks_by_owner (Reagent_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM reagentannotationlink GROUP BY parent, owner_id ORDER BY parent;
+
+  DROP TABLE count_Roi_folderLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Roi_folderLinks_by_owner (Roi_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM folderroilink GROUP BY child, owner_id ORDER BY child;
 
   DROP TABLE count_Roi_annotationLinks_by_owner;
 

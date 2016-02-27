@@ -49,6 +49,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Fileset;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -93,6 +94,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.FilesetData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
@@ -164,6 +166,8 @@ public class PojoMapper
             return new ProjectData((Project) object);
         else if (object instanceof Dataset) 
             return new DatasetData((Dataset) object);
+        else if (object instanceof Folder) 
+            return new FolderData((Folder) object);
         else if (object instanceof Image) 
             return new ImageData((Image) object);
         else if (object instanceof TermAnnotation)

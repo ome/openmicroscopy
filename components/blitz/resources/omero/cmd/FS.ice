@@ -193,7 +193,7 @@ module omero {
          *
          * Permissible classes include:
          *   ExperimenterGroup, Experimenter, Project, Dataset,
-         *   Screen, Plate, Well, WellSample,
+         *   Folder, Screen, Plate, Well, WellSample,
          *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
          **/
         class DiskUsage extends Request {

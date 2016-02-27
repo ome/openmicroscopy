@@ -37,6 +37,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.ExperimenterGroup;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Well;
@@ -45,6 +46,7 @@ import omero.sys.ParametersI;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -1278,5 +1280,158 @@ public class BrowseFacility extends Facility {
         }
 
         return Collections.emptyList();
+    }
+    
+    /**
+     * Loads all folders the logged in user has access to
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "left outer join fetch folder.parentFolder as parentFolder "
+                                    + "left outer join fetch folder.childFolders as childFolders "
+                                    + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch roiLinks.child as roi "
+                                    + "left outer join fetch roi.shapes as shapes "
+                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.imageLinks as imageLinks "
+                                    + "left outer join fetch folder.details.owner as owner",
+                            null);
+            Collection<FolderData> result = new ArrayList<FolderData>();
+            for (IObject l : list) {
+                result.add(new FolderData((Folder) l));
+            }
+            return result;
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Load the folders for the given folder ids
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param ids
+     *            The folder ids
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx,
+            Collection<Long> ids) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            ParametersI param = new ParametersI();
+            param.addIds(ids);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "left outer join fetch folder.parentFolder as parentFolder "
+                                    + "left outer join fetch folder.childFolders as childFolders "
+                                    + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch roiLinks.child as roi "
+                                    + "left outer join fetch roi.shapes as shapes "
+                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.details.owner as owner "
+                                    + "left outer join fetch folder.imageLinks as imageLinks where folder.id in (:ids)",
+                            param);
+            Collection<FolderData> result = new ArrayList<FolderData>();
+            for (IObject l : list) {
+                result.add(new FolderData((Folder) l));
+            }
+            return result;
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Load the folders which belong to the given user
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param userId
+     *            The user id
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx, long userId)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            ParametersI param = new ParametersI();
+            param.addLong("userId", userId);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "left outer join fetch folder.parentFolder as parentFolder "
+                                    + "left outer join fetch folder.childFolders as childFolders "
+                                    + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch roiLinks.child as roi "
+                                    + "left outer join fetch roi.shapes as shapes "
+                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.imageLinks as imageLinks "
+                                    + "left outer join fetch folder.details.owner as owner "
+                                    + "where owner.id = :userId",
+                            param);
+
+            Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
+            for (IObject l : list) {
+                FolderData f = new FolderData((Folder) l);
+                folderById.put(f.getId(), f);
+            }
+            for (FolderData folder : folderById.values()) {
+                initFolders(folder, folderById);
+            }
+            return folderById.values();
+            
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+    
+    /**
+     * Helper method for properly initializing a FolderData; i. e. making sure
+     * parent folders are loaded
+     * 
+     * @param f
+     *            The Folder
+     * @param folders
+     *            All available, loaded Folders
+     */
+    private void initFolders(FolderData f, Map<Long, FolderData> folders) {
+        if (f.getParentFolder() != null && !f.getParentFolder().isLoaded()) {
+            FolderData parent = folders.get(f.getParentFolder().getId());
+            f.setParentFolder(parent.asFolder());
+            initFolders(parent, folders);
+        }
     }
 }

@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006-2014 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -36,6 +34,7 @@ import ome.conditions.InternalException;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
+import ome.model.containers.Folder;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.fs.Fileset;
@@ -67,8 +66,6 @@ import com.google.common.collect.Sets;
  * implementation of the Pojos service interface.
  *
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date: 2007-10-03
- *          13:25:20 +0100 (Wed, 03 Oct 2007) $) </small>
  * @since OMERO 2.0
  */
 @Transactional
@@ -102,12 +99,6 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             + "left outer join fetch p.annotationLinksCountPerOwner " 
             + "where p in (:list)";
 
-    /** Query to load the number of annotations per dataset. */
-    final static String loadLinksDatasets = "select d from Dataset d "
-            + "left outer join fetch d.annotationLinksCountPerOwner "
-            + "left outer join fetch d.imageLinksCountPerOwner where d " 
-            + "in (:list)";
-    
     /* A model object hierarchy navigator that is convenient for getImagesBySplitFilesets.
      * To switch its API from bare Longs to an IObject-based query interface, it is easy to implement
      * HierarchyNavigatorWrap<Class<? extends IObject>, IObject> and implement noteLookups with its methods. */
@@ -488,6 +479,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         /* note which entities have been explicitly referenced */
 
+        final Set<Long> folderIds  = new HashSet<Long>();
         final Set<Long> projectIds = new HashSet<Long>();
         final Set<Long> datasetIds = new HashSet<Long>();
         final Set<Long> screenIds  = new HashSet<Long>();
@@ -499,7 +491,9 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         for (final Entry<Class<? extends IObject>, List<Long>> typeAndIds : included.entrySet()) {
             final Class<? extends IObject> type = typeAndIds.getKey();
             final List<Long> ids = typeAndIds.getValue();
-            if (Project.class.isAssignableFrom(type)) {
+            if (Folder.class.isAssignableFrom(type)) {
+                folderIds.addAll(ids);
+            } else if (Project.class.isAssignableFrom(type)) {
                 projectIds.addAll(ids);
             } else if (Dataset.class.isAssignableFrom(type)) {
                 datasetIds.addAll(ids);
@@ -520,25 +514,42 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         final HierarchyNavigatorPlain hierarchyNavigator = new HierarchyNavigatorPlain(iQuery);
 
-        hierarchyNavigator.noteLookups("/Project", "/Dataset", projectIds, datasetIds);
-        hierarchyNavigator.noteLookups("/Dataset", "/Image", datasetIds, imageIds);
-        hierarchyNavigator.noteLookups("/Screen", "/Plate", screenIds, plateIds);
-        hierarchyNavigator.noteLookups("/Plate", "/Well", plateIds, wellIds);
-        hierarchyNavigator.noteLookups("/Well", "/Image", wellIds, imageIds);
-        hierarchyNavigator.noteLookups("/Fileset", "/Image", filesetIds, imageIds);
+        hierarchyNavigator.noteLookups("Project", "Dataset", projectIds, datasetIds);
+        hierarchyNavigator.noteLookups("Dataset", "Image", datasetIds, imageIds);
+        hierarchyNavigator.noteLookups("Screen", "Plate", screenIds, plateIds);
+        hierarchyNavigator.noteLookups("Plate", "Well", plateIds, wellIds);
+        hierarchyNavigator.noteLookups("Well", "Image", wellIds, imageIds);
+        hierarchyNavigator.noteLookups("Fileset", "Image", filesetIds, imageIds);
+
+        Set<Long> oldFolderIds  = folderIds;
+        Set<Long> newFolderIds  = new HashSet<Long>();
+
+        while (true) {
+            hierarchyNavigator.noteLookups("Folder", "Folder", oldFolderIds, newFolderIds);
+
+            if (newFolderIds.isEmpty()) {
+                break;
+            } else {
+                folderIds.addAll(newFolderIds);
+                oldFolderIds = newFolderIds;
+                newFolderIds = new HashSet<Long>();
+            }
+        }
+
+        hierarchyNavigator.noteLookups("Folder", "Image", folderIds, imageIds);
 
         /* note which filesets are associated with referenced images */
 
         final Set<Long> filesetIdsRequired = new HashSet<Long>();
-        hierarchyNavigator.noteLookups("/Image", "/Fileset", imageIds, filesetIdsRequired);
+        hierarchyNavigator.noteLookups("Image", "Fileset", imageIds, filesetIdsRequired);
 
         /* make sure that associated filesets have all their images referenced */
 
         final Map<Long, Map<Boolean, List<Long>>> imagesBySplitFilesets = new HashMap<Long, Map<Boolean, List<Long>>>();
         final Set<Long> filesetIdsMissing = Sets.difference(filesetIdsRequired, filesetIds);
-        hierarchyNavigator.prepareLookups("/Image", "/Fileset", filesetIdsMissing);
+        hierarchyNavigator.prepareLookups("Image", "Fileset", filesetIdsMissing);
         for (final long filesetIdMissing : filesetIdsMissing) {
-            final Set<Long> imageIdsRequiredUnordered = hierarchyNavigator.doLookup("/Image", "/Fileset", filesetIdMissing);
+            final Set<Long> imageIdsRequiredUnordered = hierarchyNavigator.doLookup("Image", "Fileset", filesetIdMissing);
             final SortedSet<Long> imageIdsRequired = new TreeSet<Long>(imageIdsRequiredUnordered);
             final Set<Long> includedImageIds = Sets.intersection(imageIdsRequired, imageIds);
             final Set<Long> excludedImageIds = Sets.difference(imageIdsRequired, includedImageIds);

@@ -116,15 +116,15 @@ try
             fprintf(1, '  Rectangle x: %g, y: %g, width: %g, height: %g\n',...
                 x, y, width, height);      
         elseif (isa(shape, 'omero.model.Ellipse'))
-            cx = shape.getCx().getValue();
-            cy = shape.getCy().getValue();
-            rx = shape.getRx().getValue();
-            ry = shape.getRy().getValue();
+            cx = shape.getX().getValue();
+            cy = shape.getY().getValue();
+            rx = shape.getRadiusX().getValue();
+            ry = shape.getRadiusY().getValue();
             fprintf(1, '  Ellipse x: %g, y: %g, rx: %g, ry: %g\n',...
                 cx, cy, rx, ry);
         elseif (isa(shape, 'omero.model.Point'))
-            cx = shape.getCx().getValue();
-            cy = shape.getCy().getValue();
+            cx = shape.getX().getValue();
+            cy = shape.getY().getValue();
             fprintf(1, '  Point x: %g, y: %g\n', cx, cy);
         elseif (isa(shape, 'omero.model.Line'))
             x1 = shape.getX1().getValue();
