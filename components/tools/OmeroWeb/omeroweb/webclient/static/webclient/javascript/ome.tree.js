@@ -645,7 +645,7 @@ $(function() {
                             if (data.hasOwnProperty('orphaned')) {
                                 node = {
                                     'data': {'obj': data.orphaned},
-                                    'text': 'Orphaned Images',
+                                    'text': data.orphaned.name,
                                     'children': data.orphaned.childCount > 0 ? true : false,
                                     'type': 'orphaned'
                                 };
@@ -773,7 +773,7 @@ $(function() {
                 'draggable': true
             },
             'acquisition': {
-                'icon': WEBCLIENT.URLS.static_webclient + 'image/image16.png',
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/run16.png',
             },
             'orphaned': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_yellow16.png',

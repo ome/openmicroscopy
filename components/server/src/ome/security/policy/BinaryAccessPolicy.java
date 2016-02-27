@@ -102,6 +102,13 @@ public class BinaryAccessPolicy extends BasePolicy {
         // Possible performance impact!
         if (obj instanceof OriginalFile) {
             OriginalFile ofile = (OriginalFile) obj;
+
+            // Quick short-cut for necessary files
+            boolean isTxt = ofile.getName().endsWith(".txt");
+            if (isTxt) {
+                return false;
+            }
+
             Iterator<FilesetEntry> it = ofile.iterateFilesetEntries();
             while (it.hasNext()) {
                 FilesetEntry fe = it.next();

@@ -201,14 +201,16 @@ public class GatewayTest {
         ids.add(imgId);
         ImageData img = browseFacility.getImages(ctx, ids).iterator().next();
 
-        List<ImageData> l = new ArrayList<ImageData>(1);
-        l.add(img);
-        datamanagerFacility.addImagesToDataset(ctx, l, ds);
+        if (ds != null) {
+            List<ImageData> l = new ArrayList<ImageData>(1);
+            l.add(img);
+            datamanagerFacility.addImagesToDataset(ctx, l, ds);
 
-        ids.clear();
-        ids.add(ds.getId());
-        ds = browseFacility.getDatasets(ctx, ids).iterator().next();
-
+            ids.clear();
+            ids.add(ds.getId());
+            ds = browseFacility.getDatasets(ctx, ids).iterator().next();
+        }
+        
         return img;
     }
 

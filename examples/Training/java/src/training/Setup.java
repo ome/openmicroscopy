@@ -139,7 +139,6 @@ public class Setup {
 		new RenderImages(args, imageId);
 		new ROIs(args, imageId);
 		new WriteData(args, imageId, projectId);
-		new ImportImage(args);
 	}
 	
 	/**
