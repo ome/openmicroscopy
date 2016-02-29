@@ -27,6 +27,7 @@
 import cStringIO
 import traceback
 import logging
+import warnings
 
 from StringIO import StringIO
 
@@ -179,6 +180,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             return False
 
     def getOrphanedContainerSettings(self):
+        """
+        ** Deprecated ** Use :meth:`BlitzGateway.getClientSettings`.
+        """
+        warnings.warn(
+            "Deprecated. Use BlitzGateway.getClientSettings()",
+            DeprecationWarning)
         name = (self.getConfigService().getConfigValue(
                 "omero.client.ui.tree.orphans.name") or "Orphaned image")
         description = (self.getConfigService().getConfigValue(
@@ -187,6 +194,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         return name, description
 
     def getDropdownMenuSettings(self):
+        """
+        ** Deprecated ** Use :meth:`BlitzGateway.getClientSettings`.
+        """
+        warnings.warn(
+            "Deprecated. Use BlitzGateway.getClientSettings()",
+            DeprecationWarning)
         dropdown_menu = dict()
         if toBoolean(self.getConfigService().getConfigValue(
                      "omero.client.ui.menu.dropdown.leaders.enabled")):

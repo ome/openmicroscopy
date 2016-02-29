@@ -92,7 +92,7 @@ $(function () {
             if ($metadata_general.is(":visible") && $metadata_general.is(":empty")) {
                 // orphaned
                 if (oid.indexOf("orphaned")>=0) {
-                    $metadata_general.html('<div class="right_tab_inner"><p class="description">{{ ui.orphans_desc }}</p></div>');
+                    $metadata_general.html('<div class="right_tab_inner"><p class="description">{{ ui.orphans.description }}</p></div>');
                     //return;
                 // experimenter
                 } else if (oid.indexOf("experimenter")>=0) {
