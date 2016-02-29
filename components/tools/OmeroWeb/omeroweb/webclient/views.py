@@ -720,6 +720,7 @@ def api_image_list(request, conn=None, **kwargs):
         date = get_bool_or_default(request, 'date', False)
         experimenter_id = get_long_or_default(request,
                                               'experimenter_id', -1)
+        filter_text = request.GET.get('filter', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
@@ -741,7 +742,17 @@ def api_image_list(request, conn=None, **kwargs):
                                      page=page,
                                      date=date,
                                      thumb_version=thumb_version,
+                                     filter_text=filter_text,
                                      limit=limit)
+
+        imgCount = tree.count_images(conn=conn,
+                                     orphaned=orphaned,
+                                     experimenter_id=experimenter_id,
+                                     dataset_id=dataset_id,
+                                     share_id=share_id,
+                                     group_id=group_id,
+                                     filter_text=filter_text)
+
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
@@ -749,7 +760,7 @@ def api_image_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'images': images})
+    return HttpJsonResponse({'images': images, 'count': imgCount})
 
 
 @login_required()
@@ -1150,102 +1161,40 @@ def api_share_list(request, conn=None, **kwargs):
 
 
 @login_required()
-@render_response()
-def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
-              o3_type=None, o3_id=None, conn=None, **kwargs):
+def api_field_list(request, conn=None, **kwargs):
+
     """
-    This loads data for the center panel, via AJAX calls.
-    Used for Datasets, Plates & Orphaned Images.
+    Returns list of min and max of indexed collection of well samples
+    per plate acquisition if exists
+
+    TODO: move to tree.py and add tests
     """
+    plate_id = get_long_or_default(request, 'plate', None)
+    run_id = get_long_or_default(request, 'run', None)
+    if (plate_id is None and run_id is None):
+        return HttpJsonResponse('Need to use ?plate=pid or ?run=runid')
 
-    # get page
-    page = getIntOrDefault(request, 'page', 1)
-    # limit = get_long_or_default(request, 'limit', settings.PAGE)
+    q = conn.getQueryService()
+    sql = "select minIndex(ws), maxIndex(ws) from Well w " \
+        "join w.wellSamples ws"
 
-    # get index of the plate
-    index = getIntOrDefault(request, 'index', 0)
+    params = omero.sys.ParametersI()
 
-    # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L,
-    # 'dataset': 301L}
-    kw = dict()
-    if o1_type is not None:
-        if o1_id is not None and o1_id > 0:
-            kw[str(o1_type)] = long(o1_id)
-        else:
-            kw[str(o1_type)] = bool(o1_id)
-    if o2_type is not None and o2_id > 0:
-        kw[str(o2_type)] = long(o2_id)
-    if o3_type is not None and o3_id > 0:
-        kw[str(o3_type)] = long(o3_id)
+    if run_id is not None:
+        sql += " where ws.plateAcquisition.id=:runid"
+        params.add('runid', rlong(run_id))
+    if plate_id is not None:
+        sql += " where w.plate.id=:pid"
+        params.add('pid', rlong(plate_id))
 
-    try:
-        manager = BaseContainer(conn, **kw)
-    except AttributeError, x:
-        return handlerInternalError(request, x)
+    fields = []
 
-    # prepare forms
-    filter_user_id = request.session.get('user_id')
-    form_well_index = None
+    res = q.projection(sql, params, conn.SERVICE_OPTS)
+    res = [r for r in unwrap(res)[0] if r is not None]
+    if len(res) == 2:
+        fields = res
 
-    context = {
-        'manager': manager,
-        'form_well_index': form_well_index,
-        'index': index}
-
-    # load data & template
-    template = None
-    template = "webclient/data/containers_icon.html"
-    if 'orphaned' in kw:
-        # We need to set group context since we don't have a container Id
-        groupId = request.session.get('active_group')
-        if groupId is None:
-            groupId = conn.getEventContext().groupId
-        conn.SERVICE_OPTS.setOmeroGroup(groupId)
-        manager.listOrphanedImages(filter_user_id, page)
-    elif 'dataset' in kw:
-        # we need the sizeX and sizeY for these
-        load_pixels = True
-        filter_user_id = None   # Show images belonging to all users
-        manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
-                                    page, load_pixels=load_pixels)
-    elif 'plate' in kw or 'acquisition' in kw:
-        fields = manager.getNumberOfFields()
-        if fields is not None:
-            form_well_index = WellIndexForm(
-                initial={'index': index, 'range': fields})
-            if index == 0:
-                index = fields[0]
-
-        # We don't know what our menu is so we're setting it to None.
-        # Should only raise an exception below if we've been asked to
-        # show some tags which we don't care about anyway in this
-        # context.
-        show = Show(conn, request, None)
-        # Constructor does no loading.  Show.first_selected must be
-        # called first in order to set up our initial state correctly.
-        try:
-            first_selected = show.first_selected
-            if first_selected is not None:
-                wells_to_select = list()
-                paths = show.initially_open + show.initially_select
-                for path in paths:
-                    m = Show.PATH_REGEX.match(path)
-                    if m is None:
-                        continue
-                    if m.group('object_type') == 'well':
-                        wells_to_select.append(m.group('value'))
-                context['select_wells'] = ','.join(wells_to_select)
-        except IncorrectMenuError:
-            pass
-
-        context['baseurl'] = reverse('webgateway').rstrip('/')
-        context['form_well_index'] = form_well_index
-        context['index'] = index
-        template = "webclient/data/plate.html"
-
-    context['isLeader'] = conn.isLeader()
-    context['template'] = template
-    return context
+    return HttpJsonResponse({'fields': fields})
 
 
 @login_required()

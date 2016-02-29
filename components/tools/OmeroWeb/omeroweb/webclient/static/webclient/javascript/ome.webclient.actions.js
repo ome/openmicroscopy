@@ -213,14 +213,17 @@ OME.handleTableClickSelection = function(event) {
 };
 
 // called from click events on plate. Selected wells
-OME.well_selection_changed = function($selected, well_index, plate_class) {
+OME.well_selection_changed = function(selectedWellIds, well_index) {
 
-    var selected_objs = [];
-    $selected.each(function(i){
-        selected_objs.push( {"id":$(this).attr('id').replace("=","-"),
-                "rel":$(this).attr('rel'),
-                "index":well_index,
-                "class":plate_class} );     // assume every well has same permissions as plate
+    // Update the buttons in the jstree as if nothing selected.
+    if (buttonsShowHide) {
+        var datatree = $.jstree.reference('#dataTree');
+        buttonsShowHide([], datatree);
+    }
+
+    var selected_objs = selectedWellIds.map(function(i){
+        return {"id":"well-" + i,
+                "index":well_index};
     });
 
     $("body")
@@ -1008,3 +1011,33 @@ jQuery.fn.tooltip_init = function() {
     });
   return this;
 };
+
+
+// Polyfill, from https://gist.github.com/hsablonniere/2581101
+if (!Element.prototype.scrollIntoViewIfNeeded) {
+  Element.prototype.scrollIntoViewIfNeeded = function (centerIfNeeded) {
+    centerIfNeeded = arguments.length === 0 ? true : !!centerIfNeeded;
+
+    var parent = this.parentNode,
+        parentComputedStyle = window.getComputedStyle(parent, null),
+        parentBorderTopWidth = parseInt(parentComputedStyle.getPropertyValue('border-top-width'), 10),
+        parentBorderLeftWidth = parseInt(parentComputedStyle.getPropertyValue('border-left-width'), 10),
+        overTop = this.offsetTop - parent.offsetTop < parent.scrollTop,
+        overBottom = (this.offsetTop - parent.offsetTop + this.clientHeight - parentBorderTopWidth) > (parent.scrollTop + parent.clientHeight),
+        overLeft = this.offsetLeft - parent.offsetLeft < parent.scrollLeft,
+        overRight = (this.offsetLeft - parent.offsetLeft + this.clientWidth - parentBorderLeftWidth) > (parent.scrollLeft + parent.clientWidth),
+        alignWithTop = overTop && !overBottom;
+
+    if ((overTop || overBottom) && centerIfNeeded) {
+      parent.scrollTop = this.offsetTop - parent.offsetTop - parent.clientHeight / 2 - parentBorderTopWidth + this.clientHeight / 2;
+    }
+
+    if ((overLeft || overRight) && centerIfNeeded) {
+      parent.scrollLeft = this.offsetLeft - parent.offsetLeft - parent.clientWidth / 2 - parentBorderLeftWidth + this.clientWidth / 2;
+    }
+
+    if ((overTop || overBottom || overLeft || overRight) && !centerIfNeeded) {
+      this.scrollIntoView(alignWithTop);
+    }
+  };
+}

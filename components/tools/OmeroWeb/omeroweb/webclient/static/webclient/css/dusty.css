@@ -930,8 +930,42 @@ button::-moz-focus-inner {
 
 
 
+	.iconTableHeader, .iconTableFooter, .iconTable, .plateContainer, .centrePanel {
+		position: absolute;
+		left: 0;
+		right: 0;
+		border-right: 0;
+	}
 
+	.centrePanel {
+		top: 0;
+		bottom: 0;
+	}
 
+	.iconTableHeader {
+		top: 0;
+		height: 29px;
+	}
+
+	.iconTableFooter {
+		bottom: 0;
+		height: 25px;
+	}
+
+	.iconTable, .plateContainer {
+		bottom:0;
+		overflow:auto;
+		margin-top:0px;
+	}
+
+	.iconTable {
+		top:29px;
+	}
+
+	.plateContainer {
+		top: 0;
+
+	}
 
 
 
@@ -992,6 +1026,14 @@ button::-moz-focus-inner {
 		     -o-transition:   opacity .2s linear;
 		        transition:   opacity .2s linear; 
 		
+	}
+
+	.filterCounter {
+		padding: 8px 10px;
+		position: absolute;
+		left: 170px;
+		color: #555;
+		font-size: 13px
 	}
 	
 	

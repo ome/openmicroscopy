@@ -21,20 +21,128 @@
 // jQuery load callback...
 $(function() {
 
+
+    var converter = function (data) {
+        var jstree_data = [],
+            node;
+
+        function makeNode(value, type) {
+            var rv = {
+                'data': {'id': value.id, 'obj': value},
+                'text': value.name,
+                'children': value.childCount ? true : false,
+                'type': type,
+                'li_attr': {
+                    'data-id': value.id
+                }
+            };
+            if (type === 'experimenter') {
+                rv.text = value.firstName + ' ' + value.lastName;
+                rv.state = {'opened': true};
+                rv.children = true;
+            } else if (type === 'tag') {
+                // We don't count children for Tags (too expensive?) Assume they have children
+                rv.children = true;
+                rv.type = value.set ? 'tagset' : 'tag';
+                rv.text = value.value;
+            }
+            return rv;
+        }
+
+        if (data.hasOwnProperty('experimenter')) {
+            node = makeNode(data.experimenter, 'experimenter');
+            jstree_data.push(node);
+        }
+
+        // Add tags to the jstree data structure
+        if (data.hasOwnProperty('tags')) {
+            $.each(data.tags, function(index, value) {
+                var node = makeNode(value, 'tag');
+                jstree_data.push(node);
+            });
+        }
+
+        // Add projects to the jstree data structure
+        if (data.hasOwnProperty('projects')) {
+            $.each(data.projects, function(index, value) {
+                var node = makeNode(value, 'project');
+                jstree_data.push(node);
+            });
+        }
+
+        // Add datasets to the jstree data structure
+        if (data.hasOwnProperty('datasets')) {
+            $.each(data.datasets, function(index, value) {
+                var node = makeNode(value, 'dataset');
+                jstree_data.push(node);
+            });
+        }
+
+        // Add images to the jstree data structure
+        if (data.hasOwnProperty('images')) {
+            $.each(data.images, function(index, value) {
+                var node = makeNode(value, 'image');
+                jstree_data.push(node);
+            });
+        }
+
+        // Add screens to the jstree data structure
+        if (data.hasOwnProperty('screens')) {
+            $.each(data.screens, function(index, value) {
+                var node = makeNode(value, 'screen');
+                jstree_data.push(node);
+            });
+        }
+
+        // Add plates to the jstree data structure
+        if (data.hasOwnProperty('plates')) {
+            $.each(data.plates, function(index, value) {
+                var node = makeNode(value, 'plate');
+                jstree_data.push(node);
+            });
+        }
+
+        // Add plates to the jstree data structure
+        if (data.hasOwnProperty('acquisitions')) {
+            $.each(data.acquisitions, function(index, value) {
+                var node = makeNode(value, 'acquisition');
+                jstree_data.push(node);
+            });
+        }
+
+        if (data.hasOwnProperty('orphaned')) {
+            node = {
+                'data': {'obj': data.orphaned},
+                'text': 'Orphaned Images',
+                'children': data.orphaned.childCount > 0 ? true : false,
+                'type': 'orphaned'
+            };
+            jstree_data.push(node);
+        }
+
+        return jstree_data;
+    };
+
     // Select jstree and then cascade handle events and setup the tree.
     var jstree = $("#dataTree")
     .on('changed.jstree', function (e, data) {
+        // E.g. notify of de-selection
+        OME.tree_selection_changed(data, e);
+    })
+    //     var inst = data.instance;
+    //     buttonsShowHide(inst.get_selected(true), inst);
+
+    //     // Load on selection, but not open because that breaks key navigation
+    //     if (data.node &&
+    //         inst.is_parent(data.node) &&
+    //         !inst.is_loaded(data.node) &&
+    //         !inst.is_loading(data.node)) {
+    //         inst.load_node(data.node);
+    //     }
+    .on('select_node.jstree', function(e, data) {
+        // When selection changes, trigger change for other panels
         var inst = data.instance;
         buttonsShowHide(inst.get_selected(true), inst);
-
-        // Load on selection, but not open because that breaks key navigation
-        if (data.node &&
-            inst.is_parent(data.node) &&
-            !inst.is_loaded(data.node) &&
-            !inst.is_loading(data.node)) {
-            inst.load_node(data.node);
-        }
-
         OME.tree_selection_changed(data, e);
     })
     .on('copy_node.jstree', function(e, data) {
@@ -335,7 +443,7 @@ $(function() {
     .jstree({
         'plugins': ['types', 'contextmenu', 'dnd', 'sort', 'locate',
                     'ometools', 'conditionalselect', 'pagination', 'fields',
-                    'truncatetext', 'childcount', 'omecut'],
+                    'truncatetext', 'childcount', 'omecut', 'filter', 'search'],
         // The jstree core
         'locate' : {
             // Returns a key for this node
@@ -350,6 +458,10 @@ $(function() {
                 }
                 return node.type + '-' + node.data.obj.id;
             }
+        },
+
+        'search' : {
+            'show_only_matches': true
         },
 
         'conditionalselect' : {
@@ -459,6 +571,14 @@ $(function() {
                     }
                 }
 
+                // If the node is currently being filtered...
+                if (node.id !== '#') {
+                    var filter_text = node.data.obj.filter;
+                    if (filter_text && filter_text.length > 0) {
+                        payload['filter'] = filter_text;
+                    }
+                }
+
                 // Always add the group_id from the current context
                 payload['group'] = WEBCLIENT.active_group_id;
 
@@ -519,143 +639,21 @@ $(function() {
                     data: payload,
                     cache: false,
                     success: function (data, textStatus, jqXHR) {
+
+                        // if we have a 'count' of images, update this in parent node
+                        if (data.count !== undefined && node.data) {
+                            node.data.obj.filterCount = data.count;
+                        }
+
+                        // we convert the data into format expected by jstree...
+                        data = converter(data);
+
+                        // ...and pass to callback
                         callback.call(this, data);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         // Global error handling is sufficient here
                     },
-                    // Converter is required because the JSON format being returned is not
-                    // jstree specific.
-                    'converters' : {
-                        "text json": function (json) {
-                            var data = JSON.parse(json),
-                                jstree_data = [],
-                                node;
-
-                            // Add experimenters to the jstree data structure
-                            // This handles multiple experimenters in the tree
-                            // if (data.hasOwnProperty('experimenters')) {
-                            //     $.each(data.experimenters, function(index, value) {
-                            //         var node = {
-                            //             'data': {'id': value.id, 'obj': value},
-                            //             'text': value.firstName + ' ' + value.lastName,
-                            //             'children': true,
-                            //             'type': 'experimenter',
-                            //             'state': {
-                            //             },
-                            //             'li_attr': {
-                            //                 'data-id': value.id
-                            //             }
-                            //         };
-
-                            //         // Add 'state' opened for the current user by default
-                            //         {% if active_user %}
-                            //             if (value.id == {{ active_user.getId }}) {
-                            //                 node.state['opened'] = true;
-                            //             }
-                            //         {% endif %}
-
-                            //         jstree_data.push(node);
-                            //     });
-                            // }
-                            function makeNode(value, type) {
-                                var rv = {
-                                    'data': {'id': value.id, 'obj': value},
-                                    'text': value.name,
-                                    'children': value.childCount ? true : false,
-                                    'type': type,
-                                    'li_attr': {
-                                        'data-id': value.id
-                                    }
-                                };
-                                if (type === 'experimenter') {
-                                    rv.text = value.firstName + ' ' + value.lastName;
-                                    rv.state = {'opened': true};
-                                    rv.children = true;
-                                } else if (type === 'tag') {
-                                    // We don't count children for Tags (too expensive?) Assume they have children
-                                    rv.children = true;
-                                    rv.type = value.set ? 'tagset' : 'tag';
-                                    rv.text = value.value;
-                                }
-                                return rv;
-                            }
-
-                            if (data.hasOwnProperty('experimenter')) {
-                                node = makeNode(data.experimenter, 'experimenter');
-                                jstree_data.push(node);
-                            }
-
-                            // Add tags to the jstree data structure
-                            if (data.hasOwnProperty('tags')) {
-                                $.each(data.tags, function(index, value) {
-                                    var node = makeNode(value, 'tag');
-                                    jstree_data.push(node);
-                                });
-                            }
-
-                            // Add projects to the jstree data structure
-                            if (data.hasOwnProperty('projects')) {
-                                $.each(data.projects, function(index, value) {
-                                    var node = makeNode(value, 'project');
-                                    jstree_data.push(node);
-                                });
-                            }
-
-                            // Add datasets to the jstree data structure
-                            if (data.hasOwnProperty('datasets')) {
-                                $.each(data.datasets, function(index, value) {
-                                    var node = makeNode(value, 'dataset');
-                                    jstree_data.push(node);
-                                });
-                            }
-
-                            // Add images to the jstree data structure
-                            if (data.hasOwnProperty('images')) {
-                                $.each(data.images, function(index, value) {
-                                    var node = makeNode(value, 'image');
-                                    jstree_data.push(node);
-                                });
-                            }
-
-                            // Add screens to the jstree data structure
-                            if (data.hasOwnProperty('screens')) {
-                                $.each(data.screens, function(index, value) {
-                                    var node = makeNode(value, 'screen');
-                                    jstree_data.push(node);
-                                });
-                            }
-
-                            // Add plates to the jstree data structure
-                            if (data.hasOwnProperty('plates')) {
-                                $.each(data.plates, function(index, value) {
-                                    var node = makeNode(value, 'plate');
-                                    jstree_data.push(node);
-                                });
-                            }
-
-                            // Add plates to the jstree data structure
-                            if (data.hasOwnProperty('acquisitions')) {
-                                $.each(data.acquisitions, function(index, value) {
-                                    var node = makeNode(value, 'acquisition');
-                                    jstree_data.push(node);
-                                });
-                            }
-
-                            if (data.hasOwnProperty('orphaned')) {
-                                node = {
-                                    'data': {'obj': data.orphaned},
-                                    'text': data.orphaned.name,
-                                    'children': data.orphaned.childCount > 0 ? true : false,
-                                    'type': 'orphaned'
-                                };
-                                jstree_data.push(node);
-                            }
-
-                            return jstree_data;
-                        }
-
-                    }
                 });
             },
             'check_callback': function(operation, node, node_parent, node_position, more) {

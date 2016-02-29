@@ -94,10 +94,16 @@ Check Multi Selections
 	${imageId}						Select First Orphaned Image
 	Click Next Thumbnail
 	${imageId1}						Get Id From Selected Thumbnail
-	Meta Click Thumbnail 			${imageId}
+	Should Not Be Equal             ${imageId}    		${imageId1}
+
+	# Meta Click Thumbnail uses jQuery - conflicts with similar events in IconTable.jsx
+	# Meta Click on Node instead 
+	${nodeId}= 						Wait For Image Node  ${imageId}
+	Meta Click Node  				${nodeId}
 
 	${numOfObjects}					Get Number Of Selected Objects From Tree
 	${numOfObjects1}				Get Number Of Selected Objects From Center Panel
 
+	Should Be Equal 				${numOfObjects}     2
 	Should Be Equal 				${numOfObjects}		${numOfObjects1}
 	Wait Until Right Panel Loads For MultiSelection 	${numOfObjects}

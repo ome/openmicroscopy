@@ -16,6 +16,11 @@
 
     $.jstree.plugins.pagination = function (options, parent) {
 
+        this.get_page_size = function(node) {
+            // nicer way to acces this global variable
+            return WEBCLIENT.PAGE;
+        };
+
         this.change_page = function(node, page) {
             this._set_page(node, page);
             this.refresh_node(node);

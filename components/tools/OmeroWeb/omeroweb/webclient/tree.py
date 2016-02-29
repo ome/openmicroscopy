@@ -520,10 +520,129 @@ def _marshal_image_deleted(conn, image_id):
     }
 
 
+def count_images(conn, dataset_id=None, orphaned=False, share_id=None,
+                 group_id=-1, experimenter_id=-1, filter_text=None):
+
+    q = build_query(conn, dataset_id=dataset_id,
+                    orphaned=orphaned, share_id=share_id, filter_text=filter_text,
+                    group_id=group_id, experimenter_id=experimenter_id)
+
+    if q is None:
+        # E.g. if no images in share
+        return 0
+
+    params, from_join_clauses, where_clause, service_opts = q
+
+    countQuery = """select count(image) from %s %s
+                """ % (' '.join(from_join_clauses), build_clause(where_clause, 'where', 'and'))
+
+    print countQuery
+
+    qs = conn.getQueryService()
+
+    n = time.time()
+    rslt = qs.projection(countQuery, params, service_opts)
+    imgCount = rslt[0][0].val
+    print imgCount
+    print "count", time.time() - n
+    return imgCount
+
+
+def build_query(conn, dataset_id=None, orphaned=False, share_id=None,
+                filter_text=None, group_id=-1, experimenter_id=-1,
+                load_pixels=False, limit=settings.PAGE,
+                page=None, date=False, thumb_version=False, count_only=False):
+
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    from_join_clauses = []
+    where_clause = []
+    if experimenter_id is not None and experimenter_id != -1:
+        params.addId(experimenter_id)
+        where_clause.append('image.details.owner.id = :id')
+
+    from_join_clauses.append('Image image')
+
+    # If this is a query to get images from a parent dataset
+    if dataset_id is not None:
+        params.add('did', rlong(dataset_id))
+        from_join_clauses.append('join image.datasetLinks dlink')
+        where_clause.append('dlink.parent.id = :did')
+
+    elif orphaned:
+        orphan_where = """
+                        not exists (
+                            select dilink from DatasetImageLink as dilink
+                            where dilink.child = image.id
+
+                        """
+        # This is what is necessary if an orphan means that it has no
+        # container that belongs to the image owner. This corresponds
+        # to marshal_orphaned as well because of the child count
+        # if experimenter_id is not None and experimenter_id != -1:
+        #     orphan_where += ' and dilink.parent.details.owner.id = :id '
+
+        orphan_where += ') '
+        where_clause.append(orphan_where)
+
+        # Also discount any images which are part of a screen. No need to
+        # take owner into account on this because we don't want them in
+        # orphans either way
+        where_clause.append(
+            """
+            not exists (
+                select ws from WellSample ws
+                where ws.image.id = image.id
+            )
+            """
+        )
+
+    if filter_text is not None:
+        params.add("filter_text", wrap("%"+filter_text+"%"))
+        where_clause.append(
+            """
+            image.name like :filter_text
+            """
+        )
+
+    # If this is a query to get images in a share
+    if share_id is not None:
+        # Get the contents of the blob which contains the images in the share
+        # Would be nice to do this without the ShareService, preferably as part
+        # of the single query
+        image_rids = [image_rid.getId().val
+                      for image_rid
+                      in conn.getShareService().getContents(share_id)
+                      if isinstance(image_rid, omero.model.ImageI)]
+
+        # If there are no images in the share, don't bother querying
+        if not image_rids:
+            return None
+
+        params.add('iids', wrap(image_rids))
+        where_clause.append('image.id in (:iids)')
+
+    if load_pixels:
+        # We use 'left outer join', since we still want images if no pixels
+        from_join_clauses.append('left outer join image.pixels pix')
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    return params, from_join_clauses, where_clause, service_opts
+
+
 def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                    load_pixels=False, group_id=-1, experimenter_id=-1,
-                   page=1, date=False, thumb_version=False,
-                   limit=settings.PAGE):
+                   page=1, date=False, thumb_version=False, count_only=False,
+                   filter_text=None, limit=settings.PAGE):
 
     ''' Marshals images
 
@@ -557,25 +676,31 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         @type page L{long}
 
     '''
-    images = []
-    params = omero.sys.ParametersI()
-    service_opts = deepcopy(conn.SERVICE_OPTS)
 
-    # Set the desired group context
-    if group_id is None:
-        group_id = -1
-    service_opts.setOmeroGroup(group_id)
+    q = build_query(conn, dataset_id=dataset_id,
+                    orphaned=orphaned, share_id=share_id,
+                    filter_text=filter_text, group_id=group_id, experimenter_id=experimenter_id,
+                    page=page, date=date, count_only=count_only, limit=limit)
 
-    # Paging
-    if page is not None and page > 0:
-        params.page((page-1) * limit, limit)
+    if q is None:
+        # E.g. if no images in share
+        return []
 
-    from_join_clauses = []
-    where_clause = []
-    if experimenter_id is not None and experimenter_id != -1:
-        params.addId(experimenter_id)
-        where_clause.append('image.details.owner.id = :id')
-    qs = conn.getQueryService()
+    params, from_join_clauses, where_clause, service_opts = q
+
+    # params = omero.sys.ParametersI()
+    # service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # # Set the desired group context
+    # if group_id is None:
+    #     group_id = -1
+    # service_opts.setOmeroGroup(group_id)
+
+    # from_join_clauses = []
+    # where_clause = []
+    # if experimenter_id is not None and experimenter_id != -1:
+    #     params.addId(experimenter_id)
+    #     where_clause.append('image.details.owner.id = :id')
 
     extraValues = ""
     if load_pixels:
@@ -600,67 +725,13 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
                image.fileset.id as filesetId %s)
         """ % extraValues
 
-    from_join_clauses.append('Image image')
-
     if load_pixels:
         # We use 'left outer join', since we still want images if no pixels
         from_join_clauses.append('left outer join image.pixels pix')
 
-    # If this is a query to get images from a parent dataset
-    if dataset_id is not None:
-        params.add('did', rlong(dataset_id))
-        from_join_clauses.append('join image.datasetLinks dlink')
-        where_clause.append('dlink.parent.id = :did')
-
-    # If this is a query to get images with no parent datasets (orphans)
-    # At the moment the implementation assumes that a cross-linked
-    # object is not an orphan. We may need to change that so that a user
-    # see all the data that belongs to them that is not assigned to a container
-    # that they own.
-    elif orphaned:
-        orphan_where = """
-                        not exists (
-                            select dilink from DatasetImageLink as dilink
-                            where dilink.child = image.id
-
-                        """
-        # This is what is necessary if an orphan means that it has no
-        # container that belongs to the image owner. This corresponds
-        # to marshal_orphaned as well because of the child count
-        # if experimenter_id is not None and experimenter_id != -1:
-        #     orphan_where += ' and dilink.parent.details.owner.id = :id '
-
-        orphan_where += ') '
-        where_clause.append(orphan_where)
-
-        # Also discount any images which are part of a screen. No need to
-        # take owner into account on this because we don't want them in
-        # orphans either way
-        where_clause.append(
-            """
-            not exists (
-                select ws from WellSample ws
-                where ws.image.id = image.id
-            )
-            """
-        )
-
-    # If this is a query to get images in a share
-    if share_id is not None:
-        # Get the contents of the blob which contains the images in the share
-        # Would be nice to do this without the ShareService, preferably as part
-        # of the single query
-        image_rids = [image_rid.getId().val
-                      for image_rid
-                      in conn.getShareService().getContents(share_id)
-                      if isinstance(image_rid, omero.model.ImageI)]
-
-        # If there are no images in the share, don't bother querying
-        if not image_rids:
-            return images
-
-        params.add('iids', wrap(image_rids))
-        where_clause.append('image.id in (:iids)')
+    # # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
 
     q += """
         %s %s
@@ -668,6 +739,8 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         """ % (' from ' + ' '.join(from_join_clauses),
                build_clause(where_clause, 'where', 'and'))
 
+    images = []
+    qs = conn.getQueryService()
     for e in qs.projection(q, params, service_opts):
         e = unwrap(e)[0]
         d = [e["id"],
@@ -682,12 +755,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
         if date:
             kwargs['acqDate'] = e['acqDate']
             kwargs['date'] = e['date']
-
-        # While marshalling the images, determine if there are any
-        # images mentioned in shares that are not in the results
-        # because they have been deleted
-        if share_id is not None and image_rids and e["id"] in image_rids:
-            image_rids.remove(e["id"])
+        if share_id is not None:
             kwargs['share_id'] = share_id
 
         images.append(_marshal_image(**kwargs))
@@ -719,11 +787,14 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
             if i['id'] in thumbVersions:
                 i['thumbVersion'] = thumbVersions[i['id']]
 
-    # If there were any deleted images in the share, marshal and return
-    # those
-    if share_id is not None and image_rids:
-        for image_rid in image_rids:
-            images.append(_marshal_image_deleted(conn, image_rid))
+    # If there were any images in the share that were
+    # not found in query, they are likely deleted.
+    # Marshal and return those
+    if share_id is not None and 'iids' in params.map and filter_text is None:
+        imageIdsInShare = [i['id'] for i in images]
+        for image_rid in unwrap(params.map['iids']):
+            if image_rid not in imageIdsInShare:
+                images.append(_marshal_image_deleted(conn, image_rid))
 
     return images
 

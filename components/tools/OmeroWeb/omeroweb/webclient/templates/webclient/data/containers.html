@@ -37,6 +37,8 @@
 {% block script %}
     {{ block.super }}
 
+    <script src="{% static 'webclient/js/bundle.js' %}"></script>
+
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-3.0.8/jstree.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
@@ -44,6 +46,7 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.omecut_plugin.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.filter_plugin.js" %}"></script>
    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js" %}"></script>
    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
 
@@ -63,6 +66,7 @@
 
     WEBCLIENT.URLS = {};
     WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";
+    WEBCLIENT.URLS.webgateway = "{% url 'webgateway' %}";
     WEBCLIENT.URLS.api_paths_to_object = "{% url 'api_paths_to_object' %}";
     WEBCLIENT.URLS.api_containers = "{% url 'api_containers' %}";
     WEBCLIENT.URLS.api_datasets = "{% url 'api_datasets' %}";
@@ -76,6 +80,7 @@
     WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'webgateway.views.copy_image_rdef_json' %}";
     WEBCLIENT.URLS.reset_owners_rdef_json = "{% url 'reset_owners_rdef_json' %}";
     WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
+    WEBCLIENT.PAGE = "{{ ome.page_size }}";
 
     {% ifequal menu 'usertags' %}
         WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
@@ -633,7 +638,6 @@
                         }
                     }
                 });
-
         });
     </script>
 

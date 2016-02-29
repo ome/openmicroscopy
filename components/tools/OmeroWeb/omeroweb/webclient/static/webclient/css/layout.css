@@ -1493,6 +1493,7 @@
 
     .iconLayout li {
         display: inline-block;
+        outline: none;
         background-color:hsl(0,0%,95%);
         margin:5px;
         padding:5px;
@@ -2136,11 +2137,19 @@ div.paging {
     margin: 0;
     padding: 10px 0px 30px 0px;
 }
+/* prev/next buttons */
+div.paging button {
+	margin-left: 5px;
+}
+/* page numbers <input> */
 div.paging input.button_pagination {
     border: 0;
     background-color: transparent;
     color: #1b7bc7;
-    padding: 0;
+    padding: 2px;
+}
+div.paging input.button_pagination:disabled {
+    color: black;
 }
 
 #spw {
@@ -2156,7 +2165,7 @@ div.paging input.button_pagination {
     vertical-align: middle;
 }
 #spw table td {
-    padding: 1px;
+    padding: 2px;
     border: 1px solid #ccc;
     width: 25px;
 }
@@ -2167,8 +2176,8 @@ div.paging input.button_pagination {
     vertical-align: top;
 }
 
-#spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
-#spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
+#spw table td.ui-selecting { border: 1px dashed #555; background-color:#87ABD2;}
+#spw table td.ui-selected { border: 1px dashed #555; background-color:#87ABD2;}
 
 
 
