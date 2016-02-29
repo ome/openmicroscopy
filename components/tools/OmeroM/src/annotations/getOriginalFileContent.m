@@ -28,11 +28,7 @@ function getOriginalFileContent(session, originalFile, path)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
-
-if ~isa(originalFile, 'omero.model.OriginalFileI'),
-    assert(isLoadedFA(fileAnnotation),...
-       'Not an original file:');
-end
+assert(isa(originalFile, 'omero.model.OriginalFileI'),'Not an original file:');
 
 context = java.util.HashMap;
 context.put('omero.group', '-1');
