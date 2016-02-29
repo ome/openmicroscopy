@@ -299,7 +299,7 @@ Wait Until Right Panel Loads Everything
 Wait Until Center Panel Loads
     [Arguments]                     ${containerType}
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="content_details"]/div[1]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="filtersearch"]/div/label[contains(text(),'Filter Images')]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="filtersearch"]
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="icon_layout"][contains(@title,"View as Thumbnails")][contains(@class,"checked")]
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="table_layout"][contains(@title,"View as List")]    
     
@@ -512,9 +512,10 @@ Shift Click Node
     [Arguments]                     ${nodeId}
     Shift Click Element             "#${nodeId}>a"
 
-Shift Click Thumbnail
-    [Arguments]                     ${iid}
-    Shift Click Element             "#image_icon-${iid}"
+# Conflicts with similar jQuery events in IconTable.jsx
+# Shift Click Thumbnail
+#     [Arguments]                     ${iid}
+#     Shift Click Element             "#image_icon-${iid}"
 
 Shift Click Element
     [Arguments]                     ${elementSelector}
@@ -524,9 +525,10 @@ Meta Click Node
     [Arguments]                     ${nodeId}
     Meta Click Element              "#${nodeId}>a"
 
-Meta Click Thumbnail                
-    [Arguments]                     ${iid}
-    Meta Click Element              "#image_icon-${iid}"
+# Conflicts with similar jQuery events in IconTable.jsx
+# Meta Click Thumbnail
+#     [Arguments]                     ${iid}
+#     Meta Click Element              "#image_icon-${iid}"
 
 Meta Click Element
     [Arguments]                     ${elementSelector}
