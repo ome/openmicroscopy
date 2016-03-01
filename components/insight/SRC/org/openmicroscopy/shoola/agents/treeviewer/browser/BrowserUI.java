@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -67,6 +68,7 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
@@ -85,8 +87,10 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.dnd.ObjectToTransfer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
@@ -1193,6 +1197,12 @@ class BrowserUI
      */
     private void buildOrphanImagesNode(TreeImageDisplay parent)
     {
+        //Build the node if orphans is enabled
+        Boolean v = (Boolean) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.ORPHANED_IMAGE_ENABLED);
+        if (v != null && !v.booleanValue()) {
+            return;
+        }
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
     	buildEmptyNode(node);

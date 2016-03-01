@@ -364,5 +364,7 @@ public class LookupNames
     
     /** Lookup name for maximum exportable image size */
     public static final String MAX_EXPORT_SIZE = "omero.client.download_as.max_size";
-    
+
+    /** Lookup name of the orphaned images folder */
+    public static final String ORPHANED_IMAGE_ENABLED = "omero.client.ui.tree.orphans.enabled";
 }
