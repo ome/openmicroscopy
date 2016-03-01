@@ -376,4 +376,13 @@ public class LookupNames
 
     /** Lookup name of all group member properties */
     public static final String GROUP_ALL_MEMBERS_NAME = "omero.client.ui.menu.dropdown.everyone.label";
+
+    /** Lookup name of the group leader properties */
+    public static final String GROUP_LEADERS_ENABLED = "omero.client.ui.menu.dropdown.leaders.enabled";
+
+    /** Lookup name of the group member properties */
+    public static final String GROUP_MEMBERS_ENABLED = "omero.client.ui.menu.dropdown.colleagues.enabled";
+
+    /** Lookup name of all group member properties */
+    public static final String GROUP_ALL_MEMBERS_ENABLED = "omero.client.ui.menu.dropdown.everyone.enabled";
 }

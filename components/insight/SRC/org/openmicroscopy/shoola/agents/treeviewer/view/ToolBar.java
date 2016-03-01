@@ -384,7 +384,13 @@ class ToolBar
         if (CommonsLangUtils.isBlank(v)) {
             v = DataMenuItem.ALL_USERS_TEXT;
         }
-        allUser = new DataMenuItem(v, true);
+        Boolean enabled = (Boolean ) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_ALL_MEMBERS_ENABLED);
+        boolean b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        allUser = new DataMenuItem(v, b);
         items.add(allUser);
         if (view) p.add(allUser);
         int count = 0;
@@ -392,10 +398,17 @@ class ToolBar
         if (CollectionUtils.isNotEmpty(l)) {
             total += l.size();
             i = l.iterator();
+            enabled = (Boolean ) TreeViewerAgent.getRegistry().lookup(
+                    LookupNames.GROUP_LEADERS_ENABLED);
+            b = false;
+            if (enabled != null) {
+                b = enabled.booleanValue();
+            }
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
-                    item = new DataMenuItem(exp, true);
+                    if (exp.getId() == loggedUserID) b = true;
+                    item = new DataMenuItem(exp, b);
                     item.setChecked(users.contains(exp.getId()));
                     if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
@@ -418,12 +431,19 @@ class ToolBar
 
         if (group != null) l = sorter.sort(group.getMembersOnly());
         if (CollectionUtils.isNotEmpty(l)) {
+            enabled = (Boolean ) TreeViewerAgent.getRegistry().lookup(
+                    LookupNames.GROUP_MEMBERS_ENABLED);
+            b = false;
+            if (enabled != null) {
+                b = enabled.booleanValue();
+            }
             total += l.size();
             i = l.iterator();
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
-                    item = new DataMenuItem(exp, true);
+                    if (exp.getId() == loggedUserID) b = true;
+                    item = new DataMenuItem(exp, b);
                     item.setChecked(users.contains(exp.getId()));
                     if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
