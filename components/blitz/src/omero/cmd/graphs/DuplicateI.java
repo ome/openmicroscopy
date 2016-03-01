@@ -414,7 +414,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                         }
                     }
                     /* process property values that do not relate to edges in the model object graph */
-                    for (final String property : graphPathBean.getSimpleProperties(superclassName)) {
+                    for (final String property : graphPathBean.getSimpleProperties(superclassName, false)) {
                         /* ignore inaccessible properties */
                         if (!graphPathBean.isPropertyAccessible(superclassName, property)) {
                             continue;
