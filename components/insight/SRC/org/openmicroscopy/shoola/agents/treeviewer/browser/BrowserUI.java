@@ -69,6 +69,7 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
@@ -1198,8 +1199,8 @@ class BrowserUI
     private void buildOrphanImagesNode(TreeImageDisplay parent)
     {
         //Build the node if orphans is enabled
-        Boolean v = (Boolean) TreeViewerAgent.getRegistry().lookup(
-                LookupNames.ORPHANED_IMAGE_ENABLED);
+        Boolean v = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.ORPHANED_IMAGE_ENABLED));
         if (v != null && !v.booleanValue()) {
             return;
         }

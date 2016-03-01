@@ -384,8 +384,8 @@ class ToolBar
         if (CommonsLangUtils.isBlank(v)) {
             v = DataMenuItem.ALL_USERS_TEXT;
         }
-        Boolean enabled = (Boolean ) TreeViewerAgent.getRegistry().lookup(
-                LookupNames.GROUP_ALL_MEMBERS_ENABLED);
+        Boolean enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_ALL_MEMBERS_ENABLED));
         boolean b = false;
         if (enabled != null) {
             b = enabled.booleanValue();
@@ -398,8 +398,8 @@ class ToolBar
         if (CollectionUtils.isNotEmpty(l)) {
             total += l.size();
             i = l.iterator();
-            enabled = (Boolean ) TreeViewerAgent.getRegistry().lookup(
-                    LookupNames.GROUP_LEADERS_ENABLED);
+            enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                    LookupNames.GROUP_LEADERS_ENABLED));
             b = false;
             if (enabled != null) {
                 b = enabled.booleanValue();
@@ -431,8 +431,8 @@ class ToolBar
 
         if (group != null) l = sorter.sort(group.getMembersOnly());
         if (CollectionUtils.isNotEmpty(l)) {
-            enabled = (Boolean ) TreeViewerAgent.getRegistry().lookup(
-                    LookupNames.GROUP_MEMBERS_ENABLED);
+            enabled =Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                    LookupNames.GROUP_MEMBERS_ENABLED));
             b = false;
             if (enabled != null) {
                 b = enabled.booleanValue();
