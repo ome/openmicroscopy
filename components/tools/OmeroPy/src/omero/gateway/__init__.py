@@ -1530,6 +1530,15 @@ class _BlitzGateway (object):
                 int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
 
+    def getClientSettings(self):
+        """
+        Returns all client properties matching omero.client.*
+        """
+        try:
+            return self.getConfigService().getClientConfigValues()
+        except:
+            return self.getConfigService().getClientConfigDefaults()
+
     def getRoiLimitSetting(self):
         try:
             roi_limit = (int(self.getConfigService().getConfigValue(
@@ -1559,7 +1568,7 @@ class _BlitzGateway (object):
         try:
             interpolate = (
                 toBoolean(self.getConfigService().getConfigValue(
-                    "omero.client.viewer.interpolate_pixels")) or True
+                    "omero.client.viewer.interpolate_pixels"))
             )
         except:
             interpolate = True
@@ -3882,6 +3891,7 @@ class _BlitzGateway (object):
                                 * 'Well'
                                 * 'Annotation'
                                 * 'OriginalFile'
+                                * 'Roi'
                                 * 'Image/Pixels/Channel'
 
                                 As of OMERO 4.4.0 the correct case is now
@@ -4722,7 +4732,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
             return fpath
         return f.id
 
-    def getFileInChunks(self):
+    def getFileInChunks(self, buf=2621440):
         """
         Returns a generator yielding chunks of the file data.
 
@@ -4730,7 +4740,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
         :rtype:     Generator
         """
 
-        return self.getFile().getFileInChunks()
+        return self.getFile().getFileInChunks(buf=buf)
 
 AnnotationWrapper._register(FileAnnotationWrapper)
 

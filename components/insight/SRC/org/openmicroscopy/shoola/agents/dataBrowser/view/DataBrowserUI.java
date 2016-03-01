@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -152,7 +152,7 @@ class DataBrowserUI
 		else {
 		    selectedView = THUMB_VIEW;
 		}
-		factor = Thumbnail.SCALING_FACTOR;
+		factor = DataBrowserFactory.getThumbnailScaleFactor();
 		setNumberOfImages(-1);
 		setLayout(new BorderLayout(0, 0));
 		buildGUI(true);
@@ -318,7 +318,7 @@ class DataBrowserUI
     void setSelectedView(int index) 
     {
     	removeAll();
-    	double f = Thumbnail.SCALING_FACTOR;
+    	double f = DataBrowserFactory.getThumbnailScaleFactor();
     	switch (index) {
 			case THUMB_VIEW:
 				selectedView = index;

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.slider.TwoKnobSliderModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -61,10 +61,10 @@ class TwoKnobsSliderModel
 	/** The minimum value. */
 	private double         				minimum;
 
-	/** The value of the start knob, the default value is {@link #minimum}. */
+	/** The value of the start knob, the default value is {@link #minimum}. (one based) */
 	private double         				startValue;
 
-	/** The value of the end knob, the default value is {@link #maximum}. */
+	/** The value of the end knob, the default value is {@link #maximum}. (one based) */
 	private double         				endValue;
 
 	/** Flag indicating if we can move the knobs. */
@@ -144,8 +144,8 @@ class TwoKnobsSliderModel
 	 * @param absoluteMin	The absolute minimum value.
 	 * @param maximum       The maximum value.
 	 * @param minimum       The minimum value.
-	 * @param startValue    The value of the start knob.
-	 * @param endValue      The value of the end knob.
+	 * @param startValue    The value of the start knob. (one based)
+	 * @param endValue      The value of the end knob.  (one based)
 	 */
 	TwoKnobsSliderModel(double absoluteMax, double absoluteMin, double maximum, 
 	        double minimum, double startValue, double endValue)
@@ -163,8 +163,8 @@ class TwoKnobsSliderModel
 	 * @param absoluteMin	The absolute minimum value.
 	 * @param maximum       The maximum value.
 	 * @param minimum       The minimum value.
-	 * @param startValue    The value of the start knob.
-	 * @param endValue      The value of the end knob.
+	 * @param startValue    The value of the start knob. (one based)
+	 * @param endValue      The value of the end knob. (one based)
 	 */
 	void checkValues(double absoluteMax, double absoluteMin, double maximum, double minimum,
 	        double startValue, double endValue)
@@ -203,14 +203,14 @@ class TwoKnobsSliderModel
 	void setEnabled(boolean enabled) { this.enabled = enabled; }
 
 	/**
-	 * Returns the value of the end knob.
+	 * Returns the value of the end knob. (one based)
 	 * 
 	 * @return See above.
 	 */
 	double getEndValue() { return endValue; }
 
 	/**
-	 * Returns the value of the start knob.
+	 * Returns the value of the start knob. (one based)
 	 * 
 	 * @return See above.
 	 */
@@ -260,7 +260,7 @@ class TwoKnobsSliderModel
 
 	/**
 	 * Sets the value of the start knob, value in the range
-	 * <code>[{@link #minimum}, {@link #endValue}[</code>.
+	 * <code>[{@link #minimum}, {@link #endValue}[  (one based) </code>.
 	 * 
 	 * @param startValue The value to set.
 	 */
@@ -280,7 +280,7 @@ class TwoKnobsSliderModel
 
 	/**
 	 * Sets the value of the end knob, value in the range
-	 * <code>]{@link #startValue}, {@link #maximum}]</code>.
+	 * <code>]{@link #startValue}, {@link #maximum}]  (one based) </code>.
 	 * 
 	 * @param endValue The value to set.
 	 */
@@ -300,8 +300,8 @@ class TwoKnobsSliderModel
 	/**
 	 * Sets the start and end values of the slider.
 	 * 
-	 * @param start	The value to set.
-	 * @param end	The value to set.
+	 * @param start	The value to set. (one based)
+	 * @param end	The value to set. (one based)
 	 */
 	void setInterval(double start, double end)
 	{

@@ -72,7 +72,7 @@
 
 {% for grp in groups %}
             <ul title="Switch to this Group and User" class="usersList" id="groupMembers-{{ grp.id }}" style="top:0px">
-                {% if grp.all %}
+                {% if ui.dropdown_menu.everyone.enabled and grp.all %}
                     <li>
                         {% ifequal grp.id active_group.id %}
                         <a href="{{ current_url }}?experimenter=-1">
@@ -80,13 +80,13 @@
                         {% else %}
                         <a href="{% url 'change_active_group' %}?active_group={{grp.id}}&url={{ current_url }}?experimenter=-1">
                         {% endifequal %}
-                        {{ ui.dropdown_menu.everyone }}
+                        {{ ui.dropdown_menu.everyone.label }}
                         </a>
                     </li>
                 {% endif %}
                 
-                {% if ui.dropdown_menu.leaders and grp.leaders %}
-                    <li class="non_selectable"><strong>{{ ui.dropdown_menu.leaders }}</strong></li>
+                {% if ui.dropdown_menu.leaders.enabled and grp.leaders %}
+                    <li class="non_selectable"><strong>{{ ui.dropdown_menu.leaders.label }}</strong></li>
                     {% for user in grp.leaders %}
                         <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
                             <!-- if this user is in current group, we just switch user -->
@@ -102,8 +102,8 @@
                     {% endfor %}
                 {% endif %}
                 
-                {% if ui.dropdown_menu.colleagues and grp.colleagues %}
-                    <li class="non_selectable"><strong>{{ ui.dropdown_menu.colleagues }}</strong></li>
+                {% if ui.dropdown_menu.colleagues.enabled and grp.colleagues %}
+                    <li class="non_selectable"><strong>{{ ui.dropdown_menu.colleagues.label }}</strong></li>
                     {% for user in grp.colleagues %}
                         <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
                             {% ifequal grp.id active_group.id %}

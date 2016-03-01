@@ -36,6 +36,8 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -460,6 +462,13 @@ public class TinyDialog
     public void setUndecorated(boolean b)
     {
         super.setUndecorated(true);
+    }
+    
+    @Override
+    public void setVisible(boolean b) {
+        super.setVisible(b);
+        if (b)
+            UIUtilities.applyGnome3Workaround(this);
     }
 
 }

@@ -477,13 +477,102 @@ public class PojoMapper
     }
 
     /**
-     * Converts the specified POJO into the corresponding model.
+     * Converts the specified POJO into the corresponding model class
+     *
+     * @param pojoType
+     *            The POJO class (Either the simple or the full
+     *            class name, e. g. omero.gateway.model.DatasetData or
+     *            DatasetData)
+     * @return The corresponding {@link IObject} class.
+     */
+    public static Class<? extends IObject> getModelType(String pojoType) {
+        Class pojoClass;
+        try {
+            
+            // make sure it works with full and simple class names
+            if (FileData.class.getSimpleName().equals(pojoType))
+                pojoType = FileData.class.getName();
+            else if (ProjectData.class.getSimpleName().equals(pojoType))
+                pojoType = ProjectData.class.getName();
+            else if (DatasetData.class.getSimpleName().equals(pojoType))
+                pojoType = DatasetData.class.getName();
+            else if (ImageData.class.getSimpleName().equals(pojoType))
+                pojoType = ImageData.class.getName();
+            else if (BooleanAnnotationData.class.getSimpleName().equals(
+                    pojoType))
+                pojoType = BooleanAnnotationData.class.getName();
+            else if (RatingAnnotationData.class.getSimpleName()
+                    .equals(pojoType)
+                    || LongAnnotationData.class.getSimpleName()
+                            .equals(pojoType))
+                pojoType = LongAnnotationData.class.getName();
+            else if (TagAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = TagAnnotationData.class.getName();
+            else if (TextualAnnotationData.class.getSimpleName().equals(
+                    pojoType))
+                pojoType = TextualAnnotationData.class.getName();
+            else if (FileAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = FileAnnotationData.class.getName();
+            else if (TermAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = TermAnnotationData.class.getName();
+            else if (ScreenData.class.getSimpleName().equals(pojoType))
+                pojoType = ScreenData.class.getName();
+            else if (PlateData.class.getSimpleName().equals(pojoType))
+                pojoType = PlateData.class.getName();
+            else if (WellData.class.getSimpleName().equals(pojoType))
+                pojoType = WellData.class.getName();
+            else if (WellSampleData.class.getSimpleName().equals(pojoType))
+                pojoType = WellSampleData.class.getName();
+            else if (PlateAcquisitionData.class.getSimpleName()
+                    .equals(pojoType))
+                pojoType = PlateAcquisitionData.class.getName();
+            else if (FileData.class.getSimpleName().equals(pojoType))
+                pojoType = FileData.class.getName();
+            else if (GroupData.class.getSimpleName().equals(pojoType))
+                pojoType = GroupData.class.getName();
+            else if (ExperimenterData.class.getSimpleName().equals(pojoType))
+                pojoType = ExperimenterData.class.getName();
+            else if (DoubleAnnotationData.class.getSimpleName()
+                    .equals(pojoType))
+                pojoType = DoubleAnnotationData.class.getName();
+            else if (XMLAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = XMLAnnotationData.class.getName();
+            else if (FilesetData.class.getSimpleName().equals(pojoType))
+                pojoType = FilesetData.class.getName();
+            else if (MapAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = MapAnnotationData.class.getName();
+            else if (EllipseData.class.getSimpleName().equals(pojoType))
+                pojoType = EllipseData.class.getName();
+            else if (LineData.class.getSimpleName().equals(pojoType))
+                pojoType = LineData.class.getName();
+            else if (MaskData.class.getSimpleName().equals(pojoType))
+                pojoType = MaskData.class.getName();
+            else if (PointData.class.getSimpleName().equals(pojoType))
+                pojoType = PointData.class.getName();
+            else if (PolygonData.class.getSimpleName().equals(pojoType))
+                pojoType = PolygonData.class.getName();
+            else if (PolylineData.class.getSimpleName().equals(pojoType))
+                pojoType = PolylineData.class.getName();
+            else if (RectangleData.class.getSimpleName().equals(pojoType))
+                pojoType = RectangleData.class.getName();
+            else if (TextData.class.getSimpleName().equals(pojoType))
+                pojoType = TextData.class.getName();
+
+            pojoClass = Class.forName(pojoType);
+            return getModelType(pojoClass);
+        } catch (ClassNotFoundException e) {
+            new IllegalArgumentException(pojoType + " not found");
+        }
+        return null;
+    }
+    
+    /**
+     * Converts the specified POJO into the corresponding model class.
      *
      * @param pojoType
      *            The POJO class.
-     * @return The corresponding class.
+     * @return The corresponding {@link IObject} class.
      */
-    @SuppressWarnings("rawtypes")
     public static Class<? extends IObject> getModelType(Class pojoType) {
         if (!DataObject.class.isAssignableFrom(pojoType))
             throw new IllegalArgumentException(pojoType.getSimpleName()+" is not a DataObject");

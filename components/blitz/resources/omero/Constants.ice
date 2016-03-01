@@ -43,10 +43,12 @@ module omero {
     const int GLACIER2PORT = 4064;
 
     /**
-     * Default Ice.MessageSizeMax (65536kb). Not strictly necessary, but helps to
+     * Default Ice.MessageSizeMax (250mb). Not strictly necessary, but helps to
      * curb memory issues. Must be set before communicator initialization.
+     *
+     * Temporarily set to 250MB
      **/
-    const int MESSAGESIZEMAX = 65536;
+    const int MESSAGESIZEMAX = 250000;
 
     /**
      * Determines the batch size for sending
@@ -168,6 +170,7 @@ module omero {
         const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
         const string NSAUTOCLOSE = "openmicroscopy.org/omero/import/autoClose";
+        const string NSTARGETTEMPLATE = "openmicroscopy.org/omero/import/targetTemplate";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSLOGFILE = "openmicroscopy.org/omero/import/logFile";
         const string NSFILETRANSFER = "openmicroscopy.org/omero/import/fileTransfer";

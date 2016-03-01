@@ -27,37 +27,17 @@
 import omero
 import omero.gateway
 import library as lib
+from helpers import createImageWithPixels
 
 
 class TestPixelsService(lib.ITest):
-
-    def createImage(self):
-        """
-        Create a new image
-        """
-        pixelsService = self.client.sf.getPixelsService()
-        queryService = self.client.sf.getQueryService()
-
-        pixelsType = queryService.findByQuery(
-            "from PixelsType as p where p.value='int8'", None)
-        assert pixelsType is not None
-
-        sizeX = 1
-        sizeY = 1
-        sizeZ = 1
-        sizeT = 1
-        channelList = range(1, 4)
-        id = pixelsService.createImage(
-            sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType,
-            self.uuid(), description=None)
-        return id
 
     def test9655(self):
         # Create an image without statsinfo objects and attempt
         # to retrieve it from the Rendering service.
 
         # Get the pixels
-        image_id = self.createImage()
+        image_id = createImageWithPixels(self.client, self.uuid())
         gateway = omero.gateway.BlitzGateway(client_obj=self.client)
         image = gateway.getObject("Image", image_id)
         pixels_id = image.getPrimaryPixels().id

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -58,9 +58,6 @@ public interface Thumbnail
     
     /** The maximum magnification factor. */
     public static final double  MAX_SCALING_FACTOR = 2.5;//1;
-    
-    /** The default magnification factor. */
-    public static final double  SCALING_FACTOR = 0.5;
     
     /** The minimum magnification factor. */
     public static final double  MIN_SCALING_FACTOR = 0.25;

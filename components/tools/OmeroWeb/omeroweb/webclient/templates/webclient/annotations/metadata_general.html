@@ -568,12 +568,55 @@
                 if (open_panes === undefined) {
                     open_panes = ["details"];     // by default, just 'details' is open
                 }
+
                 open_panes.forEach(function(name) {
                     // remove 'defclose' flag from open panes
                     $('#metadata_general .can-collapse[data-name="' + name + '"]').removeClass('defclose');
                 });
                 // Any panes that still have 'defclose' flag, we close
                 $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
+
+
+
+                // For wells, we try to load Bulk table annotations attached to parent Screen / Plate
+                // loading just the row we need for the current well.
+                {% if manager.well %}
+                    var wellsUrl = "{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' manager.well.id %}";
+                        linksUrl = "{% url 'webgateway_object_table_query' 'Plate.wells' manager.well.id %}",
+                        wellId = {{ manager.well.id }};
+
+                    var showBulkAnnTooltip = function(data) {
+                        var bulkAnnTooltip = "<span class='tooltip_html' style='display:none'>" +
+                            "Data from tables file:<br />" +
+                            "<b>File ID:</b> " + data.id + "<br />" +
+                            "<b>Owner:</b> " + data.owner + " <br />" +
+                            "<b>Annotation ID:</b> " + data.annId + "<br />" +
+                            "<b>Linked to:</b> " + data.parentType + " " + data.parentId + "<br />" +
+                            "<b>Linked by:</b> " + data.addedBy + " <br />" +
+                            "<b>On:</b> " + OME.formatDate(data.addedOn) + "</span>";
+                        $("#bulk-annotations").append(bulkAnnTooltip);
+                        $("#bulk-annotations").parent().tooltip({
+                                items: '.bulk_annotation',
+                                content: function() {
+                                    return $("span.tooltip_html", this).html();
+                                },
+                                track: true,
+                                show: false,
+                                hide: false
+                            });
+                    }
+                    // Load tables if tables tab is open
+                    if (open_panes.indexOf("tables") > -1) {
+                        loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
+                        loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
+                    }
+
+                    // If user opens tables tab, also load tables
+                    $('.can-collapse.closed[data-name="tables"]').click(function(){
+                        loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
+                        loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
+                    });
+                {% endif %}
             });
             
     </script>
@@ -880,6 +923,23 @@
 
 
 
+            <!-- TABLES -->
+            {% if manager.well %}
+            <h1 class="can-collapse defclose" data-name="tables">
+                Tables
+            </h1>
+            <div class="annotations_section">
+
+                <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Info</h2>
+                <div style="display: none;">
+                    <table id="bulk_annotations_table">
+                    </table>
+                </div>
+                <div style="clear:both; margin:8px"></div>
+            </div>
+            {% endif %}
+
+
             <!-- FILES -->
             <h1 class="can-collapse defclose" data-name="attachments">
                 Attachments
@@ -925,6 +985,7 @@
                     </script>
             </div>
 
+<!-- >>>>>>> origin/develop -->
 
             <!-- RATING -->
             <h1 class="can-collapse defclose" data-name="ratings">
