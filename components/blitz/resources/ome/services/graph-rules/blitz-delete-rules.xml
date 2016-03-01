@@ -480,7 +480,7 @@
         <bean parent="graphPolicyRule" p:matches="Screen[E]{ia}.reagents = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink.parent = [D], L.child = R:[E]{i}/d" p:changes="R:{r}"/>
         <bean parent="graphPolicyRule" p:matches="WellReagentLink[D].child = R:[E]{i}/d" p:changes="R:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="R:Reagent[E]{o}/d" p:changes="R:[D]"/>
 
         <!-- Delete well-reagent links if either the well or reagent is deleted regardless of permissions. -->
