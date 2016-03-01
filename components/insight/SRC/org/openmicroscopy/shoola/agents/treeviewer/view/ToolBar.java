@@ -69,7 +69,6 @@ import javax.swing.border.BevelBorder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.JXBusyLabel;
-
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
@@ -85,6 +84,7 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
 import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -379,7 +379,12 @@ class ToolBar
         
         List<DataMenuItem> list = new ArrayList<DataMenuItem>();
 
-        allUser = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
+        String v = (String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_ALL_MEMBERS_NAME);
+        if (CommonsLangUtils.isBlank(v)) {
+            v = DataMenuItem.ALL_USERS_TEXT;
+        }
+        allUser = new DataMenuItem(v, true);
         items.add(allUser);
         if (view) p.add(allUser);
         int count = 0;
@@ -399,7 +404,12 @@ class ToolBar
                 }
             }
             if (list.size() > 0) {
-                p.add(formatHeader("Group owners"));
+                v = (String) TreeViewerAgent.getRegistry().lookup(
+                        LookupNames.GROUP_LEADERS_NAME);
+                if (CommonsLangUtils.isBlank(v)) {
+                    v = "Group owners";
+                }
+                p.add(formatHeader(v));
                 for(DataMenuItem dmi : list)
                     p.add(dmi);
                 list.clear();
@@ -422,7 +432,12 @@ class ToolBar
                 }
             }
             if (list.size() > 0) {
-                p.add(formatHeader("Members"));
+                v = (String) TreeViewerAgent.getRegistry().lookup(
+                        LookupNames.GROUP_MEMBERS_NAME);
+                if (CommonsLangUtils.isBlank(v)) {
+                    v = "Members";
+                }
+                p.add(formatHeader(v));
                 for(DataMenuItem dmi : list)
                     p.add(dmi);
             }

@@ -367,4 +367,13 @@ public class LookupNames
 
     /** Lookup name of the orphaned images folder */
     public static final String ORPHANED_IMAGE_ENABLED = "omero.client.ui.tree.orphans.enabled";
+
+    /** Lookup name of the group leader properties */
+    public static final String GROUP_LEADERS_NAME = "omero.client.ui.menu.dropdown.leaders.label";
+
+    /** Lookup name of the group member properties */
+    public static final String GROUP_MEMBERS_NAME = "omero.client.ui.menu.dropdown.colleagues.label";
+
+    /** Lookup name of all group member properties */
+    public static final String GROUP_ALL_MEMBERS_NAME = "omero.client.ui.menu.dropdown.everyone.label";
 }
