@@ -1198,12 +1198,6 @@ class BrowserUI
      */
     private void buildOrphanImagesNode(TreeImageDisplay parent)
     {
-        //Build the node if orphans is enabled
-        Boolean v = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
-                LookupNames.ORPHANED_IMAGE_ENABLED));
-        if (v != null && !v.booleanValue()) {
-            return;
-        }
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
     	buildEmptyNode(node);
