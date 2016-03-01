@@ -695,8 +695,8 @@
         <!-- If a well is moved, check if the fields' images can be moved; if so, move the fields. -->
 
         <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [I], WS.image = I:[E]{i}" p:changes = "I:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [I], WS.image = I:[E]{o}" p:changes = "WS:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="WS:WellSample.well = [I], WS.image = I:[I]" p:changes = "WS:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample[E].well = [I], WS.image = I:[E]{o}" p:changes = "WS:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample[E].well = [I], WS.image = I:[I]" p:changes = "WS:[I]"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
 
