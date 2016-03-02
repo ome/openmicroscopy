@@ -385,4 +385,7 @@ public class LookupNames
 
     /** Lookup name of all group member properties */
     public static final String GROUP_ALL_MEMBERS_ENABLED = "omero.client.ui.menu.dropdown.everyone.enabled";
+
+    /** Lookup name of the orphaned images folder */
+    public static final String ORPHANED_IMAGE_DESCRIPTION = "omero.client.ui.tree.orphans.description";
 }

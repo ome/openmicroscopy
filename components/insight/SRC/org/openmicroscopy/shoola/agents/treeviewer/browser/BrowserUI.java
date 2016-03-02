@@ -70,6 +70,8 @@ import javax.swing.tree.TreePath;
 
 
 
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
@@ -89,7 +91,9 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.dnd.ObjectToTransfer;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.DataObject;
@@ -1200,6 +1204,15 @@ class BrowserUI
     {
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
+    	Registry reg = TreeViewerAgent.getRegistry();
+    	String v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
+        if (CommonsLangUtils.isNotBlank(v)) {
+           node.setUserObject(v);
+        }
+        v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_DESCRIPTION);
+        if (CommonsLangUtils.isNotBlank(v)) {
+           node.setToolTip(v);
+        }
     	buildEmptyNode(node);
 		node.setNumberItems(-1);
 		parent.addChildDisplay(node);
