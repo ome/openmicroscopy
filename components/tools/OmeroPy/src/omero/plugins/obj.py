@@ -358,9 +358,14 @@ class ObjGetTxAction(NonFieldTxAction):
         else:
             try:
                 proxy = current.val
-            except AttributeError, ae:
-                ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
-                    field, self.kls, self.obj.id.val, ae.message))
+            except AttributeError:
+                try:
+                    objId = current.id.val
+                    klass = current.__class__.__name__.rstrip("I")
+                    proxy = klass + ":" + str(objId)
+                except AttributeError, ae:
+                    ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
+                        field, self.kls, self.obj.id.val, ae.message))
 
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
