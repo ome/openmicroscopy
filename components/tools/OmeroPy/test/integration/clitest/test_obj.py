@@ -145,6 +145,31 @@ class TestObj(CLITest):
         state = self.go()
         assert state.get_row(0) == desc
 
+    def test_new_and_get_obj(self):
+        pname = "foo"
+        dname = "bar"
+        self.args = self.login_args() + [
+            "obj", "new", "Project", "name=%s" % pname]
+        state = self.go()
+        project = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "new", "Dataset", "name=%s" % dname]
+        state = self.go()
+        dataset = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "new", "ProjectDatasetLink",
+            "parent=%s" % project, "child=%s" % dataset]
+        state = self.go()
+        link = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "get", link, "parent"]
+        state = self.go()
+        assert state.get_row(0) == project
+        self.args = self.login_args() + [
+            "obj", "get", link, "child"]
+        state = self.go()
+        assert state.get_row(0) == dataset
+
     def test_map_mods(self):
         self.args = self.login_args() + [
             "obj", "new", "MapAnnotation", "ns=test"]
