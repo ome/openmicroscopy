@@ -395,15 +395,16 @@ class ToolBar
         if (view) p.add(allUser);
         int count = 0;
         int total = 0;
-        if (CollectionUtils.isNotEmpty(l)) {
+        enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_LEADERS_ENABLED));
+        b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        if (CollectionUtils.isNotEmpty(l) && b) {
             total += l.size();
             i = l.iterator();
-            enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
-                    LookupNames.GROUP_LEADERS_ENABLED));
-            b = false;
-            if (enabled != null) {
-                b = enabled.booleanValue();
-            }
+            
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
@@ -430,13 +431,13 @@ class ToolBar
         }
 
         if (group != null) l = sorter.sort(group.getMembersOnly());
-        if (CollectionUtils.isNotEmpty(l)) {
-            enabled =Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
-                    LookupNames.GROUP_MEMBERS_ENABLED));
-            b = false;
-            if (enabled != null) {
-                b = enabled.booleanValue();
-            }
+        enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_MEMBERS_ENABLED));
+        b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        if (CollectionUtils.isNotEmpty(l) && b) {
             total += l.size();
             i = l.iterator();
             while (i.hasNext()) {
