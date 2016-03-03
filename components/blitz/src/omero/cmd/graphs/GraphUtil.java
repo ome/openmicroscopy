@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -276,6 +276,22 @@ public class GraphUtil {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Copy a multimap to a new map. Useful for constructing Ice-compatible responses from graph requests.
+     * @param result a result from a graph operation
+     * @return the result transformed to fit a {@code StringLongListMap} API binding
+     */
+    public static Map<String, List<Long>> copyMultimapForResponse(SetMultimap<String, Long> result) {
+        /* if the results object were in terms of IObjectList then this would need IceMapper.map */
+        final Map<String, List<Long>> forResponse = new HashMap<String, List<Long>>();
+        for (final Map.Entry<String, Collection<Long>> oneClass : result.asMap().entrySet()) {
+            final String className = oneClass.getKey();
+            final Collection<Long> ids = oneClass.getValue();
+            forResponse.put(className, new ArrayList<Long>(ids));
+        }
+        return forResponse;
     }
 
     /**
