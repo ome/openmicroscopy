@@ -72,6 +72,9 @@ import javax.swing.tree.TreePath;
 
 
 
+
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
@@ -1202,21 +1205,56 @@ class BrowserUI
      */
     private void buildOrphanImagesNode(TreeImageDisplay parent)
     {
-    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-    	TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
-    	Registry reg = TreeViewerAgent.getRegistry();
-    	String v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
+        Registry reg = TreeViewerAgent.getRegistry();
+        //First check if we had the orphaned images node
+        Boolean value = Boolean.parseBoolean((String) reg.lookup(
+                LookupNames.ORPHANED_IMAGE_ENABLED));
+        if (value != null && !value.booleanValue()) {
+            boolean enabled = false;
+           if (TreeViewerAgent.isAdministrator()) {
+               enabled = true;
+           } else {
+               //check group owner.
+               long expID = TreeViewerAgent.getUserDetails().getId();
+               if (expID == parent.getUserObjectId()) {
+                   enabled = true;
+               } else {
+                   TreeImageDisplay node = parent.getParentDisplay();
+                   long id = node.getUserObjectId();
+                   if (id == -1) { //only in one group
+                       id = TreeViewerAgent.getUserDetails().getGroupId();
+                   }
+                   Set leaders = TreeViewerAgent.getGroupsLeaderOf();
+                   if (CollectionUtils.isNotEmpty(leaders)) {
+                       Iterator i = leaders.iterator();
+                       while (i.hasNext()) {
+                           GroupData type = (GroupData) i.next();
+                           if (id == type.getId()) {
+                               enabled = true;
+                           }
+                       }
+                   }
+               }
+           }
+           if (!enabled) {
+               return;
+           }
+        }
+        DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+        TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
+
+        String v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
         if (CommonsLangUtils.isNotBlank(v)) {
-           node.setUserObject(v);
+            node.setUserObject(v);
         }
         v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_DESCRIPTION);
         if (CommonsLangUtils.isNotBlank(v)) {
-           node.setToolTip(v);
+            node.setToolTip(v);
         }
-    	buildEmptyNode(node);
-		node.setNumberItems(-1);
-		parent.addChildDisplay(node);
-		tm.insertNodeInto(node, parent, parent.getChildCount());
+        buildEmptyNode(node);
+        node.setNumberItems(-1);
+        parent.addChildDisplay(node);
+        tm.insertNodeInto(node, parent, parent.getChildCount());
     }
 
     /**
