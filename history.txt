@@ -40,6 +40,9 @@ System administrator updates include:
    experimental solution to resolve download issues
 -  documentation of hard-linking issues for in-place import on linux systems
 
+This release also upgrades the version of Bio-Formats which OMERO uses to
+5.1.8.
+
 Note that the OMERO Virtual Appliance has been discontinued and will not be
 updated for version 5.2.2 or any later releases.
 
