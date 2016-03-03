@@ -378,20 +378,27 @@ $(function() {
             'force_text': true,
             // Make use of function for 'data' because there are some scenarios in which
             // an ajax call is not used to get the data. Namely, the all-user view
-            'data' : function(node, callback) {
+            'data' : function(node, callback, payload={}) {
                 // Get the data for this query
-                var payload = {};
+                // var payload = {};
                 // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
                 if (node.hasOwnProperty('data') && node.type != 'orphaned') {
-
                     // NB: In case of loading Tags, we don't want to use 'id' for top level
                     // since that will filter by tag.
                     // TODO: fix inconsistency between url apis by using 'owner'
                     var tagroot = (WEBCLIENT.URLS.tree_top_level === WEBCLIENT.URLS.api_tags_and_tagged &&
                             node.type === 'experimenter');
 
+                    if (node.data.hasOwnProperty('obj')) {
+                        // Allows to load custom parameters to QUERY_STRING
+                        if (node.data.obj.hasOwnProperty('extra')) {
+                            $.extend(payload, node.data.obj.extra)
+                        }
+                    }
+
                     if (!tagroot && node.data.hasOwnProperty('obj')) {
+                        // Allows to load custom parameters to QUERY_STRING
                         payload['id'] = node.data.obj.id;
                     }
 
@@ -551,7 +558,8 @@ $(function() {
                                     'type': type,
                                     'li_attr': {
                                         'data-id': value.id
-                                    }
+                                    },
+                                    'extra': value.extra
                                 };
                                 if (type === 'experimenter') {
                                     rv.text = value.firstName + ' ' + value.lastName;
