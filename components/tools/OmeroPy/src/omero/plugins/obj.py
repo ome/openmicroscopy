@@ -357,7 +357,10 @@ class ObjGetTxAction(NonFieldTxAction):
             proxy = ""
         else:
             try:
-                proxy = current.val
+                if hasattr(current, "_value") and hasattr(current, "_unit"):
+                    proxy = str(current._value) + " " + str(current._unit)
+                else:
+                    proxy = current.val
             except AttributeError:
                 try:
                     objId = current.id.val
