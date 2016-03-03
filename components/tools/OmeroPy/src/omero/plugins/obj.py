@@ -166,7 +166,7 @@ class TxAction(object):
                 kls = kls[0:-1]
             return obj, kls
         except AttributeError:
-            ctx.die(102, "No class named '%s'" % self.class_name())
+            ctx.die(102, "No class named '%s'" % self.class_name(ctx))
 
 
 class NewObjectTxAction(TxAction):
