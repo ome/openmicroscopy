@@ -1063,6 +1063,23 @@ class TestShow(IWebTest):
         return [project1, project2, dataset1, dataset2, dataset3, image1]
 
     @pytest.fixture
+    def project_dataset_images(self):
+        """
+        Returns a new OMERO Project, linked Dataset and 5 linked Images populated
+        by an L{test.integration.library.ITest} instance with required fields
+        set.
+        """
+        project = ProjectI()
+        project.name = rstring(self.uuid())
+        dataset = DatasetI()
+        dataset.name = rstring(self.uuid())
+        for name in ['a', 'b', 'c', 'd', 'e']:
+            image = self.new_image(name=self.uuid())
+            dataset.linkImage(image)
+        project.linkDataset(dataset)
+        return self.update.saveAndReturnObject(project)
+
+    @pytest.fixture
     def screen_plate_run_well_multi(self):
         """
         Returns a new OMERO Screen, linked Plate, linked Well, linked
@@ -1175,6 +1192,27 @@ class TestShow(IWebTest):
              {'type': 'dataset', 'id': dataset.id.val},
              {'type': 'image', 'id': image.id.val}]]
 
+        assert paths == expected
+
+    def test_project_dataset_images_pagination(self, project_dataset_images):
+        project = project_dataset_images
+        dataset, = project.linkedDatasetList()
+        images = dataset.linkedImageList()
+        images.sort(key=lambda x: x.getName().val)
+        iids = [i.id.val for i in images]
+        imgIndex = len(iids) - 1
+        iid = iids[imgIndex]
+
+        page_size = 3
+        paths = paths_to_object(self.conn, image_id=iid, page_size=page_size)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'childIndex': imgIndex,
+              'id': dataset.id.val, 'childPage': (imgIndex/page_size) + 1,
+              'childCount': len(iids)},
+             {'type': 'image', 'id': iid}]]
         assert paths == expected
 
     def test_image(self, project_dataset_image):
