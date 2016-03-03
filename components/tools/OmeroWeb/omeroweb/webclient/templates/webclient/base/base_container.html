@@ -160,6 +160,8 @@
         WEBCLIENT.USER = {'id': {{ ome.user.id }} };
         WEBCLIENT.active_user_id = {{ ome.user_id }};
 
+        WEBCLIENT.LABELS = {'all_members':'All members'};
+
         WEBCLIENT.URLS = {};
         WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";
         WEBCLIENT.URLS.api_paths_to_object = "{% url 'api_paths_to_object' %}";

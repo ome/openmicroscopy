@@ -486,7 +486,7 @@ $(function() {
                         // ...or multiple experimenters
                         node = {
                             'data': {'id': -1, 'obj': {'id': -1}},
-                            'text': 'All members',
+                            'text': WEBCLIENT.LABELS.all_members,
                             'children': true,
                             'type': 'experimenter',
                             'state': {
