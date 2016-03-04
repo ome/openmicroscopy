@@ -425,16 +425,22 @@ $(function() {
 
                 // If this is a node which can have paged results then either specify that
                 // we want the specific page, or use default first page
-                if (node.type === 'dataset' || node.type === 'orphaned') {
+
+                // Disable paging for node without counter
+                if (node.data && node.data.obj.childCount === undefined) {
+                    payload['page'] = 0;
+                } else if (node.type === 'project' || node.type === 'screen' || node.type === 'plate') {
+                    // TODO: temporary workaround to not paginate datasets,
+                    // plates and acquisitions
+                    // see center_plugin.thumbs.js.html
+                    payload['page'] = 0;
+                } else {
                     // Attempt to get the current page desired if there is one
                     var page = inst.get_page(node);
                     if (page) {
                         payload['page'] = page;
                         // Otherwise, no 'page' will give us default, first page
                     }
-                } else {
-                    // Disable paging for other queries
-                    payload['page'] = 0;
                 }
 
                 // Specify that orphans are specifically sought
@@ -741,7 +747,7 @@ $(function() {
             },
             'tag': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
-                'valid_children': ['project, dataset, image, screen, plate, acquisition'],
+                'valid_children': ['project', 'dataset', 'image', 'screen', 'plate', 'acquisition'],
                 'draggable': true
             },
             'project': {
