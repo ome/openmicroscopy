@@ -31,8 +31,6 @@ from omero.rtypes import rint, rlong
 from django.core.urlresolvers import reverse
 from copy import deepcopy
 from django.conf import settings
-from tree import marshal_images
-import time
 
 
 class IncorrectMenuError(Exception):
@@ -439,14 +437,29 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
     qs = conn.getQueryService()
 
-    def get_image_ids(datasetId):
-        q = """select image.id from Image image
-            join image.datasetLinks dlink where dlink.parent.id = :did
-            order by lower(image.name), image.id"""
+    def get_image_ids(datasetId=None, groupId=-1, ownerId=None):
         p = omero.sys.ParametersI()
-        p.add('did', rlong(datasetId))
         so = deepcopy(conn.SERVICE_OPTS)
-        so.setOmeroGroup(-1)
+        so.setOmeroGroup(groupId)
+        if (datasetId is not None):
+            p.add('did', rlong(datasetId))
+            q = """select image.id from Image image
+                join image.datasetLinks dlink where dlink.parent.id = :did
+                order by lower(image.name), image.id"""
+        else:
+            p.add('ownerId', rlong(ownerId))
+            q = """select image.id from Image image where
+                image.details.owner.id = :ownerId and
+                not exists (
+                    select dilink from DatasetImageLink as dilink
+                    where dilink.child = image.id
+
+                )  and
+                not exists (
+                    select ws from WellSample ws
+                    where ws.image.id = image.id
+                )
+                order by lower(image.name), image.id"""
         iids = [i[0].val for i in qs.projection(q, p, so)]
         return iids
 
@@ -500,7 +513,8 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                    dilink.parent.id,
                    (select count(id) from DatasetImageLink dil
                     where dil.parent=dilink.parent.id),
-                   image.id
+                   image.id,
+                   image.details.group.id as groupId
             from Image image
             left outer join image.details.owner iowner
             left outer join image.datasetLinks dilink
@@ -529,6 +543,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
         for e in qs.projection(q, params, service_opts):
             path = []
+            imageId = e[4].val
 
             # Experimenter is always found
             path.append({
@@ -548,7 +563,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             if e[2] is not None:
                 imgCount = e[3].val
                 datasetId = e[2].val
-                imageId = e[4].val
                 ds = {
                     'type': 'dataset',
                     'id': datasetId,
@@ -566,15 +580,23 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             # If it is orphaned->image
             if e[2] is None:
                 orphanedImage = True
-                path.append({
+                orph = {
                     'type': 'orphaned',
                     'id': e[0].val
-                })
+                }
+                iids = get_image_ids(groupId=e[5].val, ownerId=e[0].val)
+                if len(iids) > page_size:
+                    index = iids.index(imageId)
+                    page = (index / page_size) + 1  # 1-based index
+                    orph['childCount'] = len(iids)
+                    orph['childIndex'] = index
+                    orph['childPage'] = page
+                path.append(orph)
 
             # Image always present
             path.append({
                 'type': 'image',
-                'id': e[4].val
+                'id': imageId
             })
             paths.append(path)
 

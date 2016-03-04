@@ -161,6 +161,17 @@ class TestShow(IWebTest):
         return self.update.saveAndReturnObject(image)
 
     @pytest.fixture
+    def images(self):
+        """
+        Returns a list of new OMERO Images populated by an
+        L{test.integration.library.ITest} instance.
+        """
+        images = []
+        for name in ['a', 'b', 'c', 'd', 'e']:
+            images.append(self.new_image(name=name))
+        return self.update.saveAndReturnArray(images)
+
+    @pytest.fixture
     def screen(self):
         """Returns a new OMERO Screen with required fields set."""
         screen = ScreenI()
@@ -1074,7 +1085,7 @@ class TestShow(IWebTest):
         dataset = DatasetI()
         dataset.name = rstring(self.uuid())
         for name in ['a', 'b', 'c', 'd', 'e']:
-            image = self.new_image(name=self.uuid())
+            image = self.new_image(name=name)
             dataset.linkImage(image)
         project.linkDataset(dataset)
         return self.update.saveAndReturnObject(project)
@@ -1212,6 +1223,29 @@ class TestShow(IWebTest):
              {'type': 'dataset', 'childIndex': imgIndex,
               'id': dataset.id.val, 'childPage': (imgIndex/page_size) + 1,
               'childCount': len(iids)},
+             {'type': 'image', 'id': iid}]]
+        assert paths == expected
+
+    def test_orphaned_pagination(self, images):
+        images.sort(key=lambda x: x.getName().val)
+        iids = [i.id.val for i in images]
+        imgIndex = len(iids) - 1
+        iid = iids[imgIndex]
+        image = images[imgIndex]
+
+        page_size = 4
+        paths = paths_to_object(self.conn, image_id=iid, page_size=page_size)
+
+        # Other tests may create orphaned images. Accept whatever values we get
+        childCount = paths[0][1]['childCount']
+        childIndex = paths[0][1]['childIndex']
+        assert childIndex >= imgIndex   # but we know it can only go up
+        expected = [
+            [{'type': 'experimenter', 'id': image.details.owner.id.val},
+             {'type': 'orphaned', 'id': image.details.owner.id.val,
+              'childIndex': childIndex,
+              'childPage': (childIndex/page_size) + 1,
+              'childCount': childCount},
              {'type': 'image', 'id': iid}]]
         assert paths == expected
 
