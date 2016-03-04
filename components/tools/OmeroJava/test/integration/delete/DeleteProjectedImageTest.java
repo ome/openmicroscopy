@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 University of Dundee. All rights reserved.
+ * Copyright 2013-2016 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -9,13 +9,16 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import integration.AbstractServerTest;
 import omero.SecurityViolation;
 import omero.api.IProjectionPrx;
+import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete2;
+import omero.cmd.HandlePrx;
 import omero.constants.projection.ProjectionType;
 import omero.gateway.util.Requests;
 import omero.model.Image;
@@ -23,6 +26,8 @@ import omero.model.Pixels;
 import omero.sys.EventContext;
 
 import org.springframework.util.ResourceUtils;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -32,7 +37,7 @@ import org.testng.annotations.Test;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4.9
  */
-public class DeleteProjectedImageTest  extends AbstractServerTest {
+public class DeleteProjectedImageTest extends AbstractServerTest {
 
     /** Indicates to delete the source image. */
     private static final int SOURCE_IMAGE = 0;
@@ -42,6 +47,9 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
 
     /** Indicates to delete the both images. */
     private static final int BOTH_IMAGES = 2;
+
+    /* the IDs of the images left over by the tests */
+    private final List<Long> remainingImageIds = new ArrayList<Long>();
 
     /**
      * Imports the small dv.
@@ -148,16 +156,46 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
             assertNull(iQuery.find(Image.class.getSimpleName(), id));
             //check that the projected image is still there
             assertNotNull(iQuery.find(Image.class.getSimpleName(), projectedID));
+            remainingImageIds.add(projectedID);
             break;
         case PROJECTED_IMAGE:
             assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
            //check that the original image is still there
             assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
+            remainingImageIds.add(id);
             break;
         case BOTH_IMAGES:
             assertNull(iQuery.find(Image.class.getSimpleName(), projectedID));
             assertNull(iQuery.find(Image.class.getSimpleName(), id));
         }
+    }
+
+    /**
+     * Run through an import, projection, deletion cycle so that the server runs the actual tests more timelily.
+     * @throws Exception unexpected
+     */
+    @BeforeClass
+    public void doFirstRun() throws Exception {
+        newUserAndGroup("rw----");
+        final Pixels pixels = importImage();
+        final IProjectionPrx iProj = factory.getProjectionService();
+        final List<Integer> channels = Arrays.asList(0);
+        final long id = pixels.getImage().getId().getValue();
+        final long projectedID = iProj.projectPixels(pixels.getId().getValue(), null,
+                ProjectionType.MAXIMUMINTENSITY, 0, 1, channels, 1, 0, 1, "projectedImage");
+        final Delete2 delete = Requests.delete("Image", Arrays.asList(id, projectedID));
+        final HandlePrx handle = client.getSession().submit(delete);
+        new CmdCallbackI(client, handle).loop(50, scalingFactor);
+    }
+
+    /**
+     * Delete the images left over from the tests.
+     * @throws Exception unexpected
+     */
+    @AfterClass
+    public void cleanUpRemainingImages() throws Exception {
+        doChange(root, root.getSession(), Requests.delete("Image", remainingImageIds), true);
+        remainingImageIds.clear();
     }
 
     /**
