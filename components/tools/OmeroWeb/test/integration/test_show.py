@@ -1076,9 +1076,9 @@ class TestShow(IWebTest):
     @pytest.fixture
     def project_dataset_images(self):
         """
-        Returns a new OMERO Project, linked Dataset and 5 linked Images populated
-        by an L{test.integration.library.ITest} instance with required fields
-        set.
+        Returns a new OMERO Project, linked Dataset and 5 linked Images
+        populated by an L{test.integration.library.ITest} instance with
+        required fields set.
         """
         project = ProjectI()
         project.name = rstring(self.uuid())
