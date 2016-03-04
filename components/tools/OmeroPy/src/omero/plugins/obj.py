@@ -357,18 +357,21 @@ class ObjGetTxAction(NonFieldTxAction):
             proxy = ""
         else:
             try:
-                if hasattr(current, "_value") and hasattr(current, "_unit"):
-                    proxy = str(current._value) + " " + str(current._unit)
-                else:
+                if hasattr(current, "val"):
                     proxy = current.val
-            except AttributeError:
-                try:
+                elif hasattr(current, "id"):
                     objId = current.id.val
                     klass = current.__class__.__name__.rstrip("I")
                     proxy = klass + ":" + str(objId)
-                except AttributeError, ae:
-                    ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
-                        field, self.kls, self.obj.id.val, ae.message))
+                elif hasattr(current, "_value") and hasattr(current, "_unit"):
+                    proxy = str(current._value) + " " + str(current._unit)
+                else:
+                    raise AttributeError(
+                        "Error: field '%s' for %s:%s : no val, id or value" % (
+                            field, self.kls, self.obj.id.val))
+            except AttributeError, ae:
+                ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
+                    field, self.kls, self.obj.id.val, ae.message))
 
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
