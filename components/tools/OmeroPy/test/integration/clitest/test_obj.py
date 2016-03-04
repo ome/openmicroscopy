@@ -179,6 +179,21 @@ class TestObj(CLITest):
         state = self.go()
         assert state.get_row(0) == "1.0 MICROMETER"
 
+    def test_get_unknown_and_empty_field(self):
+        name = "foo"
+        self.args = self.login_args() + [
+            "obj", "new", "Project", "name=%s" % name]
+        state = self.go()
+        project = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "get", project, "description"]
+        state = self.go()
+        assert state.get_row(0) == ""
+        self.args = self.login_args() + [
+            "obj", "get", project, "bar"]
+        with pytest.raises(NonZeroReturnCode):
+                state = self.go()
+
     def test_map_mods(self):
         self.args = self.login_args() + [
             "obj", "new", "MapAnnotation", "ns=test"]
