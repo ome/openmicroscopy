@@ -170,6 +170,14 @@ class TestObj(CLITest):
         state = self.go()
         assert state.get_row(0) == dataset
 
+    def test_get_unit_and_value(self):
+        # units defaults to MICROMETER
+        img = self.importSingleImage(physicalSizeX=1.0)
+        self.args = self.login_args() + [
+            "obj", "get", "Pixels:%s" % img.id.val, "physicalSizeX"]
+        state = self.go()
+        assert state.get_row(0) == "1.0 MICROMETER"
+
     def test_map_mods(self):
         self.args = self.login_args() + [
             "obj", "new", "MapAnnotation", "ns=test"]
