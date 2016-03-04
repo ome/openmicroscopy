@@ -43,6 +43,9 @@ System administrator updates include:
 Note that the OMERO Virtual Appliance has been discontinued and will not be
 updated for version 5.2.2 or any later releases.
 
+This release also upgrades the version of Bio-Formats which OMERO uses to
+5.1.8. `See whats-new for more information <https://www.openmicroscopy.org/site/support/bio-formats5.1/about/whats-new.html>`_.
+
 5.2.1 (December 2015)
 ---------------------
 
