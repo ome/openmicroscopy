@@ -155,10 +155,11 @@ $(document).ready(function() {
             return;
         }
 
-        // parent node could be dataset, orphaned, share or tag
-        var parentTypes = ["dataset", "orphaned", "tag", "share"],
+        // parent node cannot be "screen", "plate", "acquisition", "project", "image"
+        // see ome.tree.js
+        var parentTypes = ["screen", "plate", "acquisition", "project", "image", "tagset", "tag"],
             imgNodes = [];
-        if (parentTypes.indexOf(dtype) > -1) {
+        if (parentTypes.indexOf(dtype) < 0) {
             parentNode = selected[0];
         } else if (dtype === "image") {
             parentNode = inst.get_node(inst.get_parent(selected[0]));
@@ -810,6 +811,7 @@ $(document).ready(function() {
         $("div#page").removeData('page');
         $contentDetails.removeData('field');
     };
+    OME.clearThumbnailsPanel = clearThumbnailsPanel;
 
     var setThumbnailsPanel = function(type, id, path, page, field) {
         var $contentDetails = $("div#content_details");
