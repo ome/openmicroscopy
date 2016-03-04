@@ -4,6 +4,11 @@
 
 set -e
 
+ice=Ice-3.5.1-b1-ubuntu1204-amd64.tar.xz
+fbver=3.0.1
+fbfil="findbugs-noUpdateChecks-$fbver"
+fburl="https://sourceforge.net/projects/findbugs/files/findbugs/$fbver/$fbfil.tar.gz/download?use_mirror=netix&download=#"
+
 if [ -z "$ICE_HOME" ]; then
   export ICE_HOME=/usr/share/Ice
 fi
@@ -24,7 +29,6 @@ get_ice()
   if [ "$TRAVIS" = "true" ]; then
     NAME=ice
     fold start install
-    ice=Ice-3.5.1-b1-ubuntu1204-amd64.tar.xz
     if [ ! -f "download/$ice" ]; then
       mkdir -p download
       cd download
@@ -41,10 +45,29 @@ get_ice()
   fi
 }
 
+get_findbugs()
+{
+  if [ "$TRAVIS" = "true" ]; then
+    NAME=findbugs
+    fold start install
+    if [ ! -f "download/$fbfil.tar.gz" ]; then
+      mkdir -p download
+      wget -O "download/$fbfil.tar.gz" "$fburl"
+    fi
+    tar -xvf "download/$fbfil.tar.gz"
+    FINDBUGS_HOME="$(pwd)/$fbfil"
+    fold end install
+fi
+}
+
 java_build()
 {
     get_ice
+    get_findbugs
     NAME=java_build
+    fold start findbugs
+        TEST="-p" ant release-findbugs -Dfindbugs.failOnError=true -Dfindbugs.home=`pwd`/findbugs-3.0.1
+    fold end findbugs
     fold start default
         TEST="-p" ant build-default -Dpackage-extra=false
     fold end default

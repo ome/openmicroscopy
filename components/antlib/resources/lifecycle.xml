@@ -408,6 +408,7 @@ omero.version=${omero.version}
     </target>
 
     <target name="load-findbugs" depends="prepare">
+        <property name="findbugs.failOnError" value="false"/>
         <property name="findbugs.path"   value="omero.classpath"/>
         <property name="findbugs.type"   value="jar"/>
         <property name="findbugs.target" value="${target.dir}/${ivy.module}.${findbugs.type}"/>
@@ -418,8 +419,9 @@ omero.version=${omero.version}
         <macrodef name="do-find-bugs">
             <sequential>
             <find-bugs home="${findbugs.home}" output="xml:withMessages" outputFile="${target.dir}/findbugs.xml"
-                                   excludeFilter="${import.dir}/excludebugs.xml">
+                       excludeFilter="${import.dir}/excludebugs.xml" failOnError="${findbugs.failOnError}">
                 <class location="${findbugs.target}" />
+
                 <auxClasspath>
                     <path refid="${findbugs.path}"/>
                 </auxClasspath>
