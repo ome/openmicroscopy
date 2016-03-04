@@ -411,7 +411,7 @@ omero.version=${omero.version}
         <property name="findbugs.path"   value="omero.classpath"/>
         <property name="findbugs.type"   value="jar"/>
         <property name="findbugs.target" value="${target.dir}/${ivy.module}.${findbugs.type}"/>
-        <property name="findbugs.home"   value="${omero.home}/lib/findbugs-${versions.findbugs}"/>
+        <property name="findbugs.home"   value="PLEASE_SET_ME"/>
         <taskdef name="find-bugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="omero.classpath"/>
         <taskdef resource="checkstyletask.properties" classpathref="omero.classpath"/>
         <condition property="no.findbugs"><not><available file="${findbugs.target}"/></not></condition>
