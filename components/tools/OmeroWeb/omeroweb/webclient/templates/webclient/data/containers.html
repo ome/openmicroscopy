@@ -753,17 +753,6 @@
         <!-- toolbar above tree -->
         <div>
 
-            {% ifequal menu 'usertags' %}
-            <!-- Show Tags toolbar for tag page... -->
-            <ul class="toolbar">
-                <li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh" /></li>
-
-                <li class="seperator"></li>
-
-                <li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /></li>
-            </ul>
-
-            {% else %}
             <!-- Show Projects toolbar for main page... -->
             <ul class="toolbar">
 					
@@ -791,7 +780,6 @@
 			<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> </li>
 					
             </ul>
-            {% endifequal %}
             
 
             <div class="clear"></div>

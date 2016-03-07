@@ -802,12 +802,6 @@ $(function() {
             'items' : function(node){
                 var config = {};
 
-                // Hack to disable context menu for tags tree
-                // Need to fix permissions using map() in api_tagged query first
-                if (WEBCLIENT.URLS.tree_top_level === WEBCLIENT.URLS.api_tags_and_tagged) {
-                    return config;
-                }
-
                 config["create"] = {
                     "label" : "Create new",
                     "_disabled": true,
