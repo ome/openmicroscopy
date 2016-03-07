@@ -1192,7 +1192,7 @@ public class DuplicationTest extends AbstractServerTest {
     }
 
     /**
-     * Test duplication of an annotated image with contradictory treatments for the same annotation typs.
+     * Test duplication of an annotated image with contradictory treatments for the same annotation types.
      * @throws Exception unexpected
      */
     @Test
