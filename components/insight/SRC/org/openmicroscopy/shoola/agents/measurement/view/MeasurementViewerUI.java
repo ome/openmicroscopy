@@ -123,7 +123,7 @@ class MeasurementViewerUI
 	static final String DEFAULT_MSG = "";
 	
 	/** The default size of the window. */
-	private static final Dimension DEFAULT_SIZE = new Dimension(400, 300);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
 
 	/** The title for the measurement tool main window. */
 	private static final String WINDOW_TITLE = "";

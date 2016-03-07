@@ -114,7 +114,7 @@ class ObjectManager
 	
 	static{
 		COLUMN_WIDTHS = new HashMap<String, Integer>();
-        COLUMN_WIDTHS.put(COLUMN_NAMES.get(0), 80);
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(0), 180);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(1), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(2), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(3), 36);
@@ -284,6 +284,7 @@ class ObjectManager
         }
         objectsTable.collapseAll();
         objectsTable.expandFolders(expandedFolderIds);
+        objectsTable.setAutoCreateColumnsFromModel( false );
     }
 	
 	/**
