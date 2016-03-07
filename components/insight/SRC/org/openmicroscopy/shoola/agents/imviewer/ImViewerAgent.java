@@ -130,7 +130,7 @@ public class ImViewerAgent
      */
     public static boolean isFastConnection()
     {
-        int value = (Integer) registry.lookup(LookupNames.CONNECTION_SPEED);
+        int value = (Integer) registry.lookup(LookupNames.IMAGE_QUALITY_LEVEL);
         return value == ImViewer.UNCOMPRESSED;
     }
 

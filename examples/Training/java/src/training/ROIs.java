@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -83,16 +83,16 @@ public class ROIs
 
     //The value used if the configuration file is not used. To edit*/
     /** The server address.*/
-    private String hostName = "serverName";
+    private static String hostName = "serverName";
 
     /** The username.*/
-    private String userName = "userName";
+    private static String userName = "userName";
 
     /** The password.*/
-    private String password = "password";
+    private static String password = "password";
 
     /** Information to edit.*/
-    private long imageId = 1;
+    private static long imageId = 1;
     //end edit
 
     private ImageData image;
@@ -326,23 +326,12 @@ public class ROIs
     /**
      * Connects and invokes the various methods.
      * 
-     * @param info The configuration information.
+     * @param args The login credentials
+     * @param imageId The image id
      */
-    ROIs(ConfigurationInfo info)
-    {
-        if (info == null) {
-            info = new ConfigurationInfo();
-            info.setHostName(hostName);
-            info.setPassword(password);
-            info.setUserName(userName);
-            info.setImageId(imageId);
-        }
-        
-        LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+    ROIs(String[] args, long imageId)
+    {   
+        LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
         
@@ -350,7 +339,7 @@ public class ROIs
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
             
-            image = loadImage(info.getImageId());
+            image = loadImage(imageId);
             createROIs();
         } catch (Exception e) {
             e.printStackTrace();
@@ -370,7 +359,11 @@ public class ROIs
      */
     public static void main(String[] args)
     {
-        new ROIs(null);
+        if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                    "--omero.user=" + userName, "--omero.pass=" + password };
+        
+        new ROIs(args, imageId);
         System.exit(0);
     }
 

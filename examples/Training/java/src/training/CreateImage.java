@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -62,19 +62,19 @@ public class CreateImage
 
 	//The value used if the configuration file is not used. To edit*/
 	/** The server address.*/
-	private String hostName = "serverName";
+	private static String hostName = "serverName";
 
 	/** The username.*/
-	private String userName = "userName";
+	private static String userName = "userName";
 	
 	/** The password.*/
-	private String password = "password";
+	private static String password = "password";
 	
 	/** The id of an image.*/
-	private long imageId = 1;
+	private static long imageId = 1;
 	
 	/** Id of the dataset hosting the image of reference.*/
-	private long datasetId = 1;
+	private static long datasetId = 1;
 	//end edit
 	
 	
@@ -96,7 +96,7 @@ public class CreateImage
 	{
 		IContainerPrx proxy = gateway.getPojosService(ctx);
 		List<Image> results = proxy.getImages(Image.class.getName(),
-				Arrays.asList(imageID), new ParametersI());
+				Arrays.asList(imageId), new ParametersI());
 		//You can directly interact with the IObject or the Pojos object.
 		//Follow interaction with the Pojos.
 		if (results.size() == 0)
@@ -128,7 +128,7 @@ public class CreateImage
 	 * 
 	 * @param info The information about the data to handle.
 	 */
-	private void CreateNewImage(ConfigurationInfo info)
+	private void CreateNewImage(long datasetID)
 		throws Exception
 	{
 		PixelsData pixels = image.getDefaultPixels();
@@ -197,7 +197,7 @@ public class CreateImage
 		
 		//link the new image and the dataset hosting the source image.
 		DatasetImageLink link = new DatasetImageLinkI();
-		link.setParent(new DatasetI(info.getDatasetId(), false));
+		link.setParent(new DatasetI(datasetID, false));
 		link.setChild(new ImageI(newImage.getId(), false));
 		gateway.getUpdateService(ctx).saveAndReturnObject(link);
 		
@@ -226,24 +226,13 @@ public class CreateImage
 	/**
 	 * Connects and invokes the various methods.
 	 * 
-	 * @param info The configuration information
+	 * @param args The login credentials
+	 * @param imageId The image id
+	 * @param datasetId The dataset id
 	 */
-	CreateImage(ConfigurationInfo info)
+	CreateImage(String[] args, long imageId, long datasetId)
 	{
-		if (info == null) {
-			info = new ConfigurationInfo();
-			info.setHostName(hostName);
-			info.setPassword(password);
-			info.setUserName(userName);
-			info.setDatasetId(datasetId);
-			info.setImageId(imageId);
-		}
-		
-		LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+		LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
         
@@ -251,8 +240,8 @@ public class CreateImage
 		    ExperimenterData user = gateway.connect(cred);
 		    ctx = new SecurityContext(user.getGroupId());
 		    
-			image = loadImage(info.getImageId());
-			CreateNewImage(info);
+			image = loadImage(imageId);
+			CreateNewImage(datasetId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -271,7 +260,11 @@ public class CreateImage
 	 */
 	public static void main(String[] args)
 	{
-		new CreateImage(null);
+        if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                    "--omero.user=" + userName, "--omero.pass=" + password };
+	    
+		new CreateImage(args, imageId, datasetId);
 		System.exit(0);
 	}
 }

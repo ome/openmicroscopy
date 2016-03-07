@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Box;
@@ -38,9 +39,6 @@ import omero.gateway.model.RatingAnnotationData;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import edu.emory.mathcs.backport.java.util.Collections;
-
 
 /**
  * A {@link AnnotationTaskPaneUI} for displaying the user rating
@@ -140,6 +138,7 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         rating.removePropertyChangeListener(this);
         rating.setValue(originalValue);
         rating.addPropertyChangeListener(this);
+        rating.setEnabled(model.canAnnotate());
     }
 
     
@@ -185,7 +184,7 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
     @Override
     List<AnnotationData> getAnnotationsToSave() {
         if (selectedValue != originalValue)
-            return Collections.singletonList(new RatingAnnotationData(selectedValue));
+            return Collections.<AnnotationData>singletonList(new RatingAnnotationData(selectedValue));
         else
             return Collections.emptyList();
     }
@@ -195,7 +194,7 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         if (selectedValue != originalValue && selectedValue == 0) {
             RatingAnnotationData rating = model.getUserRatingAnnotation();
             if (rating != null) 
-                return Collections.singletonList(rating);
+                return Collections.<Object>singletonList(rating);
         }
         return Collections.emptyList();
     }

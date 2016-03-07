@@ -62,8 +62,8 @@ bin/omero obj new ScreenPlateLink parent=$screen child=$plate
 
 # Import orphaned plate
 echo "Importing SPW file"
-touch "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake"
-bin/omero import -r $screen "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake" > plate_import.log 2>&1
+touch "SPW&plates=1&plateRows=1&plateCols=3&fields=1&plateAcqs=1.fake"
+bin/omero import -r $screen "SPW&plates=1&plateRows=1&plateCols=3&fields=1&plateAcqs=1.fake" > plate_import.log 2>&1
 plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 
 # Logout

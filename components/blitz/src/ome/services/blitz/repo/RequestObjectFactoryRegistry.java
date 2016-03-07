@@ -33,6 +33,8 @@ import ome.system.OmeroContext;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 
+import omero.util.Resources;
+
 
 /**
  * Requests which are handled by the repository servants.
@@ -50,16 +52,24 @@ public class RequestObjectFactoryRegistry extends
 
     private final PixelsService pixels;
 
+    private final Resources resources;
+
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(Registry reg, TileSizes sizes,
             RepositoryDao repositoryDao, Ring ring,
             PixelsService pixels) {
+        this(reg, sizes, repositoryDao, ring, pixels, null);
+    }
+    public RequestObjectFactoryRegistry(Registry reg, TileSizes sizes,
+            RepositoryDao repositoryDao, Ring ring,
+            PixelsService pixels, Resources resources) {
         this.reg = reg;
         this.sizes = sizes;
         this.dao = repositoryDao;
         this.ring = ring;
         this.pixels = pixels;
+        this.resources = resources;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -73,12 +83,14 @@ public class RequestObjectFactoryRegistry extends
                 ManagedImportRequestI.ice_staticId()) {
             @Override
             public Ice.Object create(String name) {
-                return new ManagedImportRequestI(reg, sizes, dao,
+                ManagedImportRequestI mir = new ManagedImportRequestI(reg, sizes, dao,
                         new OMEROWrapper(
                                 new ImportConfig(),
                                 pixels.getMemoizerWait(),
                                 pixels.getMemoizerDirectory()),
                         ring.uuid);
+                mir.setResources(resources);
+                return mir;
             }
 
         });

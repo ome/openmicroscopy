@@ -78,7 +78,7 @@ module omero {
             /**
              * Message that the server will be shutting down in the
              * given number of milliseconds, after which all new and
-             * running method invocations will recieve a CancelledException.
+             * running method invocations will receive a CancelledException.
              **/
             void shutdownIn(long milliseconds);
 

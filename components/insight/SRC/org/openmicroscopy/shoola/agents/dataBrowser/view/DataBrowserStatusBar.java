@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserStatusBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -85,8 +85,10 @@ class DataBrowserStatusBar
 	/** Initializes the components. */
 	private void initComponents()
 	{
+	    double scale = DataBrowserFactory.getThumbnailScaleFactor();
+	    
 		mag = new MagnificationComponent(Thumbnail.MIN_SCALING_FACTOR,
-				Thumbnail.MAX_SCALING_FACTOR, Thumbnail.SCALING_FACTOR);
+				Thumbnail.MAX_SCALING_FACTOR, scale);
 		mag.addPropertyChangeListener(
 				MagnificationComponent.MAGNIFICATION_PROPERTY, this);
 		fieldsZoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
@@ -99,7 +101,7 @@ class DataBrowserStatusBar
 		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL,
 				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR),
 				(int) (Thumbnail.MAX_SCALING_FACTOR*FACTOR),
-				(int) (Thumbnail.SCALING_FACTOR*FACTOR));
+				(int) (scale*FACTOR));
 		//zoomSlider.setEnabled(false);
 		zoomSlider.addChangeListener(this);
 		zoomSlider.setToolTipText("Magnifies the thumbnails.");
@@ -202,6 +204,7 @@ class DataBrowserStatusBar
 			int v = fieldsZoomSlider.getValue();
 	    	double f = (double) v/FACTOR;
 			view.setMagnificationUnscaled(f);
+			
 		} else if (src == zoomSlider) {
 			int v = zoomSlider.getValue();
 	    	double f = (double) v/FACTOR;
@@ -209,6 +212,7 @@ class DataBrowserStatusBar
 			firePropertyChange(
 			        MagnificationComponent.MAGNIFICATION_UPDATE_PROPERTY,
 			        null, f);
+			DataBrowserFactory.setThumbnailScaleFactor(f);
 		}
 	}
 

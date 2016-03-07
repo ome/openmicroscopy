@@ -23,13 +23,13 @@
 # Version: 1.0
 #
 
-import datetime
 import time
 import omero
 import logging
 
 from omero.rtypes import rtime
 from webclient.controller import BaseController
+from webclient.webclient_utils import getDateTime
 
 logger = logging.getLogger(__name__)
 
@@ -70,18 +70,20 @@ class BaseSearch(BaseController):
         if date is not None:
             p = str(date).split('_')
             if len(p) > 1:
-                d1 = datetime.datetime.strptime(
-                    p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
-                d2 = datetime.datetime.strptime(
-                    p[1]+" 23:59:59", "%Y-%m-%d %H:%M:%S")
+                try:
+                    d1 = getDateTime(p[0]+" 00:00:00")
+                    d2 = getDateTime(p[1]+" 23:59:59")
 
-                created = [rtime(long(time.mktime(d1.timetuple()) + 1e-6 *
-                                      d1.microsecond) * 1000),
-                           rtime(long(time.mktime(d2.timetuple()) + 1e-6 *
-                                      d2.microsecond) * 1000)]
+                    created = [rtime(long(time.mktime(d1.timetuple()) + 1e-6 *
+                                          d1.microsecond) * 1000),
+                               rtime(long(time.mktime(d2.timetuple()) + 1e-6 *
+                                          d2.microsecond) * 1000)]
+                except ValueError:
+                    # User entered an invalid date format - Ignore
+                    pass
             else:
-                d1 = datetime.datetime.strptime(
-                    p[0]+" 00:00:00", "%Y-%m-%d %H:%M:%S")
+                msg = "date should be start_end, e.g. 2015-12-01_2016-01-01"
+                raise ValueError(msg)
 
         def doSearch(searchType):
             """ E.g. searchType is 'images' """

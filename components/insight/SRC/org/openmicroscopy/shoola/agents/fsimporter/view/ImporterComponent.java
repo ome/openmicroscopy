@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -627,6 +627,7 @@ class ImporterComponent
 			case DISCARDED:
 				return;
 		}
+		model.setState(Importer.READY);
 		if (chooser == null) return;
 		Set nodes = TreeViewerTranslator.transformHierarchy(result);
 		chooser.reset(nodes, type, model.getGroupId(), userID);

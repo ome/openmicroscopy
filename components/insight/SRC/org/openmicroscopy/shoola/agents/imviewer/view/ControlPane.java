@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1305,7 +1305,7 @@ class ControlPane
         setBin(model.getSelectedBin());
         ProjectionParam ref = model.getLastProjRef();
         if (ref != null)
-            projectionRange.setInterval(ref.getStartZ(), ref.getEndZ());
+            projectionRange.setInterval(ref.getStartZ()+1, ref.getEndZ()+1);
     }
 
     /** Resets the UI when the user switches to a new rendering control. */
@@ -1578,14 +1578,14 @@ class ControlPane
     }
 
     /**
-     * Returns the lower bound of the z-section to project.
+     * Returns the lower bound of the z-section to project. (zero based)
      *
      * @return See above.
      */
     int getProjectionStartZ() { return projectionRange.getStartValueAsInt()-1; }
 
     /**
-     * Returns the lower bound of the z-section to project.
+     * Returns the lower bound of the z-section to project. (zero based)
      *
      * @return See above.
      */
