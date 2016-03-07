@@ -441,7 +441,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
         p = omero.sys.ParametersI()
         so = deepcopy(conn.SERVICE_OPTS)
         so.setOmeroGroup(groupId)
-        if (datasetId is not None):
+        if datasetId is not None:
             p.add('did', rlong(datasetId))
             q = """select image.id from Image image
                 join image.datasetLinks dlink where dlink.parent.id = :did
