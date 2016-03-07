@@ -294,6 +294,8 @@
                 "addproject":false,
                 'adddataset':false,
                 'addscreen':false,
+                'addtag': false,
+                'addtagset': false,
                 'copy':false,
                 'cut':false,
                 'paste': false,
@@ -310,6 +312,8 @@
                 toolbar_config["addproject"] = true;
                 toolbar_config["adddataset"] = true;
                 toolbar_config['addscreen'] = true;
+                toolbar_config["addtag"] = true;
+                toolbar_config["addtagset"] = true;
             }
             if(selected.length > 0) {
 
@@ -663,6 +667,14 @@
             OME.handleNewContainer("screen");
         });
 
+        $('#addtagButton').click(function() {
+            OME.handleNewContainer("tag");
+        });
+
+        $('#addtagsetButton').click(function() {
+            OME.handleNewContainer("tagset");
+        });
+
         $('#copyButton').click(function() {
             var objs = inst.get_selected(true)
             inst.copy(objs);
@@ -760,10 +772,19 @@
 
             <!-- Show Projects toolbar for main page... -->
             <ul class="toolbar">
+
+            {% ifequal menu 'usertags' %}
+                <li><input id="addtagButton" class="button button-disabled" type="image" title="Create new Tag"
+                    src="{% static "webclient/image/left_sidebar_icon_tag.png" %}" alt="Create new project" /></li>
+                <li><input id="addtagsetButton" class="button button-disabled" type="image" title="Create new Tag Set"
+                    src="{% static "webclient/image/left_sidebar_icon_tags.png" %}" alt="Create new dataset" /></li>
+            {% else %}
 					
 			<li><input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /></li>
 			<li><input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /></li>
 			<li><input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /></li>
+
+            {% endifequal %}
 			
 			<li class="seperator"></li>
 			
