@@ -748,7 +748,8 @@ $(function() {
             },
             'tag': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
-                'valid_children': ['project, dataset, image, screen, plate, acquisition']
+                'valid_children': ['project, dataset, image, screen, plate, acquisition'],
+                'draggable': true
             },
             'project': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder16.png',

@@ -93,7 +93,7 @@ from omeroweb.webgateway.util import getIntOrDefault
 from omero.model import ProjectI, DatasetI, ImageI, \
     ScreenI, PlateI, \
     ProjectDatasetLinkI, DatasetImageLinkI, \
-    ScreenPlateLinkI
+    ScreenPlateLinkI, AnnotationAnnotationLinkI, TagAnnotationI
 from omero import ApiUsageException, ServerError, CmdError
 from omero.rtypes import rlong, rlist
 
@@ -811,11 +811,12 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
 
 def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     """ This is just used internally by api_link DELETE below """
+    print 'get_object_links', parent_type, parent_id, child_type, child_ids
     if parent_type == 'orphaned':
         return None
     link_type = None
     if parent_type == 'experimenter':
-        if child_type == 'dataset' or child_type == 'plate':
+        if child_type in ['dataset', 'plate', 'tag']:
             # This will be a requested link if a dataset or plate is
             # moved from the de facto orphaned datasets/plates, it isn't
             # an error, but no link actually needs removing
@@ -829,7 +830,9 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     elif parent_type == 'screen':
         if child_type == 'plate':
             link_type = 'ScreenPlateLink'
-
+    elif parent_type == 'tagset':
+        if child_type == 'tag':
+            link_type = 'AnnotationAnnotationLink'
     if not link_type:
         raise Http404("json data needs 'parent_type' and 'child_type'")
 
@@ -893,6 +896,12 @@ def api_links(request, conn=None, **kwargs):
                 l.setParent(screen)
                 l.setChild(plate)
                 return l
+        elif parent_type == 'tagset':
+            if child_type == 'tag':
+                l = AnnotationAnnotationLinkI()
+                l.setParent(TagAnnotationI(long(parent_id), False))
+                l.setChild(TagAnnotationI(long(child_id), False))
+                return l
         return None
 
     response = {'success': False}
@@ -929,6 +938,10 @@ def api_links(request, conn=None, **kwargs):
                     # return remaining links in same format as json above
                     # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
                     for rl in remainingLinks:
+                        if not rl.loaded:
+                            # TODO: why AnnotationAnnotationLinks not loaded?
+                            print "Link NOT Loaded"
+                            continue
                         pid = rl.parent.id.val
                         cid = rl.child.id.val
                         # Deleting links still in progress above - ignore these
@@ -950,7 +963,10 @@ def api_links(request, conn=None, **kwargs):
 
     if request.method == 'POST' and len(linksToSave) > 0:
         # Need to set context to correct group (E.g parent group)
-        p = conn.getQueryService().get(parent_type.title(), parent_id,
+        ptype = parent_type.title()
+        if ptype in ["Tagset", "Tag"]:
+            ptype = "TagAnnotation"
+        p = conn.getQueryService().get(ptype, parent_id,
                                        conn.SERVICE_OPTS)
         conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
         logger.info("api_link: Saving %s links" % len(linksToSave))
