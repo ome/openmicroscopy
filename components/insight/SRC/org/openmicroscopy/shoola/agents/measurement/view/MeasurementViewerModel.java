@@ -97,6 +97,7 @@ import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.ROIData;
+import omero.gateway.util.Pojos;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -1228,6 +1229,16 @@ class MeasurementViewerModel
      *            The Folders
      */
     void deleteFolders(Collection<FolderData> folders) {
+        // remove from the local data model
+        Collection<Long> ids = Pojos.extractIds(folders);
+        Iterator<FolderData> it = this.folders.iterator();
+        while(it.hasNext()) {
+            FolderData f = it.next();
+            if(ids.contains(f.getId()))
+                it.remove();
+        }
+        
+        // delete on the server
         ExperimenterData exp = (ExperimenterData) MeasurementAgent
                 .getUserDetails();
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),
