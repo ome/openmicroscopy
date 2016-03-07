@@ -172,9 +172,10 @@ class TestObj(CLITest):
 
     def test_get_unit_and_value(self):
         # units defaults to MICROMETER
-        img = self.importSingleImage(physicalSizeX=1.0)
+        fake = create_path("image", "&physicalSizeX=1.0.fake")
+        pixIds = self.import_image(filename=fake.abspath())
         self.args = self.login_args() + [
-            "obj", "get", "Pixels:%s" % img.id.val, "physicalSizeX"]
+            "obj", "get", "Pixels:%s" % pixIds[0], "physicalSizeX"]
         state = self.go()
         assert state.get_row(0) == "1.0 MICROMETER"
 
