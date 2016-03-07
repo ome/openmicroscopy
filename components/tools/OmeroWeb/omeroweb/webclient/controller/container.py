@@ -809,6 +809,18 @@ class BaseContainer(BaseController):
     def createScreen(self, name, description=None):
         return self.conn.createScreen(name, description)
 
+    def createTag(self, name, description=None):
+        tId = self.conn.createTag(name, description)
+        if self.tag and self.tag.getNs() == omero.constants.metadata.NSINSIGHTTAGSET:
+            link = omero.model.AnnotationAnnotationLinkI()
+            link.setParent(omero.model.TagAnnotationI(self.tag.getId(), False))
+            link.setChild(omero.model.TagAnnotationI(tId, False))
+            self.conn.saveObject(link)
+        return tId
+
+    def createTagset(self, name, description=None):
+        return self.conn.createTagset(name, description)
+
     def checkMimetype(self, file_type):
         if file_type is None or len(file_type) == 0:
             file_type = "application/octet-stream"

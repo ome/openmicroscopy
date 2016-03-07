@@ -638,6 +638,25 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             sc.description = rstring(str(description))
         return self.saveAndReturnId(sc)
 
+    def createTag(self, name, description=None):
+        """ Creates new Tag and returns ID """
+
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(str(name))
+        if description is not None and description != "":
+            tag.description = rstring(str(description))
+        return self.saveAndReturnId(tag)
+
+    def createTagset(self, name, description=None):
+        """ Creates new Tag Set and returns ID """
+
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(str(name))
+        tag.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        if description is not None and description != "":
+            tag.description = rstring(str(description))
+        return self.saveAndReturnId(tag)
+
     def createContainer(self, dtype, name, description=None):
         """ Creates new Project, Dataset or Screen and returns ID """
 

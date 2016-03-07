@@ -2599,9 +2599,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
     manager = None
     if o_type in ("dataset", "project", "image", "screen", "plate",
                   "acquisition", "well", "comment", "file", "tag", "tagset"):
-        if o_type == 'tagset':
-            # TODO: this should be handled by the BaseContainer
-            o_type = 'tag'
         kw = {'index': index}
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)
@@ -2616,13 +2613,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
 
     form = None
     if action == 'addnewcontainer':
-        # Used within the jsTree to add a new Project, Dataset etc under a
+        # Used within the jsTree to add a new Project, Dataset, Tag, Tagset etc under a
         # specified parent OR top-level
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers",
                                         args=["edit", o_type, o_id]))
-        if o_type is not None and hasattr(manager, o_type) and o_id > 0:
-            # E.g. Parent o_type is 'project'...
+        if o_type == "project" and hasattr(manager, o_type) and o_id > 0:
+            # If Parent o_type is 'project'...
             form = ContainerForm(data=request.POST.copy())
             if form.is_valid():
                 logger.debug(
@@ -2638,8 +2635,22 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
                 return HttpJsonResponse(rdict)
+        elif o_type == "tagset" and o_id > 0:
+            form = ContainerForm(data=request.POST.copy())
+            if form.is_valid():
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']
+                oid = manager.createTag(name, description)
+                rdict = {'bad': 'false', 'id': oid}
+                return HttpJsonResponse(rdict)
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]: unicode(e[1])})
+                rdict = {'bad': 'true', 'errs': d}
+                return HttpJsonResponse(rdict)
         elif request.POST.get('folder_type') in ("project", "screen",
-                                                 "dataset"):
+                                                 "dataset", "tag", "tagset"):
             # No parent specified. We can create orphaned 'project', 'dataset'
             # etc.
             form = ContainerForm(data=request.POST.copy())
@@ -2653,6 +2664,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                         name, description,
                         img_ids=request.POST.getlist('image', None))
                 else:
+                    # lookup method, E.g. createTag, createProject etc.
                     oid = getattr(manager, "create" +
                                   folder_type.capitalize())(name, description)
                 rdict = {'bad': 'false', 'id': oid}

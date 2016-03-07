@@ -740,7 +740,7 @@ $(function() {
             },
             'experimenter': {
                 'icon' : WEBCLIENT.URLS.static_webclient + 'image/icon_user.png',
-                'valid_children': ['project','dataset','screen','plate']
+                'valid_children': ['project','dataset','screen','plate', 'tag', 'tagset']
             },
             'tagset': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tags.png',
@@ -820,7 +820,7 @@ $(function() {
                             "label"     : "Tag",
                             "_disabled" : true,
                             "icon"      : WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
-                            action      : function (node) {OME.handleNewContainer("tagset"); },
+                            action      : function (node) {OME.handleNewContainer("tag"); },
                         }
                     };
                 } else {

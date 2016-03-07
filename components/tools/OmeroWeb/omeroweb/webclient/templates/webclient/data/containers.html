@@ -550,7 +550,11 @@
                     if(selected.length == 1 && selected[0].type === 'project' && cont_type == 'dataset') {
                         url = '{% url 'manage_action_containers' "addnewcontainer" %}project/'+selected[0].data.obj.id+'/';
                         parent = selected[0];
-                    // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
+                    // If a tagset is selected, create tag under it
+                    } else if(selected.length == 1 && selected[0].type === 'tagset' && cont_type == 'tag') {
+                        url = '{% url 'manage_action_containers' "addnewcontainer" %}tagset/'+selected[0].data.obj.id+'/';
+                        parent = selected[0];
+                    // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen', 'tag', 'tagset' etc. )
                     } else {
                         url = '{% url 'manage_action_containers' "addnewcontainer" %}';
                         // Make sure top level objects get added to jsTree root (current selected may be project, dataset, image or screen)

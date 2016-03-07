@@ -440,7 +440,7 @@ button::-moz-focus-inner {
 */
     
     
- .tag {
+.tag_annotation_wrapper .tag {
 	 display:inline-block;
 	 float:left;
 	 margin:1px 1px;
