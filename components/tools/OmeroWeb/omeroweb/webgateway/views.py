@@ -45,6 +45,7 @@ from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError
+from connector import Server
 
 import glob
 
@@ -1873,6 +1874,9 @@ def full_viewer(request, iid, conn=None, **kwargs):
     @return:            html page of image and metadata
     """
 
+    server_id = request.session['connector'].server_id
+    server_name = Server.get(server_id).server
+
     rid = getImgDetailsFromReq(request)
     interpolate = request.session['server_settings']['interpolate_pixels']
 
@@ -1881,6 +1885,31 @@ def full_viewer(request, iid, conn=None, **kwargs):
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404
+
+        opengraph = None
+        twitter = None
+        image_preview = None
+        page_url = None
+
+        if hasattr(settings, 'SHARING_OPENGRAPH'):
+            opengraph = settings.SHARING_OPENGRAPH.get(server_name)
+            logger.debug('Open Graph enabled: %s', twitter)
+
+        if hasattr(settings, 'SHARING_TWITTER'):
+            twitter = settings.SHARING_TWITTER.get(server_name)
+            logger.debug('Twitter enabled: %s', twitter)
+
+        if opengraph or twitter:
+            prefix = kwargs.get(
+                'thumbprefix', 'webgateway.views.render_thumbnail')
+
+            def urlprefix(iid):
+                return reverse(prefix, args=(iid,))
+
+            image_preview = request.build_absolute_uri(urlprefix(iid))
+            page_url = request.build_absolute_uri(reverse(
+                'webgateway.views.full_viewer', args=(iid,)))
+
         d = {'blitzcon': conn,
              'image': image,
              'opts': rid,
@@ -1890,6 +1919,11 @@ def full_viewer(request, iid, conn=None, **kwargs):
              'viewport_server': kwargs.get(
                  # remove any trailing slash
                  'viewport_server', reverse('webgateway')).rstrip('/'),
+
+             'opengraph': opengraph,
+             'twitter': twitter,
+             'image_preview': image_preview,
+             'page_url': page_url,
 
              'object': 'image:%i' % int(iid)}
 
