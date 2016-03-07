@@ -343,14 +343,29 @@ class ObjGetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
 
-        if len(self.tx_cmd.arg_list) != 3:
-            ctx.die(335, "usage: get OBJ FIELD")
+        if len(self.tx_cmd.arg_list) not in (2, 3):
+            ctx.die(335, "usage: get OBJ [FIELD]")
 
-        field = self.tx_cmd.arg_list[2]
-        try:
-            proxy = self.get_field(field)
-        except AttributeError, ae:
-            ctx.die(336, ae.message)
+        if len(self.tx_cmd.arg_list) == 3:
+            field = self.tx_cmd.arg_list[2]
+            try:
+                proxy = self.get_field(field)
+            except AttributeError, ae:
+                ctx.die(336, ae.message)
+        else:
+            proxy = ""
+            for attr in dir(self.obj):
+                if (attr.startswith("_") and
+                        not (attr.startswith("__")
+                             or attr.startswith("_op_")
+                             or attr.endswith("oaded"))):
+                    field = attr.lstrip("_")
+                    if hasattr(self.obj, field):
+                        try:
+                            proxy += (field + ": "
+                                      + str(self.get_field(field)) + "\n")
+                        except AttributeError:
+                            pass
 
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
