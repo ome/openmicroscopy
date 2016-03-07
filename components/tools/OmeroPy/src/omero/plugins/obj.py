@@ -348,9 +348,18 @@ class ObjGetTxAction(NonFieldTxAction):
 
         field = self.tx_cmd.arg_list[2]
         try:
+            proxy = self.get_field(field)
+        except AttributeError, ae:
+            ctx.die(336, ae.message)
+
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
+    def get_field(self, field):
+
+        try:
             current = getattr(self.obj, field)
         except AttributeError:
-            ctx.die(336, "Unknown field '%s' for %s:%s" % (
+            raise AttributeError("Unknown field '%s' for %s:%s" % (
                 field, self.kls, self.obj.id.val))
 
         if current is None:
@@ -370,10 +379,10 @@ class ObjGetTxAction(NonFieldTxAction):
                         "Error: field '%s' for %s:%s : no val, id or value" % (
                             field, self.kls, self.obj.id.val))
             except AttributeError, ae:
-                ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
+                raise AttributeError("Error: field '%s' for %s:%s : %s" % (
                     field, self.kls, self.obj.id.val, ae.message))
 
-        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+        return proxy
 
 
 class TxState(object):
