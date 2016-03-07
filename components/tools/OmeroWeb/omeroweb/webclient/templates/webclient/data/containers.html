@@ -60,6 +60,7 @@
 
     WEBCLIENT.active_group_id = {{ active_group.id }};
     WEBCLIENT.USER = {'id': {{ ome.user.id }} };
+    WEBCLIENT.active_user_id = {{ ome.user_id }};
 
     WEBCLIENT.URLS = {};
     WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";

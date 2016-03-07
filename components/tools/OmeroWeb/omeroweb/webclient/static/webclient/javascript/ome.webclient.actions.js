@@ -492,8 +492,6 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     }
     var notOwned = false;
     $.each(selected, function(index, node) {
-        // Add the nodes that are to be deleted
-        ajax_data.push(node.type + '=' + node.data.obj.id);
         // What types are being deleted and how many (for pluralization)
         var dtype = node.type;
         if (dtype in dtypes) {
@@ -501,6 +499,8 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
         } else {
             dtypes[dtype] = 1;
         }
+        // Add the nodes that are to be deleted
+        ajax_data.push(dtype.replace('tagset', 'tag') + '=' + node.data.obj.id);
         // If the node type is not 'image' then ask about deleting contents
         if (!askDeleteContents && node.type != 'image') {
             askDeleteContents = true;
