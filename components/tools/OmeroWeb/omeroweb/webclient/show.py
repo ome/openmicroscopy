@@ -413,6 +413,39 @@ class Show(object):
         return self._initially_open_owner
 
 
+def get_image_ids(conn, datasetId=None, groupId=-1, ownerId=None):
+    """
+    Retrieves a list of all image IDs in a Dataset or Orphaned
+    (with owner specified by ownerId). The groupId can be specified
+    as needed, particuarly when querying orphaned images.
+    """
+    qs = conn.getQueryService()
+    p = omero.sys.ParametersI()
+    so = deepcopy(conn.SERVICE_OPTS)
+    so.setOmeroGroup(groupId)
+    if datasetId is not None:
+        p.add('did', rlong(datasetId))
+        q = """select image.id from Image image
+            join image.datasetLinks dlink where dlink.parent.id = :did
+            order by lower(image.name), image.id"""
+    else:
+        p.add('ownerId', rlong(ownerId))
+        q = """select image.id from Image image where
+            image.details.owner.id = :ownerId and
+            not exists (
+                select dilink from DatasetImageLink as dilink
+                where dilink.child = image.id
+
+            )  and
+            not exists (
+                select ws from WellSample ws
+                where ws.image.id = image.id
+            )
+            order by lower(image.name), image.id"""
+    iids = [i[0].val for i in qs.projection(q, p, so)]
+    return iids
+
+
 def paths_to_object(conn, experimenter_id=None, project_id=None,
                     dataset_id=None, image_id=None, screen_id=None,
                     plate_id=None, acquisition_id=None, well_id=None,
@@ -436,32 +469,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
     """
 
     qs = conn.getQueryService()
-
-    def get_image_ids(datasetId=None, groupId=-1, ownerId=None):
-        p = omero.sys.ParametersI()
-        so = deepcopy(conn.SERVICE_OPTS)
-        so.setOmeroGroup(groupId)
-        if datasetId is not None:
-            p.add('did', rlong(datasetId))
-            q = """select image.id from Image image
-                join image.datasetLinks dlink where dlink.parent.id = :did
-                order by lower(image.name), image.id"""
-        else:
-            p.add('ownerId', rlong(ownerId))
-            q = """select image.id from Image image where
-                image.details.owner.id = :ownerId and
-                not exists (
-                    select dilink from DatasetImageLink as dilink
-                    where dilink.child = image.id
-
-                )  and
-                not exists (
-                    select ws from WellSample ws
-                    where ws.image.id = image.id
-                )
-                order by lower(image.name), image.id"""
-        iids = [i[0].val for i in qs.projection(q, p, so)]
-        return iids
 
     params = omero.sys.ParametersI()
     service_opts = deepcopy(conn.SERVICE_OPTS)
@@ -569,7 +576,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                 }
                 if imgCount > page_size:
                     # Need to know which page image is on
-                    iids = get_image_ids(datasetId)
+                    iids = get_image_ids(conn, datasetId)
                     index = iids.index(imageId)
                     page = (index / page_size) + 1  # 1-based index
                     ds['childCount'] = imgCount
@@ -584,7 +591,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                     'type': 'orphaned',
                     'id': e[0].val
                 }
-                iids = get_image_ids(groupId=e[5].val, ownerId=e[0].val)
+                iids = get_image_ids(conn, groupId=e[5].val, ownerId=e[0].val)
                 if len(iids) > page_size:
                     index = iids.index(imageId)
                     page = (index / page_size) + 1  # 1-based index
