@@ -369,7 +369,7 @@ public class ROITable
     Set<Long> getExpandedFolders() {
         Set<Long> result = new HashSet<Long>();
         for (ROINode node : nodes) {
-            if (node.isExpanded() && node.isFolderNode() && node.containsROIs())
+            if (node.isExpanded() && node.isFolderNode())
                 result.add(((FolderData) node.getUserObject()).getId());
         }
         return result;
@@ -1368,6 +1368,7 @@ public class ROITable
             FolderData folder = (FolderData) evt.getNewValue();
             if(action == CreationActionType.CREATE_FOLDER && parent!=null) {
                 folder.setParentFolder(parent.asFolder());
+                recentlyModifiedFolders.add(parent);
             }
             
             toSave.add(folder);
@@ -1379,6 +1380,7 @@ public class ROITable
             FolderData folder = getSelectedFolders().get(0);
             FolderData target = (FolderData) evt.getNewValue();
             folder.setParentFolder(target.asFolder());
+            recentlyModifiedFolders.add(target);
             manager.saveROIFolders(Collections.singleton(folder));
         }
 
