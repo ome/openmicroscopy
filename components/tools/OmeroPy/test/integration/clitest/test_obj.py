@@ -194,6 +194,22 @@ class TestObj(CLITest):
         with pytest.raises(NonZeroReturnCode):
                 state = self.go()
 
+    def test_get_fields(self):
+        name = "foo"
+        desc = "bar"
+        self.args = self.login_args() + [
+            "obj", "new", "Project", "name=%s" % name,
+            "description=%s" % desc]
+        state = self.go()
+        project = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "get", project]
+        state = self.go()
+        lines = state.get_row(0).split("\n")
+        assert "id: %s" % project.split(":")[1] in lines
+        assert "name: %s" % name in lines
+        assert "description: %s" % desc in lines
+
     def test_map_mods(self):
         self.args = self.login_args() + [
             "obj", "new", "MapAnnotation", "ns=test"]
