@@ -258,6 +258,55 @@ class TestObj(CLITest):
         state = self.go()
         assert state.get_row(0) == "[keyword1,keyword2]"
 
+    def test_list_get(self):
+        updateService = self.root.getSession().getUpdateService()
+
+        # Test for a list of NamedValue objects
+        a = MapAnnotationI()
+        a = updateService.saveAndReturnObject(a)
+        # An empty list
+        self.args = self.login_args() + [
+            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "0"]
+        with pytest.raises(NonZeroReturnCode):
+                state = self.go()
+        a.setMapValue([NV("name1", "value1"),
+                       NV("name2", "value2"),
+                       NV("name3", "value3")])
+        a = updateService.saveAndReturnObject(a)
+        self.args = self.login_args() + [
+            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "0"]
+        state = self.go()
+        assert state.get_row(0) == "(name1,value1)"
+        self.args = self.login_args() + [
+            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "2"]
+        state = self.go()
+        assert state.get_row(0) == "(name3,value3)"
+        # Python indices so negative values can be used
+        self.args = self.login_args() + [
+            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "-1"]
+        state = self.go()
+        assert state.get_row(0) == "(name3,value3)"
+        # Outr of bounds
+        self.args = self.login_args() + [
+            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "3"]
+        with pytest.raises(NonZeroReturnCode):
+                state = self.go()
+
+        # Test for a list of strings
+        n = NamespaceI()
+        n.setName(rstring(self.uuid()))
+        n.setKeywords(["keyword1", "keyword2"])
+        n = updateService.saveAndReturnObject(n)
+        self.args = self.login_args() + [
+            "obj", "list-get", "Namespace:%s" % n.id.val, "keywords", "0"]
+        state = self.go()
+        assert state.get_row(0) == "keyword1"
+        # Query a non-list field
+        self.args = self.login_args() + [
+            "obj", "list-get", "Namespace:%s" % n.id.val, "name", "0"]
+        with pytest.raises(NonZeroReturnCode):
+                state = self.go()
+
     def test_map_mods(self):
         self.args = self.login_args() + [
             "obj", "new", "MapAnnotation", "ns=test"]

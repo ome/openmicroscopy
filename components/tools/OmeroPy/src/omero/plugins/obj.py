@@ -412,6 +412,42 @@ class ObjGetTxAction(NonFieldTxAction):
         return proxy
 
 
+class ListGetTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+
+        if len(self.tx_cmd.arg_list) != 4:
+            ctx.die(335, "usage: list-get OBJ FIELD INDEX")
+
+        field = self.tx_cmd.arg_list[2]
+        try:
+            current = getattr(self.obj, field)
+        except AttributeError:
+            ctx.die(336, "Unknown field '%s' for %s:%s" % (
+                field, self.kls, self.obj.id.val))
+
+        index = int(self.tx_cmd.arg_list[3])
+        if current is None:
+            proxy = ""
+        else:
+            if isinstance(current, list):
+                try:
+                    item = current[index]
+                    if isinstance(item, NamedValue):
+                        proxy = ("(" + str(item.name) + ","
+                                 + str(item.value) + ")")
+                    else:
+                        proxy = str(item)
+                except IndexError, ie:
+                    ctx.die(336, "Error: field '%s[%s]' for %s:%s, %s" % (
+                        field, index, self.kls, self.obj.id.val, ie.message))
+            else:
+                ctx.die(336, "Field '%s' for %s:%s is not a list" % (
+                    field, self.kls, self.obj.id.val))
+
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
+
 class TxState(object):
 
     def __init__(self, ctx):
@@ -488,7 +524,8 @@ Bash examples:
         parser.add_argument(
             "command", nargs="?",
             choices=("new", "update", "null",
-                     "map-get", "map-set", "get"),
+                     "map-get", "map-set",
+                     "get", "list-get"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
@@ -540,6 +577,8 @@ Bash examples:
             return NullTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "get":
             return ObjGetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "list-get":
+            return ListGetTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
 
