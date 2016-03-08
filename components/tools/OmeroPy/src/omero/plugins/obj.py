@@ -362,7 +362,7 @@ class ObjGetTxAction(NonFieldTxAction):
                     field = attr.lstrip("_")
                     if hasattr(self.obj, field):
                         try:
-                            proxy += (field + ": "
+                            proxy += (field + "="
                                       + str(self.get_field(field)) + "\n")
                         except AttributeError:
                             pass

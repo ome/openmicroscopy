@@ -206,9 +206,9 @@ class TestObj(CLITest):
             "obj", "get", project]
         state = self.go()
         lines = state.get_row(0).split("\n")
-        assert "id: %s" % project.split(":")[1] in lines
-        assert "name: %s" % name in lines
-        assert "description: %s" % desc in lines
+        assert "id=%s" % project.split(":")[1] in lines
+        assert "name=%s" % name in lines
+        assert "description=%s" % desc in lines
 
     def test_map_mods(self):
         self.args = self.login_args() + [
