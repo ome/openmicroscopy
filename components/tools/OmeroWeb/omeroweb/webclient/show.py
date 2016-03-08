@@ -449,7 +449,7 @@ def get_image_ids(conn, datasetId=None, groupId=-1, ownerId=None):
 def paths_to_object(conn, experimenter_id=None, project_id=None,
                     dataset_id=None, image_id=None, screen_id=None,
                     plate_id=None, acquisition_id=None, well_id=None,
-                    group_id=None, page_size=settings.PAGE):
+                    group_id=None, page_size=None):
     """
     Retrieves the parents of an object (E.g. P/D/I for image) as a list
     of paths.
@@ -458,9 +458,10 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
     If object has multiple paths, these can also be filtered by parent_ids.
     E.g. paths to image_id filtered by dataset_id.
 
-    If image is in a Dataset that is paginated (imageCount > page_size)
-    then we include 'childPage', 'childCount' and 'childIndex'
-    in the dataset dict.
+    If image is in a Dataset or Orphaned collection that is paginated
+    (imageCount > page_size) then we include 'childPage', 'childCount'
+    and 'childIndex' in the dataset or orphaned dict.
+    The page_size default is settings.PAGE (omero.web.page_size)
 
     Note on wells:
     Selecting a 'well' is really for selecting well_sample paths
@@ -469,6 +470,8 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
     """
 
     qs = conn.getQueryService()
+    if page_size is None:
+        page_size = settings.PAGE
 
     params = omero.sys.ParametersI()
     service_opts = deepcopy(conn.SERVICE_OPTS)
