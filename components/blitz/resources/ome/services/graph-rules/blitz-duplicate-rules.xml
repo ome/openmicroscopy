@@ -173,7 +173,7 @@
 
         <!-- If a link to an annotation is duplicated then duplicate the annotation itself. -->
 
-        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[I].child = A:Annotation[E]" p:changes="A:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[I].child = A:[E]" p:changes="A:[I]"/>
 
         <!-- If an original file is duplicated then also duplicate the corresponding file annotation -->
 
@@ -333,8 +333,8 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[I].rois = ROI:[E]" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[E]" p:changes="P:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[E], P.image = I:[E]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI]" p:changes="P:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI], P.image = I:[E]" p:changes="I:[I]"/>
 
         <!-- SCREEN -->
 
