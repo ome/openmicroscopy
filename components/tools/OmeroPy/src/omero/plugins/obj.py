@@ -35,6 +35,7 @@ import fileinput
 from omero_ext.argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
 from omero.rtypes import rlong
+from omero.model import NamedValue
 
 
 class TxField(object):
@@ -389,6 +390,17 @@ class ObjGetTxAction(NonFieldTxAction):
                     proxy = klass + ":" + str(objId)
                 elif hasattr(current, "_value") and hasattr(current, "_unit"):
                     proxy = str(current._value) + " " + str(current._unit)
+                elif isinstance(current, list):
+                    proxy = "["
+                    for item in current:
+                        if isinstance(item, NamedValue):
+                            proxy += ("(" + str(item.name) + ","
+                                      + str(item.value) + ")")
+                        else:
+                            proxy += str(item)
+                        proxy += ","
+                    proxy = proxy.rstrip(",")
+                    proxy += "]"
                 else:
                     raise AttributeError(
                         "Error: field '%s' for %s:%s : no val, id or value" % (

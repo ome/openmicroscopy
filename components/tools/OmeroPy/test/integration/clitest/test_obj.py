@@ -23,9 +23,13 @@
 import pytest
 
 from test.integration.clitest.cli import CLITest
+from omero_model_MapAnnotationI import MapAnnotationI
+from omero_model_NamespaceI import NamespaceI
+from omero.model import NamedValue as NV
 from omero.plugins.obj import ObjControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
+from omero.rtypes import rstring
 
 
 class TestObj(CLITest):
@@ -209,6 +213,50 @@ class TestObj(CLITest):
         assert "id=%s" % project.split(":")[1] in lines
         assert "name=%s" % name in lines
         assert "description=%s" % desc in lines
+
+    def test_get_list_field(self):
+        updateService = self.root.getSession().getUpdateService()
+
+        # Test for a list of NamedValue objects
+        a = MapAnnotationI()
+        a = updateService.saveAndReturnObject(a)
+        self.args = self.login_args() + [
+            "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
+        state = self.go()
+        assert state.get_row(0) == "[]"
+        a.setMapValue([NV("name1", "value1")])
+        a = updateService.saveAndReturnObject(a)
+        self.args = self.login_args() + [
+            "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
+        state = self.go()
+        assert state.get_row(0) == "[(name1,value1)]"
+        a.setMapValue([NV("name1", "value1"), NV("name2", "value2")])
+        a = updateService.saveAndReturnObject(a)
+        self.args = self.login_args() + [
+            "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
+        state = self.go()
+        assert state.get_row(0) == "[(name1,value1),(name2,value2)]"
+
+        # Test for a list of strings
+        n = NamespaceI()
+        n.setName(rstring(self.uuid()))
+        n = updateService.saveAndReturnObject(n)
+        self.args = self.login_args() + [
+            "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
+        state = self.go()
+        assert state.get_row(0) == "[]"
+        n.setKeywords(["keyword1"])
+        n = updateService.saveAndReturnObject(n)
+        self.args = self.login_args() + [
+            "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
+        state = self.go()
+        assert state.get_row(0) == "[keyword1]"
+        n.setKeywords(["keyword1", "keyword2"])
+        n = updateService.saveAndReturnObject(n)
+        self.args = self.login_args() + [
+            "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
+        state = self.go()
+        assert state.get_row(0) == "[keyword1,keyword2]"
 
     def test_map_mods(self):
         self.args = self.login_args() + [
