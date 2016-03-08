@@ -97,9 +97,11 @@
                 inst.delete_node(node);
                 
 
-                // Objects which were already orphaned require no action except to be added to the paste buffer
+                // Objects which were already orphaned (or parent is tag) require no action
+                // except to be added to the paste buffer
                 if (parent.type !== 'experimenter' &&
-                    parent.type !== 'orphaned') {
+                    parent.type !== 'orphaned' &&
+                    parent.type !== 'tag') {
 
                     // Do the unlinking. Result will tell us whether object is orphaned
                     // If orphaned, move object under 'orphaned' or 'experimenter'
