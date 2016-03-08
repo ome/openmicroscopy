@@ -260,9 +260,7 @@
 
         <!-- One may not delete a tag on data that one may not delete. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [E]/!d, L.child = A:TagAnnotation[D]"
-                                       p:changes="A:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = X:[E]/!d, L.child = A:TagAnnotation[O]"
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = X:[E]/!d, L.child = A:TagAnnotation[D]"
                                        p:error="may not delete {A} while {X} remains"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
@@ -342,8 +340,7 @@
 
         <!-- Do not delete an original file if it is used in a fileset entry. -->
 
-        <bean parent="graphPolicyRule" p:matches="FilesetEntry[E].originalFile = OF:[D]" p:changes="OF:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E].originalFile = OF:[O]"
+        <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E].originalFile = OF:[D]"
                                        p:error="may not delete {OF} while {FE} remains"/>
 
         <!-- If a logical channel is deleted then delete the subgraph below it. -->
@@ -475,8 +472,7 @@
 
         <!-- Image deletion cannot be used to cause well sample deletion. -->
 
-        <bean parent="graphPolicyRule" p:matches="Image[D].wellSamples = WS:[E]" p:changes="WS:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="I:Image[D].wellSamples = WS:[O]" p:error="may not delete {I} while {WS} remains"/>
+        <bean parent="graphPolicyRule" p:matches="I:Image[D].wellSamples = WS:[E]" p:error="may not delete {I} while {WS} remains"/>
 
         <!-- Delete a reagent if it is no longer used by a screen or well. -->
 
@@ -484,7 +480,7 @@
         <bean parent="graphPolicyRule" p:matches="Screen[E]{ia}.reagents = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink.parent = [D], L.child = R:[E]{i}/d" p:changes="R:{r}"/>
         <bean parent="graphPolicyRule" p:matches="WellReagentLink[D].child = R:[E]{i}/d" p:changes="R:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="R:Reagent[E]{o}/d" p:changes="R:[D]"/>
 
         <!-- Delete well-reagent links if either the well or reagent is deleted regardless of permissions. -->
