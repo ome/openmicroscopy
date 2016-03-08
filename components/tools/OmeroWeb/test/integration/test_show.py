@@ -20,7 +20,8 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
     WellI, WellSampleI, PlateAcquisitionI
 from omero.rtypes import rstring, rint
-from omeroweb.webclient.show import Show, IncorrectMenuError, paths_to_object
+from omeroweb.webclient.show import Show, IncorrectMenuError, \
+    paths_to_object, get_image_ids
 from django.test.client import RequestFactory
 
 
@@ -796,6 +797,8 @@ class TestShow(IWebTest):
             image.details.owner.id.val
         assert show._first_selected == first_selected
         assert show.initially_select == image_path_request['initially_select']
+        # Delete orphaned image so it doesn't affect orphaned tests below
+        self.conn.deleteObject(image)
 
     def test_screen_legacy_path(self, screen_path_request, screen):
         show = Show(self.conn, screen_path_request['request'], None)
@@ -1236,18 +1239,28 @@ class TestShow(IWebTest):
         page_size = 4
         paths = paths_to_object(self.conn, image_id=iid, page_size=page_size)
 
-        # Other tests may create orphaned images. Accept whatever values we get
-        childCount = paths[0][1]['childCount']
-        childIndex = paths[0][1]['childIndex']
-        assert childIndex >= imgIndex   # but we know it can only go up
+        ownerId = image.details.owner.id.val
+        groupId = image.details.group.id.val
         expected = [
-            [{'type': 'experimenter', 'id': image.details.owner.id.val},
-             {'type': 'orphaned', 'id': image.details.owner.id.val,
-              'childIndex': childIndex,
-              'childPage': (childIndex/page_size) + 1,
-              'childCount': childCount},
+            [{'type': 'experimenter', 'id': ownerId},
+             {'type': 'orphaned', 'id': ownerId,
+              'childIndex': imgIndex,
+              'childPage': (imgIndex/page_size) + 1,
+              'childCount': len(iids)},
              {'type': 'image', 'id': iid}]]
         assert paths == expected
+
+        image_ids = get_image_ids(self.conn, groupId=groupId, ownerId=ownerId)
+        assert iids == image_ids
+
+    def test_get_image_ids_dataset(self, project_dataset_images):
+        project = project_dataset_images
+        dataset, = project.linkedDatasetList()
+        images = dataset.linkedImageList()
+        images.sort(key=lambda x: x.getName().val)
+        expected_ids = [i.id.val for i in images]
+        iids = get_image_ids(self.conn, dataset.id.val)
+        assert iids == expected_ids
 
     def test_image(self, project_dataset_image):
         """
