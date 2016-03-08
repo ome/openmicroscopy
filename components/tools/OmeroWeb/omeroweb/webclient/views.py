@@ -811,7 +811,6 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
 
 def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     """ This is just used internally by api_link DELETE below """
-    print 'get_object_links', parent_type, parent_id, child_type, child_ids
     if parent_type == 'orphaned':
         return None
     link_type = None
