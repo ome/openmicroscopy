@@ -117,6 +117,8 @@ class BaseContainer(BaseController):
         if tagset is not None:
             self.obj_type = "tagset"
             self.tag = self.conn.getObject("Annotation", tagset)
+            # We need to check if tagset via hasattr(manager, o_type)
+            self.tagset = self.tag
             self.assertNotNone(self.tag, tagset, "Tag")
             self.assertNotNone(self.tag._obj, tagset, "Tag")
         if comment is not None:
