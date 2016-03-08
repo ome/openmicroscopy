@@ -1222,6 +1222,27 @@ class MeasurementViewerModel
     }
     
     /**
+     * Move ROIs to Folders
+     * 
+     * @param allROIs
+     *            All ROIs
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    void moveROIsToFolder(Collection<ROIData> allROIs,
+            Collection<ROIData> selectedObjects, Collection<FolderData> folders) {
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), allROIs, selectedObjects, folders,
+                ROIFolderAction.MOVE_TO_FOLDER);
+        currentSaver.load();
+        state = MeasurementViewer.SAVING_ROI;
+    }
+    
+    /**
      * Delete Folders
      * 
      * @param folders

@@ -154,8 +154,6 @@ class ObjectManager
 	    objectsTable = new ROITable(new ROITableModel(root, COLUMN_NAMES), 
 	    		COLUMN_NAMES, this);
 	    objectsTable.setRootVisible(false);
-	    objectsTable.setColumnSelectionAllowed(true);
-	    objectsTable.setRowSelectionAllowed(true);
 	    treeSelectionListener = new TreeSelectionListener()
 	    {
 			
@@ -575,6 +573,28 @@ class ObjectManager
             }
         }
         model.addROIsToFolder(allRois, selectedRois.values(), folders);
+    }
+    
+    /**
+     * Move ROIs to Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    public void moveROIsToFolder(Collection<ROIShape> selectedObjects,
+            Collection<FolderData> folders) {
+        List<ROIData> allRois = model.getROIData();
+        Map<Long, ROIData> selectedRois = new HashMap<Long, ROIData>();
+        for (ROIShape shape : selectedObjects) {
+            if (!selectedRois.containsKey(shape.getID())) {
+                ROIData rd = findROI(allRois, shape.getROI());
+                if (rd != null)
+                    selectedRois.put(shape.getID(), rd);
+            }
+        }
+        model.moveROIsToFolder(allRois, selectedRois.values(), folders);
     }
     
     /**

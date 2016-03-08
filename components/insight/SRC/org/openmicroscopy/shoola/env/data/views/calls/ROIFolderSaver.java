@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class ROIFolderSaver extends BatchCallTree {
-    
+
     /**
      * The actions which this {@link ROIFolderSaver} can handle
      */
@@ -53,6 +53,8 @@ public class ROIFolderSaver extends BatchCallTree {
         ADD_TO_FOLDER, 
         /** Remove ROIs from Folder */
         REMOVE_FROM_FOLDER, 
+        /** Move ROIs to Folder */
+        MOVE_TO_FOLDER,
         /** Create Folder */
         CREATE_FOLDER, 
         /** Delete Folder */
@@ -85,7 +87,14 @@ public class ROIFolderSaver extends BatchCallTree {
                     if (!notSelected.isEmpty())
                         svc.saveROIs(ctx, imageID, notSelected);
                     svc.addRoisToFolders(ctx, imageID, roiList, folders);
-                } else if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
+                } else if (action == ROIFolderAction.MOVE_TO_FOLDER) {
+                    Collection<ROIData> notSelected = relativeComplement(
+                            roiList, allROIs);
+                    if (!notSelected.isEmpty())
+                        svc.saveROIs(ctx, imageID, notSelected);
+                    svc.addRoisToFolders(ctx, imageID, roiList, folders, true);
+                }  
+                else if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
                     svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
                 } else if (action == ROIFolderAction.CREATE_FOLDER) {
                     for (FolderData folder : folders)
