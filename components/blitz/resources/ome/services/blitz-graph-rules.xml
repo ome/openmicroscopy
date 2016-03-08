@@ -76,5 +76,7 @@
     <import resource="graph-rules/blitz-chown-rules.xml"/>
     <import resource="graph-rules/blitz-delete-rules.xml"/>
     <import resource="graph-rules/blitz-duplicate-rules.xml"/>
+    <import resource="graph-rules/blitz-container-rules.xml"/>
+    <import resource="graph-rules/blitz-contained-rules.xml"/>
 
 </beans>
