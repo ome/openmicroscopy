@@ -1220,9 +1220,12 @@ class BrowserUI
                    enabled = true;
                } else {
                    TreeImageDisplay node = parent.getParentDisplay();
-                   long id = node.getUserObjectId();
-                   if (id == -1) { //only in one group
-                       id = TreeViewerAgent.getUserDetails().getGroupId();
+                   long id = -1;
+                   if (node != null) {
+                       id = node.getUserObjectId();
+                       if (id == -1) { //only in one group
+                           id = TreeViewerAgent.getUserDetails().getGroupId();
+                       }
                    }
                    Set leaders = TreeViewerAgent.getGroupsLeaderOf();
                    if (CollectionUtils.isNotEmpty(leaders)) {
