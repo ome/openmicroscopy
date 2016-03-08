@@ -197,16 +197,21 @@ module omero {
         };
 
         /**
-         * Base class for new requests for operating upon the model object
-         * graph.
+         * Base class for new requests for reading the model object graph.
          **/
-        class GraphModify2 extends Request {
+        class GraphQuery extends Request {
 
             /**
              * The model objects upon which to operate.
              * Related model objects may also be targeted.
              **/
             omero::api::StringLongListMap targetObjects;
+        };
+
+        /**
+         * Base class for new requests for modifying the model object graph.
+         **/
+        class GraphModify2 extends GraphQuery {
 
             /**
              * If the request should operate on specific kinds of children.
@@ -400,6 +405,68 @@ module omero {
              * objects that would have been duplicated.
              **/
             omero::api::StringLongListMap duplicates;
+        };
+
+        /**
+         * Identify the parents or containers of model objects.
+         * Traverses the model graph to identify indirect relationships.
+         **/
+        class FindParents extends GraphQuery {
+
+            /**
+             * The types of parents being sought.
+             **/
+            omero::api::StringSet typesOfParents;
+
+            /**
+             * Classes of model objects to exclude from the recursive
+             * search. Can greatly increase efficiency by preventing search
+             * from reaching classes that have many instances but no sought
+             * parents in their subgraphs.
+             **/
+            omero::api::StringSet stopBefore;
+        };
+
+        /**
+         * Result of identifying the parents or containers of model objects.
+         **/
+        class FoundParents extends OK {
+
+            /**
+             * The parents that were identified.
+             **/
+            omero::api::StringLongListMap parents;
+        };
+
+        /**
+         * Identify the children or contents of model objects.
+         * Traverses the model graph to identify indirect relationships.
+         **/
+        class FindChildren extends GraphQuery {
+
+            /**
+             * The types of children being sought.
+             **/
+            omero::api::StringSet typesOfChildren;
+
+            /**
+             * Classes of model objects to exclude from the recursive
+             * search. Can greatly increase efficiency by preventing search
+             * from reaching classes that have many instances but no sought
+             * children in their subgraphs.
+             **/
+            omero::api::StringSet stopBefore;
+        };
+
+        /**
+         * Result of identifying the children or contents of model objects.
+         **/
+        class FoundChildren extends OK {
+
+            /**
+             * The children that were identified.
+             **/
+            omero::api::StringLongListMap children;
         };
 
         /**
