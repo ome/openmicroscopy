@@ -2628,8 +2628,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
 
     form = None
     if action == 'addnewcontainer':
-        # Used within the jsTree to add a new Project, Dataset, Tag, Tagset etc under a
-        # specified parent OR top-level
+        # Used within the jsTree to add a new Project, Dataset, Tag,
+        # Tagset etc under a specified parent OR top-level
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers",
                                         args=["edit", o_type, o_id]))
