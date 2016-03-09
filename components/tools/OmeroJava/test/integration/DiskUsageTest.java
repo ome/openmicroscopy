@@ -70,10 +70,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 /**
  * Integration tests for the {@link omero.cmd.DiskUsage} request.
@@ -90,25 +88,13 @@ public class DiskUsageTest extends AbstractServerTest {
     private Long thumbnailSize;
 
     /**
-     * Convert a {@code Collection<Long>} to a {@code List<Long>}.
-     */
-    private static Function<Collection<Long>, List<Long>> LONG_COLLECTION_TO_LIST =
-            new Function<Collection<Long>, List<Long>>() {
-        @Override
-        public List<Long> apply(Collection<Long> ids) {
-            return new ArrayList<Long>(ids);
-        }
-    };
-
-    /**
      * Submit a disk usage request for the given objects and return the server's response.
      * @param objects the target objects
      * @return the objects' disk usage
      * @throws Exception if thrown during request execution
      */
     private DiskUsageResponse runDiskUsage(Map<java.lang.String, ? extends Collection<Long>> objects) throws Exception {
-        final DiskUsage request = new DiskUsage();
-        request.objects = Maps.transformValues(objects, LONG_COLLECTION_TO_LIST);
+        final DiskUsage request = Requests.diskUsage().target(objects).build();
         return (DiskUsageResponse) doChange(request);
     }
 
@@ -223,7 +209,7 @@ public class DiskUsageTest extends AbstractServerTest {
     @AfterClass
     public void teardown() throws Exception {
         if (imageId != null) {
-            final Delete2 request = Requests.delete("Image", imageId);
+            final Delete2 request = Requests.delete().target("Image").id(imageId).build();
             doChange(request);
         }
     }
@@ -291,8 +277,8 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
             }
         } finally {
-            final ChildOption option = Requests.option(null, "Image");
-            final Delete2 request = Requests.delete("Project", projectId, option);
+            final ChildOption option = Requests.option().excludeType("Image").build();
+            final Delete2 request = Requests.delete().target("Project").id(projectId).option(option).build();
             doChange(request);
         }
     }
@@ -322,8 +308,8 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
             }
         } finally {
-            final ChildOption option = Requests.option(null, "Image");
-            final Delete2 request = Requests.delete("Folder", parentFolderId, option);
+            final ChildOption option = Requests.option().excludeType("Image").build();
+            final Delete2 request = Requests.delete().target("Folder").id(parentFolderId).option(option).build();
             doChange(request);
         }
     }
@@ -394,7 +380,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = Requests.delete("Annotation", annotationIds);
+            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -433,7 +419,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = Requests.delete("Annotation", annotationIds);
+            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -466,7 +452,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = Requests.delete("Annotation", annotationIds);
+            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -516,7 +502,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = Requests.delete("Annotation", annotationIds);
+            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -551,7 +537,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = Requests.delete("Annotation", annotationIds);
+            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -580,7 +566,7 @@ public class DiskUsageTest extends AbstractServerTest {
                 Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = Requests.delete("Annotation", annotationIds);
+            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -637,8 +623,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testBadClassName() throws Exception {
-        final DiskUsage request = new DiskUsage();
-        request.objects = ImmutableMap.of("NoClass", Collections.singletonList(1L));
+        final DiskUsage request = Requests.diskUsage().target("NoClass").id(1L).build();
         doChange(client, factory, request, false, null);
     }
 }
