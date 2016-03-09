@@ -839,8 +839,10 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     params.addIds(child_ids)
 
     qs = conn.getQueryService()
+    # Need to fetch child and parent, otherwise
+    # AnnotationAnnotationLink is not loaded
     q = """
-        from %s olink
+        from %s olink join fetch olink.child join fetch olink.parent
         where olink.child.id in (:ids)
         """ % link_type
     if parent_id:

@@ -787,9 +787,12 @@ $(function() {
                 var inst = $.jstree.reference(nodes[0]);
                 // Check if the node types are draggable and the particular nodes have the
                 // 'canLink' permission. All must pass
+                // Don't allow dragging of any object from under a tag
                 for (var index in nodes) {
-                    if (!inst.get_rules(nodes[index]).draggable ||
-                          !OME.nodeHasPermission(nodes[index], 'canLink')
+                    var node = nodes[index];
+                    if (!inst.get_rules(node).draggable ||
+                          !OME.nodeHasPermission(node, 'canLink') ||
+                            inst.get_node(node.parent).type === 'tag'
                         ) {
                         return false;
                     }
@@ -1014,13 +1017,29 @@ $(function() {
                     if(this.can_paste() && buffer.node) {
                         to_paste = buffer.node[0].type;
                     }
-                    var canCut = (["dataset", "image", "plate"].indexOf(node_type) > -1);
+
+                    // Currently we allow to Cut, even if we don't delete parent link!
+                    // E.g. can Cut orphaned Image or orphaned Dataset. TODO: review this!
+                    var canCut = (["dataset", "image", "plate", "tag"].indexOf(node_type) > -1);
+                    // In Tag tree. Don't allow cut under tag
+                    if (parent_type == "tag") {
+                        canCut = false;
+                    }
+
+                    // Currently we only allow Copy if parent is compatible?! TODO: review this!
                     var canCopy = ((node_type === "dataset" && parent_type === "project") ||
                                     (node_type === "image" && parent_type === "dataset") ||
-                                    (node_type === "plate" && parent_type === "screen"));
+                                    (node_type === "plate" && parent_type === "screen") ||
+                                    (node_type === "tag" && parent_type === "tagset"));
+                    // In Tag tree, allow Copy of Dataset/Image/Plate under tag
+                    if (["dataset", "image", "plate"].indexOf(node_type) > -1 && parent_type === "tag"){
+                        canCopy = true;
+                    }
+
                     var canPaste = ((node_type === "project" && to_paste === "dataset") ||
                                     (node_type === "dataset" && to_paste === "image") ||
-                                    (node_type === "screen" && to_paste === "plate"));
+                                    (node_type === "screen" && to_paste === "plate") ||
+                                    (node_type === "tagset" && to_paste === "tag"));
                     if (canCut || canCopy || canPaste){
                         config["ccp"]["_disabled"] = false;
                         config["ccp"]["submenu"]["cut"]["_disabled"] = !canCut;

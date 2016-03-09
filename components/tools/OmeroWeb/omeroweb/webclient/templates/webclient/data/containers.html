@@ -93,21 +93,8 @@
     // Variable to store selection data when using jstree refresh
     var refreshPathsReverse = [];
 
-    // Variable to enable resetting of the reload central panel timeout
-    // var centreReloadTimeout = false;
-    // function centreReload(event, data) {
 
-    //     if (centreReloadTimeout) {
-    //         window.clearTimeout(centreReloadTimeout);
-    //     }
-
-    //     centreReloadTimeout = window.setTimeout(function() {
-    //         // Update the central panel
-    //         update_thumbnails_panel(event, data);
-    //         centreReloadTimeout = false;
-    //     }, 200);
-    // }
-
+    // Called from ome.tree.js
     var updateParentRemoveNode = function(inst, node, parent) {
         /* Update any other instances of the parent of this node to remove it
          * Also Based on if the parent of this node has any children
@@ -347,14 +334,20 @@
 
                 }
 
-                // Only allow copy/cut if the selected item(s) are elligible. This uses the slightly
+                // Only allow cut if the selected item(s) are elligible. This uses the slightly
                 // confusingly named 'is_draggable' which is part of the drag'n'drop plugin
                 // which in turn uses a jstree node type property 'draggable'
                 // It also checks it the selected nodes can be linked
                 if(inst.settings.dnd.is_draggable(selected)) {
-                    toolbar_config['copy'] = true;
                     toolbar_config['cut'] = true;
                 }
+
+                // Allow Copy of Dataset/Image/Plate if you 'canLink' all selected nodes
+                var canCopy = selected.reduce(function(prev, n){
+                    var childType = (["dataset", "image", "screen", "tag"].indexOf(n.type) > -1);
+                    return childType && OME.nodeHasPermission(n, 'canLink') && prev;
+                }, true);
+                toolbar_config['copy'] = canCopy;
 
                 // Only images can be added to a basket and only if they all are
                 toolbar_config['createshare'] = true;
@@ -470,6 +463,7 @@
 
         // Remove duplicate nodes, normally as a result of copy_node
         // or move_node
+        // Global function, called from omecut_plugin
         function removeDuplicate(inst, node, parentId) {
             var parent = inst.get_node(parentId),
                 found = false;

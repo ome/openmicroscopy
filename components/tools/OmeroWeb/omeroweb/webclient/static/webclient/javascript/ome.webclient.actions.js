@@ -454,7 +454,7 @@ OME.truncateNames = (function(){
     return truncateNames;
 }());
 
-// Handle deletion of selected objects in jsTree in container_tags.html and containers.html
+// Handle deletion of selected objects in jsTree in containers.html
 OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     var datatree = $.jstree.reference($('#dataTree'));
     var selected = datatree.get_selected(true);
