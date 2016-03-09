@@ -477,7 +477,7 @@ class TxState(object):
 
 
 class ObjControl(BaseControl):
-    """Create and Update OMERO objects
+    """Create, Update and Query OMERO objects
 
 The obj command allows inserting any objects into the OMERO
 database as well as updating and querying existing ones. This
@@ -487,22 +487,31 @@ Examples:
 
     $ bin/omero obj new Dataset name=foo
     Dataset:123
-
     $ bin/omero obj update Dataset:123 description=bar
     Dataset:123
-
+    $ bin/omero obj get Dataset:123 name
+    foo
+    $ bin/omero obj get Dataset:123
+    description=bar
+    id=123
+    name=foo
+    version=
     $ bin/omero obj null Dataset:123 description
     Dataset:123
-
     $ bin/omero obj get Dataset:123 description
-    A dataset
 
     $ bin/omero obj new MapAnnotation ns=example.com
     MapAnnotation:456
-    $ bin/omero obj map-set MapAnnotation mapValue foo bar
+    $ bin/omero obj map-set MapAnnotation:456 mapValue foo bar
     MapAnnotation:456
-    $ bin/omero obj map-get MapAnnotation mapValue foo
+    $ bin/omero obj map-set MapAnnotation:456 mapValue fu baa
+    MapAnnotation:456
+    $ bin/omero obj map-get MapAnnotation:456 mapValue foo
     bar
+    $ bin/omero obj get MapAnnotation:456 mapValue
+    (foo,bar),(fu,baa)
+    $ bin/omero obj list-get MapAnnotation:456 mapValue 0
+    (foo,bar)
 
 Bash examples:
 
