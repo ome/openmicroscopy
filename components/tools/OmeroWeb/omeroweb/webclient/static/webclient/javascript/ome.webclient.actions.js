@@ -550,6 +550,20 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                 type: "POST",
                 success: function(r){
 
+                    // If we've deleted Tagset, child Tags should appear as orphans in tree
+                    // Before deleting, copy data from each child, to add back below...
+                    var child_tags = [];
+                    if (dtypes["tagset"]) {
+                        selected.forEach(function(node){
+                            node.children.forEach(function(ch) {
+                                ch = datatree.get_node(ch);
+                                // _get_node_data is provided by the omecut_plugin
+                                var d = datatree._get_node_data(ch);
+                                child_tags.push(d);
+                            });
+                        });
+                    }
+
                     datatree.delete_node(selected);
 
                     // Update the central panel with new selection
@@ -562,6 +576,12 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                         //TODO Make use of server calculated update like chgrp?
                         updateParentRemoveNode(datatree, node, firstParent);
                         removeDuplicateNodes(datatree, node);
+                    });
+
+                    // Re-create child tags under experimenter parent
+                    // TODO: We don't check if these are under other Tagsets
+                    child_tags.forEach(function(d){
+                        datatree.create_node(firstParent, d);
                     });
 
                     // Update the central panel in case delete has removed an icon
