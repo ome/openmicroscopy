@@ -763,15 +763,18 @@ public class ROITable
     }
     
     /**
-     * Adds the node to the parent; will create the parent hierarchy
-     * if it doesn't exist yet.
-     * @param node The Node
+     * Adds the node to the parent; will create the parent hierarchy if it
+     * doesn't exist yet.
+     * 
+     * @param node
+     *            The Node
      */
     void handleParentFolderNodes(ROINode node) {
         FolderData parentFolder = ((FolderData) node.getUserObject())
                 .getParentFolder();
         if (parentFolder == null) {
-            root.insert(node, 0);
+            root.insert(node,
+                    root.getInsertionPoint((FolderData) node.getUserObject()));
             return;
         }
 
@@ -782,7 +785,8 @@ public class ROITable
             parent.insert(node, 0);
             handleParentFolderNodes(parent);
         } else if (parent.findChild((FolderData) node.getUserObject()) == null) {
-            parent.insert(node, 0);
+            parent.insert(node,
+                    parent.getInsertionPoint((FolderData) node.getUserObject()));
         }
     }
     

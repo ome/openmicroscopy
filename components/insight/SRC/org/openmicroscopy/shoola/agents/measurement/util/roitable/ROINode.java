@@ -27,14 +27,24 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+
+
+
 //Third-party libraries
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
+
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -221,6 +231,34 @@ public class ROINode
 		return index;
 	}
 	
+    /**
+     * Get the point in the parent where a child should be inserted.
+     * 
+     * @param f
+     *            see above.
+     * @return see above.
+     */
+    public int getInsertionPoint(FolderData f) {
+        int index = 0;
+
+        if (f == null)
+            return index;
+
+        for (MutableTreeTableNode n : children) {
+            ROINode r = (ROINode) n;
+            if (r.getUserObject() == null)
+                continue;
+            if (r.isFolderNode()) {
+                if (((FolderData) r.getUserObject()).getName()
+                        .compareToIgnoreCase(f.getName()) > 0)
+                    break;
+            }
+            index++;
+        }
+
+        return index;
+    }
+    
 	/** Initializes the maps for the child nodes. */
 	private void initMaps()
 	{

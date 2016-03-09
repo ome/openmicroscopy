@@ -208,6 +208,10 @@ public class ViewerSorter
      */
     private int compareDataObjects(DataObject o1, DataObject o2)
     {
+        if ((o1 instanceof FolderData) && (o2 instanceof FolderData)) {
+            return ((FolderData) o1).getFolderPathString().compareToIgnoreCase(
+                    ((FolderData) o2).getFolderPathString());
+        }
     	if (o1 instanceof ChannelData) {
     		ChannelData c1 = (ChannelData) o1;
     		ChannelData c2 = (ChannelData) o2;
@@ -255,10 +259,6 @@ public class ViewerSorter
     {
         Object ob1 = o1.getUserObject();
         Object ob2 = o2.getUserObject();
-        if ((ob1 instanceof FolderData) && (ob2 instanceof FolderData)) {
-        	return ((FolderData) ob1).getFolderPathString().compareTo(
-        	        ((FolderData) ob2).getFolderPathString());
-        }
         if ((ob1 instanceof DataObject) && (ob2 instanceof DataObject)) {
             return compareDataObjects((DataObject) ob1, (DataObject) ob2);
         }
