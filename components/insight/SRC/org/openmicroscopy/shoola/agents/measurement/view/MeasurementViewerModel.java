@@ -1229,16 +1229,6 @@ class MeasurementViewerModel
      *            The Folders
      */
     void deleteFolders(Collection<FolderData> folders) {
-        // remove from the local data model
-        Collection<Long> ids = Pojos.extractIds(folders);
-        Iterator<FolderData> it = this.folders.iterator();
-        while(it.hasNext()) {
-            FolderData f = it.next();
-            if(ids.contains(f.getId()))
-                it.remove();
-        }
-        
-        // delete on the server
         ExperimenterData exp = (ExperimenterData) MeasurementAgent
                 .getUserDetails();
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),

@@ -25,13 +25,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import omero.cmd.CmdCallbackI;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
-import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
-import omero.gateway.util.Pojos;
 import omero.model.IObject;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -53,7 +52,7 @@ public class ROIFolderSaver extends BatchCallTree {
     private BatchCall saveCall;
 
     /** Was the save successful. */
-    private Collection<ROIData> result;
+    private Collection result;
 
     /**
      * Creates a {@link BatchCall} to load the ROIs.
@@ -86,7 +85,9 @@ public class ROIFolderSaver extends BatchCallTree {
                     for (FolderData f : folders)
                         ifolders.add((IObject) f.asFolder());
 
-                    dm.delete(ctx, ifolders);
+                    CmdCallbackI cb = dm.delete(ctx, ifolders);
+                    // wait for the delete action to be finished
+                    cb.block(10000);
                 } 
                 result = Collections.EMPTY_LIST;
             }
