@@ -23,9 +23,7 @@
 import pytest
 
 from test.integration.clitest.cli import CLITest
-from omero_model_MapAnnotationI import MapAnnotationI
 from omero_model_NamespaceI import NamespaceI
-from omero.model import NamedValue as NV
 from omero.plugins.obj import ObjControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
@@ -218,22 +216,23 @@ class TestObj(CLITest):
         updateService = self.root.getSession().getUpdateService()
 
         # Test for a list of NamedValue objects
-        a = MapAnnotationI()
-        a = updateService.saveAndReturnObject(a)
         self.args = self.login_args() + [
-            "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
+            "obj", "new", "MapAnnotation", "ns=test"]
+        state = self.go()
+        ann = state.get_row(0)
+        self.args = self.login_args() + ["obj", "get", ann, "mapValue"]
         state = self.go()
         assert state.get_row(0) == ""
-        a.setMapValue([NV("name1", "value1")])
-        a = updateService.saveAndReturnObject(a)
         self.args = self.login_args() + [
-            "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
+            "obj", "map-set", ann, "mapValue", "name1", "value1"]
+        self.go()
+        self.args = self.login_args() + ["obj", "get", ann, "mapValue"]
         state = self.go()
         assert state.get_row(0) == "(name1,value1)"
-        a.setMapValue([NV("name1", "value1"), NV("name2", "value2")])
-        a = updateService.saveAndReturnObject(a)
         self.args = self.login_args() + [
-            "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
+            "obj", "map-set", ann, "mapValue", "name2", "value2"]
+        self.go()
+        self.args = self.login_args() + ["obj", "get", ann, "mapValue"]
         state = self.go()
         assert state.get_row(0) == "(name1,value1),(name2,value2)"
 
@@ -259,40 +258,46 @@ class TestObj(CLITest):
         assert state.get_row(0) == "keyword1,keyword2"
 
     def test_list_get(self):
-        updateService = self.root.getSession().getUpdateService()
-
         # Test for a list of NamedValue objects
-        a = MapAnnotationI()
-        a = updateService.saveAndReturnObject(a)
+        self.args = self.login_args() + [
+            "obj", "new", "MapAnnotation", "ns=test"]
+        state = self.go()
+        ann = state.get_row(0)
         # An empty list
         self.args = self.login_args() + [
-            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "0"]
+            "obj", "list-get", ann, "mapValue", "0"]
         with pytest.raises(NonZeroReturnCode):
                 state = self.go()
-        a.setMapValue([NV("name1", "value1"),
-                       NV("name2", "value2"),
-                       NV("name3", "value3")])
-        a = updateService.saveAndReturnObject(a)
         self.args = self.login_args() + [
-            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "0"]
+            "obj", "map-set", ann, "mapValue", "name1", "value1"]
+        self.go()
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "name2", "value2"]
+        self.go()
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "name3", "value3"]
+        self.go()
+        self.args = self.login_args() + [
+            "obj", "list-get", ann, "mapValue", "0"]
         state = self.go()
         assert state.get_row(0) == "(name1,value1)"
         self.args = self.login_args() + [
-            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "2"]
+            "obj", "list-get", ann, "mapValue", "2"]
         state = self.go()
         assert state.get_row(0) == "(name3,value3)"
         # Python indices so negative values can be used
         self.args = self.login_args() + [
-            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "-1"]
+            "obj", "list-get", ann, "mapValue", "-1"]
         state = self.go()
         assert state.get_row(0) == "(name3,value3)"
-        # Outr of bounds
+        # Out of bounds
         self.args = self.login_args() + [
-            "obj", "list-get", "MapAnnotation:%s" % a.id.val, "mapValue", "3"]
+            "obj", "list-get", ann, "mapValue", "3"]
         with pytest.raises(NonZeroReturnCode):
                 state = self.go()
 
         # Test for a list of strings
+        updateService = self.root.getSession().getUpdateService()
         n = NamespaceI()
         n.setName(rstring(self.uuid()))
         n.setKeywords(["keyword1", "keyword2"])
