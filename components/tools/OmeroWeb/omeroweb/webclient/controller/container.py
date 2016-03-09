@@ -813,7 +813,8 @@ class BaseContainer(BaseController):
 
     def createTag(self, name, description=None):
         tId = self.conn.createTag(name, description)
-        if self.tag and self.tag.getNs() == omero.constants.metadata.NSINSIGHTTAGSET:
+        if (self.tag and
+                self.tag.getNs() == omero.constants.metadata.NSINSIGHTTAGSET):
             link = omero.model.AnnotationAnnotationLinkI()
             link.setParent(omero.model.TagAnnotationI(self.tag.getId(), False))
             link.setChild(omero.model.TagAnnotationI(tId, False))
