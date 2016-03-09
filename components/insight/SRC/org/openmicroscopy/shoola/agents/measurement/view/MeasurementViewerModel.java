@@ -97,7 +97,6 @@ import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.ROIData;
-import omero.gateway.util.Pojos;
 import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;

@@ -44,15 +44,26 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class ROIFolderSaver extends BatchCallTree {
+    
+    /**
+     * The actions which this {@link ROIFolderSaver} can handle
+     */
     public enum ROIFolderAction {
-        ADD_TO_FOLDER, REMOVE_FROM_FOLDER, CREATE_FOLDER, DELETE_FOLDER
+        /** Add ROIs to Folder */
+        ADD_TO_FOLDER, 
+        /** Remove ROIs from Folder */
+        REMOVE_FROM_FOLDER, 
+        /** Create Folder */
+        CREATE_FOLDER, 
+        /** Delete Folder */
+        DELETE_FOLDER
     }
 
     /** Call to save the ROIs. */
     private BatchCall saveCall;
 
     /** Was the save successful. */
-    private Collection result;
+    private Collection<ROIData> result;
 
     /**
      * Creates a {@link BatchCall} to load the ROIs.
