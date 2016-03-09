@@ -223,19 +223,19 @@ class TestObj(CLITest):
         self.args = self.login_args() + [
             "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
         state = self.go()
-        assert state.get_row(0) == "[]"
+        assert state.get_row(0) == ""
         a.setMapValue([NV("name1", "value1")])
         a = updateService.saveAndReturnObject(a)
         self.args = self.login_args() + [
             "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
         state = self.go()
-        assert state.get_row(0) == "[(name1,value1)]"
+        assert state.get_row(0) == "(name1,value1)"
         a.setMapValue([NV("name1", "value1"), NV("name2", "value2")])
         a = updateService.saveAndReturnObject(a)
         self.args = self.login_args() + [
             "obj", "get", "MapAnnotation:%s" % a.id.val, "mapValue"]
         state = self.go()
-        assert state.get_row(0) == "[(name1,value1),(name2,value2)]"
+        assert state.get_row(0) == "(name1,value1),(name2,value2)"
 
         # Test for a list of strings
         n = NamespaceI()
@@ -244,19 +244,19 @@ class TestObj(CLITest):
         self.args = self.login_args() + [
             "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
         state = self.go()
-        assert state.get_row(0) == "[]"
+        assert state.get_row(0) == ""
         n.setKeywords(["keyword1"])
         n = updateService.saveAndReturnObject(n)
         self.args = self.login_args() + [
             "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
         state = self.go()
-        assert state.get_row(0) == "[keyword1]"
+        assert state.get_row(0) == "keyword1"
         n.setKeywords(["keyword1", "keyword2"])
         n = updateService.saveAndReturnObject(n)
         self.args = self.login_args() + [
             "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
         state = self.go()
-        assert state.get_row(0) == "[keyword1,keyword2]"
+        assert state.get_row(0) == "keyword1,keyword2"
 
     def test_list_get(self):
         updateService = self.root.getSession().getUpdateService()

@@ -391,16 +391,15 @@ class ObjGetTxAction(NonFieldTxAction):
                 elif hasattr(current, "_value") and hasattr(current, "_unit"):
                     proxy = str(current._value) + " " + str(current._unit)
                 elif isinstance(current, list):
-                    proxy = "["
-                    for item in current:
-                        if isinstance(item, NamedValue):
-                            proxy += ("(" + str(item.name) + ","
-                                      + str(item.value) + ")")
+                    if len(current) == 0:
+                        proxy = ""
+                    else:
+                        if isinstance(current[0], NamedValue):
+                            proxy = ",".join(
+                                ["(" + str(i.name) + "," + str(i.value) + ")"
+                                    for i in current])
                         else:
-                            proxy += str(item)
-                        proxy += ","
-                    proxy = proxy.rstrip(",")
-                    proxy += "]"
+                            proxy = ",".join([str(i) for i in current])
                 else:
                     raise AttributeError(
                         "Error: field '%s' for %s:%s : no val, id or value" % (
