@@ -35,7 +35,6 @@ import fileinput
 from omero_ext.argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
 from omero.rtypes import rlong
-from omero.model import NamedValue
 
 
 class TxField(object):
@@ -372,6 +371,8 @@ class ObjGetTxAction(NonFieldTxAction):
 
     def get_field(self, field):
 
+        from omero.model import NamedValue as NV
+
         try:
             current = getattr(self.obj, field)
         except AttributeError:
@@ -394,7 +395,7 @@ class ObjGetTxAction(NonFieldTxAction):
                     if len(current) == 0:
                         proxy = ""
                     else:
-                        if isinstance(current[0], NamedValue):
+                        if isinstance(current[0], NV):
                             proxy = ",".join(
                                 ["(" + str(i.name) + "," + str(i.value) + ")"
                                     for i in current])
@@ -415,6 +416,8 @@ class ListGetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
 
+        from omero.model import NamedValue as NV
+
         if len(self.tx_cmd.arg_list) != 4:
             ctx.die(335, "usage: list-get OBJ FIELD INDEX")
 
@@ -432,7 +435,7 @@ class ListGetTxAction(NonFieldTxAction):
             if isinstance(current, list):
                 try:
                     item = current[index]
-                    if isinstance(item, NamedValue):
+                    if isinstance(item, NV):
                         proxy = ("(" + str(item.name) + ","
                                  + str(item.value) + ")")
                     else:
