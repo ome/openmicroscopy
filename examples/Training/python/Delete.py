@@ -17,6 +17,9 @@ from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 
+"""
+start-code
+"""
 
 # Create a connection
 # =================================================================

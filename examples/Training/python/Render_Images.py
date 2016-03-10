@@ -19,6 +19,9 @@ except ImportError:
     import Image
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT, imageId
 
+"""
+start-code
+"""
 
 # Create a connection
 # =================================================================

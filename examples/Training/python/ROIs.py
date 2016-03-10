@@ -24,6 +24,9 @@ from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
 imageId = int(imageId)
 
+"""
+start-code
+"""
 
 # Create a connection
 # =================================================================

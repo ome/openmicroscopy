@@ -20,6 +20,9 @@ if __name__ == '__main__':
     NB: This block is only run when calling this file directly
     and not when imported.
     """
+    """
+    start-code
+    """
 
     # Connect to the Python Blitz Gateway
     # =============================================================

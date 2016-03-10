@@ -22,6 +22,10 @@ from Parse_OMERO_Properties import datasetId, plateId
 #
 # .. _python_omero_tables_code_samples:
 
+"""
+start-code
+"""
+
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
