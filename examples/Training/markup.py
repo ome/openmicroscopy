@@ -20,7 +20,7 @@ import re
 
 
 def lines(file):
-    if file.name.endswith(".py"):
+    if file.name.endswith((".py", ".m", ".java")):
         all = [line for line in file]
         skip = check_header(all, quiet=True)
         for line in all[skip:]:
