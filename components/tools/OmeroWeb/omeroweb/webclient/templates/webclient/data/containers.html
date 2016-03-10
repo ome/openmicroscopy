@@ -295,6 +295,13 @@
             var userId = {{ ome.user_id }},
                 canCreate = (userId === {{ ome.user.id }} || userId === -1);
 
+            // Also need all selected items to allow linking,
+            // because new objects are sometimes linked under selected items
+            canCreate = selected.reduce(function(prev, n){
+                var canLnk = (n.type === 'experimenter' || OME.nodeHasPermission(n, 'canLink'));
+                return canLnk && prev;
+            }, canCreate);
+
             // These nodes can be Orphans, so creation is not selection-specific
             if (canCreate) {
                 toolbar_config["addproject"] = true;
@@ -332,7 +339,6 @@
                             return false;
                         }
                     });
-
                 }
 
                 // Only allow cut if the selected item(s) are elligible. This uses the slightly
