@@ -331,20 +331,8 @@ class MatlabParser(Parser):
         # self.addFilter(r'\*(.+?)\*', 'emphasis')
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
-
-PYHEADER = """#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-#
-# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
-#                    All Rights Reserved.
-# Use is subject to license terms supplied in LICENSE.txt
-#
-
-\"\"\"
-FOR TRAINING PURPOSES ONLY!
-\"\"\"""".split("\n")
-
+# Marker to find in the file to parse
+MARKER = "start-code"
 
 def check_header(file_lines, quiet=False):
     """
@@ -352,18 +340,12 @@ def check_header(file_lines, quiet=False):
     PYHEADER. Returns the number of lines which should be skipped.
     """
     lines = []
+    test ="start-code"
     for line in file_lines:
         idx = len(lines)
         lines.append(line)
-        try:
-            test = PYHEADER[idx]
-            if test.strip() != line.strip():
-                raise Exception("bad header. expected: '%s'. found: '%s'."
-                                % (line.strip(), test.strip()))
-        except IndexError:
-            if not quiet:
-                print "ok"
-            break
+        if test in line:
+            return len(lines)
     return len(lines)
 
 def parseMatlab(Parser):
