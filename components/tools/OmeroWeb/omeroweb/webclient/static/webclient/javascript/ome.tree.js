@@ -23,6 +23,16 @@ $(function() {
 
     // Select jstree and then cascade handle events and setup the tree.
     var jstree = $("#dataTree")
+    .on('load_node.jstree', function(event, data){
+        // If we load a Plate with only a single Child 'Run',
+        // we automatically select it to load the Plate itself
+        var node = data.node;
+        if (node.type === "plate" && node.children.length === 1) {
+            var inst = data.instance;
+            inst.deselect_all();
+            inst.select_node(node.children[0]);
+        }
+    })
     .on('changed.jstree', function (e, data) {
         var inst = data.instance;
         buttonsShowHide(inst.get_selected(true), inst);
