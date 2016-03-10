@@ -2036,7 +2036,13 @@ def batch_annotate(request, conn=None, **kwargs):
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
     if len(groupIds) == 0:
-        return handlerInternalError(request, "No objects found")
+        # No supported objects found.
+        # If multiple tags / tagsets selected, return placeholder
+        if (len(request.GET.getlist('tag')) > 0 or
+                len(request.GET.getlist('tagset')) > 0):
+            return HttpResponse("<h2>Can't batch annotate tags</h2>")
+        else:
+            return handlerInternalError(request, "No objects found")
     groupId = list(groupIds)[0]
     conn.SERVICE_OPTS.setOmeroGroup(groupId)
 
