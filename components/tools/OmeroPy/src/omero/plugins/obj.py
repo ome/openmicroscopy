@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2014-2016 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@ import fileinput
 from omero_ext.argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
 from omero.rtypes import rlong
+from omero.model import NamedValue
 
 
 class TxField(object):
@@ -166,7 +167,7 @@ class TxAction(object):
                 kls = kls[0:-1]
             return obj, kls
         except AttributeError:
-            ctx.die(102, "No class named '%s'" % self.class_name())
+            ctx.die(102, "No class named '%s'" % self.class_name(ctx))
 
 
 class NewObjectTxAction(TxAction):
@@ -343,8 +344,79 @@ class ObjGetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
 
-        if len(self.tx_cmd.arg_list) != 3:
-            ctx.die(335, "usage: get OBJ FIELD")
+        if len(self.tx_cmd.arg_list) not in (2, 3):
+            ctx.die(335, "usage: get OBJ [FIELD]")
+
+        if len(self.tx_cmd.arg_list) == 3:
+            field = self.tx_cmd.arg_list[2]
+            try:
+                proxy = self.get_field(field)
+            except AttributeError, ae:
+                ctx.die(336, ae.message)
+        else:
+            proxy = ""
+            for attr in dir(self.obj):
+                if (attr.startswith("_") and
+                        not (attr.startswith("__")
+                             or attr.startswith("_op_")
+                             or attr.endswith("oaded"))):
+                    field = attr.lstrip("_")
+                    if hasattr(self.obj, field):
+                        try:
+                            proxy += (field + "="
+                                      + str(self.get_field(field)) + "\n")
+                        except AttributeError:
+                            pass
+
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
+    def get_field(self, field):
+
+        try:
+            current = getattr(self.obj, field)
+        except AttributeError:
+            raise AttributeError("Unknown field '%s' for %s:%s" % (
+                field, self.kls, self.obj.id.val))
+
+        if current is None:
+            proxy = ""
+        else:
+            try:
+                if hasattr(current, "val"):
+                    proxy = current.val
+                elif hasattr(current, "id"):
+                    objId = current.id.val
+                    klass = current.__class__.__name__.rstrip("I")
+                    proxy = klass + ":" + str(objId)
+                elif hasattr(current, "_value") and hasattr(current, "_unit"):
+                    proxy = str(current._value) + " " + str(current._unit)
+                elif isinstance(current, list):
+                    if len(current) == 0:
+                        proxy = ""
+                    else:
+                        if isinstance(current[0], NamedValue):
+                            proxy = ",".join(
+                                ["(" + str(i.name) + "," + str(i.value) + ")"
+                                    for i in current])
+                        else:
+                            proxy = ",".join([str(i) for i in current])
+                else:
+                    raise AttributeError(
+                        "Error: field '%s' for %s:%s : no val, id or value" % (
+                            field, self.kls, self.obj.id.val))
+            except AttributeError, ae:
+                raise AttributeError("Error: field '%s' for %s:%s : %s" % (
+                    field, self.kls, self.obj.id.val, ae.message))
+
+        return proxy
+
+
+class ListGetTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+
+        if len(self.tx_cmd.arg_list) != 4:
+            ctx.die(335, "usage: list-get OBJ FIELD INDEX")
 
         field = self.tx_cmd.arg_list[2]
         try:
@@ -353,14 +425,24 @@ class ObjGetTxAction(NonFieldTxAction):
             ctx.die(336, "Unknown field '%s' for %s:%s" % (
                 field, self.kls, self.obj.id.val))
 
+        index = int(self.tx_cmd.arg_list[3])
         if current is None:
             proxy = ""
         else:
-            try:
-                proxy = current.val
-            except AttributeError, ae:
-                ctx.die(336, "Error: field '%s' for %s:%s : %s" % (
-                    field, self.kls, self.obj.id.val, ae.message))
+            if isinstance(current, list):
+                try:
+                    item = current[index]
+                    if isinstance(item, NamedValue):
+                        proxy = ("(" + str(item.name) + ","
+                                 + str(item.value) + ")")
+                    else:
+                        proxy = str(item)
+                except IndexError, ie:
+                    ctx.die(336, "Error: field '%s[%s]' for %s:%s, %s" % (
+                        field, index, self.kls, self.obj.id.val, ie.message))
+            else:
+                ctx.die(336, "Field '%s' for %s:%s is not a list" % (
+                    field, self.kls, self.obj.id.val))
 
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
@@ -395,7 +477,7 @@ class TxState(object):
 
 
 class ObjControl(BaseControl):
-    """Create and Update OMERO objects
+    """Create, Update and Query OMERO objects
 
 The obj command allows inserting any objects into the OMERO
 database as well as updating and querying existing ones. This
@@ -405,22 +487,31 @@ Examples:
 
     $ bin/omero obj new Dataset name=foo
     Dataset:123
-
     $ bin/omero obj update Dataset:123 description=bar
     Dataset:123
-
+    $ bin/omero obj get Dataset:123 name
+    foo
+    $ bin/omero obj get Dataset:123
+    description=bar
+    id=123
+    name=foo
+    version=
     $ bin/omero obj null Dataset:123 description
     Dataset:123
-
     $ bin/omero obj get Dataset:123 description
-    A dataset
 
     $ bin/omero obj new MapAnnotation ns=example.com
     MapAnnotation:456
-    $ bin/omero obj map-set MapAnnotation mapValue foo bar
+    $ bin/omero obj map-set MapAnnotation:456 mapValue foo bar
     MapAnnotation:456
-    $ bin/omero obj map-get MapAnnotation mapValue foo
+    $ bin/omero obj map-set MapAnnotation:456 mapValue fu baa
+    MapAnnotation:456
+    $ bin/omero obj map-get MapAnnotation:456 mapValue foo
     bar
+    $ bin/omero obj get MapAnnotation:456 mapValue
+    (foo,bar),(fu,baa)
+    $ bin/omero obj list-get MapAnnotation:456 mapValue 0
+    (foo,bar)
 
 Bash examples:
 
@@ -441,7 +532,8 @@ Bash examples:
         parser.add_argument(
             "command", nargs="?",
             choices=("new", "update", "null",
-                     "map-get", "map-set", "get"),
+                     "map-get", "map-set",
+                     "get", "list-get"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
@@ -493,6 +585,8 @@ Bash examples:
             return NullTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "get":
             return ObjGetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "list-get":
+            return ListGetTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
 

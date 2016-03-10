@@ -73,6 +73,7 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
         Add(Sym("r"), Rat(Int(-45967), Int(100)))  # nopep8
     CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.KELVIN] = \
         Mul(Rat(Int(5), Int(9)), Sym("r"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["CELSIUS"] = "°C"

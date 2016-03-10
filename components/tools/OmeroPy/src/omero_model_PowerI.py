@@ -889,6 +889,7 @@ class PowerI(_omero_model.Power, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettaw"))  # nopep8
     CONVERSIONS[UnitsPower.ZETTAWATT][UnitsPower.ZEPTOWATT] = \
         Mul(Pow(10, 42), Sym("zettaw"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ATTOWATT"] = "aW"
