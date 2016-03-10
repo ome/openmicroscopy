@@ -1238,11 +1238,8 @@ public class ROITable
     public void addToFolder() {
         action = CreationActionType.ADD_TO_FOLDER;
         Collection<Object> tmp = new ArrayList<Object>();
-        for(FolderData folder : manager.getFolders()) {
-            ROINode folderNode = getFolderNode(folder);
-            if((folderNode.isLeaf() || folderNode.containsROIs()) && folder.canLink())
+        for(FolderData folder : manager.getFolders()) 
                 tmp.add(folder);
-        }
         SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
         wiz.setTitle("Add to ROI Folders", "Select the Folders to add the ROI(s) to", IconManager.getInstance().getIcon(IconManager.ROIFOLDER));
         wiz.addPropertyChangeListener(this);
@@ -1321,9 +1318,7 @@ public class ROITable
 
         Collection<DataObject> tmp = new ArrayList<DataObject>();
         for (FolderData folder : manager.getFolders()) {
-            ROINode folderNode = getFolderNode(folder);
-            if (!excludeIds.contains(folder.getId()) && folder.canLink()
-                    && (folderNode.isLeaf() || folderNode.containsFolders()))
+            if (!excludeIds.contains(folder.getId()) && folder.canLink())
                 tmp.add(folder);
         }
 
