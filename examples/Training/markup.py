@@ -34,7 +34,9 @@ def lines(file):
 def blocks(file):
     block = []
     for line in lines(file):
-        if line.strip() and not line.startswith("# ======================="):
+        if END_MARKER in line:
+            break
+        elif line.strip() and not line.startswith("# ======================="):
             block.append(line.rstrip())
         elif block:
             # yield ''.join(block).strip()
@@ -332,19 +334,19 @@ class MatlabParser(Parser):
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
 # Marker to find in the file to parse
-MARKER = "start-code"
+START_MARKER = "start-code"
+END_MARKER = "end-code"
 
 def check_header(file_lines, quiet=False):
     """
     Checks the first N lines of the file that they match
-    PYHEADER. Returns the number of lines which should be skipped.
+    START_MARKER. Returns the number of lines which should be skipped.
     """
     lines = []
-    test ="start-code"
     for line in file_lines:
         idx = len(lines)
         lines.append(line)
-        if test in line:
+        if START_MARKER in line:
             return len(lines)
     return len(lines)
 
