@@ -79,6 +79,7 @@
     WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
 
     {% ifequal menu 'usertags' %}
+        WEBCLIENT.TAG_TREE = true;
         WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
     {% else %}
         WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_containers;

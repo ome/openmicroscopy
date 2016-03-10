@@ -118,7 +118,8 @@
                                 }
                             }
                         }
-                        if (orphaned) {
+                        // If cut obj is now an orphan (and we're not in the TAG_TREE)...
+                        if (orphaned && !WEBCLIENT.TAG_TREE) {
                             // Get the experimenter that owns this object
                             // This handles the multi-experimenters shown case
                             var ownerExperimenter = inst.locate_node('experimenter-' + activeUserId())[0],
