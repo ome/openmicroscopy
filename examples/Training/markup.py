@@ -427,16 +427,11 @@ def parsefiles(parser=Parser, files = [], titles = []):
 
 if __name__ == "__main__":
 
-    if "--check_header" in sys.argv:
-        for py in pythonFiles:
-            print "check_header(%s)" % py,
-            check_header([x for x in open(py, "r")])
-
+    handler = SphinxRenderer()
+    if "matlab" in sys.argv:
+        parseMatlab(handler)
+    elif "java" in sys.argv:
+        parseJava(handler)
     else:
-        handler = SphinxRenderer()
-        if "matlab" in sys.argv:
-            parseMatlab(handler)
-        elif "java" in sys.argv:
-            parseJava(handler)
-        else:
-            parsePython(handler)
+        parsePython(handler)
+        
