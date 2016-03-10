@@ -27,24 +27,14 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
-
-
-
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
-
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreePath;
-
-
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -597,6 +587,57 @@ public class ROINode
         for (MutableTreeTableNode n : this.getChildList()) {
             gatherNodes((ROINode) n, nodes);
         }
+    }
+    
+    /**
+     * Indicates if the node can be annotated if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canAnnotate() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canAnnotate();
+        if (isROINode())
+            return ((ROI) getUserObject()).canAnnotate();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canAnnotate();
+
+        return false;
+    }
+
+    /**
+     * Indicates if the node can be deleted if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canDelete() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canDelete();
+        if (isROINode())
+            return ((ROI) getUserObject()).canDelete();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canDelete();
+
+        return false;
+    }
+
+    /**
+     * Indicates if the node can be edited if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canEdit() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canEdit();
+        if (isROINode())
+            return ((ROI) getUserObject()).canEdit();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canEdit();
+
+        return false;
     }
     
     /**

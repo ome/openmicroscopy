@@ -71,15 +71,44 @@ public class TableRowTransferHandler extends TransferHandler {
     @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
         boolean b = info.getComponent() == table && info.isDrop()
-                && info.isDataFlavorSupported(DataFlavor.stringFlavor);
+                && info.isDataFlavorSupported(DataFlavor.stringFlavor)
+                && checkDropTarget(info);
+
         table.setCursor(b ? DragSource.DefaultMoveDrop
                 : DragSource.DefaultMoveNoDrop);
+
         return b;
+    }
+
+    /**
+     * Check if the drop target is valid
+     */
+    private boolean checkDropTarget(TransferHandler.TransferSupport info) {
+        JTable.DropLocation dl = (JTable.DropLocation) info.getDropLocation();
+        int index = dl.getRow();
+        ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(index);
+        return n.canEdit() && n.isFolderNode();
+    }
+
+    /**
+     * Check if the current selection is draggable
+     */
+    private boolean checkDragSource() {
+        int[] selection = table.getSelectedRows();
+        for (int i = 0; i < selection.length; i++) {
+            ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(selection[i]);
+            if (!n.canEdit())
+                return false;
+        }
+        return true;
     }
 
     @Override
     public int getSourceActions(JComponent c) {
-        return TransferHandler.MOVE;
+        if (checkDragSource())
+            return TransferHandler.MOVE;
+        else
+            return TransferHandler.NONE;
     }
 
     @Override
