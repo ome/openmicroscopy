@@ -25,6 +25,20 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,15 +51,46 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
@@ -65,6 +110,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.FancyTextField;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
@@ -129,6 +176,8 @@ class ObjectManager
 	/** The name of the panel. */
 	private static final String			NAME = "Manager";
 	
+	private static final String DEFAULT_FILTER_TEXT = "Filter ROI Folders...";
+	
 	/** The table hosting the ROI objects. */
 	private ROITable					objectsTable;
 
@@ -141,6 +190,14 @@ class ObjectManager
 	/** Reference to the Model. */
     private MeasurementViewerControl control;
 
+    private JToolBar bar;
+    
+    private JButton filterButton;
+    
+    private JTextField filterField;
+    
+    private JCheckBox showAllBox;
+    
 	/** 
 	 * The table selection listener attached to the table displaying the 
 	 * objects.
@@ -221,12 +278,69 @@ class ObjectManager
     	objectsTable.setHorizontalScrollEnabled(true);
 	    objectsTable.setColumnControlVisible(true);
 	    objectsTable.setColumnFactory(columnFactory);
+	    
+	    IconManager icons = IconManager.getInstance();
+        bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+
+        filterButton = new JButton(icons.getIcon(IconManager.FILTER_MENU));
+        MouseAdapter adapter = new MouseAdapter() {
+
+            /**
+             * Shows the menu corresponding to the display mode.
+             */
+            public void mousePressed(MouseEvent me) {
+                createFilterMenu((Component) me.getSource(), me.getPoint());
+            }
+        };
+        filterButton.setHorizontalTextPosition(SwingConstants.LEFT);
+        filterButton.setText("Display ROI Folders");
+        filterButton.addMouseListener(adapter);
+
+        filterField = new FancyTextField(DEFAULT_FILTER_TEXT, 50);
+        filterField.addPropertyChangeListener(FancyTextField.EDIT_PROPERTY, new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                filterFolders((String) evt.getNewValue());
+            }
+        });
+        
+        showAllBox = new JCheckBox("Show all ROI Folders");
+        showAllBox.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                filterButton.setEnabled(!showAllBox.isSelected());
+                updateFolderView();
+            }
+        });
 	}
 
+	private void createFilterMenu(Component src, Point loc) {
+	    System.out.println("createFilterMenu");
+	}
+	
+	private void filterFolders(String text) {
+	    System.out.println("filterFolders "+text);
+	}
+	
+	private void updateFolderView() {
+	    boolean showAll = showAllBox.isSelected();
+	    System.out.println("updateFolderView showAll? "+showAll);
+	}
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
+		
+		bar.add(filterButton);
+		bar.add(filterField);
+		bar.add(showAllBox);
+		
+		add(bar, BorderLayout.NORTH);
 		add(new JScrollPane(objectsTable), BorderLayout.CENTER);
 	}
 	
