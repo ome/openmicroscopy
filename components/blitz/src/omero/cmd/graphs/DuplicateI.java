@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -59,7 +58,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
-import ome.system.EventContext;
+import ome.services.graphs.PermissionsPredicate;
 import ome.system.Roles;
 import omero.cmd.Duplicate;
 import omero.cmd.DuplicateResponse;
@@ -104,6 +103,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
     private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
+    private GraphHelper graphHelper;
     private GraphTraversal graphTraversal;
 
     private FlushMode flushMode;
@@ -180,16 +180,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
         this.helper = helper;
         helper.setSteps(dryRun ? 3 : 6);
-
-        final EventContext eventContext = helper.getEventContext();
-
-        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
-
-        if (childOptions != null) {
-            for (final ChildOptionI childOption : childOptions) {
-                childOption.init();
-            }
-        }
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         classifier = new SpecificityClassifier<Class<? extends IObject>, Inclusion>(
                 new SpecificityClassifier.ContainmentTester<Class<? extends IObject>>() {
@@ -206,30 +197,24 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
             throw helper.cancel(new ERR(), e, "bad-class");
         }
 
-        GraphPolicy graphPolicyWithOptions = graphPolicy;
-
-        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, childOptions, REQUIRED_ABILITIES);
-
-        graphPolicyWithOptions = SkipTailPolicy.getSkipTailPolicy(graphPolicyWithOptions,
-                new Predicate<Class<? extends IObject>>() {
+        graphPolicyAdjusters.add(0, new Function<GraphPolicy, GraphPolicy>() {
             @Override
-            public boolean apply(Class<? extends IObject> modelObject) {
-                final Inclusion classification = classifier.getClass(modelObject);
-                return classification == Inclusion.REFERENCE || classification == Inclusion.IGNORE;
+            public GraphPolicy apply(GraphPolicy graphPolicy) {
+                return SkipTailPolicy.getSkipTailPolicy(graphPolicy,
+                        new Predicate<Class<? extends IObject>>() {
+                    @Override
+                    public boolean apply(Class<? extends IObject> modelObject) {
+                        final Inclusion classification = classifier.getClass(modelObject);
+                        return classification == Inclusion.REFERENCE || classification == Inclusion.IGNORE;
+                    }});
             }});
 
-        for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
-            graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
-        }
+        graphPolicy.registerPredicate(new PermissionsPredicate());
+
+        graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
+                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+
         graphPolicyAdjusters = null;
-
-        GraphTraversal.Processor processor = new InternalProcessor();
-        if (dryRun) {
-            processor = GraphUtil.disableProcessor(processor);
-        }
-
-        graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, processor);
     }
 
     /**
@@ -434,29 +419,8 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
         try {
             switch (step) {
             case 0:
-                /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
-                final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
-                    /* determine actual class from given target object class name */
-                    String targetObjectClassName = oneClassToTarget.getKey();
-                    final int lastDot = targetObjectClassName.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        targetObjectClassName = targetObjectClassName.substring(lastDot + 1);
-                    }
-                    final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
-                    /* check that it is legal to target the given class */
-                    final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
-                    do {
-                        if (!legalTargetsIterator.hasNext()) {
-                            final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
-                            throw helper.cancel(new ERR(), e, "bad-target");
-                        }
-                    } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
-                    /* note IDs to target for the class */
-                    final Collection<Long> ids = oneClassToTarget.getValue();
-                    targetMultimap.putAll(targetObjectClass.getName(), ids);
-                    targetObjectCount += ids.size();
-                }
+                final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
+                targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
                         graphTraversal.planOperation(session, targetMultimap, true, true);
                 if (plan.getValue().isEmpty()) {
@@ -513,13 +477,8 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
         /* if the results object were in terms of IObjectList then this would need IceMapper.map */
         if (dryRun && step == 0) {
             final SetMultimap<String, Long> result = (SetMultimap<String, Long>) object;
-            final Map<String, List<Long>> duplicatedObjects = new HashMap<String, List<Long>>();
-            for (final Entry<String, Collection<Long>> oneDuplicatedClass : result.asMap().entrySet()) {
-                final String className = oneDuplicatedClass.getKey();
-                final Collection<Long> ids = oneDuplicatedClass.getValue();
-                duplicatedObjects.put(className, new ArrayList<Long>(ids));
-                duplicatedObjectCount += ids.size();
-            }
+            final Map<String, List<Long>> duplicatedObjects = GraphUtil.copyMultimapForResponse(result);
+            duplicatedObjectCount += result.size();
             final DuplicateResponse response = new DuplicateResponse(duplicatedObjects);
             helper.setResponseIfNull(response);
             helper.info("in mock duplication of " + targetObjectCount + ", duplicated " + duplicatedObjectCount + " in total");

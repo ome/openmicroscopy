@@ -16,8 +16,8 @@ GROUP_NAME_2=${GROUP_NAME_2:-robot_group_2}-$now
 USER_NAME=${USER_NAME:-robot_user}-$now
 USER_PASSWORD=${USER_PASSWORD:-ome}
 CONFIG_FILENAME=${CONFIG_FILENAME:-robot_ice.config}
-IMAGE_NAME=${IMAGE_NAME:-test&sizeZ=3&sizeT=10.fake}
-TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test.fake}
+IMAGE_NAME=${IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00&sizeZ=3&sizeT=10.fake}
+TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00.fake}
 PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake}
 BULK_ANNOTATION_CSV=${BULK_ANNOTATION_CSV:-bulk_annotation.csv}
 

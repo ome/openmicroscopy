@@ -70,13 +70,13 @@ public interface RenderingControl
 	public static final int		UNCOMPRESSED = 0;
 	
 	/** 
-	 * Flag to indicate that the image is not compressed using a
+	 * Flag to indicate that the image is compressed using a
 	 * medium Level of compression. 
 	 */
 	public static final int		MEDIUM = 1;
 	
 	/** 
-	 * Flag to indicate that the image is not compressed using a
+	 * Flag to indicate that the image is compressed using a
 	 * low Level of compression. 
 	 */
 	public static final int		LOW = 2;

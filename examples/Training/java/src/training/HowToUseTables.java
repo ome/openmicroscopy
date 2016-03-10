@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -26,7 +26,6 @@ import java.util.UUID;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
-
 import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.LongColumn;
@@ -49,13 +48,13 @@ public class HowToUseTables
 	
 	//Edit the information below
 	/** The server address.*/
-	private String hostName = "serverName";
+	private static String hostName = "serverName";
 
 	/** The username.*/
-	private String userName = "userName";
+	private static String userName = "userName";
 	
 	/** The password.*/
-	private String password = "password";
+	private static String password = "password";
 	//end edit
 	
 	private Gateway gateway;
@@ -155,22 +154,11 @@ public class HowToUseTables
 	/**
 	 * Connects and invokes the various methods.
 	 * 
-	 * @param info The configuration information.
+	 * @param args The login credentials
 	 */
-	HowToUseTables(ConfigurationInfo info)
+	HowToUseTables(String[] args)
 	{
-		if (info == null) {
-			info = new ConfigurationInfo();
-			info.setHostName(hostName);
-			info.setPassword(password);
-			info.setUserName(userName);
-		}
-		
-		LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+		LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
         
@@ -196,7 +184,11 @@ public class HowToUseTables
 	 */
 	public static void main(String[] args)
 	{
-		new HowToUseTables(null);
+	    if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                    "--omero.user=" + userName, "--omero.pass=" + password };
+	    
+		new HowToUseTables(args);
 		System.exit(0);
 	}
 

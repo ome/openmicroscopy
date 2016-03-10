@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -83,7 +83,10 @@ public class BrowseFacility extends Facility {
      * @param userId The user's to retrieve the data to handle.
      * @return See above.
      * @throws DSOutOfServiceException
-     * @throws DSAccessException 
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException, DSAccessException {
@@ -105,7 +108,10 @@ public class BrowseFacility extends Facility {
      * @param options The retrieval options.
      * @return See above.
      * @throws DSOutOfServiceException
-     * @throws DSAccessException 
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<DataObject> getHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
@@ -134,6 +140,7 @@ public class BrowseFacility extends Facility {
      * @param userId The user's to retrieve the data to handle.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             long userId) throws DSOutOfServiceException {
@@ -158,6 +165,7 @@ public class BrowseFacility extends Facility {
      * @param options The retrieval options.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      */
     public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
             List<Long> rootIDs, Parameters options)
@@ -185,7 +193,10 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id) throws DSOutOfServiceException,
@@ -207,7 +218,10 @@ public class BrowseFacility extends Facility {
      *            <code>false</code> to only use ctx's group
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public <T extends DataObject> T findObject(SecurityContext ctx,
             Class<T> klass, long id, boolean allGroups)
@@ -228,13 +242,39 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id)
             throws DSOutOfServiceException, DSAccessException {
         return findIObject(ctx, klassName, id, false);
     }
 
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param pojoName
+     *            The type of object to retrieve. (Either the simple or the full
+     *            class name, e. g. omero.gateway.model.DatasetData or
+     *            DatasetData)
+     * @param id
+     *            The object's id.
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public DataObject findObject(SecurityContext ctx, String pojoName, long id)
+            throws DSOutOfServiceException, DSAccessException {
+        return findObject(ctx, pojoName, id, false);
+    }
+    
     /**
      * Retrieves an updated version of the specified object.
      *
@@ -247,7 +287,10 @@ public class BrowseFacility extends Facility {
      * @param allGroups Pass <code>true</code> to look for all groups
      * @return The last version of the object.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id,
             boolean allGroups) throws DSOutOfServiceException,
@@ -269,6 +312,50 @@ public class BrowseFacility extends Facility {
         }
         return null;
     }
+    
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param pojoName
+     *            The type of object to retrieve. (Either the simple or the full
+     *            class name, e. g. omero.gateway.model.DatasetData or
+     *            DatasetData)
+     * @param id
+     *            The object's id.
+     * @param allGroups
+     *            Pass <code>true</code> to look for all groups
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public DataObject findObject(SecurityContext ctx, String pojoName, long id,
+            boolean allGroups) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            Map<String, String> m = new HashMap<String, String>();
+            if (allGroups) {
+                m.put("omero.group", "-1");
+            } else {
+                m.put("omero.group", "" + ctx.getGroupID());
+            }
+
+            Class klass = PojoMapper.getModelType(pojoName);
+
+            IQueryPrx service = gateway.getQueryService(ctx);
+            IObject iobj = service.find(klass.getSimpleName(), id, m);
+            return PojoMapper.asDataObject(iobj);
+        } catch (Throwable t) {
+            handleException(this, t,
+                    "Cannot retrieve the requested object with "
+                            + "object ID: " + id);
+        }
+        return null;
+    }
 
     /**
      * Retrieves an updated version of the specified object.
@@ -277,13 +364,17 @@ public class BrowseFacility extends Facility {
      *            The security context.
      * @param o
      *            The object to retrieve.
-     * @return The last version of the object.
+     * @return The last version of the object or <code>null</code> if the object
+     *         hasn't been persisted previously
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public IObject findIObject(SecurityContext ctx, IObject o)
             throws DSOutOfServiceException, DSAccessException {
-        if (o == null)
+        if (o == null || o.getId() == null)
             return null;
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
@@ -305,7 +396,10 @@ public class BrowseFacility extends Facility {
      *            The user currently logged in.
      * @return See above.
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Set<GroupData> getAvailableGroups(SecurityContext ctx,
             ExperimenterData user) throws DSOutOfServiceException,
@@ -349,26 +443,14 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ProjectData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            List<IObject> projects = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ProjectData.class).getName(), null, null);
-
-            Collection<ProjectData> result = new ArrayList<ProjectData>(
-                    projects.size());
-            for (IObject proj : projects)
-                result.add((ProjectData) PojoMapper.asDataObject(proj));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load projects");
-        }
-
-        return Collections.emptyList();
+           return getProjects(ctx, -1);
     }
 
     /**
@@ -379,35 +461,15 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the projects to fetch
      * @return A collection of {@link ProjectData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
-            return Collections.emptyList();
-        
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-
-            List<Long> idsList = new ArrayList<Long>(ids.size());
-            for (long id : ids)
-                idsList.add(id);
-
-            List<IObject> projects = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ProjectData.class).getName(), idsList, null);
-
-            Collection<ProjectData> result = new ArrayList<ProjectData>(
-                    projects.size());
-            for (IObject proj : projects)
-                result.add((ProjectData) PojoMapper.asDataObject(proj));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load projects");
-        }
-
-        return Collections.emptyList();
+        return getProjects(ctx, -1, ids);
     }
 
     /**
@@ -415,17 +477,23 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the owner
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getProjects(SecurityContext)} )
      * @return A collection of {@link ProjectData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
+            
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> projects = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ProjectData.class).getName(), null, param);
@@ -448,17 +516,20 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the owner
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getProjects(SecurityContext, Collection)} )
      * @param ids
      *            The ids of the projects to fetch
      * @return A collection of {@link ProjectData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<ProjectData> getProjects(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -468,8 +539,11 @@ public class BrowseFacility extends Facility {
             for (long id : ids)
                 idsList.add(id);
 
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
 
             List<IObject> projects = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ProjectData.class).getName(), idsList, param);
@@ -495,26 +569,14 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link DatasetData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(DatasetData.class).getName(), null, null);
-
-            Collection<DatasetData> result = new ArrayList<DatasetData>(
-                    datasets.size());
-            for (IObject ds : datasets)
-                result.add((DatasetData) PojoMapper.asDataObject(ds));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load datasets");
-        }
-
-        return Collections.emptyList();
+        return getDatasets(ctx, -1);
     }
 
     /**
@@ -525,38 +587,15 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the datasets to load
      * @return A collection of {@link DatasetData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
-            return Collections.emptyList();
-        
-        try {
-            ParametersI param = new ParametersI();
-            param.leaves();
-
-            IContainerPrx service = gateway.getPojosService(ctx);
-
-            List<Long> idsList = new ArrayList<Long>(ids.size());
-            for (long id : ids)
-                idsList.add(id);
-
-            List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(DatasetData.class).getName(), idsList, param);
-
-            Collection<DatasetData> result = new ArrayList<DatasetData>(
-                    datasets.size());
-            for (IObject ds : datasets)
-                result.add((DatasetData) PojoMapper.asDataObject(ds));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load datasets");
-        }
-
-        return Collections.emptyList();
+        return getDatasets(ctx, -1, ids);
     }
 
     /**
@@ -565,15 +604,24 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @param ownerId
-     *            The id of the user
+     *            The id of the user (if <code><0</code> see
+     *            {@link #getDatasets(SecurityContext)} )
      * @return A collection of {@link DatasetData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
+            
+            
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
             
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
@@ -597,17 +645,20 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getDatasets(SecurityContext, Collection)} )
      * @param ids
      *            The ids of the datasets to load
      * @return A collection of {@link DatasetData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<DatasetData> getDatasets(SecurityContext ctx,
             long ownerId, Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -618,7 +669,8 @@ public class BrowseFacility extends Facility {
                 idsList.add(id);
 
             ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
+            if (ownerId >= 0)
+                param.exp(omero.rtypes.rlong(ownerId));
             param.leaves();
 
             List<IObject> datasets = service.loadContainerHierarchy(PojoMapper
@@ -645,26 +697,14 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ScreenData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            List<IObject> screens = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ScreenData.class).getName(), null, null);
-
-            Collection<ScreenData> result = new ArrayList<ScreenData>(
-                    screens.size());
-            for (IObject s : screens)
-                result.add((ScreenData) PojoMapper.asDataObject(s));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load screens");
-        }
-
-        return Collections.emptyList();
+        return getScreens(ctx, -1);
     }
 
     /**
@@ -675,35 +715,15 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link ScreenData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
-            return Collections.emptyList();
-        
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-
-            List<Long> idsList = new ArrayList<Long>(ids.size());
-            for (long id : ids)
-                idsList.add(id);
-
-            List<IObject> screens = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(ScreenData.class).getName(), idsList, null);
-
-            Collection<ScreenData> result = new ArrayList<ScreenData>(
-                    screens.size());
-            for (IObject s : screens)
-                result.add((ScreenData) PojoMapper.asDataObject(s));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load screens");
-        }
-
-        return Collections.emptyList();
+        return getScreens(ctx, -1, ids);
     }
 
     /**
@@ -711,17 +731,23 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getScreens(SecurityContext)} )
      * @return A collection of {@link ScreenData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
+            
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> screens = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ScreenData.class).getName(), null, param);
@@ -744,17 +770,20 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getScreens(SecurityContext, Collection)} )
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link ScreenData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ScreenData> getScreens(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -764,9 +793,12 @@ public class BrowseFacility extends Facility {
             for (long id : ids)
                 idsList.add(id);
 
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
+            
             List<IObject> screens = service.loadContainerHierarchy(PojoMapper
                     .getModelType(ScreenData.class).getName(), idsList, param);
 
@@ -791,26 +823,14 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link PlateData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<PlateData> getPlates(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-            List<IObject> plates = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(PlateData.class).getName(), null, null);
-
-            Collection<PlateData> result = new ArrayList<PlateData>(
-                    plates.size());
-            for (IObject p : plates)
-                result.add((PlateData) PojoMapper.asDataObject(p));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load plates");
-        }
-
-        return Collections.emptyList();
+        return getPlates(ctx, -1);
     }
 
     /**
@@ -821,35 +841,15 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the screens to load
      * @return A collection of {@link PlateData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<PlateData> getPlates(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
-            return Collections.emptyList();
-        
-        try {
-            IContainerPrx service = gateway.getPojosService(ctx);
-
-            List<Long> idsList = new ArrayList<Long>(ids.size());
-            for (long id : ids)
-                idsList.add(id);
-
-            List<IObject> plates = service.loadContainerHierarchy(PojoMapper
-                    .getModelType(PlateData.class).getName(), idsList, null);
-
-            Collection<PlateData> result = new ArrayList<PlateData>(
-                    plates.size());
-            for (IObject p : plates)
-                result.add((PlateData) PojoMapper.asDataObject(p));
-
-            return result;
-        } catch (Throwable t) {
-            handleException(this, t, "Could not load plates");
-        }
-
-        return Collections.emptyList();
+        return getPlates(ctx, -1, ids);
     }
 
     /**
@@ -857,17 +857,23 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getPlates(SecurityContext)} )
      * @return A collection of {@link PlateData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId) throws DSOutOfServiceException, DSAccessException {
         try {
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
+            
             IContainerPrx service = gateway.getPojosService(ctx);
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
                     .getModelType(PlateData.class).getName(), null, param);
@@ -890,17 +896,20 @@ public class BrowseFacility extends Facility {
      * 
      * @param ctx
      *            The {@link SecurityContext}
-     * @param ownerId
-     *            The id of the user
+     * @param ownerId The id of the user (if <code><0</code> see
+     *            {@link #getPlates(SecurityContext, Collection)} )
      * @param ids
      *            The ids of the plates to load
      * @return A collection of {@link PlateData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public Collection<PlateData> getPlates(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -910,8 +919,11 @@ public class BrowseFacility extends Facility {
             for (long id : ids)
                 idsList.add(id);
 
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
             
             List<IObject> plates = service.loadContainerHierarchy(PojoMapper
                     .getModelType(PlateData.class).getName(), idsList, param);
@@ -934,11 +946,18 @@ public class BrowseFacility extends Facility {
      * @param ctx The {@link SecurityContext}
      * @param plateId The ID of the plate
      * @return A collection of {@link WellData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<WellData> getWells(SecurityContext ctx, long plateId) throws DSOutOfServiceException, DSAccessException {
         Collection<WellData> result = new ArrayList<WellData>();
+        
+        if (plateId < 0)
+            return result;
+        
         try {
             IQueryPrx proxy = gateway.getQueryService(ctx);
             StringBuilder sb = new StringBuilder();
@@ -974,8 +993,11 @@ public class BrowseFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getUserImages(SecurityContext ctx) throws DSOutOfServiceException, DSAccessException {
         try {
@@ -1008,8 +1030,11 @@ public class BrowseFacility extends Facility {
      * @param id
      *            The ids of the image to load
      * @return The {@link ImageData}
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public ImageData getImage(SecurityContext ctx, long id) throws DSOutOfServiceException, DSAccessException {
         return getImages(ctx, Collections.singleton(id)).iterator().next();
@@ -1025,8 +1050,11 @@ public class BrowseFacility extends Facility {
      * @param params
      *            Custom parameters, can be <code>null</code>
      * @return The {@link ImageData}
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public ImageData getImage(SecurityContext ctx, long id, ParametersI params) throws DSOutOfServiceException, DSAccessException {
         return getImages(ctx, Collections.singleton(id), params).iterator()
@@ -1041,8 +1069,11 @@ public class BrowseFacility extends Facility {
      * @param ids
      *            The ids of the images to load
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
@@ -1059,12 +1090,15 @@ public class BrowseFacility extends Facility {
      * @param params
      *            Custom parameters, can be <code>null</code>
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImages(SecurityContext ctx,
             Collection<Long> ids, ParametersI params) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -1089,6 +1123,41 @@ public class BrowseFacility extends Facility {
 
         return Collections.emptyList();
     }
+    
+    /**
+     * Get orphaned images for a certain user
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param userID
+     *            The id of the user
+     * @return See above.
+     */
+    public Collection<ImageData> getOrphanedImages(SecurityContext ctx,
+            long userID) {
+        try {
+            IQueryPrx svc = gateway.getQueryService(ctx);
+            StringBuilder sb = new StringBuilder();
+            sb.append("select img from Image as img ");
+            sb.append("left outer join fetch img.details.owner ");
+            sb.append("left outer join fetch img.pixels as pix ");
+            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("where not exists (select obl from "
+                    + "DatasetImageLink as obl where obl.child = img.id)");
+            sb.append(" and not exists (select ws from WellSample as "
+                    + "ws where ws.image = img.id)");
+            ParametersI param = new ParametersI();
+            if (userID >= 0) {
+                sb.append(" and img.details.owner.id = :userID");
+                param.addLong("userID", userID);
+            }
+            return PojoMapper.asDataObjects(svc.findAllByQuery(sb.toString(),
+                    param));
+        } catch (Throwable t) {
+            logError(this, "Could not load orphaned images", t);
+        }
+        return Collections.emptyList();
+    }
 
     /**
      * Loads the images for a particular user
@@ -1099,18 +1168,24 @@ public class BrowseFacility extends Facility {
      *            The id of the user
      * @param ids The image ids
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImages(SecurityContext ctx, long ownerId,
             Collection<Long> ids) throws DSOutOfServiceException, DSAccessException {
-        if (ids == null)
+        if (ids == null || ids.isEmpty())
             return Collections.emptyList();
         
         try {
-            ParametersI param = new ParametersI();
-            param.exp(omero.rtypes.rlong(ownerId));
-
+            ParametersI param = null;
+            if (ownerId >= 0) {
+                param = new ParametersI();
+                param.exp(omero.rtypes.rlong(ownerId));
+            }
+            
             List<Long> idsList = new ArrayList<Long>(ids.size());
             for (long id : ids)
                 idsList.add(id);
@@ -1141,12 +1216,15 @@ public class BrowseFacility extends Facility {
      * @param datasetIds
      *            The ids of the datasets
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImagesForDatasets(SecurityContext ctx,
             Collection<Long> datasetIds) throws DSOutOfServiceException, DSAccessException {
-        if (datasetIds == null)
+        if (datasetIds == null || datasetIds.isEmpty())
             return Collections.emptyList();
         
         try {
@@ -1176,12 +1254,15 @@ public class BrowseFacility extends Facility {
      * @param projectIds
      *            The ids of the projects
      * @return A collection of {@link ImageData}s
-     * @throws DSAccessException 
-     * @throws DSOutOfServiceException 
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<ImageData> getImagesForProjects(SecurityContext ctx,
             Collection<Long> projectIds) throws DSOutOfServiceException, DSAccessException {
-        if (projectIds == null)
+        if (projectIds == null || projectIds.isEmpty())
             return Collections.emptyList();
         
         try {

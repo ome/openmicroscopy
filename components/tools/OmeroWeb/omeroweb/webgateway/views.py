@@ -31,7 +31,7 @@ from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
-from marshal import imageMarshal, shapeMarshal
+from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
 
 try:
     from hashlib import md5
@@ -77,6 +77,13 @@ except:  # pragma: nocover
         import ImageDraw
     except:
         logger.error('No Pillow installed')
+
+try:
+    import numpy
+    numpyInstalled = True
+except ImportError:
+    logger.error('No numpy installed')
+    numpyInstalled = False
 
 
 def index(request):
@@ -648,6 +655,64 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
     img.save(rv, 'jpeg', quality=int(compression*100))
     jpeg = rv.getvalue()
     return HttpResponse(jpeg, content_type='image/jpeg')
+
+
+@login_required()
+def render_shape_mask(request, shapeId, conn=None, **kwargs):
+    """ Returns mask as a png (supports transparency) """
+
+    if not numpyInstalled:
+        raise NotImplementedError("numpy not installed")
+    params = omero.sys.Parameters()
+    params.map = {'id': rlong(shapeId)}
+    shape = conn.getQueryService().findByQuery(
+        "select s from Shape s where s.id = :id", params,
+        conn.SERVICE_OPTS)
+    if shape is None:
+        raise Http404("Shape ID: %s not found" % shapeId)
+    width = int(shape.getWidth().getValue())
+    height = int(shape.getHeight().getValue())
+    color = unwrap(shape.getFillColor())
+    fill = (255, 255, 0, 255)
+    if color is not None:
+        color = rgb_int2rgba(color)
+        fill = (color[0], color[1], color[2], int(color[3] * 255))
+    mask_packed = shape.getBytes()
+    # convert bytearray into something we can use
+    intarray = numpy.fromstring(mask_packed, dtype=numpy.uint8)
+    binarray = numpy.unpackbits(intarray)
+
+    # Couldn't get the 'proper' way of doing this to work,
+    # TODO: look at this again later. Faster than simple way below:
+    # E.g. takes ~2 seconds for 1984 x 1984 mask
+    # pixels = ""
+    # steps = len(binarray) / 8
+    # for i in range(steps):
+    #     b = binarray[i*8: (i+1)*8]
+    #     pixels += struct.pack("8B", b[0], b[1], b[2], b[3], b[4],
+    #                           b[5], b[6], b[7])
+    # for b in binarray:
+    #     pixels += struct.pack("1B", b)
+    # im = Image.frombytes("1", size=(width, height), data=pixels)
+
+    # Simple approach - Just set each pixel in turn
+    # E.g. takes ~12 seconds for 1984 x 1984 mask with most pixels '1'
+    # Or ~5 seconds for same size mask with most pixels "0"
+    img = Image.new("RGBA", size=(width, height), color=(0, 0, 0, 0))
+    x = 0
+    y = 0
+    for pix in binarray:
+        if pix == 1:
+            img.putpixel((x, y), fill)
+        x += 1
+        if x > width - 1:
+            x = 0
+            y += 1
+    rv = StringIO()
+    # return a png (supports transparency)
+    img.save(rv, 'png', quality=int(100))
+    png = rv.getvalue()
+    return HttpResponse(png, content_type='image/png')
 
 
 def _get_signature_from_request(request):
@@ -1877,7 +1942,8 @@ def full_viewer(request, iid, conn=None, **kwargs):
     """
 
     rid = getImgDetailsFromReq(request)
-    server_settings = request.session.get('server_settings', {})
+    server_settings = request.session.get('server_settings', {}) \
+                                     .get('viewer', {})
     interpolate = server_settings.get('interpolate_pixels', True)
     roiLimit = server_settings.get('roi_limit', 2000)
 
@@ -2092,7 +2158,8 @@ def archived_files(request, iid=None, conn=None, **kwargs):
 
     if len(files) == 1:
         orig_file = files[0]
-        rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+        rsp = ConnCleaningHttpResponse(
+            orig_file.getFileInChunks(buf=settings.CHUNK_SIZE))
         rsp.conn = conn
         rsp['Content-Length'] = orig_file.getSize()
         # ',' in name causes duplicate headers
@@ -2104,7 +2171,8 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         zipName = request.GET.get('zipname', image.getName())
 
         try:
-            zipName = zip_archived_files(images, temp, zipName)
+            zipName = zip_archived_files(images, temp, zipName,
+                                         buf=settings.CHUNK_SIZE)
 
             # return the zip or single file
             archivedFile_data = FileWrapper(temp)

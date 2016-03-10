@@ -45,13 +45,7 @@ from omero.conversions import Sym  # nopep8
 
 class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
 
-    try:
-        UNIT_VALUES = sorted(UnitsElectricPotential._enumerators.values())
-    except:
-        # TODO: this occurs on Ice 3.4 and can be removed
-        # once it has been dropped.
-        UNIT_VALUES = [x for x in sorted(UnitsElectricPotential._names)]
-        UNIT_VALUES = [getattr(UnitsElectricPotential, x) for x in UNIT_VALUES]
+    UNIT_VALUES = sorted(UnitsElectricPotential._enumerators.values())
     CONVERSIONS = dict()
     for val in UNIT_VALUES:
         CONVERSIONS[val] = dict()
@@ -895,6 +889,7 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettav"))  # nopep8
     CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Pow(10, 42), Sym("zettav"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ATTOVOLT"] = "aV"

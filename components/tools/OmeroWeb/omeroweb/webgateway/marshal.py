@@ -73,14 +73,13 @@ def imageMarshal(image, key=None, request=None):
         # ImageWrapper.getDataset() with shares in mind.
         # -- Tue Sep  6 10:48:47 BST 2011 (See #6660)
         parents = image.listParents()
-        if parents is not None:
-            for p in parents:
-                if p.OMERO_CLASS == 'Dataset':
-                    ds = p
-                elif p.OMERO_CLASS == 'WellSample':
-                    wellsample = p
-                    if wellsample.well is not None:
-                        well = wellsample.well
+        if parents is not None and len(parents) == 1:
+            if parents[0].OMERO_CLASS == 'Dataset':
+                ds = parents[0]
+            elif parents[0].OMERO_CLASS == 'WellSample':
+                wellsample = parents[0]
+                if wellsample.well is not None:
+                    well = wellsample.well
     except omero.SecurityViolation, e:
         # We're in a share so the Image's parent Dataset cannot be loaded
         # or some other permissions related issue has tripped us up.
@@ -150,8 +149,11 @@ def imageMarshal(image, key=None, request=None):
         and image.getObjectiveSettings().getObjective().getNominalMagnification() \
         or None
 
-    server_settings = request.session.get('server_settings',
-                                          {}) if request else {}
+    try:
+        server_settings = request.session.get('server_settings', {}) \
+                                         .get('viewer', {})
+    except:
+        server_settings = {}
     init_zoom = server_settings.get('initial_zoom_level', 0)
     if init_zoom < 0:
         init_zoom = levels + init_zoom
@@ -159,6 +161,17 @@ def imageMarshal(image, key=None, request=None):
     interpolate = server_settings.get('interpolate_pixels', True)
 
     try:
+        def pixel_size_in_microns(method):
+            try:
+                size = method('MICROMETER')
+                return size.getValue() if size else None
+            except:
+                logger.debug(
+                    'Unable to convert physical pixel size to microns',
+                    exc_info=True
+                )
+                return None
+
         rv.update({
             'interpolate': interpolate,
             'size': {'width': image.getSizeX(),
@@ -166,9 +179,9 @@ def imageMarshal(image, key=None, request=None):
                      'z': image.getSizeZ(),
                      't': image.getSizeT(),
                      'c': image.getSizeC()},
-            'pixel_size': {'x': image.getPixelSizeX(),
-                           'y': image.getPixelSizeY(),
-                           'z': image.getPixelSizeZ()},
+            'pixel_size': {'x': pixel_size_in_microns(image.getPixelSizeX),
+                           'y': pixel_size_in_microns(image.getPixelSizeY),
+                           'z': pixel_size_in_microns(image.getPixelSizeZ)},
             })
         if init_zoom is not None:
             rv['init_zoom'] = init_zoom
@@ -319,12 +332,24 @@ def stringToSvg(string):
 
 def rgb_int2css(rgbint):
     """
-    converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
+    converts a bin int number into css colour and alpha fraction.
+    E.g. -1006567680 to '#00ff00', 0.5
     """
     alpha = rgbint // 256 // 256 // 256 % 256
     alpha = float(alpha) / 256
     r, g, b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
     return "#%02x%02x%02x" % (r, g, b), alpha
+
+
+def rgb_int2rgba(rgbint):
+    """
+    converts a bin int number into (r, g, b, alpha) tuple.
+    E.g. 1694433280 to (255, 0, 0, 0.390625)
+    """
+    alpha = rgbint // 256 // 256 // 256 % 256
+    alpha = float(alpha) / 256
+    r, g, b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
+    return (r, g, b, alpha)
 
 
 def chgrpMarshal(conn, rsp):

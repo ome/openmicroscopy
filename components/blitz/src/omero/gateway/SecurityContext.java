@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -138,7 +138,7 @@ public class SecurityContext {
 
     /**
      * Set the compression level
-     * @param compression
+     * @param compression The compression ratio
      */
     public void setCompression(float compression) {
         this.compression = compression;
@@ -183,4 +183,13 @@ public class SecurityContext {
                 && Objects.equal(((SecurityContext) obj).getExperimenter(),
                         this.getExperimenter());
     }
+
+    @Override
+    public String toString() {
+        return "SecurityContext [groupID=" + groupID + ", experimenter="
+                + experimenter + ", sudo=" + sudo + ", serverInformation="
+                + serverInformation + ", compression=" + compression + "]";
+    }
+    
+    
 }

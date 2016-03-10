@@ -492,7 +492,7 @@ class GeneralPaneUI extends JPanel
             namePane.setVisible(!multi);
             idLabel.setVisible(!multi);
             propertiesTaskPane.setVisible(!multi);
-      
+            mapTaskPane.setVisible(!multi);
    
             revalidate();
         }

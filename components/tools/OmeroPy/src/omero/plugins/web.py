@@ -36,7 +36,7 @@ Example Nginx developer usage:
     omero config set omero.web.application_server.max_requests 1
     omero web config nginx-development --http=8000 >> nginx.conf
     nginx -c `pwd`/nginx.conf
-    omero web start --wsgi-args ' --reload'
+    omero web start
     omero web status
     omero web stop
     nginx -s stop
@@ -137,17 +137,11 @@ class WebControl(BaseControl):
 
         for x in (start, restart):
             x.add_argument(
-                "--workers", type=int, default=5,
-                help="NGINX only: the number of worker processes for handling "
-                     "requests.")
+                "--workers", type=int, help=SUPPRESS)
             x.add_argument(
-                "--worker-connections", type=int, default=1000,
-                help="NGINX only: the maximum number of simultaneous clients.")
+                "--worker-connections", type=int, help=SUPPRESS)
             x.add_argument(
-                "--wsgi-args", type=str, default="",
-                help=("NGINX only: additional arguments. "
-                      "Check Gunicorn Documentation"
-                      "http://docs.gunicorn.org/en/latest/settings.html"))
+                "--wsgi-args", type=str, help=SUPPRESS)
 
         #
         # Advanced
@@ -315,6 +309,18 @@ class WebControl(BaseControl):
                 d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
             except:
                 d["WEB_PREFIX"] = "/"
+            try:
+                d["PROCESSES"] = settings.WSGI_WORKERS
+            except:
+                d["PROCESSES"] = 5
+            try:
+                d["THREADS"] = settings.WSGI_THREADS
+            except:
+                d["THREADS"] = 1
+            try:
+                d["MAX_REQUESTS"] = settings.APPLICATION_SERVER_MAX_REQUESTS
+            except:
+                d["MAX_REQUESTS"] = 0
 
         d["FASTCGI_EXTERNAL"] = '%s:%s' % (
             settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
@@ -434,6 +440,56 @@ class WebControl(BaseControl):
             return False
         return True
 
+    # TODO: to be removed in 5.3
+    def _deprecated_args(self, args, settings):
+        d_args = {}
+        try:
+            d_args['wsgi_args'] = settings.WSGI_ARGS
+        except:
+            d_args['wsgi_args'] = args.wsgi_args or ""
+        if args.wsgi_args:
+            self.ctx.out(" `--wsgi-args` is deprecated and overwritten"
+                         " by `omero.web.wsgi_args`. ", newline=False)
+        try:
+            d_args['workers'] = settings.WSGI_WORKERS
+        except:
+            d_args['workers'] = args.workers
+        if args.workers:
+            self.ctx.out(" `--workers` is deprecated and overwritten"
+                         " by `omero.web.wsgi_workers`. ", newline=False)
+        try:
+            d_args['worker_conn'] = settings.WSGI_WORKER_CONNECTIONS
+        except:
+            d_args['worker_conn'] = args.worker_connections
+        if args.worker_connections:
+            self.ctx.out(" `--worker-connections` is deprecated and"
+                         " overwritten by"
+                         " `omero.web.wsgi_worker_connections`. ",
+                         newline=False)
+        return d_args
+
+    def _build_run_cmd(self, settings):
+        cmd = "gunicorn -D -p %(base)s/var/django.pid"
+        cmd += " --bind %(host)s:%(port)d"
+        cmd += " --workers %(workers)d "
+
+        if settings.WSGI_WORKER_CLASS == "sync":
+            cmd += " --threads %d" % settings.WSGI_THREADS
+        elif settings.WSGI_WORKER_CLASS == "gevent":
+            cmd += " --worker-connections %d" % \
+                settings.WSGI_WORKER_CONNECTIONS
+            cmd += " --worker-class %s " % settings.WSGI_WORKER_CLASS
+        else:
+            self.ctx.die(609,
+                         "[ERROR] Invalid omero.web.wsgi_worker_class %s" %
+                         settings.WSGI_WORKER_CLASS)
+
+        cmd += " --timeout %(timeout)d"
+        cmd += " --max-requests %(maxrequests)d"
+        cmd += " %(wsgi_args)s"
+        cmd += " omeroweb.wsgi:application"
+        return cmd
+
     @config_required
     def start(self, args, settings):
         self.collectstatic()
@@ -482,28 +538,27 @@ class WebControl(BaseControl):
             except ImportError:
                 self.ctx.err("[FAILED]")
                 self.ctx.die(690,
-                             "ERROR: FastCGI support was removed in "
+                             "[ERROR] FastCGI support was removed in "
                              "OMERO 5.2. Install Gunicorn and update "
                              "config.")
             try:
                 os.environ['SCRIPT_NAME'] = settings.FORCE_SCRIPT_NAME
             except:
                 pass
-            cmd = "gunicorn -D -p %(base)s/var/django.pid"
-            cmd += " --bind %(host)s:%(port)d"
-            cmd += " --workers %(workers)d "
-            cmd += " --worker-connections %(worker_conn)d"
-            cmd += " --max-requests %(maxrequests)d"
-            cmd += " %(wsgi_args)s"
-            cmd += " omeroweb.wsgi:application"
+
+            # wrap all deprecated args
+            d_args = self._deprecated_args(args, settings)
+            cmd = self._build_run_cmd(settings)
+
             runserver = (cmd % {
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT,
                 'maxrequests': settings.APPLICATION_SERVER_MAX_REQUESTS,
-                'workers': args.workers,
-                'worker_conn': args.worker_connections,
-                'wsgi_args': args.wsgi_args}).split()
+                'workers': d_args['workers'],
+                'timeout': settings.WSGI_TIMEOUT,
+                'wsgi_args': d_args['wsgi_args']
+            }).split()
             rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,

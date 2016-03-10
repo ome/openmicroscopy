@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.lens.lensComponent.java
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -41,6 +41,7 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 import omero.model.Length;
+import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
@@ -324,6 +325,8 @@ public class LensComponent
 	public void setXYPixelMicron(Length  x, Length y)
 	{
 		zoomWindow.setXYPixelMicron(x, y);
+        menu.setMicronsMenuEnabled(!x.getUnit().equals(UnitsLength.PIXEL)
+                && !y.getUnit().equals(UnitsLength.PIXEL));
 	}
 	
 	/**

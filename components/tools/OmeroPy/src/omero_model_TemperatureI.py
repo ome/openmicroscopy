@@ -45,13 +45,7 @@ from omero.conversions import Sym  # nopep8
 
 class TemperatureI(_omero_model.Temperature, UnitBase):
 
-    try:
-        UNIT_VALUES = sorted(UnitsTemperature._enumerators.values())
-    except:
-        # TODO: this occurs on Ice 3.4 and can be removed
-        # once it has been dropped.
-        UNIT_VALUES = [x for x in sorted(UnitsTemperature._names)]
-        UNIT_VALUES = [getattr(UnitsTemperature, x) for x in UNIT_VALUES]
+    UNIT_VALUES = sorted(UnitsTemperature._enumerators.values())
     CONVERSIONS = dict()
     for val in UNIT_VALUES:
         CONVERSIONS[val] = dict()
@@ -79,6 +73,7 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
         Add(Sym("r"), Rat(Int(-45967), Int(100)))  # nopep8
     CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.KELVIN] = \
         Mul(Rat(Int(5), Int(9)), Sym("r"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["CELSIUS"] = "°C"

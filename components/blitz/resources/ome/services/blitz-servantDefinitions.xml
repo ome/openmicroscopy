@@ -405,6 +405,7 @@
      <constructor-arg ref="ring"/>
      <constructor-arg ref="/OMERO/Pixels"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
+     <constructor-arg ref="resources"/>
   </bean>
 
   <!-- "Self"-factories -->
@@ -437,6 +438,15 @@
     <constructor-arg index="1" ref="roles"/>
     <constructor-arg index="2" ref="executor"/>
     <constructor-arg index="3" ref="statefulExecutor"/>
+  </bean>
+
+  <bean id="scheduledExecutorService" class="java.util.concurrent.ScheduledThreadPoolExecutor">
+      <constructor-arg value="16"/><!-- at most 16 pings at once -->
+  </bean>
+
+  <bean id="resources" class="omero.util.Resources">
+      <constructor-arg value="60"/><!-- ping every 60 seconds -->
+      <constructor-arg ref="scheduledExecutorService"/>
   </bean>
 
 </beans>
