@@ -366,10 +366,34 @@ def check_header(file_lines, quiet=False):
             break
     return len(lines)
 
+def parseMatlab(Parser):
+    """
+    Generates a doc page for the Matlab files.
+    """
+    files = [
+        'matlab/ConnectToOMERO.m',
+        'matlab/ReadData.m',
+        'matlab/RawDataAccess.m',
+        'matlab/WriteData.m',
+        'matlab/ROIs.m',
+        'matlab/DeleteData.m',
+        'matlab/RenderImages.m']
+    titles = [
+        'Connect to OMERO',
+        'Read data',
+        'Raw data access',
+        'Write data',
+        'ROIs',
+        'Delete data',
+        'Render Images']
+    parser = MatlabParser(handler)
+    parsefiles(parser, files, titles)
 
-if __name__ == "__main__":
-
-    pythonFiles = [
+def parsePython(Parser):
+    """
+    Generates a doc page for the Python files.
+    """
+    files = [
         'python/Connect_To_OMERO.py',
         'python/Read_Data.py',
         'python/Groups_Permissions.py',
@@ -385,13 +409,41 @@ if __name__ == "__main__":
         'Connect to OMERO',
         'Read data',
         'Groups and permissions',
-        'Raw data access', 'Write data',
+        'Raw data access',
+        'Write data',
         'OMERO tables',
         'ROIs',
         'Delete data',
         'Render Images',
         'Create Image',
         'Filesets - New in OMERO 5']
+    parser = PythonParser(handler)
+    parsefiles(parser, files, titles)
+
+def parseJava(Parser):
+    """
+    Generates a doc page for the Java files.
+    """
+    """
+    Generates a doc page for the Matlab files.
+    """
+    files = [
+        'java/src/training/ReadData.java']
+    titles = [
+        'Read data']
+    parser = JavaParser(handler)
+    parsefiles(parser, files, titles)
+
+def parsefiles(parser=Parser, files = [], titles = []):
+    '''
+    Parse the files
+    '''
+    for f, name in zip(files, titles):
+        read = open(f, 'r')
+        parser.parse(read, name)
+
+
+if __name__ == "__main__":
 
     if "--check_header" in sys.argv:
         for py in pythonFiles:
@@ -399,39 +451,10 @@ if __name__ == "__main__":
             check_header([x for x in open(py, "r")])
 
     else:
-        # handler = HTMLRenderer()
         handler = SphinxRenderer()
-
-        # parser.parse(sys.stdin)
-
-        print ("\n\n----------------------------------------"
-               "--------PYTHON------------------------------"
-               "-------------------------------\n\n")
-        parser = PythonParser(handler)
-        for f, name in zip(pythonFiles, titles):
-            read = open(f, 'r')
-            parser.parse(read, name)
-
-        matlabFiles = [
-            'matlab/ConnectToOMERO.m',
-            'matlab/ReadData.m',
-            'matlab/RawDataAccess.m',
-            'matlab/WriteData.m',
-            'matlab/ROIs.m',
-            'matlab/DeleteData.m',
-            'matlab/RenderImages.m']
-        mTitles = [
-            'Connect to OMERO',
-            'Read data',
-            'Raw data access',
-            'Write data',
-            'ROIs',
-            'Delete data',
-            'Render Images']
-        print ("\n\n----------------------------------------"
-               "--------MATLAB------------------------------"
-               "-------------------------------\n\n")
-        parser = MatlabParser(handler)
-        for f, name in zip(matlabFiles, mTitles):
-            read = open(f, 'r')
-            parser.parse(read, name)
+        if "matlab" in sys.argv:
+            parseMatlab(handler)
+        elif "java" in sys.argv:
+            parseJava(handler)
+        else:
+            parsePython(handler)
