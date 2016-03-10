@@ -551,13 +551,14 @@ Bash examples:
         self.ctx.set("tx.state", state)
         actions = []
         if not args.command:
-            path = "-"
             if args.file:
                 path = args.file
-            for line in fileinput.input([path]):
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    actions.append(self.parse(state, line=line))
+                for line in fileinput.input([path]):
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        actions.append(self.parse(state, line=line))
+            else:
+                self.ctx.die(100, "No command provided")
         else:
             if args.file:
                 self.ctx.err("Ignoring %s" % args.file)
