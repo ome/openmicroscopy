@@ -976,9 +976,13 @@ $(function() {
                 // use canLink, canDelete etc classes on each node to enable/disable right-click menu
 
                 var userId = WEBCLIENT.active_user_id,
-                    canCreate = (userId === WEBCLIENT.USER.id || userId === -1);
+                    canCreate = (userId === WEBCLIENT.USER.id || userId === -1),
+                    canLink = OME.nodeHasPermission(node, 'canLink');
 
-                if(canCreate) {
+
+                // Although not everything created here will go under selected node,
+                // we still don't allow creation if linking not allowed
+                if(canCreate && canLink) {
                     // Enable tag or P/D/I submenus created above
                     config["create"]["_disabled"] = false;
                     if (tagTree) {
@@ -1004,7 +1008,7 @@ $(function() {
                     }
                 }
 
-                if (OME.nodeHasPermission(node, 'canLink')) {
+                if (canLink) {
                     var to_paste = false,
                         buffer = this.get_buffer(),
                         parent_id = node.parent,
