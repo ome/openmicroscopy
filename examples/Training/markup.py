@@ -333,6 +333,19 @@ class MatlabParser(Parser):
         # self.addFilter(r'\*(.+?)\*', 'emphasis')
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
+class JavaParser(Parser):
+    """
+    A specific Parser that adds rules for Java
+    """
+    def __init__(self, handler):
+        Parser.__init__(self, handler)
+        self.addRule(SphinxSubtitleRule('*'))
+        self.addRule(SphinxCommentRule('*'))
+        self.addRule(CodeRule())
+
+        # self.addFilter(r'\*(.+?)\*', 'emphasis')
+        self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
+
 # Marker to find in the file to parse
 START_MARKER = "start-code"
 END_MARKER = "end-code"
