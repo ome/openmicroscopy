@@ -16,6 +16,10 @@
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 try
+%%
+% start-code
+%%
+
     % Initialize a client and a session using the ice.config file
     % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
@@ -331,7 +335,11 @@ try
             pa = wellSamples(j).getPlateAcquisition();
         end
     end
-    
+
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);

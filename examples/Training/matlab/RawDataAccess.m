@@ -18,6 +18,10 @@
 % Raw Data access
 
 try
+%%
+% start-code
+%%
+
     % Initialize a client and a session using the ice.config file
     % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
@@ -166,7 +170,11 @@ try
     store.getHypercube(offset, size, step);
     % close the store
     store.close();
-    
+
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);

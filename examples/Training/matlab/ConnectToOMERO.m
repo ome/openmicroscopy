@@ -17,6 +17,10 @@
 
 
 try
+%%
+% start-code
+%%
+
     %% Connect to a server
     % Use the ice.config file defined in the path
     client = loadOmero();
@@ -84,7 +88,10 @@ try
     sessionUnencrypted = unsecureClient.getSession();
     fprintf(1, 'Created encryted session for user %s (id: %g)\n',...
         userName, userId);
-    
+   
+%%
+% end-code
+%% 
 catch err
     client.closeSession();
     unsecureClient.closeSession();

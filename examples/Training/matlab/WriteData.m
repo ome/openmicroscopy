@@ -31,6 +31,10 @@ hasAnnotation = @(x, y) ismember(x.getId().getValue(),...
     arrayfun(@(t) t.getId().getValue(), y));
 
 try
+%%
+% start-code
+%%
+
     % Initialize a client and a session using the ice.config file
     % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
@@ -649,7 +653,11 @@ try
         screenId1, ns);
     xas = getScreenXmlAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(xa, xas), 'WriteData: Could not find annotation');
-    
+
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);

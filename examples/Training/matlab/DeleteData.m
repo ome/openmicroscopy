@@ -20,6 +20,10 @@
 % It is possible to delete Projects, datasets, images, ROIs etc and objects
 % linked to them depending on the specified options
 try
+%%
+% start-code
+%%
+
     % Initialize a client and a session using the ice.config file
     % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
@@ -96,7 +100,11 @@ try
     image = getImages(session, imageId);
     assert(isempty(image), 'OMERO:LoadMetadataAdvanced', 'Image not deleted');
     fprintf(1, 'Image %g deleted\n', imageId);
-    
+ 
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);

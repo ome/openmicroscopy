@@ -16,6 +16,10 @@
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 try
+%%
+% start-code
+%%
+
     % Create a connection
     [client, session] = loadOmero();
     p = parseOmeroProperties(client);
@@ -103,7 +107,11 @@ try
         figure;
         imshow(thumbnail, []);
     end
-    
+
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);
