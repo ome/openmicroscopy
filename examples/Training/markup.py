@@ -455,9 +455,9 @@ def parsefiles(parser=Parser, files = [], titles = []):
 if __name__ == "__main__":
 
     handler = SphinxRenderer()
-    if "matlab" in sys.argv:
+    if "--matlab" in sys.argv:
         parseMatlab(handler)
-    elif "java" in sys.argv:
+    elif "--java" in sys.argv:
         parseJava(handler)
     else:
         parsePython(handler)
