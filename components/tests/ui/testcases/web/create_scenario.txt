@@ -151,7 +151,16 @@ Test Container Creation Enabled
     Node Popup Menu Item Should Be Enabled      Dataset
     Node Popup Menu Item Should Be Enabled      Screen
     Node Popup Menu Item Should Be Enabled      Delete
+    Select Orphaned Images Section
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Enabled      Project
+    Node Popup Menu Item Should Be Enabled      Dataset
+    Node Popup Menu Item Should Be Enabled      Screen
+    Node Popup Menu Item Should Be Disabled     Delete
 
+    ${imageId}=                                 Select First Image
     Thumbnail Should Be Selected                ${imageId}
     ${imageNodeId}=                             Select Image By Id            ${imageId}
     # Using hot-key fails on jsTree 3 (worked OK previously)...

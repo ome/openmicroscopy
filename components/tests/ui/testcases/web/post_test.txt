@@ -36,10 +36,11 @@ Test Cut Paste Orphaned Image
     ${nodeId}                                   Select Orphaned Images Section
     ${imageId}                                  Select First Orphaned Image    
     Click Element                               id=cutButton
-    Wait Until Keyword Succeeds                 ${TIMEOUT}    ${INTERVAL}   Page Should Not Contain Element    xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
+    Page Should Contain Element                 xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
     ${dId}                                      Select First Dataset
     Click Element                               id=pasteButton    
     Dataset Should Contain Image                ${imageId}     ${dId}
+    Page Should Not Contain Element             xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
 
 Test Cut Paste Dataset
     [Documentation]     Create 2 Projects and a Dataset. Cut and Paste the Dataset.
