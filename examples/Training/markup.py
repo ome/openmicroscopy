@@ -425,9 +425,21 @@ def parseJava(Parser):
     Generates a doc page for the Matlab files.
     """
     files = [
-        'java/src/training/ReadData.java']
+        'java/src/training/ReadData.java',
+        'java/src/training/RawDataAccess.java',
+        'java/src/training/WriteData.java',
+        'java/src/training/ROIs.java',
+        'java/src/training/DeleteData.java',
+        'java/src/training/RenderImages.java',
+        'java/src/training/CreateImage.java']
     titles = [
-        'Read data']
+        'Read data',
+        'Raw data access',
+        'Write data',
+        'ROIs',
+        'Delete data',
+        'Render Images',
+        'Create Image']
     parser = JavaParser(handler)
     parsefiles(parser, files, titles)
 
