@@ -65,9 +65,12 @@ public class DeleteData
     
     private SecurityContext ctx;
 
+/**
+ * start-code
+ */
+
     /**
      * Creates an original file.
-     *
      * @return See above.
      * @throws Exception
      */
@@ -86,27 +89,23 @@ public class DeleteData
     
     /** 
      * Delete Image.
-     *
      * In the following example, we create an image and delete it.
      */
     private void deleteImage()
             throws Exception
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-        
         //First create an image.
         Image img = new ImageI();
         img.setName(omero.rtypes.rstring("image1"));
         img.setDescription(omero.rtypes.rstring("descriptionImage1"));
         img = (Image) dm.saveAndReturnObject(ctx, img);
-
         Response rsp = dm.deleteObject(ctx, img);
         System.err.println(rsp);
     }
 
     /** 
      * Delete File annotation.
-     *
      * In the following example, we create a file annotation, link it to a
      * dataset and delete the annotation.
      */
@@ -114,7 +113,6 @@ public class DeleteData
             throws Exception
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-        
         Dataset d = new DatasetI();
         d.setName(omero.rtypes.rstring("FileAnnotationDelete"));
         FileAnnotation fa = new FileAnnotationI();
@@ -122,11 +120,13 @@ public class DeleteData
         d.linkAnnotation(fa);
         d = (Dataset) dm.saveAndReturnObject(ctx, d);
         fa = (FileAnnotation) d.linkedAnnotationList().get(0);
-
-
         Response rsp = dm.deleteObject(ctx, fa);
         System.err.println(rsp);
     }
+
+/**
+ * end-code
+ */
 
     /**
      * Connects and invokes the various methods.

@@ -65,10 +65,13 @@ public class RawDataAccess
 	private Gateway gateway;
     
     private SecurityContext ctx;
-	
+
+/**
+ * start-code
+ */
+
 	/**
 	 * Loads the image.
-	 * 
 	 * @param imageID The id of the image to load.
 	 * @return See above.
 	 */
@@ -81,7 +84,6 @@ public class RawDataAccess
 	
 	/**
 	 * Retrieve a given plane. 
-	 * 
 	 * This is useful when you need the pixels intensity.
 	 */
 	private void retrievePlane()
@@ -93,7 +95,6 @@ public class RawDataAccess
 		int sizeZ = pixels.getSizeZ();
 		int sizeT = pixels.getSizeT();
 		int sizeC = pixels.getSizeC();
-		
         try {
             Plane2D p;
             for (int z = 0; z < sizeZ; z++) 
@@ -108,14 +109,12 @@ public class RawDataAccess
 	
 	/**
 	 * Retrieve a given tile.
-	 * 
 	 * This is useful when you need the pixels intensity.
 	 */
 	private void retrieveTile()
 		throws Exception
 	{
 	    RawDataFacility rdf = gateway.getFacility(RawDataFacility.class);
-	    
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		int sizeZ = pixels.getSizeZ();
@@ -140,16 +139,15 @@ public class RawDataAccess
 			throw new Exception("Cannot read the tiles", e);
 		} 
 	}
+
 	/**
 	 * Retrieve a given stack.
-	 * 
 	 * This is useful when you need the pixels intensity.
 	 */
 	private void retrieveStack()
 		throws Exception
 	{
 	    // TODO: Add method to RawDataFacility !
-	    
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		int sizeT = pixels.getSizeT();
@@ -173,14 +171,12 @@ public class RawDataAccess
 	
 	/**
 	 * Retrieve a given hypercube.
-	 * 
 	 * This is useful when you need the pixels intensity.
 	 */
 	private void retrieveHypercube()
 		throws Exception
 	{
 	    // TODO: Add method to RawDataFacility !
-	    
 		//To retrieve the image, see above.
 		PixelsData pixels = image.getDefaultPixels();
 		long pixelsId = pixels.getId();
@@ -190,14 +186,12 @@ public class RawDataAccess
 		for (int i = 0; i < n; i++) {
 			offset.add(i, 0);
 		}
-
 		List<Integer> size = new ArrayList<Integer>();
 		size.add(pixels.getSizeX());
 		size.add(pixels.getSizeY());
 		size.add(pixels.getSizeZ());
 		size.add(pixels.getSizeC());
 		size.add(pixels.getSizeT());
-
 		// indicate the step in each direction, step = 1, 
 		//will return values at index 0, 1, 2.
 		//step = 2, values at index 0, 2, 4 etc.
@@ -216,10 +210,12 @@ public class RawDataAccess
 			if (store != null) store.close();
 		}
 	}
-	
+
+/**
+ * end-code
+ */	
 	/**
 	 * Connects and invokes the various methods.
-	 * 
 	 * @param args The login credentials
 	 * @param imageId The image id
 	 */

@@ -74,10 +74,13 @@ public class RenderImages
 	private Gateway gateway;
     
     private SecurityContext ctx;
-	
+
+/**
+ * start-code
+ */
+
 	/**
 	 * Loads the image.
-	 * 
 	 * @param imageID The id of the image to load.
 	 * @return See above.
 	 */
@@ -128,7 +131,6 @@ public class RenderImages
 	
 	/**
 	 * Retrieves the thumbnails
-	 * 
 	 */
 	private void retrieveThumbnails()
 		throws Exception
@@ -156,10 +158,13 @@ public class RenderImages
 			if (store != null) store.close();
 		}
 	}
-	
+
+/**
+ * end-code
+ */
+
 	/**
 	 * Connects and invokes the various methods.
-	 * 
 	 * @param args The login credentials
 	 * @param imageId The image id
 	 */

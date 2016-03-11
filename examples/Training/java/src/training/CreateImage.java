@@ -84,10 +84,13 @@ public class CreateImage
 	private Gateway gateway;
     
     private SecurityContext ctx;
-	
+
+/**
+ * start-code
+ */
+
 	/**
 	 * Loads the image.
-	 * 
 	 * @param imageID The id of the image to load.
 	 * @return See above.
 	 */
@@ -106,7 +109,6 @@ public class CreateImage
 
 	/**
 	 * Returns a linearize version of the plane.
-	 * 
 	 * @param z The selected z-section.
 	 * @param t The selected timepoint.
 	 * @param sizeZ The number of z-sections.
@@ -125,7 +127,6 @@ public class CreateImage
 	
 	/**
 	 * Creates a new image with one channel from a source image.
-	 * 
 	 * @param info The information about the data to handle.
 	 */
 	private void CreateNewImage(long datasetID)
@@ -222,10 +223,13 @@ public class CreateImage
 			if (store != null) store.close();
 		}
 	}
-	
+
+/**
+ * end-code
+ */
+
 	/**
-	 * Connects and invokes the various methods.
-	 * 
+	 * Connects and invokes the various methods. 
 	 * @param args The login credentials
 	 * @param imageId The image id
 	 * @param datasetId The dataset id

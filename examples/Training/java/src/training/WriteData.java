@@ -108,8 +108,11 @@ public class WriteData
     private SecurityContext ctx;
 	
 	/**
+ 	 * start-code
+ 	 */
+
+	/**
 	 * Loads the image.
-	 * 
 	 * @param imageID The id of the image to load.
 	 * @return See above.
 	 */
@@ -122,24 +125,19 @@ public class WriteData
 	
 	/** 
 	 * Create a new dataset and link it to existing project.
-	 * 
 	 */
 	private void createNewDataset(long projectId)
 		throws Exception
 	{
 	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-	    
 		//Using IObject directly
 		Dataset dataset = new DatasetI();
 		dataset.setName(omero.rtypes.rstring("new Name 1"));
 		dataset.setDescription(omero.rtypes.rstring("new description 1"));
-		
 		//Using the pojo
 		DatasetData datasetData = new DatasetData();
 		datasetData.setName("new Name 2");
 		datasetData.setDescription("new description 2");
-		
-		
 		ProjectDatasetLink link = new ProjectDatasetLinkI();
 		link.setChild(dataset);
 		link.setParent(new ProjectI(projectId, false));
@@ -158,15 +156,12 @@ public class WriteData
 		throws Exception
 	{
 	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-	    
 		TagAnnotation tag = new TagAnnotationI();
 		tag.setTextValue(omero.rtypes.rstring("new tag 1"));
 		tag.setDescription(omero.rtypes.rstring("new tag 1"));
-		
 		//Using the pojo
 		TagAnnotationData tagData = new TagAnnotationData("new tag 2");
 		tagData.setTagDescription("new tag 2");
-		
 		ProjectAnnotationLink link = new ProjectAnnotationLinkI();
 		link.setChild(tag);
 		link.setParent(new ProjectI(projectId, false));
@@ -178,10 +173,8 @@ public class WriteData
 		r = dm.saveAndReturnObject(ctx, link);
 	}
 	
-	
 	/**
 	 * How to create a file annotation and link to an image. 
-	 * 
 	 * To attach a file to an object e.g. an image, few objects need to be created:
 	 * 1. an OriginalFile
 	 * 1 a FileAnnotation
@@ -191,14 +184,12 @@ public class WriteData
 		throws Exception
 	{
 	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-	    
 		// To retrieve the image see above.
 		File file = File.createTempFile("temp-file-name_", ".tmp"); 
 		String name = file.getName();
 		String absolutePath = file.getAbsolutePath();
 		String path = absolutePath.substring(0, 
 				absolutePath.length()-name.length());
-		
 		// create the original file object.
 		OriginalFile originalFile = new OriginalFileI();
 		originalFile.setName(omero.rtypes.rstring(name));
@@ -210,7 +201,6 @@ public class WriteData
 		originalFile.setMimetype(omero.rtypes.rstring(fileMimeType)); // or "application/octet-stream"
 		// now we save the originalFile object
 		originalFile = (OriginalFile) dm.saveAndReturnObject(ctx, originalFile);
-
 		// Initialize the service to load the raw data
 		RawFileStorePrx rawFileStore = null;
 		FileInputStream stream = null;
@@ -237,8 +227,6 @@ public class WriteData
 			if (stream != null) stream.close();
 			if (file != null) file.delete();
 		}
-		
-		
 		//now we have an original File in DB and raw data uploaded.
 		// We now need to link the Original file to the image using 
 		// the File annotation object. That's the way to do it.
@@ -246,10 +234,8 @@ public class WriteData
 		fa.setFile(originalFile);
 		fa.setDescription(omero.rtypes.rstring(description)); // The description set above e.g. PointsModel
 		fa.setNs(omero.rtypes.rstring(Setup.TRAINING_NS)); // The name space you have set to identify the file annotation.
-
 		// save the file annotation.
 		fa = (FileAnnotation) dm.saveAndReturnObject(ctx, fa);
-
 		// now link the image and the annotation
 		ImageAnnotationLink link = new ImageAnnotationLinkI();
 		link.setChild(fa);
@@ -261,7 +247,6 @@ public class WriteData
 	
 	/**
 	 * Load all the annotations with a given namespace linked to images.
-	 * 
 	 */
 	private void loadAnnotationsLinkedToImage()
 		throws Exception
@@ -320,8 +305,7 @@ public class WriteData
 	
 	/**
 	 * Returns the original file corresponding to the passed id.
-	 * 
-	 * @param id	The id identifying the file.
+	 * @param id The id identifying the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -338,6 +322,10 @@ public class WriteData
 				"where p.id = :id", param);
 	}
 	
+	/**
+ 	 * end-code
+ 	 */
+
 	/**
 	 * Connects and invokes the various methods.
 	 * 
