@@ -53,7 +53,6 @@ print "Permissions: %s (%s)" % (permission_names[perm_string], perm_string)
 projects = conn.listProjects()      # may include other users' data
 for p in projects:
     print p.getName(), "Owner: ", p.getDetails().getOwner().getFullName()
-
 # Will return None if Image is not in current group
 image = conn.getObject("Image", imageId)
 print "Image: ", image

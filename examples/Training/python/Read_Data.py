@@ -63,10 +63,8 @@ for project in conn.listProjects(my_expId):
 # in the current group would be returned.
 print "\nList Datasets:"
 print "=" * 50
-
 params = omero.sys.ParametersI()
 params.exp(conn.getUser().getId())  # only show current user's Datasets
-
 datasets = conn.getObjects("Dataset", params=params)
 for dataset in datasets:
     print_obj(dataset)

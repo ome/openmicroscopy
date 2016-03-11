@@ -63,7 +63,6 @@ if image.getObjectiveSettings():
 for ch in image.getChannels():
     print "Channel: ", ch.getLabel()
     logicalChannel = ch.getLogicalChannel()
-
     lightPath = logicalChannel.getLightPath()
     if lightPath is not None:
         lightPathDichroic = lightPath.getDichroic()
@@ -85,7 +84,6 @@ for ch in image.getChannels():
             tr = f.getTransmittanceRange()
             print "    Transmittance range: %s-%s " % (
                 tr.getCutIn(), tr.getCutOut())
-
     if logicalChannel.getDetectorSettings()._obj is not None:
         print "  Detector Settings:"
         dset = logicalChannel.getDetectorSettings()
@@ -100,7 +98,6 @@ for ch in image.getChannels():
             print "    Model: %s Gain: %s Voltage: %s Offset: %s" % (
                 det.getModel(), det.getGain(), det.getVoltage(),
                 det.getOffsetValue())
-
     lightSourceSettings = logicalChannel.getLightSourceSettings()
     if (lightSourceSettings is not None
             and lightSourceSettings._obj is not None):

@@ -35,10 +35,8 @@ conn.connect()
 # =================================================================
 from random import random
 tablename = "TablesDemo:%s" % str(random())
-
 col1 = omero.grid.LongColumn('Uid', 'testLong', [])
 col2 = omero.grid.StringColumn('MyStringColumnInit', '', 64, [])
-
 columns = [col1, col2]
 
 
@@ -81,7 +79,6 @@ conn.getUpdateService().saveAndReturnObject(link)
 # .. seealso:: :javadoc:` OMERO Tables <slice2html/omero/grid/Table.html>`
 
 openTable = conn.c.sf.sharedResources().openTable(orig_file)
-
 print "Table Columns:"
 for col in openTable.getHeaders():
     print "   ", col.name
@@ -107,7 +104,6 @@ start = 3
 stop = 7
 print "\nGet Data for cols: ", colNumbers,\
     " and between rows: ", start, "-", stop
-
 data = openTable.read(colNumbers, start, stop)
 for col in data.columns:
     print "Data for Column: ", col.name

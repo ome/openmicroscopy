@@ -77,7 +77,6 @@ project.linkAnnotation(mapAnn)
 # How to create a file annotation and link to a Dataset:
 # =================================================================
 dataset = conn.getObject("Dataset", datasetId)
-
 # Specify a local file e.g. could be result of some analysis
 fileToUpload = "README.txt"   # This file should already exist
 with open(fileToUpload, 'w') as f:
@@ -98,7 +97,6 @@ os.remove(fileToUpload)
 path = os.path.join(os.path.dirname(__file__), "download")
 if not os.path.exists(path):
     os.makedirs(path)
-
 # Go through all the annotations on the Dataset. Download any file annotations
 # we find.
 print "\nAnnotations on Dataset:", dataset.getName()
