@@ -22,19 +22,12 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -42,7 +35,9 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,43 +49,17 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
@@ -111,7 +80,9 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.FancyTextField;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
+import org.openmicroscopy.shoola.util.ui.SelectableMenu;
+import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
 
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
@@ -119,48 +90,43 @@ import omero.gateway.model.ROIData;
 import omero.gateway.util.Pojos;
 import omero.log.LogMessage;
 
-/** 
+/**
  * UI Component managing a Region of Interest.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:donald@lifesci.dundee.ac.uk"
+ *         >donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since OME3.0
  */
-class ObjectManager 
-	extends JPanel
-	implements TabPaneInterface
-{
-	
-	/** 
-	 * List of default column names.
-	 */
-	private static Vector<String>			COLUMN_NAMES;
-	
-	static {
-		COLUMN_NAMES = new Vector<String>(6);
-		COLUMN_NAMES.add("ROI");
-		COLUMN_NAMES.add(AnnotationDescription.ROIID_STRING);
-		COLUMN_NAMES.add(AnnotationDescription.ZSECTION_STRING);
-		COLUMN_NAMES.add(AnnotationDescription.TIME_STRING);
-		COLUMN_NAMES.add(AnnotationDescription.SHAPE_STRING);
-		COLUMN_NAMES.add(AnnotationDescription.annotationDescription.get(
-			AnnotationKeys.TEXT));
-		COLUMN_NAMES.add("Visible");
-	}
-	
-	/**
-	 * List of default column sizes. 
-	 */
-	private static Map<String, Integer> COLUMN_WIDTHS;
-	
-	static{
-		COLUMN_WIDTHS = new HashMap<String, Integer>();
+class ObjectManager extends JPanel implements TabPaneInterface {
+
+    /**
+     * List of default column names.
+     */
+    private static Vector<String> COLUMN_NAMES;
+
+    static {
+        COLUMN_NAMES = new Vector<String>(6);
+        COLUMN_NAMES.add("ROI");
+        COLUMN_NAMES.add(AnnotationDescription.ROIID_STRING);
+        COLUMN_NAMES.add(AnnotationDescription.ZSECTION_STRING);
+        COLUMN_NAMES.add(AnnotationDescription.TIME_STRING);
+        COLUMN_NAMES.add(AnnotationDescription.SHAPE_STRING);
+        COLUMN_NAMES.add(AnnotationDescription.annotationDescription
+                .get(AnnotationKeys.TEXT));
+        COLUMN_NAMES.add("Visible");
+    }
+
+    /**
+     * List of default column sizes.
+     */
+    private static Map<String, Integer> COLUMN_WIDTHS;
+
+    static {
+        COLUMN_WIDTHS = new HashMap<String, Integer>();
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(0), 180);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(1), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(2), 36);
@@ -168,79 +134,90 @@ class ObjectManager
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(4), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(5), 96);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(6), 36);
-	}
-	
-	/** Index to identify tab */
-	private final static int		INDEX = MeasurementViewerUI.MANAGER_INDEX;
+    }
 
-	/** The name of the panel. */
-	private static final String			NAME = "Manager";
-	
-	private static final String DEFAULT_FILTER_TEXT = "Filter ROI Folders...";
-	
-	/** The table hosting the ROI objects. */
-	private ROITable					objectsTable;
+    /** Index to identify tab */
+    private final static int INDEX = MeasurementViewerUI.MANAGER_INDEX;
 
-	/** Reference to the Model. */
-	private MeasurementViewerModel		model;
-	
-	/** Reference to the View. */
-	private MeasurementViewerUI 		view;
+    /** The name of the panel. */
+    private static final String NAME = "Manager";
 
-	/** Reference to the Model. */
+    private static final String DEFAULT_FILTER_TEXT = "Filter ROI Folders...";
+
+    /** The table hosting the ROI objects. */
+    private ROITable objectsTable;
+
+    /** Reference to the Model. */
+    private MeasurementViewerModel model;
+
+    /** Reference to the View. */
+    private MeasurementViewerUI view;
+
+    /** Reference to the Model. */
     private MeasurementViewerControl control;
 
+    /** The filter toolbar */
     private JToolBar bar;
-    
-    private JButton filterButton;
-    
-    private JTextField filterField;
-    
-    private JCheckBox showAllBox;
-    
-	/** 
-	 * The table selection listener attached to the table displaying the 
-	 * objects.
-	 */
-	private TreeSelectionListener		treeSelectionListener;
 
-	/** Initializes the components composing the display. */
-	private void initComponents()
-	{
-		ROINode root = new ROINode("root");
-	    objectsTable = new ROITable(new ROITableModel(root, COLUMN_NAMES), 
-	    		COLUMN_NAMES, this);
-	    objectsTable.setRootVisible(false);
-	    treeSelectionListener = new TreeSelectionListener()
-	    {
-			
-			public void valueChanged(TreeSelectionEvent e)
-			{
-				TreeSelectionModel tsm = objectsTable.getTreeSelectionModel();
-				if (tsm.isSelectionEmpty()) return;
-				int[] index = tsm.getSelectionRows();
-				if (index.length == 0) return;
-				if (index.length == 1)
-				{
-					ROINode node = (ROINode) objectsTable.getNodeAtRow(
-							objectsTable.getSelectedRow());
-					if (node == null) return;
-					Object nodeValue = node.getUserObject();
-					view.clearInspector();
-					if (nodeValue instanceof ROIShape) {
-					    view.selectFigure(((ROIShape) nodeValue).getFigure());
-					}
-					if(nodeValue instanceof FolderData) {
-					 // if folder is selected clear figure selection
-					    view.selectFigure(null);
-					}
-					int col = objectsTable.getSelectedColumn();
-					int row = objectsTable.getSelectedRow();
-					
-					if (row < 0 || col < 0) return;
-				}
-				else
-				{
+    /** The button for the popup menu */
+    private JButton filterButton;
+
+    /** The filter by name text field */
+    private JTextField filterField;
+
+    /** Show all check box */
+    private JCheckBox showAllBox;
+
+    /** The filter popup menu */
+    private JPopupMenu popupMenu;
+
+    /** References to all popup menu items */
+    Map<Long, Object> popupMenuItems = new HashMap<Long, Object>();
+
+    /** The ids of the visible folders (set via the filter popup menu) */
+    private Collection<Long> selectedFolders = null;
+
+    /**
+     * The table selection listener attached to the table displaying the
+     * objects.
+     */
+    private TreeSelectionListener treeSelectionListener;
+
+    /** Initializes the components composing the display. */
+    private void initComponents() {
+        ROINode root = new ROINode("root");
+        objectsTable = new ROITable(new ROITableModel(root, COLUMN_NAMES),
+                COLUMN_NAMES, this);
+        objectsTable.setRootVisible(false);
+        treeSelectionListener = new TreeSelectionListener() {
+
+            public void valueChanged(TreeSelectionEvent e) {
+                TreeSelectionModel tsm = objectsTable.getTreeSelectionModel();
+                if (tsm.isSelectionEmpty())
+                    return;
+                int[] index = tsm.getSelectionRows();
+                if (index.length == 0)
+                    return;
+                if (index.length == 1) {
+                    ROINode node = (ROINode) objectsTable
+                            .getNodeAtRow(objectsTable.getSelectedRow());
+                    if (node == null)
+                        return;
+                    Object nodeValue = node.getUserObject();
+                    view.clearInspector();
+                    if (nodeValue instanceof ROIShape) {
+                        view.selectFigure(((ROIShape) nodeValue).getFigure());
+                    }
+                    if (nodeValue instanceof FolderData) {
+                        // if folder is selected clear figure selection
+                        view.selectFigure(null);
+                    }
+                    int col = objectsTable.getSelectedColumn();
+                    int row = objectsTable.getSelectedRow();
+
+                    if (row < 0 || col < 0)
+                        return;
+                } else {
                     ROIShape shape;
                     for (int i = 0; i < index.length; i++) {
                         shape = objectsTable.getROIShapeAtRow(index[i]);
@@ -259,27 +236,25 @@ class ObjectManager
                             }
                         }
                     }
-				}
-			}
-		};
-	    
-	    objectsTable.addTreeSelectionListener(treeSelectionListener);
+                }
+            }
+        };
 
-	    ColumnFactory columnFactory = new ColumnFactory() {
+        objectsTable.addTreeSelectionListener(treeSelectionListener);
 
+        ColumnFactory columnFactory = new ColumnFactory() {
 
-	    	public void configureColumnWidths(JXTable table, 
-	    			TableColumnExt columnExt) 
-	    	{
-	    		columnExt.setPreferredWidth(
-	    				COLUMN_WIDTHS.get(columnExt.getHeaderValue()));
-	    	}
-	    };
-    	objectsTable.setHorizontalScrollEnabled(true);
-	    objectsTable.setColumnControlVisible(true);
-	    objectsTable.setColumnFactory(columnFactory);
-	    
-	    IconManager icons = IconManager.getInstance();
+            public void configureColumnWidths(JXTable table,
+                    TableColumnExt columnExt) {
+                columnExt.setPreferredWidth(COLUMN_WIDTHS.get(columnExt
+                        .getHeaderValue()));
+            }
+        };
+        objectsTable.setHorizontalScrollEnabled(true);
+        objectsTable.setColumnControlVisible(true);
+        objectsTable.setColumnFactory(columnFactory);
+
+        IconManager icons = IconManager.getInstance();
         bar = new JToolBar();
         bar.setFloatable(false);
         bar.setRollover(true);
@@ -289,7 +264,7 @@ class ObjectManager
         MouseAdapter adapter = new MouseAdapter() {
 
             /**
-             * Shows the menu corresponding to the display mode.
+             * Shows the popup menu
              */
             public void mousePressed(MouseEvent me) {
                 createFilterMenu((Component) me.getSource(), me.getPoint());
@@ -300,81 +275,381 @@ class ObjectManager
         filterButton.addMouseListener(adapter);
 
         filterField = new FancyTextField(DEFAULT_FILTER_TEXT, 50);
-        filterField.addPropertyChangeListener(FancyTextField.EDIT_PROPERTY, new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                filterFolders((String) evt.getNewValue());
-            }
-        });
-        
+        filterField.addPropertyChangeListener(FancyTextField.EDIT_PROPERTY,
+                new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        filterFolders((String) evt.getNewValue());
+                    }
+                });
+
         showAllBox = new JCheckBox("Show all ROI Folders");
         showAllBox.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 filterButton.setEnabled(!showAllBox.isSelected());
-                updateFolderView();
+                filterField.setEnabled(!showAllBox.isSelected());
+                showAll();
             }
         });
-	}
 
-	private void createFilterMenu(Component src, Point loc) {
-	    System.out.println("createFilterMenu");
-	}
-	
-	private void filterFolders(String text) {
-	    System.out.println("filterFolders "+text);
-	}
-	
-	private void updateFolderView() {
-	    boolean showAll = showAllBox.isSelected();
-	    System.out.println("updateFolderView showAll? "+showAll);
-	}
-	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
-	{
-		setLayout(new BorderLayout());
-		
-		bar.add(filterButton);
-		bar.add(filterField);
-		bar.add(showAllBox);
-		
-		add(bar, BorderLayout.NORTH);
-		add(new JScrollPane(objectsTable), BorderLayout.CENTER);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param view Reference to the view. Mustn't be <code>null</code>.
-	 * @param controller Reference to the control. Mustn't be <code>null</code>.
-	 * @param model Reference to the Model. Mustn't be <code>null</code>.
-	 */
-	ObjectManager(MeasurementViewerUI view, MeasurementViewerControl control,
-	        MeasurementViewerModel model)
-	{
-		if (view == null) throw new IllegalArgumentException("No view.");
-		if (model == null) throw new IllegalArgumentException("No model.");
-		if (control == null) throw new IllegalArgumentException("No control.");
-		this.view = view;
-		this.model = model;
-		this.control = control;
-		initComponents();
-		buildGUI();
-	}
-	
-    /** 
-     * Displays the menu at the specified location if not already visible.
+        popupMenu = new ScrollablePopupMenu();
+    }
+
+    /**
+     * Creates the filter popup menu
      * 
-     * @param x The x-coordinate of the mouse click.
-     * @param y The y-coordinate of the mouse click.
+     * @param src
+     *            The component which triggers the popup menu
+     * @param loc
+     *            The location where to show the popup menu
      */
-    void showROIManagementMenu(int x, int y)
-    {
-    	objectsTable.showROIManagementMenu(view.getDrawingView(), x, y);
+    private void createFilterMenu(Component src, Point loc) {
+        if (!src.isEnabled())
+            return;
+
+        popupMenu.removeAll();
+
+        popupMenuItems.clear();
+        List<Object> topLevelMenuItems = new ArrayList<Object>();
+
+        // As FolderData doesn't have references to children, start from the
+        // leaf nodes and work the way up to the top level of the hierarchy
+        for (FolderData folder : getLeafFolders(model.getFolders())) {
+            final SelectableMenuItem<FolderData> item = new SelectableMenuItem<FolderData>(
+                    selectedFolders == null
+                            || selectedFolders.contains(folder.getId()),
+                    folder.getName(), true);
+            item.setObject(folder);
+            item.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    String name = evt.getPropertyName();
+                    if (SelectableMenuItem.SELECTION_PROPERTY.equals(name)) {
+                        handleFolderSelection(item, item.isChecked());
+                    }
+                }
+            });
+
+            if (folder.getParentFolder() != null)
+                buildMenuBranch(folder, popupMenuItems, topLevelMenuItems, item);
+            else {
+                topLevelMenuItems.add(item);
+            }
+
+            popupMenuItems.put(folder.getId(), item);
+        }
+
+        Collections.sort(topLevelMenuItems, new Comparator<Object>() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                String name1 = "", name2 = "";
+                if (o1 instanceof SelectableMenu)
+                    name1 = ((SelectableMenu) o1).getText();
+                if (o1 instanceof SelectableMenuItem)
+                    name1 = ((SelectableMenuItem) o1).getText();
+                if (o2 instanceof SelectableMenu)
+                    name2 = ((SelectableMenu) o2).getText();
+                if (o2 instanceof SelectableMenuItem)
+                    name2 = ((SelectableMenuItem) o2).getText();
+
+                return name1.compareToIgnoreCase(name2);
+            }
+        });
+
+        for (Object obj : topLevelMenuItems) {
+            if (obj instanceof SelectableMenu)
+                popupMenu.add((SelectableMenu) obj);
+            if (obj instanceof SelectableMenuItem)
+                popupMenu.add((SelectableMenuItem) obj);
+        }
+
+        popupMenu.show(src, loc.x, loc.y);
     }
     
+    /**
+     * Recursively builds up the popup menu structure from bottom (leaves) to
+     * top.
+     * 
+     * @param folder
+     *            The current folder
+     * @param menuItems
+     *            A map of all menu items created so far
+     * @param topLevelMenuItems
+     *            A collection to gather the top level menu items (only these
+     *            have to added to the popup menu)
+     * @param item
+     *            The current menu item
+     */
+    private void buildMenuBranch(FolderData folder,
+            Map<Long, Object> menuItems, Collection<Object> topLevelMenuItems,
+            Object item) {
+
+        FolderData parent = folder.getParentFolder();
+        SelectableMenu<FolderData> parentItem = (SelectableMenu<FolderData>) menuItems
+                .get(parent.getId());
+
+        if (parentItem != null) {
+            // menu item for parent folder already exists, simply add the
+            // current menu item to it
+            if (item != null) {
+                if (item instanceof SelectableMenu)
+                    parentItem.add(
+                            (SelectableMenu) item,
+                            getInsertionsIndex(parentItem,
+                                    (SelectableMenu) item));
+                else if (item instanceof SelectableMenuItem)
+                    parentItem.add(
+                            (SelectableMenuItem) item,
+                            getInsertionsIndex(parentItem,
+                                    (SelectableMenuItem) item));
+            }
+        } else {
+            // menu item for the parent folder doesn't exist yet, create one and
+            // add the current menu item to it
+            final SelectableMenu tmp = new SelectableMenu<FolderData>(
+                    selectedFolders == null
+                            || selectedFolders.contains(parent.getId()),
+                    parent.getName(), true);
+            tmp.setObject(parent);
+            tmp.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    String name = evt.getPropertyName();
+                    if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
+                        handleFolderSelection(tmp, tmp.isMenuSelected());
+                    }
+                }
+            });
+            parentItem = tmp;
+            if (item != null) {
+                if (item instanceof SelectableMenu)
+                    parentItem.add(
+                            (SelectableMenu) item,
+                            getInsertionsIndex(parentItem,
+                                    (SelectableMenu) item));
+                else if (item instanceof SelectableMenuItem)
+                    parentItem.add(
+                            (SelectableMenuItem) item,
+                            getInsertionsIndex(parentItem,
+                                    (SelectableMenuItem) item));
+            }
+            menuItems.put(parent.getId(), parentItem);
+        }
+
+        if (parent.getParentFolder() != null)
+            // the parent has a parent folder itself, continue with recursion on
+            // next level
+            buildMenuBranch(parent, menuItems, topLevelMenuItems, parentItem);
+        else
+            // if not, the parent item is a top level menu item
+            topLevelMenuItems.add(parentItem);
+    }
+
+    /**
+     * Determines on which position of the menu the item has to be inserted in
+     * order to maintain an alphabetical order
+     * 
+     * @param menu
+     *            The target menu
+     * @param item
+     *            The new menu item
+     * @return See above.
+     */
+    private int getInsertionsIndex(SelectableMenu<FolderData> menu, Object item) {
+        String name = "";
+        if (item instanceof SelectableMenu)
+            name = ((SelectableMenu) item).getText();
+        else if (item instanceof SelectableMenuItem)
+            name = ((SelectableMenuItem) item).getText();
+
+        int i = 0;
+        for (; i < menu.getMenuComponentCount(); i++) {
+            Component c = menu.getMenuComponent(i);
+            String childName = "";
+            if (c instanceof SelectableMenu) {
+                SelectableMenu<FolderData> child = (SelectableMenu<FolderData>) c;
+                childName = child.getText();
+            }
+            if (c instanceof SelectableMenuItem) {
+                SelectableMenuItem<FolderData> child = (SelectableMenuItem<FolderData>) c;
+                childName = child.getText();
+            }
+            if (childName.compareToIgnoreCase(name) >= 0)
+                break;
+        }
+        return i;
+    }
+
+    /**
+     * Handles check/uncheck events of the filter popup menu
+     * 
+     * @param obj
+     *            The menu item which has been checked/unchecked
+     * @param isChecked
+     *            The flag if the item has been checked or unchecked
+     */
+    private void handleFolderSelection(Object obj, boolean isChecked) {
+        FolderData folder = null;
+        if (obj instanceof SelectableMenu)
+            folder = ((SelectableMenu<FolderData>) obj).getObject();
+        else if (obj instanceof SelectableMenuItem)
+            folder = ((SelectableMenuItem<FolderData>) obj).getObject();
+
+        if (selectedFolders == null) {
+            // no id filter has been used previously; create ids collection
+            // and add all folders as default (i.e. all folders visible)
+            selectedFolders = new HashSet<Long>();
+            for (FolderData f : getFolders()) {
+                selectedFolders.add(f.getId());
+            }
+        }
+
+        // Add or remove the selected folder to the visible folder ids,
+        // depending on if it has been checked or unchecked; propagate
+        // check/uncheck state to sub folders
+        if (isChecked) {
+            selectedFolders.add(folder.getId());
+            for (FolderData f : model.getFolders())
+                if (hasAncestor(f, folder.getId()))
+                    selectedFolders.add(f.getId());
+        } else {
+            selectedFolders.remove(folder.getId());
+            for (FolderData f : model.getFolders())
+                if (hasAncestor(f, folder.getId()))
+                    selectedFolders.remove(f.getId());
+        }
+
+        // Refresh the checkbox state of all menu items
+        for (Object item : popupMenuItems.values()) {
+            if (item instanceof SelectableMenu) {
+                SelectableMenu<FolderData> folderItem = (SelectableMenu<FolderData>) item;
+                folderItem.setMenuSelected(selectedFolders.contains(folderItem
+                        .getObject().getId()), false);
+            } else if (item instanceof SelectableMenuItem) {
+                SelectableMenuItem<FolderData> folderItem = (SelectableMenuItem<FolderData>) item;
+                folderItem.setChecked(selectedFolders.contains(folderItem
+                        .getObject().getId()), false);
+            }
+        }
+
+        // Set id filter on the table and refresh
+        objectsTable.setIDFilter(selectedFolders);
+        rebuildTable();
+    }
+
+    /**
+     * Checks if the specified folder has an ancestor with the given id
+     * 
+     * @param f
+     *            The Folder to check
+     * @param parentId
+     *            The potential parent id
+     * @return See above
+     */
+    private boolean hasAncestor(FolderData f, long parentId) {
+        if (f.getParentFolder() != null) {
+            if (f.getParentFolder().getId() == parentId)
+                return true;
+            else
+                return hasAncestor(f.getParentFolder(), parentId);
+        }
+        return false;
+    }
+
+    /**
+     * Determines which of the given Folders are leaf folders, i.e. don't have
+     * sub folders
+     * 
+     * @param folders
+     *            The collection of Folders to check
+     * @return The leaf folders
+     */
+    private Collection<FolderData> getLeafFolders(Collection<FolderData> folders) {
+        Map<Long, FolderData> result = new HashMap<Long, FolderData>();
+        // First consider all folders as leaf folders...
+        for (FolderData f : folders) {
+            result.put(f.getId(), f);
+        }
+
+        // ...then remove the parent folders
+        for (FolderData f : folders) {
+            if (f.getParentFolder() != null)
+                result.remove(f.getParentFolder().getId());
+        }
+
+        return result.values();
+    }
+
+    /**
+     * Propagate the filter by name text to the table and perform refresh.
+     * 
+     * @param text
+     *            The filter by name text
+     */
+    private void filterFolders(String text) {
+        objectsTable.setNameFilter(text);
+        rebuildTable();
+    }
+
+    /**
+     * Disable any filtering and show all folders
+     */
+    private void showAll() {
+        boolean showAll = showAllBox.isSelected();
+        objectsTable.setIgnoreFilters(showAll);
+        rebuildTable();
+    }
+
+    /** Builds and lays out the UI. */
+    private void buildGUI() {
+        setLayout(new BorderLayout());
+
+        bar.add(filterButton);
+        bar.add(filterField);
+        bar.add(showAllBox);
+
+        add(bar, BorderLayout.NORTH);
+        add(new JScrollPane(objectsTable), BorderLayout.CENTER);
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param view
+     *            Reference to the view. Mustn't be <code>null</code>.
+     * @param controller
+     *            Reference to the control. Mustn't be <code>null</code>.
+     * @param model
+     *            Reference to the Model. Mustn't be <code>null</code>.
+     */
+    ObjectManager(MeasurementViewerUI view, MeasurementViewerControl control,
+            MeasurementViewerModel model) {
+        if (view == null)
+            throw new IllegalArgumentException("No view.");
+        if (model == null)
+            throw new IllegalArgumentException("No model.");
+        if (control == null)
+            throw new IllegalArgumentException("No control.");
+        this.view = view;
+        this.model = model;
+        this.control = control;
+        initComponents();
+        buildGUI();
+    }
+
+    /**
+     * Displays the menu at the specified location if not already visible.
+     * 
+     * @param x
+     *            The x-coordinate of the mouse click.
+     * @param y
+     *            The y-coordinate of the mouse click.
+     */
+    void showROIManagementMenu(int x, int y) {
+        objectsTable.showROIManagementMenu(view.getDrawingView(), x, y);
+    }
+
     /** Rebuilds Tree */
     void rebuildTable() {
         TreeMap<Long, ROI> roiList = model.getROI();
@@ -396,266 +671,271 @@ class ObjectManager
         }
         objectsTable.collapseAll();
         objectsTable.expandFolders(expandedFolderIds);
-        objectsTable.setAutoCreateColumnsFromModel( false );
+        objectsTable.setAutoCreateColumnsFromModel(false);
     }
-	
-	/**
-	 * Returns the name of the component.
-	 * 
-	 * @return See above.
-	 */
-	String getComponentName() { return NAME; }
-	
-	/**
-	 * Returns the icon of the component.
-	 * 
-	 * @return See above.
-	 */
-	Icon getComponentIcon()
-	{
-		IconManager icons = IconManager.getInstance();
-		return icons.getIcon(IconManager.MANAGER);
-	}
-	
-	/**
-	 * Adds the collection of figures to the display.
-	 * 
-	 * @param l The collection of objects to add.
-	 */
-	void addFigures(Collection l)
-	{
-		Iterator i=l.iterator();
-		ROI roi;
-		Iterator<ROIShape> j;
-		while (i.hasNext())
-		{
-			roi = (ROI) i.next();
-			j = roi.getShapes().values().iterator();
-			while (j.hasNext())
-				objectsTable.addROIShape(j.next());
-		}
-	}
 
-	/**
-	 * Adds the collection of ROIShapes to the display.
-	 * 
-	 * @param shapeList The collection of ROIShapes to add.
-	 */
-	void addROIShapes(List<ROIShape> shapeList)
-	{
-	    objectsTable.initFolders(getFolders());
-		objectsTable.addROIShapeList(shapeList);
-	}
-	
-	/**
-	 * Selects the collection of figures.
-	 * 
-	 * @param l The collection of objects to select.
-	 * @param clear Pass <code>true</code> to clear the selection
-	 *            <code>false</code> otherwise.
-	 */
-	void setSelectedFigures(List<ROIShape> l, boolean clear)
-	{
-		Iterator<ROIShape> i = l.iterator();
-		TreeSelectionModel tsm = objectsTable.getTreeSelectionModel();
-		ROIFigure figure = null;
-		ROIShape shape;
-		if (clear) tsm.clearSelection();
-		objectsTable.removeTreeSelectionListener(treeSelectionListener);
-	
-		try 
-		{
-			while (i.hasNext()) 
-			{
-				shape = i.next();
-				figure = shape.getFigure();
-				objectsTable.selectROIShape(figure.getROIShape());
-			}
-			objectsTable.repaint();
-			if (figure != null)
-				objectsTable.scrollToROIShape(figure.getROIShape());
-		} 
-		catch (Exception e) {
-			MeasurementAgent.getRegistry().getLogger().info(this, 
-					"Figure selection "+e);
-		}
-		
-		objectsTable.addTreeSelectionListener(treeSelectionListener);
-	}
-	
-	/**
-	 * Removes the passed figure from the table.
-	 * 
-	 * @param figure The figure to remove.
-	 */
-	void removeFigure(ROIFigure figure)
-	{
-		if (figure == null) return;
-		objectsTable.removeROIShape(figure.getROIShape());
-		objectsTable.repaint();
-	}
-	
-	/**
-	 * Removes the passed figures from the table.
-	 * 
-	 * @param figures The figures to handle.
-	 */
-	void removeFigures(List<ROIFigure> figures)
-	{
-		if (figures == null || figures.size() == 0) return;
-		Iterator<ROIFigure> i = figures.iterator();
-		while (i.hasNext()) {
-			objectsTable.removeROIShape(i.next().getROIShape());
-		}
-		objectsTable.repaint();
-	}
-	
-	/**
-	 * Deletes the ROI shapes in the list.
-	 * 
-	 * @param shapeList see above.
-	 */
-	void deleteROIShapes(List<ROIShape> shapeList)
-	{
-		view.deleteROIShapes(shapeList);
-		this.rebuildTable();
-	}
-	
-	/** Resets the component.*/
-	void reset() { model.getROIComponent().reset(); }
-	
-	/**
-	 * Duplicates the ROI shapes in the list and belonging to the ROI with
-	 * id.
-	 * @param id see above.
-	 * @param shapeList see above.
-	 */
-	void duplicateROI(long id, List<ROIShape> shapeList)
-	{
-		view.duplicateROI(id, shapeList);
-		this.rebuildTable();
-	}
-	
-	/**
-	 * Calculates the statistics for the roi in the list.
-	 * 
-	 * @param shapeList The collection of shapes.
-	 */
-	void calculateStats(List<ROIShape> shapeList)
-	{
-		view.calculateStats(shapeList);
-	}
-	
-	/**
-	 * Merges the ROI shapes in the list and belonging to the ROI with
-	 * id in idList into a single new ROI. The ROI in the shape list should 
-	 * all be on separate planes.
-	 * 
-	 * @param idList see above. see above.
-	 * @param shapeList see above.
-	 */
-	void mergeROI(List<Long> idList, List<ROIShape> shapeList)
-	{
-		view.mergeROI(idList, shapeList);
-		this.rebuildTable();
-	}
-	
-	/**
-	 * Split the ROI shapes in the list and belonging to the ROI with
-	 * id into a single new ROI. The ROI in the shape list should 
-	 * all be on separate planes.
-	 * 
-	 * @param id see above. see above.
-	 * @param shapeList see above.
-	 */
-	void splitROI(long id, List<ROIShape> shapeList)
-	{
-		view.splitROI(id, shapeList);
-		this.rebuildTable();
-	}
-	
-	/** Repaints the table. */
-	void update() 
-	{ 
-		objectsTable.refresh();
-		objectsTable.invalidate(); 
-		objectsTable.repaint();
-	}
+    /**
+     * Returns the name of the component.
+     * 
+     * @return See above.
+     */
+    String getComponentName() {
+        return NAME;
+    }
 
-	/**
-	 * Shows the roi assistant for the roi.
-	 * 
-	 * @param roi see above.
-	 */
-	void propagateROI(ROI roi)
-	{
-		view.showROIAssistant(roi);
-	}
-	
-	/**
-	 * Display message in status bar. 
-	 * @param messageString see above.
-	 */
-	void showMessage(String messageString)
-	{
-		view.setStatus(messageString);
-	}
-	
-	/**
-	 * Display Ready message in status bar. 
-	 */
-	void showReadyMessage()
-	{
-		view.setReadyStatus();
-	}
-	
-	/** Invokes when new figures are selected. */
-	void onSelectedFigures()
-	{
-	    Collection<Object> tmp = new ArrayList<Object>();
-	    tmp.addAll(model.getSelectedFigures());
-		objectsTable.onSelection(tmp);
-	}
-	
-	/** 
-	 * Returns the selected figures.
-	 * 
-	 * @return See above.
-	 */
-	Collection<Figure> getSelectedFigures()
-	{
-		return model.getSelectedFigures();
-	}
-	
-	/**
-	 * Implemented as specified by the I/F {@link TabPaneInterface}
-	 * @see TabPaneInterface#getIndex()
-	 */
-	public int getIndex() { return INDEX; }
+    /**
+     * Returns the icon of the component.
+     * 
+     * @return See above.
+     */
+    Icon getComponentIcon() {
+        IconManager icons = IconManager.getInstance();
+        return icons.getIcon(IconManager.MANAGER);
+    }
 
-	/** Loads the tags.*/
-	void loadTags()
-	{
-	    control.loadTags();
-	}
-	
-	/**
-	 * Returns a collection of all figures selected
-	 * If a ROI is selected, all the figures hosted will that ROI will be
-	 * returned.
-	 * @return See above.
-	 */
-	Collection<Figure> getSelectedFiguresFromTables()
-	{
-	    Collection<Object> l = objectsTable.getSelectedObjects();
-        if (CollectionUtils.isEmpty(l)) return null;
+    /**
+     * Adds the collection of figures to the display.
+     * 
+     * @param l
+     *            The collection of objects to add.
+     */
+    void addFigures(Collection l) {
+        Iterator i = l.iterator();
+        ROI roi;
+        Iterator<ROIShape> j;
+        while (i.hasNext()) {
+            roi = (ROI) i.next();
+            j = roi.getShapes().values().iterator();
+            while (j.hasNext())
+                objectsTable.addROIShape(j.next());
+        }
+    }
+
+    /**
+     * Adds the collection of ROIShapes to the display.
+     * 
+     * @param shapeList
+     *            The collection of ROIShapes to add.
+     */
+    void addROIShapes(List<ROIShape> shapeList) {
+        objectsTable.initFolders(getFolders());
+        objectsTable.addROIShapeList(shapeList);
+    }
+
+    /**
+     * Selects the collection of figures.
+     * 
+     * @param l
+     *            The collection of objects to select.
+     * @param clear
+     *            Pass <code>true</code> to clear the selection
+     *            <code>false</code> otherwise.
+     */
+    void setSelectedFigures(List<ROIShape> l, boolean clear) {
+        Iterator<ROIShape> i = l.iterator();
+        TreeSelectionModel tsm = objectsTable.getTreeSelectionModel();
+        ROIFigure figure = null;
+        ROIShape shape;
+        if (clear)
+            tsm.clearSelection();
+        objectsTable.removeTreeSelectionListener(treeSelectionListener);
+
+        try {
+            while (i.hasNext()) {
+                shape = i.next();
+                figure = shape.getFigure();
+                objectsTable.selectROIShape(figure.getROIShape());
+            }
+            objectsTable.repaint();
+            if (figure != null)
+                objectsTable.scrollToROIShape(figure.getROIShape());
+        } catch (Exception e) {
+            MeasurementAgent.getRegistry().getLogger()
+                    .info(this, "Figure selection " + e);
+        }
+
+        objectsTable.addTreeSelectionListener(treeSelectionListener);
+    }
+
+    /**
+     * Removes the passed figure from the table.
+     * 
+     * @param figure
+     *            The figure to remove.
+     */
+    void removeFigure(ROIFigure figure) {
+        if (figure == null)
+            return;
+        objectsTable.removeROIShape(figure.getROIShape());
+        objectsTable.repaint();
+    }
+
+    /**
+     * Removes the passed figures from the table.
+     * 
+     * @param figures
+     *            The figures to handle.
+     */
+    void removeFigures(List<ROIFigure> figures) {
+        if (figures == null || figures.size() == 0)
+            return;
+        Iterator<ROIFigure> i = figures.iterator();
+        while (i.hasNext()) {
+            objectsTable.removeROIShape(i.next().getROIShape());
+        }
+        objectsTable.repaint();
+    }
+
+    /**
+     * Deletes the ROI shapes in the list.
+     * 
+     * @param shapeList
+     *            see above.
+     */
+    void deleteROIShapes(List<ROIShape> shapeList) {
+        view.deleteROIShapes(shapeList);
+        this.rebuildTable();
+    }
+
+    /** Resets the component. */
+    void reset() {
+        model.getROIComponent().reset();
+    }
+
+    /**
+     * Duplicates the ROI shapes in the list and belonging to the ROI with id.
+     * 
+     * @param id
+     *            see above.
+     * @param shapeList
+     *            see above.
+     */
+    void duplicateROI(long id, List<ROIShape> shapeList) {
+        view.duplicateROI(id, shapeList);
+        this.rebuildTable();
+    }
+
+    /**
+     * Calculates the statistics for the roi in the list.
+     * 
+     * @param shapeList
+     *            The collection of shapes.
+     */
+    void calculateStats(List<ROIShape> shapeList) {
+        view.calculateStats(shapeList);
+    }
+
+    /**
+     * Merges the ROI shapes in the list and belonging to the ROI with id in
+     * idList into a single new ROI. The ROI in the shape list should all be on
+     * separate planes.
+     * 
+     * @param idList
+     *            see above. see above.
+     * @param shapeList
+     *            see above.
+     */
+    void mergeROI(List<Long> idList, List<ROIShape> shapeList) {
+        view.mergeROI(idList, shapeList);
+        this.rebuildTable();
+    }
+
+    /**
+     * Split the ROI shapes in the list and belonging to the ROI with id into a
+     * single new ROI. The ROI in the shape list should all be on separate
+     * planes.
+     * 
+     * @param id
+     *            see above. see above.
+     * @param shapeList
+     *            see above.
+     */
+    void splitROI(long id, List<ROIShape> shapeList) {
+        view.splitROI(id, shapeList);
+        this.rebuildTable();
+    }
+
+    /** Repaints the table. */
+    void update() {
+        objectsTable.refresh();
+        objectsTable.invalidate();
+        objectsTable.repaint();
+    }
+
+    /**
+     * Shows the roi assistant for the roi.
+     * 
+     * @param roi
+     *            see above.
+     */
+    void propagateROI(ROI roi) {
+        view.showROIAssistant(roi);
+    }
+
+    /**
+     * Display message in status bar.
+     * 
+     * @param messageString
+     *            see above.
+     */
+    void showMessage(String messageString) {
+        view.setStatus(messageString);
+    }
+
+    /**
+     * Display Ready message in status bar.
+     */
+    void showReadyMessage() {
+        view.setReadyStatus();
+    }
+
+    /** Invokes when new figures are selected. */
+    void onSelectedFigures() {
+        Collection<Object> tmp = new ArrayList<Object>();
+        tmp.addAll(model.getSelectedFigures());
+        objectsTable.onSelection(tmp);
+    }
+
+    /**
+     * Returns the selected figures.
+     * 
+     * @return See above.
+     */
+    Collection<Figure> getSelectedFigures() {
+        return model.getSelectedFigures();
+    }
+
+    /**
+     * Implemented as specified by the I/F {@link TabPaneInterface}
+     * 
+     * @see TabPaneInterface#getIndex()
+     */
+    public int getIndex() {
+        return INDEX;
+    }
+
+    /** Loads the tags. */
+    void loadTags() {
+        control.loadTags();
+    }
+
+    /**
+     * Returns a collection of all figures selected If a ROI is selected, all
+     * the figures hosted will that ROI will be returned.
+     * 
+     * @return See above.
+     */
+    Collection<Figure> getSelectedFiguresFromTables() {
+        Collection<Object> l = objectsTable.getSelectedObjects();
+        if (CollectionUtils.isEmpty(l))
+            return null;
         Iterator i = l.iterator();
         Object o;
         ROI roi;
         ROIShape shape;
         List<Figure> list = new ArrayList<Figure>();
         while (i.hasNext()) {
-            o =  i.next();
+            o = i.next();
             if (o instanceof ROI) {
                 roi = (ROI) o;
                 list.addAll(roi.getAllFigures());
@@ -665,7 +945,7 @@ class ObjectManager
             }
         }
         return list;
-	}
+    }
 
     /**
      * Add ROIs to Folders
@@ -688,7 +968,7 @@ class ObjectManager
         }
         model.addROIsToFolder(allRois, selectedRois.values(), folders);
     }
-    
+
     /**
      * Move ROIs to Folders
      * 
@@ -710,7 +990,7 @@ class ObjectManager
         }
         model.moveROIsToFolder(allRois, selectedRois.values(), folders);
     }
-    
+
     /**
      * Find an {@link ROIData} within a collection by it's {@link ROI} uuid
      * 
@@ -729,7 +1009,7 @@ class ObjectManager
         }
         return null;
     }
-    
+
     /**
      * Delete Folders
      * 
@@ -740,7 +1020,7 @@ class ObjectManager
         saveROIs();
         model.deleteFolders(folders);
     }
-    
+
     /**
      * Removes ROIs from Folders
      * 
@@ -771,7 +1051,7 @@ class ObjectManager
         saveROIs();
         model.saveROIFolders(folders);
     }
-    
+
     /**
      * Checks if the current image is editable by the user
      * 
@@ -783,17 +1063,19 @@ class ObjectManager
         else
             return model.getImage().canEdit();
     }
-    
+
     /**
      * Get all available folders
+     * 
      * @return See above
      */
     Collection<FolderData> getFolders() {
         return model.getFolders();
     }
-    
+
     /**
      * Save ROIs if there are unsaved ROIs
+     * 
      * @return The saved ROIs
      */
     private Collection<ROIData> saveROIs() {
@@ -804,8 +1086,8 @@ class ObjectManager
                     .getUserDetails();
             OmeroImageService svc = reg.getImageService();
             try {
-                return svc.saveROI(model.getSecurityContext(), model.getImageID(),
-                        exp.getId(), roiList);
+                return svc.saveROI(model.getSecurityContext(),
+                        model.getImageID(), exp.getId(), roiList);
 
             } catch (Exception e) {
                 reg.getUserNotifier().notifyWarning("Could not save ROIs",
@@ -817,4 +1099,3 @@ class ObjectManager
         return Collections.EMPTY_LIST;
     }
 }
-
