@@ -20,7 +20,7 @@ from Parse_OMERO_Properties import datasetId, imageId, plateId
 start-code
 """
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()

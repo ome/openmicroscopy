@@ -28,14 +28,14 @@ imageId = int(imageId)
 start-code
 """
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 updateService = conn.getUpdateService()
 
 
-# Create ROI.
+# Create ROI:
 # =================================================================
 # We are using the core Python API and omero.model objects here, since ROIs
 # are not yet supported in the Python Blitz Gateway.
@@ -71,7 +71,7 @@ def rgbaToInt(red, green, blue, alpha=255):
     return int(RGBAInt)
 
 
-# create a rectangle shape (added to ROI below)
+# create a Rectangle shape (added to ROI below)
 print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
        " height: %s" % (theZ, theT, x, y, width, height))
 rect = omero.model.RectangleI()
@@ -197,7 +197,7 @@ points = [[10, 20], [50, 150], [200, 200], [250, 75]]
 polygon.points = rstring(pointsToString(points))
 createROI(image, [polygon])
 
-# Retrieve ROIs linked to an Image.
+# Retrieve ROIs linked to an Image:
 # =================================================================
 roiService = conn.getRoiService()
 result = roiService.findByImage(imageId, None)
@@ -248,7 +248,7 @@ for roi in result.rois:
         print ""
 
 
-# Remove shape from ROI
+# Remove shape from ROI:
 # =================================================================
 result = roiService.findByImage(imageId, None)
 for roi in result.rois:
@@ -260,7 +260,7 @@ for roi in result.rois:
             roi = updateService.saveAndReturnObject(roi)
 
 
-# Delete ROIs and all the Shapes they contain
+# Delete ROIs and all the Shapes they contain:
 # =================================================================
 roiToDelete = createROI(image, [rect])
 print "Deleting ROI:", roi.id.val

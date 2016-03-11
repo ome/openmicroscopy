@@ -19,19 +19,19 @@ from Parse_OMERO_Properties import imageId
 start-code
 """
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# We are logged in to our 'default' group
+# We are logged in to our 'default' group:
 # =================================================================
 group = conn.getGroupFromContext()
 print "Current group: ", group.getName()
 
 
-# Each group has defined Permissions set
+# Each group has defined Permissions set:
 # =================================================================
 group_perms = group.getDetails().getPermissions()
 perm_string = str(group_perms)
@@ -59,7 +59,7 @@ image = conn.getObject("Image", imageId)
 print "Image: ", image
 
 
-# In OMERO-4.4, we added 'cross-group' querying, use '-1'
+# In OMERO-4.4, we added 'cross-group' querying, use '-1':
 # =================================================================
 conn.SERVICE_OPTS.setOmeroGroup('-1')
 image = conn.getObject("Image", imageId)     # Will query across all my groups
@@ -69,8 +69,8 @@ if image is not None:
     print image.details.group.id.val    # access groupId without loading group
 
 
-# To query only a single group (not necessarily your 'current' group)
-# =================================================================
+# To query only a single group (not necessarily your 'current' group):
+# ====================================================================
 groupId = image.details.group.id.val
 # This is how we 'switch group' in webclient
 conn.SERVICE_OPTS.setOmeroGroup(groupId)

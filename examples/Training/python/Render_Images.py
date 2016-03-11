@@ -23,13 +23,13 @@ from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT, imageId
 start-code
 """
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Get thumbnail
+# Get thumbnail:
 # =================================================================
 # Thumbnail is created using the current rendering settings on the image
 print imageId
@@ -40,7 +40,7 @@ renderedThumb = Image.open(StringIO(img_data))
 renderedThumb.save("thumbnail.jpg")
 
 
-# Get current settings
+# Get current settings:
 # =================================================================
 print "Channel rendering settings:"
 for ch in image.getChannels():
@@ -54,7 +54,7 @@ print "Default Z/T positions:"
 print "    Z = %s, T = %s" % (image.getDefaultZ(), image.getDefaultT())
 
 
-# Show the saved rendering settings on this image
+# Show the saved rendering settings on this image:
 # =================================================================
 print "Rendering Defs on Image:"
 for rdef in image.getAllRenderingDefs():
@@ -63,7 +63,7 @@ for rdef in image.getAllRenderingDefs():
         rdef['id'], rdef['owner']['firstName'], rdef['owner']['lastName'])
 
 
-# Render each channel as a separate greyscale image
+# Render each channel as a separate greyscale image:
 # =================================================================
 image.setGreyscaleRenderingModel()
 sizeC = image.getSizeC()
@@ -77,11 +77,11 @@ for c in range(1, sizeC + 1):       # Channel index starts at 1
     renderedImage.save("channel%s.jpg" % c)     # save in the current folder
 
 
-# Turn 3 channels on, setting their colours
+# Turn 3 channels on, setting their colors:
 # =================================================================
 image.setColorRenderingModel()
 channels = [1, 2, 3]
-colorList = ['F00', None, 'FFFF00']  # do not change colour of 2nd channel
+colorList = ['F00', None, 'FFFF00']  # do not change color of 2nd channel
 image.setActiveChannels(channels, colors=colorList)
 # max intensity projection 'intmean' for mean-intensity
 image.setProjection('intmax')
@@ -91,7 +91,7 @@ renderedImage.save("all_channels.jpg")
 image.setProjection('normal')               # turn off projection
 
 
-# Turn 2 channels on, setting levels of the first one
+# Turn 2 channels on, setting levels of the first one:
 # =================================================================
 channels = [1, 2]
 rangeList = [[100.0, 120.2], [None, None]]
@@ -105,12 +105,12 @@ renderedImage.show()
 renderedImage.save("two_channels.jpg")
 
 
-# Save the current rendering settings & default Z/T
+# Save the current rendering settings and default Z/T:
 # =================================================================
 image.saveDefaults()
 
 
-# Reset to settings at import time, and optionally save
+# Reset to settings at import time, and optionally save:
 # =================================================================
 image.resetDefaults(save=True)
 

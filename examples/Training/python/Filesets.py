@@ -19,13 +19,13 @@ from Parse_OMERO_Properties import imageId
 start-code
 """
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Get the 'Fileset' for an Image
+# Get the 'Fileset' for an Image:
 # =================================================================
 # A Fileset is a collection of the original files imported to
 # create an image or set of images in OMERO.
@@ -42,7 +42,7 @@ for origFile in fileset.listFiles():
     print path, name
 
 
-# Get Original Imported Files directly from the image
+# Get Original Imported Files directly from the image:
 # =================================================================
 # this will include pre-FS data IF images were archived on import
 print image.countImportedImageFiles()
@@ -56,7 +56,7 @@ if fileCount > 0:
         print path, name
 
 
-# Can get the Fileset using conn.getObject()
+# Can get the Fileset using conn.getObject():
 # =================================================================
 fileset = conn.getObject("Fileset", fsId)
 

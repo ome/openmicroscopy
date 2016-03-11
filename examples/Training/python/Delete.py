@@ -21,13 +21,13 @@ from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 start-code
 """
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Create new Projects
+# Create new Projects:
 # =================================================================
 def createProject():
     project = omero.model.ProjectI()
@@ -41,7 +41,7 @@ projectId1 = createProject()
 projectId2 = createProject()
 
 
-# Delete Project
+# Delete Project:
 # =================================================================
 # You can delete a number of objects of the same type at the same
 # time. In this case 'Project'. Use deleteChildren=True if you are
@@ -54,7 +54,7 @@ conn.deleteObjects(
     deleteChildren=deleteChildren, wait=True)
 
 
-# Delete Project, handling response
+# Delete Project, handling response:
 # =================================================================
 # If you want to know when delete is finished or if there were
 # any errors, then we can use a callback to wait for response

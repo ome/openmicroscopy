@@ -20,13 +20,13 @@ start-code
 """
 
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Retrieve a given plane
+# Retrieve a given plane:
 # =================================================================
 # Use the pixelswrapper to retrieve the plane as
 # a 2D numpy array. See http://www.scipy.org/Tentative_NumPy_Tutorial
@@ -47,7 +47,7 @@ print "min:", plane.min(), " max:", plane.max(),\
     "pixel type:", plane.dtype.name
 
 
-# Retrieve a given stack
+# Retrieve a given stack:
 # =================================================================
 # Get a Z-stack of tiles. Using getTiles or getPlanes (see below) returns
 # a generator of data (not all the data in hand) The RawPixelsStore is
@@ -65,7 +65,7 @@ for i, p in enumerate(planes):
         " max:", p.max(), " sum:", p.sum()
 
 
-# Retrieve a given hypercube
+# Retrieve a given hypercube:
 # =================================================================
 zctList = []
 for z in range(sizeZ / 2, sizeZ):     # get the top half of the Z-stack

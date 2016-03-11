@@ -22,13 +22,13 @@ from Parse_OMERO_Properties import projectId
 start-code
 """
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Create a new Dataset
+# Create a new Dataset:
 # =================================================================
 datasetObj = omero.model.DatasetI()
 datasetObj.setName(rstring("New Dataset"))
@@ -37,7 +37,7 @@ datasetId = datasetObj.getId().getValue()
 print "New dataset, Id:", datasetId
 
 
-# Link to Project
+# Link to Project:
 # =================================================================
 project = conn.getObject("Project", projectId)
 if project is None:
@@ -50,7 +50,7 @@ link.setChild(datasetObj)
 conn.getUpdateService().saveObject(link)
 
 
-# Annotate Project with a new 'tag'
+# Annotate Project with a new 'tag':
 # =================================================================
 tagAnn = omero.gateway.TagAnnotationWrapper(conn)
 tagAnn.setValue("New Tag")
@@ -59,7 +59,7 @@ project = conn.getObject("Project", projectId)
 project.linkAnnotation(tagAnn)
 
 
-# Create a 'map' annotation (list of key: value pairs)
+# Create a 'map' annotation (list of key: value pairs):
 # =================================================================
 keyValueData = [["Drug Name", "Monastrol"],
                 ["Concentration", "5 mg/ml"]]
@@ -74,15 +74,14 @@ project = conn.getObject("Project", projectId)
 project.linkAnnotation(mapAnn)
 
 
-# How to create a file annotation and link to a Dataset
+# How to create a file annotation and link to a Dataset:
 # =================================================================
 dataset = conn.getObject("Dataset", datasetId)
 
-# Specify a local file. E.g. could be result of some analysis
+# Specify a local file e.g. could be result of some analysis
 fileToUpload = "README.txt"   # This file should already exist
 with open(fileToUpload, 'w') as f:
     f.write('annotation test')
-
 # create the original file and file annotation (uploads the file etc.)
 namespace = "imperial.training.demo"
 print "\nCreating an OriginalFile and FileAnnotation"
@@ -91,9 +90,9 @@ fileAnn = conn.createFileAnnfromLocalFile(
 print "Attaching FileAnnotation to Dataset: ", "File ID:", fileAnn.getId(), \
     ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
 dataset.linkAnnotation(fileAnn)     # link it to dataset.
-
 os.remove(fileToUpload)
-# Download a file annotation linked to a Dataset
+
+# Download a file annotation linked to a Dataset:
 # =================================================================
 # make a location to download the file. "download" folder.
 path = os.path.join(os.path.dirname(__file__), "download")
@@ -120,7 +119,7 @@ for ann in dataset.listAnnotations():
             print "File downloaded!"
 
 
-# Load all the file annotations with a given namespace
+# Load all the file annotations with a given namespace:
 # =================================================================
 nsToInclude = [namespace]
 nsToExclude = []
@@ -131,7 +130,7 @@ for ann in annotations:
     print ann.getId().getValue(), ann.file.name.val
 
 
-# Get first annotation with specified namespace
+# Get first annotation with specified namespace:
 # =================================================================
 ann = dataset.getAnnotation(namespace)
 print "Found Annotation with namespace: ", ann.getNs()

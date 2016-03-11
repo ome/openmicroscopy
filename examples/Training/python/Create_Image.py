@@ -19,13 +19,13 @@ from Parse_OMERO_Properties import imageId
 start-code
 """
 
-# Create a connection
+# Create a connection:
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Create an image from scratch
+# Create an image from scratch:
 # =================================================================
 # This example demonstrates the usage of the convenience method
 # createImageFromNumpySeq() Here we create a multi-dimensional image from a
@@ -56,7 +56,7 @@ i = conn.createImageFromNumpySeq(
 print 'Created new Image:%s Name:"%s"' % (i.getId(), i.getName())
 
 
-# Set the pixel size using units (new in 5.1.0)
+# Set the pixel size using units (new in 5.1.0):
 # =================================================================
 # Lengths are specified by value and a unit enumeration
 # Here we set the pixel size X and Y to be 9.8 Angstroms
@@ -71,7 +71,7 @@ p.setPhysicalSizeY(u)
 conn.getUpdateService().saveObject(p)
 
 
-# Create an Image from an existing image
+# Create an Image from an existing image:
 # =================================================================
 # We are going to create a new image by passing the method a 'generator' of 2D
 # planes This will come from an existing image, by taking the average of 2
