@@ -977,12 +977,13 @@ $(function() {
 
                 var userId = WEBCLIENT.active_user_id,
                     canCreate = (userId === WEBCLIENT.USER.id || userId === -1),
-                    canLink = OME.nodeHasPermission(node, 'canLink');
+                    canLink = OME.nodeHasPermission(node, 'canLink'),
+                    parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
 
 
                 // Although not everything created here will go under selected node,
                 // we still don't allow creation if linking not allowed
-                if(canCreate && canLink) {
+                if(canCreate && (canLink || parentAllowsCreate)) {
                     // Enable tag or P/D/I submenus created above
                     config["create"]["_disabled"] = false;
                     if (tagTree) {

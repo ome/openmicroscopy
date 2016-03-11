@@ -298,7 +298,7 @@
             // Also need all selected items to allow linking,
             // because new objects are sometimes linked under selected items
             canCreate = selected.reduce(function(prev, n){
-                var canLnk = (n.type === 'experimenter' || OME.nodeHasPermission(n, 'canLink'));
+                var canLnk = (n.type === 'experimenter' || n.type === 'orphaned' || OME.nodeHasPermission(n, 'canLink'));
                 return canLnk && prev;
             }, canCreate);
 
@@ -351,7 +351,7 @@
 
                 // Allow Copy of Dataset/Image/Plate if you 'canLink' all selected nodes
                 var canCopy = selected.reduce(function(prev, n){
-                    var childType = (["dataset", "image", "screen", "tag"].indexOf(n.type) > -1);
+                    var childType = (["dataset", "image", "plate", "tag"].indexOf(n.type) > -1);
                     return childType && OME.nodeHasPermission(n, 'canLink') && prev;
                 }, true);
                 toolbar_config['copy'] = canCopy;
