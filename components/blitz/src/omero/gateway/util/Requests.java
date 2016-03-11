@@ -37,7 +37,10 @@ import omero.cmd.Chown2;
 import omero.cmd.Delete2;
 import omero.cmd.DiskUsage;
 import omero.cmd.Duplicate;
+import omero.cmd.FindChildren;
+import omero.cmd.FindParents;
 import omero.cmd.GraphModify2;
+import omero.cmd.GraphQuery;
 import omero.cmd.SkipHead;
 import omero.cmd.graphs.ChildOption;
 import omero.model.Experimenter;
@@ -1923,13 +1926,13 @@ public class Requests {
     }
 
     /**
-     * A builder for {@link GraphModify2} instances.
+     * A builder for {@link GraphQuery} instances.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.2.3
      * @param <B> the type of the builder
      * @param <R> the type of the object to be built
      */
-    private static abstract class GraphModify2Builder<B extends GraphModify2Builder<B, R>, R extends GraphModify2>
+    private static abstract class GraphQueryBuilder<B extends GraphQueryBuilder<B, R>, R extends GraphQuery>
         extends Builder<R> {
 
         /*
@@ -1944,12 +1947,12 @@ public class Requests {
         private SetMultimap<String, Long> allTargets = HashMultimap.create();
 
         /**
-         * Initialize a new {@link GraphModify2}'s collection containers.
+         * Initialize a new {@link GraphQuery}'s collection containers.
+         * @param assembly the new instance to assemble
          */
-        GraphModify2Builder(R assembly) {
+        GraphQueryBuilder(R assembly) {
             super(assembly);
             assembly.targetObjects = new HashMap<String, List<Long>>();
-            assembly.childOptions = new ArrayList<ChildOption>();
         }
 
         /**
@@ -2033,28 +2036,6 @@ public class Requests {
             return (B) this;
         }
 
-        /**
-         * @param options child options for this operation, does not overwrite previous calls
-         * @return this builder, for method chaining
-         */
-        @SuppressWarnings("unchecked")
-        public B option(Iterable<ChildOption> options) {
-            for (final ChildOption option : options) {
-                assembly.childOptions.add(option);
-            }
-            return (B) this;
-        }
-
-        /**
-         * @param dryRun if this operation is a dry run, does overwrite previous calls
-         * @return this builder, for method chaining
-         */
-        @SuppressWarnings("unchecked")
-        public B dryRun(boolean dryRun) {
-            assembly.dryRun = dryRun;
-            return (B) this;
-        }
-
         /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
@@ -2082,6 +2063,52 @@ public class Requests {
         public B id(Long... ids) {
             return id(Arrays.asList(ids));
         }
+    }
+
+    /**
+     * A builder for {@link GraphModify2} instances.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.2.3
+     * @param <B> the type of the builder
+     * @param <R> the type of the object to be built
+     */
+    private static abstract class GraphModify2Builder<B extends GraphModify2Builder<B, R>, R extends GraphModify2>
+        extends GraphQueryBuilder<B, R> {
+
+        /**
+         * Initialize a new {@link GraphModify2}'s collection containers.
+         * @param assembly the new instance to assemble
+         */
+        GraphModify2Builder(R assembly) {
+            super(assembly);
+            assembly.childOptions = new ArrayList<ChildOption>();
+        }
+
+        /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
+
+        /**
+         * @param options child options for this operation, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        @SuppressWarnings("unchecked")
+        public B option(Iterable<ChildOption> options) {
+            for (final ChildOption option : options) {
+                assembly.childOptions.add(option);
+            }
+            return (B) this;
+        }
+
+        /**
+         * @param dryRun if this operation is a dry run, does overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        @SuppressWarnings("unchecked")
+        public B dryRun(boolean dryRun) {
+            assembly.dryRun = dryRun;
+            return (B) this;
+        }
+
+        /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
 
         /**
          * @param options child options for this operation, does not overwrite previous calls
@@ -2340,6 +2367,168 @@ public class Requests {
             return ignoreType(Arrays.asList(types));
         }
     }
+
+    /**
+     * A builder for {@link FindParents} instances.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.2.3
+     */
+    public static class FindParentsBuilder extends GraphQueryBuilder<FindParentsBuilder, FindParents> {
+
+        /**
+         * Instantiate a new {@link FindParents} and initialize its collection containers.
+         */
+        public FindParentsBuilder() {
+            super(new FindParents());
+            assembly.typesOfParents = new ArrayList<String>();
+            assembly.stopBefore = new ArrayList<String>();
+        }
+
+        /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
+
+        /**
+         * @param types the types of parents to find, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public FindParentsBuilder parentType(Iterable<String> types) {
+            for (final String type : types) {
+                assembly.typesOfParents.add(type);
+            }
+            return this;
+        }
+
+        /**
+         * @param types the types of parents to find, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public final FindParentsBuilder parentType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
+            for (final Class<? extends IObject> type : types) {
+                assembly.typesOfParents.add(getModelClassName(type));
+            }
+            return this;
+        }
+
+        /**
+         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public FindParentsBuilder stopBefore(Iterable<String> types) {
+            for (final String type : types) {
+                assembly.stopBefore.add(type);
+            }
+            return this;
+        }
+
+        /**
+         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public final FindParentsBuilder stopBefore(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
+            for (final Class<? extends IObject> type : types) {
+                assembly.stopBefore.add(getModelClassName(type));
+            }
+            return this;
+        }
+
+        /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
+
+        /**
+         * @param types the types of parents to find, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public FindParentsBuilder parentType(String... types) {
+            return parentType(Arrays.asList(types));
+        }
+
+        /**
+         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public FindParentsBuilder stopBefore(String... types) {
+            return stopBefore(Arrays.asList(types));
+        }
+    }
+
+    /**
+     * A builder for {@link FindChildren} instances.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.2.3
+     */
+    public static class FindChildrenBuilder extends GraphQueryBuilder<FindChildrenBuilder, FindChildren> {
+
+        /**
+         * Instantiate a new {@link FindChildren} and initialize its collection containers.
+         */
+        public FindChildrenBuilder() {
+            super(new FindChildren());
+            assembly.typesOfChildren = new ArrayList<String>();
+            assembly.stopBefore = new ArrayList<String>();
+        }
+
+        /* PROPERTY SETTERS THAT ACT DIRECTLY ON THE INSTANCE BEING ASSEMBLED */
+
+        /**
+         * @param types the types of children to find, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public FindChildrenBuilder childType(Iterable<String> types) {
+            for (final String type : types) {
+                assembly.typesOfChildren.add(type);
+            }
+            return this;
+        }
+
+        /**
+         * @param types the types of children to find, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public final FindChildrenBuilder childType(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
+            for (final Class<? extends IObject> type : types) {
+                assembly.typesOfChildren.add(getModelClassName(type));
+            }
+            return this;
+        }
+
+        /**
+         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public FindChildrenBuilder stopBefore(Iterable<String> types) {
+            for (final String type : types) {
+                assembly.stopBefore.add(type);
+            }
+            return this;
+        }
+
+        /**
+         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public final FindChildrenBuilder stopBefore(@SuppressWarnings("unchecked") Class<? extends IObject>... types) {
+            for (final Class<? extends IObject> type : types) {
+                assembly.stopBefore.add(getModelClassName(type));
+            }
+            return this;
+        }
+
+        /* PROPERTY SETTERS THAT SIMPLY WRAP USAGE OF THE ABOVE SETTERS */
+
+        /**
+         * @param types the types of children to find, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public FindChildrenBuilder childType(String... types) {
+            return childType(Arrays.asList(types));
+        }
+
+        /**
+         * @param types the types to exclude from the search, does not overwrite previous calls
+         * @return this builder, for method chaining
+         */
+        public FindChildrenBuilder stopBefore(String... types) {
+            return stopBefore(Arrays.asList(types));
+        }
+}
 
     /**
      * A builder for {@link SkipHead} instances.
@@ -2609,6 +2798,20 @@ public class Requests {
      */
     public static DuplicateBuilder duplicate() {
         return new DuplicateBuilder();
+    }
+
+    /**
+     * @return a new {@link FindParents} builder
+     */
+    public static FindParentsBuilder findParents() {
+        return new FindParentsBuilder();
+    }
+
+    /**
+     * @return a new {@link FindChildren} builder
+     */
+    public static FindChildrenBuilder findChildren() {
+        return new FindChildrenBuilder();
     }
 
     /**
