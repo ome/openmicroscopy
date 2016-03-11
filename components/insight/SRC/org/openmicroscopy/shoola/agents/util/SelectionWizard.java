@@ -492,6 +492,9 @@ public class SelectionWizard
             if (CommonsLangUtils.isEmpty(name))
                 return;
             String description = descriptionField.getText();
+            if (DEFAULT_DESCRIPTION.equals(description)) {
+                description = null;
+            }
             FolderData folder = new FolderData();
             folder.setName(name);
             folder.setDescription(description);

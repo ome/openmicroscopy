@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Point;
+import java.awt.dnd.DnDConstants;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -42,14 +44,19 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import javax.swing.DropMode;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.MouseInputListener;
+import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
+
+
 
 
 //Third-party libraries
@@ -62,6 +69,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionContr
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.TableRowTransferHandler;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
@@ -127,6 +135,12 @@ public class ROITable
 	
 	/** Holds the previously used selection, used for resetting the selection */
 	private int[] previousSelectionIndices;
+	
+    /**
+     * Reference to folders which have been recently modified (ROIs
+     * added/removed)
+     */
+    private Collection<FolderData> recentlyModifiedFolders = new ArrayList<FolderData>();
 	
 	/**
 	 * The type of objects selected
@@ -229,6 +243,15 @@ public class ROITable
 		popupMenu = new ROIPopupMenu(this);
 		reset = false;
 		
+	    setColumnSelectionAllowed(false);
+	    setRowSelectionAllowed(true);
+		
+	    // enable DnD
+	    setUI(new CustomTableUI());
+		setDragEnabled(true);
+        setDropMode(DropMode.ON);
+        setTransferHandler(new TableRowTransferHandler(this));
+
 		// make sure either shapes or folders can be selected, not both
         selectionModel.addListSelectionListener(new ListSelectionListener() {
             boolean active = true;
@@ -354,7 +377,35 @@ public class ROITable
 	{
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 	}
-	
+
+    /**
+     * Get the IDs of all expanded (leaf) folders
+     * 
+     * @return See above
+     */
+    Set<Long> getExpandedFolders() {
+        Set<Long> result = new HashSet<Long>();
+        for (ROINode node : nodes) {
+            if (node.isExpanded() && node.isFolderNode())
+                result.add(((FolderData) node.getUserObject()).getId());
+        }
+        return result;
+    }
+
+    /**
+     * Expand the Folder with the given IDs
+     * 
+     * @param ids
+     *            The folder IDs
+     */
+    void expandFolders(Collection<Long> ids) {
+        for (ROINode node : nodes) {
+            if (node.isFolderNode()
+                    && ids.contains(((FolderData) node.getUserObject()).getId()))
+                expandPath(node.getPath());
+        }
+    }
+    
 	/** Clears the table. */
 	void clear()
 	{
@@ -363,6 +414,7 @@ public class ROITable
 			root.remove(0);
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 		this.nodes.clear();
+		this.recentlyModifiedFolders.clear();
 		this.invalidate();
 		this.repaint();
 	}
@@ -711,15 +763,18 @@ public class ROITable
     }
     
     /**
-     * Adds the node to the parent; will create the parent hierarchy
-     * if it doesn't exist yet.
-     * @param node The Node
+     * Adds the node to the parent; will create the parent hierarchy if it
+     * doesn't exist yet.
+     * 
+     * @param node
+     *            The Node
      */
     void handleParentFolderNodes(ROINode node) {
         FolderData parentFolder = ((FolderData) node.getUserObject())
                 .getParentFolder();
         if (parentFolder == null) {
-            root.insert(node, 0);
+            root.insert(node,
+                    root.getInsertionPoint((FolderData) node.getUserObject()));
             return;
         }
 
@@ -730,7 +785,8 @@ public class ROITable
             parent.insert(node, 0);
             handleParentFolderNodes(parent);
         } else if (parent.findChild((FolderData) node.getUserObject()) == null) {
-            parent.insert(node, 0);
+            parent.insert(node,
+                    parent.getInsertionPoint((FolderData) node.getUserObject()));
         }
     }
     
@@ -1182,11 +1238,8 @@ public class ROITable
     public void addToFolder() {
         action = CreationActionType.ADD_TO_FOLDER;
         Collection<Object> tmp = new ArrayList<Object>();
-        for(FolderData folder : manager.getFolders()) {
-            ROINode folderNode = getFolderNode(folder);
-            if((folderNode.isLeaf() || folderNode.containsROIs()) && folder.canLink())
+        for(FolderData folder : manager.getFolders()) 
                 tmp.add(folder);
-        }
         SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
         wiz.setTitle("Add to ROI Folders", "Select the Folders to add the ROI(s) to", IconManager.getInstance().getIcon(IconManager.ROIFOLDER));
         wiz.addPropertyChangeListener(this);
@@ -1265,9 +1318,7 @@ public class ROITable
 
         Collection<DataObject> tmp = new ArrayList<DataObject>();
         for (FolderData folder : manager.getFolders()) {
-            ROINode folderNode = getFolderNode(folder);
-            if (!excludeIds.contains(folder.getId()) && folder.canLink()
-                    && (folderNode.isLeaf() || folderNode.containsFolders()))
+            if (!excludeIds.contains(folder.getId()) && folder.canLink())
                 tmp.add(folder);
         }
 
@@ -1275,6 +1326,14 @@ public class ROITable
                 "Move to selected Folder:", true);
         d.addPropertyChangeListener(this);
         UIUtilities.centerAndShow(d);
+    }
+    
+    /**
+     * Get the Folders which have been modified recently (by an add to/remove
+     * from folder action)
+     */
+    Collection<FolderData> getRecentlyModifiedFolders() {
+        return recentlyModifiedFolders;
     }
 
     @Override
@@ -1304,6 +1363,8 @@ public class ROITable
             if (folders == null)
                 return;
 
+            recentlyModifiedFolders.addAll(folders);
+            
             if (action==CreationActionType.ADD_TO_FOLDER) {
                 manager.addRoisToFolder(selectedObjects, folders);
             } else if(action==CreationActionType.REMOVE_FROM_FOLDER){
@@ -1323,6 +1384,7 @@ public class ROITable
             FolderData folder = (FolderData) evt.getNewValue();
             if(action == CreationActionType.CREATE_FOLDER && parent!=null) {
                 folder.setParentFolder(parent.asFolder());
+                recentlyModifiedFolders.add(parent);
             }
             
             toSave.add(folder);
@@ -1334,6 +1396,7 @@ public class ROITable
             FolderData folder = getSelectedFolders().get(0);
             FolderData target = (FolderData) evt.getNewValue();
             folder.setParentFolder(target.asFolder());
+            recentlyModifiedFolders.add(target);
             manager.saveROIFolders(Collections.singleton(folder));
         }
 
@@ -1343,7 +1406,119 @@ public class ROITable
             manager.saveROIFolders(Collections.singleton(folder));
         }
     }
+
+    /**
+     * Handles drag and drop actions
+     * 
+     * @param rows
+     *            The dragged rows
+     * @param destination
+     *            The location where the rows had been dragged to
+     */
+    public void handleDragAndDrop(int[] rows, int destination) {
+        List<ROINode> objects = new ArrayList<ROINode>();
+        for (int i = 0; i < rows.length; i++) {
+            if (rows[i] == destination)
+                return;
+            objects.add((ROINode) getNodeAtRow(rows[i]));
+        }
+
+        ROINode target = (ROINode) getNodeAtRow(destination);
+        if (target == null) {
+            if (objects.iterator().next().isFolderNode()) {
+                Collection<FolderData> toSave = new ArrayList<FolderData>();
+                for (ROINode n : objects) {
+                    FolderData folder = (FolderData) n.getUserObject();
+                    folder.setParentFolder(null);
+                    toSave.add(folder);
+                }
+                manager.saveROIFolders(toSave);
+            } else if (objects.iterator().next().isShapeNode()) {
+                List<ROIShape> rois = new ArrayList<ROIShape>();
+                for (ROINode n : objects) {
+                    rois.add((ROIShape) n.getUserObject());
+                }
+                manager.moveROIsToFolder(rois, Collections.EMPTY_LIST);
+            } else if (objects.iterator().next().isROINode()) {
+                List<ROIShape> rois = new ArrayList<ROIShape>();
+                for (ROINode n : objects) {
+                    ROI r = (ROI) n.getUserObject();
+                    rois.addAll(r.getShapes().values());
+                }
+                manager.moveROIsToFolder(rois, Collections.EMPTY_LIST);
+            }
+            return;
+        }
+        
+        if (!target.isFolderNode())
+            return;
+
+        FolderData targetFolder = (FolderData) target.getUserObject();
+
+        if (objects.iterator().next().isFolderNode()) {
+
+            List<FolderData> folders = new ArrayList<FolderData>(objects.size());
+            for (ROINode n : objects) {
+                FolderData f = (FolderData) n.getUserObject();
+                f.setParentFolder(targetFolder.asFolder());
+                folders.add(f);
+            }
+            recentlyModifiedFolders.add(targetFolder);
+            manager.saveROIFolders(folders);
+        } else if (objects.iterator().next().isShapeNode()) {
+            List<ROIShape> rois = new ArrayList<ROIShape>();
+            for (ROINode n : objects) {
+                rois.add((ROIShape) n.getUserObject());
+            }
+            recentlyModifiedFolders.add(targetFolder);
+            manager.moveROIsToFolder(rois,
+                    Collections.singletonList(targetFolder));
+        } else if (objects.iterator().next().isROINode()) {
+            List<ROIShape> rois = new ArrayList<ROIShape>();
+            for (ROINode n : objects) {
+                ROI r = (ROI) n.getUserObject();
+                rois.addAll(r.getShapes().values());
+            }
+            recentlyModifiedFolders.add(targetFolder);
+            manager.moveROIsToFolder(rois,
+                    Collections.singletonList(targetFolder));
+        }
+    }
     
+    /**
+     * The default drag behavior - if multiselection is enabled - is to extend
+     * the selection. To prevent that, we have to override the TableUI. This
+     * workaround is based on the forum post:
+     * https://community.oracle.com/thread/1361004
+     */
+    class CustomTableUI extends BasicTableUI {
+
+        @Override
+        protected MouseInputListener createMouseInputListener() {
+            return new MouseInputHandler() {
+
+                public void mousePressed(MouseEvent e) {
+
+                    Point origin = e.getPoint();
+                    int row = table.rowAtPoint(origin);
+                    int column = table.columnAtPoint(origin);
+                    if (row != -1 && column != -1) {
+                        if (!table.isCellSelected(row, column)) {
+                            super.mousePressed(e);
+                        }
+                    }
+                }
+
+                @Override
+                public void mouseDragged(MouseEvent e) {
+
+                    table.getTransferHandler().exportAsDrag(table, e,
+                            DnDConstants.ACTION_MOVE);
+                }
+            };
+        }
+
+    }
     
 }
 

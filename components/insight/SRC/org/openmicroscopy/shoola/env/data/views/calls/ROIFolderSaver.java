@@ -25,13 +25,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import omero.cmd.CmdCallbackI;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.ROIFacility;
-import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
-import omero.gateway.util.Pojos;
 import omero.model.IObject;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -45,8 +44,21 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class ROIFolderSaver extends BatchCallTree {
+
+    /**
+     * The actions which this {@link ROIFolderSaver} can handle
+     */
     public enum ROIFolderAction {
-        ADD_TO_FOLDER, REMOVE_FROM_FOLDER, CREATE_FOLDER, DELETE_FOLDER
+        /** Add ROIs to Folder */
+        ADD_TO_FOLDER, 
+        /** Remove ROIs from Folder */
+        REMOVE_FROM_FOLDER, 
+        /** Move ROIs to Folder */
+        MOVE_TO_FOLDER,
+        /** Create Folder */
+        CREATE_FOLDER, 
+        /** Delete Folder */
+        DELETE_FOLDER
     }
 
     /** Call to save the ROIs. */
@@ -75,7 +87,14 @@ public class ROIFolderSaver extends BatchCallTree {
                     if (!notSelected.isEmpty())
                         svc.saveROIs(ctx, imageID, notSelected);
                     svc.addRoisToFolders(ctx, imageID, roiList, folders);
-                } else if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
+                } else if (action == ROIFolderAction.MOVE_TO_FOLDER) {
+                    Collection<ROIData> notSelected = relativeComplement(
+                            roiList, allROIs);
+                    if (!notSelected.isEmpty())
+                        svc.saveROIs(ctx, imageID, notSelected);
+                    svc.addRoisToFolders(ctx, imageID, roiList, folders, true);
+                }  
+                else if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
                     svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
                 } else if (action == ROIFolderAction.CREATE_FOLDER) {
                     for (FolderData folder : folders)
@@ -86,7 +105,9 @@ public class ROIFolderSaver extends BatchCallTree {
                     for (FolderData f : folders)
                         ifolders.add((IObject) f.asFolder());
 
-                    dm.delete(ctx, ifolders);
+                    CmdCallbackI cb = dm.delete(ctx, ifolders);
+                    // wait for the delete action to be finished
+                    cb.block(10000);
                 } 
                 result = Collections.EMPTY_LIST;
             }

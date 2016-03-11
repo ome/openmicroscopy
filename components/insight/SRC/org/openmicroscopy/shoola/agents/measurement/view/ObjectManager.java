@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -41,10 +42,6 @@ import javax.swing.JScrollPane;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
-
-
-
-
 
 
 //Third-party libraries
@@ -72,6 +69,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
+import omero.gateway.util.Pojos;
 import omero.log.LogMessage;
 
 /** 
@@ -116,7 +114,7 @@ class ObjectManager
 	
 	static{
 		COLUMN_WIDTHS = new HashMap<String, Integer>();
-        COLUMN_WIDTHS.put(COLUMN_NAMES.get(0), 80);
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(0), 180);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(1), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(2), 36);
         COLUMN_WIDTHS.put(COLUMN_NAMES.get(3), 36);
@@ -156,8 +154,6 @@ class ObjectManager
 	    objectsTable = new ROITable(new ROITableModel(root, COLUMN_NAMES), 
 	    		COLUMN_NAMES, this);
 	    objectsTable.setRootVisible(false);
-	    objectsTable.setColumnSelectionAllowed(true);
-	    objectsTable.setRowSelectionAllowed(true);
 	    treeSelectionListener = new TreeSelectionListener()
 	    {
 			
@@ -265,26 +261,29 @@ class ObjectManager
     	objectsTable.showROIManagementMenu(view.getDrawingView(), x, y);
     }
     
-	/** Rebuilds Tree */
-	void rebuildTable()
-	{
-		TreeMap<Long, ROI> roiList = model.getROI();
-		Iterator<ROI> iterator = roiList.values().iterator();
-		ROI roi;
-		TreeMap<Coord3D, ROIShape> shapeList;
-		Iterator<ROIShape> shapeIterator;
-		objectsTable.clear();
-		objectsTable.initFolders(getFolders());
-		while(iterator.hasNext())
-		{
-			roi = iterator.next();
-			shapeList = roi.getShapes();
-			shapeIterator = shapeList.values().iterator();
-			while (shapeIterator.hasNext())
-				objectsTable.addROIShape(shapeIterator.next());
-		}
-		objectsTable.collapseAll();
-	}
+    /** Rebuilds Tree */
+    void rebuildTable() {
+        TreeMap<Long, ROI> roiList = model.getROI();
+        Iterator<ROI> iterator = roiList.values().iterator();
+        ROI roi;
+        TreeMap<Coord3D, ROIShape> shapeList;
+        Iterator<ROIShape> shapeIterator;
+        Set<Long> expandedFolderIds = objectsTable.getExpandedFolders();
+        expandedFolderIds.addAll(Pojos.extractIds(objectsTable
+                .getRecentlyModifiedFolders()));
+        objectsTable.clear();
+        objectsTable.initFolders(getFolders());
+        while (iterator.hasNext()) {
+            roi = iterator.next();
+            shapeList = roi.getShapes();
+            shapeIterator = shapeList.values().iterator();
+            while (shapeIterator.hasNext())
+                objectsTable.addROIShape(shapeIterator.next());
+        }
+        objectsTable.collapseAll();
+        objectsTable.expandFolders(expandedFolderIds);
+        objectsTable.setAutoCreateColumnsFromModel( false );
+    }
 	
 	/**
 	 * Returns the name of the component.
@@ -574,6 +573,28 @@ class ObjectManager
             }
         }
         model.addROIsToFolder(allRois, selectedRois.values(), folders);
+    }
+    
+    /**
+     * Move ROIs to Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    public void moveROIsToFolder(Collection<ROIShape> selectedObjects,
+            Collection<FolderData> folders) {
+        List<ROIData> allRois = model.getROIData();
+        Map<Long, ROIData> selectedRois = new HashMap<Long, ROIData>();
+        for (ROIShape shape : selectedObjects) {
+            if (!selectedRois.containsKey(shape.getID())) {
+                ROIData rd = findROI(allRois, shape.getROI());
+                if (rd != null)
+                    selectedRois.put(shape.getID(), rd);
+            }
+        }
+        model.moveROIsToFolder(allRois, selectedRois.values(), folders);
     }
     
     /**

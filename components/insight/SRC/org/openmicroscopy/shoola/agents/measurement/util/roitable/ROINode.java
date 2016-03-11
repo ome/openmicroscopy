@@ -31,10 +31,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
-import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -173,32 +173,6 @@ public class ROINode
         return getUserObject() instanceof ROIShape;
     }
 
-    /**
-     * Checks if this node exclusively contains ROI child nodes
-     * 
-     * @return <code>false</code> if it does not, <code>true</code> otherwise
-     *         (also if it does not contain any child nodes)
-     */
-    public boolean containsROIs() {
-        for (int i = 0; i < getChildCount(); i++)
-            if (!((ROINode) getChildAt(i)).isROINode())
-                return false;
-        return true;
-    }
-    
-    /**
-     * Checks if this node exclusively contains Folder child nodes
-     * 
-     * @return <code>false</code> if it does not, <code>true</code> otherwise
-     *         (also if it does not contain any child nodes)
-     */
-    public boolean containsFolders() {
-        for (int i = 0; i < getChildCount(); i++)
-            if (!((ROINode) getChildAt(i)).isFolderNode())
-                return false;
-        return true;
-    }
-    
 	/**
 	 * Get the point in the parent where a child with coordinate should be 
 	 * inserted.
@@ -221,6 +195,34 @@ public class ROINode
 		return index;
 	}
 	
+    /**
+     * Get the point in the parent where a child should be inserted.
+     * 
+     * @param f
+     *            see above.
+     * @return see above.
+     */
+    public int getInsertionPoint(FolderData f) {
+        int index = 0;
+
+        if (f == null)
+            return index;
+
+        for (MutableTreeTableNode n : children) {
+            ROINode r = (ROINode) n;
+            if (r.getUserObject() == null)
+                continue;
+            if (r.isFolderNode()) {
+                if (((FolderData) r.getUserObject()).getName()
+                        .compareToIgnoreCase(f.getName()) > 0)
+                    break;
+            }
+            index++;
+        }
+
+        return index;
+    }
+    
 	/** Initializes the maps for the child nodes. */
 	private void initMaps()
 	{
@@ -558,6 +560,8 @@ public class ROINode
                 // therefore take a step of length 2 to get the folder node
                 ROINode folder = (ROINode) path.getPathComponent(path
                         .getPathCount() - 3);
+                if (folder.isRoot())
+                    return shape.isVisible();
                 if (b == null)
                     b = folder.isVisible();
                 else
@@ -583,6 +587,57 @@ public class ROINode
         for (MutableTreeTableNode n : this.getChildList()) {
             gatherNodes((ROINode) n, nodes);
         }
+    }
+    
+    /**
+     * Indicates if the node can be annotated if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canAnnotate() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canAnnotate();
+        if (isROINode())
+            return ((ROI) getUserObject()).canAnnotate();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canAnnotate();
+
+        return false;
+    }
+
+    /**
+     * Indicates if the node can be deleted if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canDelete() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canDelete();
+        if (isROINode())
+            return ((ROI) getUserObject()).canDelete();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canDelete();
+
+        return false;
+    }
+
+    /**
+     * Indicates if the node can be edited if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canEdit() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canEdit();
+        if (isROINode())
+            return ((ROI) getUserObject()).canEdit();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canEdit();
+
+        return false;
     }
     
     /**

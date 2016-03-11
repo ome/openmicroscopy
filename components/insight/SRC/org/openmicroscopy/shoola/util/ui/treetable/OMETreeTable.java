@@ -449,7 +449,7 @@ public class OMETreeTable
 			(MutableTreeTableNode) getTreeTableModel().getRoot();
 		if (root == null) return;
 		for (MutableTreeTableNode node : ((OMETreeNode) root).getChildList())
-			((OMETreeNode) node).setExpanded(true);
+			((OMETreeNode) node).setExpanded(false);
 	}
 	
 	/**

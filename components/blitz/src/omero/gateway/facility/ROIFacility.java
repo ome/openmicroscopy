@@ -299,9 +299,32 @@ public class ROIFacility extends Facility {
     public void addRoisToFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders)
             throws DSOutOfServiceException, DSAccessException {
+        addRoisToFolders(ctx, imageID, roiList, folders, false);
+    }
+    
+    /**
+     * Adds ROIs to Folders
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param imageID
+     *            The image id
+     * @param roiList
+     *            The ROIs to add to the Folders
+     * @param folders
+     *            The Folders to add the ROIs to
+     * @param removeFromOtherFolders
+     *            Pass <code>true</code> if the ROIs should only be linked to
+     *            the specified folders, others will be unlinked.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public void addRoisToFolders(SecurityContext ctx, long imageID,
+            Collection<ROIData> roiList, Collection<FolderData> folders, boolean removeFromOtherFolders)
+            throws DSOutOfServiceException, DSAccessException {
 
         try {
-
+            
             // 1. Save unsaved folders
             List<IObject> foldersToSave = new ArrayList<IObject>();
             Iterator<FolderData> it = folders.iterator();
@@ -333,13 +356,28 @@ public class ROIFacility extends Facility {
             }
             
             // Reload the folders
-            Collection<FolderData> foldersReloaded = gateway.getFacility(
-                    BrowseFacility.class).getFolders(ctx,
-                    Pojos.extractIds(folders));
+            Collection<FolderData> foldersReloaded = folders.isEmpty() ? folders
+                    : gateway.getFacility(BrowseFacility.class).getFolders(ctx,
+                            Pojos.extractIds(folders));
 
             // Reload the ROIs
             Collection<Roi> rois = loadServerRois(ctx, ids);
 
+            // Orphan ROIs
+            if (removeFromOtherFolders) {
+                List<IObject> toSave = new ArrayList<IObject>();
+                for (Roi roi : rois) {
+                    roi.clearFolderLinks();
+                    toSave.add(roi);
+                }
+                List<IObject> tmp = gateway.getFacility(
+                        DataManagerFacility.class).saveAndReturnObject(ctx,
+                        toSave, null, null);
+                rois.clear();
+                for (IObject t : tmp)
+                    rois.add((Roi) t);
+            }
+            
             // 3. Link Rois to Folders
             List<IObject> toSave = new ArrayList<IObject>();
             for (Roi roi : rois) {
