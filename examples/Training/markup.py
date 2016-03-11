@@ -421,9 +421,6 @@ def parseJava(Parser):
     """
     Generates a doc page for the Java files.
     """
-    """
-    Generates a doc page for the Matlab files.
-    """
     files = [
         'java/src/training/ReadData.java',
         'java/src/training/RawDataAccess.java',
