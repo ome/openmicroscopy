@@ -76,12 +76,12 @@ public class ReadData {
     private Gateway gateway;
 
     private ExperimenterData user;
-    
+
     private SecurityContext ctx;
 
-/**
- * start-code
- */
+    /**
+     * start-code
+     */
 
     /**
      * Retrieve the projects owned by the user currently logged in.
@@ -151,7 +151,7 @@ public class ReadData {
         while (j.hasNext()) {
             image = j.next();
             System.err
-                    .println("image:" + image.getId() + " " + image.getName());
+            .println("image:" + image.getId() + " " + image.getName());
             // Do something
         }
     }
@@ -167,9 +167,9 @@ public class ReadData {
         System.err.println(pixels.getSizeT()); // The number of timepoints.
         System.err.println(pixels.getSizeC()); // The number of channels.
         System.err.println(pixels.getSizeX()); // The number of pixels along the
-                                               // X-axis.
+        // X-axis.
         System.err.println(pixels.getSizeY()); // The number of pixels along the
-                                               // Y-axis.
+        // Y-axis.
         // Get Pixel Size for the above Image
         Length sizeX = pixels.getPixelSizeX(null);
         if (sizeX != null) {
@@ -242,9 +242,9 @@ public class ReadData {
         }
     }
 
-/**
- * end-code
- */
+    /**
+     * end-code
+     */
 
     /**
      * Connects and invokes the various methods.
@@ -262,7 +262,7 @@ public class ReadData {
         try {
             user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            
+
             loadProjects();
             loadDatasets();
             loadImagesInDataset(datasetId);
@@ -287,8 +287,8 @@ public class ReadData {
     public static void main(String[] args) {
         if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
-                    "--omero.user=" + userName, "--omero.pass=" + password };
-        
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
         new ReadData(args, datasetId, plateId, imageId);
         System.exit(0);
     }

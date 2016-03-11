@@ -96,14 +96,14 @@ public class ROIs
     //end edit
 
     private ImageData image;
-    
+
     private Gateway gateway;
-    
+
     private SecurityContext ctx;
 
-/**
- * start-code
- */
+    /**
+     * start-code
+     */
 
     /**
      * Loads the image. 
@@ -307,9 +307,9 @@ public class ROIs
         System.out.println(r.getROIs().size());
     }
 
-/**
- * end-code
- */
+    /**
+     * end-code
+     */
     /**
      * Connects and invokes the various methods.
      * @param args The login credentials
@@ -320,11 +320,11 @@ public class ROIs
         LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
-        
+
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            
+
             image = loadImage(imageId);
             createROIs();
         } catch (Exception e) {
@@ -347,8 +347,8 @@ public class ROIs
     {
         if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
-                    "--omero.user=" + userName, "--omero.pass=" + password };
-        
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
         new ROIs(args, imageId);
         System.exit(0);
     }

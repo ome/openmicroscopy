@@ -43,94 +43,94 @@ import omero.gateway.model.ImageAcquisitionData;
 public class LoadMetadataAdvanced 
 {
 
-	//The value used if the configuration file is not used. To edit*/
-	/** The server address.*/
-	private static String hostName = "serverName";
+    //The value used if the configuration file is not used. To edit*/
+    /** The server address.*/
+    private static String hostName = "serverName";
 
-	/** The username.*/
-	private static String userName = "userName";
-	
-	/** The password.*/
-	private static String password = "password";
-	
-	private static long imageId = 1;
-	//end edit
-	
-	private Gateway gateway;
-    
+    /** The username.*/
+    private static String userName = "userName";
+
+    /** The password.*/
+    private static String password = "password";
+
+    private static long imageId = 1;
+    //end edit
+
+    private Gateway gateway;
+
     private SecurityContext ctx;
-	
-	/**
-	 * Load the image acquisition data.
-	 * 
-	 * @param info The configuration information.
-	 */
-	private void loadAcquisitionData(long imageId)
-		throws Exception
-	{
-	    MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
-	    ImageAcquisitionData image = mdf.getImageAcquisitionData(ctx, imageId);
-		System.err.println(image.getHumidity());
-	}
-	
-	/**
-	 * Load the channel data.
-	 * 
-	 * @param info The configuration information.
-	 */
-	private void loadChannelData(long imageId)
-		throws Exception
-	{
-	    MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
-	    
-	    List<ChannelData> data = mdf.getChannelData(ctx, imageId);
-	    for(ChannelData c : data) {
-	        System.out.println(c.getIndex());
-	    }
-	}
 
-	/**
-	 * Connects and invokes the various methods.
-	 * 
-	 * @param args The login credentials
-	 * @param imageId The image id
-	 */
-	LoadMetadataAdvanced(String[] args, long imageId)
-	{
-		LoginCredentials cred = new LoginCredentials(args);
+    /**
+     * Load the image acquisition data.
+     * 
+     * @param info The configuration information.
+     */
+    private void loadAcquisitionData(long imageId)
+            throws Exception
+    {
+        MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
+        ImageAcquisitionData image = mdf.getImageAcquisitionData(ctx, imageId);
+        System.err.println(image.getHumidity());
+    }
+
+    /**
+     * Load the channel data.
+     * 
+     * @param info The configuration information.
+     */
+    private void loadChannelData(long imageId)
+            throws Exception
+    {
+        MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
+
+        List<ChannelData> data = mdf.getChannelData(ctx, imageId);
+        for(ChannelData c : data) {
+            System.out.println(c.getIndex());
+        }
+    }
+
+    /**
+     * Connects and invokes the various methods.
+     * 
+     * @param args The login credentials
+     * @param imageId The image id
+     */
+    LoadMetadataAdvanced(String[] args, long imageId)
+    {
+        LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
-        
-		try {
-		    //First connect.
-		    ExperimenterData user = gateway.connect(cred);
-            ctx = new SecurityContext(user.getGroupId());
-           
-			loadAcquisitionData(imageId);
-			loadChannelData(imageId);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-			    gateway.disconnect(); // Be sure to disconnect
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
-	/**
-	 * Runs the script without configuration options.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-	    if (args == null || args.length == 0)
+        try {
+            //First connect.
+            ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
+
+            loadAcquisitionData(imageId);
+            loadChannelData(imageId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                gateway.disconnect(); // Be sure to disconnect
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Runs the script without configuration options.
+     * 
+     * @param args
+     */
+    public static void main(String[] args)
+    {
+        if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
-                    "--omero.user=" + userName, "--omero.pass=" + password };
-	    
-		new LoadMetadataAdvanced(args, imageId);
-		System.exit(0);
-	}
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
+        new LoadMetadataAdvanced(args, imageId);
+        System.exit(0);
+    }
 }

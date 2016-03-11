@@ -40,7 +40,7 @@ import omero.model.OriginalFileI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.gateway.model.ExperimenterData;
 
-/** 
+/**
  * Sample code showing how to delete data.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -62,12 +62,12 @@ public class DeleteData
     //end edit
 
     private Gateway gateway;
-    
+
     private SecurityContext ctx;
 
-/**
- * start-code
- */
+    /**
+     * start-code
+     */
 
     /**
      * Creates an original file.
@@ -86,7 +86,7 @@ public class DeleteData
         oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
         return oFile;
     }
-    
+
     /** 
      * Delete Image.
      * In the following example, we create an image and delete it.
@@ -124,9 +124,9 @@ public class DeleteData
         System.err.println(rsp);
     }
 
-/**
- * end-code
- */
+    /**
+     * end-code
+     */
 
     /**
      * Connects and invokes the various methods.
@@ -138,11 +138,11 @@ public class DeleteData
         LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
-        
+
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            
+
             deleteImage();
             deleteFileAnnotation();
         } catch (Exception e) {
@@ -165,8 +165,8 @@ public class DeleteData
     {
         if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
-                    "--omero.user=" + userName, "--omero.pass=" + password };
-        
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
         new DeleteData(args);
         System.exit(0);
     }

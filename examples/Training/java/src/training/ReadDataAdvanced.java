@@ -58,221 +58,221 @@ import omero.gateway.model.TagAnnotationData;
 public class ReadDataAdvanced
 {
 
-	//The value used if the configuration file is not used. To edit*/
-	/** The server address.*/
-	private static String hostName = "serverName";
+    //The value used if the configuration file is not used. To edit*/
+    /** The server address.*/
+    private static String hostName = "serverName";
 
-	/** The username.*/
-	private static String userName = "userName";
-	
-	/** The password.*/
-	private static String password = "password";
-	//end edit
-	
-	/** The name of a Dataset.*/
-	private String datasetName = "MyDataset";
+    /** The username.*/
+    private static String userName = "userName";
 
-	/** The name of a Tag.*/
-	private String tagName = "MyTag";
+    /** The password.*/
+    private static String password = "password";
+    //end edit
 
-	private Gateway gateway;
-    
+    /** The name of a Dataset.*/
+    private String datasetName = "MyDataset";
+
+    /** The name of a Tag.*/
+    private String tagName = "MyTag";
+
+    private Gateway gateway;
+
     private SecurityContext ctx;
-	
-	/**
-	 * Creates 3 Datasets with the name defined by {@link #datasetName}.
-	 */
-	private void createDatasets()
-		throws Exception
-	{
-	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-	    
-		for (int i = 0; i < 3; i ++)
-		{
-			DatasetData d = new DatasetData();
-			d.setName(datasetName);
-			dm.saveAndReturnObject(ctx, d);
-		}
-	}
 
-	/**
-	 * Creates 3 Tags with the namespace value defined by {@link #tagName}.
-	 */
-	private void createTags()
-		throws Exception
-	{
-	    DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-		for (int i = 0; i < 3; i ++)
-		{
-			TagAnnotationData t = new TagAnnotationData(tagName);
-			((TagAnnotation)t.asIObject()).setNs(rstring(Setup.TRAINING_NS));
-			t.setDescription(String.format("%s %s", tagName, i));
-			dm.saveAndReturnObject(ctx, t);
-		}
-	}
+    /**
+     * Creates 3 Datasets with the name defined by {@link #datasetName}.
+     */
+    private void createDatasets()
+            throws Exception
+    {
+        DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+
+        for (int i = 0; i < 3; i ++)
+        {
+            DatasetData d = new DatasetData();
+            d.setName(datasetName);
+            dm.saveAndReturnObject(ctx, d);
+        }
+    }
+
+    /**
+     * Creates 3 Tags with the namespace value defined by {@link #tagName}.
+     */
+    private void createTags()
+            throws Exception
+    {
+        DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
+        for (int i = 0; i < 3; i ++)
+        {
+            TagAnnotationData t = new TagAnnotationData(tagName);
+            ((TagAnnotation)t.asIObject()).setNs(rstring(Setup.TRAINING_NS));
+            t.setDescription(String.format("%s %s", tagName, i));
+            dm.saveAndReturnObject(ctx, t);
+        }
+    }
 
 
-	/**
-	 * Retrieve the Datasets that match the name value.
-	 */
-	private void loadDatasetsByName()
-		throws Exception
-	{
-		final boolean caseSensitive = true;
-		final Filter filter = new Filter();
-		// Return the first 10 hits or less.
-		filter.limit = rint(10);
-		filter.offset = rint(0);
+    /**
+     * Retrieve the Datasets that match the name value.
+     */
+    private void loadDatasetsByName()
+            throws Exception
+    {
+        final boolean caseSensitive = true;
+        final Filter filter = new Filter();
+        // Return the first 10 hits or less.
+        filter.limit = rint(10);
+        filter.offset = rint(0);
 
-		IQueryPrx proxy = gateway.getQueryService(ctx);
-		List<IObject> datasets = (List<IObject>)
-		proxy.findAllByString("Dataset", "name", datasetName, caseSensitive,
-				filter);
-		System.out.println("\nList Datasets:");
-		for (IObject obj : datasets)
-		{
-			Dataset d = (Dataset) obj;
-			System.out.println("ID: " + d.getId().getValue() + " Name: " +
-					d.getName().getValue());
+        IQueryPrx proxy = gateway.getQueryService(ctx);
+        List<IObject> datasets = (List<IObject>)
+                proxy.findAllByString("Dataset", "name", datasetName, caseSensitive,
+                        filter);
+        System.out.println("\nList Datasets:");
+        for (IObject obj : datasets)
+        {
+            Dataset d = (Dataset) obj;
+            System.out.println("ID: " + d.getId().getValue() + " Name: " +
+                    d.getName().getValue());
 
-		}
-	}
+        }
+    }
 
-	/**
-	 * Retrieve the Tags that match the ns value.
-	 */
-	private void loadTagsByNS()
-		throws Exception
-	{
-		final boolean caseSensitive = true;
-		final Filter filter = new Filter();
-		// Return the first 10 hits or less.
-		filter.limit = rint(10);
-		filter.offset = rint(0);
+    /**
+     * Retrieve the Tags that match the ns value.
+     */
+    private void loadTagsByNS()
+            throws Exception
+    {
+        final boolean caseSensitive = true;
+        final Filter filter = new Filter();
+        // Return the first 10 hits or less.
+        filter.limit = rint(10);
+        filter.offset = rint(0);
 
-		IQueryPrx proxy = gateway.getQueryService(ctx);
-		List<IObject> tags = (List<IObject>)
-		proxy.findAllByString("TagAnnotation", "ns",
-		        Setup.TRAINING_NS, caseSensitive, filter);
-		System.out.println("\nList Tags:");
-		for (IObject obj : tags)
-		{
-			TagAnnotation t = (TagAnnotation) obj;
-			System.out.println("ID: " + t.getId().getValue() + " NS: " +
-					t.getNs().getValue());
-		}
-	}
-	
-	/** 
-	 * Retrieve the projects and the orphaned datasets i.e. datasets not in
-	 * a project.
-	 * 
-	 * If a project contains datasets, the datasets will automatically be loaded.
-	 */
-	private void loadProjectsAndOrphanedDatasets()
-		throws Exception
-	{
-		IContainerPrx proxy = gateway.getPojosService(ctx);
-		ParametersI param = new ParametersI();
-		long userId = gateway.getLoggedInUser().getId();
-		param.exp(omero.rtypes.rlong(userId));
-		
-		//Load the orphaned datasets.
-		param.orphan();
-		
-		//Do not load the images.
-		param.noLeaves(); //indicate to load the images
-		//param.noLeaves(); //no images loaded, this is the default value.
-		List<IObject> results = proxy.loadContainerHierarchy(
-				Project.class.getName(), new ArrayList<Long>(), param);
-		//You can directly interact with the IObject or the Pojos object.
-		//Follow interaction with the Pojos.
-		Iterator<IObject> i = results.iterator();
-		ProjectData project;
-		DatasetData dataset;
-		IObject o;
-		long datasetId = -1;
-		while (i.hasNext()) {
-			o = i.next();
-			if (o instanceof Project) {
-				project = new ProjectData((Project) o);
-				System.err.println("Project:"+project.getId()+" "+
-						project.getName());
-			} else if (o instanceof Dataset) {
-				dataset = new DatasetData((Dataset) o);
-				System.err.println("Dataset:"+dataset.getId()+" "+
-						dataset.getName());
-				if (datasetId < 0) datasetId = dataset.getId();
-				//Image not loaded.
-			}
-		}
-		
-		//Now load the image for the first orphaned dataset
-		if (datasetId < 0) return;
-		param = new ParametersI();
-		param.exp(omero.rtypes.rlong(userId));
-		param.leaves();
-		results = proxy.loadContainerHierarchy(
-				Dataset.class.getName(), Arrays.asList(datasetId), param);
-		i = results.iterator();
-		Iterator j;
-		while (i.hasNext()) {
-			dataset = new DatasetData((Dataset) i.next());
-			Set images = dataset.getImages();
-			j = images.iterator();
-			System.err.println("Size:"+images.size());
-			while (j.hasNext()) {
-				ImageData image = (ImageData) j.next();
-				System.err.println("Image:"+image.getId()+" "+image.getName());
-			}
-		}
-	}
+        IQueryPrx proxy = gateway.getQueryService(ctx);
+        List<IObject> tags = (List<IObject>)
+                proxy.findAllByString("TagAnnotation", "ns",
+                        Setup.TRAINING_NS, caseSensitive, filter);
+        System.out.println("\nList Tags:");
+        for (IObject obj : tags)
+        {
+            TagAnnotation t = (TagAnnotation) obj;
+            System.out.println("ID: " + t.getId().getValue() + " NS: " +
+                    t.getNs().getValue());
+        }
+    }
 
-	/**
-	 * Connects and invokes the various methods.
-	 * 
-	 * @param args The login credentials
-	 */
-	ReadDataAdvanced(String[] args)
-	{
-		LoginCredentials cred = new LoginCredentials(args);
+    /** 
+     * Retrieve the projects and the orphaned datasets i.e. datasets not in
+     * a project.
+     * 
+     * If a project contains datasets, the datasets will automatically be loaded.
+     */
+    private void loadProjectsAndOrphanedDatasets()
+            throws Exception
+    {
+        IContainerPrx proxy = gateway.getPojosService(ctx);
+        ParametersI param = new ParametersI();
+        long userId = gateway.getLoggedInUser().getId();
+        param.exp(omero.rtypes.rlong(userId));
+
+        //Load the orphaned datasets.
+        param.orphan();
+
+        //Do not load the images.
+        param.noLeaves(); //indicate to load the images
+        //param.noLeaves(); //no images loaded, this is the default value.
+        List<IObject> results = proxy.loadContainerHierarchy(
+                Project.class.getName(), new ArrayList<Long>(), param);
+        //You can directly interact with the IObject or the Pojos object.
+        //Follow interaction with the Pojos.
+        Iterator<IObject> i = results.iterator();
+        ProjectData project;
+        DatasetData dataset;
+        IObject o;
+        long datasetId = -1;
+        while (i.hasNext()) {
+            o = i.next();
+            if (o instanceof Project) {
+                project = new ProjectData((Project) o);
+                System.err.println("Project:"+project.getId()+" "+
+                        project.getName());
+            } else if (o instanceof Dataset) {
+                dataset = new DatasetData((Dataset) o);
+                System.err.println("Dataset:"+dataset.getId()+" "+
+                        dataset.getName());
+                if (datasetId < 0) datasetId = dataset.getId();
+                //Image not loaded.
+            }
+        }
+
+        //Now load the image for the first orphaned dataset
+        if (datasetId < 0) return;
+        param = new ParametersI();
+        param.exp(omero.rtypes.rlong(userId));
+        param.leaves();
+        results = proxy.loadContainerHierarchy(
+                Dataset.class.getName(), Arrays.asList(datasetId), param);
+        i = results.iterator();
+        Iterator j;
+        while (i.hasNext()) {
+            dataset = new DatasetData((Dataset) i.next());
+            Set images = dataset.getImages();
+            j = images.iterator();
+            System.err.println("Size:"+images.size());
+            while (j.hasNext()) {
+                ImageData image = (ImageData) j.next();
+                System.err.println("Image:"+image.getId()+" "+image.getName());
+            }
+        }
+    }
+
+    /**
+     * Connects and invokes the various methods.
+     * 
+     * @param args The login credentials
+     */
+    ReadDataAdvanced(String[] args)
+    {
+        LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
-        
-		try {
-			// First connect.
-		    ExperimenterData user = gateway.connect(cred);
-            ctx = new SecurityContext(user.getGroupId());
-            
-			createDatasets();
-			createTags();
-			loadDatasetsByName();
-			loadTagsByNS();
-			loadProjectsAndOrphanedDatasets();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-			    gateway.disconnect(); // Be sure to disconnect
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
 
-	/**
-	 * Runs the script without configuration options.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-	    if (args == null || args.length == 0)
+        try {
+            // First connect.
+            ExperimenterData user = gateway.connect(cred);
+            ctx = new SecurityContext(user.getGroupId());
+
+            createDatasets();
+            createTags();
+            loadDatasetsByName();
+            loadTagsByNS();
+            loadProjectsAndOrphanedDatasets();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                gateway.disconnect(); // Be sure to disconnect
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Runs the script without configuration options.
+     * 
+     * @param args
+     */
+    public static void main(String[] args)
+    {
+        if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
-                    "--omero.user=" + userName, "--omero.pass=" + password };
-	    
-		new ReadDataAdvanced(args);
-		System.exit(0);
-	}
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
+        new ReadDataAdvanced(args);
+        System.exit(0);
+    }
 
 }
