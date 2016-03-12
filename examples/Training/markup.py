@@ -36,7 +36,8 @@ def blocks(file):
     for line in lines(file):
         if END_MARKER in line:
             break
-        elif line.strip() and not line.startswith("# ======================="):
+        elif line.strip() and not (re.match('# =', line) or re.match('% =', line) \
+                or re.match('// =', line)):
             block.append(line.rstrip())
         elif block:
             # yield ''.join(block).strip()
@@ -339,7 +340,7 @@ class JavaParser(Parser):
     """
     def __init__(self, handler):
         Parser.__init__(self, handler)
-        self.addRule(SphinxSubtitleRule('*'))
+        self.addRule(SphinxSubtitleRule('//'))
         self.addRule(SphinxCommentRule('*'))
         self.addRule(CodeRule())
 
@@ -425,6 +426,7 @@ def parseJava(Parser):
         'java/src/training/ReadData.java',
         'java/src/training/RawDataAccess.java',
         'java/src/training/WriteData.java',
+        'java/src/training/HowToUseTables.java',
         'java/src/training/ROIs.java',
         'java/src/training/DeleteData.java',
         'java/src/training/RenderImages.java',
@@ -433,6 +435,7 @@ def parseJava(Parser):
         'Read data',
         'Raw data access',
         'Write data',
+        'OMERO tables',
         'ROIs',
         'Delete data',
         'Render Images',
