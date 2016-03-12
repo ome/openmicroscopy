@@ -91,6 +91,9 @@ public class RenderImages
         return browse.getImage(ctx, imageID);
     }
 
+// Initialize rendering engine
+// ===========================
+
     /**
      * Creates a rendering engine.
      */
@@ -129,6 +132,9 @@ public class RenderImages
         }
     }
 
+// Retrieve thumbnails
+// ===================
+
     /**
      * Retrieves the thumbnails
      */
@@ -150,7 +156,6 @@ public class RenderImages
                 entry = i.next();
                 stream = new ByteArrayInputStream(entry.getValue());
                 results.put(entry.getKey(), ImageIO.read(stream));
-
             }
         } catch (Exception e) {
             throw new Exception("Cannot retrieve thumnails", e);

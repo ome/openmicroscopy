@@ -117,6 +117,9 @@ public class ROIs
         return browse.getImage(ctx, imageID);
     }
 
+// Create ROIs
+// ===========
+
     /** 
      * Creates roi and retrieve it.
      */

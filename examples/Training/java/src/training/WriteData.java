@@ -123,6 +123,8 @@ public class WriteData
         return browse.getImage(ctx, imageID);
     }
 
+// Create dataset
+// ==============
     /** 
      * Create a new dataset and link it to existing project.
      */
@@ -149,6 +151,9 @@ public class WriteData
         r = dm.saveAndReturnObject(ctx, link);
     }
 
+// Create tag
+// ==========
+
     /** 
      * Create a new tag and link it to existing project.
      */
@@ -172,6 +177,9 @@ public class WriteData
         link.setParent(new ProjectI(projectId, false));
         r = dm.saveAndReturnObject(ctx, link);
     }
+
+// Create file annotation
+// ======================
 
     /**
      * How to create a file annotation and link to an image. 
@@ -244,6 +252,9 @@ public class WriteData
         link = (ImageAnnotationLink) dm.saveAndReturnObject(ctx, link);
         // To attach to a Dataset use DatasetAnnotationLink;
     }
+
+// Load annotation
+// ===============
 
     /**
      * Load all the annotations with a given namespace linked to images.

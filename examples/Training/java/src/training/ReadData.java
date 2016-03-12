@@ -83,6 +83,9 @@ public class ReadData {
      * start-code
      */
 
+// Projects
+// ========
+
     /**
      * Retrieve the projects owned by the user currently logged in.
      * If a project contains datasets, the datasets will automatically be
@@ -113,6 +116,9 @@ public class ReadData {
         }
     }
 
+// Datasets
+// ========
+
     /**
      * Retrieve the datasets owned by the user currently logged in.
      */
@@ -136,6 +142,9 @@ public class ReadData {
             }
         }
     }
+
+// Images
+// ======
 
     /**
      * Retrieve the images contained in a dataset.
@@ -184,6 +193,9 @@ public class ReadData {
         }
     }
 
+// Screens
+// =======
+
     /**
      * Retrieve Screening data owned by the user currently logged in.
      * To learn about the model go to ScreenPlateWell. Note that the wells are
@@ -211,6 +223,9 @@ public class ReadData {
         }
     }
 
+// Wells
+// =====
+
     /**
      * Retrieve Screening data owned by the user currently logged in. 
      * To learn about the model go to ScreenPlateWell.
@@ -225,6 +240,9 @@ public class ReadData {
             System.err.println("well:" + well.getId());
         }
     }
+
+// Plates
+// ======
 
     /**
      * Retrieve Screening data owned by the user currently logged in.

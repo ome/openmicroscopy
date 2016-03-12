@@ -87,6 +87,9 @@ public class DeleteData
         return oFile;
     }
 
+// Delete Image
+// ============
+
     /** 
      * Delete Image.
      * In the following example, we create an image and delete it.
@@ -103,6 +106,9 @@ public class DeleteData
         Response rsp = dm.deleteObject(ctx, img);
         System.err.println(rsp);
     }
+
+// Delete Annotation
+// =================
 
     /** 
      * Delete File annotation.

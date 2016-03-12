@@ -62,6 +62,10 @@ public class HowToUseTables
     private SecurityContext ctx;
 
     /**
+     * start-code
+     */
+
+    /**
      * Creates a number of empty rows.
      * 
      * @param rows The number of rows.
@@ -76,6 +80,9 @@ public class HowToUseTables
         return newColumns;
     }
 
+// Create table
+// ============
+
     /** 
      * Creates a table.
      * @throws Exception
@@ -86,7 +93,6 @@ public class HowToUseTables
         int rows = 1;
         String name = UUID.randomUUID().toString();
         Column[] columns = createColumns(rows);
-
         //create a new table.
         SharedResourcesPrx store = null;
         TablePrx table = null;
@@ -94,42 +100,33 @@ public class HowToUseTables
         try {
             store = gateway.getSharedResources(ctx);
             table = store.newTable(1, name);
-
             //initialize the table
             table.initialize(columns);
             //add data to the table.
             rows = 2;
             Column[] newRow = createColumns(rows);
-
             LongColumn uids = (LongColumn) newRow[0];
             LongColumn myLongs = (LongColumn) newRow[1];
             for (int i = 0; i < rows; i++) {
                 uids.values[i] = i;
                 myLongs.values[i] = i;
             }
-
             table.addData(newRow);
-
             OriginalFile file = table.getOriginalFile(); // if you need to interact with the table
-
             file = new OriginalFileI(file.getId(), false);
             //Open the table again
             table2 = store.openTable(file);
-
             //read headers
             Column[] cols = table2.getHeaders();
-
             for (int i = 0; i < cols.length; i++) {
                 String colName = cols[i].name;
                 System.err.println("Column"+colName);
             }
-
             // Depending on size of table, you may only want to read some blocks.
             long[] columnsToRead = new long[cols.length];
             for (int i = 0; i < cols.length; i++) {
                 columnsToRead[i] = i;
-            } 
-
+            }
             // The number of columns we wish to read.
             long[] rowSubset = new long[(int) (table2.getNumberOfRows()-1)];
             for (int j = 0; j < rowSubset.length; j++) {
@@ -141,15 +138,17 @@ public class HowToUseTables
                 Column c = cols[j];
                 //do something
             }
-
         } catch (Exception e) {
             throw new Exception("Cannot open table", e);
         } finally {
             if (table != null) table.close();
             if (table2 != null) table2.close();
         }
-
     }
+
+    /**
+     * end-code
+     */
 
     /**
      * Connects and invokes the various methods.

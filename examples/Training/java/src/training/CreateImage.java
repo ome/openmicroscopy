@@ -125,6 +125,9 @@ public class CreateImage
         return Integer.valueOf(sizeZ*sizeC*t + sizeZ*c + z);
     }
 
+// Create Image
+// ============
+
     /**
      * Creates a new image with one channel from a source image.
      * @param info The information about the data to handle.

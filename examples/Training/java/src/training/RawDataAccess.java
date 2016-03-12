@@ -82,6 +82,8 @@ public class RawDataAccess
         return browse.getImage(ctx, imageID);
     }
 
+// Retrieve plane
+// ==============
     /**
      * Retrieve a given plane. 
      * This is useful when you need the pixels intensity.
@@ -101,11 +103,13 @@ public class RawDataAccess
                 for (int t = 0; t < sizeT; t++) 
                     for (int c = 0; c < sizeC; c++) 
                         p = rdf.getPlane(ctx, pixels, z, t, c);
-
         } catch (Exception e) {
             throw new Exception("Cannot read the plane", e);
         } 
     }
+
+// Retrieve tile
+// =============
 
     /**
      * Retrieve a given tile.
@@ -140,6 +144,9 @@ public class RawDataAccess
         } 
     }
 
+// Retrieve stack
+// ==============
+
     /**
      * Retrieve a given stack.
      * This is useful when you need the pixels intensity.
@@ -168,6 +175,9 @@ public class RawDataAccess
             if (store != null) store.close();
         }
     }
+
+// Retrieve hypercube
+// ==================
 
     /**
      * Retrieve a given hypercube.
