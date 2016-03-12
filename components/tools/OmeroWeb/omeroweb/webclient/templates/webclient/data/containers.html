@@ -351,8 +351,13 @@
 
                 // Allow Copy of Dataset/Image/Plate if you 'canLink' all selected nodes
                 var canCopy = selected.reduce(function(prev, n){
-                    var childType = (["dataset", "image", "plate", "tag"].indexOf(n.type) > -1);
-                    return childType && OME.nodeHasPermission(n, 'canLink') && prev;
+                    var node_type = n.type,
+                        parent_type = inst.get_node(n.parent).type;
+                    var plink = ((node_type === "dataset" && parent_type === "project") ||
+                            (node_type === "image" && parent_type === "dataset") ||
+                            (node_type === "plate" && parent_type === "screen") ||
+                            (node_type === "tag" && parent_type === "tagset"));
+                    return plink && OME.nodeHasPermission(n, 'canLink') && prev;
                 }, true);
                 toolbar_config['copy'] = canCopy;
 
