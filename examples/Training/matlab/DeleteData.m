@@ -33,7 +33,10 @@ try
     msg = 'Created session for user %s (id: %g) using group %s (id: %g)\n';
     fprintf(1, msg, char(eventContext.userName), eventContext.userId,...
         char(eventContext.groupName), eventContext.groupId);
-    
+ 
+% Delete Image
+% ============
+   
     % Delete Image. In the following example, we create an image and delete it.
     % First create the image.
     image = omero.model.ImageI;

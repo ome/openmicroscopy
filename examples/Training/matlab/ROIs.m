@@ -40,7 +40,9 @@ try
     image = getImages(session, imageId);
     assert(~isempty(image), 'OMERO:ROIs', 'Image id not valid');
     
-    %% Shapes creation
+% Create shapes
+% =============
+
     % Create a rectangle
     disp('Create rectangular shape');
     rectangle = createRectangle(0, 0, 10, 20);

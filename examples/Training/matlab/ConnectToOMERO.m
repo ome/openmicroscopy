@@ -21,7 +21,9 @@ try
 % start-code
 %%
 
-    %% Connect to a server
+% Connect to a server
+% ===================
+
     % Use the ice.config file defined in the path
     client = loadOmero();
     p = parseOmeroProperties(client);
@@ -56,7 +58,9 @@ try
     stop(t);
     delete(t);
 
-    %% Admin service
+% Admin service
+% =============
+
     % Retrieve the identifier of the groups the user is member/owner of
     user = adminService.getExperimenter(userId);
     groupIds1 = toMatlabList(adminService.getMemberOfGroupIds(user));
@@ -80,7 +84,9 @@ try
             char(group.getDetails().getPermissions()));
     end
     
-    %% Unencrypted session
+% Unencrypted session
+% ===================
+
     % Create an unsecure client and session
     % Use this session to speed up data transfer since there will be no
     % encryption

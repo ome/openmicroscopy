@@ -55,7 +55,9 @@ try
         x.getDetails().getGroup().getId().getValue());
 
 
-    %% P/D/I
+% Create Project/Dataset/Image
+% ============================
+
     % Create a project/dataset/image
     disp('Creating projects');
     project1 = createProject(session, 'project-1');
@@ -108,7 +110,9 @@ try
     image2 = createObject(session, 'image', 'image-1', 'group', groupId);
     imageId1 = image1.getId().getValue();
 
-    %% File Annotation
+% Create File Annotation
+% ======================
+
     disp('File annotation');
     % Create a local file
     fprintf(1, 'Creating local file with content: %s\n', fileContent);
@@ -227,7 +231,9 @@ try
     fas = getScreenFileAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(fa, fas), 'WriteData: Could not find annotation');
 
-    %% Comment Annotation
+% Create Comment Annotation
+% =========================
+
     disp('Comment annotation');
 
     disp('Creating comment annotations');
@@ -288,7 +294,9 @@ try
     cas = getScreenCommentAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(ca, cas), 'WriteData: Could not find annotation');
 
-    %% Double Annotation
+% Create Double Annotation
+% ========================
+
     disp('Double annotation');
 
     disp('Creating double annotations');
@@ -349,7 +357,9 @@ try
     das = getScreenDoubleAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(da, das), 'WriteData: Could not find annotation');
 
-    %% Long Annotation
+% Create Long Annotation
+% ======================
+
     disp('Long annotation');
 
     disp('Creating long annotations');
@@ -410,7 +420,9 @@ try
     las = getScreenLongAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(la, las), 'WriteData: Could not find annotation');
 
-    %% Map Annotation
+% Create Map Annotation
+% =====================
+
     disp('Map annotation');
 
     disp('Creating map annotations');
@@ -471,7 +483,9 @@ try
     mas = getObjectAnnotations(session, 'map', 'screen', screenId1, 'include', ns);
     assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
 
-    %% Tag Annotation
+% Create Tag Annotation
+% =====================
+
     disp('Tag annotation');
 
     disp('Creating tag annotations');
@@ -532,7 +546,9 @@ try
     tas = getScreenTagAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
 
-    %% Timestamp Annotation
+% Create Timestamp Annotation
+% ===========================
+
     disp('Timestamp annotation');
 
     disp('Creating timestamp annotations');
@@ -593,7 +609,9 @@ try
     tas = getScreenTimestampAnnotations(session, screenId1, 'include', ns);
     assert(hasAnnotation(ta, tas), 'WriteData: Could not find annotation');
 
-    %% XML Annotation
+% Create XML Annotation
+% =====================
+
     disp('XML annotation');
 
     disp('Creating XML annotations');

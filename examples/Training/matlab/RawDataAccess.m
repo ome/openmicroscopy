@@ -53,7 +53,9 @@ try
     fprintf(1, 'Size C: %g\n', sizeC);
     fprintf(1, 'Size T: %g\n', sizeT);
     
-    %% Planes
+% Plane
+% =====
+
     % The following loop initializes a raw pixels store, reads the pixels
     % data and closes the store for each method call
     disp('Reading planes with raw pixels store re-initialization');
@@ -85,7 +87,9 @@ try
     store.close();
     toc
     
-    %% Tiles
+% Tile
+% ====
+
     % The following loop initializes a raw pixels store, reads the pixels
     % data and closes the store for each method call
     disp('Reading tiles with raw pixels store re-initialization');
@@ -121,7 +125,9 @@ try
     store.close();
     toc
 
-    %% Stacks
+% Stack
+% =====
+
     % The following loop initializes a raw pixels store, reads the pixels
     % data and closes the store for each method call
     disp('Reading stacks with raw pixels store re-initialization');
@@ -148,8 +154,10 @@ try
     end
     store.close();
     toc
-    
-    %% Hypercube
+
+% Hypercube
+% =========
+
     disp('Reading hypercube');
 
     %Create the store to load the stack

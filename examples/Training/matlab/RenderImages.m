@@ -39,7 +39,8 @@ try
     pixels = image.getPrimaryPixels();
     pixelsId = pixels.getId().getValue();
     
-    % Rendering
+% Create rendering engine
+% =======================
     
     % Follow an example indicating, how to create a rendering engine.
     disp('Rendering the image');
@@ -53,7 +54,10 @@ try
     end
     % start the rendering engine
     re.load();
-    
+
+% Render plane
+% ============
+        
     % render a plane as compressed. Possible to render it uncompressed.
     pDef = omero.romio.PlaneDef;
     pDef.z = re.getDefaultZ();
