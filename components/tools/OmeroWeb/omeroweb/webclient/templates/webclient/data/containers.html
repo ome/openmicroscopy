@@ -780,10 +780,10 @@
             <ul class="toolbar">
 
             {% ifequal menu 'usertags' %}
-                <li><input id="addtagButton" class="button button-disabled" type="image" title="Create new Tag"
-                    src="{% static "webclient/image/left_sidebar_icon_tag.png" %}" alt="Create new project" /></li>
                 <li><input id="addtagsetButton" class="button button-disabled" type="image" title="Create new Tag Set"
                     src="{% static "webclient/image/left_sidebar_icon_tags.png" %}" alt="Create new dataset" /></li>
+                <li><input id="addtagButton" class="button button-disabled" type="image" title="Create new Tag"
+                    src="{% static "webclient/image/left_sidebar_icon_tag.png" %}" alt="Create new project" /></li>
             {% else %}
 					
 			<li><input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /></li>
