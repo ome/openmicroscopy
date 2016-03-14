@@ -36,8 +36,9 @@ def blocks(file):
     for line in lines(file):
         if END_MARKER in line:
             break
-        elif line.strip() and not (re.match('# =', line) or re.match('% =', line) \
-                or re.match('// =', line)):
+        elif (line.strip() and not (re.match('# =', line) or
+                                    re.match('% =', line) or
+                                    re.match('// =', line))):
             block.append(line.rstrip())
         elif block:
             # yield ''.join(block).strip()
@@ -334,6 +335,7 @@ class MatlabParser(Parser):
         # self.addFilter(r'\*(.+?)\*', 'emphasis')
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
+
 class JavaParser(Parser):
     """
     A specific Parser that adds rules for Java
@@ -351,6 +353,7 @@ class JavaParser(Parser):
 START_MARKER = "start-code"
 END_MARKER = "end-code"
 
+
 def check_header(file_lines, quiet=False):
     """
     Checks the first N lines of the file that they match
@@ -358,11 +361,11 @@ def check_header(file_lines, quiet=False):
     """
     lines = []
     for line in file_lines:
-        idx = len(lines)
         lines.append(line)
         if START_MARKER in line:
             return len(lines)
     return len(lines)
+
 
 def parseMatlab(Parser):
     """
@@ -386,6 +389,7 @@ def parseMatlab(Parser):
         'Render Images']
     parser = MatlabParser(handler)
     parsefiles(parser, files, titles)
+
 
 def parsePython(Parser):
     """
@@ -418,6 +422,7 @@ def parsePython(Parser):
     parser = PythonParser(handler)
     parsefiles(parser, files, titles)
 
+
 def parseJava(Parser):
     """
     Generates a doc page for the Java files.
@@ -443,7 +448,8 @@ def parseJava(Parser):
     parser = JavaParser(handler)
     parsefiles(parser, files, titles)
 
-def parsefiles(parser=Parser, files = [], titles = []):
+
+def parsefiles(parser=Parser, files=[], titles=[]):
     '''
     Parse the files
     '''
@@ -461,4 +467,3 @@ if __name__ == "__main__":
         parseJava(handler)
     else:
         parsePython(handler)
-        
