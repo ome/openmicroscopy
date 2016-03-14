@@ -447,6 +447,15 @@ public class ROITable
     public void setIDFilter(Collection<Long> onlyShowFolderIds) {
         this.onlyShowFolderIds = onlyShowFolderIds;
     }
+    
+    /**
+     * Reference to the list of folder ids which should be displayed.
+     * Can be empty (ie all folders shown).
+     * @return See above.
+     */
+    public Collection<Long> getIDFilter() {
+        return this.onlyShowFolderIds;
+    }
 
     /**
      * Enable/Disable filtering

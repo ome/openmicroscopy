@@ -293,13 +293,14 @@ public class ROIFacility extends Facility {
      *            The ROIs to add to the Folders
      * @param folders
      *            The Folders to add the ROIs to
+     * @return updated list of ROIData objects.
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public void addRoisToFolders(SecurityContext ctx, long imageID,
+    public Collection<ROIData> addRoisToFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders)
             throws DSOutOfServiceException, DSAccessException {
-        addRoisToFolders(ctx, imageID, roiList, folders, false);
+        return addRoisToFolders(ctx, imageID, roiList, folders, false);
     }
     
     /**
@@ -316,10 +317,11 @@ public class ROIFacility extends Facility {
      * @param removeFromOtherFolders
      *            Pass <code>true</code> if the ROIs should only be linked to
      *            the specified folders, others will be unlinked.
+     * @return updated list of ROIData objects.
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public void addRoisToFolders(SecurityContext ctx, long imageID,
+    public Collection<ROIData> addRoisToFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders, boolean removeFromOtherFolders)
             throws DSOutOfServiceException, DSAccessException {
 
@@ -403,9 +405,15 @@ public class ROIFacility extends Facility {
             if (!toSave.isEmpty())
                 gateway.getFacility(DataManagerFacility.class)
                         .saveAndReturnObject(ctx, toSave, null, null);
+            
+            Collection<ROIData> ret = new ArrayList<ROIData>(rois.size());
+            for (Roi roi : rois)
+                ret.add(new ROIData(roi));
+            return ret;
 
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
+            return Collections.EMPTY_LIST;
         }
     }
 
@@ -420,10 +428,11 @@ public class ROIFacility extends Facility {
      *            The ROIs to remove from the folders
      * @param folders
      *            The Folders to remove the ROIs from
+     * @return updated list of ROIData objects.
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public void removeRoisFromFolders(SecurityContext ctx, long imageID,
+    public Collection<ROIData> removeRoisFromFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders)
             throws DSOutOfServiceException, DSAccessException {
 
@@ -451,8 +460,13 @@ public class ROIFacility extends Facility {
                 }
             }
 
+            Collection<ROIData> ret = new ArrayList<ROIData>(serverRoiList.size());
+            for (Roi roi : serverRoiList)
+                ret.add(new ROIData(roi));
+            return ret;
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
+            return Collections.EMPTY_LIST;
         }
 
     }

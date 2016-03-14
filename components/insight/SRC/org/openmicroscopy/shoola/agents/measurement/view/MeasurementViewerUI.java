@@ -68,6 +68,7 @@ import omero.gateway.model.ChannelData;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -1063,6 +1064,12 @@ class MeasurementViewerUI
     void rebuildManagerTable()
     { 
     	if (!model.isHCSData()) roiManager.rebuildTable();
+    }
+    
+    /** Rebuilds the ROI table. */
+    void rebuildManagerTable(Collection result, ROIFolderAction action)
+    { 
+        if (!model.isHCSData()) roiManager.rebuildTable(result, action);
     }
     
     /** Sets the value in the tool bar.*/

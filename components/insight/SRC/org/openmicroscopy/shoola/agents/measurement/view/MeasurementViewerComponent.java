@@ -39,7 +39,6 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
@@ -55,6 +54,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.model.ROIResult;
 
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
 import omero.log.LogMessage;
@@ -927,6 +927,28 @@ class MeasurementViewerComponent
 		}
 	}
 
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setUpdateROIComponent(Collection, ROIFolderAction)
+     */
+    public void setUpdateROIComponent(Collection result, ROIFolderAction action) 
+    {
+        Registry reg = MeasurementAgent.getRegistry();
+        UserNotifier un = reg.getUserNotifier();
+        try {
+            model.removeAllROI();
+            view.rebuildManagerTable(result, action);
+            view.clearInspector();
+            view.refreshResultsTable();
+            view.updateDrawingArea();
+        } catch (NoSuchROIException e) {
+            reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
+            un.notifyInfo("Save ROI", "Cannot save ROI " +
+                                        "for "+model.getImageID());
+        }
+        model.fireLoadROIServerOrClient(false);
+    }
+    
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#setUpdateROIComponent(Collection)

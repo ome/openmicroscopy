@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -648,6 +649,16 @@ class ObjectManager extends JPanel implements TabPaneInterface {
      */
     void showROIManagementMenu(int x, int y) {
         objectsTable.showROIManagementMenu(view.getDrawingView(), x, y);
+    }
+
+    /** Rebuilds Tree */
+    void rebuildTable(Collection result, ROIFolderAction action) {
+        if (action == ROIFolderAction.CREATE_FOLDER && !result.isEmpty()) {
+            FolderData f = (FolderData) result.iterator().next();
+            if (!objectsTable.getIDFilter().isEmpty())
+                objectsTable.getIDFilter().add(f.getId());
+        }
+        rebuildTable();
     }
 
     /** Rebuilds Tree */

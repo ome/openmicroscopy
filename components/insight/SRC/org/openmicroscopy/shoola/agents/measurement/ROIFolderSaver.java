@@ -166,7 +166,7 @@ public class ROIFolderSaver extends MeasurementViewerLoader {
     public void handleResult(Object result) {
         if (viewer.getState() == MeasurementViewer.DISCARDED)
             return; 
-        viewer.setUpdateROIComponent((Collection) result);
+        viewer.setUpdateROIComponent((Collection) result, action);
     }
 
 }
