@@ -34,6 +34,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1496,7 +1497,7 @@ public class ROITable
         if (target == null) {
             if (objects.iterator().next().isFolderNode()) {
                 Collection<FolderData> toSave = new ArrayList<FolderData>();
-                for (ROINode n : objects) {
+                for (ROINode n : dropChildFolderNodes(objects)) {
                     FolderData folder = (FolderData) n.getUserObject();
                     folder.setParentFolder(null);
                     toSave.add(folder);
@@ -1527,7 +1528,7 @@ public class ROITable
         if (objects.iterator().next().isFolderNode()) {
 
             List<FolderData> folders = new ArrayList<FolderData>(objects.size());
-            for (ROINode n : objects) {
+            for (ROINode n : dropChildFolderNodes(objects)) {
                 FolderData f = (FolderData) n.getUserObject();
                 f.setParentFolder(targetFolder.asFolder());
                 folders.add(f);
@@ -1552,6 +1553,52 @@ public class ROITable
             manager.moveROIsToFolder(rois,
                     Collections.singletonList(targetFolder));
         }
+    }
+    
+    /**
+     * Returns a List of ROINodes with top level nodes only. E. g. Consider a
+     * branch A -> B -> C, if objects contains node B and C, this method will
+     * return node B only (as C is a child of B).
+     * 
+     * @param objects
+     *            The nodes to check
+     * @return See above
+     */
+    private List<ROINode> dropChildFolderNodes(List<ROINode> objects) {
+
+        List<ROINode> sorted = new ArrayList<ROINode>();
+        for (ROINode n : objects) {
+            if (n.isFolderNode())
+                sorted.add(n);
+        }
+
+        Collections.sort(sorted, new Comparator<ROINode>() {
+            @Override
+            public int compare(ROINode o1, ROINode o2) {
+                return o1.getPath().getPathCount()
+                        - o2.getPath().getPathCount();
+            }
+        });
+
+        List<ROINode> result = new ArrayList<ROINode>();
+        for (ROINode n1 : sorted) {
+
+            boolean contains = false;
+            for (ROINode n2 : sorted) {
+                if (n2 == n1)
+                    continue;
+
+                if (n2.getPath().isDescendant(n1.getPath())) {
+                    contains = true;
+                    break;
+                }
+            }
+
+            if (!contains)
+                result.add(n1);
+        }
+
+        return result;
     }
     
     /**
