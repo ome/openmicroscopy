@@ -366,6 +366,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		        model.getImportFor());
 		
 		addPropertyChangeListener(this);
+		
+		addButton.setEnabled(true);
 	}
 
 	/** 
@@ -508,6 +510,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		addButton.setToolTipText(TOOLTIP_QUEUE_ITEMS);
 		addButton.addActionListener(this);
 		addButton.setActionCommand("" + CMD_ADD);
+		addButton.setEnabled(false);
 		
 		closeButton = new JButton(TEXT_CLOSE);
 		closeButton.setToolTipText(TOOLTIP_CLOSE_DIALOGUE);
