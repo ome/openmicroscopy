@@ -558,20 +558,42 @@
                          }
                     });
 
-                    // If a project is selected, create dataset under it
+                    // Default: Create an orphan of "folder_type" ('project', 'dataset', 'screen', 'tag', 'tagset' etc. )
+                    url = '{% url 'manage_action_containers' "addnewcontainer" %}';
+                    // Find the 'experimenter' node as parent
+                    var root = inst.get_node('#');
+                    $.each(root.children, function(index, id) {
+                        var node = inst.get_node(id);
+                        if (node.type === 'experimenter' && node.data.obj.id === {{ ome.user_id }}) {
+                            parent = node;
+                            // Break out of each
+                            return false;
+                        }
+                    });
+
+                    // If a project is selected (or selected is a child of project) create dataset under it
                     var url, position = 0;
                     var parent = false;
-                    if(selected.length == 1 && selected[0].type === 'project' && cont_type == 'dataset') {
-                        url = '{% url 'manage_action_containers' "addnewcontainer" %}project/'+selected[0].data.obj.id+'/';
-                        parent = selected[0];
-                    // If a tagset is selected, create tag under it
-                    } else if(selected.length == 1 && selected[0].type === 'tagset' && cont_type == 'tag') {
-                        url = '{% url 'manage_action_containers' "addnewcontainer" %}tagset/'+selected[0].data.obj.id+'/';
-                        parent = selected[0];
-                    // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen', 'tag', 'tagset' etc. )
+                    if(selected.length == 1 && cont_type == 'dataset') {
+                        if (selected[0].type === 'project') {
+                            parent = selected[0];
+                        } else if (inst.get_node(selected[0].parent).type === 'project') {
+                            parent = inst.get_node(selected[0].parent);
+                        }
+                    // If a tagset is selected (or selected is a child of tagset), create tag under it
+                    } else if(selected.length == 1 && cont_type == 'tag') {
+                        if (selected[0].type === 'tagset') {
+                            parent = selected[0];
+                        } else if (inst.get_node(selected[0].parent).type === 'tagset') {
+                            parent = inst.get_node(selected[0].parent);
+                        }
+                    }
+                    if (parent) {
+                        url = '{% url 'manage_action_containers' "addnewcontainer" %}' + parent.type + '/' + parent.data.obj.id + '/';
                     } else {
+                        // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen', 'tag', 'tagset' etc. )
                         url = '{% url 'manage_action_containers' "addnewcontainer" %}';
-                        // Make sure top level objects get added to jsTree root (current selected may be project, dataset, image or screen)
+                        // Find 'experimenter' to be parent
                         var root = inst.get_node('#');
                         $.each(root.children, function(index, id) {
                             var node = inst.get_node(id);
