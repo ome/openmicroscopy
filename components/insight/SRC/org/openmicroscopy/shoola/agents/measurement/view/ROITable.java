@@ -1306,7 +1306,7 @@ public class ROITable
         action = CreationActionType.ADD_TO_FOLDER;
         Collection<Object> tmp = new ArrayList<Object>();
         for(FolderData folder : manager.getFolders()) {
-            if(displayFolder(folder))    
+            if(folder.canLink() && displayFolder(folder))    
                 tmp.add(folder);
         }
         SelectionWizard wiz = new SelectionWizard(null, tmp, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails());
