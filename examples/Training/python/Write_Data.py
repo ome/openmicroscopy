@@ -30,6 +30,7 @@ conn.connect()
 
 # Create a new Dataset
 # ====================
+datasetObj = omero.model.DatasetI()
 datasetObj.setName(rstring("New Dataset"))
 datasetObj = conn.getUpdateService().saveAndReturnObject(datasetObj)
 datasetId = datasetObj.getId().getValue()
