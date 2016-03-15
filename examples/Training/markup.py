@@ -17,6 +17,7 @@ $ python markup.py > wikiText.txt    # to file
 
 import sys
 import re
+import os
 
 
 def lines(file):
@@ -379,16 +380,8 @@ def parseMatlab(Parser):
         'matlab/ROIs.m',
         'matlab/DeleteData.m',
         'matlab/RenderImages.m']
-    titles = [
-        'Connect to OMERO',
-        'Read data',
-        'Raw data access',
-        'Write data',
-        'ROIs',
-        'Delete data',
-        'Render Images']
     parser = MatlabParser(handler)
-    parsefiles(parser, files, titles)
+    parsefiles(parser, files)
 
 
 def parsePython(Parser):
@@ -407,20 +400,8 @@ def parsePython(Parser):
         'python/Render_Images.py',
         'python/Create_Image.py',
         'python/Filesets.py']
-    titles = [
-        'Connect to OMERO',
-        'Read data',
-        'Groups and permissions',
-        'Raw data access',
-        'Write data',
-        'OMERO tables',
-        'ROIs',
-        'Delete data',
-        'Render Images',
-        'Create Image',
-        'Filesets - New in OMERO 5']
     parser = PythonParser(handler)
-    parsefiles(parser, files, titles)
+    parsefiles(parser, files)
 
 
 def parseJava(Parser):
@@ -436,26 +417,25 @@ def parseJava(Parser):
         'java/src/training/DeleteData.java',
         'java/src/training/RenderImages.java',
         'java/src/training/CreateImage.java']
-    titles = [
-        'Read data',
-        'Raw data access',
-        'Write data',
-        'OMERO tables',
-        'ROIs',
-        'Delete data',
-        'Render Images',
-        'Create Image']
     parser = JavaParser(handler)
-    parsefiles(parser, files, titles)
+    parsefiles(parser, files)
 
 
-def parsefiles(parser=Parser, files=[], titles=[]):
+def parsefiles(parser=Parser, files=[]):
     '''
     Parse the files
     '''
-    for f, name in zip(files, titles):
+    for f in files:
+        # get title from file name
+        t = os.path.splitext(os.path.basename(f))[0]
+        t = t.replace ("_", "")
+        l = re.findall('[A-Z][a-z]*', t)
+        t = " ".join(l)
+        # specific case to handle.
+        t = t.replace("R O I", "ROI")
+        t = t.replace("O M E R O", "OMERO")
         read = open(f, 'r')
-        parser.parse(read, name)
+        parser.parse(read, t)
 
 
 if __name__ == "__main__":
