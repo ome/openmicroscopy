@@ -32,14 +32,14 @@ public class SmartEllipseI extends omero.model.EllipseI implements SmartShape {
 
     public Shape asAwtShape() {
         try {
-            double cx = getX().getValue();
-            double cy = getY().getValue();
-            double rx = getRadiusX().getValue();
-            double ry = getRadiusY().getValue();
-            double height = ry * 2;
-            double width = rx * 2;
-            double cornerX = cx - rx;
-            double cornerY = cy - ry;
+            double x = getX().getValue();
+            double y = getY().getValue();
+            double radiusx = getRadiusX().getValue();
+            double radiusy = getRadiusY().getValue();
+            double height = radiusy * 2;
+            double width = radiusx * 2;
+            double cornerX = x - radiusx;
+            double cornerY = y - radiusy;
             Ellipse2D.Double e = new Ellipse2D.Double(cornerX, cornerY, width,
                     height);
             return e;

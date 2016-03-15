@@ -69,11 +69,11 @@ public interface SmartShape {
             appendDbPoint(sb, p.x.getValue(), p.y.getValue());
         }
 
-        public static void appendDbPoint(StringBuilder sb, double cx, double cy) {
+        public static void appendDbPoint(StringBuilder sb, double x, double y) {
             sb.append("(");
-            sb.append(cx);
+            sb.append(x);
             sb.append(",");
-            sb.append(cy);
+            sb.append(y);
             sb.append(")");
         }
 
@@ -81,24 +81,24 @@ public interface SmartShape {
             appendSvgPoint(sb, p.x.getValue(), p.y.getValue());
         }
 
-        public static void appendSvgPoint(StringBuilder sb, double cx, double cy) {
-            sb.append(cx);
+        public static void appendSvgPoint(StringBuilder sb, double x, double y) {
+            sb.append(x);
             sb.append(",");
-            sb.append(cy);
+            sb.append(y);
             sb.append(" ");
         }
 
-        public static boolean appendSegement(StringBuilder sb, boolean first,
-                double cx, double cy) {
+        public static boolean appendSegment(StringBuilder sb, boolean first,
+                double x, double y) {
             if (first) {
                 sb.append("M ");
                 first = false;
             } else {
                 sb.append("L ");
             }
-            sb.append(cx);
+            sb.append(x);
             sb.append(" ");
-            sb.append(cy);
+            sb.append(y);
             sb.append(" ");
             return first;
         }
@@ -107,9 +107,9 @@ public interface SmartShape {
             StringBuilder sb = new StringBuilder(points.size() * 16);
             boolean first = true;
             for (Point point : points) {
-                double cx = point.getX().getValue();
-                double cy = point.getY().getValue();
-                first = appendSegement(sb, first, cx, cy);
+                double x = point.getX().getValue();
+                double y = point.getY().getValue();
+                first = appendSegment(sb, first, x, y);
             }
             if (close) {
                 sb.append("Z");
@@ -124,7 +124,7 @@ public interface SmartShape {
             PointsParser pp = new PointsParser();
             PointsHandler ph = new DefaultPointsHandler() {
                 public void point(float x, float y) throws ParseException {
-                    first[0] = appendSegement(sb, first[0], x, y);
+                    first[0] = appendSegment(sb, first[0], x, y);
                 }
             };
             pp.setPointsHandler(ph);
