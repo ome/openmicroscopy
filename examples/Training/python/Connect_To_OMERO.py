@@ -25,14 +25,14 @@ if __name__ == '__main__':
     """
 
     # Connect to the Python Blitz Gateway
-    # =============================================================
+    # ===================================
     # Make a simple connection to OMERO, printing details of the
     # connection. See OmeroPy/Gateway for more info
     conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
     connected = conn.connect()
 
     # Check if you are connected.
-    # =============================================================
+    # ===========================
     if not connected:
         import sys
         sys.stderr.write(
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # Using secure connection.
-    # =============================================================
+    # ========================
     # By default, once we have logged in, data transfer is not encrypted
     # (faster)
     # To use a secure connection, call setSecure(True):
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     # conn.setSecure(True)         # <--------- Uncomment this
 
     # Current session details
-    # =============================================================
+    # =======================
     # By default, you will have logged into your 'current' group in OMERO.
     # This can be changed by switching group in the OMERO.insight or OMERO.web
     # clients.
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     ctx = conn.getEventContext()
     # print ctx     # for more info
 
-    # Close connection:
-    # =================================================================
+    # Close connection
+    # ================
     # When you are done, close the session to free up server resources.
     conn._closeSession()

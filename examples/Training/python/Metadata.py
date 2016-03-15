@@ -16,14 +16,14 @@ from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
 
 
-# Create a connection:
-# =================================================================
+# Create a connection
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Load Instrument:
-# =================================================================
+# Load Instrument
+# ===============
 image = conn.getObject("Image", imageId)
 instrument = image.getInstrument()
 if instrument is not None:
@@ -37,8 +37,8 @@ if instrument is not None:
             microscope.getType().getValue())
 
 
-# Load ObjectiveSettings:
-# =================================================================
+# Load ObjectiveSettings
+# ======================
 if image.getObjectiveSettings():
     objSet = image.getObjectiveSettings()
     print "Objective Settings:"
@@ -58,8 +58,8 @@ if image.getObjectiveSettings():
         print "  Working Distance:", obj.getWorkingDistance()
 
 
-# Load Channels, LogicalChannels, and LightSourceSettings:
-# =================================================================
+# Load Channels, LogicalChannels, and LightSourceSettings
+# =======================================================
 for ch in image.getChannels():
     print "Channel: ", ch.getLabel()
     logicalChannel = ch.getLogicalChannel()
@@ -115,8 +115,8 @@ for ch in image.getChannels():
                 pass
 
 
-# Load the 'Original Metadata' for the image:
-# =================================================================
+# Load the 'Original Metadata' for the image
+# ==========================================
 om = image.loadOriginalMetadata()
 if om is not None:
     print "\n\noriginal_metadata"
@@ -134,7 +134,7 @@ if om is not None:
             print "   ", keyValue[0], "NOT FOUND"
 
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()

@@ -26,13 +26,13 @@ from Parse_OMERO_Properties import datasetId, plateId
 start-code
 """
 
-# Create a connection:
-# =================================================================
+# Create a connection
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
-# Create a name for the Original File (should be unique):
-# =================================================================
+# Create a name for the Original File (should be unique)
+# ======================================================
 from random import random
 tablename = "TablesDemo:%s" % str(random())
 col1 = omero.grid.LongColumn('Uid', 'testLong', [])
@@ -40,15 +40,15 @@ col2 = omero.grid.StringColumn('MyStringColumnInit', '', 64, [])
 columns = [col1, col2]
 
 
-# Create and initialize a new table:
-# =================================================================
+# Create and initialize a new table
+# =================================
 repositoryId = 1
 table = conn.c.sf.sharedResources().newTable(repositoryId, tablename)
 table.initialize(columns)
 
 
-# Add data to the table:
-# =================================================================
+# Add data to the table
+# =====================
 ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 strings = ["one", "two", "three", "four", "five",
            "six", "seven", "eight", "nine", "ten"]
@@ -59,11 +59,11 @@ table.addData(data)
 table.close()           # when we are done, close.
 
 
-# Get the table as an original file:
-# =================================================================
+# Get the table as an original file
+# =================================
 orig_file = table.getOriginalFile()
 orig_file_id = orig_file.id.val
-# ...so you can attach this data to an object. E.g. Dataset
+# ...so you can attach this data to an object e.g. Dataset
 fileAnn = omero.model.FileAnnotationI()
 # use unloaded OriginalFileI
 fileAnn.setFile(omero.model.OriginalFileI(orig_file_id, False))
@@ -74,8 +74,8 @@ link.setChild(omero.model.FileAnnotationI(fileAnn.id.val, False))
 conn.getUpdateService().saveAndReturnObject(link)
 
 
-# Table API:
-# =================================================================
+# Table API
+# =========
 # .. seealso:: :javadoc:` OMERO Tables <slice2html/omero/grid/Table.html>`
 
 openTable = conn.c.sf.sharedResources().openTable(orig_file)
@@ -86,8 +86,8 @@ rowCount = openTable.getNumberOfRows()
 print "Row count:", rowCount
 
 
-# Get data from every column of the specified rows:
-# =================================================================
+# Get data from every column of the specified rows
+# ================================================
 rowNumbers = [3, 5, 7]
 print "\nGet All Data for rows: ", rowNumbers
 data = openTable.readCoordinates(range(rowCount))
@@ -97,8 +97,8 @@ for col in data.columns:
         print "   ", v
 
 
-# Get data from specified columns of specified rows:
-# =================================================================
+# Get data from specified columns of specified rows
+# =================================================
 colNumbers = [1]
 start = 3
 stop = 7
@@ -123,16 +123,16 @@ for col in data.columns:
 openTable.close()           # we're done
 
 
-# In future, to get the table back from Original File:
-# =================================================================
+# In future, to get the table back from Original File
+# ===================================================
 orig_table_file = conn.getObject(
     "OriginalFile", attributes={'name': tablename})    # if name is unique
 savedTable = conn.c.sf.sharedResources().openTable(orig_table_file._obj)
 print "Opened table with row-count:", savedTable.getNumberOfRows()
 
 
-# Populate a table on a Plate from a csv file:
-# =================================================================
+# Populate a table on a Plate from a csv file
+# ===========================================
 colNames = "Well, Well Type, Concentration\n"
 csvLines = [
     colNames,
@@ -150,7 +150,7 @@ ctx.write_to_omero()
 os.remove('data.csv')
 
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()
