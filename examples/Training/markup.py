@@ -372,14 +372,18 @@ def parseMatlab(Parser):
     """
     Generates a doc page for the Matlab files.
     """
-    files = [
-        'matlab/ConnectToOMERO.m',
-        'matlab/ReadData.m',
-        'matlab/RawDataAccess.m',
-        'matlab/WriteData.m',
-        'matlab/ROIs.m',
-        'matlab/DeleteData.m',
-        'matlab/RenderImages.m']
+    exclude = [
+        'exampleSuite.m',
+        'LoadMetadataAdvanced.m',
+        'ReadDataAdvanced.m',
+        'parseOmeroProperties.m',
+        ]
+    files = []
+    os.chdir("matlab")
+    for file in os.listdir("."):
+        if os.path.isfile(file) and file not in exclude:
+            files.append(file)
+
     parser = MatlabParser(handler)
     parsefiles(parser, files)
 
@@ -388,18 +392,18 @@ def parsePython(Parser):
     """
     Generates a doc page for the Python files.
     """
-    files = [
-        'python/Connect_To_OMERO.py',
-        'python/Read_Data.py',
-        'python/Groups_Permissions.py',
-        'python/Raw_Data_Access.py',
-        'python/Write_Data.py',
-        'python/Tables.py',
-        'python/ROIs.py',
-        'python/Delete.py',
-        'python/Render_Images.py',
-        'python/Create_Image.py',
-        'python/Filesets.py']
+    exclude = [
+        '__main__.py',
+        'Metadata.py',
+        'Parse_OMERO_Properties.py',
+        'Scripting_Service_Example.py'
+        ]
+    files = []
+    os.chdir("python")
+    for file in os.listdir("."):
+        if os.path.isfile(file) and file not in exclude:
+            files.append(file)
+
     parser = PythonParser(handler)
     parsefiles(parser, files)
 
@@ -408,15 +412,17 @@ def parseJava(Parser):
     """
     Generates a doc page for the Java files.
     """
-    files = [
-        'java/src/training/ReadData.java',
-        'java/src/training/RawDataAccess.java',
-        'java/src/training/WriteData.java',
-        'java/src/training/HowToUseTables.java',
-        'java/src/training/ROIs.java',
-        'java/src/training/DeleteData.java',
-        'java/src/training/RenderImages.java',
-        'java/src/training/CreateImage.java']
+    exclude = [
+        'Setup.java',
+        'LoadMetadataAdvanced.java',
+        'ReadDataAdvanced.java'
+        ]
+    files = []
+    os.chdir("java/src/training")
+    for file in os.listdir("."):
+        if os.path.isfile(file) and file not in exclude:
+            files.append(file)
+
     parser = JavaParser(handler)
     parsefiles(parser, files)
 
@@ -428,7 +434,7 @@ def parsefiles(parser=Parser, files=[]):
     for f in files:
         # get title from file name
         t = os.path.splitext(os.path.basename(f))[0]
-        t = t.replace ("_", "")
+        t = t.replace("_", "")
         l = re.findall('[A-Z][a-z]*', t)
         t = " ".join(l)
         # specific case to handle.
