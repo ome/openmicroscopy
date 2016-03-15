@@ -51,6 +51,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
@@ -172,6 +173,9 @@ class ObjectManager extends JPanel implements TabPaneInterface {
     /** The filter popup menu */
     private JPopupMenu popupMenu;
 
+    /** The 'Select All' popup menu item */
+    private SelectableMenuItem<String> selectAll;
+    
     /** References to all popup menu items */
     Map<Long, Object> popupMenuItems = new HashMap<Long, Object>();
 
@@ -312,6 +316,22 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         popupMenu.removeAll();
 
         popupMenuItems.clear();
+        
+        selectAll = new SelectableMenuItem(
+                (selectedFolders == null || selectedFolders.size() == model
+                        .getFolders().size()), "Select All", true);
+        selectAll.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                if (SelectableMenuItem.SELECTION_PROPERTY.equals(name)) {
+                    handleSelectAll(selectAll.isChecked());
+                }
+            }
+        });
+        popupMenu.add(selectAll);
+        popupMenu.add(new JSeparator());
+        
         List<Object> topLevelMenuItems = new ArrayList<Object>();
 
         // As FolderData doesn't have references to children, start from the
@@ -481,6 +501,39 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         }
         return i;
     }
+    
+    /**
+     * Handles the 'Select All' action
+     * 
+     * @param selectAll
+     *            Pass <code>true</code> to select all,
+     *            <code>false<code> to deselect all
+     */
+    private void handleSelectAll(boolean selectAll) {
+        for (Object obj : popupMenuItems.values()) {
+            if (obj instanceof SelectableMenu) {
+                SelectableMenu<FolderData> menu = (SelectableMenu<FolderData>) obj;
+                menu.setMenuSelected(selectAll, false);
+            }
+            if (obj instanceof SelectableMenuItem) {
+                SelectableMenuItem<FolderData> menuitem = (SelectableMenuItem<FolderData>) obj;
+                menuitem.setChecked(selectAll, false);
+            }
+        }
+
+        if (selectedFolders == null)
+            selectedFolders = new HashSet<Long>();
+
+        if (selectAll) {
+            for (FolderData f : model.getFolders())
+                selectedFolders.add(f.getId());
+        } else {
+            selectedFolders.clear();
+        }
+
+        objectsTable.setIDFilter(selectedFolders);
+        rebuildTable();
+    }
 
     /**
      * Handles check/uncheck events of the filter popup menu
@@ -534,6 +587,9 @@ class ObjectManager extends JPanel implements TabPaneInterface {
             }
         }
 
+        selectAll.setChecked(selectedFolders == null
+                || selectedFolders.size() == model.getFolders().size(), false);
+ 
         // Set id filter on the table and refresh
         objectsTable.setIDFilter(selectedFolders);
         rebuildTable();
