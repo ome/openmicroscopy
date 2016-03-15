@@ -635,6 +635,34 @@ class MeasurementViewerModel
         return folders == null ? Collections.EMPTY_LIST : folders;
     }
 
+    /**
+     * Get the folders which contain ROIs for the current image
+     * 
+     * @return See above
+     */
+    Collection<FolderData> getUsedFolders() {
+        if (folders == null)
+            return Collections.EMPTY_LIST;
+
+        Collection<FolderData> result = new ArrayList<FolderData>();
+        for (FolderData f : folders) {
+            for (ROIData roi : f.copyROILinks()) {
+                if (roi.getImage().getId() == getImageID()) {
+                    addFolderAndParentFolders(f, result);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    private void addFolderAndParentFolders(FolderData f,
+            Collection<FolderData> coll) {
+        coll.add(f);
+        if (f.getParentFolder() != null)
+            addFolderAndParentFolders(f.getParentFolder(), coll);
+    }
+
 	/**
 	 * Sets the server ROIS.
 	 *

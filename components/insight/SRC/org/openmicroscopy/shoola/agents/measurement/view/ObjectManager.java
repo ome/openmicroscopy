@@ -690,7 +690,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
             throw new IllegalArgumentException("No control.");
         this.view = view;
         this.model = model;
-        this.control = control;
+        this.control = control; 
         initComponents();
         buildGUI();
     }
@@ -719,6 +719,16 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
     /** Rebuilds Tree */
     void rebuildTable() {
+        if (selectedFolders == null) {
+            // setup initial folder selection (only show folders
+            // which contain ROIs for the current image)
+            selectedFolders = new ArrayList<Long>();
+            for (FolderData f : model.getUsedFolders()) {
+                selectedFolders.add(f.getId());
+            }
+            objectsTable.setIDFilter(selectedFolders);
+        }
+        
         TreeMap<Long, ROI> roiList = model.getROI();
         Iterator<ROI> iterator = roiList.values().iterator();
         ROI roi;
