@@ -174,25 +174,6 @@ Test Copy Paste Image
     Select Image By Id                      ${imageId}
     Delete Container
 
-Test Copy Paste Orphaned Image
-    [Documentation]     Test copy pasting an orphaned Image into a Dataset. Check if the link exists on Both locations.
-
-    Wait Until Keyword Succeeds             ${TIMEOUT}    ${INTERVAL}     Reload Page
-    Select Experimenter
-    ${nodeId}                               Select Orphaned Images Section
-    ${imageId}                              Select First Orphaned Image
-    Click Element                           id=copyButton
-    ${dnodeId}                              Wait For Dataset Node Text              test copy-paste TO here
-    Click Node                              ${dnodeId}
-    Click Element                           id=pasteButton
-
-    Click Node                              ${dnodeId}
-    Wait Until Page Contains Element        xpath=//li[@id='${nodeId}']//li[@data-id='${imageId}']
-    Wait Until Page Contains Element        xpath=//li[@id='${dnodeId}']//li[@data-id='${imageId}']
-
-    Select Image By Id                      ${imageId}
-    Delete Container
-
 Test Copy Paste Plate
     [Documentation]     Test copy pasting a plate into another screen. Check if the link exists on both the screens.
     
