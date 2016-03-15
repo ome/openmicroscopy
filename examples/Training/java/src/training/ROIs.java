@@ -106,7 +106,7 @@ public class ROIs
      */
 
     /**
-     * Loads the image. 
+     * Loads the image.
      * @param imageID The id of the image to load.
      * @return See above.
      */
@@ -120,9 +120,7 @@ public class ROIs
 // Create ROIs
 // ===========
 
-    /** 
-     * Creates roi and retrieve it.
-     */
+    /** Creates roi and retrieve it. */
     private void createROIs()
             throws Exception
     {
@@ -138,7 +136,6 @@ public class ROIs
         rect.setTheZ(omero.rtypes.rint(0));
         rect.setTheT(omero.rtypes.rint(0));
         roi.addShape(rect);
-
         //Create a rectangular shape
         rect = new RectangleI();
         rect.setX(omero.rtypes.rdouble(10));
@@ -238,7 +235,8 @@ public class ROIs
         mask.setWidth(omero.rtypes.rdouble(100.0));
         mask.setHeight(omero.rtypes.rdouble(100.0));
         mask.setPixels(new PixelsI(image.getDefaultPixels().getId(), false));
-        ROIData roiData = roifac.saveROIs(ctx, image.getId(), Arrays.asList(new ROIData(roi))).iterator().next();
+        ROIData roiData = roifac.saveROIs(ctx, image.getId(),
+                Arrays.asList(new ROIData(roi))).iterator().next();
         //Retrieve the shape on plane (0, 0)
         List<ShapeData> shapes = roiData.getShapes(0, 0);
         Iterator<ShapeData> i = shapes.iterator();
@@ -315,7 +313,7 @@ public class ROIs
      */
     /**
      * Connects and invokes the various methods.
-     * @param args The login credentials
+     * @param args The login credentials.
      * @param imageId The image id
      */
     ROIs(String[] args, long imageId)
@@ -343,8 +341,8 @@ public class ROIs
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {

@@ -108,11 +108,13 @@ public class CreateImage
     }
 
     /**
-     * Returns a linearize version of the plane.
+     * Returns a linearized version of the plane.
      * @param z The selected z-section.
+     * @param c The selected wavelength.
      * @param t The selected timepoint.
      * @param sizeZ The number of z-sections.
-     * @return
+     * @param sizeZ The number of wavelengths.
+     * @return See above.
      */
     private Integer linearize(int z, int c, int t,  int sizeZ, int sizeC)
     {
@@ -130,7 +132,7 @@ public class CreateImage
 
     /**
      * Creates a new image with one channel from a source image.
-     * @param info The information about the data to handle.
+     * @param datasetID The dataset's id to link the new image to.
      */
     private void CreateNewImage(long datasetID)
             throws Exception
@@ -142,12 +144,10 @@ public class CreateImage
         int sizeX = pixels.getSizeX();
         int sizeY = pixels.getSizeY();
         long pixelsId = pixels.getId();
-
         //Sets the pixel size using units (new in 5.1.0)
         LengthI units = new LengthI(9.8, UnitsLength.ANGSTROM);
         pixels.setPixelSizeX(units);
         pixels.setPixelSizeY(units);
-
         if (sizeC <= 1)
             throw new Exception("The image must have at least 2 channels.");
         RawPixelsStorePrx store = null;
@@ -164,13 +164,11 @@ public class CreateImage
                     }
                 }
             }
-
         } catch (Exception e) {
             throw new Exception("Cannot retrieve the plane", e);
         } finally {
             if (store != null) store.close();
         }
-
         //Now we are going to create the new image.
         IPixelsPrx proxy = gateway.getPixelsService(ctx);
         List<IObject> l = proxy.getAllEnumerations(PixelsType.class.getName());
@@ -187,7 +185,6 @@ public class CreateImage
         }
         if (type == null)
             throw new Exception("Pixels Type not valid.");
-
         String name = "newImageFrom"+image.getId();
         List<Integer> channels = new ArrayList<Integer>();
         for (int c = 0; c < sizeC; c++) {
@@ -198,13 +195,11 @@ public class CreateImage
         if (idNew == null)
             throw new Exception("New image could not be created.");
         ImageData newImage = loadImage(idNew.getValue());
-
         //link the new image and the dataset hosting the source image.
         DatasetImageLink link = new DatasetImageLinkI();
         link.setParent(new DatasetI(datasetID, false));
         link.setChild(new ImageI(newImage.getId(), false));
         gateway.getUpdateService(ctx).saveAndReturnObject(link);
-
         //Write the data.
         try {
             store = gateway.getPixelsStore(ctx);
@@ -219,7 +214,6 @@ public class CreateImage
                 }
             }
             store.save();
-            System.err.println("image created");
         } catch (Exception e) {
             throw new Exception("Cannot set the plane", e);
         } finally {
@@ -234,8 +228,8 @@ public class CreateImage
     /**
      * Connects and invokes the various methods. 
      * @param args The login credentials
-     * @param imageId The image id
-     * @param datasetId The dataset id
+     * @param imageId The image's id
+     * @param datasetId The dataset's id
      */
     CreateImage(String[] args, long imageId, long datasetId)
     {
@@ -263,7 +257,7 @@ public class CreateImage
     /**
      * Runs the script without configuration options.
      * 
-     * @param args
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {

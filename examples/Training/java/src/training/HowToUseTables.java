@@ -67,11 +67,11 @@ public class HowToUseTables
 
     /**
      * Creates a number of empty rows.
-     * 
+     *
      * @param rows The number of rows.
      * @return See above.
      */
-    private Column[] createColumns(int rows) 
+    private Column[] createColumns(int rows)
     {
         Column[] newColumns = new Column[2];
         newColumns[0] = new LongColumn("Uid", "", new long[rows]);
@@ -152,15 +152,13 @@ public class HowToUseTables
 
     /**
      * Connects and invokes the various methods.
-     * 
-     * @param args The login credentials
+     *
+     * @param args The login credentials.
      */
     HowToUseTables(String[] args)
     {
         LoginCredentials cred = new LoginCredentials(args);
-
         gateway = new Gateway(new SimpleLogger());
-
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
@@ -178,8 +176,8 @@ public class HowToUseTables
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {

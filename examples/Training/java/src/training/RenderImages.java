@@ -170,8 +170,8 @@ public class RenderImages
 
     /**
      * Connects and invokes the various methods.
-     * @param args The login credentials
-     * @param imageId The image id
+     * @param args The login credentials.
+     * @param imageId The image id.
      */
     RenderImages(String[] args, long imageId)
     {	
@@ -198,8 +198,8 @@ public class RenderImages
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {

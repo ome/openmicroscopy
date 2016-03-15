@@ -136,8 +136,8 @@ public class DeleteData
 
     /**
      * Connects and invokes the various methods.
-     * 
-     * @param args The login credentials
+     *
+     * @param args The login credentials.
      */
     DeleteData(String[] args)
     {
@@ -165,7 +165,7 @@ public class DeleteData
     /**
      * Runs the script without configuration options.
      * 
-     * @param args
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {

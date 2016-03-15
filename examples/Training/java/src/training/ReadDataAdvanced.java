@@ -86,7 +86,6 @@ public class ReadDataAdvanced
             throws Exception
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-
         for (int i = 0; i < 3; i ++)
         {
             DatasetData d = new DatasetData();
@@ -123,7 +122,6 @@ public class ReadDataAdvanced
         // Return the first 10 hits or less.
         filter.limit = rint(10);
         filter.offset = rint(0);
-
         IQueryPrx proxy = gateway.getQueryService(ctx);
         List<IObject> datasets = (List<IObject>)
                 proxy.findAllByString("Dataset", "name", datasetName, caseSensitive,
@@ -134,12 +132,11 @@ public class ReadDataAdvanced
             Dataset d = (Dataset) obj;
             System.out.println("ID: " + d.getId().getValue() + " Name: " +
                     d.getName().getValue());
-
         }
     }
 
     /**
-     * Retrieve the Tags that match the ns value.
+     * Retrieve the Tags that match the namespace value.
      */
     private void loadTagsByNS()
             throws Exception
@@ -149,7 +146,6 @@ public class ReadDataAdvanced
         // Return the first 10 hits or less.
         filter.limit = rint(10);
         filter.offset = rint(0);
-
         IQueryPrx proxy = gateway.getQueryService(ctx);
         List<IObject> tags = (List<IObject>)
                 proxy.findAllByString("TagAnnotation", "ns",
@@ -166,7 +162,7 @@ public class ReadDataAdvanced
     /** 
      * Retrieve the projects and the orphaned datasets i.e. datasets not in
      * a project.
-     * 
+     *
      * If a project contains datasets, the datasets will automatically be loaded.
      */
     private void loadProjectsAndOrphanedDatasets()
@@ -176,10 +172,8 @@ public class ReadDataAdvanced
         ParametersI param = new ParametersI();
         long userId = gateway.getLoggedInUser().getId();
         param.exp(omero.rtypes.rlong(userId));
-
         //Load the orphaned datasets.
         param.orphan();
-
         //Do not load the images.
         param.noLeaves(); //indicate to load the images
         //param.noLeaves(); //no images loaded, this is the default value.
@@ -230,20 +224,17 @@ public class ReadDataAdvanced
 
     /**
      * Connects and invokes the various methods.
-     * 
-     * @param args The login credentials
+     *
+     * @param args The login credentials.
      */
     ReadDataAdvanced(String[] args)
     {
         LoginCredentials cred = new LoginCredentials(args);
-
         gateway = new Gateway(new SimpleLogger());
-
         try {
             // First connect.
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-
             createDatasets();
             createTags();
             loadDatasetsByName();
@@ -263,7 +254,7 @@ public class ReadDataAdvanced
     /**
      * Runs the script without configuration options.
      * 
-     * @param args
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {

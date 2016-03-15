@@ -223,22 +223,19 @@ public class RawDataAccess
 
     /**
      * end-code
-     */	
+     */
     /**
      * Connects and invokes the various methods.
-     * @param args The login credentials
-     * @param imageId The image id
+     * @param args The login credentials.
+     * @param imageId The image id.
      */
     RawDataAccess(String[] args, long imageId)
     {
         LoginCredentials cred = new LoginCredentials(args);
-
         gateway = new Gateway(new SimpleLogger());
-
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-
             image = loadImage(imageId);
             retrievePlane();
             retrieveTile();
@@ -257,8 +254,8 @@ public class RawDataAccess
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {

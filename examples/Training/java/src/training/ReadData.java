@@ -149,7 +149,7 @@ public class ReadData {
     /**
      * Retrieve the images contained in a dataset.
      * In that case, we specify the dataset's id.
-     * @param info The configuration information.
+     * @param datasetId The dataset's id.
      */
     @SuppressWarnings("unchecked")
     private void loadImagesInDataset(long datasetId) throws Exception {
@@ -161,12 +161,12 @@ public class ReadData {
             image = j.next();
             System.err
             .println("image:" + image.getId() + " " + image.getName());
-            // Do something
         }
     }
 
     /**
      * Retrieve an image if the identifier is known.
+     * @param imageId The image's id.
      */
     private void loadImage(long imageId) throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
@@ -201,7 +201,7 @@ public class ReadData {
      * To learn about the model go to ScreenPlateWell. Note that the wells are
      * not loaded.
      */
-    private void loadScreens() throws Exception {    
+    private void loadScreens() throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<ScreenData> screens = browse.getScreens(ctx);
         Iterator<ScreenData> i = screens.iterator();
@@ -227,8 +227,9 @@ public class ReadData {
 // =====
 
     /**
-     * Retrieve Screening data owned by the user currently logged in. 
+     * Retrieve Screening data owned by the user currently logged in.
      * To learn about the model go to ScreenPlateWell.
+     * @param plateId The plate's id.
      */
     private void loadWells(long plateId) throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
@@ -266,15 +267,14 @@ public class ReadData {
 
     /**
      * Connects and invokes the various methods.
-     * @param args The login credentials
-     * @param datasetId The dataset id
-     * @param plateId The plate id
-     * @param imageId The image id
+     * @param args The login credentials.
+     * @param datasetId The dataset's id.
+     * @param plateId The plate's id.
+     * @param imageId The image's id.
      */
     ReadData(String[] args, long datasetId, long plateId, long imageId) {
 
         LoginCredentials cred = new LoginCredentials(args);
-
         gateway = new Gateway(new SimpleLogger());
 
         try {
@@ -299,8 +299,8 @@ public class ReadData {
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args) {
         if (args == null || args.length == 0)

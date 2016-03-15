@@ -62,8 +62,8 @@ public class LoadMetadataAdvanced
 
     /**
      * Load the image acquisition data.
-     * 
-     * @param info The configuration information.
+     *
+     * @param imageId The image's id.
      */
     private void loadAcquisitionData(long imageId)
             throws Exception
@@ -75,8 +75,8 @@ public class LoadMetadataAdvanced
 
     /**
      * Load the channel data.
-     * 
-     * @param info The configuration information.
+     *
+     * @param imageId The image's id.
      */
     private void loadChannelData(long imageId)
             throws Exception
@@ -91,21 +91,18 @@ public class LoadMetadataAdvanced
 
     /**
      * Connects and invokes the various methods.
-     * 
-     * @param args The login credentials
-     * @param imageId The image id
+     *
+     * @param args The login credentials.
+     * @param imageId The image id.
      */
     LoadMetadataAdvanced(String[] args, long imageId)
     {
         LoginCredentials cred = new LoginCredentials(args);
-
         gateway = new Gateway(new SimpleLogger());
-
         try {
             //First connect.
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-
             loadAcquisitionData(imageId);
             loadChannelData(imageId);
         } catch (Exception e) {
@@ -121,8 +118,8 @@ public class LoadMetadataAdvanced
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {

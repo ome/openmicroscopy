@@ -125,8 +125,10 @@ public class WriteData
 
 // Create dataset
 // ==============
+
     /** 
      * Create a new dataset and link it to existing project.
+     * @param projectId The id of the project.
      */
     private void createNewDataset(long projectId)
             throws Exception
@@ -156,6 +158,7 @@ public class WriteData
 
     /** 
      * Create a new tag and link it to existing project.
+     * @param projectId The id of the project.
      */
     private void createNewTag(long projectId)
             throws Exception
@@ -182,11 +185,11 @@ public class WriteData
 // ======================
 
     /**
-     * How to create a file annotation and link to an image. 
+     * How to create a file annotation and link to an image.
      * To attach a file to an object e.g. an image, few objects need to be created:
-     * 1. an OriginalFile
-     * 1 a FileAnnotation
-     * 1 a link between the Image and the FileAnnotation. 
+     * - an OriginalFile
+     * - a FileAnnotation
+     * - a link between the Image and the FileAnnotation.
      */
     private void createFileAnnotationAndLinkToImage()
             throws Exception
@@ -298,9 +301,9 @@ public class WriteData
                         for (offset = 0; (offset+INC) < size;) {
                             stream.write(store.read(offset, INC));
                             offset += INC;
-                        }	
+                        }
                     } finally {
-                        stream.write(store.read(offset, (int) (size-offset))); 
+                        stream.write(store.read(offset, (int) (size-offset)));
                         stream.close();
                     }
                     index++;
@@ -318,9 +321,7 @@ public class WriteData
      * Returns the original file corresponding to the passed id.
      * @param id The id identifying the file.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occurred while trying to 
-     * retrieve data from OMERO service. 
+     * @throws Exception If an error occurred.
      */
     private OriginalFile getOriginalFile(long id)
             throws Exception
@@ -339,10 +340,10 @@ public class WriteData
 
     /**
      * Connects and invokes the various methods.
-     * 
-     * @param args The login credentials
-     * @param imageId  The image id
-     * @param projectId The project id
+     *
+     * @param args The login credentials.
+     * @param imageId  The image id.
+     * @param projectId The project id.
      */
     WriteData(String[] args, long imageId, long projectId)
     {
@@ -371,8 +372,8 @@ public class WriteData
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {
