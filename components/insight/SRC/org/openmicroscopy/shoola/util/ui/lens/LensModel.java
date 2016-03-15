@@ -179,6 +179,13 @@ class LensModel
 					break;
     		}
     	}
+		
+        if (dataBufferType == DataBuffer.TYPE_BYTE
+                && zoomedDataBuffer.getSize() < (w * h * 3))
+            // if type==byte (i.e. compressed images) the buffer size has to be
+            // w * h * 3 at least
+            zoomedDataBuffer = new DataBufferByte((w * h * 3), 1);
+		
 		SampleModel sm = colorModel.createCompatibleSampleModel(w, h);
         return Raster.createWritableRaster(sm, zoomedDataBuffer, null);			
  	}
