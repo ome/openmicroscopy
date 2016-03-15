@@ -349,7 +349,7 @@ class JavaParser(Parser):
         # self.addFilter(r'\*(.+?)\*', 'emphasis')
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
-# Marker to find in the file to parse
+# Marker to find in the file the blocks to parse
 START_MARKER = "start-code"
 END_MARKER = "end-code"
 
