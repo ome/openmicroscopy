@@ -159,7 +159,6 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[I].imagingEnvironment = IE:[E]" p:changes="IE:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].instrument = IN:[E]" p:changes="IN:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Image[I].objectiveSettings = OS:[E]" p:changes="OS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[E]" p:changes="P:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].stageLabel = SL:[E]" p:changes="SL:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].channels = C:[E]" p:changes="C:[I]"/>
@@ -168,8 +167,6 @@
         <bean parent="graphPolicyRule" p:matches="Pixels[I].settings = RD:[E]" p:changes="RD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].thumbnails = T:[E]" p:changes="T:[I]"/>
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].channels = C:[E]" p:changes="C:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = DS:[E]" p:changes="DS:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = LS:[E]" p:changes="LS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightPath = LP:[E]" p:changes="LP:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]" p:changes="LC:[I]"/>
 
@@ -194,7 +191,6 @@
         <bean parent="graphPolicyRule" p:matches="Fileset[I].images = I:[E]" p:changes="I:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[I].usedFiles = FE:[E]" p:changes="FE:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[I].jobLinks = L:[E]" p:changes="L:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="L:FilesetJobLink[E].parent = [I]" p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="FilesetJobLink[I].child = J:[E]" p:changes="J:[I]"/>
 
         <!-- JOB -->
