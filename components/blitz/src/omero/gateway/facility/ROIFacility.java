@@ -883,6 +883,7 @@ public class ROIFacility extends Facility {
 
             String query = "select distinct roi from Roi roi "
                     + "left outer join fetch roi.folderLinks "
+                    + "left outer join fetch roi.shapes "
                     + "where roi.id in (:ids)";
 
             List<IObject> objs = service.findAllByQuery(query, p);
