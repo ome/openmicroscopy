@@ -44,6 +44,9 @@
         <value>DatasetImageLink</value>
         <value>Project</value>
         <value>ProjectDatasetLink</value>
+        <value>Folder</value>
+        <value>FolderImageLink</value>
+        <value>FolderRoiLink</value>
 
         <!-- core -->
         <value>Channel</value>
@@ -150,10 +153,17 @@
 
         <!-- CONTAINERS -->
 
-        <bean parent="graphPolicyRule" p:matches="ProjectDatasetLink[I].parent = P:[E]" p:changes="P:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="DatasetImageLink[I].parent = D:[E]" p:changes="D:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Folder[E].childFolders = [I]" p:changes="F:[I]"/>
+
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].child = [I]" p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].child = [I]" p:changes="L:[I]"/>
+
+        <bean parent="graphPolicyRule" p:matches="ProjectDatasetLink[I].parent = P:[E]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="DatasetImageLink[I].parent = D:[E]" p:changes="D:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FolderImageLink[I].parent = F:[E]" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FolderRoiLink[I].parent = F:[E]" p:changes="F:[I]"/>
 
         <!-- CORE -->
 
