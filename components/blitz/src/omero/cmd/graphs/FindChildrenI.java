@@ -32,11 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
 import ome.model.IObject;
 import ome.security.ACLVoter;
@@ -58,7 +61,7 @@ import omero.cmd.Response;
 /**
  * Request to identify children or contents of model objects, whether direct or indirect.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.2.3
+ * @since 5.3.0
  */
 public class FindChildrenI extends FindChildren implements IRequest {
 
@@ -126,6 +129,16 @@ public class FindChildrenI extends FindChildren implements IRequest {
         }
 
         classesToFind.addAll(graphHelper.getClassesFromNames(typesOfChildren));
+
+        final Set<String> targetClassNames = graphHelper.getTopLevelNames(graphHelper.getClassesFromNames(targetObjects.keySet()));
+        final Set<String> childTypeNames = graphHelper.getTopLevelNames(classesToFind);
+        final Set<String> currentStopBefore = graphHelper.getTopLevelNames(graphHelper.getClassesFromNames(stopBefore));
+        final Set<String> suggestedStopBefore = StopBeforeHelper.get().getStopBeforeChildren(targetClassNames, childTypeNames);
+        final Set<String> extraStopBefore = Sets.difference(suggestedStopBefore, currentStopBefore);
+        stopBefore.addAll(extraStopBefore);
+        if (!extraStopBefore.isEmpty() && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("to stopBefore added: " + Joiner.on(',').join(Ordering.natural().sortedCopy(extraStopBefore)));
+        }
 
         final Iterable<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters;
         if (CollectionUtils.isEmpty(stopBefore)) {

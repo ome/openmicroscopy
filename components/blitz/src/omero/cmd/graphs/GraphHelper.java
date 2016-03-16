@@ -158,4 +158,25 @@ public class GraphHelper {
         }
         return targetMultimap;
     }
+
+    /**
+     * Get the simple names of the top-level superclasses of the given classes.
+     * @param modelClasses some model classes
+     * @return the simple names of their top-level classes
+     */
+    public Set<String> getTopLevelNames(Iterable<Class<? extends IObject>> modelClasses) {
+        final Set<String> classNames = new HashSet<String>();
+        for (Class<?> modelClass : modelClasses) {
+            while (true) {
+                final Class<?> superclass = modelClass.getSuperclass();
+                if (superclass == Object.class) {
+                    break;
+                } else {
+                    modelClass = superclass;
+                }
+            }
+            classNames.add(modelClass.getSimpleName());
+        }
+        return classNames;
+    }
 }
