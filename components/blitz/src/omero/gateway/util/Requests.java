@@ -1928,7 +1928,7 @@ public class Requests {
     /**
      * A builder for {@link GraphQuery} instances.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.2.3
+     * @since 5.3.0
      * @param <B> the type of the builder
      * @param <R> the type of the object to be built
      */
@@ -2371,7 +2371,7 @@ public class Requests {
     /**
      * A builder for {@link FindParents} instances.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.2.3
+     * @since 5.3.0
      */
     public static class FindParentsBuilder extends GraphQueryBuilder<FindParentsBuilder, FindParents> {
 
@@ -2452,7 +2452,7 @@ public class Requests {
     /**
      * A builder for {@link FindChildren} instances.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.2.3
+     * @since 5.3.0
      */
     public static class FindChildrenBuilder extends GraphQueryBuilder<FindChildrenBuilder, FindChildren> {
 
