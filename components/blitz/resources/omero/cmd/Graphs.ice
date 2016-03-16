@@ -420,9 +420,9 @@ module omero {
 
             /**
              * Classes of model objects to exclude from the recursive
-             * search. Can greatly increase efficiency by preventing search
-             * from reaching classes that have many instances but no sought
-             * parents in their subgraphs.
+             * search. Search does not include or pass such objects.
+             * For efficiency the server automatically excludes various
+             * classes depending on the other arguments of the request.
              **/
             omero::api::StringSet stopBefore;
         };
@@ -451,9 +451,9 @@ module omero {
 
             /**
              * Classes of model objects to exclude from the recursive
-             * search. Can greatly increase efficiency by preventing search
-             * from reaching classes that have many instances but no sought
-             * children in their subgraphs.
+             * search. Search does not include or pass such objects.
+             * For efficiency the server automatically excludes various
+             * classes depending on the other arguments of the request.
              **/
             omero::api::StringSet stopBefore;
         };
