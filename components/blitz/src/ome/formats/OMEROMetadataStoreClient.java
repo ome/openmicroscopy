@@ -90,7 +90,6 @@ import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
 import ome.xml.model.enums.FontStyle;
 import ome.xml.model.enums.IlluminationType;
-import ome.xml.model.enums.LineCap;
 import ome.xml.model.enums.Marker;
 import ome.xml.model.enums.NamingConvention;
 import ome.xml.model.enums.PixelType;
@@ -8225,15 +8224,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setEllipseLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setEllipseLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8298,15 +8288,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLabelLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setLabelLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setLabelLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLabelLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8346,15 +8327,6 @@ public class OMEROMetadataStoreClient
     {
         Line o = getLine(ROIIndex, shapeIndex);
         o.setFontFamily(toRType(fontStyle.getValue()));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setLineLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setLineLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8419,15 +8391,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setMaskLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setMaskLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8467,15 +8430,6 @@ public class OMEROMetadataStoreClient
     {
         Point o = getPoint(ROIIndex, shapeIndex);
         o.setFontStyle(toRType(fontStyle.getValue()));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setPointLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setPointLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8568,15 +8522,6 @@ public class OMEROMetadataStoreClient
         IObjectContainer o = getIObjectContainer(Polygon.class, indexes);
         o.LSID = id;
         addAuthoritativeContainer(Polygon.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setPolygonLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setPolygonLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8720,15 +8665,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylineLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setPolylineLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setPolylineLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolylineLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8800,16 +8736,6 @@ public class OMEROMetadataStoreClient
     {
         Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setFontStyle(toRType(fontStyle.getValue()));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectangleLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setRectangleLineCap(LineCap lineCap, int ROIIndex,
-            int shapeIndex)
-    {
-        ignoreMissing("setRectangleLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)

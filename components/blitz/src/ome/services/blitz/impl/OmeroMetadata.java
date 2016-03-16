@@ -58,7 +58,6 @@ import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
 import ome.xml.model.enums.FontStyle;
 import ome.xml.model.enums.IlluminationType;
-import ome.xml.model.enums.LineCap;
 import ome.xml.model.enums.PixelType;
 import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
@@ -1523,24 +1522,6 @@ public class OmeroMetadata extends DummyMetadata {
         return handleLsid(shape);
     }
 
-    private <X extends Shape> LineCap getShapeLineCap(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
-        if (shape == null) {
-            return null;
-        }
-        final String lineCapName = fromRType(shape.getStrokeLineCap());
-        if (lineCapName == null) {
-            return null;
-        }
-        final LineCap lineCap;
-        try {
-            lineCap = LineCap.fromString(lineCapName);
-        } catch (EnumerationException e) {
-            return null;
-        }
-        return lineCap;
-    }
-
     private <X extends Shape> Boolean getShapeLocked(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
         final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
@@ -1642,11 +1623,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public String getEllipseID(int ROIIndex, int shapeIndex) {
         return getShapeID(ROIIndex, shapeIndex, Ellipse.class);
-    }
-
-    @Override
-    public LineCap getEllipseLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
@@ -1770,11 +1746,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public LineCap getLabelLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Label.class);
-    }
-
-    @Override
     public Boolean getLabelLocked(int ROIIndex, int shapeIndex) {
         return getShapeLocked(ROIIndex, shapeIndex, Label.class);
     }
@@ -1874,11 +1845,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public String getLineID(int ROIIndex, int shapeIndex) {
         return getShapeID(ROIIndex, shapeIndex, Line.class);
-    }
-
-    @Override
-    public LineCap getLineLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Line.class);
     }
 
     @Override
@@ -2002,11 +1968,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public LineCap getPointLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Point.class);
-    }
-
-    @Override
     public Boolean getPointLocked(int ROIIndex, int shapeIndex) {
         return getShapeLocked(ROIIndex, shapeIndex, Point.class);
     }
@@ -2109,11 +2070,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public LineCap getPolygonLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Polygon.class);
-    }
-
-    @Override
     public Boolean getPolygonLocked(int ROIIndex, int shapeIndex) {
         return getShapeLocked(ROIIndex, shapeIndex, Polygon.class);
     }
@@ -2207,11 +2163,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public LineCap getPolylineLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Polyline.class);
-    }
-
-    @Override
     public Boolean getPolylineLocked(int ROIIndex, int shapeIndex) {
         return getShapeLocked(ROIIndex, shapeIndex, Polyline.class);
     }
@@ -2302,11 +2253,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public String getRectangleID(int ROIIndex, int shapeIndex) {
         return getShapeID(ROIIndex, shapeIndex, Rectangle.class);
-    }
-
-    @Override
-    public LineCap getRectangleLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
