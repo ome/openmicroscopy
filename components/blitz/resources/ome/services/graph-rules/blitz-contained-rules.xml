@@ -106,6 +106,8 @@
 
         <!-- see blitz-graph-rules.xml for rule syntax -->
 
+        <!-- adjustments to these should be reflected in StopBeforeHelper.HIERARCHY -->
+
         <!-- ACQUISITION -->
 
         <bean parent="graphPolicyRule" p:matches="Instrument[I].detector = D:[E]" p:changes="D:[I]"/>
