@@ -188,6 +188,7 @@ class TestWeb(object):
             stderr = (
                 ("You are deploying OMERO.web using apache and mod_wsgi. "
                  "Generate apache config using 'omero web config apache' "
+                 "or 'omero web config apache24' "
                  "and reload web server."))
             assert stderr == e.split(os.linesep)[0]
             assert 1 == len(e.split(os.linesep))-1

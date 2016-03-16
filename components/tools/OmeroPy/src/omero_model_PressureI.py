@@ -2033,6 +2033,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettapa"))  # nopep8
     CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
         Mul(Pow(10, 42), Sym("zettapa"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ATMOSPHERE"] = "atm"
