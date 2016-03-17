@@ -89,6 +89,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
+import omero.gateway.util.Pojos;
 
 /**
  * The ROITable is the class extending the JXTreeTable, this shows the 
@@ -141,7 +142,7 @@ public class ROITable
 	private String folderNameFilter= "";
 	
 	/** If set, only Folders with the given Ids will be displayed */
-	private Collection<Long> onlyShowFolderIds = null;
+	private Collection<Long> onlyShowFolderIds = new HashSet<Long>();
 	
 	/** Overrides the filtering mechanisms */
 	private boolean ignoreFilters = false;
@@ -437,16 +438,6 @@ public class ROITable
      */
     public void setNameFilter(String filter) {
         this.folderNameFilter = filter.toLowerCase();
-    }
-
-    /**
-     * Set the Ids filter
-     * 
-     * @param onlyShowFolderIds
-     *            Only show folders with the given Ids
-     */
-    public void setIDFilter(Collection<Long> onlyShowFolderIds) {
-        this.onlyShowFolderIds = onlyShowFolderIds;
     }
     
     /**
@@ -1410,6 +1401,16 @@ public class ROITable
         return recentlyModifiedFolders;
     }
 
+    private void addRecentlyModifiedFolder(FolderData f) {
+        this.recentlyModifiedFolders.add(f);
+        this.onlyShowFolderIds.add(f.getId());
+    }
+
+    private void addRecentlyModifiedFolder(Collection<FolderData> f) {
+        this.recentlyModifiedFolders.addAll(f);
+        this.onlyShowFolderIds.addAll(Pojos.extractIds(f));
+    }
+    
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String name = evt.getPropertyName();
@@ -1437,7 +1438,7 @@ public class ROITable
             if (folders == null)
                 return;
 
-            recentlyModifiedFolders.addAll(folders);
+            addRecentlyModifiedFolder(folders);
             
             if (action==CreationActionType.ADD_TO_FOLDER) {
                 manager.addRoisToFolder(selectedObjects, folders);
@@ -1458,7 +1459,7 @@ public class ROITable
             FolderData folder = (FolderData) evt.getNewValue();
             if(action == CreationActionType.CREATE_FOLDER && parent!=null) {
                 folder.setParentFolder(parent.asFolder());
-                recentlyModifiedFolders.add(parent);
+                addRecentlyModifiedFolder(parent);
             }
             
             toSave.add(folder);
@@ -1470,7 +1471,7 @@ public class ROITable
             FolderData folder = getSelectedFolders().get(0);
             FolderData target = (FolderData) evt.getNewValue();
             folder.setParentFolder(target.asFolder());
-            recentlyModifiedFolders.add(target);
+            addRecentlyModifiedFolder(target);
             manager.saveROIFolders(Collections.singleton(folder));
         }
 
@@ -1540,14 +1541,14 @@ public class ROITable
                 f.setParentFolder(targetFolder.asFolder());
                 folders.add(f);
             }
-            recentlyModifiedFolders.add(targetFolder);
+            addRecentlyModifiedFolder(targetFolder);
             manager.saveROIFolders(folders);
         } else if (objects.iterator().next().isShapeNode()) {
             List<ROIShape> rois = new ArrayList<ROIShape>();
             for (ROINode n : objects) {
                 rois.add((ROIShape) n.getUserObject());
             }
-            recentlyModifiedFolders.add(targetFolder);
+            addRecentlyModifiedFolder(targetFolder);
             manager.moveROIsToFolder(rois,
                     Collections.singletonList(targetFolder));
         } else if (objects.iterator().next().isROINode()) {
@@ -1556,7 +1557,7 @@ public class ROITable
                 ROI r = (ROI) n.getUserObject();
                 rois.addAll(r.getShapes().values());
             }
-            recentlyModifiedFolders.add(targetFolder);
+            addRecentlyModifiedFolder(targetFolder);
             manager.moveROIsToFolder(rois,
                     Collections.singletonList(targetFolder));
         }

@@ -179,9 +179,6 @@ class ObjectManager extends JPanel implements TabPaneInterface {
     /** References to all popup menu items */
     Map<Long, Object> popupMenuItems = new HashMap<Long, Object>();
 
-    /** The ids of the visible folders (set via the filter popup menu) */
-    private Collection<Long> selectedFolders = null;
-
     /**
      * The table selection listener attached to the table displaying the
      * objects.
@@ -318,7 +315,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         popupMenuItems.clear();
         
         selectAll = new SelectableMenuItem(
-                (selectedFolders == null || selectedFolders.size() == model
+                (objectsTable.getIDFilter().size() == model
                         .getFolders().size()), "Select All", true);
         selectAll.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -338,8 +335,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         // leaf nodes and work the way up to the top level of the hierarchy
         for (FolderData folder : getLeafFolders(model.getFolders())) {
             final SelectableMenuItem<FolderData> item = new SelectableMenuItem<FolderData>(
-                    selectedFolders == null
-                            || selectedFolders.contains(folder.getId()),
+                    objectsTable.getIDFilter().contains(folder.getId()),
                     folder.getName(), true);
             item.setObject(folder);
             item.addPropertyChangeListener(new PropertyChangeListener() {
@@ -429,8 +425,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
             // menu item for the parent folder doesn't exist yet, create one and
             // add the current menu item to it
             final SelectableMenu tmp = new SelectableMenu<FolderData>(
-                    selectedFolders == null
-                            || selectedFolders.contains(parent.getId()),
+                    objectsTable.getIDFilter().contains(parent.getId()),
                     parent.getName(), true);
             tmp.setObject(parent);
             tmp.addPropertyChangeListener(new PropertyChangeListener() {
@@ -521,17 +516,13 @@ class ObjectManager extends JPanel implements TabPaneInterface {
             }
         }
 
-        if (selectedFolders == null)
-            selectedFolders = new HashSet<Long>();
-
         if (selectAll) {
             for (FolderData f : model.getFolders())
-                selectedFolders.add(f.getId());
+                objectsTable.getIDFilter().add(f.getId());
         } else {
-            selectedFolders.clear();
+            objectsTable.getIDFilter().clear();
         }
 
-        objectsTable.setIDFilter(selectedFolders);
         rebuildTable();
     }
 
@@ -550,51 +541,41 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         else if (obj instanceof SelectableMenuItem)
             folder = ((SelectableMenuItem<FolderData>) obj).getObject();
 
-        if (selectedFolders == null) {
-            // no id filter has been used previously; create ids collection
-            // and add all folders as default (i.e. all folders visible)
-            selectedFolders = new HashSet<Long>();
-            for (FolderData f : getFolders()) {
-                selectedFolders.add(f.getId());
-            }
-        }
-
         // Add or remove the selected folder to the visible folder ids,
         // depending on if it has been checked or unchecked; propagate
         // check/uncheck state to sub folders
         if (isChecked) {
-            selectedFolders.add(folder.getId());
+            objectsTable.getIDFilter().add(folder.getId());
             for (FolderData f : model.getFolders())
                 if (hasAncestor(f, folder.getId()))
-                    selectedFolders.add(f.getId());
+                    objectsTable.getIDFilter().add(f.getId());
         } else {
-            selectedFolders.remove(folder.getId());
+            objectsTable.getIDFilter().remove(folder.getId());
             for (FolderData f : model.getFolders())
                 if (hasAncestor(f, folder.getId()))
-                    selectedFolders.remove(f.getId());
+                    objectsTable.getIDFilter().remove(f.getId());
         }
 
         // Refresh the checkbox state of all menu items
         for (Object item : popupMenuItems.values()) {
             if (item instanceof SelectableMenu) {
                 SelectableMenu<FolderData> folderItem = (SelectableMenu<FolderData>) item;
-                folderItem.setMenuSelected(selectedFolders.contains(folderItem
-                        .getObject().getId()), false);
+                folderItem.setMenuSelected(
+                        objectsTable.getIDFilter().contains(
+                                folderItem.getObject().getId()), false);
             } else if (item instanceof SelectableMenuItem) {
                 SelectableMenuItem<FolderData> folderItem = (SelectableMenuItem<FolderData>) item;
-                folderItem.setChecked(selectedFolders.contains(folderItem
-                        .getObject().getId()), false);
+                folderItem.setChecked(
+                        objectsTable.getIDFilter().contains(
+                                folderItem.getObject().getId()), false);
             }
         }
-
-        selectAll.setChecked(selectedFolders == null
-                || selectedFolders.size() == model.getFolders().size(), false);
- 
-        // Set id filter on the table and refresh
-        objectsTable.setIDFilter(selectedFolders);
+        selectAll.setChecked(objectsTable.getIDFilter().size() == model
+                .getFolders().size(), false);
+        
         rebuildTable();
     }
-
+    
     /**
      * Checks if the specified folder has an ancestor with the given id
      * 
@@ -708,25 +689,23 @@ class ObjectManager extends JPanel implements TabPaneInterface {
     }
 
     /** Rebuilds Tree */
-    void rebuildTable(Collection result, ROIFolderAction action) {
-        if (action == ROIFolderAction.CREATE_FOLDER && !result.isEmpty()) {
-            FolderData f = (FolderData) result.iterator().next();
-            if (!objectsTable.getIDFilter().isEmpty())
-                objectsTable.getIDFilter().add(f.getId());
+    void rebuildTable(Map<FolderData, Collection<ROIData>> result, ROIFolderAction action) {
+        if (action == ROIFolderAction.CREATE_FOLDER || action == ROIFolderAction.ADD_TO_FOLDER && !result.isEmpty()) {
+            FolderData f = (FolderData) result.keySet().iterator().next();
+            objectsTable.getIDFilter().add(f.getId());
         }
         rebuildTable();
     }
 
     /** Rebuilds Tree */
     void rebuildTable() {
-        if (selectedFolders == null) {
+        if (objectsTable.getIDFilter().isEmpty()
+                && (selectAll == null || !selectAll.isChecked())) {
             // setup initial folder selection (only show folders
             // which contain ROIs for the current image)
-            selectedFolders = new ArrayList<Long>();
             for (FolderData f : model.getUsedFolders()) {
-                selectedFolders.add(f.getId());
+                objectsTable.getIDFilter().add(f.getId());
             }
-            objectsTable.setIDFilter(selectedFolders);
         }
         
         TreeMap<Long, ROI> roiList = model.getROI();

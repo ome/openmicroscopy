@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
@@ -51,6 +52,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 
@@ -1067,7 +1069,7 @@ class MeasurementViewerUI
     }
     
     /** Rebuilds the ROI table. */
-    void rebuildManagerTable(Collection result, ROIFolderAction action)
+    void rebuildManagerTable(Map<FolderData, Collection<ROIData>> result, ROIFolderAction action)
     { 
         if (!model.isHCSData()) roiManager.rebuildTable(result, action);
     }

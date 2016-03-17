@@ -35,6 +35,8 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FolderData;
+import omero.gateway.model.ROIData;
 
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -332,12 +334,13 @@ public interface MeasurementViewer
      * The return result after the ROI has been saved to the server.
      * 
      * @param result
-     *            The List of ROIData that have been saved.
+     *            The Folders and ROIs that have been saved.
      * @param action
      *            The type of {@link ROIFolderAction} which triggered the update
      *            (if there was any)
      */
-    public void setUpdateROIComponent(Collection result, ROIFolderAction action);
+    public void setUpdateROIComponent(
+            Map<FolderData, Collection<ROIData>> result, ROIFolderAction action);
 	 
 	/**
 	 * Returns <code>true</code> if the specified image can be annotated

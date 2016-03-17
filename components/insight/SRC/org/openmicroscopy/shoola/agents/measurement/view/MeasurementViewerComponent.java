@@ -83,6 +83,7 @@ import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.TagAnnotationData;
@@ -929,9 +930,9 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setUpdateROIComponent(Collection, ROIFolderAction)
+     * @see MeasurementViewer#setUpdateROIComponent(Map, ROIFolderAction)
      */
-    public void setUpdateROIComponent(Collection result, ROIFolderAction action) 
+    public void setUpdateROIComponent(Map<FolderData, Collection<ROIData>> result, ROIFolderAction action) 
     {
         Registry reg = MeasurementAgent.getRegistry();
         UserNotifier un = reg.getUserNotifier();
