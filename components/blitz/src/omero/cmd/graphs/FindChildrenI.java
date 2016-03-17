@@ -125,7 +125,7 @@ public class FindChildrenI extends FindChildren implements IRequest {
 
         if (CollectionUtils.isEmpty(typesOfChildren)) {
             final Exception e = new IllegalArgumentException("no types of children specified to find");
-            throw helper.cancel(new ERR(), e, "no-types");
+            throw helper.cancel(new ERR(), e, "bad-options");
         }
 
         classesToFind.addAll(graphHelper.getClassesFromNames(typesOfChildren));
@@ -133,7 +133,12 @@ public class FindChildrenI extends FindChildren implements IRequest {
         final Set<String> targetClassNames = graphHelper.getTopLevelNames(graphHelper.getClassesFromNames(targetObjects.keySet()));
         final Set<String> childTypeNames = graphHelper.getTopLevelNames(classesToFind);
         final Set<String> currentStopBefore = graphHelper.getTopLevelNames(graphHelper.getClassesFromNames(stopBefore));
-        final Set<String> suggestedStopBefore = StopBeforeHelper.get().getStopBeforeChildren(targetClassNames, childTypeNames);
+        final Set<String> suggestedStopBefore;
+        try {
+            suggestedStopBefore = StopBeforeHelper.get().getStopBeforeChildren(targetClassNames, childTypeNames);
+        } catch (IllegalArgumentException e) {
+            throw helper.cancel(new ERR(), e, "bad-options");
+        }
         final Set<String> extraStopBefore = Sets.difference(suggestedStopBefore, currentStopBefore);
         stopBefore.addAll(extraStopBefore);
         if (!extraStopBefore.isEmpty() && LOGGER.isDebugEnabled()) {

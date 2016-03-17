@@ -682,4 +682,26 @@ public class FindParentsChildrenTest extends AbstractServerTest {
         final FindChildren finder = Requests.findChildren().target(images.get(0)).build();
         doChange(client, factory, finder, false);
     }
+
+    /**
+     * Specify to find image containers that are not all mapped by the finder's hierarchy.
+     * The search should fail.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testUnknownParentTypes() throws Exception {
+        final FindParents finder = Requests.findParents().target(images.get(0)).parentType("Project", "Event").build();
+        doChange(client, factory, finder, false);
+    }
+
+    /**
+     * Specify to find image contents that are not all mapped by the finder's hierarchy.
+     * The search should fail.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testUnknownChildTypes() throws Exception {
+        final FindChildren finder = Requests.findChildren().target(images.get(0)).childType("Detector", "Event").build();
+        doChange(client, factory, finder, false);
+    }
 }
