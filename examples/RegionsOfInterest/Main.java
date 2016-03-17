@@ -164,7 +164,6 @@ public class Main {
         text.setTextValue(rstring("This is a polyline"));
         text.setFontFamily(rstring("Verdana"));
         text.setFontSize(rint(40));
-        text.setFontWeight(rstring("bold"));
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);
         text.setStrokeWidth(rint(25));
@@ -173,9 +172,7 @@ public class Main {
         roi.addShape(text);
 
         // Other options which may come with time
-        text.setFontStretch(rstring("wider"));
         text.setFontStyle(rstring("italic"));
-        text.setFontVariant(rstring("small-caps"));
         text.setFillColor(GREY);
         text.setFillRule(rstring("even-odd"));
         text.setStrokeColor(GREY);

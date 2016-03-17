@@ -198,7 +198,6 @@ public class ROIs
         text.setTextValue(omero.rtypes.rstring("This is a polyline"));
         text.setFontFamily(omero.rtypes.rstring("Verdana"));
         text.setFontSize(new LengthI(40, UnitsLength.POINT));
-        text.setFontWeight(omero.rtypes.rstring("bold"));
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);
         text.setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
@@ -206,9 +205,7 @@ public class ROIs
 
 
         // Other options which may come with time
-        text.setFontStretch(omero.rtypes.rstring("wider"));
         text.setFontStyle(omero.rtypes.rstring("italic"));
-        text.setFontVariant(omero.rtypes.rstring("small-caps"));
         text.setFillColor(GREY);
         text.setFillRule(omero.rtypes.rstring("even-odd"));
         text.setStrokeColor(GREY);
