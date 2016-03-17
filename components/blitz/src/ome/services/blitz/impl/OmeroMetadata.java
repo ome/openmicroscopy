@@ -58,6 +58,7 @@ import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
 import ome.xml.model.enums.FontStyle;
 import ome.xml.model.enums.IlluminationType;
+import ome.xml.model.enums.Marker;
 import ome.xml.model.enums.PixelType;
 import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
@@ -1888,6 +1889,32 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
+    public Marker getLineMarkerStart(int ROIIndex, int shapeIndex) {
+        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+        if (line == null) {
+            return null;
+        }
+        final RString markerStart = line.getMarkerStart();
+        if (markerStart == null) {
+            return null;
+        }
+        return Marker.valueOf(markerStart.getValue());
+    }
+
+    @Override
+    public Marker getLineMarkerEnd(int ROIIndex, int shapeIndex) {
+        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+        if (line == null) {
+            return null;
+        }
+        final RString markerEnd = line.getMarkerEnd();
+        if (markerEnd == null) {
+            return null;
+        }
+        return Marker.valueOf(markerEnd.getValue());
+    }
+
+    @Override
     public String getLineText(int ROIIndex, int shapeIndex) {
         final Line line = getShape(ROIIndex, shapeIndex, Line.class);
         if (line == null) {
@@ -2200,6 +2227,32 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public AffineTransform getPolylineTransform(int ROIIndex, int shapeIndex) {
         return getShapeTransform(ROIIndex, shapeIndex, Polyline.class);
+    }
+
+    @Override
+    public Marker getPolylineMarkerStart(int ROIIndex, int shapeIndex) {
+        final Polyline polyline = getShape(ROIIndex, shapeIndex, Polyline.class);
+        if (polyline == null) {
+            return null;
+        }
+        final RString markerStart = polyline.getMarkerStart();
+        if (markerStart == null) {
+            return null;
+        }
+        return Marker.valueOf(markerStart.getValue());
+    }
+
+    @Override
+    public Marker getPolylineMarkerEnd(int ROIIndex, int shapeIndex) {
+        final Polyline polyline = getShape(ROIIndex, shapeIndex, Polyline.class);
+        if (polyline == null) {
+            return null;
+        }
+        final RString markerEnd = polyline.getMarkerEnd();
+        if (markerEnd == null) {
+            return null;
+        }
+        return Marker.valueOf(markerEnd.getValue());
     }
 
     @Override

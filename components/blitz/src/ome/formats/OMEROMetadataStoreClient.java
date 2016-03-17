@@ -2,7 +2,7 @@
  * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -8345,7 +8345,8 @@ public class OMEROMetadataStoreClient
     @Override
     public void setLineMarkerEnd(Marker markerEnd, int ROIIndex, int shapeIndex)
     {
-        ignoreMissing("setLineMarkerEnd", markerEnd, ROIIndex, shapeIndex);
+        final Line line = getLine(ROIIndex, shapeIndex);
+        line.setMarkerEnd(toRType(markerEnd.getValue()));
     }
 
     /* (non-Javadoc)
@@ -8355,7 +8356,8 @@ public class OMEROMetadataStoreClient
     public void setLineMarkerStart(Marker markerStart, int ROIIndex,
             int shapeIndex)
     {
-        ignoreMissing("setLineMarkerStart", markerStart, ROIIndex, shapeIndex);
+        final Line line = getLine(ROIIndex, shapeIndex);
+        line.setMarkerStart(toRType(markerStart.getValue()));
     }
 
     /* (non-Javadoc)
@@ -8681,7 +8683,8 @@ public class OMEROMetadataStoreClient
     public void setPolylineMarkerEnd(Marker markerEnd, int ROIIndex,
             int shapeIndex)
     {
-        ignoreMissing("setPolylineMarkerEnd", markerEnd, ROIIndex, shapeIndex);
+        final Polyline polyline = getPolyline(ROIIndex, shapeIndex);
+        polyline.setMarkerEnd(toRType(markerEnd.getValue()));
     }
 
     /* (non-Javadoc)
@@ -8691,7 +8694,8 @@ public class OMEROMetadataStoreClient
     public void setPolylineMarkerStart(Marker markerStart, int ROIIndex,
             int shapeIndex)
     {
-        ignoreMissing("setPolylineMarkerStart", markerStart, ROIIndex, shapeIndex);
+        final Polyline polyline = getPolyline(ROIIndex, shapeIndex);
+        polyline.setMarkerStart(toRType(markerStart.getValue()));
     }
 
     /* (non-Javadoc)
