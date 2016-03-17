@@ -119,30 +119,9 @@ public class ROITableCellRenderer
 		} else if (node.isFolderNode()) {
 		    FolderData folder = (FolderData) node.getUserObject();
 		    setIcon(FOLDER_ICON);
-		    Collection<Long> roisInFolder = new HashSet<Long>();
-		    gatherROIs(node, roisInFolder);
-            setText("Folder: "+folder.getName()+" ["+roisInFolder.size()+"]");
+		    setText("Folder: "+folder.getName()+" ["+node.getChildCount()+"]");
 		}
 		return this;
 	}
 	
-    /**
-     * Gathers all ROIs in the branch below the given node
-     * 
-     * @param node
-     *            The node
-     * @param rois
-     *            The ROIs
-     */
-    void gatherROIs(ROINode node, Collection<Long> rois) {
-        Object uo = node.getUserObject();
-        if (uo instanceof ROI) {
-            rois.add(((ROI) uo).getID());
-        } else if (node.getChildCount() > 0) {
-            for (int i = 0; i < node.getChildCount(); i++) {
-                ROINode child = (ROINode) node.getChildAt(i);
-                gatherROIs(child, rois);
-            }
-        }
-    }
 }
