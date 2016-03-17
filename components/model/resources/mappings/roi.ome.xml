@@ -54,17 +54,6 @@
                         <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
                         <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
                         <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
-                         <!-- Marker
-                        To support something of the form:
-                        <marker id="startArrow" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="5" markerHeight="4">
-                            <polyline points="10,0 0,5 10,10 9,5" fill="darkblue" />
-                        </marker>
-                        We may need a component object or a reference to another shape. For now,
-                        create the polyline at the proper location and group it to the line.
-                        <optional name="markerStart" type="string"/>
-                        <optional name="markerMid" type="string"/>
-                        <optional name="markerEnd" type="string"/>
-                        -->
                 </properties>
         </abstract>
         <type id="ome.model.roi.Label" discriminator="text" superclass="ome.model.roi.Shape">
@@ -125,6 +114,8 @@
         <type id="ome.model.roi.Polyline" discriminator="polyline" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="points" type="text"/>
+                        <optional name="markerStart" type="string"/>  <!-- only "Arrow" at present -->
+                        <optional name="markerEnd"   type="string"/>  <!-- only "Arrow" at present -->
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
@@ -134,6 +125,8 @@
                         <optional name="y1" type="double"/>
                         <optional name="x2" type="double"/>
                         <optional name="y2" type="double"/>
+                        <optional name="markerStart" type="string"/>  <!-- only "Arrow" at present -->
+                        <optional name="markerEnd"   type="string"/>  <!-- only "Arrow" at present -->
                         <optional name="textValue" type="text"/>
                 </properties>
         </type>
