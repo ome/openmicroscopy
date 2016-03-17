@@ -480,6 +480,8 @@ public class ROITable
 	public void setValueAt(Object obj, int row, int column)
 	{
 		ROINode node = (ROINode) getNodeAtRow(row);
+		if (node == null)
+		    return;
 		super.setValueAt(obj, row, column);
 		ROINode expandNode;
 		if (node.isROINode())
@@ -1155,6 +1157,8 @@ public class ROITable
         ROI roi = null;
         for (int i : getSelectedRows()) {
             ROINode n = (ROINode) this.getNodeAtRow(i);
+            if (n == null)
+                continue;
             Object obj = n.getUserObject();
             if (roi != null) {
                 if (n.isROINode()) {
@@ -1490,7 +1494,10 @@ public class ROITable
         for (int i = 0; i < rows.length; i++) {
             if (rows[i] == destination)
                 return;
-            objects.add((ROINode) getNodeAtRow(rows[i]));
+            
+            ROINode n = (ROINode) getNodeAtRow(rows[i]);
+            if (n != null)
+                objects.add(n);
         }
 
         ROINode target = (ROINode) getNodeAtRow(destination);

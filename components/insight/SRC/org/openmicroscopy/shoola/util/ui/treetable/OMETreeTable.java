@@ -363,18 +363,19 @@ public class OMETreeTable
 			((OMETreeNode) node).setExpanded(true);
 	}
 
-	/**
-	 * Helper method to get the node at row.
-	 * 
-	 * @param row The selected row.
-	 * @return See above.
-	 */
-	public OMETreeNode getNodeAtRow(int row)
-	{
-		TreePath path = getPathForRow(row);
-		if (path == null) return null;
-		return (OMETreeNode) path.getLastPathComponent();
-	}
+    /**
+     * Helper method to get the node at row.
+     * 
+     * @param row
+     *            The selected row.
+     * @return See above.
+     */
+    public OMETreeNode getNodeAtRow(int row) {
+        TreePath path = getPathForRow(row);
+        if (path == null)
+            return null;
+        return (OMETreeNode) path.getLastPathComponent();
+    }
 	
 	/**
 	 * Gets the row a node is at.

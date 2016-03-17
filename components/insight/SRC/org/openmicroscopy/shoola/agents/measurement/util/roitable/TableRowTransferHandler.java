@@ -87,6 +87,9 @@ public class TableRowTransferHandler extends TransferHandler {
         JTable.DropLocation dl = (JTable.DropLocation) info.getDropLocation();
         int index = dl.getRow();
         ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(index);
+        if (n == null)
+            return true;
+
         return n.canEdit() && n.isFolderNode();
     }
 
@@ -97,7 +100,7 @@ public class TableRowTransferHandler extends TransferHandler {
         int[] selection = table.getSelectedRows();
         for (int i = 0; i < selection.length; i++) {
             ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(selection[i]);
-            if (!n.canEdit())
+            if (n == null || !n.canEdit())
                 return false;
         }
         return true;
