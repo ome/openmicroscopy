@@ -46,7 +46,6 @@
                         <!-- Stroke -->
                         <optional name="strokeColor" type="int"/>
                         <optional name="strokeDashArray" type="string"/><!-- e.g. none, 10 20 30 10 -->
-                        <optional name="strokeLineCap" type="string"/><!-- butt, round, square -->
                         <optional name="strokeWidth" type="ome.model.units.Length"/><!-- point default -->
                         <!-- Font -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
