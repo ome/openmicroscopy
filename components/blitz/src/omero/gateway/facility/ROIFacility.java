@@ -293,11 +293,11 @@ public class ROIFacility extends Facility {
      *            The ROIs to add to the Folders
      * @param folders
      *            The Folders to add the ROIs to
-     * @return updated list of ROIData objects.
+     * @return The updated Folders and ROIs
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public Collection<ROIData> addRoisToFolders(SecurityContext ctx, long imageID,
+    public Map<FolderData, Collection<ROIData>> addRoisToFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders)
             throws DSOutOfServiceException, DSAccessException {
         return addRoisToFolders(ctx, imageID, roiList, folders, false);
@@ -317,11 +317,11 @@ public class ROIFacility extends Facility {
      * @param removeFromOtherFolders
      *            Pass <code>true</code> if the ROIs should only be linked to
      *            the specified folders, others will be unlinked.
-     * @return updated list of ROIData objects.
+     * @return The updated Folders and ROIs
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public Collection<ROIData> addRoisToFolders(SecurityContext ctx, long imageID,
+    public Map<FolderData, Collection<ROIData>> addRoisToFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders, boolean removeFromOtherFolders)
             throws DSOutOfServiceException, DSAccessException {
 
@@ -402,19 +402,54 @@ public class ROIFacility extends Facility {
             }
 
             // 4. Save links
-            if (!toSave.isEmpty())
-                gateway.getFacility(DataManagerFacility.class)
-                        .saveAndReturnObject(ctx, toSave, null, null);
+            Map<FolderData, Collection<ROIData>> result = new HashMap<FolderData, Collection<ROIData>>();
+            if (!toSave.isEmpty()) {
+                List<IObject> objs = gateway.getFacility(
+                        DataManagerFacility.class).saveAndReturnObject(ctx,
+                        toSave, null, null);
+
+                for (IObject obj : objs) {
+                    FolderRoiLink link = (FolderRoiLink) obj;
+
+                    FolderData fd = new FolderData(link.getParent());
+                    ROIData rd = new ROIData(link.getChild());
+                    if (getById(result, fd) == null) {
+                        result.put(fd, new ArrayList<ROIData>());
+                    }
+                    getById(result, fd).add(rd);
+                }
+            }
             
-            Collection<ROIData> ret = new ArrayList<ROIData>(rois.size());
-            for (Roi roi : rois)
-                ret.add(new ROIData(roi));
-            return ret;
+            return result;
 
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
-            return Collections.EMPTY_LIST;
+            return Collections.EMPTY_MAP;
         }
+    }
+    
+    /**
+     * Helper method for accessing the ROIData collection of a
+     * FolderData->Collection<ROIData> map by using the FolderData id.
+     * If it doesn't exist yet, it will be created and added to the map.
+     * 
+     * @param map
+     *            The Map
+     * @param f
+     *            The Folder
+     * @return
+     */
+    private Collection<ROIData> getById(
+            Map<FolderData, Collection<ROIData>> map, FolderData f) {
+        for (FolderData fd : map.keySet()) {
+            if (fd.getId() == f.getId())
+                return map.get(fd);
+        }
+
+        Collection<ROIData> coll = new ArrayList<ROIData>();
+        map.put(f, coll);
+
+        return coll;
     }
 
     /**
@@ -428,11 +463,11 @@ public class ROIFacility extends Facility {
      *            The ROIs to remove from the folders
      * @param folders
      *            The Folders to remove the ROIs from
-     * @return updated list of ROIData objects.
+     * @return The updated Folders and ROIs
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public Collection<ROIData> removeRoisFromFolders(SecurityContext ctx, long imageID,
+    public Map<FolderData, Collection<ROIData>> removeRoisFromFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders)
             throws DSOutOfServiceException, DSAccessException {
 
@@ -442,6 +477,8 @@ public class ROIFacility extends Facility {
 
             IUpdatePrx updateService = gateway.getUpdateService(ctx);
 
+            Map<FolderData, Collection<ROIData>> result = new HashMap<FolderData, Collection<ROIData>>();
+            
             for (ROIData roi : roiList) {
                 if (roi.isClientSide())
                     continue;
@@ -453,20 +490,26 @@ public class ROIFacility extends Facility {
                                 if (link.getParent().getId().getValue() == folder
                                         .getId()) {
                                     updateService.deleteObject(link);
+                                    
+                                    ROIData rd = new ROIData(link.getChild());
+                                    FolderData fd = new FolderData(
+                                            link.getParent());
+
+                                    if (getById(result, fd) == null) {
+                                        result.put(fd, new ArrayList<ROIData>());
+                                    }
+                                    getById(result, fd).add(rd);
                                 }
                             }
                         }
                     }
                 }
             }
-
-            Collection<ROIData> ret = new ArrayList<ROIData>(serverRoiList.size());
-            for (Roi roi : serverRoiList)
-                ret.add(new ROIData(roi));
-            return ret;
+            
+            return result;
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
-            return Collections.EMPTY_LIST;
+            return Collections.EMPTY_MAP;
         }
 
     }
