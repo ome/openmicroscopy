@@ -156,10 +156,14 @@ public class TableRowTransferHandler extends TransferHandler {
     }
 
     private int[] stringToIntArray(String s) {
-        String[] tmp = s.split(",");
-        int[] result = new int[tmp.length];
-        for (int i = 0; i < result.length; i++)
-            result[i] = Integer.parseInt(tmp[i]);
-        return result;
+        try {
+            String[] tmp = s.split(",");
+            int[] result = new int[tmp.length];
+            for (int i = 0; i < result.length; i++)
+                result[i] = Integer.parseInt(tmp[i]);
+            return result;
+        } catch (NumberFormatException e) {
+            return new int[0];
+        }
     }
 }
