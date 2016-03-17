@@ -132,7 +132,6 @@ class ShapeSettingsData:
         self.strokeWidth.setValue(1)
         self.strokeWidth.setUnit(UnitsLength.POINT)
         self.strokeDashArray = rstring('')
-        self.strokeLineCap = rstring('')
         self.fillColour = rint(self.GREY)
         self.fillRule = rstring('')
 
@@ -145,7 +144,6 @@ class ShapeSettingsData:
         shape.setStrokeColor(self.strokeColour)
         shape.setStrokeWidth(self.strokeWidth)
         shape.setStrokeDashArray(self.strokeDashArray)
-        shape.setStrokeLineCap(self.strokeLineCap)
         shape.setFillColor(self.fillColour)
         shape.setFillRule(self.fillRule)
 
@@ -195,7 +193,6 @@ class ShapeSettingsData:
         self.strokeColour = roi.getStrokeColor()
         self.strokeWidth = roi.getStrokeWidth()
         self.strokeDashArray = roi.getStrokeDashArray()
-        self.strokeLineCap = roi.getStrokeLineCap()
         self.fillColour = roi.getFillColor()
         self.fillRule = roi.getFillRule()
 
