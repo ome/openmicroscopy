@@ -755,11 +755,11 @@ $(function() {
             'dataset': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_image16.png',
                 'valid_children': ['image'],
-                'draggable': true
+                'draggable': !WEBCLIENT.TAG_TREE
             },
             'image': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/image16.png',
-                'draggable': true
+                'draggable': !WEBCLIENT.TAG_TREE
             },
             'screen': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_screen16.png',
@@ -768,7 +768,7 @@ $(function() {
             'plate': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_plate16.png',
                 'valid_children': ['acquisition'],
-                'draggable': true
+                'draggable': !WEBCLIENT.TAG_TREE
             },
             'acquisition': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/run16.png',
@@ -1024,7 +1024,7 @@ $(function() {
                     // E.g. can Cut orphaned Image or orphaned Dataset. TODO: review this!
                     var canCut = (["dataset", "image", "plate", "tag"].indexOf(node_type) > -1);
                     // In Tag tree. Don't allow cut under tag
-                    if (parent_type == "tag") {
+                    if (tagTree && node_type !== "tag") {
                         canCut = false;
                     }
 
@@ -1033,9 +1033,9 @@ $(function() {
                                     (node_type === "image" && parent_type === "dataset") ||
                                     (node_type === "plate" && parent_type === "screen") ||
                                     (node_type === "tag" && parent_type === "tagset"));
-                    // In Tag tree, allow Copy of Dataset/Image/Plate under tag
-                    if (["dataset", "image", "plate"].indexOf(node_type) > -1 && parent_type === "tag"){
-                        canCopy = true;
+                    // In Tag tree, can't Copy anything except tag
+                    if (tagTree && node_type !== "tag"){
+                        canCopy = false;
                     }
 
                     var canPaste = ((node_type === "project" && to_paste === "dataset") ||

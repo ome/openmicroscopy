@@ -353,15 +353,14 @@
                 var canCopy = selected.reduce(function(prev, n){
                     var node_type = n.type,
                         parent_type = inst.get_node(n.parent).type;
-                    // In tag tree, can Copy a tagged object, ready to paste under a true parent node
-                    var tagged_child = (["dataset", "image", "plate"].indexOf(node_type) > -1 &&
-                                        parent_type === "tag");
-                    // Can also Copy objects under their true parent types (NOT orphaned tag, dataset etc)
+                    // In tag tree, can't copy anything except a tag
+                    var invalidType = (WEBCLIENT.TAG_TREE && node_type !== "tag");
+                    // Can Copy objects under their true parent types (NOT orphaned tag, dataset etc)
                     var plink = ((node_type === "dataset" && parent_type === "project") ||
                             (node_type === "image" && parent_type === "dataset") ||
                             (node_type === "plate" && parent_type === "screen") ||
                             (node_type === "tag" && parent_type === "tagset"));
-                    return (tagged_child || plink) && OME.nodeHasPermission(n, 'canLink') && prev;
+                    return (!invalidType) && plink && OME.nodeHasPermission(n, 'canLink') && prev;
                 }, true);
                 toolbar_config['copy'] = canCopy;
 
