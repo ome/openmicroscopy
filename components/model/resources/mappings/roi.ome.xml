@@ -47,7 +47,7 @@
                         <optional name="strokeColor" type="int"/>
                         <optional name="strokeDashArray" type="string"/><!-- e.g. none, 10 20 30 10 -->
                         <optional name="strokeWidth" type="ome.model.units.Length"/><!-- point default -->
-                        <!-- Font -->
+                        <!-- Font -->  <!-- n.b.: fontFamily is under consideration for removal -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
                         <optional name="fontSize" type="ome.model.units.Length"/><!-- point default -->
                         <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
