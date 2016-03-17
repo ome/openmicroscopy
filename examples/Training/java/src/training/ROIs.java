@@ -196,7 +196,7 @@ public class ROIs
         RInt GREY = omero.rtypes.rint(11184810);
         Label text = new LabelI();
         text.setTextValue(omero.rtypes.rstring("This is a polyline"));
-        text.setFontFamily(omero.rtypes.rstring("Verdana"));
+        text.setFontFamily(omero.rtypes.rstring("sans-serif"));
         text.setFontSize(new LengthI(40, UnitsLength.POINT));
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);

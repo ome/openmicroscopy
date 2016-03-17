@@ -162,7 +162,7 @@ public class Main {
         // be parsed from known formats
         Label text = new LabelI();
         text.setTextValue(rstring("This is a polyline"));
-        text.setFontFamily(rstring("Verdana"));
+        text.setFontFamily(rstring("sans-serif"));
         text.setFontSize(rint(40));
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);
