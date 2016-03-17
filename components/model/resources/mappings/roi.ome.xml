@@ -50,10 +50,7 @@
                         <!-- Font -->
                         <optional name="fontFamily" type="string"/><!-- e.g. monospace, serif -->
                         <optional name="fontSize" type="ome.model.units.Length"/><!-- point default -->
-                        <optional name="fontStretch" type="string"/><!-- normal, wider, narrower, expanded, ultra-condensed, extra-condensed -->
                         <optional name="fontStyle" type="string"/><!-- normal, italic, oblique -->
-                        <optional name="fontVariant" type="string"/><!-- normal, small-caps -->
-                        <optional name="fontWeight" type="string"/><!-- normal, bold, bolder, lighter, 100, 900 -->
                 </properties>
         </abstract>
         <type id="ome.model.roi.Label" discriminator="text" superclass="ome.model.roi.Shape">
