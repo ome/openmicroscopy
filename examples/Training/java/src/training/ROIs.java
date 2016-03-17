@@ -213,7 +213,6 @@ public class ROIs
         text.setFillRule(omero.rtypes.rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(omero.rtypes.rstring("10 20 30 10"));
-        text.setStrokeLineCap(omero.rtypes.rstring("butt"));
         text.setStrokeWidth(new LengthI(10, UnitsFactory.Shape_StrokeWidth));
         text.setTheZ(omero.rtypes.rint(0));
         text.setTheT(omero.rtypes.rint(0));

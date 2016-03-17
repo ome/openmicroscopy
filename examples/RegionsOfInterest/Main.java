@@ -180,7 +180,6 @@ public class Main {
         text.setFillRule(rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(rstring("10 20 30 10"));
-        text.setStrokeLineCap(rstring("butt"));
         text.setStrokeWidth(rint(10));
 
         Rectangle singlePlane = new RectangleI();
