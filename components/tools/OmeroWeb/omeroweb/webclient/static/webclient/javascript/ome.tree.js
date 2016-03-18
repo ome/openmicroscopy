@@ -378,9 +378,11 @@ $(function() {
             'force_text': true,
             // Make use of function for 'data' because there are some scenarios in which
             // an ajax call is not used to get the data. Namely, the all-user view
-            'data' : function(node, callback, payload={}) {
+            'data' : function(node, callback, payload) {
                 // Get the data for this query
-                // var payload = {};
+                if (payload === undefined) {
+                    var payload = {};
+                }
                 // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
                 if (node.hasOwnProperty('data') && node.type != 'orphaned') {
