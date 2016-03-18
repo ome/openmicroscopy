@@ -215,26 +215,32 @@ public class DataManagerFacilityTest extends GatewayTest {
         cb.block(10000);
 
         // throws exception because object cannot be found
-        Assert.assertThrows(new Assert.ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                browseFacility.findObject(rootCtx, "FolderData", f1Id);
-            }
-        });
+        try {
+            browseFacility.findObject(rootCtx, "FolderData", f1Id);
+            Assert.fail("Folder was not deleted.");
+        } catch (DSAccessException e) {
+            // expected
+        } catch (Exception other) {
+            throw other;
+        }
 
-        Assert.assertThrows(new Assert.ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                browseFacility.findObject(rootCtx, "FolderData", f11Id);
-            }
-        });
+        try {
+            browseFacility.findObject(rootCtx, "FolderData", f11Id);
+            Assert.fail("Folder was not deleted.");
+        } catch (DSAccessException e) {
+            // expected
+        } catch (Exception other) {
+            throw other;
+        }
 
-        Assert.assertThrows(new Assert.ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                browseFacility.findObject(rootCtx, "FolderData", f111Id);
-            }
-        });
+        try {
+            browseFacility.findObject(rootCtx, "FolderData", f111Id);
+            Assert.fail("Folder was not deleted.");
+        } catch (DSAccessException e) {
+            // expected
+        } catch (Exception other) {
+            throw other;
+        }
         
         // 2) Test non recursive delete (orphan sub folder)
         f1 = new FolderData();
@@ -257,12 +263,14 @@ public class DataManagerFacilityTest extends GatewayTest {
                 Collections.singletonList(f1), false, false);
         cb.block(10000);
 
-        Assert.assertThrows(new Assert.ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
+        try{
                 browseFacility.findObject(rootCtx, "FolderData", f1Id2);
-            }
-        });
+                Assert.fail("Folder was not deleted.");
+        } catch (DSAccessException e) {
+            // expected
+        } catch (Exception other) {
+            throw other;
+        }
         
         f11 = browseFacility
                 .getFolders(rootCtx, Collections.singleton(f11Id2))
@@ -284,19 +292,23 @@ public class DataManagerFacilityTest extends GatewayTest {
                 Collections.singletonList(f), true, true);
         cb.block(10000);
        
-        Assert.assertThrows(new Assert.ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                browseFacility.findObject(rootCtx, "FolderData", fId);
-            }
-        });
+        try {
+            browseFacility.findObject(rootCtx, "FolderData", fId);
+            Assert.fail("Folder was not deleted.");
+        } catch (DSAccessException e) {
+            // expected
+        } catch (Exception other) {
+            throw other;
+        }
         
-        Assert.assertThrows(new Assert.ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                browseFacility.findObject(rootCtx, "ROIData", rdId);
-            }
-        });
+        try {
+            browseFacility.findObject(rootCtx, "ROIData", rdId);
+            Assert.fail("ROI was not deleted.");
+        } catch (DSAccessException e) {
+            // expected
+        } catch (Exception other) {
+            throw other;
+        }
         
         // 4) Test orphan content (ROIs)
         imgId = createImage();
@@ -312,12 +324,14 @@ public class DataManagerFacilityTest extends GatewayTest {
                 Collections.singletonList(f2), true, false);
         cb.block(10000);
        
-        Assert.assertThrows(new Assert.ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                browseFacility.findObject(rootCtx, "FolderData", f2Id);
-            }
-        });
+        try {
+            browseFacility.findObject(rootCtx, "FolderData", f2Id);
+            Assert.fail("Folder was not deleted.");
+        } catch (DSAccessException e) {
+            // expected
+        } catch (Exception other) {
+            throw other;
+        }
         
         ROIData rdReloaded = roiFacility.loadROI(rootCtx, rd2Id).getROIs().iterator().next();
         Assert.assertEquals(rdReloaded.getShapeCount(), 1);
