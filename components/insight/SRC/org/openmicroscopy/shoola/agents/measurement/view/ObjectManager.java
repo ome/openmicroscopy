@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1003,6 +1002,15 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         return list;
     }
 
+    /**
+     * Get the state of the {@link MeasurementViewer}
+     * 
+     * @return See above.
+     */
+    public int getState() {
+        return model.getState();
+    }
+    
     /**
      * Add ROIs to Folders
      * 

@@ -1491,6 +1491,9 @@ public class ROITable
      *            The location where the rows had been dragged to
      */
     public void handleDragAndDrop(int[] rows, int destination) {
+        if (manager.getState() != MeasurementViewer.READY)
+            return;
+        
         List<ROINode> objects = new ArrayList<ROINode>();
         for (int i = 0; i < rows.length; i++) {
             if (rows[i] == destination)
