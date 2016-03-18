@@ -153,18 +153,18 @@ public class GeomTool {
         return pt;
     }
 
-    public Ellipse ellipse(double cx, double cy, double rx, double ry) {
+    public Ellipse ellipse(double x, double y, double radiusx, double radiusy) {
         SmartEllipseI ellipse = new SmartEllipseI();
-        ellipse.setX(rdouble(cx));
-        ellipse.setY(rdouble(cy));
-        ellipse.setRadiusX(rdouble(rx));
-        ellipse.setRadiusY(rdouble(ry));
+        ellipse.setX(rdouble(x));
+        ellipse.setY(rdouble(y));
+        ellipse.setRadiusX(rdouble(radiusx));
+        ellipse.setRadiusY(rdouble(radiusy));
         return ellipse;
     }
 
-    public Ellipse ellipse(double cx, double cy, double rx, double ry, int t,
+    public Ellipse ellipse(double x, double y, double radiusx, double radiusy, int t,
             int z) {
-        Ellipse ellipse = ellipse(cx, cy, rx, ry);
+        Ellipse ellipse = ellipse(x, y, radiusx, radiusy);
         ellipse.setTheT(rint(t));
         ellipse.setTheZ(rint(z));
         return ellipse;

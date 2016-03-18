@@ -62,18 +62,18 @@ public class EllipseData
     /**
      * Creates a new instance of the EllipseData.
      *
-     * @param cx The x-coordinate of the center of the Ellipse.
-     * @param cy The y-coordinate of the center of the Ellipse.
-     * @param rx The radius along the X-axis.
-     * @param ry The radius along the Y-axis.
+     * @param x The x-coordinate of the center of the Ellipse.
+     * @param y The y-coordinate of the center of the Ellipse.
+     * @param radiusx The radius along the X-axis.
+     * @param radiusy The radius along the Y-axis.
      */
-    public EllipseData(double cx, double cy, double rx, double ry)
+    public EllipseData(double x, double y, double radiusx, double radiusy)
     {
         super(new EllipseI(), true);
-        setX(cx);
-        setY(cy);
-        setRadiusX(rx);
-        setRadiusY(ry);
+        setX(x);
+        setY(y);
+        setRadiusX(radiusx);
+        setRadiusY(radiusy);
     }
 
     /**
