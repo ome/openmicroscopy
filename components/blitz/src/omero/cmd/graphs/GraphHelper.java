@@ -20,10 +20,14 @@
 package omero.cmd.graphs;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
@@ -39,7 +43,7 @@ import omero.cmd.ERR;
 import omero.cmd.Helper;
 
 /**
- * Factors common code out of {@link omero.cmd.GraphModify2} implementations for reuse.
+ * Factors common code out of {@link omero.cmd.GraphQuery} implementations for reuse.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.2.3
  */
@@ -59,7 +63,31 @@ public class GraphHelper {
     }
 
     /**
-     * Construct a graph traversal manager for a {@link omero.cmd.GraphModify2} request.
+     * Given class names provided by the user, find the corresponding set of actual classes.
+     * @param classNames names of model object classes
+     * @return the named classes
+     */
+    public Set<Class<? extends IObject>> getClassesFromNames(Collection<String> classNames) {
+        if (CollectionUtils.isEmpty(classNames)) {
+            return Collections.emptySet();
+        }
+        final Set<Class<? extends IObject>> classes = new HashSet<Class<? extends IObject>>();
+        for (String className : classNames) {
+            final int lastDot = className.lastIndexOf('.');
+            if (lastDot > 0) {
+                className = className.substring(lastDot + 1);
+            }
+            final Class<? extends IObject> actualClass = graphPathBean.getClassForSimpleName(className);
+            if (actualClass == null) {
+                throw new IllegalArgumentException("unknown model object class named: " + className);
+            }
+            classes.add(actualClass);
+        }
+        return classes;
+    }
+
+    /**
+     * Construct a graph traversal manager for a {@link omero.cmd.GraphQuery} request.
      * @param childOptions the child options set on the request
      * @param requiredPermissions the abilities that the user must have to operate upon an object for it to be included
      * @param graphPolicy the graph policy for the request
@@ -129,5 +157,26 @@ public class GraphHelper {
             targetMultimap.putAll(targetObjectClass.getName(), ids);
         }
         return targetMultimap;
+    }
+
+    /**
+     * Get the simple names of the top-level superclasses of the given classes.
+     * @param modelClasses some model classes
+     * @return the simple names of their top-level classes
+     */
+    public Set<String> getTopLevelNames(Iterable<Class<? extends IObject>> modelClasses) {
+        final Set<String> classNames = new HashSet<String>();
+        for (Class<?> modelClass : modelClasses) {
+            while (true) {
+                final Class<?> superclass = modelClass.getSuperclass();
+                if (superclass == Object.class) {
+                    break;
+                } else {
+                    modelClass = superclass;
+                }
+            }
+            classNames.add(modelClass.getSimpleName());
+        }
+        return classNames;
     }
 }
