@@ -939,10 +939,6 @@ def api_links(request, conn=None, **kwargs):
                     # return remaining links in same format as json above
                     # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
                     for rl in remainingLinks:
-                        if not rl.loaded:
-                            # TODO: why AnnotationAnnotationLinks not loaded?
-                            print "Link NOT Loaded"
-                            continue
                         pid = rl.parent.id.val
                         cid = rl.child.id.val
                         # Deleting links still in progress above - ignore these
