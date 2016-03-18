@@ -28,6 +28,7 @@ from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _post_response
 from weblibrary import _get_response
 
+import pytest
 import json
 from django.core.urlresolvers import reverse
 
@@ -47,15 +48,25 @@ class TestCsrf(IWebTest):
         return self.sf.getUpdateService().saveAndReturnObject(tag)
 
     def test_create_tag_and_tagset(self):
-        # Create Tagset
+        """
+        Creates a Tagset then a Tag within the Tagset
+        """
+
+        tsValue = 'testTagset'
         request_url = reverse("manage_action_containers",
                               args=["addnewcontainer"])
         data = {
             'folder_type': 'tagset',
-            'name': 'testTagset'
+            'name': tsValue
         }
         response = _csrf_post_response(self.django_client, request_url, data)
         tagsetId = json.loads(response.content).get("id")
+
+        # check creation
+        tagset = self.query.get('TagAnnotationI', tagsetId)
+        assert tagset is not None
+        assert tagset.ns.val == omero.constants.metadata.NSINSIGHTTAGSET
+        assert tagset.textValue.val == tsValue
 
         # Add tag to the tagset
         request_url = reverse("manage_action_containers",
@@ -74,6 +85,45 @@ class TestCsrf(IWebTest):
         data = _get_response_json(self.django_client, request_url, data)
         assert len(data['tags']) == 1
         assert data['tags'][0]['id'] == tagId
+
+    @pytest.mark.parametrize("dtype", ["tagset", "tag"])
+    def test_edit_tag_and_tagset(self, dtype):
+        """
+        Creates Tag/Tagset and tests editing of name and description
+        """
+
+        request_url = reverse("manage_action_containers",
+                              args=["addnewcontainer"])
+        data = {
+            'folder_type': dtype,
+            'name': 'beforeEdit'
+        }
+        response = _csrf_post_response(self.django_client, request_url, data)
+        tagId = json.loads(response.content).get("id")
+
+        # Edit name
+        request_url = reverse("manage_action_containers",
+                              args=["savename", dtype, tagId])
+        data = {
+            'name': 'afterEdit'
+        }
+        response = _csrf_post_response(self.django_client, request_url, data)
+
+        # Edit description
+        request_url = reverse("manage_action_containers",
+                              args=["savedescription", dtype, tagId])
+        data = {
+            'description': 'New description after editing'
+        }
+        response = _csrf_post_response(self.django_client, request_url, data)
+
+        # check edited name and description
+        tagset = self.query.get('TagAnnotationI', tagId)
+        assert tagset is not None
+        if dtype == "tagset":
+            assert tagset.ns.val == omero.constants.metadata.NSINSIGHTTAGSET
+        assert tagset.textValue.val == 'afterEdit'
+        assert tagset.description.val == 'New description after editing'
 
     def test_add_edit_and_remove_tag(self):
 
@@ -96,10 +146,6 @@ class TestCsrf(IWebTest):
         }
         _post_response(self.django_client, request_url, data)
         _csrf_post_response(self.django_client, request_url, data)
-
-        # Edit tag, see save container name and description
-        # http://localhost/webclient/action/savename/tag/ID/
-        # http://localhost/webclient/action/savedescription/tag/ID/
 
         # Remove tag
         request_url = reverse("manage_action_containers",
