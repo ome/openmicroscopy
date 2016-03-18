@@ -26,7 +26,9 @@ import omero.clients
 from omero.rtypes import rstring
 from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _post_response
+from weblibrary import _get_response
 
+import json
 from django.core.urlresolvers import reverse
 
 
@@ -43,6 +45,35 @@ class TestCsrf(IWebTest):
         tag.textValue = rstring(self.uuid())
         tag.ns = rstring("pytest")
         return self.sf.getUpdateService().saveAndReturnObject(tag)
+
+    def test_create_tag_and_tagset(self):
+        # Create Tagset
+        request_url = reverse("manage_action_containers",
+                              args=["addnewcontainer"])
+        data = {
+            'folder_type': 'tagset',
+            'name': 'testTagset'
+        }
+        response = _csrf_post_response(self.django_client, request_url, data)
+        tagsetId = json.loads(response.content).get("id")
+
+        # Add tag to the tagset
+        request_url = reverse("manage_action_containers",
+                              args=["addnewcontainer", "tagset", tagsetId])
+        data = {
+            'folder_type': 'tag',
+            'name': 'tagInTagset'
+        }
+        _post_response(self.django_client, request_url, data)
+        response2 = _csrf_post_response(self.django_client, request_url, data)
+        tagId = json.loads(response2.content).get("id")
+
+        # Check that tag is listed under tagset...
+        request_url = reverse("api_tags_and_tagged")
+        data = {'id': tagsetId}
+        data = _get_response_json(self.django_client, request_url, data)
+        assert len(data['tags']) == 1
+        assert data['tags'][0]['id'] == tagId
 
     def test_add_edit_and_remove_tag(self):
 
@@ -85,3 +116,9 @@ class TestCsrf(IWebTest):
                               args=["delete", "tag", tag.id.val])
         _post_response(self.django_client, request_url, {})
         _csrf_post_response(self.django_client, request_url, {})
+
+
+def _get_response_json(django_client, request_url, query_string):
+    rsp = _get_response(django_client, request_url,
+                        query_string, status_code=200)
+    return json.loads(rsp.content)
