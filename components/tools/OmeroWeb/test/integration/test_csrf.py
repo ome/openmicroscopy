@@ -28,9 +28,6 @@ from omero.rtypes import rstring
 from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _post_response
 from weblibrary import _csrf_get_response, _get_response
-from weblibrary import _csrf_delete_response, _delete_response
-
-import json
 
 from django.test import Client
 from django.core.urlresolvers import reverse
