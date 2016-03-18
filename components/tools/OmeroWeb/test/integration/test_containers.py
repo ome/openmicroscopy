@@ -23,26 +23,14 @@ Tests creation, linking, editing & deletion of containers
 
 import omero
 import omero.clients
-from omero.rtypes import rstring, rtime
+from omero.rtypes import rtime
 from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _post_response
-from weblibrary import _csrf_get_response, _get_response
 from weblibrary import _csrf_delete_response, _delete_response
 
 import json
 
-from django.test import Client
 from django.core.urlresolvers import reverse
-
-
-try:
-    from PIL import Image, ImageDraw  # see ticket:2597
-except ImportError:  # see ticket:2597
-    import Image
-    import ImageDraw
-
-from random import randint as rint
-import tempfile
 
 
 class TestContainers(IWebTest):
