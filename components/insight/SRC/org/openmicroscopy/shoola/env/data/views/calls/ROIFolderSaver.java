@@ -104,12 +104,7 @@ public class ROIFolderSaver extends BatchCallTree {
                         result.put((FolderData)dm.saveAndReturnObject(ctx, folder), Collections.EMPTY_LIST);
                     }
                 } else if (action == ROIFolderAction.DELETE_FOLDER) {
-                    List<IObject> ifolders = new ArrayList<IObject>(
-                            folders.size());
-                    for (FolderData f : folders)
-                        ifolders.add((IObject) f.asFolder());
-
-                    CmdCallbackI cb = dm.delete(ctx, ifolders);
+                    CmdCallbackI cb = dm.deleteFolders(ctx, folders, true, false);
                     // wait for the delete action to be finished
                     cb.block(10000);
                 } 
