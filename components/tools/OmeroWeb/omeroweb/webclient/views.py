@@ -857,6 +857,46 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     return link_type, res
 
 
+def create_link(parent_type, parent_id, child_type, child_id):
+    """ This is just used internally by api_link DELETE below """
+    if parent_type == 'experimenter':
+        if child_type == 'dataset' or child_type == 'plate':
+            # This is actually not a link that needs creating, this
+            # dataset/plate is an orphan
+            return 'orphan'
+    if parent_type == 'project':
+        project = ProjectI(long(parent_id), False)
+        if child_type == 'dataset':
+            dataset = DatasetI(long(child_id), False)
+            l = ProjectDatasetLinkI()
+            l.setParent(project)
+            l.setChild(dataset)
+            return l
+    elif parent_type == 'dataset':
+        dataset = DatasetI(long(parent_id), False)
+        if child_type == 'image':
+            image = ImageI(long(child_id), False)
+            l = DatasetImageLinkI()
+            l.setParent(dataset)
+            l.setChild(image)
+            return l
+    elif parent_type == 'screen':
+        screen = ScreenI(long(parent_id), False)
+        if child_type == 'plate':
+            plate = PlateI(long(child_id), False)
+            l = ScreenPlateLinkI()
+            l.setParent(screen)
+            l.setChild(plate)
+            return l
+    elif parent_type == 'tagset':
+        if child_type == 'tag':
+            l = AnnotationAnnotationLinkI()
+            l.setParent(TagAnnotationI(long(parent_id), False))
+            l.setChild(TagAnnotationI(long(child_id), False))
+            return l
+    return None
+
+
 @login_required()
 def api_links(request, conn=None, **kwargs):
     """ Creates or Deletes links between objects specified by a json
@@ -865,45 +905,6 @@ def api_links(request, conn=None, **kwargs):
     When creating a link, fails silently if ValidationException
     (E.g. adding an image to a Dataset that already has that image).
     """
-
-    def create_link(parent_type, parent_id, child_type, child_id):
-        # TODO Handle more types of link
-        if parent_type == 'experimenter':
-            if child_type == 'dataset' or child_type == 'plate':
-                # This is actually not a link that needs creating, this
-                # dataset/plate is an orphan
-                return 'orphan'
-        if parent_type == 'project':
-            project = ProjectI(long(parent_id), False)
-            if child_type == 'dataset':
-                dataset = DatasetI(long(child_id), False)
-                l = ProjectDatasetLinkI()
-                l.setParent(project)
-                l.setChild(dataset)
-                return l
-        elif parent_type == 'dataset':
-            dataset = DatasetI(long(parent_id), False)
-            if child_type == 'image':
-                image = ImageI(long(child_id), False)
-                l = DatasetImageLinkI()
-                l.setParent(dataset)
-                l.setChild(image)
-                return l
-        elif parent_type == 'screen':
-            screen = ScreenI(long(parent_id), False)
-            if child_type == 'plate':
-                plate = PlateI(long(child_id), False)
-                l = ScreenPlateLinkI()
-                l.setParent(screen)
-                l.setChild(plate)
-                return l
-        elif parent_type == 'tagset':
-            if child_type == 'tag':
-                l = AnnotationAnnotationLinkI()
-                l.setParent(TagAnnotationI(long(parent_id), False))
-                l.setChild(TagAnnotationI(long(child_id), False))
-                return l
-        return None
 
     response = {'success': False}
 
