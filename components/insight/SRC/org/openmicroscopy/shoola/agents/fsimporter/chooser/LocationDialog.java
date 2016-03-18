@@ -1404,6 +1404,7 @@ class LocationDialog extends JDialog implements ActionListener,
                 || ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
             busyLabel.setBusy(true);
             busyLabel.setVisible(true);
+            addButton.setEnabled(false);
             Object value = evt.getNewValue();
             if(value != null && value instanceof ImportLocationDetails) {
                 ImportLocationDetails details = (ImportLocationDetails) evt
@@ -1696,6 +1697,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	    this.container = container;
 	    this.busyLabel.setBusy(false);
 	    this.busyLabel.setVisible(false);
+	    this.addButton.setEnabled(true);
 	    populateUIWithDisplayData(findWithId(groups, currentGroupId), userID);
 	    setInputsEnabled(true);
 	}
