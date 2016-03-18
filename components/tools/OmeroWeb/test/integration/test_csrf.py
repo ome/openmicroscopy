@@ -130,48 +130,6 @@ class TestCsrf(IWebTest):
         # Remove comment, see remove tag,
         # http://localhost/webclient/action/remove/[comment|tag|file]/ID/
 
-    def test_add_edit_and_remove_tag(self):
-
-        # Add tag
-        img = self.image_with_channels()
-        tag = self.new_tag()
-        request_url = reverse('annotate_tags')
-        data = {
-            'image': img.id.val,
-            'filter_mode': 'any',
-            'filter_owner_mode': 'all',
-            'index': 0,
-            'newtags-0-description': '',
-            'newtags-0-tag': 'foobar',
-            'newtags-0-tagset': '',
-            'newtags-INITIAL_FORMS': 0,
-            'newtags-MAX_NUM_FORMS': 1000,
-            'newtags-TOTAL_FORMS': 1,
-            'tags': tag.id.val
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Edit tag, see save container name and description
-        # http://localhost/webclient/action/savename/tag/ID/
-        # http://localhost/webclient/action/savedescription/tag/ID/
-
-        # Remove tag
-        request_url = reverse("manage_action_containers",
-                              args=["remove", "tag", tag.id.val])
-        data = {
-            'index': 0,
-            'parent': "image-%i" % img.id.val
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Delete tag
-        request_url = reverse("manage_action_containers",
-                              args=["delete", "tag", tag.id.val])
-        _post_response(self.django_client, request_url, {})
-        _csrf_post_response(self.django_client, request_url, {})
-
     def test_attach_file(self):
 
         # Due to EOF both posts must be test separately
