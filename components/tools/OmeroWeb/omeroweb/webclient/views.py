@@ -899,7 +899,22 @@ def create_link(parent_type, parent_id, child_type, child_id):
 
 @login_required()
 def api_links(request, conn=None, **kwargs):
-    """ Creates or Deletes links between objects specified by a json
+    """
+    Entry point for the api_links methods.
+    We delegate depending on request method to
+    create or delete links between objects.
+    """
+    # Handle link creation/deletion
+    json_data = json.loads(request.body)
+
+    if request.method == 'POST':
+        return _api_links_POST(conn, json_data)
+    elif request.method == 'DELETE':
+        return _api_links_DELETE(conn, json_data)
+
+
+def _api_links_POST(conn, json_data, **kwargs):
+    """ Creates links between objects specified by a json
     blob in the request body.
     e.g. {"dataset":{"10":{"image":[1,2,3]}}}
     When creating a link, fails silently if ValidationException
@@ -907,9 +922,6 @@ def api_links(request, conn=None, **kwargs):
     """
 
     response = {'success': False}
-
-    # Handle link creation/deletion
-    json_data = json.loads(request.body)
 
     # json is [parent_type][parent_id][child_type][childIds]
     # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
@@ -920,46 +932,14 @@ def api_links(request, conn=None, **kwargs):
             continue
         for parent_id, children in parents.items():
             for child_type, child_ids in children.items():
-                if request.method == 'DELETE':
-                    objLnks = get_object_links(conn, parent_type,
-                                               parent_id,
-                                               child_type,
-                                               child_ids)
-                    if objLnks is None:
-                        continue
-                    linkType, links = objLnks
-                    linkIds = [r.id.val for r in links]
-                    logger.info("api_link: Deleting %s links" % len(linkIds))
-                    conn.deleteObjects(linkType, linkIds)
-                    # webclient needs to know what is orphaned
-                    linkType, remainingLinks = get_object_links(conn,
-                                                                parent_type,
-                                                                None,
-                                                                child_type,
-                                                                child_ids)
-                    # return remaining links in same format as json above
-                    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
-                    for rl in remainingLinks:
-                        pid = rl.parent.id.val
-                        cid = rl.child.id.val
-                        # Deleting links still in progress above - ignore these
-                        if pid == int(parent_id):
-                            continue
-                        if parent_type not in response:
-                            response[parent_type] = {}
-                        if pid not in response[parent_type]:
-                            response[parent_type][pid] = {child_type: []}
-                        response[parent_type][pid][child_type].append(cid)
+                for child_id in child_ids:
+                    parent_id = int(parent_id)
+                    link = create_link(parent_type, parent_id,
+                                       child_type, child_id)
+                    if link and link != 'orphan':
+                        linksToSave.append(link)
 
-                elif request.method == 'POST':
-                    for child_id in child_ids:
-                        parent_id = int(parent_id)
-                        link = create_link(parent_type, parent_id,
-                                           child_type, child_id)
-                        if link and link != 'orphan':
-                            linksToSave.append(link)
-
-    if request.method == 'POST' and len(linksToSave) > 0:
+    if len(linksToSave) > 0:
         # Need to set context to correct group (E.g parent group)
         ptype = parent_type.title()
         if ptype in ["Tagset", "Tag"]:
@@ -985,12 +965,57 @@ def api_links(request, conn=None, **kwargs):
                     pass
             response['success'] = True
 
-    elif request.method == 'DELETE':
-        # If we got here, DELETE was OK
-        response['success'] = True
+    return HttpJsonResponse(response)
 
-    # Currently we don't use the response for anything.
-    # Could return more info in future if useful?
+
+def _api_links_DELETE(conn, json_data):
+    """ Deletes links between objects specified by a json
+    blob in the request body.
+    e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+    """
+
+    response = {'success': False}
+
+    # json is [parent_type][parent_id][child_type][childIds]
+    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+    for parent_type, parents in json_data.items():
+        if parent_type == "orphaned":
+            continue
+        for parent_id, children in parents.items():
+            for child_type, child_ids in children.items():
+                objLnks = get_object_links(conn, parent_type,
+                                           parent_id,
+                                           child_type,
+                                           child_ids)
+                if objLnks is None:
+                    continue
+                linkType, links = objLnks
+                linkIds = [r.id.val for r in links]
+                logger.info("api_link: Deleting %s links" % len(linkIds))
+                conn.deleteObjects(linkType, linkIds)
+                # webclient needs to know what is orphaned
+                linkType, remainingLinks = get_object_links(conn,
+                                                            parent_type,
+                                                            None,
+                                                            child_type,
+                                                            child_ids)
+                # return remaining links in same format as json above
+                # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+                for rl in remainingLinks:
+                    pid = rl.parent.id.val
+                    cid = rl.child.id.val
+                    # Deleting links still in progress above - ignore these
+                    if pid == int(parent_id):
+                        continue
+                    if parent_type not in response:
+                        response[parent_type] = {}
+                    if pid not in response[parent_type]:
+                        response[parent_type][pid] = {child_type: []}
+                    response[parent_type][pid][child_type].append(cid)
+
+    # If we got here, DELETE was OK
+    response['success'] = True
+
     return HttpJsonResponse(response)
 
 
