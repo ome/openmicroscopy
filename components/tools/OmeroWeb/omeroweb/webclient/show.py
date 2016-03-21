@@ -60,7 +60,7 @@ class Show(object):
     # List of supported object types
     SUPPORTED_OBJECT_TYPES = (
         'project', 'dataset', 'image', 'screen', 'plate', 'tag',
-        'acquisition', 'run', 'well'
+        'acquisition', 'run', 'well', 'tagset'
     )
 
     # Regular expression which declares the format for a "path" used either
@@ -259,7 +259,7 @@ class Show(object):
         @type attributes L{dict}
         """
         first_selected = None
-        if first_obj == "tag":
+        if first_obj in ["tag", "tagset"]:
             first_selected = self._load_tag(attributes)
         elif first_obj == "well":
             first_selected = self._load_well(attributes)
@@ -328,7 +328,7 @@ class Show(object):
             return None
         first_obj = m.group('object_type')
         # if we're showing a tag, make sure we're on the tags page...
-        if first_obj == "tag" and self.menu != "usertags":
+        if first_obj in ["tag", "tagset"] and self.menu != "usertags":
             # redirect to usertags/?show=tag-123
             raise IncorrectMenuError(
                 reverse(viewname="load_template", args=['usertags']) +
