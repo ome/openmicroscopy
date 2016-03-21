@@ -39,8 +39,8 @@ def print_obj(obj, indent=0):
         obj.getOwnerOmeName())
 
 
-# List all Projects available to me, and their Datasets and Images
-# ================================================================
+# List all Projects available to user currently logged in, and their Datasets and Images
+# ======================================================================================
 # The only_owned=True parameter limits the Projects which are returned.
 # If the parameter is omitted or the value is False, then all Projects
 # visible in the current group are returned.
@@ -80,8 +80,8 @@ for image in dataset.listChildren():
     print_obj(image)
 
 
-# Retrieve an image by Image ID
-# =============================
+# Retrieve an image by ID
+# =======================
 image = conn.getObject("Image", imageId)
 print "\nImage:%s" % imageId
 print "=" * 50

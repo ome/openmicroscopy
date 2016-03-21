@@ -31,8 +31,8 @@ if __name__ == '__main__':
     conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
     connected = conn.connect()
 
-    # Check if you are connected.
-    # ===========================
+    # Check if you are connected
+    # ==========================
     if not connected:
         import sys
         sys.stderr.write(
@@ -40,8 +40,8 @@ if __name__ == '__main__':
             " password.\n")
         sys.exit(1)
 
-    # Using secure connection.
-    # ========================
+    # Using secure connection
+    # =======================
     # By default, once we have logged in, data transfer is not encrypted
     # (faster)
     # To use a secure connection, call setSecure(True):

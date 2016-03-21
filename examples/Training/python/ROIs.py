@@ -118,7 +118,7 @@ def create_mask(mask_bytes, bytes_per_pixel=1):
         byte_factor = 0.5
     elif bytes_per_pixel == 1:
         divider = 8.0
-        format_string = "B"  # Unsiged char
+        format_string = "B"  # Unsigned char
         byte_factor = 1
     else:
         message = "Format %s not supported"

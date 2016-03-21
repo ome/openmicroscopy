@@ -96,7 +96,7 @@ image.setProjection('normal')               # turn off projection
 channels = [1, 2]
 rangeList = [[100.0, 120.2], [None, None]]
 image.setActiveChannels(channels, windows=rangeList)
-# Set default Z & T. These will be used as defaults for further rendering
+# Set default Z and T. These will be used as defaults for further rendering
 image.setDefaultZ(0)
 image.setDefaultT(0)
 # default compression is 0.9

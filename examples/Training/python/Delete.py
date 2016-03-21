@@ -27,8 +27,8 @@ conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Create new Projects
-# ===================
+# Create new Project
+# ==================
 def createProject():
     project = omero.model.ProjectI()
     project.setName(rstring("New Project"))
@@ -70,7 +70,7 @@ if err:
 cb.close(True)      # close handle too
 
 
-# Close connections
+# Close connection
 # ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()

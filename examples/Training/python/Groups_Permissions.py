@@ -57,8 +57,8 @@ image = conn.getObject("Image", imageId)
 print "Image: ", image
 
 
-# In OMERO-4.4, we added 'cross-group' querying, use '-1'
-# ======================================================
+#'Cross-group' querying, use '-1'
+# ===============================
 conn.SERVICE_OPTS.setOmeroGroup('-1')
 image = conn.getObject("Image", imageId)     # Will query across all my groups
 print "Image: ", image,

@@ -28,7 +28,7 @@ image = conn.getObject("Image", imageId)
 instrument = image.getInstrument()
 if instrument is not None:
     # Instrument contains links to all filters,
-    # objectives etc (not just the ones used for this image)
+    # objectives etc. (not just the ones used for this image)
     if instrument.getMicroscope() is not None:
         print "Instrument:"
         microscope = instrument.getMicroscope()
