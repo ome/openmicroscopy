@@ -412,6 +412,116 @@ class Show(object):
         return self._initially_open_owner
 
 
+def paths_to_tag(conn, experimenter_id=None, tagset_id=None, tag_id=None):
+    """
+    Finds tag for tag_id, also looks for parent tagset in path.
+    If tag_id and tagset_id are given, only return paths that have both.
+    If no tagset/tag paths are found, simply look for tags with tag_id.
+    """
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+    where_clause = []
+
+    if experimenter_id is not None:
+        params.add('eid', rlong(experimenter_id))
+        where_clause.append(
+            'coalesce(tsowner.id, towner.id) = :eid')
+
+    if tag_id is not None:
+        params.add('tid', rlong(tag_id))
+        where_clause.append(
+            'ttlink.child.id = :tid')
+
+    if tagset_id is not None:
+        params.add('tsid', rlong(tagset_id))
+        where_clause.append(
+            'tagset.id = :tsid')
+
+    if tag_id is None and tagset_id is None:
+        return []
+
+    qs = conn.getQueryService()
+    paths = []
+
+    # Look for tag in a tagset...
+    if tag_id is not None:
+        q = '''
+            select coalesce(tsowner.id, towner.id),
+                   tagset.id,
+                   ttlink.child.id
+            from TagAnnotation tagset
+            left outer join tagset.details.owner tsowner
+            left outer join tagset.annotationLinks ttlink
+            left outer join ttlink.child.details.owner towner
+            where %s
+        ''' % ' and '.join(where_clause)
+
+        tagsets = qs.projection(q, params, service_opts)
+        for e in tagsets:
+            path = []
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+            path.append({
+                'type': 'tagset',
+                'id': e[1].val
+            })
+            path.append({
+                'type': 'tag',
+                'id': e[2].val
+            })
+            paths.append(path)
+
+    # If we haven't found tag in tagset, just look for tags with matching IDs
+    if len(paths) == 0:
+
+        where_clause = []
+
+        if experimenter_id is not None:
+            # params.add('eid', rlong(experimenter_id))
+            where_clause.append(
+                'coalesce(tsowner.id, towner.id) = :eid')
+
+        if tag_id is not None:
+            # params.add('tid', rlong(tag_id))
+            where_clause.append(
+                'tag.id = :tid')
+
+        elif tagset_id is not None:
+            # params.add('tsid', rlong(tagset_id))
+            where_clause.append(
+                'tag.id = :tsid')
+
+        q = '''
+            select towner.id, tag.id
+            from TagAnnotation tag
+            left outer join tag.details.owner towner
+            where %s
+        ''' % ' and '.join(where_clause)
+
+        tagsets = qs.projection(q, params, service_opts)
+        for e in tagsets:
+            path = []
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+            if tag_id is not None:
+                t = 'tag'
+            else:
+                t = 'tagset'
+            path.append({
+                'type': t,
+                'id': e[1].val
+            })
+            paths.append(path)
+
+    return paths
+
+
 def paths_to_object(conn, experimenter_id=None, project_id=None,
                     dataset_id=None, image_id=None, screen_id=None,
                     plate_id=None, acquisition_id=None, well_id=None,
