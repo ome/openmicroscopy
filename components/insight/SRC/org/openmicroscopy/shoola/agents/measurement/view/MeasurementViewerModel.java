@@ -629,6 +629,7 @@ class MeasurementViewerModel
 
     /**
      * Get the available folders
+     * 
      * @return See above
      */
     Collection<FolderData> getFolders() {
@@ -647,9 +648,12 @@ class MeasurementViewerModel
         Collection<FolderData> result = new ArrayList<FolderData>();
         for (FolderData f : folders) {
             for (ROIData roi : f.copyROILinks()) {
-                if (roi.getImage().getId() == getImageID()) {
-                    addFolderAndParentFolders(f, result);
-                    break;
+                // an roi is not necessarily linked to an image
+                if (roi.getImage() != null) {
+                    if (roi.getImage().getId() == getImageID()) {
+                        addFolderAndParentFolders(f, result);
+                        break;
+                    }
                 }
             }
         }
