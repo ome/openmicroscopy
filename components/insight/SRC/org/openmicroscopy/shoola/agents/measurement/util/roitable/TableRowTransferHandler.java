@@ -86,13 +86,23 @@ public class TableRowTransferHandler extends TransferHandler {
     private boolean checkDropTarget(TransferHandler.TransferSupport info) {
         JTable.DropLocation dl = (JTable.DropLocation) info.getDropLocation();
         int index = dl.getRow();
-        ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(index);
-        if (n == null)
+        ROINode target = (ROINode) ((ROITable) table).getNodeAtRow(index);
+        if (target == null)
             return true;
 
-        return n.canEdit() && n.isFolderNode();
-    }
+        if (!target.canEdit() || !target.isFolderNode())
+            return false;
 
+        int[] selection = table.getSelectedRows();
+        for (int i = 0; i < selection.length; i++) {
+            ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(selection[i]);
+            if (n.isAncestorOf(target))
+                return false;
+        }
+
+        return true;
+    }
+    
     /**
      * Check if the current selection is draggable
      */

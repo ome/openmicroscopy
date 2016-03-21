@@ -173,6 +173,21 @@ public class ROINode
         return getUserObject() instanceof ROIShape;
     }
 
+    /**
+     * Checks if node is an ancestor of this node
+     * 
+     * @param node
+     *            The node to check
+     * @return <code>true</code> if node is an ancestor of this node
+     */
+    public boolean isAncestorOf(ROINode node) {
+        for (int i = 0; i < node.getPath().getPathCount(); i++) {
+            if (node.getPath().getPathComponent(i) == this)
+                return true;
+        }
+        return false;
+    }
+    
 	/**
 	 * Get the point in the parent where a child with coordinate should be 
 	 * inserted.
