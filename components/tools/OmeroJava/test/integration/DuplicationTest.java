@@ -1096,6 +1096,7 @@ public class DuplicationTest extends AbstractServerTest {
         assertSameProperties(originalLine, duplicateLine);
         assertSameProperties(originalPoint, duplicatePoint);
 }
+
     /**
      * Test duplication of an annotated image with various annotation types treated differently.
      * @throws Exception unexpected
