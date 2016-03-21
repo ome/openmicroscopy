@@ -1387,7 +1387,7 @@ public class DuplicationTest extends AbstractServerTest {
      * @return group permissions for container permissions test cases
      */
     @DataProvider(name = "container permissions test cases")
-    public Object[][] providePrivateGroupFailureCases() {
+    public Object[][] provideContainerPermissionsCases() {
         int index = 0;
         final int GROUP_PERMS = index++;
         final int MY_CONTAINER = index++;
