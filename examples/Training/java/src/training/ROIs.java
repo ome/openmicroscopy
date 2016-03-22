@@ -147,10 +147,10 @@ public class ROIs
         roi.addShape(rect); //Add the shape
         //Create an ellipse.
         Ellipse ellipse = new EllipseI();
-        ellipse.setCx(omero.rtypes.rdouble(10));
-        ellipse.setCy(omero.rtypes.rdouble(10));
-        ellipse.setRx(omero.rtypes.rdouble(10));
-        ellipse.setRy(omero.rtypes.rdouble(10));
+        ellipse.setX(omero.rtypes.rdouble(10));
+        ellipse.setY(omero.rtypes.rdouble(10));
+        ellipse.setRadiusX(omero.rtypes.rdouble(10));
+        ellipse.setRadiusY(omero.rtypes.rdouble(10));
         ellipse.setTheZ(omero.rtypes.rint(1));
         ellipse.setTheT(omero.rtypes.rint(0));
         ellipse.setTextValue(omero.rtypes.rstring("ellipse text"));
@@ -167,8 +167,8 @@ public class ROIs
         roi.addShape(line);
         //Create a point
         Point point = new PointI();
-        point.setCx(omero.rtypes.rdouble(75.0));
-        point.setCy(omero.rtypes.rdouble(75.0));
+        point.setX(omero.rtypes.rdouble(75.0));
+        point.setY(omero.rtypes.rdouble(75.0));
         point.setTheZ(omero.rtypes.rint(0));
         point.setTheT(omero.rtypes.rint(0));
         point.setTransform(null);
