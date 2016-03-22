@@ -96,7 +96,7 @@ public class TableRowTransferHandler extends TransferHandler {
         int[] selection = table.getSelectedRows();
         for (int i = 0; i < selection.length; i++) {
             ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(selection[i]);
-            if (n.isAncestorOf(target))
+            if (n != null && n.isAncestorOf(target))
                 return false;
         }
 

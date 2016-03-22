@@ -934,7 +934,10 @@ public class ROITable
 		ROI roi;
 		for (int i = 0 ; i < selectedRows.length ; i++)
 		{	
-			nodeObject = getNodeAtRow(selectedRows[i]).getUserObject();
+            ROINode node = (ROINode) getNodeAtRow(selectedRows[i]);
+            if (node == null)
+                continue;
+			nodeObject = node.getUserObject();
 			if (nodeObject instanceof ROI)
 			{
 				roi = (ROI) nodeObject;
@@ -946,7 +949,10 @@ public class ROITable
 		FolderData folder;
 		for (int i = 0 ; i < selectedRows.length ; i++)
 		{	
-			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+		    ROINode node = (ROINode) getNodeAtRow(selectedRows[i]);
+		    if (node == null)
+                continue;
+			nodeObject = node.getUserObject();
 			if (nodeObject instanceof ROIShape)
 			{
 				roiShape = (ROIShape) nodeObject;
@@ -1047,7 +1053,10 @@ public class ROITable
 		Iterator<ROIShape> shapeIterator;
 		for (int i = 0 ; i < selectedRows.length ; i++)
 		{	
-			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+		    ROINode node = (ROINode) this.getNodeAtRow(selectedRows[i]);
+            if (node == null)
+                continue;
+            nodeObject = node.getUserObject();
 			if (nodeObject instanceof ROI)
 			{
 				roi = (ROI) nodeObject;
@@ -1061,7 +1070,10 @@ public class ROITable
 		ROIShape roiShape;
 		for (int i = 0 ; i < selectedRows.length ; i++)
 		{	
-			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+		    ROINode node = (ROINode) this.getNodeAtRow(selectedRows[i]);
+            if (node == null)
+                continue;
+            nodeObject = node.getUserObject();
 			if (nodeObject instanceof ROIShape)
 			{
 				roiShape = (ROIShape) nodeObject;
@@ -1098,7 +1110,10 @@ public class ROITable
         int [] selectedRows = this.getSelectedRows();
         for (int i = 0 ; i < selectedRows.length ; i++)
         {
-            Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+            ROINode node = (ROINode) this.getNodeAtRow(selectedRows[i]);
+            if (node == null)
+                continue;
+            Object nodeObject = node.getUserObject();
             if (nodeObject instanceof FolderData)
             {
                 result.add((FolderData)nodeObject);
