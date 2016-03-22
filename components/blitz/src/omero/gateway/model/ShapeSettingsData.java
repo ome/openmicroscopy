@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  */
 package omero.gateway.model;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
@@ -47,15 +46,6 @@ import omero.model.enums.UnitsLength;
 public class ShapeSettingsData
     extends DataObject
 {
-
-    /** The <code>Butt</code> descriptor. */
-    public static final String	LINE_CAP_BUTT = "Butt";
-
-    /** The <code>Round</code> descriptor. */
-    public static final String	LINE_CAP_ROUND = "Round";
-
-    /** The <code>Square</code> descriptor. */
-    public static final String	LINE_CAP_SQUARE = "Square";
 
     /** The default fill color. */
     public final static Color DEFAULT_FILL_COLOUR = new Color(0, 0, 0, 64);
@@ -310,51 +300,6 @@ public class ShapeSettingsData
         setDirty(true);
     }
 
-    /**
-     * Returns the shape of the end of the line.
-     *
-     * @return See above.
-     */
-    public int getLineCap()
-    {
-        Shape shape = (Shape) asIObject();
-        RString value = shape.getStrokeLineCap();
-        if (value == null) return BasicStroke.CAP_BUTT;
-        String v = value.getValue();
-        if (LINE_CAP_BUTT.equals(v)) return BasicStroke.CAP_BUTT;
-        else if (LINE_CAP_ROUND.equals(v)) return BasicStroke.CAP_ROUND;
-        else if (LINE_CAP_SQUARE.equals(v)) return BasicStroke.CAP_SQUARE;
-        return BasicStroke.CAP_BUTT;
-    }
-
-    /**
-     * Sets the line cap.
-     *
-     * @param lineCap See above.
-     */
-    public void setLineCap(int lineCap)
-    {
-        Shape shape = (Shape) asIObject();
-        if (shape == null) 
-            throw new IllegalArgumentException("No shape specified.");
-        switch(lineCap)
-        {
-            case BasicStroke.CAP_BUTT:
-                shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
-                break;
-            case BasicStroke.CAP_ROUND:
-                shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
-                break;
-            case BasicStroke.CAP_SQUARE:
-                shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
-                break;
-            default:
-                shape.setStrokeLineCap(rtypes.rstring(LINE_CAP_BUTT));
-                break;
-        }
-        setDirty(true);
-    }
-
     /** 
      * Get the style of the font for Shape.
      * @return See above.
@@ -502,8 +447,6 @@ public class ShapeSettingsData
         if (shape == null) 
             throw new IllegalArgumentException("No shape specified.");
         shape.setFontStyle(rtypes.rstring(formatFontStyle(fontStyle)));
-        //update the font weight.
-        shape.setFontWeight(null);
         setDirty(true);
     }
 
@@ -555,11 +498,8 @@ public class ShapeSettingsData
      */
     public boolean isFontItalic()
     { 
-        String value = getFontStyle();
-        value = value.toLowerCase();
-        String f = FONT_ITALIC.toLowerCase();
-        String f1 = FONT_BOLD_ITALIC.toLowerCase();
-        return (f.equals(value) || f1.equals(value));
+        final String style = getFontStyle();
+        return FONT_ITALIC.equalsIgnoreCase(style) || FONT_BOLD_ITALIC.equalsIgnoreCase(style);
     }
 
     /**
@@ -570,23 +510,7 @@ public class ShapeSettingsData
      */
     public boolean isFontBold()
     { 
-        //in order to handle the previous value.
-        Shape shape = (Shape) asIObject();
-        if (shape == null) 
-            throw new IllegalArgumentException("No shape specified.");
-        String f = FONT_BOLD.toLowerCase();
-        String f1 = FONT_BOLD_ITALIC.toLowerCase();
-        String value;
-        RString weight = shape.getFontWeight();
-        if (weight != null) {
-            value = weight.getValue();
-            value = value.toLowerCase();
-            if (value.trim().length() > 0)
-                return (f.equals(value) || f1.equals(value));
-        }
-        value = getFontStyle();
-        value = value.toLowerCase();
-        return (f.equals(value) || f1.equals(value));
+        final String style = getFontStyle();
+        return FONT_BOLD.equalsIgnoreCase(style) || FONT_BOLD_ITALIC.equalsIgnoreCase(style);
     }
-
 }

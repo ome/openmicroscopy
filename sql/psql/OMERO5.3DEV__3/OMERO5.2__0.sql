@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__2.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__3.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  2,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  3,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -659,16 +659,33 @@ ALTER TABLE shape DROP COLUMN cy;
 ALTER TABLE shape RENAME COLUMN rx TO radiusx;
 ALTER TABLE shape RENAME COLUMN ry TO radiusy;
 
+-- ... up to patch 3:
+
+UPDATE shape SET fontstyle = 'Bold'
+    WHERE (fontstyle IS NULL OR fontstyle = '') AND fontweight ILIKE 'bold';
+
+UPDATE shape SET fontstyle = 'BoldItalic'
+    WHERE (fontstyle ILIKE 'italic' OR fontstyle ILIKE 'oblique') AND fontweight ILIKE 'bold';
+
+ALTER TABLE shape DROP COLUMN fontstretch;
+ALTER TABLE shape DROP COLUMN fontvariant;
+ALTER TABLE shape DROP COLUMN fontweight;
+ALTER TABLE shape DROP COLUMN strokelinecap;
+
+ALTER TABLE shape ADD COLUMN markerstart VARCHAR(255);
+ALTER TABLE shape ADD COLUMN markerend   VARCHAR(255);
+
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 2             AND
+          currentPatch    = 3             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__2'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__3'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

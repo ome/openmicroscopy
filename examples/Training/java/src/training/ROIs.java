@@ -196,9 +196,8 @@ public class ROIs
         RInt GREY = omero.rtypes.rint(11184810);
         Label text = new LabelI();
         text.setTextValue(omero.rtypes.rstring("This is a polyline"));
-        text.setFontFamily(omero.rtypes.rstring("Verdana"));
+        text.setFontFamily(omero.rtypes.rstring("sans-serif"));
         text.setFontSize(new LengthI(40, UnitsLength.POINT));
-        text.setFontWeight(omero.rtypes.rstring("bold"));
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);
         text.setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
@@ -206,14 +205,11 @@ public class ROIs
 
 
         // Other options which may come with time
-        text.setFontStretch(omero.rtypes.rstring("wider"));
         text.setFontStyle(omero.rtypes.rstring("italic"));
-        text.setFontVariant(omero.rtypes.rstring("small-caps"));
         text.setFillColor(GREY);
         text.setFillRule(omero.rtypes.rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(omero.rtypes.rstring("10 20 30 10"));
-        text.setStrokeLineCap(omero.rtypes.rstring("butt"));
         text.setStrokeWidth(new LengthI(10, UnitsFactory.Shape_StrokeWidth));
         text.setTheZ(omero.rtypes.rint(0));
         text.setTheT(omero.rtypes.rint(0));
