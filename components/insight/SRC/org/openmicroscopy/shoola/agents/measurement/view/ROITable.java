@@ -1549,6 +1549,19 @@ public class ROITable
         if (!target.isFolderNode())
             return;
 
+        // remove the nodes from the selection which are already part of
+        // the target node
+        Iterator<ROINode> it = objects.iterator();
+        while (it.hasNext()) {
+            ROINode n = it.next();
+            for (int i = 0; i < target.getChildCount(); i++) {
+                if (n == target.getChildAt(i)) {
+                    it.remove();
+                    break;
+                }
+            }
+        }
+        
         FolderData targetFolder = (FolderData) target.getUserObject();
 
         if (objects.iterator().next().isFolderNode()) {
