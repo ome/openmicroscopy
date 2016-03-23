@@ -1,4 +1,4 @@
-function ellipse = createEllipse(x, y, rx, varargin)
+function ellipse = createEllipse(x, y, radiusx, varargin)
 % CREATEELLIPSE Create a ellipse shape object from a set of coordinates and radii
 %
 %   Examples:
@@ -8,7 +8,7 @@ function ellipse = createEllipse(x, y, rx, varargin)
 %
 % See also: CREATERECTANGLE, SETSHAPECOORDINATES
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -30,13 +30,13 @@ isposscalar = @(x) isscalar(x) && x > 0;
 ip = inputParser;
 ip.addRequired('x', @isscalar);
 ip.addRequired('y', @isscalar);
-ip.addRequired('rx', isposscalar);
-ip.addOptional('ry', rx, isposscalar);
-ip.parse(x, y, rx, varargin{:});
+ip.addRequired('radiusx', isposscalar);
+ip.addOptional('radiusy', radiusx, isposscalar);
+ip.parse(x, y, radiusx, varargin{:});
 
 % Create an Ellipse shape
 ellipse = omero.model.EllipseI;
 ellipse.setX(rdouble(x));
 ellipse.setY(rdouble(y));
-ellipse.setRadiusX(rdouble(rx));
-ellipse.setRadiusY(rdouble(ip.Results.ry));
+ellipse.setRadiusX(rdouble(radiusx));
+ellipse.setRadiusY(rdouble(ip.Results.radiusy));
