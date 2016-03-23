@@ -1096,8 +1096,12 @@ $(function() {
                     return 6;
                 } else if (node.type === 'orphaned') {
                     return 7;
-                } else {
+                } else if (node.type === 'image') {
                     return 8;
+                } else if (node.type === 'acquisition') {
+                    return 9;
+                } else {
+                    return 10;
                 }
             }
             // If the nodes are the same type then just compare lexicographically
