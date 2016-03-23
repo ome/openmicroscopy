@@ -55,7 +55,7 @@ class Show(object):
     """
 
     # List of prefixes that are at the top level of the tree
-    TOP_LEVEL_PREFIXES = ('project', 'screen')
+    TOP_LEVEL_PREFIXES = ('project', 'screen', 'tagset')
 
     # List of supported object types
     SUPPORTED_OBJECT_TYPES = (
@@ -357,13 +357,13 @@ class Show(object):
                         self._initially_select = ['well.id-%s' % p.getId()]
                         return self._find_first_selected()
                     if first_obj == "tag":
-                        # Parents of tags must be tags (no OMERO_CLASS)
-                        self._initially_open.insert(0, "tag-%s" % p.getId())
+                        # Parents of tags must be tagset (no OMERO_CLASS)
+                        self._initially_open.insert(0, "tagset-%s" % p.getId())
                     else:
                         self._initially_open.insert(
                             0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId())
                         )
-                        self._initially_open_owner = p.details.owner.id.val
+                    self._initially_open_owner = p.details.owner.id.val
                 m = self.PATH_REGEX.match(self._initially_open[0])
                 if m.group('object_type') == 'image':
                     self._initially_open.insert(0, "orphaned-0")
