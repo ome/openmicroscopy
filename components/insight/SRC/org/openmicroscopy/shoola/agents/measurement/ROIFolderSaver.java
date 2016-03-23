@@ -21,6 +21,7 @@
 package org.openmicroscopy.shoola.agents.measurement;
 
 import java.util.Collection;
+import java.util.Map;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.model.FolderData;
@@ -166,7 +167,7 @@ public class ROIFolderSaver extends MeasurementViewerLoader {
     public void handleResult(Object result) {
         if (viewer.getState() == MeasurementViewer.DISCARDED)
             return; 
-        viewer.setUpdateROIComponent((Collection) result);
+        viewer.setUpdateROIComponent((Map<FolderData, Collection<ROIData>>)result, action);
     }
 
 }

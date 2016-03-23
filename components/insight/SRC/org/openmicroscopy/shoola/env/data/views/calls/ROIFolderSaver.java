@@ -23,7 +23,9 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import omero.cmd.CmdCallbackI;
 import omero.gateway.SecurityContext;
@@ -65,7 +67,7 @@ public class ROIFolderSaver extends BatchCallTree {
     private BatchCall saveCall;
 
     /** Was the save successful. */
-    private Collection<ROIData> result;
+    private Map<FolderData, Collection<ROIData>> result;
 
     /**
      * Creates a {@link BatchCall} to load the ROIs.
@@ -86,30 +88,29 @@ public class ROIFolderSaver extends BatchCallTree {
                             roiList, allROIs);
                     if (!notSelected.isEmpty())
                         svc.saveROIs(ctx, imageID, notSelected);
-                    svc.addRoisToFolders(ctx, imageID, roiList, folders);
+                    result = svc.addRoisToFolders(ctx, imageID, roiList, folders);
                 } else if (action == ROIFolderAction.MOVE_TO_FOLDER) {
                     Collection<ROIData> notSelected = relativeComplement(
                             roiList, allROIs);
                     if (!notSelected.isEmpty())
                         svc.saveROIs(ctx, imageID, notSelected);
-                    svc.addRoisToFolders(ctx, imageID, roiList, folders, true);
+                    result = svc.addRoisToFolders(ctx, imageID, roiList, folders, true);
                 }  
                 else if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
-                    svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
+                    result = svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
                 } else if (action == ROIFolderAction.CREATE_FOLDER) {
-                    for (FolderData folder : folders)
-                        dm.saveAndReturnObject(ctx, folder);
+                    result = new HashMap<FolderData, Collection<ROIData>>();
+                    for (FolderData folder : folders) {
+                        result.put((FolderData)dm.saveAndReturnObject(ctx, folder), Collections.EMPTY_LIST);
+                    }
                 } else if (action == ROIFolderAction.DELETE_FOLDER) {
-                    List<IObject> ifolders = new ArrayList<IObject>(
-                            folders.size());
-                    for (FolderData f : folders)
-                        ifolders.add((IObject) f.asFolder());
-
-                    CmdCallbackI cb = dm.delete(ctx, ifolders);
+                    CmdCallbackI cb = dm.deleteFolders(ctx, folders, true, false);
                     // wait for the delete action to be finished
                     cb.block(10000);
                 } 
-                result = Collections.EMPTY_LIST;
+                
+                if (result == null)
+                    result = Collections.EMPTY_MAP;
             }
         };
     }

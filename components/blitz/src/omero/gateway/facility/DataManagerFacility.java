@@ -42,8 +42,10 @@ import omero.api.IContainerPrx;
 import omero.api.IUpdatePrx;
 import omero.cmd.CmdCallbackI;
 import omero.api.RawFileStorePrx;
+import omero.cmd.Delete2;
 import omero.cmd.Request;
 import omero.cmd.Response;
+import omero.cmd.graphs.ChildOption;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -52,6 +54,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
 import omero.gateway.util.PojoMapper;
+import omero.gateway.util.Pojos;
 import omero.gateway.util.Requests;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
@@ -80,8 +83,10 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.Parameters;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
+import omero.gateway.model.ROIData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
@@ -153,6 +158,57 @@ public class DataManagerFacility extends Facility {
         return delete(ctx, Collections.singletonList(object));
     }
 
+    /**
+     * Delete Folders (asynchronous)
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param folders
+     *            The Folder to delete
+     * @param includeSubFolders
+     *            Pass <code>true</code> to recursively delete sub folders
+     * @param includeContent
+     *            Pass <code>true</code> to also delete content of the folders,
+     *            otherwise content (ROIs, Images) will be orphaned
+     * @return The Callback reference
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public CmdCallbackI deleteFolders(SecurityContext ctx,
+            Collection<FolderData> folders, boolean includeSubFolders,
+            boolean includeContent) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            Map<String, List<Long>> targetObjects = new HashMap<String, List<Long>>();
+            targetObjects.put(PojoMapper.getGraphType(FolderData.class),
+                    new ArrayList<Long>(Pojos.extractIds(folders)));
+
+            List<String> inc = new ArrayList<String>();
+            List<String> ex = new ArrayList<String>();
+            if (includeSubFolders)
+                inc.add(PojoMapper.getGraphType(FolderData.class));
+            else
+                ex.add(PojoMapper.getGraphType(FolderData.class));
+            if (includeContent) {
+                inc.add(PojoMapper.getGraphType(ROIData.class));
+                inc.add(PojoMapper.getGraphType(ImageData.class));
+            } else {
+                ex.add(PojoMapper.getGraphType(ROIData.class));
+                ex.add(PojoMapper.getGraphType(ImageData.class));
+            }
+
+            Delete2 del = Requests.delete().target(targetObjects)
+                    .option(new ChildOption(inc, ex, null, null)).build();
+            return gateway.submit(ctx, del);
+        } catch (Throwable t) {
+            handleException(this, t, "Cannot delete the object.");
+        }
+        return null;
+    }
+    
     /**
      * Deletes the specified objects asynchronously
      *

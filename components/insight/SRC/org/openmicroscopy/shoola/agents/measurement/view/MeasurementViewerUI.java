@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
@@ -51,6 +52,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 
@@ -68,6 +70,7 @@ import omero.gateway.model.ChannelData;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -1063,6 +1066,12 @@ class MeasurementViewerUI
     void rebuildManagerTable()
     { 
     	if (!model.isHCSData()) roiManager.rebuildTable();
+    }
+    
+    /** Rebuilds the ROI table. */
+    void rebuildManagerTable(Map<FolderData, Collection<ROIData>> result, ROIFolderAction action)
+    { 
+        if (!model.isHCSData()) roiManager.rebuildTable(result, action);
     }
     
     /** Sets the value in the tool bar.*/

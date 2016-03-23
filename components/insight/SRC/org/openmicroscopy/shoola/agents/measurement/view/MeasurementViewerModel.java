@@ -629,10 +629,42 @@ class MeasurementViewerModel
 
     /**
      * Get the available folders
+     * 
      * @return See above
      */
     Collection<FolderData> getFolders() {
         return folders == null ? Collections.EMPTY_LIST : folders;
+    }
+
+    /**
+     * Get the folders which contain ROIs for the current image
+     * 
+     * @return See above
+     */
+    Collection<FolderData> getUsedFolders() {
+        if (folders == null)
+            return Collections.EMPTY_LIST;
+
+        Collection<FolderData> result = new ArrayList<FolderData>();
+        for (FolderData f : folders) {
+            for (ROIData roi : f.copyROILinks()) {
+                // an roi is not necessarily linked to an image
+                if (roi.getImage() != null) {
+                    if (roi.getImage().getId() == getImageID()) {
+                        addFolderAndParentFolders(f, result);
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private void addFolderAndParentFolders(FolderData f,
+            Collection<FolderData> coll) {
+        coll.add(f);
+        if (f.getParentFolder() != null)
+            addFolderAndParentFolders(f.getParentFolder(), coll);
     }
 
 	/**
@@ -1212,13 +1244,16 @@ class MeasurementViewerModel
      */
     void addROIsToFolder(Collection<ROIData> allROIs,
             Collection<ROIData> selectedObjects, Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
         ExperimenterData exp = (ExperimenterData) MeasurementAgent
                 .getUserDetails();
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),
                 getImageID(), exp.getId(), allROIs, selectedObjects, folders,
                 ROIFolderAction.ADD_TO_FOLDER);
+        setSaveState();
         currentSaver.load();
-        state = MeasurementViewer.SAVING_ROI;
     }
     
     /**
@@ -1233,13 +1268,16 @@ class MeasurementViewerModel
      */
     void moveROIsToFolder(Collection<ROIData> allROIs,
             Collection<ROIData> selectedObjects, Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
         ExperimenterData exp = (ExperimenterData) MeasurementAgent
                 .getUserDetails();
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),
                 getImageID(), exp.getId(), allROIs, selectedObjects, folders,
                 ROIFolderAction.MOVE_TO_FOLDER);
+        setSaveState();
         currentSaver.load();
-        state = MeasurementViewer.SAVING_ROI;
     }
     
     /**
@@ -1249,13 +1287,16 @@ class MeasurementViewerModel
      *            The Folders
      */
     void deleteFolders(Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
         ExperimenterData exp = (ExperimenterData) MeasurementAgent
                 .getUserDetails();
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),
                 getImageID(), exp.getId(), null, folders,
                 ROIFolderAction.DELETE_FOLDER);
+        setSaveState();
         currentSaver.load();
-        state = MeasurementViewer.SAVING_ROI;
     }
     
     /**
@@ -1267,13 +1308,16 @@ class MeasurementViewerModel
      *            The Folders
      */
     void saveROIFolders(Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
         ExperimenterData exp = (ExperimenterData) MeasurementAgent
                 .getUserDetails();
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),
                 getImageID(), exp.getId(), null, folders,
                 ROIFolderAction.CREATE_FOLDER);
+        setSaveState();
         currentSaver.load();
-        state = MeasurementViewer.SAVING_ROI;
     }
 
     /**
@@ -1286,15 +1330,26 @@ class MeasurementViewerModel
      */
     void removeROIsFromFolder(Collection<ROIData> selectedObjects,
             Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
         ExperimenterData exp = (ExperimenterData) MeasurementAgent
                 .getUserDetails();
         currentSaver = new ROIFolderSaver(component, getSecurityContext(),
                 getImageID(), exp.getId(), selectedObjects, folders,
                 ROIFolderAction.REMOVE_FROM_FOLDER);
+        setSaveState();
         currentSaver.load();
-        state = MeasurementViewer.SAVING_ROI;
     }
 	
+    /**
+     * Set the {@link MeasurementViewer} to SAVING_ROI state
+     */
+    private void setSaveState() {
+        state = MeasurementViewer.SAVING_ROI;
+        ((MeasurementViewerUI) component.getUI()).setStatus("Saving...");
+    }
+    
 	/**
 	 * Returns the collection of ROI on the image owned by the user currently
 	 * logged in

@@ -35,9 +35,12 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FolderData;
+import omero.gateway.model.ROIData;
 
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -327,6 +330,18 @@ public interface MeasurementViewer
 	 */
 	public void setUpdateROIComponent(Collection result);
 	
+    /**
+     * The return result after the ROI has been saved to the server.
+     * 
+     * @param result
+     *            The Folders and ROIs that have been saved.
+     * @param action
+     *            The type of {@link ROIFolderAction} which triggered the update
+     *            (if there was any)
+     */
+    public void setUpdateROIComponent(
+            Map<FolderData, Collection<ROIData>> result, ROIFolderAction action);
+	 
 	/**
 	 * Returns <code>true</code> if the specified image can be annotated
 	 * <code>false</code> otherwise, depending on the permission.

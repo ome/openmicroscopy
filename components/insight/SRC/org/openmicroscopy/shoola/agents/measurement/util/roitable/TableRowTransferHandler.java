@@ -86,10 +86,23 @@ public class TableRowTransferHandler extends TransferHandler {
     private boolean checkDropTarget(TransferHandler.TransferSupport info) {
         JTable.DropLocation dl = (JTable.DropLocation) info.getDropLocation();
         int index = dl.getRow();
-        ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(index);
-        return n.canEdit() && n.isFolderNode();
-    }
+        ROINode target = (ROINode) ((ROITable) table).getNodeAtRow(index);
+        if (target == null)
+            return true;
 
+        if (!target.canEdit() || !target.isFolderNode())
+            return false;
+
+        int[] selection = table.getSelectedRows();
+        for (int i = 0; i < selection.length; i++) {
+            ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(selection[i]);
+            if (n != null && n.isAncestorOf(target))
+                return false;
+        }
+
+        return true;
+    }
+    
     /**
      * Check if the current selection is draggable
      */
@@ -97,7 +110,7 @@ public class TableRowTransferHandler extends TransferHandler {
         int[] selection = table.getSelectedRows();
         for (int i = 0; i < selection.length; i++) {
             ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(selection[i]);
-            if (!n.canEdit())
+            if (n == null || !n.canEdit())
                 return false;
         }
         return true;
@@ -153,10 +166,14 @@ public class TableRowTransferHandler extends TransferHandler {
     }
 
     private int[] stringToIntArray(String s) {
-        String[] tmp = s.split(",");
-        int[] result = new int[tmp.length];
-        for (int i = 0; i < result.length; i++)
-            result[i] = Integer.parseInt(tmp[i]);
-        return result;
+        try {
+            String[] tmp = s.split(",");
+            int[] result = new int[tmp.length];
+            for (int i = 0; i < result.length; i++)
+                result[i] = Integer.parseInt(tmp[i]);
+            return result;
+        } catch (NumberFormatException e) {
+            return new int[0];
+        }
     }
 }
