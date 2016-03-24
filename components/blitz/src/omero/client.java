@@ -329,7 +329,10 @@ public class client {
 
         // Strictly necessary for this class to work
         optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
-        if (Ice.Util.intVersion() <= 30500) {
+        if (Ice.Util.intVersion() >= 30600) {
+            optionallySetProperty(id, "Ice.ACM.Client.Timeout", "60000");
+            optionallySetProperty(id, "Ice.ACM.Client.Heartbeat", "2");
+        } else {
             optionallySetProperty(id, "Ice.ACM.Client", "0");
         }
         optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");

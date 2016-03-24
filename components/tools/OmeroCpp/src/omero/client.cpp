@@ -63,7 +63,10 @@ namespace omero {
 
         // Strictly necessary for this class to work
         optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
-#if ICE_INT_VERSION / 100 <= 305
+#if ICE_INT_VERSION / 100 >= 306
+        optionallySetProperty(id, "Ice.ACM.Client.Timeout", "60000");
+        optionallySetProperty(id, "Ice.ACM.Client.Heartbeat", "2");
+#else
         optionallySetProperty(id, "Ice.ACM.Client", "0");
 #endif
         optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");
