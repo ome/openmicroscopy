@@ -90,7 +90,7 @@ def basic_point(default_id):
     shape = omero.model.PointI()
     shape.id = rlong(default_id)
     shape.x = rdouble(0.0)
-    shape.y = rdouble(0.0)
+    shape.y = rdouble(.1)
     return shape
 
 
@@ -99,9 +99,9 @@ def basic_ellipse(default_id):
     shape = omero.model.EllipseI()
     shape.id = rlong(default_id)
     shape.x = rdouble(0.0)
-    shape.y = rdouble(0.0)
-    shape.radiusX = rdouble(5.0)
-    shape.radiusY = rdouble(5.0)
+    shape.y = rdouble(.1)
+    shape.radiusX = rdouble(1.0)
+    shape.radiusY = rdouble(.5)
     return shape
 
 
@@ -140,12 +140,12 @@ class TestShapeMarshal(object):
         marshaled = shapeMarshal(basic_point)
         self.assert_marshal(marshaled, 'Point')
         assert 0.0 == marshaled['x']
-        assert 0.0 == marshaled['y']
+        assert 0.1 == marshaled['y']
 
     def test_ellipse_marshal(self, basic_ellipse):
         marshaled = shapeMarshal(basic_ellipse)
         self.assert_marshal(marshaled, 'Ellipse')
         assert 0.0 == marshaled['x']
-        assert 0.0 == marshaled['y']
-        assert 5.0 == marshaled['radiusX']
-        assert 5.0 == marshaled['radiusY']
+        assert 0.1 == marshaled['y']
+        assert 1.0 == marshaled['radiusX']
+        assert 0.5 == marshaled['radiusY']
