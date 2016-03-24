@@ -84,7 +84,6 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
 import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -368,7 +367,6 @@ class ToolBar
         ExperimenterData exp;
 
         DataMenuItem item, allUser;
-        
         boolean view = true;
         if (group != null) {
             int level = group.getPermissions().getPermissionsLevel();
@@ -381,7 +379,7 @@ class ToolBar
 
         String v = (String) TreeViewerAgent.getRegistry().lookup(
                 LookupNames.GROUP_ALL_MEMBERS_NAME);
-        if (CommonsLangUtils.isBlank(v)) {
+        if (v == null || v.trim().length() == 0) {
             v = DataMenuItem.ALL_USERS_TEXT;
         }
         Boolean enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
@@ -391,6 +389,8 @@ class ToolBar
             b = enabled.booleanValue();
         }
         allUser = new DataMenuItem(v, b);
+        allUser.setRefString(DataMenuItem.ALL_USERS_TEXT);
+        allUser.addPropertyChangeListener(groupItem);
         items.add(allUser);
         if (view) p.add(allUser);
         int count = 0;
@@ -404,7 +404,6 @@ class ToolBar
         if (CollectionUtils.isNotEmpty(l) && b) {
             total += l.size();
             i = l.iterator();
-            
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
@@ -420,7 +419,7 @@ class ToolBar
             if (list.size() > 0) {
                 v = (String) TreeViewerAgent.getRegistry().lookup(
                         LookupNames.GROUP_LEADERS_NAME);
-                if (CommonsLangUtils.isBlank(v)) {
+                if (v == null || v.trim().length() == 0) {
                     v = "Group owners";
                 }
                 p.add(formatHeader(v));
@@ -455,7 +454,7 @@ class ToolBar
             if (list.size() > 0) {
                 v = (String) TreeViewerAgent.getRegistry().lookup(
                         LookupNames.GROUP_MEMBERS_NAME);
-                if (CommonsLangUtils.isBlank(v)) {
+                if (v == null || v.trim().length() == 0) {
                     v = "Members";
                 }
                 p.add(formatHeader(v));
