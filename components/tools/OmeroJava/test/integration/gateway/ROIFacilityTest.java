@@ -77,6 +77,9 @@ public class ROIFacilityTest extends GatewayTest {
         initData();
     }
 
+    // The tests should run in the order they have here, hence
+    // the dependsOnMethods annotations on successive test methods
+
     @Test
     public void testSaveROIs() throws Exception {
         rois = new ArrayList<ROIData>();

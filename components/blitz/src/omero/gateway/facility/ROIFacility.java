@@ -540,7 +540,7 @@ public class ROIFacility extends Facility {
 
             if (imageID < 0) {
                 for (ROIData r : roiList) {
-                    if (!r.isClientSide())
+                    if (r.getId() > -1)
                         throw new OperationNotSupportedException(
                                 "Modification of existing ROIs is not implemented yet.");
                 }
@@ -860,9 +860,12 @@ public class ROIFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageId
-     *            The image id (can be <code>null</code> or <code>-1</code>)
+     *            The image id the ROIs refer to (can be <code>null</code> or
+     *            <code>-1</code>)
      * @param folderIds
-     *            The folder ids (can be <code>null</code> or empty)
+     *            The folder ids the ROIs are part of (can be <code>null</code>
+     *            or empty) (Note: Does not take folder of images into account;
+     *            'ROI folders' only)
      * @return See above
      * @throws DSOutOfServiceException
      * @throws DSAccessException
@@ -933,14 +936,9 @@ public class ROIFacility extends Facility {
                 }
             } else {
                 // get all rois which are part of the given folders
-                Map<String, Collection<Long>> target = new HashMap<String, Collection<Long>>();
-                target.put("Folder", folderIds);
-
-                FindChildren finder = Requests.findChildren().target(target)
-                        .childType("Roi").build();
-
-                Map<String, String> callContext = new HashMap<String, String>();
-                callContext.put("omero.group", "" + ctx.getGroupID());
+                FindChildren finder = Requests.findChildren().target("Folder")
+                        .id(folderIds.toArray(new Long[folderIds.size()]))
+                        .stopBefore("Image").childType("Roi").build();
 
                 CmdCallbackI cb = gateway.submit(ctx, finder);
                 cb.block(10000);
@@ -951,10 +949,9 @@ public class ROIFacility extends Facility {
                 if (imageId != null) {
                     if (imageId > -1) {
                         // only take ROIs for the given image into account
-                        target = new HashMap<String, Collection<Long>>();
-                        target.put("Image", Collections.singleton(imageId));
-                        finder = Requests.findChildren().target(target)
-                                .childType("Roi").build();
+                        finder = Requests.findChildren().target("Image")
+                                .id(imageId).childType("Roi")
+                                .stopBefore("Shape").build();
 
                         cb = gateway.submit(ctx, finder);
                         cb.block(10000);
