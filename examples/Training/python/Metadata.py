@@ -17,18 +17,18 @@ from Parse_OMERO_Properties import imageId
 
 
 # Create a connection
-# =================================================================
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
 # Load Instrument
-# =================================================================
+# ===============
 image = conn.getObject("Image", imageId)
 instrument = image.getInstrument()
 if instrument is not None:
     # Instrument contains links to all filters,
-    # objectives etc (not just the ones used for this image)
+    # objectives etc. (not just the ones used for this image)
     if instrument.getMicroscope() is not None:
         print "Instrument:"
         microscope = instrument.getMicroscope()
@@ -38,7 +38,7 @@ if instrument is not None:
 
 
 # Load ObjectiveSettings
-# =================================================================
+# ======================
 if image.getObjectiveSettings():
     objSet = image.getObjectiveSettings()
     print "Objective Settings:"
@@ -59,11 +59,10 @@ if image.getObjectiveSettings():
 
 
 # Load Channels, LogicalChannels, and LightSourceSettings
-# =================================================================
+# =======================================================
 for ch in image.getChannels():
     print "Channel: ", ch.getLabel()
     logicalChannel = ch.getLogicalChannel()
-
     lightPath = logicalChannel.getLightPath()
     if lightPath is not None:
         lightPathDichroic = lightPath.getDichroic()
@@ -85,7 +84,6 @@ for ch in image.getChannels():
             tr = f.getTransmittanceRange()
             print "    Transmittance range: %s-%s " % (
                 tr.getCutIn(), tr.getCutOut())
-
     if logicalChannel.getDetectorSettings()._obj is not None:
         print "  Detector Settings:"
         dset = logicalChannel.getDetectorSettings()
@@ -100,7 +98,6 @@ for ch in image.getChannels():
             print "    Model: %s Gain: %s Voltage: %s Offset: %s" % (
                 det.getModel(), det.getGain(), det.getVoltage(),
                 det.getOffsetValue())
-
     lightSourceSettings = logicalChannel.getLightSourceSettings()
     if (lightSourceSettings is not None
             and lightSourceSettings._obj is not None):
@@ -119,7 +116,7 @@ for ch in image.getChannels():
 
 
 # Load the 'Original Metadata' for the image
-# =================================================================
+# ==========================================
 om = image.loadOriginalMetadata()
 if om is not None:
     print "\n\noriginal_metadata"
@@ -137,7 +134,7 @@ if om is not None:
             print "   ", keyValue[0], "NOT FOUND"
 
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()
