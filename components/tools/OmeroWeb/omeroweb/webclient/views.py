@@ -472,7 +472,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['active_group'] = conn.getObject(
         "ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
-
+    context['initially_select'] = show.initially_select
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
     context['page_size'] = settings.PAGE
@@ -1216,27 +1216,14 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
             if index == 0:
                 index = fields[0]
 
-        # We don't know what our menu is so we're setting it to None.
-        # Should only raise an exception below if we've been asked to
-        # show some tags which we don't care about anyway in this
-        # context.
-        show = Show(conn, request, None)
-        # Constructor does no loading.  Show.first_selected must be
-        # called first in order to set up our initial state correctly.
-        try:
-            first_selected = show.first_selected
-            if first_selected is not None:
-                wells_to_select = list()
-                paths = show.initially_open + show.initially_select
-                for path in paths:
-                    m = Show.PATH_REGEX.match(path)
-                    if m is None:
-                        continue
-                    if m.group('object_type') == 'well':
-                        wells_to_select.append(m.group('value'))
-                context['select_wells'] = ','.join(wells_to_select)
-        except IncorrectMenuError:
-            pass
+        # Show parameter will be well-1|well-2
+        show = request.REQUEST.get('show')
+        if show is not None:
+            wells_to_select = []
+            for w in show.split("|"):
+                if 'well-' in w:
+                    wells_to_select.append(w.replace('well-', ''))
+            context['select_wells'] = ','.join(wells_to_select)
 
         context['baseurl'] = reverse('webgateway').rstrip('/')
         context['form_well_index'] = form_well_index
