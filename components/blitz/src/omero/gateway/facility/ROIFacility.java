@@ -937,7 +937,7 @@ public class ROIFacility extends Facility {
             } else {
                 // get all rois which are part of the given folders
                 FindChildren finder = Requests.findChildren().target("Folder")
-                        .id(folderIds.toArray(new Long[folderIds.size()]))
+                        .id(folderIds)
                         .stopBefore("Image").childType("Roi").build();
 
                 CmdCallbackI cb = gateway.submit(ctx, finder);
