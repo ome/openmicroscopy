@@ -14,7 +14,7 @@ ${imageName1}                       testShowImage1
 ${imageName2}                       testShowImage2
 ${plateName}                        testShowPlate
 # Full Well name may make test fragile?
-${wellName}                         test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=1.fake [test]
+${wellName}                         test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake [test]
 ${runName}                          PlateAcquisition Name 0
 
 *** Keywords ***
