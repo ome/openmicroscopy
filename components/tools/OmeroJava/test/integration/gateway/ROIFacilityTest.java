@@ -77,7 +77,7 @@ public class ROIFacilityTest extends GatewayTest {
         initData();
     }
 
-    // The tests should run in the order they have here, hence
+    // The tests should run in the order they appear here, hence
     // the dependsOnMethods annotations on successive test methods
 
     @Test
@@ -315,7 +315,7 @@ public class ROIFacilityTest extends GatewayTest {
         roiData.addShapeData(rectangle);
         return roiData;
     }
-
+    
     private FolderData createRoiFolder(SecurityContext ctx,
             Collection<ROIData> rois) throws DSOutOfServiceException,
             DSAccessException {

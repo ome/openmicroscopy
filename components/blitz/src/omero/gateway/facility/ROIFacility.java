@@ -32,9 +32,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import javax.naming.OperationNotSupportedException;
-
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.NotImplementedException;
 
 import omero.ServerError;
 import omero.api.IQueryPrx;
@@ -419,7 +418,7 @@ public class ROIFacility extends Facility {
 
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
     }
     
@@ -504,7 +503,7 @@ public class ROIFacility extends Facility {
             return result;
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
     }
@@ -541,7 +540,7 @@ public class ROIFacility extends Facility {
             if (imageID < 0) {
                 for (ROIData r : roiList) {
                     if (r.getId() > -1)
-                        throw new OperationNotSupportedException(
+                        throw new NotImplementedException(
                                 "Modification of existing ROIs is not implemented yet.");
                 }
                 
@@ -786,7 +785,7 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot Save the ROI for image: "
                     + imageID);
         }
-        return new ArrayList<ROIData>();
+        return Collections.emptyList();
     }
     
     /**
@@ -844,7 +843,7 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot load ROI folders.");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
     
     /**
@@ -882,16 +881,15 @@ public class ROIFacility extends Facility {
                 ParametersI p = new ParametersI();
                 if (imageId == null) {
                     // ignore imageId, get all rois
-                    query = "select distinct roi from Roi roi";
+                    query = "select roi from Roi roi";
                 } else if (imageId < 0) {
                     // get all rois not attached to any image
-                    query = "select distinct roi from Roi roi "
+                    query = "select roi from Roi roi "
                             + "where roi.image is null";
                 } else {
                     // get all rois for the image
-                    query = "select distinct roi from Roi roi "
-                            + "left outer join fetch roi.image as image "
-                            + "where image.id = :id";
+                    query = "select roi from Roi roi "
+                            + "where roi.image.id = :id";
                     p.addId(imageId);
                 }
 
@@ -913,9 +911,8 @@ public class ROIFacility extends Facility {
                 } else if (imageId > -1) {
                     // get rois for the image
                     query = "select distinct roi from Roi roi "
-                            + "left outer join fetch roi.image as image "
                             + "left outer join fetch roi.folderLinks as links "
-                            + "where image.id = :id";
+                            + "where roi.image.id = :id";
                     p.addId(imageId);
 
                 } else {
@@ -931,20 +928,22 @@ public class ROIFacility extends Facility {
 
                 for (IObject obj : objs) {
                     Roi roi = (Roi) obj;
-                    if (roi.copyFolderLinks().isEmpty())
+                    if (roi.sizeOfFolderLinks() == 0)
                         roiIDs.add(roi.getId().getValue());
                 }
             } else {
                 // get all rois which are part of the given folders
                 FindChildren finder = Requests.findChildren().target("Folder")
-                        .id(folderIds)
-                        .stopBefore("Image").childType("Roi").build();
+                        .id(folderIds).stopBefore("Image").childType("Roi")
+                        .build();
 
                 CmdCallbackI cb = gateway.submit(ctx, finder);
                 cb.block(10000);
                 FoundChildren found = (FoundChildren) cb.getResponse();
-                roiIDs = found.children.remove(ome.model.roi.Roi.class
-                        .getName());
+                roiIDs = found.children.get(ome.model.roi.Roi.class.getName());
+
+                if (CollectionUtils.isEmpty(roiIDs))
+                    return Collections.emptyList();
 
                 if (imageId != null) {
                     if (imageId > -1) {
@@ -957,13 +956,8 @@ public class ROIFacility extends Facility {
                         cb.block(10000);
                         found = (FoundChildren) cb.getResponse();
                         List<Long> imageRoiIDs = found.children
-                                .remove(ome.model.roi.Roi.class.getName());
-
-                        Iterator<Long> it = roiIDs.iterator();
-                        while (it.hasNext()) {
-                            if (!imageRoiIDs.contains(it.next()))
-                                it.remove();
-                        }
+                                .get(ome.model.roi.Roi.class.getName());
+                        roiIDs.retainAll(imageRoiIDs);
                     } else {
                         // only take ROIs into account which are not attached to
                         // an image
@@ -971,7 +965,7 @@ public class ROIFacility extends Facility {
                         ParametersI p = new ParametersI();
                         p.addIds(roiIDs);
 
-                        String query = "select distinct roi from Roi roi "
+                        String query = "select roi from Roi roi "
                                 + "where roi.image is null "
                                 + "and roi.id in (:ids) ";
 
@@ -991,7 +985,7 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot load ROIs for folders ");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
@@ -1032,7 +1026,7 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot add ROIs to Folder ");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
     
     /**
@@ -1071,6 +1065,6 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot add ROIs to Folder ");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }
