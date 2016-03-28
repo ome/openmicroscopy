@@ -106,7 +106,7 @@ public class ROIFacilityTest extends GatewayTest {
         Assert.assertEquals(1, folders.size());
         Assert.assertEquals(folder.getId(), folders.iterator().next().getId());
     }
-    
+
     @Test(dependsOnMethods = { "testGetROIFolders" })
     public void testLoadROIs() throws Exception {
         
@@ -315,7 +315,7 @@ public class ROIFacilityTest extends GatewayTest {
         roiData.addShapeData(rectangle);
         return roiData;
     }
-    
+
     private FolderData createRoiFolder(SecurityContext ctx,
             Collection<ROIData> rois) throws DSOutOfServiceException,
             DSAccessException {
