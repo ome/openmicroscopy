@@ -957,7 +957,8 @@ public class ROIFacility extends Facility {
                         found = (FoundChildren) cb.getResponse();
                         List<Long> imageRoiIDs = found.children
                                 .get(ome.model.roi.Roi.class.getName());
-                        roiIDs.retainAll(imageRoiIDs);
+                        if (!CollectionUtils.isEmpty(imageRoiIDs))
+                            roiIDs.retainAll(imageRoiIDs);
                     } else {
                         // only take ROIs into account which are not attached to
                         // an image
