@@ -170,7 +170,7 @@ class DrawingCanvas:
     def drawEllipse(self, x, y, radiusx, radiusy, shapeSettings,
                     affineTransform=None):
         x0 = x - radiusx
-        y0 = y - radiusx
+        y0 = y - radiusy
         x1 = x0 + radiusx * 2
         y1 = y0 + radiusy * 2
         fillColour = self.getFillColour(shapeSettings)
