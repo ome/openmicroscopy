@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import junit.framework.Assert;
 import omero.api.IPixelsPrx;
 import omero.cmd.CmdCallbackI;
 import omero.gateway.SecurityContext;
@@ -45,6 +44,7 @@ import omero.model.IObject;
 import omero.model.PixelsType;
 import omero.model.Roi;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -89,7 +89,7 @@ public class ROIFacilityTest extends GatewayTest {
 
         Assert.assertEquals(rois.size(), 2);
         for (ROIData roi : rois) {
-            Assert.assertTrue("ROI doesn't have an ID!", roi.getId() >= 0);
+            Assert.assertNotEquals(roi.getId(), 0);
         }
         
         for (ROIData r : rois) {
@@ -195,8 +195,15 @@ public class ROIFacilityTest extends GatewayTest {
         }
         Assert.assertTrue(rois.isEmpty());
     }
-
+    
     @Test(dependsOnMethods = { "testLoadROIs" })
+    public void testGetROICount() throws DSOutOfServiceException,
+            DSAccessException {
+        int count = roifac.getROICount(rootCtx, img.getId());
+        Assert.assertEquals(2, count);
+    }
+
+    @Test(dependsOnMethods = { "testGetROICount" })
     public void testAddROIsToFolder() throws Exception {
         addRemoveFolder = createFolder(rootCtx);
 
