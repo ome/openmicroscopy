@@ -33,13 +33,18 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.NotImplementedException;
 
+import omero.RLong;
 import omero.ServerError;
 import omero.api.IQueryPrx;
 import omero.api.IRoiPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.FindChildren;
+import omero.cmd.FoundChildren;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -48,6 +53,7 @@ import omero.gateway.model.ROIResult;
 import omero.gateway.util.ModelMapper;
 import omero.gateway.util.Pojos;
 import omero.gateway.util.PyTablesUtils;
+import omero.gateway.util.Requests;
 import omero.model.FolderRoiLink;
 import omero.model.FolderRoiLinkI;
 import omero.model.IObject;
@@ -94,8 +100,9 @@ public class ROIFacility extends Facility {
     }
 
     /**
-     * Loads the ROI 
-     *
+     * Loads the ROI
+     * 
+     * @deprecated Use {@link #loadROIs(SecurityContext, Collection)} instead
      * @param ctx
      *            The security context.
      * @param roiId
@@ -107,6 +114,7 @@ public class ROIFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
+    @Deprecated
     public ROIResult loadROI(SecurityContext ctx, long roiId)
             throws DSOutOfServiceException, DSAccessException {
         try {
@@ -158,7 +166,9 @@ public class ROIFacility extends Facility {
     
     /**
      * Loads the ROI related to the specified image.
-     *
+     * 
+     * @deprecated Use {@link #loadROIs(SecurityContext, Long, Collection)}
+     *             instead
      * @param ctx
      *            The security context.
      * @param imageID
@@ -170,6 +180,7 @@ public class ROIFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
+    @Deprecated
     public List<ROIResult> loadROIs(SecurityContext ctx, long imageID)
             throws DSOutOfServiceException, DSAccessException {
         return loadROIs(ctx, imageID, null, gateway.getLoggedInUser().getId());
@@ -177,33 +188,16 @@ public class ROIFacility extends Facility {
 
     /**
      * Loads the ROI related to the specified image.
-     *
+     * 
+     * @deprecated Use {@link #loadROIs(SecurityContext, Long, Collection)}
+     *             instead
+     * 
      * @param ctx
      *            The security context.
      * @param imageID
      *            The image's ID.
-     * @param measurements The measurements IDs linked to the image if any.
-     * @return See above.
-     * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
-     * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
-     */
-    public List<ROIResult> loadROIs(SecurityContext ctx, long imageID,
-            List<Long> measurements) throws DSOutOfServiceException,
-            DSAccessException {
-        return loadROIs(ctx, imageID, measurements, -1);
-    }
-
-    /**
-     * Loads the ROI related to the specified image.
-     *
-     * @param ctx
-     *            The security context.
-     * @param imageID
-     *            The image's ID.
-     * @param measurements The measurements IDs linked to the image if any.
+     * @param measurements
+     *            The measurements IDs linked to the image if any.
      * @param userID
      *            The user's ID.
      * @return See above.
@@ -213,6 +207,7 @@ public class ROIFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
+    @Deprecated
     public List<ROIResult> loadROIs(SecurityContext ctx, long imageID,
             List<Long> measurements, long userID)
             throws DSOutOfServiceException, DSAccessException {
@@ -424,7 +419,7 @@ public class ROIFacility extends Facility {
 
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
     }
     
@@ -509,7 +504,7 @@ public class ROIFacility extends Facility {
             return result;
         } catch (Exception e) {
             handleException(this, e, "Cannot add ROIs to Folder ");
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
     }
@@ -520,7 +515,8 @@ public class ROIFacility extends Facility {
      * @param ctx
      *            The security context.
      * @param imageID
-     *            The image's ID.
+     *            The image's ID (can be <code>-1</code> for ROIs not attached
+     *            to an image)
      * @param userID
      *            The user's ID.
      * @param roiList
@@ -539,6 +535,23 @@ public class ROIFacility extends Facility {
         try {
             IUpdatePrx updateService = gateway.getUpdateService(ctx);
             IRoiPrx svc = gateway.getROIService(ctx);
+            
+            Collection<ROIData> updated = new ArrayList<ROIData>();
+
+            if (imageID < 0) {
+                for (ROIData r : roiList) {
+                    if (r.getId() > -1)
+                        throw new NotImplementedException(
+                                "Modification of existing ROIs is not implemented yet.");
+                }
+                
+                for (ROIData r : roiList) {
+                    Roi ri = (Roi) updateService.saveAndReturnObject(r
+                            .asIObject());
+                    updated.add(new ROIData(ri));
+                }
+                return updated;
+            }
             
             RoiOptions options = new RoiOptions();
             if (userID >= 0)
@@ -591,7 +604,6 @@ public class ROIFacility extends Facility {
             ROICoordinate coord;
             int shapeIndex;
 
-            Collection<ROIData> updated = new ArrayList<ROIData>();
             List<Long> deleted = new ArrayList<Long>();
             Image unloaded = new ImageI(imageID, false);
             Roi rr;
@@ -774,7 +786,7 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot Save the ROI for image: "
                     + imageID);
         }
-        return new ArrayList<ROIData>();
+        return Collections.emptyList();
     }
     
     /**
@@ -832,76 +844,231 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot load ROI folders.");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
-
+    
     /**
-     * Get all ROIs which are part of a certain folder
+     * Get the number of ROIs for an image
      * 
      * @param ctx
      *            The {@link SecurityContext}
      * @param imageId
-     *            The image id
-     * @param folderId
-     *            The folder id
+     *            The image Id
      * @return See above
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
-     *             service.
      */
-    public Collection<ROIResult> loadROIsForFolder(SecurityContext ctx,
-            long imageId, long folderId) throws DSOutOfServiceException,
+    public int getROICount(SecurityContext ctx, long imageId)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            ParametersI p = new ParametersI();
+            p.addId(imageId);
+            String query = "select count(*) from Roi roi "
+                    + "where roi.image.id = :id";
+            IQueryPrx service = gateway.getQueryService(ctx);
+            List<List<omero.RType>> tmp1 = service.projection(query, p);
+            if (CollectionUtils.isEmpty(tmp1)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            List<omero.RType> tmp2 = tmp1.iterator().next();
+            if (CollectionUtils.isEmpty(tmp2)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            omero.RType result = tmp2.iterator().next();
+            if (!(result instanceof RLong)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            return (int) (((RLong) result).getValue());
+        } catch (Exception e) {
+            handleException(this, e, "Can't load ROI count for image "
+                    + imageId);
+        }
+        return -1;
+    }
+    
+    /**
+     * Load ROIs. If an imageId is provided only ROIs for the image will be
+     * loaded. If <code>null</code> is passed, all ROIs will be taken into
+     * account. If <code>-1</code> is passed as imageId, only ROIs which are not
+     * attached to an image will be loaded. If a collection of folderIds is
+     * provided, only ROIs for the given folders will be loaded. If the
+     * collection of folderIds is <code>null</code>, folders will not be taken
+     * into account. If the collection of folderIds is empty, only ROIs which
+     * are not part of any folder will be loaded.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param imageId
+     *            The image id the ROIs refer to (can be <code>null</code> or
+     *            <code>-1</code>)
+     * @param folderIds
+     *            The folder ids the ROIs are part of (can be <code>null</code>
+     *            or empty) (Note: Does not take folder of images into account;
+     *            'ROI folders' only)
+     * @return See above
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public Collection<ROIData> loadROIs(SecurityContext ctx, Long imageId,
+            Collection<Long> folderIds) throws DSOutOfServiceException,
             DSAccessException {
         try {
-            // TODO: This should actually happen on the server; replace
-            //      with server-side method when available
-            
-            // get all ROIResults
-            List<ROIResult> roiresults = loadROIs(ctx, imageId);
+            List<Long> roiIDs = new ArrayList<Long>();
 
-            // get the ROIs of the specified folder
-            IQueryPrx qs = gateway.getQueryService(ctx);
-            StringBuilder sb = new StringBuilder();
-            ParametersI param = new ParametersI();
-            param.addLong("folderId", folderId);
-
-            sb.append("select roilink from FolderRoiLink as roilink ");
-            sb.append("left outer join fetch roilink.parent as folder ");
-            sb.append("left outer join fetch roilink.child as roi ");
-            sb.append("where folder.id = :folderId ");
-
-            List<IObject> links = qs.findAllByQuery(sb.toString(), param);
-
-            Set<Long> roiIds = new HashSet<Long>();
-            for (IObject l : links) {
-                FolderRoiLink link = (FolderRoiLink) l;
-                roiIds.add(link.getChild().getId().getValue());
-            }
-
-            // filter the ROIResults
-            Iterator<ROIResult> it = roiresults.iterator();
-            while (it.hasNext()) {
-                ROIResult r = it.next();
-                Iterator<ROIData> it2 = r.getROIs().iterator();
-                while (it2.hasNext()) {
-                    ROIData roi = it2.next();
-                    if (!roiIds.contains(roi.getId()))
-                        it2.remove();
+            if (folderIds == null) {
+                // ignore folders, ROIs can but don't have to be part of folders
+                String query;
+                ParametersI p = new ParametersI();
+                if (imageId == null) {
+                    // ignore imageId, get all rois
+                    query = "select roi from Roi roi";
+                } else if (imageId < 0) {
+                    // get all rois not attached to any image
+                    query = "select roi from Roi roi "
+                            + "where roi.image is null";
+                } else {
+                    // get all rois for the image
+                    query = "select roi from Roi roi "
+                            + "where roi.image.id = :id";
+                    p.addId(imageId);
                 }
 
-                if (r.getROIs().isEmpty())
-                    it.remove();
+                IQueryPrx service = gateway.getQueryService(ctx);
+
+                List<IObject> objs = service.findAllByQuery(query, p);
+
+                for (IObject obj : objs)
+                    roiIDs.add(((Roi) obj).getId().getValue());
+            } else if (folderIds.isEmpty()) {
+                // ROIs must not be part of folders
+
+                String query;
+                ParametersI p = new ParametersI();
+                if (imageId == null) {
+                    // ignore imageId, get all rois
+                    query = "select distinct roi from Roi roi "
+                            + "left outer join fetch roi.folderLinks as links ";
+                } else if (imageId > -1) {
+                    // get rois for the image
+                    query = "select distinct roi from Roi roi "
+                            + "left outer join fetch roi.folderLinks as links "
+                            + "where roi.image.id = :id";
+                    p.addId(imageId);
+                } else {
+                    // get rois not attached to any image
+                    query = "select distinct roi from Roi roi "
+                            + "left outer join fetch roi.folderLinks as links "
+                            + "where roi.image is null";
+                }
+
+                IQueryPrx service = gateway.getQueryService(ctx);
+
+                List<IObject> objs = service.findAllByQuery(query, p);
+
+                for (IObject obj : objs) {
+                    Roi roi = (Roi) obj;
+                    if (roi.sizeOfFolderLinks() == 0)
+                        roiIDs.add(roi.getId().getValue());
+                }
+            } else {
+                // get all rois which are part of the given folders
+                FindChildren finder = Requests.findChildren().target("Folder")
+                        .id(folderIds).stopBefore("Image").childType("Roi")
+                        .build();
+
+                CmdCallbackI cb = gateway.submit(ctx, finder);
+                cb.block(10000);
+                FoundChildren found = (FoundChildren) cb.getResponse();
+                roiIDs = found.children.get(ome.model.roi.Roi.class.getName());
+
+                if (CollectionUtils.isEmpty(roiIDs))
+                    return Collections.emptyList();
+
+                if (imageId != null) {
+                    if (imageId > -1) {
+                        // only take ROIs for the given image into account
+                        finder = Requests.findChildren().target("Image")
+                                .id(imageId).childType("Roi")
+                                .stopBefore("Shape").build();
+
+                        cb = gateway.submit(ctx, finder);
+                        cb.block(10000);
+                        found = (FoundChildren) cb.getResponse();
+                        List<Long> imageRoiIDs = found.children
+                                .get(ome.model.roi.Roi.class.getName());
+                        if (CollectionUtils.isEmpty(imageRoiIDs))
+                            return Collections.emptyList();
+
+                        roiIDs.retainAll(imageRoiIDs);
+                    } else {
+                        // only take ROIs into account which are not attached to
+                        // an image
+                        IQueryPrx service = gateway.getQueryService(ctx);
+                        ParametersI p = new ParametersI();
+                        p.addIds(roiIDs);
+
+                        String query = "select roi from Roi roi "
+                                + "where roi.image is null "
+                                + "and roi.id in (:ids) ";
+
+                        List<IObject> objs = service.findAllByQuery(query, p);
+
+                        roiIDs.clear();
+                        for (IObject obj : objs) {
+                            Roi roi = (Roi) obj;
+                            roiIDs.add(roi.getId().getValue());
+                        }
+                    }
+                }
             }
 
-            return roiresults;
-
+            return loadROIs(ctx, roiIDs);
         } catch (Throwable e) {
-            handleException(this, e, "Cannot load ROIs for folder " + folderId);
+            handleException(this, e, "Cannot load ROIs for folders ");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
+    }
+
+    /**
+     * Load all ROIs with the given ids
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param ids
+     *            The ROI ids
+     * @return See above.
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public Collection<ROIData> loadROIs(SecurityContext ctx,
+            Collection<Long> ids) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            if (ids == null || ids.isEmpty())
+                return Collections.EMPTY_LIST;
+            IQueryPrx service = gateway.getQueryService(ctx);
+            ParametersI p = new ParametersI();
+            p.addIds(ids);
+
+            String query = "select distinct roi from Roi roi "
+                    + "left outer join fetch roi.shapes as shapes "
+                    + "left outer join fetch roi.folderLinks as links "
+                    + "left outer join fetch links.parent as parent "
+                    + "where roi.id in (:ids)";
+
+            List<IObject> objs = service.findAllByQuery(query, p);
+
+            Collection<ROIData> result = new ArrayList<ROIData>(objs.size());
+            for (IObject obj : objs)
+                result.add(new ROIData((Roi) obj));
+
+            return result;
+        } catch (ServerError e) {
+            handleException(this, e, "Cannot add ROIs to Folder ");
+        }
+
+        return Collections.emptyList();
     }
     
     /**
@@ -940,6 +1107,6 @@ public class ROIFacility extends Facility {
             handleException(this, e, "Cannot add ROIs to Folder ");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 }
