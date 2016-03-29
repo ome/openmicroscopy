@@ -914,7 +914,6 @@ public class ROIFacility extends Facility {
                             + "left outer join fetch roi.folderLinks as links "
                             + "where roi.image.id = :id";
                     p.addId(imageId);
-
                 } else {
                     // get rois not attached to any image
                     query = "select distinct roi from Roi roi "
@@ -957,8 +956,10 @@ public class ROIFacility extends Facility {
                         found = (FoundChildren) cb.getResponse();
                         List<Long> imageRoiIDs = found.children
                                 .get(ome.model.roi.Roi.class.getName());
-                        if (!CollectionUtils.isEmpty(imageRoiIDs))
-                            roiIDs.retainAll(imageRoiIDs);
+                        if (CollectionUtils.isEmpty(imageRoiIDs))
+                            return Collections.emptyList();
+
+                        roiIDs.retainAll(imageRoiIDs);
                     } else {
                         // only take ROIs into account which are not attached to
                         // an image
