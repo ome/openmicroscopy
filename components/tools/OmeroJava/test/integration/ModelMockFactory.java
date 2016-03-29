@@ -943,7 +943,7 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Pixels createPixels() throws Exception {
-        return createPixels(SIZE_X, SIZE_Y, SIZE_Y, SIZE_Y,
+        return createPixels(SIZE_X, SIZE_Y, SIZE_Z, SIZE_T,
                 DEFAULT_CHANNELS_NUMBER);
     }
 
@@ -1002,8 +1002,40 @@ public class ModelMockFactory {
      */
     public Plate createPlate(int rows, int columns, int fields,
             int numberOfPlateAcquisition, boolean fullImage) throws Exception {
+        return fullImage ?
+                createPlate(rows, columns, fields, numberOfPlateAcquisition, 1, 1, 1, 1, 1) :
+                createPlate(rows, columns, fields, numberOfPlateAcquisition, 0, 0, 0, 0, 0);
+    }
+
+    /**
+     * Creates a plate.
+     *
+     * @param rows
+     *            The number of rows.
+     * @param columns
+     *            The number of columns.
+     * @param fields
+     *            The number of fields.
+     * @param numberOfPlateAcquisition
+     *            The number of plate acquisitions.
+     * @param sizeX
+     *            The size along the X-axis.
+     * @param sizeY
+     *            The size along the Y-axis.
+     * @param sizeZ
+     *            The number of Z-sections.
+     * @param sizeT
+     *            The number of time-points.
+     * @param sizeC
+     *            The number of channels.
+     * @return See above.
+     */
+    public Plate createPlate(int rows, int columns, int fields,
+            int numberOfPlateAcquisition, int sizeX, int sizeY, int sizeZ, int sizeT,
+            int sizeC) throws Exception {
         if (numberOfPlateAcquisition < 0)
             numberOfPlateAcquisition = 0;
+        final boolean fullImage = sizeX > 0 && sizeY > 0 && sizeZ > 0 && sizeT > 0 && sizeC > 0;
         Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
         p.setColumns(omero.rtypes.rint(columns));
@@ -1032,7 +1064,7 @@ public class ModelMockFactory {
                     for (int field = 0; field < fields; field++) {
                         sample = new WellSampleI();
                         if (fullImage)
-                            sample.setImage(createImage());
+                            sample.setImage(createImage(sizeX, sizeY, sizeZ, sizeT, sizeC));
                         else
                             sample.setImage(simpleImage());
                         well.addWellSample(sample);
@@ -1044,7 +1076,7 @@ public class ModelMockFactory {
                         for (int field = 0; field < fields; field++) {
                             sample = new WellSampleI();
                             if (fullImage)
-                                sample.setImage(createImage());
+                                sample.setImage(createImage(sizeX, sizeY, sizeZ, sizeT, sizeC));
                             else
                                 sample.setImage(simpleImage());
                             well.addWellSample(sample);

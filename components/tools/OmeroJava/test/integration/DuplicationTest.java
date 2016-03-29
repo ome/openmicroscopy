@@ -1445,7 +1445,7 @@ public class DuplicationTest extends AbstractServerTest {
      * Test duplication of a rich plate structure.
      * @throws Exception unexpected
      */
-    @Test
+    @Test(groups = "ticket:13171")
     public void testDuplicatePlate() throws Exception {
         newUserAndGroup("rw----");
 
@@ -1453,27 +1453,36 @@ public class DuplicationTest extends AbstractServerTest {
         final int columnCount = 2;
         final int fieldCount = 2;
         final int runCount = 2;
+        final int timeCount = 2;
+        final int channelCount = 4;
 
         /* create a new plate */
 
-        Plate originalPlate = mmFactory.createPlate(rowCount, columnCount, fieldCount, runCount, false);
+        Plate originalPlate = mmFactory.createPlate(rowCount, columnCount, fieldCount, runCount, 1, 1, 1, timeCount, channelCount);
         originalPlate = (Plate) iUpdate.saveAndReturnObject(originalPlate).proxy();
 
         /* note the objects (and their IDs) that were thus created and saved */
 
         final long originalPlateId = originalPlate.getId().getValue();
 
-        final String hql = "FROM Plate AS plate " +
+        final String hql1 = "FROM Plate AS plate " +
                 "LEFT JOIN FETCH plate.wells AS well " +
                 "LEFT JOIN FETCH plate.plateAcquisitions AS run " +
                 "LEFT JOIN FETCH run.wellSample AS field " +
-                "LEFT JOIN FETCH field.image AS image";
-        final Parameters params = new ParametersI().addId(originalPlateId);
-        originalPlate = (Plate) iQuery.findByQuery(hql, params);
+                "LEFT JOIN FETCH field.image AS image " +
+                "LEFT JOIN FETCH image.pixels AS pixels " +
+                "LEFT JOIN FETCH pixels.channels AS channels " +
+                "LEFT JOIN FETCH pixels.planeInfo as planeInfo";
+        final Parameters params1 = new ParametersI().addId(originalPlateId);
+        originalPlate = (Plate) iQuery.findByQuery(hql1, params1);
 
         final Set<Long> originalWellIds = new HashSet<Long>();
         final Set<Long> originalRunIds = new HashSet<Long>();
-        final Map<Long, Long> originalFieldImageIds = new HashMap<Long,Long>();
+        final Set<Long> originalFieldIds = new HashSet<Long>();
+        final Set<Long> originalImageIds = new HashSet<Long>();
+        final Set<Long> originalPixelsIds = new HashSet<Long>();
+        final Set<Long> originalChannelIds = new HashSet<Long>();
+        final Set<Long> originalPlaneInfoIds = new HashSet<Long>();
 
         for (final Well well : originalPlate.copyWells()) {
             originalWellIds.add(well.getId().getValue());
@@ -1481,15 +1490,26 @@ public class DuplicationTest extends AbstractServerTest {
         for (final PlateAcquisition run : originalPlate.copyPlateAcquisitions()) {
             originalRunIds.add(run.getId().getValue());
             for (final WellSample field : run.copyWellSample()) {
-                originalFieldImageIds.put(field.getId().getValue(), field.getImage().getId().getValue());
+                final Image image = field.getImage();
+                final Pixels pixels = image.getPrimaryPixels();
+                originalFieldIds.add(field.getId().getValue());
+                originalImageIds.add(image.getId().getValue());
+                originalPixelsIds.add(pixels.getId().getValue());
+                for (final Channel channel : pixels.copyChannels()) {
+                    originalChannelIds.add(channel.getId().getValue());
+                }
+                for (final PlaneInfo planeInfo : pixels.copyPlaneInfo()) {
+                    originalPlaneInfoIds.add(planeInfo.getId().getValue());
+                }
             }
         }
 
         /* add ROIs to the well sample images and also note their IDs */
 
-        final Map<Long, Long> originalRoiPointIds = new HashMap<Long,Long>();
+        final Set<Long> originalRoiIds = new HashSet<Long>();
+        final Set<Long> originalPointIds = new HashSet<Long>();
 
-        for (final Long originalImageId : originalFieldImageIds.values()) {
+        for (final Long originalImageId : originalImageIds) {
             Point originalPoint = new PointI();
             originalPoint.setX(omero.rtypes.rdouble(0));
             originalPoint.setY(omero.rtypes.rdouble(0));
@@ -1501,15 +1521,33 @@ public class DuplicationTest extends AbstractServerTest {
             originalPoint = (Point) iQuery.findByQuery("FROM Point WHERE roi.id = :id", new ParametersI().addId(originalRoiId));
             final Long originalPointId = originalPoint.getId().getValue();
             Assert.assertEquals(originalRoi.getImage().getId().getValue(), (long) originalImageId);
-            originalRoiPointIds.put(originalRoiId, originalPointId);
+            originalRoiIds.add(originalRoiId);
+            originalPointIds.add(originalPointId);
         }
 
         /* check that the expected numbers of objects were created */
 
         Assert.assertEquals(originalWellIds.size(), rowCount * columnCount);
         Assert.assertEquals(originalRunIds.size(), runCount);
-        Assert.assertEquals(originalFieldImageIds.size(), rowCount * columnCount * runCount * fieldCount);
-        Assert.assertEquals(originalRoiPointIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalFieldIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalImageIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalPixelsIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalChannelIds.size(), rowCount * columnCount * runCount * fieldCount * channelCount);
+        Assert.assertEquals(originalPlaneInfoIds.size(), rowCount * columnCount * runCount * fieldCount * timeCount * channelCount);
+        Assert.assertEquals(originalRoiIds.size(), rowCount * columnCount * runCount * fieldCount);
+        Assert.assertEquals(originalPointIds.size(), rowCount * columnCount * runCount * fieldCount);
+
+        /* combine all the logical channels into one: this often triggers duplication failure in OMERO 5.2.2 */
+
+        final String hql2 = "FROM Channel WHERE id IN (:ids)";
+        final Parameters params2 = new ParametersI().addIds(originalChannelIds);
+        final List<IObject> results = iQuery.findAllByQuery(hql2, params2);
+        final LogicalChannel originalLogicalChannel = ((Channel) results.get(0)).getLogicalChannel();
+        for (int index = 1; index < results.size(); index++) {
+            final Channel originalChannel = (Channel) results.get(index);
+            originalChannel.setLogicalChannel(originalLogicalChannel);
+        }
+        iUpdate.saveCollection(results);
 
         /* duplicate the plate */
 
@@ -1523,29 +1561,39 @@ public class DuplicationTest extends AbstractServerTest {
         final Set<Long> reportedRunIds = new HashSet<Long>(response.duplicates.get("ome.model.screen.PlateAcquisition"));
         final Set<Long> reportedFieldIds = new HashSet<Long>(response.duplicates.get("ome.model.screen.WellSample"));
         final Set<Long> reportedImageIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Image"));
+        final Set<Long> reportedPixelsIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Pixels"));
+        final Set<Long> reportedChannelIds = new HashSet<Long>(response.duplicates.get("ome.model.core.Channel"));
+        final Set<Long> reportedPlaneInfoIds = new HashSet<Long>(response.duplicates.get("ome.model.core.PlaneInfo"));
         final Set<Long> reportedRoiIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Roi"));
         final Set<Long> reportedPointIds = new HashSet<Long>(response.duplicates.get("ome.model.roi.Point"));
 
         /* delete the original and duplicate plates */
 
-        doChange(Requests.delete().target("Plate").id(originalPlateId).id(reportedPlateIds).build());
+        doChange(Requests.delete()
+                .target("Plate").id(originalPlateId).id(reportedPlateIds).build());
 
         /* check that the reported plate, wells, runs, fields, images, ROIs and shapes all have new IDs */
 
         Assert.assertEquals(reportedPlateIds.size(), 1);
         Assert.assertEquals(reportedWellIds.size(), originalWellIds.size());
         Assert.assertEquals(reportedRunIds.size(), originalRunIds.size());
-        Assert.assertEquals(reportedFieldIds.size(), originalFieldImageIds.size());
-        Assert.assertEquals(reportedImageIds.size(), originalFieldImageIds.size());
-        Assert.assertEquals(reportedRoiIds.size(), originalRoiPointIds.size());
-        Assert.assertEquals(reportedPointIds.size(), originalRoiPointIds.size());
+        Assert.assertEquals(reportedFieldIds.size(), originalFieldIds.size());
+        Assert.assertEquals(reportedImageIds.size(), originalImageIds.size());
+        Assert.assertEquals(reportedPixelsIds.size(), originalPixelsIds.size());
+        Assert.assertEquals(reportedChannelIds.size(), originalChannelIds.size());
+        Assert.assertEquals(reportedPlaneInfoIds.size(), originalPlaneInfoIds.size());
+        Assert.assertEquals(reportedRoiIds.size(), originalRoiIds.size());
+        Assert.assertEquals(reportedPointIds.size(), originalPointIds.size());
 
         Assert.assertNotEquals(originalPlateId, reportedPlateIds.iterator().next());
         Assert.assertTrue(Sets.intersection(originalWellIds, reportedWellIds).isEmpty());
         Assert.assertTrue(Sets.intersection(originalRunIds, reportedRunIds).isEmpty());
-        Assert.assertTrue(Sets.intersection(originalFieldImageIds.keySet(), reportedFieldIds).isEmpty());
-        Assert.assertTrue(Sets.intersection(new HashSet<Long>(originalFieldImageIds.values()), reportedImageIds).isEmpty());
-        Assert.assertTrue(Sets.intersection(originalRoiPointIds.keySet(), reportedRoiIds).isEmpty());
-        Assert.assertTrue(Sets.intersection(new HashSet<Long>(originalRoiPointIds.values()), reportedPointIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalFieldIds, reportedFieldIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalImageIds, reportedImageIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalPixelsIds, reportedPixelsIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalChannelIds, reportedChannelIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalPlaneInfoIds, reportedPlaneInfoIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalRoiIds, reportedRoiIds).isEmpty());
+        Assert.assertTrue(Sets.intersection(originalPointIds, reportedPointIds).isEmpty());
     }
 }
