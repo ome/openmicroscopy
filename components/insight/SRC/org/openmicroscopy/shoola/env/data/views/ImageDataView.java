@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -387,6 +387,20 @@ public interface ImageDataView
 	 */
 	public CallHandle loadROIFromServer(SecurityContext ctx, long imageID,
 			long userID, AgentEventListener observer);
+	
+    /**
+     * Load the number of ROIs for a specific image
+     * 
+     * @param ctx
+     *            The security context.
+     * @param imageID
+     *            The image's id.
+     * @param observer
+     *            Call-back handler.
+     * @return See above
+     */
+    public CallHandle getROICount(SecurityContext ctx, long imageID,
+            AgentEventListener observer);
 	
 	/**
 	 * Renders the image with the overlays if the passed map is not 
