@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1413,8 +1413,7 @@ public class PropertiesUI
          * Starts an asyc. call to load the number of ROIs
          */
         void loadROICount(ImageData image) {
-            ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-            ROICountLoader l = new ROICountLoader(new SecurityContext(image.getGroupId()), this, image.getId(), exp.getId());
+            ROICountLoader l = new ROICountLoader(new SecurityContext(image.getGroupId()), this, image.getId());
             l.load();
         }
         
