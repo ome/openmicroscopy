@@ -64,8 +64,12 @@ namespace omero {
         // Strictly necessary for this class to work
         optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
 #if ICE_INT_VERSION / 100 >= 306
-        optionallySetProperty(id, "Ice.ACM.Client.Timeout", "60000");
-        optionallySetProperty(id, "Ice.ACM.Client.Heartbeat", "2");
+        stringstream sstimeoutInt;
+        sstimeoutInt << omero::constants::ACMCLIENTTIMEOUT;
+        optionallySetProperty(id, "Ice.ACM.Client.Timeout", sstimeoutInt.str());
+        stringstream ssheartbeatInt;
+        ssheartbeatInt << omero::constants::ACMCLIENTHEARTBEAT;
+        optionallySetProperty(id, "Ice.ACM.Client.Heartbeat", ssheartbeatInt.str());
 #else
         optionallySetProperty(id, "Ice.ACM.Client", "0");
 #endif

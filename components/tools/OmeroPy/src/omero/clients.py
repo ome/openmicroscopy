@@ -188,8 +188,10 @@ class BaseClient(object):
         # Strictly necessary for this class to work
         self._optSetProp(id, "Ice.ImplicitContext", "Shared")
         if Ice.intVersion() >= 30600:
-            self._optSetProp(id, "Ice.ACM.Client.Timeout", "60000")
-            self._optSetProp(id, "Ice.ACM.Client.Heartbeat", "2")
+            self._optSetProp(id, "Ice.ACM.Client.Timeout",
+                             str(omero.constants.ACMCLIENTTIMEOUT))
+            self._optSetProp(id, "Ice.ACM.Client.Heartbeat",
+                             str(omero.constants.ACMCLIENTHEARTBEAT))
         else:
             self._optSetProp(id, "Ice.ACM.Client", "0")
         self._optSetProp(id, "Ice.CacheMessageBuffers", "0")
