@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.NotImplementedException;
 
 import omero.ServerError;
 import omero.api.IQueryPrx;
@@ -520,7 +521,8 @@ public class ROIFacility extends Facility {
      * @param ctx
      *            The security context.
      * @param imageID
-     *            The image's ID.
+     *            The image's ID (can be <code>-1</code> for ROIs not attached
+     *            to an image)
      * @param userID
      *            The user's ID.
      * @param roiList
@@ -539,6 +541,24 @@ public class ROIFacility extends Facility {
         try {
             IUpdatePrx updateService = gateway.getUpdateService(ctx);
             IRoiPrx svc = gateway.getROIService(ctx);
+            
+            Collection<ROIData> updated = new ArrayList<ROIData>();
+
+            if (imageID < 0) {
+                for (ROIData r : roiList) {
+                    if (r.getId() > -1)
+                        throw new NotImplementedException(
+                                "Modification of existing ROIs not attached to an image "
+                                        + "is not implemented yet.");
+                }
+
+                for (ROIData r : roiList) {
+                    Roi ri = (Roi) updateService.saveAndReturnObject(r
+                            .asIObject());
+                    updated.add(new ROIData(ri));
+                }
+                return updated;
+            }
             
             RoiOptions options = new RoiOptions();
             if (userID >= 0)
@@ -591,7 +611,6 @@ public class ROIFacility extends Facility {
             ROICoordinate coord;
             int shapeIndex;
 
-            Collection<ROIData> updated = new ArrayList<ROIData>();
             List<Long> deleted = new ArrayList<Long>();
             Image unloaded = new ImageI(imageID, false);
             Roi rr;
