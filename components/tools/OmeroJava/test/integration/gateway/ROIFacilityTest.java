@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import junit.framework.Assert;
 import omero.api.IPixelsPrx;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -42,6 +41,7 @@ import omero.model.IObject;
 import omero.model.PixelsType;
 import omero.model.Roi;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -87,10 +87,22 @@ public class ROIFacilityTest extends GatewayTest {
 
         Assert.assertEquals(rois.size(), 2);
         for (ROIData roi : rois) {
-            Assert.assertTrue("ROI doesn't have an ID!", roi.getId() >= 0);
+            Assert.assertTrue(roi.getId() >= 0);
         }
     }
 
+    @Test
+    public void testSaveImagelessROIs() throws DSOutOfServiceException,
+            DSAccessException {
+        ROIData r = createRectangleROI(11, 11, 10, 10);
+        Collection<ROIData> result = roifac.saveROIs(rootCtx, -1, Collections.singleton(r));
+
+        Assert.assertEquals(result.size(), 1);
+        r = result.iterator().next();
+        Assert.assertTrue(r.getId() >= 0);
+        Assert.assertNull(r.getImage() );
+    }
+    
     private ROIData createRectangleROI(int x, int y, int w, int h) {
         ROIData roiData = new ROIData();
         RectangleData rectangle = new RectangleData(x, y, w, h);
@@ -118,8 +130,7 @@ public class ROIFacilityTest extends GatewayTest {
             }
         }
 
-        Assert.assertTrue("Loaded ROIs don't match saved ROIs!",
-                myRois.isEmpty());
+        Assert.assertTrue(myRois.isEmpty());
     }
 
     @Test
