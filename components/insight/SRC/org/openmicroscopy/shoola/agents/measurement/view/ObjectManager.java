@@ -697,7 +697,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
     }
 
     /** Rebuilds Tree */
-    void rebuildTable() {    
+    void rebuildTable() {
         if (objectsTable.getIDFilter().isEmpty()
                 && (selectAll == null || !selectAll.isChecked())) {
             // setup initial folder selection (only show folders

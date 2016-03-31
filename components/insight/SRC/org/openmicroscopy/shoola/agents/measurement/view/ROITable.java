@@ -813,12 +813,15 @@ public class ROITable
     
     private ROINode findFolderNode(FolderData folder) {
         Collection<ROINode> tmp = nodesMap.get(getUUID(folder));
-        if (tmp.size() == 1)
-            return tmp.iterator().next();
-        if (CollectionUtils.isEmpty(tmp))
+        switch (tmp.size()) {
+        case 0:
             return null;
-        throw new RuntimeException("Multiple ROINodes found for "
-                + getUUID(folder));
+        case 1:
+            return tmp.iterator().next();
+        default:
+            throw new RuntimeException("Multiple ROINodes found for "
+                    + getUUID(folder));
+        }
     }
 
     /**
