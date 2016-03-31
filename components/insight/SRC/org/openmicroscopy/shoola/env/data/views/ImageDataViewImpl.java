@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.OverlaysRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ROICountLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ResultsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.SaveAsLoader;
@@ -371,7 +372,7 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#loadROIFromServer(long, Long, AgentEventListener)
+     * @see ImageDataView#loadROIFromServer(SecurityContext, long, long, AgentEventListener)
      */
 	public CallHandle loadROIFromServer(SecurityContext ctx, long imageID,
 			long userID, AgentEventListener observer)
@@ -379,6 +380,16 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new ServerSideROILoader(ctx, imageID, userID);
 		return cmd.exec(observer);
 	}
+	
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#getROICount(SecurityContext, long, AgentEventListener)
+     */
+    public CallHandle getROICount(SecurityContext ctx, long imageID, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ROICountLoader(ctx, imageID);
+        return cmd.exec(observer);
+    }
 
 	/**
      * Implemented as specified by the view interface.

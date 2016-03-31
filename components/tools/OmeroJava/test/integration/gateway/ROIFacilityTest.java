@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -86,6 +86,13 @@ public class ROIFacilityTest extends GatewayTest {
         return roiData;
     }
 
+    @Test(dependsOnMethods = { "testSaveROIs" })
+    public void testGetROICount() throws DSOutOfServiceException,
+            DSAccessException {
+        int n = roifac.getROICount(rootCtx, img.getId());
+        Assert.assertEquals(2, n);
+    }
+    
     @Test(dependsOnMethods = { "testSaveROIs" })
     public void testLoadROIs() throws DSOutOfServiceException,
             DSAccessException {

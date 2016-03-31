@@ -22,18 +22,16 @@ package omero.gateway.facility;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import omero.RLong;
 import omero.ServerError;
 import omero.api.IQueryPrx;
 import omero.api.IRoiPrx;
@@ -47,7 +45,6 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.ROIResult;
 import omero.gateway.util.ModelMapper;
 import omero.gateway.util.PyTablesUtils;
-import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Line;
@@ -82,6 +79,45 @@ public class ROIFacility extends Facility {
     ROIFacility(Gateway gateway) throws ExecutionException {
         super(gateway);
         this.dm = gateway.getFacility(DataManagerFacility.class);
+    }
+    
+    /**
+     * Get the number of ROIs for an image
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param imageId
+     *            The image Id
+     * @return See above
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public int getROICount(SecurityContext ctx, long imageId)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            ParametersI p = new ParametersI();
+            p.addId(imageId);
+            String query = "select count(*) from Roi roi "
+                    + "where roi.image.id = :id";
+            IQueryPrx service = gateway.getQueryService(ctx);
+            List<List<omero.RType>> tmp1 = service.projection(query, p);
+            if (CollectionUtils.isEmpty(tmp1)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            List<omero.RType> tmp2 = tmp1.iterator().next();
+            if (CollectionUtils.isEmpty(tmp2)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            omero.RType result = tmp2.iterator().next();
+            if (!(result instanceof RLong)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            return (int) (((RLong) result).getValue());
+        } catch (Exception e) {
+            handleException(this, e, "Can't load ROI count for image "
+                    + imageId);
+        }
+        return -1;
     }
 
     /**
