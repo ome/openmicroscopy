@@ -96,7 +96,8 @@ public class ROIFacility extends Facility {
     }
     
     /**
-     * Get the number of ROIs for an image
+     * Get the number of ROIs for an image (<code>-1</code>
+     * in case of error)
      * 
      * @param ctx
      *            The {@link SecurityContext}
