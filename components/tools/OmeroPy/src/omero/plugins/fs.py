@@ -759,7 +759,7 @@ Examples:
                 args.obj.append(
                     "ExperimenterGroup:%s" % ",".join(map(str, gids)))
 
-        req.objects, req.classes = self._usage_obj(args.obj)
+        req.targetObjects, req.targetClasses = self._usage_obj(args.obj)
         cb = None
         try:
             rsp, status, cb = self.response(client, req, wait=args.wait)
