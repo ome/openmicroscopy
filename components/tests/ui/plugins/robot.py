@@ -40,6 +40,10 @@ class RobotControl(BaseControl):
             "--protocol", type=str, default="http",
             help="Protocol to use for the OMERO.web robot tests."
             " Default: http")
+        config.add_argument(
+            "--remoteurl", type=str, default="False",
+            help="The url for a remote selenium server for example"
+            " http://selenium_server_host/wd/hub. Default: False")
 
     def config(self, args):
         """Generate a configuration file for the Robot framework tests"""
@@ -59,6 +63,7 @@ class RobotControl(BaseControl):
             "PASS": p.getPropertyWithDefault("omero.pass", "omero"),
             "ROOTPASS": p.getPropertyWithDefault("omero.rootpass", "omero"),
             "PROTOCOL": args.protocol,
+            "REMOTEURL": args.remoteurl,
         }
 
         # Add OMERO.web substitutions

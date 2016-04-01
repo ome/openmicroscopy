@@ -18,6 +18,7 @@ ${WEB HOST}             %(WEBHOST)s
 ${WEB PREFIX}           %(WEBPREFIX)s
 ${SERVER_ID}            1
 
+${REMOTE_URL}           %(REMOTEURL)s
 ${BROWSER}              Firefox
 ${DELAY}                0
 ${WAIT}                 50

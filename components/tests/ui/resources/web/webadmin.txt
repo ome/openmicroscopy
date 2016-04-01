@@ -24,7 +24,7 @@ Log In As Root
 
 Open Browser To Login Page
     [Arguments]                 ${main url}     ${login url}
-    Open Browser                ${main url}     ${BROWSER}
+    Open Browser                ${main url}     ${BROWSER}          remote_url=${REMOTE_URL}
     Set Selenium Speed          ${DELAY}
     Page Should Be Open         ${login url}    OMERO.web - Login
 
