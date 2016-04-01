@@ -760,7 +760,7 @@ public class GraphTraversal {
                         }
                     }
                     subclassesQueried = true;
-                } catch (QueryException e) {
+                } catch (NullPointerException | QueryException e) {
                     NO_SUBCLASS_QUERY.add(className);
                 }
             }
