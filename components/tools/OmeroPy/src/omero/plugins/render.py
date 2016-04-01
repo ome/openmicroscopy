@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import re
 import sys
 import time
 
@@ -47,7 +48,12 @@ Examples:
     bin/omero render info Image:123
 
     # %(EDIT)s
-    bin/omero render edit RenderingDef:1
+    bin/omero render edit Image:1
+        <ChannelIndex>:label=,color=,min=,max=,active= [<ChannelIndex>:... ]
+    # Omitted fields will keep their current values, omitted channel-indices
+    # will be turned off.
+    bin/omero render edit Image:1 1:color=FF0000 3:
+    # Enable channels 1 and 3, disable channel 2, set Channel 1 to red
 
     # %(LIST)s
     bin/omero render list Image:456
@@ -72,6 +78,12 @@ Examples:
 class ChannelObject(object):
 
     def __init__(self, channel):
+        if isinstance(channel, basestring):
+            self.init_from_string(channel)
+        else:
+            self.init_from_channel(channel)
+
+    def init_from_channel(self, channel):
         self.emWave = channel.getEmissionWave()
         self.label = channel.getLabel()
         self.color = channel.getColor()
@@ -81,11 +93,45 @@ class ChannelObject(object):
         self.end = channel.getWindowEnd()
         self.active = channel.isActive()
 
+    def init_from_string(self, s):
+
+        def str_to_bool(sb):
+            if not sb:
+                return False
+            try:
+                return bool(int(sb))
+            except ValueError:
+                if sb.lower() == 'true':
+                    return True
+                if sb.lower() == 'false':
+                    return False
+            raise ValueError('Invalid bool string: %s' % sb)
+
+        if s:
+            # TODO: Don't split on comma in channel name
+            parts = dict(p.split('=', 1) for p in s.split(','))
+        else:
+            parts = {}
+
+        self.emWave = None
+        self.label = parts.get('label', None)
+        self.color = parts.get('color', None)
+        self.min = float(parts['min']) if 'min' in parts else None
+        self.max = float(parts['max']) if 'max' in parts else None
+        self.start = None
+        self.end = None
+        print parts, 'active' in parts
+        self.active = str_to_bool(parts.get('active', True))
+
     def __str__(self):
+        try:
+            color = self.color.getHtml()
+        except AttributeError:
+            color = self.color
         sb = ""
         sb += ",".join([
             "active=%s" % self.active,
-            "color=%s" % self.color.getHtml(),
+            "color=%s" % color,
             "label=%s" % self.label,
             "min=%s" % self.min,
             "start=%s" % self.start,
@@ -168,7 +214,7 @@ class RenderControl(BaseControl):
         sub = parser.sub()
         info = parser.add(sub, self.info, DESC["INFO"])
         copy = parser.add(sub, self.copy, DESC["COPY"])
-        # edit = parser.add(sub, self.edit, DESC["EDIT"])
+        edit = parser.add(sub, self.edit, DESC["EDIT"])
         # list = parser.add(sub, self.list, DESC["LIST"])
         # jpeg = parser.add(sub, self.jpeg, DESC["JPEG"])
         # jpeg.add_argument(
@@ -178,11 +224,11 @@ class RenderControl(BaseControl):
         render_type = ProxyStringType("Image")
         render_help = ("rendering def source of form <object>:<id>. ",
                        "Image is assumed if <object>: is omitted.")
-
-        for x in (info, copy):
+        for x in (info, copy, edit):
             x.add_argument("object", type=render_type, help=render_help)
         copy.add_argument("target", type=render_type, help=render_help,
                           nargs="+")
+        edit.add_argument("channels", help=render_help, nargs="+")
 
     def _lookup(self, gateway, type, oid):
         # TODO: move _lookup to a _configure type
@@ -258,6 +304,49 @@ class RenderControl(BaseControl):
                     stop = time.time()
                     print "Image:%s" % target.id, \
                         "got thumbnail in %2.2fs" % (stop-start)
+
+    def edit(self, args):
+        client = self.ctx.conn(args)
+        gateway = BlitzGateway(client_obj=client)
+        newchannels = {}
+        for channelstr in args.channels:
+            try:
+                cindexstr, cdesc = channelstr.split(':', 1)
+                # Strip any leading non-digits
+                cindex = int(re.match('[A-Za-z]*(\d+)$', cindexstr).group(1))
+            except Exception as e:
+                self.ctx.err('ERROR: %s' % e)
+                self.ctx.die(
+                    105, "Invalid channel index: %s" % channelstr)
+
+            try:
+                cobj = ChannelObject(cdesc.strip())
+                if (cobj.min is None) != (cobj.max is None):
+                    raise Exception('Both or neither of min and max required')
+                newchannels[cindex] = cobj
+                print '%d:%s' % (cindex, cobj)
+            except Exception as e:
+                self.ctx.err('ERROR: %s' % e)
+                self.ctx.die(
+                    105, "Invalid channel description: %s" % channelstr)
+
+        cindices = []
+        rangelist = []
+        colourlist = []
+        for (i, c) in newchannels.iteritems():
+            if not c.active:
+                continue
+            cindices.append(i)
+            rangelist.append([c.min, c.max])
+            colourlist.append(c.color)
+
+        for img in self.render_images(gateway, args.object, batch=1):
+            img.setActiveChannels(
+                cindices, windows=rangelist, colors=colourlist)
+            img.saveDefaults()
+
+        # TODO: set channel names
+        # gateway.setChannelNames('Image', img.getId())
 
 
 try:
