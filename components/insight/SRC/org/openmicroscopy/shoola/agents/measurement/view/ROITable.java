@@ -710,9 +710,11 @@ public class ROITable
 	    Collection<ROINode> nodes = findNodes(shape.getROI());
         for(ROINode node : nodes) {
     		ROINode child = node.findChild(shape);
-    		node.remove(child);
-    		if (node.getChildCount() == 0)
+    		if (child != null) {
+        		node.remove(child);
+        		if (node.getChildCount() == 0)
     			node.getParent().remove(node);
+    		}
         }
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 	}
