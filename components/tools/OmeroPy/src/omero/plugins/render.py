@@ -338,6 +338,8 @@ class RenderControl(BaseControl):
             cindices.append(i)
             rangelist.append([c.min, c.max])
             colourlist.append(c.color)
+            if c.label:
+                self.ctx.err('WARNING: Channel name edit not implemented')
 
         for img in self.render_images(gateway, args.object, batch=1):
             img.setActiveChannels(
