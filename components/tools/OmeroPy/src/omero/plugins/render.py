@@ -72,7 +72,7 @@ Examples:
     # ...optionally setting parameters
     bin/omero render jpeg --z=4 Image:6 > test.jpg
 
-"""
+""" % DESC
 
 
 class ChannelObject(object):
@@ -222,7 +222,7 @@ class RenderControl(BaseControl):
         #    help="Local filename to be saved to. '-' for stdout")
 
         render_type = ProxyStringType("Image")
-        render_help = ("rendering def source of form <object>:<id>. ",
+        render_help = ("rendering def source of form <object>:<id>. "
                        "Image is assumed if <object>: is omitted.")
         for x in (info, copy, edit):
             x.add_argument("object", type=render_type, help=render_help)
