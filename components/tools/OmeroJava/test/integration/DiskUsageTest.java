@@ -377,10 +377,10 @@ public class DiskUsageTest extends AbstractServerTest {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
             for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
+                Assert.assertEquals(byReferer.get("FileAnnotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
+            final Delete2 request = Requests.delete().target("FileAnnotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -416,10 +416,10 @@ public class DiskUsageTest extends AbstractServerTest {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
             for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
+                Assert.assertEquals(byReferer.get("FileAnnotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
+            final Delete2 request = Requests.delete().target("FileAnnotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -449,10 +449,10 @@ public class DiskUsageTest extends AbstractServerTest {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
             for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
+                Assert.assertEquals(byReferer.get("FileAnnotation"), (Long) totalAnnotationSize);
             }
         } finally {
-            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
+            final Delete2 request = Requests.delete().target("FileAnnotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -499,10 +499,10 @@ public class DiskUsageTest extends AbstractServerTest {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
+                Assert.assertEquals(byReferer.get("FileAnnotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
+            final Delete2 request = Requests.delete().target("FileAnnotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -534,10 +534,10 @@ public class DiskUsageTest extends AbstractServerTest {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
+                Assert.assertEquals(byReferer.get("FileAnnotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
+            final Delete2 request = Requests.delete().target("FileAnnotation").id(annotationIds).build();
             doChange(request);
         }
     }
@@ -563,10 +563,10 @@ public class DiskUsageTest extends AbstractServerTest {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
+                Assert.assertEquals(byReferer.get("FileAnnotation"), (Integer) annotationIds.size());
             }
         } finally {
-            final Delete2 request = Requests.delete().target("Annotation").id(annotationIds).build();
+            final Delete2 request = Requests.delete().target("FileAnnotation").id(annotationIds).build();
             doChange(request);
         }
     }
