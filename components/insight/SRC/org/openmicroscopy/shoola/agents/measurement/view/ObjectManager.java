@@ -184,6 +184,12 @@ class ObjectManager extends JPanel implements TabPaneInterface {
      */
     private TreeSelectionListener treeSelectionListener;
 
+    /**
+     * Flag to indicate that the filter menu selection has to be set to default
+     * state
+     */
+    private boolean initFilterMenuSelection = true;
+    
     /** Initializes the components composing the display. */
     private void initComponents() {
         ROINode root = new ROINode("root");
@@ -698,13 +704,13 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
     /** Rebuilds Tree */
     void rebuildTable() {
-        if (objectsTable.getIDFilter().isEmpty()
-                && (selectAll == null || !selectAll.isChecked())) {
+        if (initFilterMenuSelection) {
             // setup initial folder selection (only show folders
             // which contain ROIs for the current image)
             for (FolderData f : model.getUsedFolders()) {
                 objectsTable.getIDFilter().add(f.getId());
             }
+            initFilterMenuSelection = false;
         }
         
         Set<Long> expandedFolderIds = objectsTable.getExpandedFolders();
