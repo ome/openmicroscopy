@@ -24,16 +24,19 @@ from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
 imageId = int(imageId)
 
+"""
+start-code
+"""
 
 # Create a connection
-# =================================================================
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 updateService = conn.getUpdateService()
 
 
-# Create ROI.
-# =================================================================
+# Create ROI
+# ==========
 # We are using the core Python API and omero.model objects here, since ROIs
 # are not yet supported in the Python Blitz Gateway.
 #
@@ -68,7 +71,7 @@ def rgbaToInt(red, green, blue, alpha=255):
     return int(RGBAInt)
 
 
-# create a rectangle shape (added to ROI below)
+# create a Rectangle shape (added to ROI below)
 print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
        " height: %s" % (theZ, theT, x, y, width, height))
 rect = omero.model.RectangleI()
@@ -115,7 +118,7 @@ def create_mask(mask_bytes, bytes_per_pixel=1):
         byte_factor = 0.5
     elif bytes_per_pixel == 1:
         divider = 8.0
-        format_string = "B"  # Unsiged char
+        format_string = "B"  # Unsigned char
         byte_factor = 1
     else:
         message = "Format %s not supported"
@@ -194,8 +197,8 @@ points = [[10, 20], [50, 150], [200, 200], [250, 75]]
 polygon.points = rstring(pointsToString(points))
 createROI(image, [polygon])
 
-# Retrieve ROIs linked to an Image.
-# =================================================================
+# Retrieve ROIs linked to an Image
+# ================================
 roiService = conn.getRoiService()
 result = roiService.findByImage(imageId, None)
 for roi in result.rois:
@@ -246,7 +249,7 @@ for roi in result.rois:
 
 
 # Remove shape from ROI
-# =================================================================
+# =====================
 result = roiService.findByImage(imageId, None)
 for roi in result.rois:
     for s in roi.copyShapes():
@@ -258,13 +261,13 @@ for roi in result.rois:
 
 
 # Delete ROIs and all the Shapes they contain
-# =================================================================
+# ===========================================
 roiToDelete = createROI(image, [rect])
 print "Deleting ROI:", roi.id.val
 conn.deleteObjects("Roi", [roi.id.val], wait=True)
 
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()

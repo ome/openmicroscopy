@@ -137,7 +137,7 @@
    * Zoom input box change event handler.
    */
   function zoomCheck (i) {
-    var percent = parseFloat($(i).attr('value').replace(/%/, ''));
+    var percent = parseFloat($(i).val());
     if (isNaN(percent)) {
       percent = 100;
     }
@@ -1023,7 +1023,7 @@
 
     /* Bind zoom changes to the zoom button */
     viewport.bind('zoom', function(e, percent) {
-      $("#wblitz-zoom").attr('value', ''+percent /*+'%'*/);
+      $("#wblitz-zoom").val(''+percent);
       $(".popped").removeClass('popped');
     });
 
