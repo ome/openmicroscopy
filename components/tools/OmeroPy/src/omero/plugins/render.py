@@ -120,7 +120,6 @@ class ChannelObject(object):
         self.max = float(parts['max']) if 'max' in parts else None
         self.start = None
         self.end = None
-        print parts, 'active' in parts
         self.active = str_to_bool(parts.get('active', True))
 
     def __str__(self):
