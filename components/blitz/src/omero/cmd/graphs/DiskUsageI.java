@@ -22,7 +22,6 @@ package omero.cmd.graphs;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 
 import ome.api.IQuery;
@@ -47,8 +42,14 @@ import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.model.IObject;
 import ome.parameters.Parameters;
+import ome.security.ACLVoter;
+import ome.security.SystemTypes;
+import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
+import ome.services.graphs.GraphPolicy;
+import ome.services.graphs.GraphTraversal;
 import ome.system.Login;
+import ome.system.Roles;
 import omero.api.LongPair;
 import omero.cmd.DiskUsage;
 import omero.cmd.DiskUsageResponse;
@@ -57,7 +58,6 @@ import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
-import omero.model.OriginalFile;
 
 /**
  * Calculate the disk usage entailed by the given objects.
@@ -66,183 +66,181 @@ import omero.model.OriginalFile;
  */
 @SuppressWarnings("serial")
 public class DiskUsageI extends DiskUsage implements IRequest {
-    /* TODO: This class can be substantially refactored and simplified by using the graph traversal reimplementation. */
 
     /* FIELDS AND CONSTRUCTORS */
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiskUsageI.class);
+
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
-    /* <FromClass, Map.Entry<ToClass, HQL>> */
-    private static final ImmutableMultimap<String, Map.Entry<String, String>> TRAVERSAL_QUERIES;
+    private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of();
 
-    private static final ImmutableSet<String> OWNED_OBJECTS;
-    private static final ImmutableSet<String> ANNOTATABLE_OBJECTS;
-
-    private static final Map<String, String> classIdProperties = Collections.synchronizedMap(new HashMap<String, String>());
-
-    private final PixelsService pixelsService;
-    private final ThumbnailService thumbnailService;
+    private final ACLVoter aclVoter;
+    private final SystemTypes systemTypes;
     private final GraphPathBean graphPathBean;
+    private final Set<Class<? extends IObject>> legalClasses;
+    private final GraphPolicy graphPolicy;
+    private PixelsService pixelsService;
+    private ThumbnailService thumbnailService;
 
     private Helper helper;
+    private GraphHelper graphHelper;
+    private GraphTraversal graphTraversal;
+
+    private SetMultimap<String, Long> targetMultimap = null;
+    private GraphTraversal.PlanExecutor processor;
+
+    /* keep track of disk usage totals */
+    private final Usage usage = new Usage();
+    /* original file ID to types that refer to them */
+    final SetMultimap<Long, String> typesWithFiles = HashMultimap.create();
+    /* original file ID to file ownership and size */
+    final Map<Long, OwnershipAndSize> fileSizes = new HashMap<Long, OwnershipAndSize>();
 
     /**
-     * Construct a disk usage request.
-     * @param pixelsService the pixels service
-     * @param thumbnailService the thumbnail service
-     * @param graphPathBean the graph path bean
+     * Construct a new disk usage request; called from {@link GraphRequestFactory#getRequest(Class)}.
+     * @param aclVoter ACL voter for permissions checking
+     * @param securityRoles the security roles
+     * @param systemTypes for identifying the system types
+     * @param graphPathBean the graph path bean to use
+     * @param targetClasses legal target object classes for the search
+     * @param graphPolicy the graph policy to apply for the search
      */
-    public DiskUsageI(PixelsService pixelsService, ThumbnailService thumbnailService, GraphPathBean graphPathBean) {
-        this.pixelsService = pixelsService;
-        this.thumbnailService = thumbnailService;
+    public DiskUsageI(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+            Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {
+        this.aclVoter = aclVoter;
+        this.systemTypes = systemTypes;
         this.graphPathBean = graphPathBean;
+        this.legalClasses = targetClasses;
+        this.graphPolicy = graphPolicy;
     }
 
-    /* NAVIGATION OF MODEL OBJECT GRAPH */
-
-    static {
-        final ImmutableMultimap.Builder<String, Map.Entry<String, String>> builder = ImmutableMultimap.builder();
-
-        builder.put("Project", Maps.immutableEntry("Dataset",
-                "SELECT child.id FROM ProjectDatasetLink WHERE parent.id IN (:ids)"));
-        builder.put("Dataset", Maps.immutableEntry("Image",
-                "SELECT child.id FROM DatasetImageLink WHERE parent.id IN (:ids)"));
-        builder.put("Folder", Maps.immutableEntry("Image",
-                "SELECT child.id FROM FolderImageLink WHERE parent.id IN (:ids)"));
-        builder.put("Folder", Maps.immutableEntry("Roi",
-                "SELECT child.id FROM FolderRoiLink WHERE parent.id IN (:ids)"));
-        builder.put("Folder", Maps.immutableEntry("Folder",
-                "SELECT id FROM Folder WHERE parentFolder.id IN (:ids)"));
-        builder.put("Screen", Maps.immutableEntry("Plate",
-                "SELECT child.id FROM ScreenPlateLink WHERE parent.id IN (:ids)"));
-        builder.put("Plate", Maps.immutableEntry("Well",
-                "SELECT id FROM Well WHERE plate.id IN (:ids)"));
-        builder.put("Plate", Maps.immutableEntry("PlateAcquisition",
-                "SELECT id FROM PlateAcquisition WHERE plate.id IN (:ids)"));
-        builder.put("PlateAcquisition", Maps.immutableEntry("WellSample",
-                "SELECT id FROM WellSample WHERE plateAcquisition.id IN (:ids)"));
-        builder.put("Well", Maps.immutableEntry("WellSample",
-                "SELECT id FROM WellSample WHERE well.id IN (:ids)"));
-        builder.put("Well", Maps.immutableEntry("Reagent",
-                "SELECT child.id FROM WellReagentLink WHERE parent.id IN (:ids)"));
-        builder.put("WellSample", Maps.immutableEntry("Image",
-                "SELECT image.id FROM WellSample WHERE id IN (:ids)"));
-        builder.put("Image", Maps.immutableEntry("Pixels",
-                "SELECT id FROM Pixels WHERE image.id IN (:ids)"));
-        builder.put("Pixels", Maps.immutableEntry("Thumbnail",
-                "SELECT id FROM Thumbnail WHERE pixels.id IN (:ids)"));
-        builder.put("Pixels", Maps.immutableEntry("OriginalFile",
-                "SELECT parent.id FROM PixelsOriginalFileMap WHERE child.id IN (:ids)"));
-        builder.put("Pixels", Maps.immutableEntry("Channel",
-                "SELECT id FROM Channel WHERE pixels.id IN (:ids)"));
-        builder.put("Pixels", Maps.immutableEntry("PlaneInfo",
-                "SELECT id FROM PlaneInfo WHERE pixels.id IN (:ids)"));
-        builder.put("Channel", Maps.immutableEntry("LogicalChannel",
-                "SELECT logicalChannel.id FROM Channel WHERE id IN (:ids)"));
-        builder.put("Image", Maps.immutableEntry("Fileset",
-                "SELECT fileset.id FROM Image WHERE id IN (:ids)"));
-        builder.put("Fileset", Maps.immutableEntry("Job",
-                "SELECT child.id FROM FilesetJobLink WHERE parent.id IN (:ids)"));
-        builder.put("Job", Maps.immutableEntry("OriginalFile",
-                "SELECT child.id FROM JobOriginalFileLink WHERE parent.id IN (:ids)"));
-        builder.put("Fileset", Maps.immutableEntry("Image",
-                "SELECT id FROM Image WHERE fileset.id IN (:ids)"));
-        builder.put("Fileset", Maps.immutableEntry("FilesetEntry",
-                "SELECT id FROM FilesetEntry WHERE fileset.id IN (:ids)"));
-        builder.put("FilesetEntry", Maps.immutableEntry("OriginalFile",
-                "SELECT originalFile.id FROM FilesetEntry WHERE id IN (:ids)"));
-        builder.put("Annotation", Maps.immutableEntry("OriginalFile",
-                "SELECT file.id FROM FileAnnotation WHERE id IN (:ids)"));
-        builder.put("Image", Maps.immutableEntry("Roi",
-                "SELECT id FROM Roi WHERE image.id IN (:ids)"));
-        builder.put("Roi", Maps.immutableEntry("Shape",
-                "SELECT id FROM Shape WHERE roi.id IN (:ids)"));
-        builder.put("Roi", Maps.immutableEntry("OriginalFile",
-                "SELECT source.id FROM Roi WHERE id IN (:ids)"));
-        builder.put("Image", Maps.immutableEntry("Instrument",
-                "SELECT instrument.id FROM Image WHERE id IN (:ids)"));
-        builder.put("Instrument", Maps.immutableEntry("Detector",
-                "SELECT id FROM Detector WHERE instrument.id IN (:ids)"));
-        builder.put("Instrument", Maps.immutableEntry("Dichroic",
-                "SELECT id FROM Dichroic WHERE instrument.id IN (:ids)"));
-        builder.put("Instrument", Maps.immutableEntry("Filter",
-                "SELECT id FROM Filter WHERE instrument.id IN (:ids)"));
-        builder.put("Instrument", Maps.immutableEntry("LightSource",
-                "SELECT id FROM LightSource WHERE instrument.id IN (:ids)"));
-        builder.put("Instrument", Maps.immutableEntry("Objective",
-                "SELECT id FROM Objective WHERE instrument.id IN (:ids)"));
-        builder.put("Dichroic", Maps.immutableEntry("LightPath",
-                "SELECT id FROM LightPath WHERE dichroic.id IN (:ids)"));
-        builder.put("LogicalChannel", Maps.immutableEntry("LightPath",
-                "SELECT lightPath.id FROM LogicalChannel WHERE id IN (:ids)"));
-
-        TRAVERSAL_QUERIES = builder.build();
+    /**
+     * Provided by {@link omero.cmd.RequestObjectFactoryRegistry}.
+     * @param pixelsService the pixels service
+     */
+    public void setPixelsService(PixelsService pixelsService) {
+        this.pixelsService = pixelsService;
     }
 
-    static {
-        final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-
-        builder.add("Annotation");
-        builder.add("Channel");
-        builder.add("Dataset");
-        builder.add("Detector");
-        builder.add("Dichroic");
-        builder.add("Fileset");
-        builder.add("Filter");
-        builder.add("Folder");
-        builder.add("Image");
-        builder.add("LogicalChannel");
-        builder.add("Instrument");
-        builder.add("LightPath");
-        builder.add("LightSource");
-        builder.add("Objective");
-        builder.add("OriginalFile");
-        builder.add("Pixels");
-        builder.add("PlaneInfo");
-        builder.add("PlateAcquisition");
-        builder.add("Plate");
-        builder.add("Project");
-        builder.add("Reagent");
-        builder.add("Roi");
-        builder.add("Screen");
-        builder.add("Shape");
-        builder.add("Well");
-        builder.add("WellSample");
-
-        OWNED_OBJECTS = builder.build();
+    /**
+     * Provided by {@link omero.cmd.RequestObjectFactoryRegistry}.
+     * @param thumbnailService the thumbnail service
+     */
+    public void setThumbnailService(ThumbnailService thumbnailService) {
+        this.thumbnailService = thumbnailService;
     }
 
-    static {
-        final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+    /* CMD REQUEST FRAMEWORK */
 
-        builder.add("Annotation");
-        builder.add("Channel");
-        builder.add("Dataset");
-        builder.add("Detector");
-        builder.add("Dichroic");
-        builder.add("Experimenter");
-        builder.add("ExperimenterGroup");
-        builder.add("Fileset");
-        builder.add("Filter");
-        builder.add("Folder");
-        builder.add("Image");
-        builder.add("Instrument");
-        builder.add("LightPath");
-        builder.add("LightSource");
-        builder.add("Objective");
-        builder.add("OriginalFile");
-        builder.add("PlaneInfo");
-        builder.add("PlateAcquisition");
-        builder.add("Plate");
-        builder.add("Project");
-        builder.add("Reagent");
-        builder.add("Roi");
-        builder.add("Screen");
-        builder.add("Shape");
-        builder.add("Well");
+    @Override
+    public Map<String, String> getCallContext() {
+       return new HashMap<String, String>(ALL_GROUPS_CONTEXT);
+    }
 
-        ANNOTATABLE_OBJECTS = builder.build();
+    @Override
+    public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("targetClasses", targetClasses);
+            arguments.addParameter("targetObjects", targetObjects);
+            LOGGER.debug("request: " + arguments);
+        }
+
+        this.helper = helper;
+        helper.setSteps(5);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
+
+        graphTraversal = new GraphTraversal(helper.getSession(), helper.getEventContext(), aclVoter, systemTypes, graphPathBean,
+                null, graphPolicy, new InternalProcessor());
+    }
+
+    @Override
+    public Object step(int step) throws Cancel {
+        helper.assertStep(step);
+        try {
+            switch (step) {
+            case 0:
+                if (targetObjects != null) {
+                    targetMultimap = graphHelper.getTargetMultimap(legalClasses, targetObjects);
+                } else {
+                    targetMultimap = HashMultimap.create();
+                }
+                if (targetClasses != null) {
+                    final IQuery queryService = helper.getServiceFactory().getQueryService();
+                    for (final String className : graphHelper.getTargetSet(legalClasses, targetClasses)) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("fetching IDs for class " + className);
+                        }
+                        final String hql = "SELECT id FROM " + className;
+                        for (final Object[] resultRow : queryService.projection(hql, null)) {
+                            if (resultRow != null) {
+                                final Long objectId = (Long) resultRow[0];
+                                targetMultimap.put(className, objectId);
+                            }
+                        }
+                    }
+                }
+                return null;
+            case 1:
+                final Map.Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
+                targetMultimap.clear();
+                if (plan.getValue().isEmpty()) {
+                    graphTraversal.assertNoUnlinking();
+                } else {
+                    final Exception e = new IllegalStateException("querying the model graph does not delete any objects");
+                    helper.cancel(new ERR(), e, "graph-fail");
+                }
+                return null;
+            case 2:
+                processor = graphTraversal.processTargets();
+                return null;
+            case 3:
+                processor.execute();
+                return null;
+            case 4:
+                for (final Map.Entry<Long, OwnershipAndSize> fileIdSize : fileSizes.entrySet()) {
+                    final Long fileId = fileIdSize.getKey();
+                    final OwnershipAndSize fileSize = fileIdSize.getValue();
+                    Set<String> types = typesWithFiles.get(fileId);
+                    if (types.isEmpty()) {
+                        types = ImmutableSet.of("OriginalFile");
+                    }
+                    usage.bumpTotals();
+                    for (final String type : types) {
+                        usage.add(fileSize.owner, fileSize.group, type, fileSize.size);
+                    }
+                }
+                return null;
+            default:
+                final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
+                throw helper.cancel(new ERR(), e, "bad-step");
+            }
+        } catch (Cancel c) {
+            throw c;
+        } catch (GraphException ge) {
+            final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
+            graphERR.message = ge.message;
+            throw helper.cancel(graphERR, ge, "graph-fail");
+        } catch (Throwable t) {
+            throw helper.cancel(new ERR(), t, "graph-fail");
+        }
+    }
+
+    @Override
+    public void finish() {
+        helper.setResponseIfNull(usage.getDiskUsageResponse());
+    }
+
+    @Override
+    public void buildResponse(int step, Object object) {
+        helper.assertResponse(step);
+    }
+
+    @Override
+    public Response getResponse() {
+        return helper.getResponse();
     }
 
     /* USAGE STATISTICS TRACKING */
@@ -354,51 +352,6 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         }
     }
 
-    /* CMD REQUEST FRAMEWORK */
-
-    @Override
-    public ImmutableMap<String, String> getCallContext() {
-       return ALL_GROUPS_CONTEXT;
-    }
-
-    @Override
-    public void init(Helper helper) {
-        this.helper = helper;
-        helper.setSteps(1);
-    }
-
-    @Override
-    public DiskUsageResponse step(int step) throws Cancel {
-        helper.assertStep(step);
-        if (step != 0) {
-            throw helper.cancel(new ERR(), new IllegalArgumentException(), "disk usage operation has no step " + step);
-        }
-        try {
-            return getDiskUsage();
-        } catch (Cancel c) {
-            throw c;
-        } catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "disk usage operation failed");
-        }
-    }
-
-    @Override
-    public void finish() {
-    }
-
-    @Override
-    public void buildResponse(int step, Object object) {
-        helper.assertResponse(step);
-        if (step == 0) {
-            helper.setResponseIfNull((DiskUsageResponse) object);
-        }
-    }
-
-    @Override
-    public Response getResponse() {
-        return helper.getResponse();
-    }
-
     /* DISK USAGE CALCULATION */
 
     /**
@@ -440,97 +393,32 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     }
 
     /**
-     * Look up the identifier property for the given class.
-     * @param className a class name
-     * @return the identifier property, never {@code null}
-     * @throws Cancel if an identifier property could not be found for the given class
+     * A processor that notes disk usage and how to attribute it.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.3.0
      */
-    private String getIdPropertyFor(String className) throws Cancel {
-        String idProperty = classIdProperties.get(className);
-        if (idProperty == null) {
-            final Class<? extends IObject> actualClass = graphPathBean.getClassForSimpleName(className);
-            if (actualClass == null) {
-                final Exception e = new IllegalArgumentException("class " + className + " is unknown");
-                throw helper.cancel(new ERR(), e, "bad-class");
-            }
-            idProperty = graphPathBean.getIdentifierProperty(actualClass.getName());
-            if (idProperty == null) {
-                final Exception e = new IllegalArgumentException("no identifier property is known for class " + className);
-                throw helper.cancel(new ERR(), e, "bad-class");
-            }
-            classIdProperties.put(className, idProperty);
-        }
-        return idProperty;
-    }
+    private final class InternalProcessor extends BaseGraphTraversalProcessor {
 
-    /**
-     * Calculate the disk usage of the model objects specified in the request.
-     * @return the total usage, in bytes
-     */
-    private DiskUsageResponse getDiskUsage() {
-        final IQuery queryService = helper.getServiceFactory().getQueryService();
+        /* which classes and properties "contain" original files */
+        private final Map<String, String> fileProperties = ImmutableMap.<String, String>of(
+                "FileAnnotation", "file", "FilesetEntry", "originalFile", "JobOriginalFileLink", "child",
+                "PixelsOriginalFileMap", "parent", "Roi", "source");
 
-        final int batchSize = 256;
+        /* for the containers of original files, to which class the usage should be attributed */
+        private final Map<String, String> attributions = ImmutableMap.<String, String>of(
+                "JobOriginalFileLink", "Job", "PixelsOriginalFileMap", "Pixels");
 
-        final SetMultimap<String, Long> objectsToProcess = HashMultimap.create();
-        final SetMultimap<String, Long> objectsProcessed = HashMultimap.create();
-        final Usage usage = new Usage();
+        /* the query service */
+        private final IQuery queryService = helper.getServiceFactory().getQueryService();
 
-        /* original file ID to types that refer to them */
-        final SetMultimap<Long, String> typesWithFiles = HashMultimap.create();
-        /* original file ID to file ownership and size */
-        final Map<Long, OwnershipAndSize> fileSizes = new HashMap<Long, OwnershipAndSize>();
-
-        /* note the objects to process */
-
-        for (final String className : classes) {
-            final String hql = "SELECT " + getIdPropertyFor(className) + " FROM " + className;
-            for (final Object[] resultRow : queryService.projection(hql, null)) {
-                if (resultRow != null) {
-                    final Long objectId = (Long) resultRow[0];
-                    objectsToProcess.put(className, objectId);
-                }
-            }
+        public InternalProcessor() {
+            super(helper.getSession());
         }
 
-        for (final Map.Entry<String, List<Long>> objectList : objects.entrySet()) {
-            objectsToProcess.putAll(objectList.getKey(), objectList.getValue());
-
-            if (LOGGER.isDebugEnabled()) {
-                final List<Long> ids = Lists.newArrayList(objectsToProcess.get(objectList.getKey()));
-                Collections.sort(ids);
-                LOGGER.debug("size calculator to process " + objectList.getKey() + " " + Joiner.on(", ").join(ids));
-            }
-        }
-
-        /* check that the objects' class names are valid */
-
-        for (final String className : objectsToProcess.keySet()) {
-            getIdPropertyFor(className);
-        }
-
-        /* iteratively process objects, descending the model graph */
-
-        while (!objectsToProcess.isEmpty()) {
-            /* obtain canonical class name and ID list */
-            final Map.Entry<String, Collection<Long>> nextClass = objectsToProcess.asMap().entrySet().iterator().next();
-            String className = nextClass.getKey();
-            final int lastDot = className.lastIndexOf('.');
-            if (lastDot >= 0) {
-                className = className.substring(lastDot + 1);
-            } else if (className.charAt(0) == '/') {
-                className = className.substring(1);
-            }
-            /* get IDs still to process, and split off a batch of them for this query */
-            final Collection<Long> ids = nextClass.getValue();
-            ids.removeAll(objectsProcessed.get(className));
-            if (ids.isEmpty()) {
-                continue;
-            }
-            final List<Long> idsToQuery = Lists.newArrayList(Iterables.limit(ids, batchSize));
-            ids.removeAll(idsToQuery);
-            objectsProcessed.putAll(className, idsToQuery);
-            final Parameters parameters = new Parameters().addIds(idsToQuery);
+        @Override
+        public void processInstances(String className, Collection<Long> ids) throws GraphException {
+            className = className.substring(className.lastIndexOf('.') + 1);
+            final Parameters parameters = new Parameters().addIds(ids);
 
             if ("Pixels".equals(className)) {
                 /* Pixels may have /OMERO/Pixels/<id> files */
@@ -571,72 +459,28 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                         fileSizes.put(fileId, new OwnershipAndSize(ownerId, groupId, fileSize));
                     }
                 }
-            } else if ("Experimenter".equals(className)) {
-                /* for an experimenter, use the list of owned objects */
-                for (final String resultClassName : OWNED_OBJECTS) {
-                    final String hql = "SELECT " + getIdPropertyFor(resultClassName) + " FROM " + resultClassName +
-                            " WHERE details.owner.id IN (:ids)";
-                    for (final Object[] resultRow : queryService.projection(hql, parameters)) {
-                        objectsToProcess.put(resultClassName, (Long) resultRow[0]);
+            } else {
+                /* may contain an original file, if so then note which */
+                final String property = fileProperties.get(className);
+                if (property != null) {
+                    String attribution = attributions.get(className);
+                    if (attribution == null) {
+                        attribution = className;
                     }
-                }
-            } else if ("ExperimenterGroup".equals(className)) {
-                /* for an experimenter group, use the list of owned objects */
-                for (final String resultClassName : OWNED_OBJECTS) {
-                    final String hql = "SELECT " + getIdPropertyFor(resultClassName) + " FROM " + resultClassName +
-                            " WHERE details.group.id IN (:ids)";
+                    final String hql = "SELECT " + property + ".id FROM " + className + " WHERE id IN (:ids)";
                     for (final Object[] resultRow : queryService.projection(hql, parameters)) {
-                        objectsToProcess.put(resultClassName, (Long) resultRow[0]);
-                    }
-                }
-            }
-
-            /* follow the next step from here on the model object graph */
-            for (final Map.Entry<String, String> query : TRAVERSAL_QUERIES.get(className)) {
-                final String resultClassName = query.getKey();
-                final String hql = query.getValue();
-                for (final Object[] resultRow : queryService.projection(hql, parameters)) {
-                    if (resultRow != null && resultRow[0] instanceof Long) {
-                        final Long resultId = (Long) resultRow[0];
-                        objectsToProcess.put(resultClassName, resultId);
-                        if ("OriginalFile".equals(resultClassName)) {
-                            typesWithFiles.put(resultId, className);
+                        if (resultRow != null && resultRow[0] instanceof Long) {
+                            final Long fileId = (Long) resultRow[0];
+                            typesWithFiles.put(fileId, attribution);
                         }
                     }
                 }
             }
-            if (ANNOTATABLE_OBJECTS.contains(className)) {
-                /* also watch for annotations on the current objects */
-                final String hql = "SELECT child.id FROM " + className + "AnnotationLink WHERE parent.id IN (:ids)";
-                for (final Object[] resultRow : queryService.projection(hql, parameters)) {
-                    objectsToProcess.put("Annotation", (Long) resultRow[0]);
-                }
-            }
-
-            if (LOGGER.isDebugEnabled()) {
-                Collections.sort(idsToQuery);
-                LOGGER.debug("usage is " + usage + " after processing " + className + " " + Joiner.on(", ").join(idsToQuery));
-            }
         }
 
-        /* collate file counts and sizes by referer type */
-        for (final Map.Entry<Long, OwnershipAndSize> fileIdSize : fileSizes.entrySet()) {
-            final Long fileId = fileIdSize.getKey();
-            final OwnershipAndSize fileSize = fileIdSize.getValue();
-            Set<String> types = typesWithFiles.get(fileId);
-            if (types.isEmpty()) {
-                types = ImmutableSet.of("OriginalFile");
-            }
-            usage.bumpTotals();
-            for (final String type : types) {
-                usage.add(fileSize.owner, fileSize.group, type, fileSize.size);
-            }
+        @Override
+        public Set<GraphPolicy.Ability> getRequiredPermissions() {
+            return REQUIRED_ABILITIES;
         }
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("usage is " + usage + " after including " + OriginalFile.class.getSimpleName() + " sizes");
-        }
-
-        return usage.getDiskUsageResponse();
     }
 }
