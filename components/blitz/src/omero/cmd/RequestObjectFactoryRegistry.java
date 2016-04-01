@@ -238,7 +238,10 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(DiskUsageI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        return new DiskUsageI(pixelsService, thumbnailService, graphRequestFactory.getGraphPathBean());
+                        final DiskUsageI request = graphRequestFactory.getRequest(DiskUsageI.class);
+                        request.setPixelsService(pixelsService);
+                        request.setThumbnailService(thumbnailService);
+                        return request;
                     }
                 });
         factories.put(DuplicateI.ice_staticId(),
