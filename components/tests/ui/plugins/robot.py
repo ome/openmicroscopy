@@ -41,6 +41,9 @@ class RobotControl(BaseControl):
             help="Protocol to use for the OMERO.web robot tests."
             " Default: http")
         config.add_argument(
+            "--webhost", type=str,
+            help="Web host to use for the OMERO.web robot tests.")
+        config.add_argument(
             "--remoteurl", type=str, default="",
             help="The url for a remote selenium server for example"
             " http://selenium_server_host/wd/hub. Default: False")
@@ -82,11 +85,13 @@ class RobotControl(BaseControl):
         d["WEBPREFIX"] = static_prefix
         d["QWEBPREFIX"] = urllib.quote(static_prefix, '')
         d["QSEP"] = urllib.quote('/', '')
-        if settings.APPLICATION_SERVER in settings.WSGI_TYPES:
-            d["WEBHOST"] = d["HOST"]
-        else:
+        if args.webhost:
+            d["WEBHOST"] = args.webhost
+        elif settings.APPLICATION_SERVER not in settings.WSGI_TYPES:
             d["WEBHOST"] = "%s:%s" % (settings.APPLICATION_SERVER_HOST,
                                       settings.APPLICATION_SERVER_PORT)
+        else:
+            d["WEBHOST"] = d["HOST"]
 
         # Read robot.template file and substitute keywords
         c = file(self.ctx.dir / "etc" / "templates" / "robot.template").read()
