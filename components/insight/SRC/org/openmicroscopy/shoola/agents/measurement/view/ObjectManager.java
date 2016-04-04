@@ -184,6 +184,12 @@ class ObjectManager extends JPanel implements TabPaneInterface {
      */
     private TreeSelectionListener treeSelectionListener;
 
+    /**
+     * Flag to indicate that the filter menu selection has to be set to default
+     * state
+     */
+    private boolean initFilterMenuSelection = true;
+    
     /** Initializes the components composing the display. */
     private void initComponents() {
         ROINode root = new ROINode("root");
@@ -698,37 +704,37 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
     /** Rebuilds Tree */
     void rebuildTable() {
-        if (objectsTable.getIDFilter().isEmpty()
-                && (selectAll == null || !selectAll.isChecked())) {
+        if (initFilterMenuSelection) {
             // setup initial folder selection (only show folders
             // which contain ROIs for the current image)
             for (FolderData f : model.getUsedFolders()) {
                 objectsTable.getIDFilter().add(f.getId());
             }
+            initFilterMenuSelection = false;
         }
         
-        TreeMap<Long, ROI> roiList = model.getROI();
-        Iterator<ROI> iterator = roiList.values().iterator();
-        ROI roi;
-        TreeMap<Coord3D, ROIShape> shapeList;
-        Iterator<ROIShape> shapeIterator;
         Set<Long> expandedFolderIds = objectsTable.getExpandedFolders();
         expandedFolderIds.addAll(Pojos.extractIds(objectsTable
                 .getRecentlyModifiedFolders()));
         objectsTable.clear();
         objectsTable.initFolders(getFolders());
-        while (iterator.hasNext()) {
-            roi = iterator.next();
-            shapeList = roi.getShapes();
-            shapeIterator = shapeList.values().iterator();
-            while (shapeIterator.hasNext())
-                objectsTable.addROIShape(shapeIterator.next());
-        }
+        objectsTable.addROIShapeList(extractShapes(model.getROI().values()));
         objectsTable.collapseAll();
         objectsTable.expandFolders(expandedFolderIds);
         objectsTable.setAutoCreateColumnsFromModel(false);
     }
 
+    List<ROIShape> extractShapes(Collection<ROI> rois) {
+        List<ROIShape> result = new ArrayList<ROIShape>();
+        Iterator<ROI> iterator = rois.iterator();
+        while (iterator.hasNext()) {
+            ROI roi = iterator.next();
+            TreeMap<Coord3D, ROIShape> shapeList = roi.getShapes();
+            result.addAll(shapeList.values());
+        }
+        return result;
+    }
+    
     /**
      * Returns the name of the component.
      * 

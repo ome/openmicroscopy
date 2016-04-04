@@ -160,6 +160,33 @@ public class FolderData extends DataObject {
     }
     
     /**
+     * Get the number of sub folders
+     * 
+     * @return See above.
+     */
+    public int subfolderCount() {
+        return asFolder().sizeOfChildFolders();
+    }
+
+    /**
+     * Get the number of images linked to this folder
+     * 
+     * @return See above.
+     */
+    public int imageCount() {
+        return asFolder().sizeOfImageLinks();
+    }
+
+    /**
+     * Get the number of ROIs linked to this folder
+     * 
+     * @return See above.
+     */
+    public int roiCount() {
+        return asFolder().sizeOfRoiLinks();
+    }
+    
+    /**
      * Copy the list of child folders, see {@link Folder#copyChildFolders()}
      * 
      * @return See above.

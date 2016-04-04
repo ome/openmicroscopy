@@ -123,6 +123,21 @@ public class ROINode
 		initMaps();
 	}
 	
+    /**
+     * Provides an ID based on the user object's type and it's id.
+     * 
+     * @return See above
+     */
+    public String getUUID() {
+        if (getUserObject() instanceof ROI)
+            return "ROI_" + ((ROI) getUserObject()).getID();
+        if (getUserObject() instanceof ROIShape)
+            return "ROIShape_" + ((ROIShape) getUserObject()).getID();
+        if (getUserObject() instanceof FolderData)
+            return "FolderData_" + ((FolderData) getUserObject()).getId();
+        return "" + hashCode();
+    }
+	
 	/**
 	 * Construct ROINode with ROIShape type.
 	 * @param nodeName see above.
