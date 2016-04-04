@@ -18,7 +18,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import re
 import sys
 import time
 
@@ -29,6 +28,7 @@ from omero.gateway import BlitzGateway
 from omero.model import Image
 from omero.model import Plate
 from omero.model import Screen
+from omero.util import pydict_text_readers
 
 
 DESC = {
@@ -48,12 +48,18 @@ Examples:
     bin/omero render info Image:123
 
     # %(EDIT)s
-    bin/omero render edit Image:1
-        <ChannelIndex>:label=,color=,min=,max=,active= [<ChannelIndex>:... ]
+    bin/omero render edit Image:1 <YAML or JSON file>
+    where the input file is a dictionary of dictionaries of the form
+    <index>: (Channel-index, int, 1-based)
+        color: <HTML RGB triplet>
+        label: <Channel name>
+        min: <Minimum (float)>
+        max: <Maximum (float)>
+        active: <Active (bool)>
+    <index>:
+        ...
     # Omitted fields will keep their current values, omitted channel-indices
     # will be turned off.
-    bin/omero render edit Image:1 1:color=FF0000 3:
-    # Enable channels 1 and 3, disable channel 2, set Channel 1 to red
 
     # %(LIST)s
     bin/omero render list Image:456
@@ -78,10 +84,10 @@ Examples:
 class ChannelObject(object):
 
     def __init__(self, channel):
-        if isinstance(channel, basestring):
-            self.init_from_string(channel)
-        else:
+        try:
             self.init_from_channel(channel)
+        except AttributeError:
+            self.init_from_dict(channel)
 
     def init_from_channel(self, channel):
         self.emWave = channel.getEmissionWave()
@@ -93,34 +99,17 @@ class ChannelObject(object):
         self.end = channel.getWindowEnd()
         self.active = channel.isActive()
 
-    def init_from_string(self, s):
-
-        def str_to_bool(sb):
-            if not sb:
-                return False
-            try:
-                return bool(int(sb))
-            except ValueError:
-                if sb.lower() == 'true':
-                    return True
-                if sb.lower() == 'false':
-                    return False
-            raise ValueError('Invalid bool string: %s' % sb)
-
-        if s:
-            # TODO: Don't split on comma in channel name
-            parts = dict(p.split('=', 1) for p in s.split(','))
-        else:
-            parts = {}
-
+    def init_from_dict(self, d):
+        if not d:
+            d = {}
         self.emWave = None
-        self.label = parts.get('label', None)
-        self.color = parts.get('color', None)
-        self.min = float(parts['min']) if 'min' in parts else None
-        self.max = float(parts['max']) if 'max' in parts else None
+        self.label = d.get('label', None)
+        self.color = d.get('color', None)
+        self.min = float(d['min']) if 'min' in d else None
+        self.max = float(d['max']) if 'max' in d else None
         self.start = None
         self.end = None
-        self.active = str_to_bool(parts.get('active', True))
+        self.active = bool(d.get('active', True))
 
     def __str__(self):
         try:
@@ -227,7 +216,7 @@ class RenderControl(BaseControl):
             x.add_argument("object", type=render_type, help=render_help)
         copy.add_argument("target", type=render_type, help=render_help,
                           nargs="+")
-        edit.add_argument("channels", help=render_help, nargs="+")
+        edit.add_argument("channels", help=render_help)
 
     def _lookup(self, gateway, type, oid):
         # TODO: move _lookup to a _configure type
@@ -308,18 +297,19 @@ class RenderControl(BaseControl):
         client = self.ctx.conn(args)
         gateway = BlitzGateway(client_obj=client)
         newchannels = {}
-        for channelstr in args.channels:
+        data = pydict_text_readers.load(
+            args.channels, session=client.getSession())
+
+        for chindex, chdict in data.iteritems():
             try:
-                cindexstr, cdesc = channelstr.split(':', 1)
-                # Strip any leading non-digits
-                cindex = int(re.match('[A-Za-z]*(\d+)$', cindexstr).group(1))
+                cindex = int(chindex)
             except Exception as e:
                 self.ctx.err('ERROR: %s' % e)
                 self.ctx.die(
-                    105, "Invalid channel index: %s" % channelstr)
+                    105, "Invalid channel index: %s" % chindex)
 
             try:
-                cobj = ChannelObject(cdesc.strip())
+                cobj = ChannelObject(chdict)
                 if (cobj.min is None) != (cobj.max is None):
                     raise Exception('Both or neither of min and max required')
                 newchannels[cindex] = cobj
@@ -327,7 +317,7 @@ class RenderControl(BaseControl):
             except Exception as e:
                 self.ctx.err('ERROR: %s' % e)
                 self.ctx.die(
-                    105, "Invalid channel description: %s" % channelstr)
+                    105, "Invalid channel description: %s" % chdict)
 
         cindices = []
         rangelist = []
