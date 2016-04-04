@@ -97,7 +97,7 @@ public class ROIFolderSaver extends BatchCallTree {
                     result = svc.addRoisToFolders(ctx, imageID, roiList, folders, true);
                 }  
                 else if (action == ROIFolderAction.REMOVE_FROM_FOLDER) {
-                    result = svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
+                   svc.removeRoisFromFolders(ctx, imageID, roiList, folders);
                 } else if (action == ROIFolderAction.CREATE_FOLDER) {
                     result = new HashMap<FolderData, Collection<ROIData>>();
                     for (FolderData folder : folders) {

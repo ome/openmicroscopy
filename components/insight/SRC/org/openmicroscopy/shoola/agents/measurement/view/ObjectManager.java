@@ -60,6 +60,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
@@ -694,8 +695,11 @@ class ObjectManager extends JPanel implements TabPaneInterface {
     }
 
     /** Rebuilds Tree */
-    void rebuildTable(Map<FolderData, Collection<ROIData>> result, ROIFolderAction action) {
-        if (action == ROIFolderAction.CREATE_FOLDER || action == ROIFolderAction.ADD_TO_FOLDER && !result.isEmpty()) {
+    void rebuildTable(Map<FolderData, Collection<ROIData>> result,
+            ROIFolderAction action) {
+        if (action == ROIFolderAction.CREATE_FOLDER
+                || action == ROIFolderAction.ADD_TO_FOLDER
+                && MapUtils.isNotEmpty(result)) {
             FolderData f = (FolderData) result.keySet().iterator().next();
             objectsTable.getIDFilter().add(f.getId());
         }
