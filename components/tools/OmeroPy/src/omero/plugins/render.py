@@ -60,6 +60,12 @@ Examples:
         ...
     # Omitted fields will keep their current values, omitted channel-indices
     # will be turned off.
+    bin/omero render edit --copy Screen:1 <YAML or JSON file>
+    # Optimised for bulk-rendering, edits the first image and copies the
+    # endering settings to the rest. Note using this flag may have different
+    # results from not using it if the images had different settings to begin
+    # with and you are only overridding a subset of the settings (all images
+    # will end up with the same full rendering settings)
 
     # %(LIST)s
     bin/omero render list Image:456
@@ -214,9 +220,14 @@ class RenderControl(BaseControl):
                        "Image is assumed if <object>: is omitted.")
         for x in (info, copy, edit):
             x.add_argument("object", type=render_type, help=render_help)
+        edit.add_argument(
+            "--copy", help="Batch edit images by copying rendering settings",
+            action="store_true")
         copy.add_argument("target", type=render_type, help=render_help,
                           nargs="+")
-        edit.add_argument("channels", help=render_help)
+        edit.add_argument(
+            "channels",
+            help="Rendering definition, local file or OriginalFile:ID")
 
     def _lookup(self, gateway, type, oid):
         # TODO: move _lookup to a _configure type
@@ -268,8 +279,11 @@ class RenderControl(BaseControl):
     def copy(self, args):
         client = self.ctx.conn(args)
         gateway = BlitzGateway(client_obj=client)
-        for src_img in self.render_images(gateway, args.object, batch=1):
-            for targets in self.render_images(gateway, args.target):
+        self._copy(gateway, args.object, args.target)
+
+    def _copy(self, gateway, obj, target):
+        for src_img in self.render_images(gateway, obj, batch=1):
+            for targets in self.render_images(gateway, target):
                 batch = dict()
                 for target in targets:
                     if target.id == src_img.id:
@@ -286,12 +300,15 @@ class RenderControl(BaseControl):
                     self.ctx.err("Error: Image:%s" % missing)
                     del batch[missing]
 
-                for target in batch.values():
-                    start = time.time()
-                    target.getThumbnail(size=(96,), direct=False)
-                    stop = time.time()
-                    print "Image:%s" % target.id, \
-                        "got thumbnail in %2.2fs" % (stop-start)
+                self._generate_thumbs(batch.values())
+
+    def _generate_thumbs(self, images):
+        for img in images:
+            start = time.time()
+            img.getThumbnail(size=(96,), direct=False)
+            stop = time.time()
+            self.ctx.dbg("Image:%s got thumbnail in %2.2fs" % (
+                img.id, stop - start))
 
     def edit(self, args):
         client = self.ctx.conn(args)
@@ -299,8 +316,10 @@ class RenderControl(BaseControl):
         newchannels = {}
         data = pydict_text_readers.load(
             args.channels, session=client.getSession())
+        if 'channels' not in data:
+            self.ctx.die(104, "ERROR: No channels found in %s" % args.channels)
 
-        for chindex, chdict in data.iteritems():
+        for chindex, chdict in data['channels'].iteritems():
             try:
                 cindex = int(chindex)
             except Exception as e:
@@ -335,6 +354,13 @@ class RenderControl(BaseControl):
             img.setActiveChannels(
                 cindices, windows=rangelist, colors=colourlist)
             img.saveDefaults()
+            self.ctx.dbg("Updated rendering settings for Image:%s" % img.id)
+            self._generate_thumbs([img])
+
+            if args.copy:
+                # Edit first image only, copy to rest
+                self._copy(gateway, img._obj, args.object)
+                break
 
         # TODO: set channel names
         # gateway.setChannelNames('Image', img.getId())
