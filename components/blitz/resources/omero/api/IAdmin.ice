@@ -331,10 +331,11 @@ module omero {
                  * i.e. a group in which no user can see the other group
                  * member's data.
                  *
+                 * See also <a href="https://trac.openmicroscopy.org/ome/ticket/1434">ticket 1434</a>
+                 *
                  * @param group  a new
                  * {@link omero.model.ExperimenterGroup} instance. Not null.
                  * @return id of the newly created {@link ExperimenterGroup}
-                 * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1434">ticket:1434"</a>
                  */
                 long createGroup(omero::model::ExperimenterGroup group) throws ServerError;
 
@@ -454,8 +455,9 @@ module omero {
                  * Moves the given objects into the "user" group to make them
                  * visible and linkable from all security contexts.
                  *
+                 * See also <a href="https://trac.openmicroscopy.org/ome/ticket/1794">ticket 1794</a>
+                 *
                  * @param iObjects
-                 * @see <a href="https://trac.openmicroscopy.org/ome/ticket/1794">ticket 1794</a>
                  */
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 
@@ -470,12 +472,13 @@ module omero {
                  * {@link #changePasswordWithOldPassword}.
                  * </p>
                  *
+                 * See also <a href="https://trac.openmicroscopy.org/ome/ticket/911">ticket 911</a>
+                 * and <a href="https://trac.openmicroscopy.org/ome/ticket/3201">ticket 3201</a>
+                 *
                  * @param newPassword Possibly null to allow logging in with
                  *        no password.
                  * @throws SecurityViolation if the user is not authenticated
                  *         with a password.
-                 * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/911">ticket:911</a>
-                 * @see <a href="http://trac.openmicroscopy.org.uk/ome/ticket/3201">ticket:3201</a>
                  */
                 idempotent void changePassword(omero::RString newPassword) throws ServerError;
 
