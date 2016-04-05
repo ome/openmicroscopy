@@ -63,7 +63,9 @@ import omero.model.OriginalFile;
  * Calculate the disk usage entailed by the given objects.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
+ * @deprecated will be removed in OMERO 5.4, use {@code DiskUsage2} instead
  */
+@Deprecated
 @SuppressWarnings("serial")
 public class DiskUsageI extends DiskUsage implements IRequest {
     /* TODO: This class can be substantially refactored and simplified by using the graph traversal reimplementation. */
