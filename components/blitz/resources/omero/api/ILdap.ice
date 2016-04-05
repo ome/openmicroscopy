@@ -37,7 +37,7 @@ module omero {
                 idempotent ExperimenterList searchAll() throws ServerError;
 
                 /**
-                 * Searches Distinguished Name in groups
+                 * Searches Distinguished Name in groups.
                  *
                  * @param attr   Name of member attribute. Never null or empty.
                  * @param value  User's DN which should be set on value for
@@ -48,7 +48,7 @@ module omero {
 
                 /**
                  * Searches all {@link omero.model.Experimenter} in LDAP for
-                 * specified attribute
+                 * specified attribute.
                  *
                  * @param dn        Distinguished Name base for search. Never
                  *                  null.
@@ -76,7 +76,7 @@ module omero {
 
                 /**
                  * Searches one {@link omero.model.Experimenter} in LDAP for
-                 * specified Distinguished Name
+                 * specified Distinguished Name.
                  *
                  * @param userdn
                  *            unique Distinguished Name - string of user,
