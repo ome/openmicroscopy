@@ -66,6 +66,8 @@ Examples:
     # results from not using it if the images had different settings to begin
     # with and you are only overridding a subset of the settings (all images
     # will end up with the same full rendering settings)
+    bin/omero render edit --skipthumbs ...
+    # Update rendering settings but don't regenerate thumbnails
 
     # %(LIST)s
     bin/omero render list Image:456
@@ -218,11 +220,18 @@ class RenderControl(BaseControl):
         render_type = ProxyStringType("Image")
         render_help = ("rendering def source of form <object>:<id>. "
                        "Image is assumed if <object>: is omitted.")
+
         for x in (info, copy, edit):
             x.add_argument("object", type=render_type, help=render_help)
         edit.add_argument(
             "--copy", help="Batch edit images by copying rendering settings",
             action="store_true")
+
+        for x in (copy, edit):
+            x.add_argument(
+                "--skipthumbs", help="Don't re-generate thumbnails",
+                action="store_true")
+
         copy.add_argument("target", type=render_type, help=render_help,
                           nargs="+")
         edit.add_argument(
@@ -279,9 +288,9 @@ class RenderControl(BaseControl):
     def copy(self, args):
         client = self.ctx.conn(args)
         gateway = BlitzGateway(client_obj=client)
-        self._copy(gateway, args.object, args.target)
+        self._copy(gateway, args.object, args.target, args.skipthumbs)
 
-    def _copy(self, gateway, obj, target):
+    def _copy(self, gateway, obj, target, skipthumbs):
         for src_img in self.render_images(gateway, obj, batch=1):
             for targets in self.render_images(gateway, target):
                 batch = dict()
@@ -300,7 +309,8 @@ class RenderControl(BaseControl):
                     self.ctx.err("Error: Image:%s" % missing)
                     del batch[missing]
 
-                self._generate_thumbs(batch.values())
+                if not skipthumbs:
+                    self._generate_thumbs(batch.values())
 
     def _generate_thumbs(self, images):
         for img in images:
@@ -355,11 +365,12 @@ class RenderControl(BaseControl):
                 cindices, windows=rangelist, colors=colourlist)
             img.saveDefaults()
             self.ctx.dbg("Updated rendering settings for Image:%s" % img.id)
-            self._generate_thumbs([img])
+            if not args.skipthumbs:
+                self._generate_thumbs([img])
 
             if args.copy:
                 # Edit first image only, copy to rest
-                self._copy(gateway, img._obj, args.object)
+                self._copy(gateway, img._obj, args.object, args.skipthumbs)
                 break
 
         # TODO: set channel names
