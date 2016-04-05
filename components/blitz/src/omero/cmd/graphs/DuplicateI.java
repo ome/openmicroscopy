@@ -273,12 +273,12 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
         void execute(Function<Object, IObject> mapping) throws GraphException {
             final Object duplicateValue = GraphUtil.copyComplexValue(mapping, value);
             if (duplicateValue != null) {
-            try {
-                PropertyUtils.setNestedProperty(duplicate, property, duplicateValue);
-            } catch (NestedNullException | ReflectiveOperationException e) {
-                throw new GraphException(
-                        "cannot set property " + property + " on duplicate " + duplicate.getClass().getName());
-            }
+                try {
+                    PropertyUtils.setNestedProperty(duplicate, property, duplicateValue);
+                } catch (NestedNullException | ReflectiveOperationException e) {
+                    throw new GraphException(
+                            "cannot set property " + property + " on duplicate " + duplicate.getClass().getName());
+                }
             }
         }
     }
