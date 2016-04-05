@@ -40,6 +40,7 @@ import omero.cmd.graphs.ChownFacadeI;
 import omero.cmd.graphs.Delete2I;
 import omero.cmd.graphs.DeleteFacadeI;
 import omero.cmd.graphs.DiskUsage2I;
+import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.DuplicateI;
 import omero.cmd.graphs.FindChildrenI;
 import omero.cmd.graphs.FindParentsI;
@@ -232,6 +233,13 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         return new ManageImageBinariesI(pixelsService, voter);
+                    }
+                });
+        factories.put(DiskUsageI.ice_staticId(),
+                new ObjectFactory(DiskUsageI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new DiskUsageI(pixelsService, thumbnailService, graphRequestFactory.getGraphPathBean());
                     }
                 });
         factories.put(DiskUsage2I.ice_staticId(),
