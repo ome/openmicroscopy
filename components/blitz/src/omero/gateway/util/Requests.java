@@ -35,7 +35,7 @@ import omero.cmd.Chgrp2;
 import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
-import omero.cmd.DiskUsage;
+import omero.cmd.DiskUsage2;
 import omero.cmd.Duplicate;
 import omero.cmd.FindChildren;
 import omero.cmd.FindParents;
@@ -2602,17 +2602,17 @@ public class Requests {
     }
 
     /**
-     * A builder for {@link DiskUsage} instances.
+     * A builder for {@link DiskUsage2} instances.
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.2.3
      */
-    public static class DiskUsageBuilder extends GraphQueryBuilder<DiskUsageBuilder, DiskUsage> {
+    public static class DiskUsageBuilder extends GraphQueryBuilder<DiskUsageBuilder, DiskUsage2> {
 
         /**
-         * Instantiate a new {@link DiskUsage} and initialize its collection containers.
+         * Instantiate a new {@link DiskUsage2} and initialize its collection containers.
          */
         DiskUsageBuilder() {
-            super(new DiskUsage());
+            super(new DiskUsage2());
             assembly.targetClasses = new ArrayList<String>();
         }
 
@@ -2715,7 +2715,7 @@ public class Requests {
     }
 
     /**
-     * @return a new {@link DiskUsage} builder
+     * @return a new {@link DiskUsage2} builder
      */
     public static DiskUsageBuilder diskUsage() {
         return new DiskUsageBuilder();

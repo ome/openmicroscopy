@@ -743,10 +743,10 @@ Examples:
     # then the size returned would be identical to:
     bin/omero fs usage Project:1,2 --units M
         """
-        from omero.cmd import DiskUsage
+        from omero.cmd import DiskUsage2
 
         client = self.ctx.conn(args)
-        req = DiskUsage()
+        req = DiskUsage2()
         if not args.obj:
             admin = client.sf.getAdminService()
             uid = admin.getEventContext().userId

@@ -35,8 +35,8 @@ import omero.RType;
 import omero.ServerError;
 import omero.api.LongPair;
 import omero.cmd.Delete2;
-import omero.cmd.DiskUsage;
-import omero.cmd.DiskUsageResponse;
+import omero.cmd.DiskUsage2;
+import omero.cmd.DiskUsage2Response;
 import omero.cmd.ManageImageBinaries;
 import omero.cmd.ManageImageBinariesResponse;
 import omero.cmd.graphs.ChildOption;
@@ -74,7 +74,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Integration tests for the {@link omero.cmd.DiskUsage} request.
+ * Integration tests for the {@link omero.cmd.DiskUsage2} request.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  */
@@ -93,9 +93,9 @@ public class DiskUsageTest extends AbstractServerTest {
      * @return the objects' disk usage
      * @throws Exception if thrown during request execution
      */
-    private DiskUsageResponse runDiskUsage(Map<java.lang.String, ? extends Collection<Long>> objects) throws Exception {
-        final DiskUsage request = Requests.diskUsage().target(objects).build();
-        return (DiskUsageResponse) doChange(request);
+    private DiskUsage2Response runDiskUsage(Map<java.lang.String, ? extends Collection<Long>> objects) throws Exception {
+        final DiskUsage2 request = Requests.diskUsage().target(objects).build();
+        return (DiskUsage2Response) doChange(request);
     }
 
     /**
@@ -220,7 +220,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testOwnership() throws Exception {
-        final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+        final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
         final ImmutableList<Map<LongPair, ?>> responseElements = ImmutableList.of(
                         response.bytesUsedByReferer, response.fileCountByReferer, response.totalBytesUsed, response.totalFileCount);
         for (final Map<LongPair, ?> responseElement : responseElements) {
@@ -239,7 +239,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testFileSize() throws Exception {
-        final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+        final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
         Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
         for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
             Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
@@ -271,7 +271,7 @@ public class DiskUsageTest extends AbstractServerTest {
         iUpdate.saveObject(dil);
 
         try {
-            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Project", Collections.singleton(projectId)));
+            final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Project", Collections.singleton(projectId)));
             Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
             for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
                 Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
@@ -302,7 +302,7 @@ public class DiskUsageTest extends AbstractServerTest {
         final long parentFolderId = parentFolder.getId().getValue();
 
         try {
-            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Folder", Collections.singleton(parentFolderId)));
+            final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Folder", Collections.singleton(parentFolderId)));
             Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
             for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
                 Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
@@ -327,7 +327,7 @@ public class DiskUsageTest extends AbstractServerTest {
 
         final long importLogSize = queryForId(query, imageId);
 
-        final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+        final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
         Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
         for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
             Assert.assertEquals((long) byReferer.get("Job"), importLogSize);
@@ -340,7 +340,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testThumbnailSize() throws Exception {
-        final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+        final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
         Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
         for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
             Assert.assertEquals(byReferer.get("Thumbnail"), thumbnailSize);
@@ -374,7 +374,7 @@ public class DiskUsageTest extends AbstractServerTest {
         addAnnotation(Annotation.class, annotationIds.get(3), annotationIds.get(4));
 
         try {
-            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+            final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
             for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
                 Assert.assertEquals(byReferer.get("FileAnnotation"), (Long) totalAnnotationSize);
@@ -413,7 +413,7 @@ public class DiskUsageTest extends AbstractServerTest {
         addAnnotation(Annotation.class, annotationIds.get(1), annotationIds.get(2));
 
         try {
-            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+            final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
             for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
                 Assert.assertEquals(byReferer.get("FileAnnotation"), (Long) totalAnnotationSize);
@@ -446,7 +446,7 @@ public class DiskUsageTest extends AbstractServerTest {
         addAnnotation(Annotation.class, annotationIds.get(2), annotationIds.get(0));
 
         try {
-            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+            final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
             for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
                 Assert.assertEquals(byReferer.get("FileAnnotation"), (Long) totalAnnotationSize);
@@ -463,7 +463,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testCounts() throws Exception {
-        final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+        final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
         Assert.assertEquals(response.fileCountByReferer.size(), 1);
         for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
             Assert.assertEquals(byReferer.size(), 3);
@@ -496,7 +496,7 @@ public class DiskUsageTest extends AbstractServerTest {
         addAnnotation(Annotation.class, annotationIds.get(3), annotationIds.get(4));
 
         try {
-            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+            final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
                 Assert.assertEquals(byReferer.get("FileAnnotation"), (Integer) annotationIds.size());
@@ -531,7 +531,7 @@ public class DiskUsageTest extends AbstractServerTest {
         addAnnotation(Annotation.class, annotationIds.get(1), annotationIds.get(2));
 
         try {
-            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+            final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
                 Assert.assertEquals(byReferer.get("FileAnnotation"), (Integer) annotationIds.size());
@@ -560,7 +560,7 @@ public class DiskUsageTest extends AbstractServerTest {
         addAnnotation(Annotation.class, annotationIds.get(2), annotationIds.get(0));
 
         try {
-            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+            final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
                 Assert.assertEquals(byReferer.get("FileAnnotation"), (Integer) annotationIds.size());
@@ -578,7 +578,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testSizeTotals() throws Exception {
-        final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+        final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
         final Map<LongPair, Long> expected = new HashMap<LongPair, Long>();
         for (final Map.Entry<LongPair, Map<String, Long>> byReferer : response.bytesUsedByReferer.entrySet()) {
             long total = 0;
@@ -601,7 +601,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testCountTotals() throws Exception {
-        final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+        final DiskUsage2Response response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
         final Map<LongPair, Integer> expected = new HashMap<LongPair, Integer>();
         for (final Map.Entry<LongPair, Map<String, Integer>> byReferer : response.fileCountByReferer.entrySet()) {
             int total = 0;
@@ -623,7 +623,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testBadClassName() throws Exception {
-        final DiskUsage request = Requests.diskUsage().target("NoClass").id(1L).build();
+        final DiskUsage2 request = Requests.diskUsage().target("NoClass").id(1L).build();
         doChange(client, factory, request, false, null);
     }
 }

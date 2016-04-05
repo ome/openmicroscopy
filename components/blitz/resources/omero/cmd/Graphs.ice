@@ -377,7 +377,7 @@ module omero {
          *   Folder, Screen, Plate, Well, WellSample,
          *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
          **/
-        class DiskUsage extends GraphQuery {
+        class DiskUsage2 extends GraphQuery {
             omero::api::StringSet targetClasses;
         };
 
@@ -393,7 +393,7 @@ module omero {
          *   Thumbnail for the image thumbnails
          * The above map values are broken down by owner-group keys.
          **/
-        class DiskUsageResponse extends Response {
+        class DiskUsage2Response extends Response {
             omero::api::LongPairToStringIntMap fileCountByReferer;
             omero::api::LongPairToStringLongMap bytesUsedByReferer;
             omero::api::LongPairIntMap totalFileCount;

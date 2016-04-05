@@ -51,8 +51,8 @@ import ome.services.graphs.GraphTraversal;
 import ome.system.Login;
 import ome.system.Roles;
 import omero.api.LongPair;
-import omero.cmd.DiskUsage;
-import omero.cmd.DiskUsageResponse;
+import omero.cmd.DiskUsage2;
+import omero.cmd.DiskUsage2Response;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -65,11 +65,11 @@ import omero.cmd.Response;
  * @since 5.1.0
  */
 @SuppressWarnings("serial")
-public class DiskUsageI extends DiskUsage implements IRequest {
+public class DiskUsage2I extends DiskUsage2 implements IRequest {
 
     /* FIELDS AND CONSTRUCTORS */
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiskUsageI.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiskUsage2I.class);
 
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
@@ -106,7 +106,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
      * @param targetClasses legal target object classes for the search
      * @param graphPolicy the graph policy to apply for the search
      */
-    public DiskUsageI(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
+    public DiskUsage2I(ACLVoter aclVoter, Roles securityRoles, SystemTypes systemTypes, GraphPathBean graphPathBean,
             Set<Class<? extends IObject>> targetClasses, GraphPolicy graphPolicy) {
         this.aclVoter = aclVoter;
         this.systemTypes = systemTypes;
@@ -322,8 +322,8 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         /**
          * @return a disk usage response corresponding to the current usage
          */
-        public DiskUsageResponse getDiskUsageResponse() {
-            return new DiskUsageResponse(countByTypeByWho, sizeByTypeByWho, totalCountByWho, totalSizeByWho);
+        public DiskUsage2Response getDiskUsageResponse() {
+            return new DiskUsage2Response(countByTypeByWho, sizeByTypeByWho, totalCountByWho, totalSizeByWho);
         }
 
         /**
