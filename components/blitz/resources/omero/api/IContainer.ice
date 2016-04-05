@@ -250,7 +250,7 @@ module omero {
                  *            set of rootNodeIds, then getImages will be
                  *            called with an effective rootNodeType of
                  *            Image.class and the new ids.
-                 *            </p>.
+                 *            </p>
                  *            <code>acquisition data</code> is only relevant
                  *            for images.
                  * @return A set of images.
