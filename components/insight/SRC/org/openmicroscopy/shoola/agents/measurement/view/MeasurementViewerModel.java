@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -215,6 +216,9 @@ class MeasurementViewerModel
     /** Collection of existing folders if any. */
     private Collection<FolderData> folders;
 
+    /** The Collection of ROIS */
+    private Collection<ROIData> rois;
+    
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary.
 	 * @param attribute see above.
@@ -645,24 +649,18 @@ class MeasurementViewerModel
         if (folders == null)
             return Collections.EMPTY_LIST;
 
-        Collection<FolderData> result = new ArrayList<FolderData>();
-        for (FolderData f : folders) {
-            for (ROIData roi : f.copyROILinks()) {
-                // an roi is not necessarily linked to an image
-                if (roi.getImage() != null) {
-                    if (roi.getImage().getId() == getImageID()) {
-                        addFolderAndParentFolders(f, result);
-                        break;
-                    }
-                }
-            }
+        // using map to avoid duplicate entries
+        Map<Long, FolderData> result = new HashMap<Long, FolderData>();
+        for (ROIData roi : rois) {
+            for (FolderData f : roi.getFolders())
+                addFolderAndParentFolders(f, result);
         }
-        return result;
+        return result.values();
     }
 
     private void addFolderAndParentFolders(FolderData f,
-            Collection<FolderData> coll) {
-        coll.add(f);
+            Map<Long, FolderData> coll) {
+        coll.put(f.getId(), f);
         if (f.getParentFolder() != null)
             addFolderAndParentFolders(f.getParentFolder(), coll);
     }
@@ -680,6 +678,7 @@ class MeasurementViewerModel
 	{
 	    List<DataObject> nodes = new ArrayList<DataObject>();
 		measurementResults = rois;
+		this.rois = new ArrayList<ROIData>();
 		state = MeasurementViewer.READY;
 		List<ROI> roiList = new ArrayList<ROI>();
 		Iterator r = rois.iterator();
@@ -689,8 +688,9 @@ class MeasurementViewerModel
 			result = (ROIResult) r.next();
 			roiList.addAll(roiComponent.loadROI(result.getFileID(),
 					result.getROIs(), userID));
+			this.rois.addAll(result.getROIs());
 		}
-		if (roiList == null) return nodes;
+		if (roiList.isEmpty()) return nodes;
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;

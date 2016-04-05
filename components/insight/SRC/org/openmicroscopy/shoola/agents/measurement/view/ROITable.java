@@ -1274,9 +1274,7 @@ public class ROITable
 			return ""+s.getFigure().getAttribute(MeasurementAttributes.TEXT);
 		}
 		else if(node.isFolderNode()) {
-		    FolderData f = (FolderData) object;
-		    f.getFolderPathString();
-		    return "Owner: "+f.getOwner().getUserName()+"; Permissions: "+f.getPermissions();
+		    return "";
 		}
 		return "";
 	}

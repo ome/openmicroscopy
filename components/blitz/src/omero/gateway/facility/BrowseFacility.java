@@ -1300,15 +1300,7 @@ public class BrowseFacility extends Facility {
             IQueryPrx qs = gateway.getQueryService(ctx);
             List<IObject> list = qs
                     .findAllByQuery(
-                            "select folder from Folder as folder "
-                                    + "left outer join fetch folder.parentFolder as parentFolder "
-                                    + "left outer join fetch folder.childFolders as childFolders "
-                                    + "left outer join fetch folder.roiLinks as roiLinks "
-                                    + "left outer join fetch roiLinks.child as roi "
-                                    + "left outer join fetch roi.shapes as shapes "
-                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
-                                    + "left outer join fetch folder.imageLinks as imageLinks "
-                                    + "left outer join fetch folder.details.owner as owner",
+                            "select folder from Folder as folder ",
                             null);
             Collection<FolderData> result = new ArrayList<FolderData>();
             for (IObject l : list) {
@@ -1346,14 +1338,7 @@ public class BrowseFacility extends Facility {
             List<IObject> list = qs
                     .findAllByQuery(
                             "select folder from Folder as folder "
-                                    + "left outer join fetch folder.parentFolder as parentFolder "
-                                    + "left outer join fetch folder.childFolders as childFolders "
-                                    + "left outer join fetch folder.roiLinks as roiLinks "
-                                    + "left outer join fetch roiLinks.child as roi "
-                                    + "left outer join fetch roi.shapes as shapes "
-                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
-                                    + "left outer join fetch folder.details.owner as owner "
-                                    + "left outer join fetch folder.imageLinks as imageLinks where folder.id in (:ids)",
+                                    + "where folder.id in (:ids)",
                             param);
             Collection<FolderData> result = new ArrayList<FolderData>();
             for (IObject l : list) {
@@ -1390,15 +1375,7 @@ public class BrowseFacility extends Facility {
             List<IObject> list = qs
                     .findAllByQuery(
                             "select folder from Folder as folder "
-                                    + "left outer join fetch folder.parentFolder as parentFolder "
-                                    + "left outer join fetch folder.childFolders as childFolders "
-                                    + "left outer join fetch folder.roiLinks as roiLinks "
-                                    + "left outer join fetch roiLinks.child as roi "
-                                    + "left outer join fetch roi.shapes as shapes "
-                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
-                                    + "left outer join fetch folder.imageLinks as imageLinks "
-                                    + "left outer join fetch folder.details.owner as owner "
-                                    + "where owner.id = :userId",
+                                    + "where folder.details.owner.id = :userId",
                             param);
 
             Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
