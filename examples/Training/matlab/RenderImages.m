@@ -16,6 +16,10 @@
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 try
+%%
+% start-code
+%%
+
     % Create a connection
     [client, session] = loadOmero();
     p = parseOmeroProperties(client);
@@ -35,7 +39,8 @@ try
     pixels = image.getPrimaryPixels();
     pixelsId = pixels.getId().getValue();
     
-    % Rendering
+% Create rendering engine
+% =======================
     
     % Follow an example indicating, how to create a rendering engine.
     disp('Rendering the image');
@@ -49,7 +54,10 @@ try
     end
     % start the rendering engine
     re.load();
-    
+
+% Render plane
+% ============
+        
     % render a plane as compressed. Possible to render it uncompressed.
     pDef = omero.romio.PlaneDef;
     pDef.z = re.getDefaultZ();
@@ -103,7 +111,11 @@ try
         figure;
         imshow(thumbnail, []);
     end
-    
+
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);

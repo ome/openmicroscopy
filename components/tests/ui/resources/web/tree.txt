@@ -14,12 +14,17 @@ ${runIcon}                      webclient/image/run16.png
 ${datasetDetails}               xpath=//*[@id="general_tab"]/h1[contains(@data-name,'details')]/following-sibling::div
 *** Keywords ***
 
-Click Dialog Button
+Get Dialog Button Xpath
     [Arguments]     ${buttonText}
     # Confirm dialog (make sure we pick the currently visible dialog)
     # jQuery UI buttons sometimes are <button>text and sometimes <button><span>text so we use *
-    Wait Until Page Contains Element    xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(), '${buttonText}')]
-    Click Element                       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(), '${buttonText}')]
+    [Return]        //div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//div[contains(@class, 'ui-dialog-buttonset')]//*[contains(text(), '${buttonText}')]
+
+Click Dialog Button
+    [Arguments]     ${buttonText}
+    ${xpath}=                       Get Dialog Button Xpath     ${buttonText}
+    Wait Until Element Is Visible   xpath=${xpath}
+    Click Element                   xpath=${xpath}
 
 Xpath Should Have Class
     [Arguments]                     ${identifier}       ${className}
@@ -220,6 +225,13 @@ Select First Image
     ${imageId}=                     Select Node By Icon      ${imageIcon}
     Wait Until Right Panel Loads    Image                    ${imageId}
     [Return]                        ${imageId}
+
+Select First Image With Name
+    [Arguments]                     ${ImageName}
+    ${nodeId}=                      Wait For Image Node Text        ${ImageName}
+    Click Node                      ${nodeId}
+    Wait For General Panel          Image
+    [Return]                        ${nodeId}
 
 Select First Orphaned Image
     ${nodeId}                       Select Orphaned Images Section

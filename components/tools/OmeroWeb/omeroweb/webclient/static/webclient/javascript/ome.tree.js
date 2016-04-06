@@ -192,6 +192,10 @@ $(function() {
                         if (!node) {
                             return;
                         }
+                        // If we have a 'childPage' greater than 0, need to paginate
+                        if (comp.childPage) {
+                            inst._set_page(node, comp.childPage);
+                        }
 
                         if (index < lastIndex) {
                             inst.open_node(node, function() {

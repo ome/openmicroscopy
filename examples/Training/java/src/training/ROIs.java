@@ -96,14 +96,17 @@ public class ROIs
     //end edit
 
     private ImageData image;
-    
+
     private Gateway gateway;
-    
+
     private SecurityContext ctx;
 
     /**
+     * start-code
+     */
+
+    /**
      * Loads the image.
-     * 
      * @param imageID The id of the image to load.
      * @return See above.
      */
@@ -114,15 +117,15 @@ public class ROIs
         return browse.getImage(ctx, imageID);
     }
 
-    /** 
-     * Creates roi and retrieve it.
-     */
+// Create ROIs
+// ===========
+
+    /** Creates roi and retrieve it. */
     private void createROIs()
             throws Exception
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
         ROIFacility roifac = gateway.getFacility(ROIFacility.class);
-        
         Roi roi = new RoiI();
         roi.setImage(image.asImage());
         Rectangle rect = new RectangleI();
@@ -133,7 +136,6 @@ public class ROIs
         rect.setTheZ(omero.rtypes.rint(0));
         rect.setTheT(omero.rtypes.rint(0));
         roi.addShape(rect);
-
         //Create a rectangular shape
         rect = new RectangleI();
         rect.setX(omero.rtypes.rdouble(10));
@@ -143,7 +145,6 @@ public class ROIs
         rect.setTheZ(omero.rtypes.rint(1));
         rect.setTheT(omero.rtypes.rint(0));
         roi.addShape(rect); //Add the shape
-
         //Create an ellipse.
         Ellipse ellipse = new EllipseI();
         ellipse.setCx(omero.rtypes.rdouble(10));
@@ -154,7 +155,6 @@ public class ROIs
         ellipse.setTheT(omero.rtypes.rint(0));
         ellipse.setTextValue(omero.rtypes.rstring("ellipse text"));
         roi.addShape(ellipse);
-
         //Create a line
         Line line = new LineI();
         line.setX1(omero.rtypes.rdouble(100));
@@ -165,7 +165,6 @@ public class ROIs
         line.setTheT(omero.rtypes.rint(0));
         line.setTransform(omero.rtypes.rstring("100 0 0 200 0 0"));
         roi.addShape(line);
-
         //Create a point
         Point point = new PointI();
         point.setCx(omero.rtypes.rdouble(75.0));
@@ -174,7 +173,6 @@ public class ROIs
         point.setTheT(omero.rtypes.rint(0));
         point.setTransform(null);
         roi.addShape(point);
-
         //Polygon
         Polygon polygon = new PolygonI();
         polygon.setPoints(omero.rtypes.rstring(
@@ -183,14 +181,12 @@ public class ROIs
         polygon.setTheZ(omero.rtypes.rint(0));
         polygon.setTheT(omero.rtypes.rint(0));
         roi.addShape(polygon);
-
         //Polyline
         Polyline polyline = new PolylineI();
         polyline.setPoints(omero.rtypes.rstring(
                 "100.0,200.0 553.9,593.5 92.3,59.9"));
         polyline.setTransform(null);
         roi.addShape(polyline);
-
         // Display fields which could quickly
         // be parsed from known formats
         RInt GREY = omero.rtypes.rint(11184810);
@@ -202,8 +198,6 @@ public class ROIs
         text.setStrokeColor(GREY);
         text.setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
         text.setLocked(omero.rtypes.rbool(true));
-
-
         // Other options which may come with time
         text.setFontStyle(omero.rtypes.rstring("italic"));
         text.setFillColor(GREY);
@@ -214,13 +208,11 @@ public class ROIs
         text.setTheZ(omero.rtypes.rint(0));
         text.setTheT(omero.rtypes.rint(0));
         roi.addShape(text);
-
         //Add a path shape
         Path path = new PathI();
         path.setD(omero.rtypes.rstring("M 100 100 L 300 100 L 200 300 z"));
         path.setTransform(null);
         roi.addShape(path);
-
         //Add a mask
         Mask mask = new MaskI();
         mask.setX(omero.rtypes.rdouble(10));
@@ -228,9 +220,8 @@ public class ROIs
         mask.setWidth(omero.rtypes.rdouble(100.0));
         mask.setHeight(omero.rtypes.rdouble(100.0));
         mask.setPixels(new PixelsI(image.getDefaultPixels().getId(), false));
-        
-        ROIData roiData = roifac.saveROIs(ctx, image.getId(), Arrays.asList(new ROIData(roi))).iterator().next();
-
+        ROIData roiData = roifac.saveROIs(ctx, image.getId(),
+                Arrays.asList(new ROIData(roi))).iterator().next();
         //Retrieve the shape on plane (0, 0)
         List<ShapeData> shapes = roiData.getShapes(0, 0);
         Iterator<ShapeData> i = shapes.iterator();
@@ -254,10 +245,7 @@ public class ROIs
                 //Handle line
             }
         }
-
-
         List<ROIResult> roiresults = roifac.loadROIs(ctx, image.getId());
-        
         // Retrieve the roi linked to an image
         ROIResult r = roiresults.iterator().next();
         Collection<ROIData> rois = r.getROIs();
@@ -275,7 +263,6 @@ public class ROIs
             //update the roi
             dm.saveAndReturnObject(ctx, roi);
         }
-
         //Check that the shape does not have shape.
         roiresults = roifac.loadROIs(ctx, image.getId());
         r = roiresults.iterator().next();
@@ -290,8 +277,7 @@ public class ROIs
             roi = (Roi) roiData.asIObject();
             list = roi.copyShapes();
             System.err.println(list.size());
-        }
-       
+        }  
         //Load rois on a plane z=1, t=0
         r = roifac.loadROIsByPlane(ctx, image.getId(), 1, 0).iterator().next();
         if (r == null)
@@ -302,16 +288,17 @@ public class ROIs
             list = roi.copyShapes();
             System.err.println(list.size());
         }
-        
         //load a given roi
         r = roifac.loadROI(ctx, roi.getId().getValue());
         System.out.println(r.getROIs().size());
     }
 
     /**
+     * end-code
+     */
+    /**
      * Connects and invokes the various methods.
-     * 
-     * @param args The login credentials
+     * @param args The login credentials.
      * @param imageId The image id
      */
     ROIs(String[] args, long imageId)
@@ -319,11 +306,11 @@ public class ROIs
         LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
-        
+
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            
+
             image = loadImage(imageId);
             createROIs();
         } catch (Exception e) {
@@ -339,15 +326,15 @@ public class ROIs
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {
         if (args == null || args.length == 0)
             args = new String[] { "--omero.host=" + hostName,
-                    "--omero.user=" + userName, "--omero.pass=" + password };
-        
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
         new ROIs(args, imageId);
         System.exit(0);
     }
