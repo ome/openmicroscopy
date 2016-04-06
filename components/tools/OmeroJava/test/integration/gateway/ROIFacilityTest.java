@@ -119,7 +119,7 @@ public class ROIFacilityTest extends GatewayTest {
             myRois.addAll(r.getROIs());
         }
 
-        Assert.assertEquals(rois.size(), myRois.size());
+        Assert.assertEquals(myRois.size(), rois.size());
 
         Iterator<ROIData> it = myRois.iterator();
         while (it.hasNext()) {
@@ -138,8 +138,8 @@ public class ROIFacilityTest extends GatewayTest {
             DSAccessException {
         Collection<FolderData> folders = roifac.getROIFolders(rootCtx,
                 folderImg.getId());
-        Assert.assertEquals(1, folders.size());
-        Assert.assertEquals(folder.getId(), folders.iterator().next().getId());
+        Assert.assertEquals(folders.size(), 1);
+        Assert.assertEquals(folders.iterator().next().getId(), folder.getId());
     }
 
     @Test(dependsOnMethods = { "testGetROIFolders" })
@@ -156,7 +156,7 @@ public class ROIFacilityTest extends GatewayTest {
         for (ROIResult r : roiResults)
             for (ROIData rd : r.getROIs())
                 rois.add(rd);
-        Assert.assertEquals(2, rois.size());
+        Assert.assertEquals(rois.size(), 2);
 
         Set<Long> folderRoiIds = new HashSet<Long>();
         for(ROIData d : folderRois)
@@ -174,22 +174,22 @@ public class ROIFacilityTest extends GatewayTest {
     @Test(dependsOnMethods = { "testRemoveROIsFromFolder" })
     public void testAddROIsToFolder() throws Exception {
         folder = browse
-                .getFolders(rootCtx, Collections.singletonList(folder.getId()))
+                .loadFolders(rootCtx, Collections.singletonList(folder.getId()))
                 .iterator().next();
-        Assert.assertTrue(folder.copyROILinks().isEmpty());
+        Assert.assertEquals(folder.roiCount(), 0);
         
         roifac.addRoisToFolders(rootCtx, folderImg.getId(), folderRois,
                 Collections.singletonList(folder));
 
         folder = browse
-                .getFolders(rootCtx, Collections.singletonList(folder.getId()))
+                .loadFolders(rootCtx, Collections.singletonList(folder.getId()))
                 .iterator().next();
-        Assert.assertEquals(2, folder.copyROILinks().size());
+        Assert.assertEquals(folder.roiCount(), 2);
 
         List<ROIResult> rrs = roifac.loadROIs(rootCtx, folderImg.getId());
         for (ROIResult rr : rrs) {
             for (ROIData r : rr.getROIs()) {
-                Assert.assertEquals(1, r.getFolders().size());
+                Assert.assertEquals(r.getFolders().size(), 1);
             }
         }
 
@@ -198,17 +198,17 @@ public class ROIFacilityTest extends GatewayTest {
     @Test(dependsOnMethods = { "testLoadRoisForFolder"})
     public void testRemoveROIsFromFolder() throws Exception {
         folder = browse
-                .getFolders(rootCtx, Collections.singletonList(folder.getId()))
+                .loadFolders(rootCtx, Collections.singletonList(folder.getId()))
                 .iterator().next();
-        Assert.assertEquals(2, folder.copyROILinks().size());
+        Assert.assertEquals(folder.roiCount(), 2);
         
         roifac.removeRoisFromFolders(rootCtx, folderImg.getId(), folderRois,
                 Collections.singletonList(folder));
 
         folder = browse
-                .getFolders(rootCtx, Collections.singletonList(folder.getId()))
+                .loadFolders(rootCtx, Collections.singletonList(folder.getId()))
                 .iterator().next();
-        Assert.assertTrue(folder.copyROILinks().isEmpty());
+        Assert.assertEquals(folder.roiCount(), 0);
 
         List<ROIResult> rrs = roifac.loadROIs(rootCtx, folderImg.getId());
         for (ROIResult rr : rrs) {
