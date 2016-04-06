@@ -44,6 +44,7 @@ import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.events.measurement.ROIEvent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -947,6 +948,8 @@ class MeasurementViewerComponent
 										"for "+model.getImageID());
 		}
 		model.fireLoadROIServerOrClient(false);
+		
+		reg.getEventBus().post(new ROIEvent(model.getImageID()));
 	}
 
 	/** 
