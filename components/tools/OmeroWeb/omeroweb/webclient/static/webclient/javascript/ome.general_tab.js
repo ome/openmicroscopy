@@ -15,12 +15,14 @@
 //   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-var TagPane = function TagPane($element) {
+var TagPane = function TagPane($element, objects) {
 
     var $header = $element.children('h1'),
         $body = $element.children('div'),
         $tags_container = $("#tags_container");
 
+    var tmplText = $('#tag_template').html();
+    var tagTmpl = _.template(tmplText);
 
 
     var initEvents = function initEvents() {
@@ -50,6 +52,35 @@ var TagPane = function TagPane($element) {
 
             $tags_container.html("Loading tags...");
 
+            var request = objects.map(function(o){
+                return o.replace("-", "=");
+            });
+            console.log(request);
+
+            $.getJSON("/webclient/api/annotations/?type=tag&" + request, function(data){
+
+                // manipulate data...
+                // make an object of eid: experimenter
+                var experimenters = data.experimenters.reduce(function(prev, exp){
+                    prev[exp.id + ""] = exp;
+                    return prev;
+                }, {});
+
+                // Populate experimenters within tags
+                var tags = data.annotations.map(function(tag){
+                    tag.owner = experimenters[tag.owner.id];
+                    if (tag.link && tag.link.owner) {
+                        tag.link.owner = experimenters[tag.link.owner.id];
+                    }
+                    tag.textValue = _.escape(tag.textValue);
+                    return tag;
+                });
+                console.log(tags);
+
+                var html = tagTmpl({'tags': tags});
+                // html = _.escape(html);
+                $tags_container.html(html);
+            });
             
         }
     };

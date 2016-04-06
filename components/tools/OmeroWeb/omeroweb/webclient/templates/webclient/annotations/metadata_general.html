@@ -29,7 +29,9 @@
 
                 // Delegate to sub-views to handle content of each collapsible panel
 
-                new TagPane($("#tagsPane"));
+                var dataModel = ["{{ manager.obj_type }}-{{ manager.obj_id }}"];
+                console.log(dataModel);
+                new TagPane($("#tagsPane"), dataModel);
 
 
                 var linkify = function(input) {
@@ -907,11 +909,7 @@
                 {% endif %}
 
                 <!-- display existing Tags -->
-                <div id="tags_container" class="lntags">
-                    {% with tags=manager.tag_annotations %}
-                        {% include "webclient/annotations/tags.html" %}
-                    {% endwith %}
-                </div>
+                <div id="tags_container" class="lntags"></div>
  
             </div>
             </div>

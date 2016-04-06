@@ -1662,19 +1662,16 @@ def _marshal_annotation(conn, annotation, link=None):
     '''
     ann = {}
     ownerId = annotation.details.owner.id.val
-    perms = {}
-    perms['canEdit'] = annotation.details.permissions.canEdit()
-    perms['canAnnotate'] = annotation.details.permissions.canAnnotate()
-    perms['canDelete'] = annotation.details.permissions.canDelete()
-    perms['canLink'] = annotation.details.permissions.canLink()
-
     ann['id'] = annotation.id.val
     ann['ns'] = unwrap(annotation.ns)
     ann['owner'] = {'id': ownerId}
     creation = annotation.details.creationEvent._time
     ann['date'] = _marshal_date(unwrap(creation))
-    ann['permsCss'] = \
-        parse_permissions_css(perms, ownerId, conn)
+    p = annotation.details.permissions
+    ann['permissions'] = {'canDelete': p.canDelete(),
+                          'canAnnotate': p.canAnnotate(),
+                          'canLink': p.canLink(),
+                          'canEdit': p.canEdit()}
 
     if link is not None:
         ann['link'] = {}
@@ -1683,6 +1680,11 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['link']['parent'] = {'id': link.parent.id.val}
         linkCreation = link.details.creationEvent._time
         ann['link']['date'] = _marshal_date(unwrap(linkCreation))
+        p = link.details.permissions
+        ann['link']['permissions'] = {'canDelete': p.canDelete(),
+                                      'canAnnotate': p.canAnnotate(),
+                                      'canLink': p.canLink(),
+                                      'canEdit': p.canEdit()}
 
     annClass = annotation.__class__.__name__
     ann['type'] = annClass
@@ -1691,7 +1693,6 @@ def _marshal_annotation(conn, annotation, link=None):
     if annClass == 'LongAnnotationI':
         ann['longValue'] = unwrap(annotation.longValue)
     if annClass == 'FileAnnotationI' and annotation.file:
-        print annotation.file
         ann['file'] = {}
         ann['file']['id'] = annotation.file.id.val
         ann['file']['name'] = unwrap(annotation.file.name)
