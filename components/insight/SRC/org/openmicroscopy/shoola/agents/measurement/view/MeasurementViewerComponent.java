@@ -948,7 +948,6 @@ class MeasurementViewerComponent
 										"for "+model.getImageID());
 		}
 		model.fireLoadROIServerOrClient(false);
-		
 		reg.getEventBus().post(new ROIEvent(model.getImageID()));
 	}
 
