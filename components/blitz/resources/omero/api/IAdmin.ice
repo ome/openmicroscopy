@@ -49,18 +49,18 @@ module omero {
                  * @return an Experimenter. Never null.
                  * @throws ApiUsageException if id does not exist.
                  */
-
                 idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
+
                 /**
                  * Looks up an {@link omero.model.Experimenter} and all related
                  * {@link omero.model.ExperimenterGroup} by name.
                  *
-                 * @param omeName Name of the Experimenter
+                 * @param name Name of the Experimenter
                  * @return an Experimenter. Never null.
                  * @throws ApiUsageException if omeName does not exist.
                  */
-
                 idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
+
                 /**
                  * Looks up all {@link omero.model.Experimenter} experimenters
                  * present and all related
@@ -78,11 +78,12 @@ module omero {
                  * @throws ApiUsageException if id does not exist.
                  */
                 idempotent omero::model::ExperimenterGroup getGroup(long id) throws ServerError;
+
                 /**
                  * Looks up an {@link omero.model.ExperimenterGroup} and all
                  * contained {@link omero.model.Experimenter} users by name.
                  *
-                 * @param groupName Name of the ExperimenterGroup
+                 * @param name Name of the ExperimenterGroup
                  * @return an ExperimenterGroup. Never null.
                  * @throws ApiUsageException if groupName does not exist.
                  */
@@ -97,6 +98,7 @@ module omero {
                  * @return all Groups. Never null.
                  */
                 idempotent ExperimenterGroupList lookupGroups() throws ServerError;
+
                 /**
                  * Fetches all {@link omero.model.Experimenter} users
                  * contained in this group. The returned users will have all
@@ -151,7 +153,7 @@ module omero {
                  * Finds the ids for all groups for which the given
                  * {@link omero.model.Experimenter} is a member.
                  *
-                 * @param e Non-null, managed (i.e. with id)
+                 * @param exp Non-null, managed (i.e. with id)
                  * @see omero.model.Details#getOwner
                  */
                 idempotent LongList getMemberOfGroupIds(omero::model::Experimenter exp) throws ServerError;
@@ -160,7 +162,7 @@ module omero {
                  * Finds the ids for all groups for which the given
                  * {@link omero.model.Experimenter} is owner/leader.
                  *
-                 * @param e Non-null, managed (i.e. with id)
+                 * @param exp Non-null, managed (i.e. with id)
                  * @see omero.model.Details#getOwner
                  */
                 idempotent LongList getLeaderOfGroupIds(omero::model::Experimenter exp) throws ServerError;
@@ -199,9 +201,9 @@ module omero {
                  * photo is present, the oldest version will be modified (i.e.
                  * the highest updateEvent id).
                  *
-                 * Note: as outlined in ticket:1794, this photo will be placed
-                 * in the "user" group and therefore will be visible to
-                 * everyone on the system.
+                 * Note: as outlined in <a href="https://trac.openmicroscopy.org/ome/ticket/1794">ticket 1794</a>
+                 * this photo will be placed in the "user" group and therefore
+                 * will be visible to everyone on the system.
                  *
                  * @param filename Not null. String name which will be used.
                  * @param format Not null. Format.value string. 'image/jpeg'
@@ -263,7 +265,7 @@ module omero {
                  * Creates and returns a new user. This user will be created
                  * with the default group specified.
                  *
-                 * @param newUser a new {@link omero.model.Experimenter}
+                 * @param experimenter a new {@link omero.model.Experimenter}
                  *        instance
                  * @param group group name of the default group for this user
                  * @return id of the newly created
@@ -276,7 +278,7 @@ module omero {
                  * created with the "System" (administration) group as default
                  * and will also be in the "user" group.
                  *
-                 * @param newSystemUser a new {@link omero.model.Experimenter}
+                 * @param experimenter a new {@link omero.model.Experimenter}
                  *        instance
                  * @return id of the newly created
                  *         {@link omero.model.Experimenter}
@@ -286,11 +288,11 @@ module omero {
                 /**
                  * Creates and returns a new user in the given groups.
                  *
-                 * @param experimenter A new {@link omero.model.Experimenter}
+                 * @param user A new {@link omero.model.Experimenter}
                  *        instance. Not null.
                  * @param defaultGroup Instance of
                  *        {@link omero.model.ExperimenterGroup}. Not null.
-                 * @param otherGroups Array of
+                 * @param groups Array of
                  *        {@link omero.model.ExperimenterGroup} instances. Can
                  *        be null.
                  * @return id of the newly created
@@ -303,13 +305,13 @@ module omero {
                  * Creates and returns a new user in the given groups with
                  * password.
                  *
-                 * @param experimenter A new {@link omero.model.Experimenter}
+                 * @param user A new {@link omero.model.Experimenter}
                  *        instance. Not null.
                  * @param password Not-null. Must pass validation in the
                  *        security sub-system.
                  * @param defaultGroup Instance of
                  *        {@link omero.model.ExperimenterGroup}. Not null.
-                 * @param otherGroups Array of
+                 * @param groups Array of
                  *        {@link omero.model.ExperimenterGroup} instances. Can
                  *        be null.
                  * @return id of the newly created
@@ -457,7 +459,7 @@ module omero {
                  *
                  * See also <a href="https://trac.openmicroscopy.org/ome/ticket/1794">ticket 1794</a>
                  *
-                 * @param iObjects
+                 * @param objects
                  */
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 
@@ -482,6 +484,16 @@ module omero {
                  */
                 idempotent void changePassword(omero::RString newPassword) throws ServerError;
 
+                /**
+                 * Changes the password for the current user by passing the
+                 * old password.
+                 *
+                 * @param oldPassword Not-null. Must pass validation in the
+                 *                    security sub-system.
+                 * @param newPassword Possibly null to allow logging in with
+                 *                    no password.
+                 * @throws SecurityViolation if the oldPassword is incorrect.
+                 **/
                 idempotent void changePasswordWithOldPassword(omero::RString oldPassword, omero::RString newPassword) throws ServerError;
 
                 /**

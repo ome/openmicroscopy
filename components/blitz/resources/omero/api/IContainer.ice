@@ -326,8 +326,7 @@ module omero {
                  * ("loaded"). This is useful when a collection has been
                  * nulled in a previous query.
                  *
-                 * @param dataObject
-                 *            Can be "unloaded".
+                 * @param obj Can be "unloaded".
                  * @param collectionName
                  *            <code>public final static String</code> from the
                  *            IObject.class
@@ -354,7 +353,7 @@ module omero {
                  * then for each parent relationship a DataObject
                  * {@link omero.model.ILink} is created.
                  *
-                 * @param object
+                 * @param obj
                  *            IObject. Supported: Project, Dataset,
                  *            Annotation, Group, Experimenter. Not null.
                  * @param options Parameters as above.
@@ -381,10 +380,8 @@ module omero {
                  * Note that the objects themselves aren't deleted, only the
                  * Link objects.
                  *
-                 * @param dataObjectLinks
-                 *            Not null.
-                 * @param options
-                 *            Parameters as above.
+                 * @param links Not null.
+                 * @param options Parameters as above.
                  */
                 void unlink(IObjectList links, omero::sys::Parameters options) throws ServerError;
 
@@ -392,10 +389,8 @@ module omero {
                  * Convenience method for creating links. Functionality also
                  * available from {@link #createDataObject}
                  *
-                 * @param dataObjectLinks
-                 *            Array of links to be created.
-                 * @param options
-                 *            Parameters as above.
+                 * @param links Array of links to be created.
+                 * @param options Parameters as above.
                  * @return the created links
                  */
                 IObjectList link(IObjectList links, omero::sys::Parameters options) throws ServerError;
@@ -414,11 +409,9 @@ module omero {
                  * can't guarantee this, it's best to send all your
                  * collections back as <code>null</code>
                  *
-                 * @param dataObject
-                 *            Pojos-based IObject. Supported: Project,
+                 * @param obj Pojos-based IObject. Supported: Project,
                  *            Dataset, Annotation, Group, Experimenter.
-                 * @param options
-                 *            Parameters as above.
+                 * @param options Parameters as above.
                  * @return created data object
                  */
                 omero::model::IObject updateDataObject(omero::model::IObject obj, omero::sys::Parameters options) throws ServerError;
@@ -427,7 +420,7 @@ module omero {
                  * Convenience method to save network calls. Loops over the
                  * array of IObjects calling {@link #updateDataObject}.
                  *
-                 * @param dataObjects
+                 * @param objs
                  * @param options
                  *            Parameters as above.
                  * @return created data objects.
