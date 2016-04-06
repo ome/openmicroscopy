@@ -315,6 +315,9 @@ urlpatterns = patterns(
     url(r'^api/tags/$', views.api_tags_and_tagged_list,
         name='api_tags_and_tagged'),
 
+    url(r'^api/annotations/$', views.api_annotations,
+        name='api_annotations'),
+
     url(r'^api/shares/$', views.api_share_list, name='api_shares'),
 
 

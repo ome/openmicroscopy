@@ -1651,3 +1651,124 @@ def marshal_discussions(conn, member_id=-1, owner_id=-1,
     for e in qs.projection(q, params, service_opts):
         discussions.append(_marshal_discussion(conn, e[0:4]))
     return discussions
+
+
+def _marshal_annotation(conn, annotation, link=None):
+    ''' Given an OMERO annotation, marshals it into a dictionary.
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Dataset row to marshal
+        @type row L{list}
+    '''
+    ann = {}
+    ownerId = annotation.details.owner.id.val
+    perms = {}
+    perms['canEdit'] = annotation.details.permissions.canEdit()
+    perms['canAnnotate'] = annotation.details.permissions.canAnnotate()
+    perms['canDelete'] = annotation.details.permissions.canDelete()
+    perms['canLink'] = annotation.details.permissions.canLink()
+
+    ann['id'] = annotation.id.val
+    ann['ns'] = unwrap(annotation.ns)
+    ann['owner'] = {'id': ownerId}
+    creation = annotation.details.creationEvent._time
+    ann['date'] = _marshal_date(unwrap(creation))
+    ann['permsCss'] = \
+        parse_permissions_css(perms, ownerId, conn)
+
+    if link is not None:
+        ann['link'] = {}
+        ann['link']['id'] = link.id.val
+        ann['link']['owner'] = {'id': link.details.owner.id.val}
+        ann['link']['parent'] = {'id': link.parent.id.val}
+        linkCreation = link.details.creationEvent._time
+        ann['link']['date'] = _marshal_date(unwrap(linkCreation))
+
+    annClass = annotation.__class__.__name__
+    ann['type'] = annClass
+    if annClass in ['TagAnnotationI', 'CommentAnnotationI']:
+        ann['textValue'] = unwrap(annotation.textValue)
+    if annClass == 'LongAnnotationI':
+        ann['longValue'] = unwrap(annotation.longValue)
+    if annClass == 'FileAnnotationI' and annotation.file:
+        print annotation.file
+        ann['file'] = {}
+        ann['file']['id'] = annotation.file.id.val
+        ann['file']['name'] = unwrap(annotation.file.name)
+        ann['file']['size'] = unwrap(annotation.file.size)
+        ann['file']['path'] = unwrap(annotation.file.path)
+    return ann
+
+
+def init_params(group_id, page, limit):
+    params = omero.sys.ParametersI()
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+    return params
+
+
+def _marshal_exp_obj(experimenter):
+    exp = {}
+    exp['id'] = experimenter.id.val
+    exp['omeName'] = experimenter.omeName.val
+    exp['firstName'] = unwrap(experimenter.firstName)
+    exp['lastName'] = unwrap(experimenter.lastName)
+    return exp
+
+
+def marshal_annotations(conn, image_ids=None, dataset_ids=None, ann_type=None,
+                        group_id=-1, page=1, limit=settings.PAGE):
+
+    annotations = []
+    qs = conn.getQueryService()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    where_clause = ['pa.id in (:ids)']
+    # if experimenter_id is not None and experimenter_id != -1:
+    #     params.addId('eid', rlong(experimenter_id))
+    #     where_clause.append('dataset.details.owner.id = :eid')
+    if ann_type == 'tag':
+        where_clause.append('ch.class=TagAnnotation')
+    if ann_type == 'file':
+        where_clause.append('ch.class=FileAnnotation')
+    if ann_type == 'comment':
+        where_clause.append('ch.class=CommentAnnotation')
+    if ann_type == 'rating':
+        where_clause.append('ch.class=LongAnnotation')
+
+    dtypes = ["Dataset", "Image"]
+    obj_ids = [dataset_ids, image_ids]
+
+    experimenters = {}
+
+    for dtype, ids in zip(dtypes, obj_ids):
+        if ids is None or len(ids) == 0:
+            continue
+        params = init_params(group_id, page, limit)
+        params.addIds(ids)
+        q = """
+            select oal from %sAnnotationLink as oal
+            join fetch oal.details.creationEvent
+            left outer join fetch oal.child as ch
+            left outer join fetch oal.parent as pa
+            join fetch ch.details.creationEvent
+            left outer join fetch ch.file as file
+            where %s
+            """ % (dtype, ' and '.join(where_clause))
+
+        for link in qs.findAllByQuery(q, params, service_opts):
+            ann = link.child
+            d = _marshal_annotation(conn, ann, link)
+            annotations.append(d)
+            exp = _marshal_exp_obj(link.details.owner)
+            experimenters[exp['id']] = exp
+            exp = _marshal_exp_obj(ann.details.owner)
+            experimenters[exp['id']] = exp
+
+    return annotations, experimenters.values()

@@ -4,7 +4,7 @@
 {% load common_tags %}
 {% comment %}
 <!--
-  Copyright (C) 2011-2015 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2016 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -25,6 +25,13 @@
         
         $(document).ready(function()
             {
+                // This is called once the html for "General" tab of right panel has loaded...
+
+                // Delegate to sub-views to handle content of each collapsible panel
+
+                new TagPane($("#tagsPane"));
+
+
                 var linkify = function(input) {
                     var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
                     return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
@@ -35,7 +42,7 @@
 
                 $("#comments_container").hide_if_empty();
                 $("#fileanns_container").hide_if_empty();
-                $("#tags_container").hide_if_empty();
+                // $("#tags_container").hide_if_empty();
                 
                 {% if manager.canEdit %}
                 // we may have well-index, if we are editing an image within a Well
@@ -548,30 +555,31 @@
                 }
 
                 // Handle click on collapsible panes
-                $('#metadata_general .can-collapse').click(function () {
-                    $(this).toggleClass('closed').next().slideToggle();
-                    // remember which panes are expanded
-                    var open = [];
-                    $('#metadata_general .can-collapse').each(function(){
-                        var $this = $(this);
-                        if (!$this.hasClass('closed') && $this.attr('data-name')) {
-                            open.push($this.attr('data-name'));
-                        }
-                    });
-                    $("#metadata_general").data('open_panes', open);
-                });
-                // Expand any previously opened panes
-                var open_panes = $("#metadata_general").data('open_panes');
-                if (open_panes === undefined) {
-                    open_panes = ["details"];     // by default, just 'details' is open
-                }
+                var open_panes = [];
+                // $('#metadata_general .can-collapse').click(function () {
+                //     $(this).toggleClass('closed').next().slideToggle();
+                //     // remember which panes are expanded
+                //     var open = [];
+                //     $('#metadata_general .can-collapse').each(function(){
+                //         var $this = $(this);
+                //         if (!$this.hasClass('closed') && $this.attr('data-name')) {
+                //             open.push($this.attr('data-name'));
+                //         }
+                //     });
+                //     $("#metadata_general").data('open_panes', open);
+                // });
+                // // Expand any previously opened panes
+                // var open_panes = $("#metadata_general").data('open_panes');
+                // if (open_panes === undefined) {
+                //     open_panes = ["details"];     // by default, just 'details' is open
+                // }
 
-                open_panes.forEach(function(name) {
-                    // remove 'defclose' flag from open panes
-                    $('#metadata_general .can-collapse[data-name="' + name + '"]').removeClass('defclose');
-                });
-                // Any panes that still have 'defclose' flag, we close
-                $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
+                // open_panes.forEach(function(name) {
+                //     // remove 'defclose' flag from open panes
+                //     $('#metadata_general .can-collapse[data-name="' + name + '"]').removeClass('defclose');
+                // });
+                // // Any panes that still have 'defclose' flag, we close
+                // $('.can-collapse.defclose').removeClass('defclose').addClass('closed').next().hide();
 
 
 
@@ -886,10 +894,11 @@
 
 
             <!-- TAGS -->               
-            <h1 class="can-collapse defclose" data-name="tags">
+            <div id="tagsPane">
+            <h1 class="can-collapse closed">
                 Tags
             </h1>
-            <div class="annotations_section">
+            <div class="annotations_section" style="display:none">
                 
                 {% if manager.canAnnotate %}
                     <div>
@@ -904,6 +913,7 @@
                     {% endwith %}
                 </div>
  
+            </div>
             </div>
 
 

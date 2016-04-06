@@ -1112,6 +1112,21 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
 
 
 @login_required()
+def api_annotations(request, conn=None, **kwargs):
+
+    r = request.GET or request.POST
+
+    image_ids = r.getlist('image')
+    dataset_ids = r.getlist('dataset')
+
+    ann_type = r.get('type', None)
+
+    annotations, experimenters = tree.marshal_annotations(conn, image_ids, dataset_ids, ann_type=ann_type)
+
+    return HttpJsonResponse({'annotations': annotations, 'experimenters': experimenters})
+
+
+@login_required()
 def api_share_list(request, conn=None, **kwargs):
     # Get parameters
     try:
