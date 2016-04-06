@@ -49,20 +49,22 @@ Examples:
 
     # %(EDIT)s
     bin/omero render edit Image:1 <YAML or JSON file>
-    where the input file is a dictionary of dictionaries of the form
-    <index>: (Channel-index, int, 1-based)
+    where the input file contains a top-level channels element, and
+    index:dictionaries of the form
+    channels:
+      <index>: (Channel-index, int, 1-based)
         color: <HTML RGB triplet>
         label: <Channel name>
         min: <Minimum (float)>
         max: <Maximum (float)>
         active: <Active (bool)>
-    <index>:
+      <index>:
         ...
     # Omitted fields will keep their current values, omitted channel-indices
     # will be turned off.
     bin/omero render edit --copy Screen:1 <YAML or JSON file>
     # Optimised for bulk-rendering, edits the first image and copies the
-    # endering settings to the rest. Note using this flag may have different
+    # rendering settings to the rest. Note using this flag may have different
     # results from not using it if the images had different settings to begin
     # with and you are only overridding a subset of the settings (all images
     # will end up with the same full rendering settings)
@@ -312,6 +314,14 @@ class RenderControl(BaseControl):
                 if not skipthumbs:
                     self._generate_thumbs(batch.values())
 
+    def update_channel_names(self, gateway, obj, namedict):
+        for targets in self.render_images(gateway, obj):
+            iids = [img.id for img in targets]
+            counts = gateway.setChannelNames("Image", iids, namedict)
+            if counts:
+                self.ctx.dbg("Updated channel names for %d/%d images" % (
+                    counts['updateCount'], counts['imageCount']))
+
     def _generate_thumbs(self, images):
         for img in images:
             start = time.time()
@@ -348,17 +358,21 @@ class RenderControl(BaseControl):
                 self.ctx.die(
                     105, "Invalid channel description: %s" % chdict)
 
+        namedict = {}
         cindices = []
         rangelist = []
         colourlist = []
         for (i, c) in newchannels.iteritems():
             if not c.active:
                 continue
+            if c.label:
+                namedict[i] = c.label
             cindices.append(i)
             rangelist.append([c.min, c.max])
             colourlist.append(c.color)
-            if c.label:
-                self.ctx.err('WARNING: Channel name edit not implemented')
+
+        if namedict:
+            self.update_channel_names(gateway, args.object, namedict)
 
         for img in self.render_images(gateway, args.object, batch=1):
             img.setActiveChannels(
@@ -372,9 +386,6 @@ class RenderControl(BaseControl):
                 # Edit first image only, copy to rest
                 self._copy(gateway, img._obj, args.object, args.skipthumbs)
                 break
-
-        # TODO: set channel names
-        # gateway.setChannelNames('Image', img.getId())
 
 
 try:
