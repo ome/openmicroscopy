@@ -367,6 +367,40 @@ module omero {
         };
 
         /**
+         * Request to determine the disk usage of the given objects
+         * and their contents. File-system paths used by multiple objects
+         * are de-duplicated in the total count. Specifying a class is
+         * equivalent to specifying all its instances as objects.
+         *
+         * Permissible classes include:
+         *   ExperimenterGroup, Experimenter, Project, Dataset,
+         *   Folder, Screen, Plate, Well, WellSample,
+         *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+         **/
+        class DiskUsage2 extends GraphQuery {
+            omero::api::StringSet targetClasses;
+        };
+
+        /**
+         * Disk usage report: bytes used and non-empty file counts on the
+         * repository file-system for specific objects. The counts from the
+         * maps may sum to more than the total if different types of object
+         * refer to the same file. Common referers include:
+         *   Annotation for file annotations
+         *   FilesetEntry for OMERO 5 image files (OMERO.fs)
+         *   Job for import logs
+         *   Pixels for pyramids and OMERO 4 images and archived files
+         *   Thumbnail for the image thumbnails
+         * The above map values are broken down by owner-group keys.
+         **/
+        class DiskUsage2Response extends Response {
+            omero::api::LongPairToStringIntMap fileCountByReferer;
+            omero::api::LongPairToStringLongMap bytesUsedByReferer;
+            omero::api::LongPairIntMap totalFileCount;
+            omero::api::LongPairLongMap totalBytesUsed;
+        };
+
+        /**
          * Duplicate model objects with some selection of their subgraph.
          * All target model objects must be in the current group context.
          * The extra three data members allow adjustment of the related

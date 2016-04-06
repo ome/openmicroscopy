@@ -367,6 +367,7 @@
           <entry key="omero.cmd.graphs.Chmod2I" value-ref="chmodTargets"/>
           <entry key="omero.cmd.graphs.Chown2I" value-ref="chownTargets"/>
           <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteTargets"/>
+          <entry key="omero.cmd.graphs.DiskUsage2I" value-ref="diskUsageTargets"/>
           <entry key="omero.cmd.graphs.DuplicateI" value-ref="duplicateTargets"/>
           <entry key="omero.cmd.graphs.FindParentsI" value-ref="containerTargets"/>
           <entry key="omero.cmd.graphs.FindChildrenI" value-ref="containedTargets"/>
@@ -378,6 +379,7 @@
           <entry key="omero.cmd.graphs.Chmod2I" value-ref="chmodRules"/>
           <entry key="omero.cmd.graphs.Chown2I" value-ref="chownRules"/>
           <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteRules"/>
+          <entry key="omero.cmd.graphs.DiskUsage2I" value-ref="diskUsageRules"/>
           <entry key="omero.cmd.graphs.DuplicateI" value-ref="duplicateRules"/>
           <entry key="omero.cmd.graphs.FindParentsI" value-ref="containerRules"/>
           <entry key="omero.cmd.graphs.FindChildrenI" value-ref="containedRules"/>

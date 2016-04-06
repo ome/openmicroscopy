@@ -743,10 +743,10 @@ Examples:
     # then the size returned would be identical to:
     bin/omero fs usage Project:1,2 --units M
         """
-        from omero.cmd import DiskUsage
+        from omero.cmd import DiskUsage2
 
         client = self.ctx.conn(args)
-        req = DiskUsage()
+        req = DiskUsage2()
         if not args.obj:
             admin = client.sf.getAdminService()
             uid = admin.getEventContext().userId
@@ -759,7 +759,7 @@ Examples:
                 args.obj.append(
                     "ExperimenterGroup:%s" % ",".join(map(str, gids)))
 
-        req.objects, req.classes = self._usage_obj(args.obj)
+        req.targetObjects, req.targetClasses = self._usage_obj(args.obj)
         cb = None
         try:
             rsp, status, cb = self.response(client, req, wait=args.wait)

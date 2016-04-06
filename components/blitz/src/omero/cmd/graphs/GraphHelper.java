@@ -126,13 +126,43 @@ public class GraphHelper {
     }
 
     /**
+     * Converts the Ice {@code StringSet} to a set.
+     * @param legalClasses legal target object classes
+     * @param targetClasses the actual target object classes
+     * @return a set of the legal model objects to process
+     * @throws ome.conditions.InternalException if any of the target classes are illegal
+     */
+    public Set<String> getTargetSet(Set<Class<? extends IObject>> legalClasses, Collection<String> targetClasses) {
+        final Set<String> targetSet = new HashSet<String>();
+        for (String targetClassName : targetClasses) {
+            /* determine actual class from given target class name */
+            final int lastDot = targetClassName.lastIndexOf('.');
+            if (lastDot > 0) {
+                targetClassName = targetClassName.substring(lastDot + 1);
+            }
+            final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetClassName);
+            /* check that it is legal to target the given class */
+            final Iterator<Class<? extends IObject>> legalClassesIterator = legalClasses.iterator();
+            do {
+                if (!legalClassesIterator.hasNext()) {
+                    final Exception e = new IllegalArgumentException("cannot target " + targetClassName);
+                    throw helper.cancel(new ERR(), e, "bad-target");
+                }
+            } while (!legalClassesIterator.next().isAssignableFrom(targetObjectClass));
+            /* note IDs to target for the class */
+            targetSet.add(targetObjectClass.getName());
+        }
+        return targetSet;
+    }
+
+    /**
      * Converts the Ice {@code StringLongListMap} to a multimap.
-     * @param targetClasses legal target object classes
+     * @param legalClasses legal target object classes
      * @param targetObjects the model objects to process
      * @return a multimap of the legal model objects to process
      * @throws ome.conditions.InternalException if any of the target object classes are illegal
      */
-    public SetMultimap<String, Long> getTargetMultimap(Set<Class<? extends IObject>> targetClasses,
+    public SetMultimap<String, Long> getTargetMultimap(Set<Class<? extends IObject>> legalClasses,
             Map<String, java.util.List<Long>> targetObjects) {
         /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
         final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
@@ -145,13 +175,13 @@ public class GraphHelper {
             }
             final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
             /* check that it is legal to target the given class */
-            final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
+            final Iterator<Class<? extends IObject>> legalClassesIterator = legalClasses.iterator();
             do {
-                if (!legalTargetsIterator.hasNext()) {
+                if (!legalClassesIterator.hasNext()) {
                     final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
                     throw helper.cancel(new ERR(), e, "bad-target");
                 }
-            } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
+            } while (!legalClassesIterator.next().isAssignableFrom(targetObjectClass));
             /* note IDs to target for the class */
             final Collection<Long> ids = oneClassToTarget.getValue();
             targetMultimap.putAll(targetObjectClass.getName(), ids);
