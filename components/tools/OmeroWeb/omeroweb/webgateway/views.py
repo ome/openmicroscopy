@@ -1971,6 +1971,8 @@ def full_viewer(request, iid, conn=None, **kwargs):
         c = Context(request, d)
         rsp = t.render(c)
     except omero.SecurityViolation:
+        logger.warn("SecurityViolation in Image:%s", iid)
+        logger.warn(traceback.format_exc())
         raise Http404
     return HttpResponse(rsp)
 
