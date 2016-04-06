@@ -16,9 +16,12 @@ from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import datasetId, imageId, plateId
 
+"""
+start-code
+"""
 
 # Create a connection
-# =================================================================
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
@@ -36,8 +39,8 @@ def print_obj(obj, indent=0):
         obj.getOwnerOmeName())
 
 
-# List all Projects available to me, and their Datasets and Images:
-# =================================================================
+# List all Projects available to the user currently logged in
+# ===========================================================
 # The only_owned=True parameter limits the Projects which are returned.
 # If the parameter is omitted or the value is False, then all Projects
 # visible in the current group are returned.
@@ -52,25 +55,23 @@ for project in conn.listProjects(my_expId):
             print_obj(image, 4)
 
 
-# Retrieve the datasets owned by the user currently logged in:
-# =================================================================
+# Retrieve the datasets owned by the user currently logged in
+# ===========================================================
 # Here we create an omero.sys.ParametersI instance which we
 # can use to filter the results that are returned. If we did
 # not pass the params argument to getObjects, then all Datasets
 # in the current group would be returned.
 print "\nList Datasets:"
 print "=" * 50
-
 params = omero.sys.ParametersI()
 params.exp(conn.getUser().getId())  # only show current user's Datasets
-
 datasets = conn.getObjects("Dataset", params=params)
 for dataset in datasets:
     print_obj(dataset)
 
 
-# Retrieve the images contained in a dataset:
-# =================================================================
+# Retrieve the images contained in a dataset
+# ==========================================
 print "\nDataset:%s" % datasetId
 print "=" * 50
 dataset = conn.getObject("Dataset", datasetId)
@@ -79,8 +80,8 @@ for image in dataset.listChildren():
     print_obj(image)
 
 
-# Retrieve an image by Image ID:
-# =================================================================
+# Retrieve an image by ID
+# =======================
 image = conn.getObject("Image", imageId)
 print "\nImage:%s" % imageId
 print "=" * 50
@@ -99,21 +100,21 @@ renderedImage = image.renderImage(z, t)
 # renderedImage.save("test.jpg")     # save in the current folder
 
 
-# Get Pixel Sizes for the above Image:
-# =================================================================
-sizeX = image.getPixelSizeX()       # E.g. 0.132
+# Get Pixel Sizes for the above Image
+# ===================================
+sizeX = image.getPixelSizeX()       # e.g. 0.132
 print " Pixel Size X:", sizeX
 if sizeX:
     # Units support, new in OMERO 5.1.0
     sizeXobj = image.getPixelSizeX(units=True)
     print " Pixel Size X:", sizeXobj.getValue(), "(%s)" % sizeXobj.getSymbol()
-    # To get the size with different units, E.g. Angstroms
+    # To get the size with different units, e.g. Angstroms
     sizeXang = image.getPixelSizeX(units="ANGSTROM")
     print " Pixel Size X:", sizeXang.getValue(), "(%s)" % sizeXang.getSymbol()
 
 
-# Retrieve Screening data:
-# =================================================================
+# Retrieve Screening data
+# =======================
 print "\nList Screens:"
 print "=" * 50
 for screen in conn.getObjects("Screen"):
@@ -122,8 +123,8 @@ for screen in conn.getObjects("Screen"):
         print_obj(plate, 2)
 
 
-# Retrieve Wells and Images within a Plate:
-# =================================================================
+# Retrieve Wells and Images within a Plate
+# ========================================
 if plateId >= 0:
     print "\nPlate:%s" % plateId
     print "=" * 50
@@ -139,7 +140,7 @@ if plateId >= 0:
                 well.getImage(index).getName(),\
                 well.getImage(index).getId()
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()

@@ -15,14 +15,18 @@ from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from Parse_OMERO_Properties import imageId
 
+"""
+start-code
+"""
+
 # Create a connection
-# =================================================================
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
 # Get the 'Fileset' for an Image
-# =================================================================
+# ==============================
 # A Fileset is a collection of the original files imported to
 # create an image or set of images in OMERO.
 image = conn.getObject("Image", imageId)
@@ -39,7 +43,7 @@ for origFile in fileset.listFiles():
 
 
 # Get Original Imported Files directly from the image
-# =================================================================
+# ===================================================
 # this will include pre-FS data IF images were archived on import
 print image.countImportedImageFiles()
 # specifically count Fileset files
@@ -53,11 +57,11 @@ if fileCount > 0:
 
 
 # Can get the Fileset using conn.getObject()
-# =================================================================
+# ==========================================
 fileset = conn.getObject("Fileset", fsId)
 
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()

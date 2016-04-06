@@ -20,6 +20,17 @@ Clear Activity
     Click Element           id=launch_activities
     Click Element           id=clear_activities
 
+Check Fileset Delete Warning
+    Wait Until Element Is Visible           id=delete-dialog-form
+    Wait Until Element Is Visible           xpath=//div[@class='split_filesets_info']
+    # For some reason, fails to find full text: 'Multi-image filesets cannot be partially deleted'
+    Wait Until Page Contains                partially deleted
+    # Should be 3 thumbnails shown for this fileset
+    Xpath Should Match X Times              //div[@class='split_fileset']//img[@class='fileset_image']        3
+    # Yes button shouldn't be visible
+    ${xpath}=                               Get Dialog Button Xpath     Yes
+    Element Should Not Be Visible           xpath=${xpath}
+
 *** Test Cases ***
 
 Test Delete Project
@@ -84,6 +95,28 @@ Test Delete Images in Dataset
     # ...Need to check that centre panel doesn't reload and show image during delete: #12866
     Sleep                                   5
     Xpath Should Match X Times              ${thumbnailsXpath}   ${delThumbCount}
+
+
+Test Delete MIF Images
+    [Documentation]     Checks warnings when trying to delete Multi-Image-Fileset images
+
+    Clear Activity
+    Select Experimenter
+    # Click on Dataset named "MIF Images"
+    Select First Dataset With Name          MIF Images
+    ${nodeId}=                              Select First Image With Name            test&series=3.fake [test]
+    Wait Until Element Is Visible           xpath=//ul[@id='dataIcons']//li[contains(@class, 'fs-selected')]
+    Xpath Should Match X Times              //ul[@id='dataIcons']//li[contains(@class, 'fs-selected')]       3
+    # Check warning is generated via toolbar button...
+    Click Element                           id=deleteButton
+    Check Fileset Delete Warning
+    Click Dialog Button                     Cancel
+    # ...and from right-click menu
+    Open Context Menu                       xpath=//li[@id='${nodeId}']/a
+    Wait Until Element Is Visible           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Delete')]
+    Click Element                           xpath=//ul[contains(@class, 'jstree-contextmenu')]//a[contains(text(), 'Delete')]
+    Check Fileset Delete Warning
+    Click Dialog Button                     Cancel
 
 
 Test Delete Images in Share

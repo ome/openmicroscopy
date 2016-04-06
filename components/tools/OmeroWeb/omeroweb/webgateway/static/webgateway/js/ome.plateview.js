@@ -141,11 +141,12 @@ jQuery._WeblitzPlateview = function (container, options) {
           }
           var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
             '<div class="waiting" style="width:'+opts.width+'px;height:'+opts.height+'px;"></div>' +
+            '<div class="wellLabel">' + data.rowlabels[i] + data.collabels[j] + '</div>' +
             '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" style="width:'+opts.width+'px;height:'+opts.height+'px;" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
           $('img', td)
             .click(tclick(data.grid[i][j]))
             .load(function() { 
-              $(this).removeClass('loading').siblings().remove();
+              $(this).removeClass('loading').siblings('.waiting').remove();
               _this.self.trigger('thumbLoad', [$(this).parent(), $(this)]);
             })
             .data('wellpos', data.rowlabels[i] + data.collabels[j]);
