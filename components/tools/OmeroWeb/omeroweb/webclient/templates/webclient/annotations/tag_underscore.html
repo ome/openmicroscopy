@@ -15,6 +15,14 @@
                 X
         </span>
         <% } %>
+
+        <span class="tooltip_html" style='display:none'>
+            <b>ID:</b> <%= tag.id %><br />
+            <b>Owner:</b> <%= tag.owner.firstName %> <%= tag.owner.lastName %><br />
+            <b>Linked by:</b> <%= tag.link.owner.firstName %> <%= tag.link.owner.lastName %><br />
+            <b>On:</b> <%= tag.link.date %><br />
+            <b>Description:</b> <%= tag.description %>
+        </span>
     </div>
     
 </span>

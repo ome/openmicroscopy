@@ -25,7 +25,7 @@ var TagPane = function TagPane($element, objects) {
     var tagTmpl = _.template(tmplText);
 
 
-    var initEvents = function initEvents() {
+    var initEvents = (function initEvents() {
 
         $header.click(function(){
             $header.toggleClass('closed');
@@ -34,23 +34,27 @@ var TagPane = function TagPane($element, objects) {
             var expanded = !$header.hasClass('closed');
             setExpanded(expanded);
 
-            render();
-        });
+            if (expanded && $tags_container.is(":empty")) {
+                this.render();
+            }
+        }.bind(this));
 
         // Handle events on objects we will load later...
         // $element.on( "click", "tr", function() {
         //     console.log( $( this ).text() );
         // });
-    };
+    }).bind(this);
 
 
-    var render = function render() {
+    this.render = function render() {
 
-        console.log('render', $tags_container.is(":visible"), $tags_container.is(":empty"));
+        console.log('render', $tags_container.is(":visible"));
 
-        if ($tags_container.is(":visible") && $tags_container.is(":empty")) {
+        if ($tags_container.is(":visible")) {
 
-            $tags_container.html("Loading tags...");
+            if ($tags_container.is(":empty")) {
+                $tags_container.html("Loading tags...");
+            }
 
             var request = objects.map(function(o){
                 return o.replace("-", "=");
@@ -73,13 +77,18 @@ var TagPane = function TagPane($element, objects) {
                         tag.link.owner = experimenters[tag.link.owner.id];
                     }
                     tag.textValue = _.escape(tag.textValue);
+                    tag.description = _.escape(tag.description);
                     return tag;
                 });
                 console.log(tags);
 
+                // Update html...
                 var html = tagTmpl({'tags': tags});
-                // html = _.escape(html);
                 $tags_container.html(html);
+
+                // Finish up...
+                OME.filterAnnotationsAddedBy();
+                $(".tooltip", $tags_container).tooltip_init();
             });
             
         }
@@ -115,5 +124,5 @@ var TagPane = function TagPane($element, objects) {
         $body.show();
     }
 
-    render();
+    this.render();
 };

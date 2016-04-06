@@ -30,8 +30,12 @@
                 // Delegate to sub-views to handle content of each collapsible panel
 
                 var dataModel = ["{{ manager.obj_type }}-{{ manager.obj_id }}"];
+                {% if manager.well.getWellSample.image %}
+                    dataModel = ["image-{{ manager.well.getWellSample.image.id }}"];
+                {% endif %}
+
                 console.log(dataModel);
-                new TagPane($("#tagsPane"), dataModel);
+                var tagPane = new TagPane($("#tagsPane"), dataModel);
 
 
                 var linkify = function(input) {
@@ -321,11 +325,8 @@
                 $('#add_tags_form').ajaxForm({
                     success: function(data) {
                         $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
-                        // update the list of tags
-                        var $tag = $(data.trim());
-                        $("#tags_container").empty().append($tag).hide_if_empty();
-                        $(".tooltip", $tag).tooltip_init();
-                        OME.filterAnnotationsAddedBy();
+                        // Re-render tag pane...
+                        tagPane.render();
                     }
                 });
 

@@ -1118,12 +1118,22 @@ def api_annotations(request, conn=None, **kwargs):
 
     image_ids = r.getlist('image')
     dataset_ids = r.getlist('dataset')
+    project_ids = r.getlist('project')
+    screen_ids = r.getlist('screen')
+    plate_ids = r.getlist('plate')
+    run_ids = r.getlist('acquisition')
 
     ann_type = r.get('type', None)
 
-    annotations, experimenters = tree.marshal_annotations(conn, image_ids, dataset_ids, ann_type=ann_type)
+    anns, exps = tree.marshal_annotations(conn, project_ids=project_ids,
+                                          dataset_ids=dataset_ids,
+                                          image_ids=image_ids,
+                                          screen_ids=screen_ids,
+                                          plate_ids=plate_ids,
+                                          run_ids=run_ids,
+                                          ann_type=ann_type)
 
-    return HttpJsonResponse({'annotations': annotations, 'experimenters': experimenters})
+    return HttpJsonResponse({'annotations': anns, 'experimenters': exps})
 
 
 @login_required()

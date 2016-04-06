@@ -1718,7 +1718,9 @@ def _marshal_exp_obj(experimenter):
     return exp
 
 
-def marshal_annotations(conn, image_ids=None, dataset_ids=None, ann_type=None,
+def marshal_annotations(conn, project_ids=None, dataset_ids=None,
+                        image_ids=None, screen_ids=None, plate_ids=None,
+                        run_ids=None, ann_type=None,
                         group_id=-1, page=1, limit=settings.PAGE):
 
     annotations = []
@@ -1743,8 +1745,10 @@ def marshal_annotations(conn, image_ids=None, dataset_ids=None, ann_type=None,
     if ann_type == 'rating':
         where_clause.append('ch.class=LongAnnotation')
 
-    dtypes = ["Dataset", "Image"]
-    obj_ids = [dataset_ids, image_ids]
+    dtypes = ["Project", "Dataset", "Image",
+              "Screen", "Plate", "PlateAcquisition"]
+    obj_ids = [project_ids, dataset_ids, image_ids,
+               screen_ids, plate_ids, run_ids]
 
     experimenters = {}
 
