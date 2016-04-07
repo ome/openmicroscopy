@@ -218,14 +218,14 @@ for roi in result.rois:
             shape['height'] = s.getHeight().getValue()
         elif type(s) == omero.model.EllipseI:
             shape['type'] = 'Ellipse'
-            shape['cx'] = s.getX().getValue()
-            shape['cy'] = s.getY().getValue()
-            shape['rx'] = s.getRadiusX().getValue()
-            shape['ry'] = s.getRadiusY().getValue()
+            shape['x'] = s.getX().getValue()
+            shape['y'] = s.getY().getValue()
+            shape['radiusX'] = s.getRadiusX().getValue()
+            shape['radiusY'] = s.getRadiusY().getValue()
         elif type(s) == omero.model.PointI:
             shape['type'] = 'Point'
-            shape['cx'] = s.getX().getValue()
-            shape['cy'] = s.getY().getValue()
+            shape['x'] = s.getX().getValue()
+            shape['y'] = s.getY().getValue()
         elif type(s) == omero.model.LineI:
             shape['type'] = 'Line'
             shape['x1'] = s.getX1().getValue()
