@@ -446,6 +446,62 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
+     * Test that a mixed-owner folder hierarchy is unlinked on group downgrade from read-write to private.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "broken")
+    public void testDeleteMixedFolderHierarchy() throws Exception {
+
+        /* set up the users and group for this test case */
+
+        final EventContext alice, bob;
+        final ExperimenterGroup dataGroup;
+
+        alice = newUserAndGroup("rwrw--", true);
+
+        final long dataGroupId = alice.groupId;
+        dataGroup = new ExperimenterGroupI(dataGroupId, false);
+
+        bob = newUserInGroup(dataGroup, false);
+
+        /* set up the folders */
+
+        init(alice);
+        Folder topFolder = mmFactory.simpleFolder();
+        topFolder = (Folder) iUpdate.saveAndReturnObject(topFolder).proxy();
+        disconnect();
+
+        init(bob);
+        Folder bottomFolder = mmFactory.simpleFolder();
+        bottomFolder.setParentFolder(topFolder);
+        bottomFolder = (Folder) iUpdate.saveAndReturnObject(bottomFolder).proxy();
+        disconnect();
+
+        /* check that the hierarchy is correctly constructed */
+
+        init(alice);
+        Folder aliceFolder = (Folder) iQuery.get("Folder", topFolder.getId().getValue());
+        Folder bobFolder = (Folder) iQuery.get("Folder", bottomFolder.getId().getValue());
+        Assert.assertEquals(aliceFolder.getDetails().getOwner().getId().getValue(), alice.userId);
+        Assert.assertEquals(bobFolder.getDetails().getOwner().getId().getValue(), bob.userId);
+        Assert.assertEquals(bobFolder.getParentFolder().getId().getValue(), aliceFolder.getId().getValue());
+
+        /* perform the chmod */
+
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms("rw----").build();
+        doChange(chmod);
+
+        /* check that the folders are intact but now unlinked */
+
+        aliceFolder = (Folder) iQuery.get("Folder", topFolder.getId().getValue());
+        bobFolder = (Folder) iQuery.get("Folder", bottomFolder.getId().getValue());
+        Assert.assertEquals(aliceFolder.getDetails().getOwner().getId().getValue(), alice.userId);
+        Assert.assertEquals(bobFolder.getDetails().getOwner().getId().getValue(), bob.userId);
+        Assert.assertNull(bobFolder.getParentFolder());  /* currently fails to unlink */
+        disconnect();
+    }
+
+    /**
      * Test chmod on a group wherein an image's instrument is shared with another's image.
      * @param toPerms the permissions on the group after the chmod
      * @throws Exception unexpected

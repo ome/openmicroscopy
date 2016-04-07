@@ -24,8 +24,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
 /**
  * Calculates suggestions for the {@code stopBefore} property of {@link omero.cmd.FindParents} and {@link omero.cmd.FindChildren}.
@@ -130,6 +132,7 @@ public class StopBeforeHelper<X> {
 
     private final Hierarchy<X> aboves = new Hierarchy<X>();
     private final Hierarchy<X> belows = new Hierarchy<X>();
+    private final Set<X> allKnown = new HashSet<X>();
 
     /**
      * Add an edge to the hierarchy.
@@ -139,6 +142,19 @@ public class StopBeforeHelper<X> {
     private void addEdge(X above, X below) {
         belows.addEdge(above, below);
         aboves.addEdge(below, above);
+        allKnown.add(above);
+        allKnown.add(below);
+    }
+
+    /**
+     * Check that the given nodes are all known in the hierarchy.
+     * @param nodes some nodes
+     */
+    private void assertNodesKnown(Set<X> nodes) {
+        final Set<X> unknown = Sets.difference(nodes, allKnown);
+        if (!unknown.isEmpty()) {
+            throw new IllegalArgumentException("unknown in hierarchy: " + Joiner.on(',').join(unknown));
+        }
     }
 
     /**
@@ -148,6 +164,8 @@ public class StopBeforeHelper<X> {
      * @return simple top-level class names for objects to ignore in the graph because the subtree beyond contains nothing sought
      */
     Set<X> getStopBeforeParents(Set<X> startFrom, Set<X> sought) {
+        assertNodesKnown(startFrom);
+        assertNodesKnown(sought);
         final Set<X> pathNodes = aboves.allBeyond(startFrom);
         pathNodes.retainAll(belows.allBeyond(sought));
         final Set<X> beyonds = aboves.directlyBeyond(pathNodes);
@@ -162,6 +180,8 @@ public class StopBeforeHelper<X> {
      * @return simple top-level class names for objects to ignore in the graph because the subtree beyond contains nothing sought
      */
     Set<X> getStopBeforeChildren(Set<X> startFrom, Set<X> sought) {
+        assertNodesKnown(startFrom);
+        assertNodesKnown(sought);
         final Set<X> pathNodes = belows.allBeyond(startFrom);
         pathNodes.retainAll(aboves.allBeyond(sought));
         final Set<X> beyonds = belows.directlyBeyond(pathNodes);
