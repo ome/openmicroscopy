@@ -38,22 +38,18 @@ def load(fileobj, filetype=None, single=True, session=None):
     """
     Try and load a file in a format that is convertible to a Python dictionary
 
-    fileobj: Either a file-path, file-handle or OriginalFile:ID
+    fileobj: Either a file-path or OriginalFile:ID
     single: If True file should only contain a single document, otherwise a
         list of documents will always be returned.
     session: If fileobj is an OriginalFile:ID a valid session is required
     """
 
-    try:
-        m = re.match('originalfile:(\d+)$', fileobj, re.I)
-        if m:
-            rawdata, filetype = get_format_originalfileid(
-                long(m.group(1)), filetype, session)
-        else:
-            rawdata, filetype = get_format_filename(fileobj, filetype)
-    except TypeError:
-        # Not a string, assume file handle
-        rawdata, filetype = get_format_filehandle(fileobj, filetype)
+    m = re.match('originalfile:(\d+)$', fileobj, re.I)
+    if m:
+        rawdata, filetype = get_format_originalfileid(
+            long(m.group(1)), filetype, session)
+    else:
+        rawdata, filetype = get_format_filename(fileobj, filetype)
 
     if filetype == 'yaml':
         if not YAML_ENABLED:
@@ -90,13 +86,6 @@ def get_format_filename(filename, filetype):
         raise ValueError('Unknown file format: %s' % filename)
     with open(filename, 'r') as f:
         rawdata = f.read()
-    return rawdata, filetype
-
-
-def get_format_filehandle(filehandle, filetype):
-    if filetype not in ('json', 'yaml'):
-        raise ValueError('Unknown file format: (filehandle)')
-    rawdata = filehandle.read()
     return rawdata, filetype
 
 
