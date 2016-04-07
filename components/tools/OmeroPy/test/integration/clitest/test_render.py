@@ -140,6 +140,12 @@ class TestRender(CLITest):
         self.cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize('targetName', sorted(SUPPORTED.keys()))
+    @pytest.mark.broken(
+        reason=('https://trello.com/c/lyyGuRow/'
+                '657-incorrect-logical-channels-in-clitest-importplates'))
+    @pytest.mark.xfail(
+        reason=('https://trello.com/c/lyyGuRow/'
+                '657-incorrect-logical-channels-in-clitest-importplates'))
     def testEdit(self, targetName, tmpdir):
         self.create_image()
         rd = self.get_render_def()
