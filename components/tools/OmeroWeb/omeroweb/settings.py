@@ -391,6 +391,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " or ``'http://static.example.com/'``. Used as the base path for"
           " asset  definitions (the Media class) and the staticfiles app. It"
           " must end in a slash if set to a non-empty value.")],
+    "omero.web.static_root":
+        ["STATIC_ROOT",
+         os.path.join(os.path.dirname(__file__), 'static').replace('\\', '/'),
+         os.path.normpath,
+         ("The absolute path to the directory where collectstatic will"
+          " collect static files for deployment. If the staticfiles contrib"
+          " app is enabled (default) the collectstatic management command"
+          " will collect static files into this directory.")],
     "omero.web.session_engine":
         ["SESSION_ENGINE",
          DEFAULT_SESSION_ENGINE,
@@ -947,20 +955,6 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
-
-# STATIC_URL: URL to use when referring to static files located in
-# STATIC_ROOT.
-# Example: "/site_media/static/" or "http://static.example.com/".
-# If not None, this will be used as the base path for media definitions and
-# the staticfiles app. It must end in a slash if set to a non-empty value.
-# This var is configurable by omero.web.static_url STATIC_URL = '/static/'
-
-# STATIC_ROOT: The absolute path to the directory where collectstatic will
-# collect static files for deployment. If the staticfiles contrib app is
-# enabled (default) the collectstatic management command will collect static
-# files into this directory.
-STATIC_ROOT = os.path.join(os.path.dirname(__file__),
-                           'static').replace('\\', '/')
 
 # STATICFILES_DIRS: This setting defines the additional locations the
 # staticfiles app will traverse if the FileSystemFinder finder is enabled,
