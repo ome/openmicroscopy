@@ -363,10 +363,10 @@ class RenderControl(BaseControl):
         rangelist = []
         colourlist = []
         for (i, c) in newchannels.iteritems():
-            if not c.active:
-                continue
             if c.label:
                 namedict[i] = c.label
+            if not c.active:
+                continue
             cindices.append(i)
             rangelist.append([c.min, c.max])
             colourlist.append(c.color)
