@@ -3095,4 +3095,11 @@ class ImViewerModel
     {
         selectedRndDefID = defID;
     }
+
+    /**
+     * Reload the ROI count
+     */
+    public void reloadROICount() {
+        metadataViewer.reloadROICount();
+    }
 }
