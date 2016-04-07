@@ -34,8 +34,8 @@
                     dataModel = ["image-{{ manager.well.getWellSample.image.id }}"];
                 {% endif %}
 
-                console.log(dataModel);
                 var tagPane = new TagPane($("#tagsPane"), dataModel);
+                var fileannsPane = new FileAnnsPane($("#fileannsPane"), dataModel);
 
 
                 var linkify = function(input) {
@@ -47,7 +47,7 @@
                 };
 
                 $("#comments_container").hide_if_empty();
-                $("#fileanns_container").hide_if_empty();
+                // $("#fileanns_container").hide_if_empty();
                 // $("#tags_container").hide_if_empty();
                 
                 {% if manager.canEdit %}
@@ -947,10 +947,11 @@
 
 
             <!-- FILES -->
-            <h1 class="can-collapse defclose" data-name="attachments">
+            <div id="fileannsPane">
+            <h1 class="can-collapse closed" data-name="attachments">
                 Attachments
             </h1>
-            <div class="annotations_section">
+            <div class="annotations_section" style="display:none">
 
                     {% if manager.canAnnotate %}
                         <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
@@ -975,11 +976,7 @@
                 <div style="clear:both"></div>
                 <!-- display existing file annotations -->
 
-                    <ul id="fileanns_container" class="lnfiles">
-                        {% with fileanns=manager.file_annotations %}
-                            {% include "webclient/annotations/fileanns.html" %}
-                        {% endwith %}
-                    </ul>
+                    <ul id="fileanns_container" class="lnfiles"></ul>
                     <script type="text/javascript">
                         $(".annotations_section .toolbar input[type=button]").click(
                             OME.toggleFileAnnotationCheckboxes
@@ -989,6 +986,7 @@
                             OME.fileAnnotationCheckboxChanged
                         );
                     </script>
+            </div>
             </div>
 
 <!-- >>>>>>> origin/develop -->

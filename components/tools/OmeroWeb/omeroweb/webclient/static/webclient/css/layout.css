@@ -442,7 +442,7 @@
         border-bottom: solid 1px hsl(210,20%,85%) !important;
     }
     .lnfiles:empty {
-        display: none;
+        opacity: 0.1;
     }
     .myRating img, .addRating img{
         cursor: pointer;

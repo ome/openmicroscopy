@@ -1,0 +1,14 @@
+
+<% _.each(files, function(file) { %>
+<li class="file_ann_wrapper"
+    data-added-by="<%= file.link.owner.id %>">
+	
+    <a class='tooltip' href="#">
+    <!-- href="{% if fileann.canDownload %}{% url 'download_annotation' fileann.id %}{% else %}#{% endif %}"> -->
+        <%= file.file.name %>
+        <span><%= file.file.size %></span>
+    </a>
+    
+</li>
+
+<% }) %>
