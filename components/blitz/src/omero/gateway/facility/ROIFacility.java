@@ -42,6 +42,8 @@ import omero.api.IRoiPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.Request;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -50,6 +52,7 @@ import omero.gateway.model.ROIResult;
 import omero.gateway.util.ModelMapper;
 import omero.gateway.util.Pojos;
 import omero.gateway.util.PyTablesUtils;
+import omero.gateway.util.Requests;
 import omero.model.FolderRoiLink;
 import omero.model.FolderRoiLinkI;
 import omero.model.IObject;
@@ -505,11 +508,10 @@ public class ROIFacility extends Facility {
      *            The ROIs to remove from the folders
      * @param folders
      *            The Folders to remove the ROIs from
-     * @return The updated Folders and ROIs
      * @throws DSOutOfServiceException
      * @throws DSAccessException
      */
-    public Map<FolderData, Collection<ROIData>> removeRoisFromFolders(SecurityContext ctx, long imageID,
+    public void removeRoisFromFolders(SecurityContext ctx, long imageID,
             Collection<ROIData> roiList, Collection<FolderData> folders)
             throws DSOutOfServiceException, DSAccessException {
 
@@ -517,10 +519,8 @@ public class ROIFacility extends Facility {
             Collection<Long> roiIds = Pojos.extractIds(roiList);
             Collection<Roi> serverRoiList = loadServerRois(ctx, roiIds);
 
-            IUpdatePrx updateService = gateway.getUpdateService(ctx);
+            List<Long> toDelete = new ArrayList<Long>();
 
-            Map<FolderData, Collection<ROIData>> result = new HashMap<FolderData, Collection<ROIData>>();
-            
             for (ROIData roi : roiList) {
                 if (roi.isClientSide())
                     continue;
@@ -531,29 +531,24 @@ public class ROIFacility extends Facility {
                                     .copyFolderLinks()) {
                                 if (link.getParent().getId().getValue() == folder
                                         .getId()) {
-                                    updateService.deleteObject(link);
-                                    
-                                    ROIData rd = new ROIData(link.getChild());
-                                    FolderData fd = new FolderData(
-                                            link.getParent());
-
-                                    if (getById(result, fd) == null) {
-                                        result.put(fd, new ArrayList<ROIData>());
-                                    }
-                                    getById(result, fd).add(rd);
+                                    toDelete.add(link.getId().getValue());
                                 }
                             }
                         }
                     }
                 }
             }
-            
-            return result;
-        } catch (Exception e) {
-            handleException(this, e, "Cannot add ROIs to Folder ");
-            return Collections.EMPTY_MAP;
-        }
 
+            if (!toDelete.isEmpty()) {
+                Request req = Requests.delete().target("FolderRoiLink")
+                        .id(toDelete).build();
+                CmdCallbackI cb = gateway.submit(ctx, req);
+                cb.block(10000);
+            }
+
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot remove ROIs to Folder ");
+        }
     }
     
     /**
@@ -583,7 +578,7 @@ public class ROIFacility extends Facility {
             IUpdatePrx updateService = gateway.getUpdateService(ctx);
             IRoiPrx svc = gateway.getROIService(ctx);
             
-            Collection<ROIData> updated = new ArrayList<ROIData>();
+            List<IObject> toSave = new ArrayList<IObject>();
 
             if (imageID < 0) {
                 for (ROIData r : roiList) {
@@ -592,244 +587,242 @@ public class ROIFacility extends Facility {
                                 "Modification of existing ROIs not attached to an image "
                                         + "is not implemented yet.");
                 }
-
-                for (ROIData r : roiList) {
-                    Roi ri = (Roi) updateService.saveAndReturnObject(r
-                            .asIObject());
-                    updated.add(new ROIData(ri));
+                
+                for (ROIData r : roiList)
+                    toSave.add(r.asIObject());
+            }
+            else {
+                RoiOptions options = new RoiOptions();
+                if (userID >= 0)
+                    options.userId = omero.rtypes.rlong(userID);
+    
+                RoiResult serverReturn;
+                serverReturn = svc.findByImage(imageID, new RoiOptions());
+                Map<Long, Roi> roiMap = new HashMap<Long, Roi>();
+                List<Roi> serverRoiList = serverReturn.rois;
+                
+                /* Create a map of all the client roi with id as key */
+                Map<Long, ROIData> clientROIMap = new HashMap<Long, ROIData>();
+                for (ROIData roi : roiList) {
+                    if (roi != null)
+                        clientROIMap.put(roi.getId(), roi);
                 }
-                return updated;
-            }
-            
-            RoiOptions options = new RoiOptions();
-            if (userID >= 0)
-                options.userId = omero.rtypes.rlong(userID);
-
-            RoiResult serverReturn;
-            serverReturn = svc.findByImage(imageID, new RoiOptions());
-            Map<Long, Roi> roiMap = new HashMap<Long, Roi>();
-            List<Roi> serverRoiList = serverReturn.rois;
-            
-            /* Create a map of all the client roi with id as key */
-            Map<Long, ROIData> clientROIMap = new HashMap<Long, ROIData>();
-            for (ROIData roi : roiList) {
-                if (roi != null)
-                    clientROIMap.put(roi.getId(), roi);
-            }
-
-
-            /* Create a map of the <id, serverROI>, but remove any roi from
-             * the server that should be deleted, before creating map.
-             * To delete an roi we first must delete all the roiShapes in
-             * the roi. */
-            for (Roi r : serverRoiList) {
-                if (r != null) {
-                    //rois are now deleted using the roi service.
-                    if (clientROIMap.containsKey(r.getId().getValue()))
-                        roiMap.put(r.getId().getValue(), r);
+    
+    
+                /* Create a map of the <id, serverROI>, but remove any roi from
+                 * the server that should be deleted, before creating map.
+                 * To delete an roi we first must delete all the roiShapes in
+                 * the roi. */
+                for (Roi r : serverRoiList) {
+                    if (r != null) {
+                        //rois are now deleted using the roi service.
+                        if (clientROIMap.containsKey(r.getId().getValue()))
+                            roiMap.put(r.getId().getValue(), r);
+                    }
                 }
-            }
-
-            /* For each roi in the client, see what should be done:
-             * 1. Create a new roi if it does not exist.
-             * 2. build a map of the roiShapes in the clientROI with
-             * ROICoordinate as a key.
-             * 3. as above but for server roiShapes.
-             * 4. iterate through the maps to see if the shapes have been
-             * deleted in the roi on the client, if so then delete the shape on
-             * the server.
-             * 5. Somehow the server roi becomes stale on the client so we have
-             * to retrieve the roi again from the server before updating it.
-             * 6. Check to see if the roi in the cleint has been updated
-             */
-            List<ShapeData> shapeList;
-            ShapeData shape;
-            Map<ROICoordinate, ShapeData> clientCoordMap;
-            Roi serverRoi;
-            Iterator<List<ShapeData>> shapeIterator;
-            Map<ROICoordinate, Shape>serverCoordMap;
-            Shape s;
-            ROICoordinate coord;
-            int shapeIndex;
-
-            List<Long> deleted = new ArrayList<Long>();
-            Image unloaded = new ImageI(imageID, false);
-            Roi rr;
-            int z, t;
-            for (ROIData roi : roiList)
-            {
-                /*
-                 * Step 1. Add new ROI to the server.
+    
+                /* For each roi in the client, see what should be done:
+                 * 1. Create a new roi if it does not exist.
+                 * 2. build a map of the roiShapes in the clientROI with
+                 * ROICoordinate as a key.
+                 * 3. as above but for server roiShapes.
+                 * 4. iterate through the maps to see if the shapes have been
+                 * deleted in the roi on the client, if so then delete the shape on
+                 * the server.
+                 * 5. Somehow the server roi becomes stale on the client so we have
+                 * to retrieve the roi again from the server before updating it.
+                 * 6. Check to see if the roi in the cleint has been updated
                  */
-                if (!roiMap.containsKey(roi.getId()))
+                List<ShapeData> shapeList;
+                ShapeData shape;
+                Map<ROICoordinate, ShapeData> clientCoordMap;
+                Roi serverRoi;
+                Iterator<List<ShapeData>> shapeIterator;
+                Map<ROICoordinate, Shape>serverCoordMap;
+                Shape s;
+                ROICoordinate coord;
+                int shapeIndex;
+    
+                List<Long> deleted = new ArrayList<Long>();
+                Image unloaded = new ImageI(imageID, false);
+                Roi rr;
+                int z, t;
+                for (ROIData roi : roiList)
                 {
-                    rr = (Roi) roi.asIObject();
-                    rr.setImage(unloaded);
-                    rr = (Roi) updateService.saveAndReturnObject(rr);
-                    updated.add(new ROIData(rr));
-                    continue;
-                }
-
-                /*
-                 * Step 2. create the client roiShape map.
-                 */
-                serverRoi = roiMap.get(roi.getId());
-                shapeIterator  = roi.getIterator();
-
-                clientCoordMap = new HashMap<ROICoordinate, ShapeData>();
-                while (shapeIterator.hasNext()) {
-                    shapeList = shapeIterator.next();
-                    shape = shapeList.get(0);
-                    if (shape != null)
-                        clientCoordMap.put(shape.getROICoordinate(), shape);
-                }
-
-                /*
-                 * Step 3. create the server roiShape map.
-                 */
-                serverCoordMap  = new HashMap<ROICoordinate, Shape>();
-                if (serverRoi != null) {
-                    for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++) {
-                        s = serverRoi.getShape(i);
-                        if (s != null) {
-                            z = 0;
-                            t = 0;
-                            if (s.getTheZ() != null) z = s.getTheZ().getValue();
-                            if (s.getTheT() != null) t = s.getTheT().getValue();
-                            serverCoordMap.put(new ROICoordinate(z, t), s);
+                    /*
+                     * Step 1. Add new ROI to the server.
+                     */
+                    if (!roiMap.containsKey(roi.getId()))
+                    {
+                        rr = (Roi) roi.asIObject();
+                        rr.setImage(unloaded);
+                        toSave.add(rr);
+                        continue;
+                    }
+    
+                    /*
+                     * Step 2. create the client roiShape map.
+                     */
+                    serverRoi = roiMap.get(roi.getId());
+                    shapeIterator  = roi.getIterator();
+    
+                    clientCoordMap = new HashMap<ROICoordinate, ShapeData>();
+                    while (shapeIterator.hasNext()) {
+                        shapeList = shapeIterator.next();
+                        shape = shapeList.get(0);
+                        if (shape != null)
+                            clientCoordMap.put(shape.getROICoordinate(), shape);
+                    }
+    
+                    /*
+                     * Step 3. create the server roiShape map.
+                     */
+                    serverCoordMap  = new HashMap<ROICoordinate, Shape>();
+                    if (serverRoi != null) {
+                        for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++) {
+                            s = serverRoi.getShape(i);
+                            if (s != null) {
+                                z = 0;
+                                t = 0;
+                                if (s.getTheZ() != null) z = s.getTheZ().getValue();
+                                if (s.getTheT() != null) t = s.getTheT().getValue();
+                                serverCoordMap.put(new ROICoordinate(z, t), s);
+                            }
                         }
                     }
-                }
-                /*
-                 * Step 4. delete any shapes in the server that have been deleted
-                 * in the client.
-                 */
-                Iterator si = serverCoordMap.entrySet().iterator();
-                Entry entry;
-                List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
-                while (si.hasNext()) {
-                    entry = (Entry) si.next();
-                    coord = (ROICoordinate) entry.getKey();
-                    if (!clientCoordMap.containsKey(coord)) {
-                        s = (Shape) entry.getValue();
-                        if (s != null) {
-                            serverRoi.removeShape(s);
-                            serverRoi = (Roi) updateService.saveAndReturnObject(serverRoi);
-                            updated.add(new ROIData(serverRoi));
-                        }
-                    } else {
-                        s = (Shape) entry.getValue();
-                        if (s instanceof Line || s instanceof Polyline) {
-                            shape = clientCoordMap.get(coord);
-                            if ((s instanceof Line &&
-                                    shape.asIObject() instanceof Polyline) ||
-                                (s instanceof Polyline &&
-                                    shape.asIObject() instanceof Line)) {
-                                removed.add(coord);
+                    /*
+                     * Step 4. delete any shapes in the server that have been deleted
+                     * in the client.
+                     */
+                    Iterator si = serverCoordMap.entrySet().iterator();
+                    Entry entry;
+                    List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
+                    while (si.hasNext()) {
+                        entry = (Entry) si.next();
+                        coord = (ROICoordinate) entry.getKey();
+                        if (!clientCoordMap.containsKey(coord)) {
+                            s = (Shape) entry.getValue();
+                            if (s != null) {
                                 serverRoi.removeShape(s);
-                                serverRoi = (Roi) updateService.saveAndReturnObject(serverRoi);
-                                updated.add(new ROIData(serverRoi));
-                                deleted.add(s.getId().getValue());
+                                toSave.add(serverRoi);
                             }
-                        }
-                    }
-                }
-
-                /*
-                 * Step 6. Check to see if the roi in the client has been updated
-                 * if so replace the server roiShape with the client one.
-                 */
-                si = clientCoordMap.entrySet().iterator();
-                Shape serverShape;
-                long sid;
-                Shape sh;
-                while (si.hasNext()) {
-                    entry = (Entry) si.next();
-                    coord = (ROICoordinate) entry.getKey();
-                    shape = (ShapeData) entry.getValue();
-                    sh = (Shape) shape.asIObject();
-                    ModelMapper.unloadCollections(sh);
-                    if (shape != null) {
-                        if (!serverCoordMap.containsKey(coord))
-                            serverRoi.addShape(sh);
-                        else if (shape.isDirty()) {
-                            shapeIndex = -1;
-                            if (deleted.contains(shape.getId())) {
-                                serverRoi.addShape(sh);
-                                break;
-                            }
-                            for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
-                            {
-                                if (serverRoi != null) {
-                                    serverShape = serverRoi.getShape(j);
-                                    if (serverShape != null &&
-                                            serverShape.getId() != null) {
-                                        sid = serverShape.getId().getValue();
-                                        if (sid == shape.getId()) {
-                                            shapeIndex = j;
-                                            break;
-                                        }
-                                    }
+                        } else {
+                            s = (Shape) entry.getValue();
+                            if (s instanceof Line || s instanceof Polyline) {
+                                shape = clientCoordMap.get(coord);
+                                if ((s instanceof Line &&
+                                        shape.asIObject() instanceof Polyline) ||
+                                    (s instanceof Polyline &&
+                                        shape.asIObject() instanceof Line)) {
+                                    removed.add(coord);
+                                    serverRoi.removeShape(s);
+                                    toSave.add(serverRoi);
+                                    deleted.add(s.getId().getValue());
                                 }
                             }
-
-                            if (shapeIndex == -1) {
-                                serverShape = null;
+                        }
+                    }
+    
+                    /*
+                     * Step 6. Check to see if the roi in the client has been updated
+                     * if so replace the server roiShape with the client one.
+                     */
+                    si = clientCoordMap.entrySet().iterator();
+                    Shape serverShape;
+                    long sid;
+                    Shape sh;
+                    while (si.hasNext()) {
+                        entry = (Entry) si.next();
+                        coord = (ROICoordinate) entry.getKey();
+                        shape = (ShapeData) entry.getValue();
+                        sh = (Shape) shape.asIObject();
+                        ModelMapper.unloadCollections(sh);
+                        if (shape != null) {
+                            if (!serverCoordMap.containsKey(coord))
+                                serverRoi.addShape(sh);
+                            else if (shape.isDirty()) {
                                 shapeIndex = -1;
-                                for (int j = 0 ; j < serverRoi.sizeOfShapes() ;
-                                j++)
+                                if (deleted.contains(shape.getId())) {
+                                    serverRoi.addShape(sh);
+                                    break;
+                                }
+                                for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
                                 {
-                                    if (serverRoi != null)
-                                    {
-                                        z = 0;
-                                        t = 0;
+                                    if (serverRoi != null) {
                                         serverShape = serverRoi.getShape(j);
-                                        if (serverShape != null) {
-                                            if (serverShape.getTheT() != null)
-                                                t =
-                                                serverShape.getTheT().getValue();
-                                            if (serverShape.getTheZ() != null)
-                                                z =
-                                                serverShape.getTheZ().getValue();
-                                            if (t == shape.getT() &&
-                                                z == shape.getZ())
-                                            {
+                                        if (serverShape != null &&
+                                                serverShape.getId() != null) {
+                                            sid = serverShape.getId().getValue();
+                                            if (sid == shape.getId()) {
                                                 shapeIndex = j;
                                                 break;
                                             }
                                         }
                                     }
                                 }
-                                if (shapeIndex !=-1) {
-                                    if (!removed.contains(coord))
-                                        dm.deleteObject(ctx, serverShape);
-                                    serverRoi.addShape(sh);
-                                } else {
-                                    throw new Exception("serverRoi.shapeList " +
-                                        "is corrupted");
+    
+                                if (shapeIndex == -1) {
+                                    serverShape = null;
+                                    shapeIndex = -1;
+                                    for (int j = 0 ; j < serverRoi.sizeOfShapes() ;
+                                    j++)
+                                    {
+                                        if (serverRoi != null)
+                                        {
+                                            z = 0;
+                                            t = 0;
+                                            serverShape = serverRoi.getShape(j);
+                                            if (serverShape != null) {
+                                                if (serverShape.getTheT() != null)
+                                                    t =
+                                                    serverShape.getTheT().getValue();
+                                                if (serverShape.getTheZ() != null)
+                                                    z =
+                                                    serverShape.getTheZ().getValue();
+                                                if (t == shape.getT() &&
+                                                    z == shape.getZ())
+                                                {
+                                                    shapeIndex = j;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (shapeIndex !=-1) {
+                                        if (!removed.contains(coord))
+                                            dm.deleteObject(ctx, serverShape);
+                                        serverRoi.addShape(sh);
+                                    } else {
+                                        throw new Exception("serverRoi.shapeList " +
+                                            "is corrupted");
+                                    }
                                 }
-                            }
-                            else {
-                                serverRoi.setShape(shapeIndex, sh);
+                                else {
+                                    serverRoi.setShape(shapeIndex, sh);
+                                }
                             }
                         }
                     }
+    
+                    /*
+                     * Step 7. update properties of ROI, if they are changed.
+                     *
+                     */
+                    if (serverRoi != null) {
+                        Roi ri = (Roi) roi.asIObject();
+                        serverRoi.setDescription(ri.getDescription());
+                        serverRoi.setImage(unloaded);
+                        toSave.add(serverRoi);
+                    }
                 }
-
-                /*
-                 * Step 7. update properties of ROI, if they are changed.
-                 *
-                 */
-                if (serverRoi != null) {
-                    Roi ri = (Roi) roi.asIObject();
-                    serverRoi.setDescription(ri.getDescription());
-                    serverRoi.setImage(unloaded);
-                    ri = (Roi) updateService.saveAndReturnObject(serverRoi);
-                    updated.add(new ROIData(ri));
-                }
-
             }
-            return updated;
+            
+            List<IObject> updated = updateService.saveAndReturnArray(toSave);
+            Collection<ROIData> result = new ArrayList<ROIData>();
+            for (IObject r : updated)
+                result.add(new ROIData((Roi) r));
+
+            return result;
         } catch (Exception e) {
             handleException(this, e, "Cannot Save the ROI for image: "
                     + imageID);

@@ -273,9 +273,9 @@ public class DataManagerFacilityTest extends GatewayTest {
         }
         
         f11 = browseFacility
-                .getFolders(rootCtx, Collections.singleton(f11Id2))
+                .loadFolders(rootCtx, Collections.singleton(f11Id2))
                 .iterator().next();
-        Assert.assertEquals(f11.getId(), f11Id2);
+        Assert.assertEquals(f11Id2, f11.getId());
         Assert.assertNull(f11.getParentFolder());
         
         // 3) Test delete content (ROIs)
@@ -284,10 +284,9 @@ public class DataManagerFacilityTest extends GatewayTest {
         FolderData f = createRoiFolder(rootCtx, Collections.singleton(rd));
         final long fId = f.getId();
         f = browseFacility
-                .getFolders(rootCtx, Collections.singleton(fId))
+                .loadFolders(rootCtx, Collections.singleton(fId))
                 .iterator().next();
-        Assert.assertEquals(f.copyROILinks().size(), 1);
-        final long rdId = f.copyROILinks().iterator().next().getId();
+        Assert.assertEquals(f.roiCount(), 1);
         cb = datamanagerFacility.deleteFolders(rootCtx,
                 Collections.singletonList(f), true, true);
         cb.block(10000);
@@ -302,7 +301,7 @@ public class DataManagerFacilityTest extends GatewayTest {
         }
         
         try {
-            browseFacility.findObject(rootCtx, "ROIData", rdId);
+            browseFacility.findObject(rootCtx, "ROIData", rd.getId());
             Assert.fail("ROI was not deleted.");
         } catch (DSAccessException e) {
             // expected
@@ -316,10 +315,9 @@ public class DataManagerFacilityTest extends GatewayTest {
         FolderData f2 = createRoiFolder(rootCtx, Collections.singleton(rd));
         final long f2Id = f2.getId();
         f2 = browseFacility
-                .getFolders(rootCtx, Collections.singleton(f2Id))
+                .loadFolders(rootCtx, Collections.singleton(f2Id))
                 .iterator().next();
-        Assert.assertEquals(f2.copyROILinks().size(), 1);
-        final long rd2Id = f2.copyROILinks().iterator().next().getId();
+        Assert.assertEquals(f2.roiCount(), 1);
         cb = datamanagerFacility.deleteFolders(rootCtx,
                 Collections.singletonList(f2), true, false);
         cb.block(10000);
@@ -333,7 +331,7 @@ public class DataManagerFacilityTest extends GatewayTest {
             throw other;
         }
         
-        ROIData rdReloaded = roiFacility.loadROI(rootCtx, rd2Id).getROIs().iterator().next();
+        ROIData rdReloaded = roiFacility.loadROI(rootCtx, rd.getId()).getROIs().iterator().next();
         Assert.assertEquals(rdReloaded.getShapeCount(), 1);
     }
 

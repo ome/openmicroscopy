@@ -214,7 +214,7 @@ public class ROIPopupMenu
                 Object obj = selection.iterator().next();
                 if (obj instanceof FolderData) {
                     FolderData f = (FolderData) obj;
-                    return f.copyROILinks().isEmpty() && f.canLink();
+                    f.canLink();
                 }
             }
             return false;

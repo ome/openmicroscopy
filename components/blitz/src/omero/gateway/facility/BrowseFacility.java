@@ -1283,7 +1283,58 @@ public class BrowseFacility extends Facility {
     }
     
     /**
-     * Loads all folders the logged in user has access to
+     * Loads the folders for the given Ids. {@link FolderData} objects will be
+     * fully initialized. (See {@link #getFolders(SecurityContext, Collection)} for
+     * a faster but not fully initialized method)
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param ids
+     *            The folder Ids
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> loadFolders(SecurityContext ctx,
+            Collection<Long> ids) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            ParametersI param = new ParametersI();
+            param.addIds(ids);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "left outer join fetch folder.parentFolder as parentFolder "
+                                    + "left outer join fetch folder.childFolders as childFolders "
+                                    + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch roiLinks.child as roi "
+                                    + "left outer join fetch roi.shapes as shapes "
+                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.imageLinks as imageLinks "
+                                    + "left outer join fetch folder.details.owner as owner "
+                                    + "where folder.id in (:ids)",
+                            param);
+            Collection<FolderData> result = new ArrayList<FolderData>();
+            for (IObject l : list) {
+                result.add(new FolderData((Folder) l));
+            }
+            return result;
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+    
+    /**
+     * Get all folders the logged in user has access to. Note:
+     * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
+     * roi, etc. collections will be unloaded!). If you need fully initialized objects
+     * see {@link #loadFolders(SecurityContext, Collection)}.
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -1298,23 +1349,16 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         try {
             IQueryPrx qs = gateway.getQueryService(ctx);
-            List<IObject> list = qs
-                    .findAllByQuery(
-                            "select folder from Folder as folder "
-                                    + "left outer join fetch folder.parentFolder as parentFolder "
-                                    + "left outer join fetch folder.childFolders as childFolders "
-                                    + "left outer join fetch folder.roiLinks as roiLinks "
-                                    + "left outer join fetch roiLinks.child as roi "
-                                    + "left outer join fetch roi.shapes as shapes "
-                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
-                                    + "left outer join fetch folder.imageLinks as imageLinks "
-                                    + "left outer join fetch folder.details.owner as owner",
-                            null);
-            Collection<FolderData> result = new ArrayList<FolderData>();
-            for (IObject l : list) {
-                result.add(new FolderData((Folder) l));
-            }
+            List<IObject> list = qs.findAllByQuery(
+                    "select folder from Folder as folder ", null);
+            
+            Collection<FolderData> result = new ArrayList<FolderData>(
+                    list.size());
+            for (IObject obj : list)
+                result.add(new FolderData((Folder) obj));
+
             return result;
+            
         } catch (Throwable e) {
             handleException(this, e, "Cannot load folders.");
         }
@@ -1323,7 +1367,10 @@ public class BrowseFacility extends Facility {
     }
 
     /**
-     * Load the folders for the given folder ids
+     * Get the folders for the given folder ids. Note:
+     * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
+     * roi, etc. collections will be unloaded!). If you need fully initialized objects
+     * see {@link #loadFolders(SecurityContext, Collection)}.
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -1346,20 +1393,16 @@ public class BrowseFacility extends Facility {
             List<IObject> list = qs
                     .findAllByQuery(
                             "select folder from Folder as folder "
-                                    + "left outer join fetch folder.parentFolder as parentFolder "
-                                    + "left outer join fetch folder.childFolders as childFolders "
-                                    + "left outer join fetch folder.roiLinks as roiLinks "
-                                    + "left outer join fetch roiLinks.child as roi "
-                                    + "left outer join fetch roi.shapes as shapes "
-                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
-                                    + "left outer join fetch folder.details.owner as owner "
-                                    + "left outer join fetch folder.imageLinks as imageLinks where folder.id in (:ids)",
+                                    + "where folder.id in (:ids)",
                             param);
-            Collection<FolderData> result = new ArrayList<FolderData>();
-            for (IObject l : list) {
-                result.add(new FolderData((Folder) l));
-            }
+            
+            Collection<FolderData> result = new ArrayList<FolderData>(
+                    list.size());
+            for (IObject obj : list)
+                result.add(new FolderData((Folder) obj));
+
             return result;
+            
         } catch (Throwable e) {
             handleException(this, e, "Cannot load folders.");
         }
@@ -1368,7 +1411,10 @@ public class BrowseFacility extends Facility {
     }
 
     /**
-     * Load the folders which belong to the given user
+     * Get the folders which belong to the given user. Note:
+     * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
+     * roi, etc. collections will be unloaded!). If you need fully initialized objects
+     * see {@link #loadFolders(SecurityContext, Collection)}.
      * 
      * @param ctx
      *            The {@link SecurityContext}
@@ -1390,26 +1436,15 @@ public class BrowseFacility extends Facility {
             List<IObject> list = qs
                     .findAllByQuery(
                             "select folder from Folder as folder "
-                                    + "left outer join fetch folder.parentFolder as parentFolder "
-                                    + "left outer join fetch folder.childFolders as childFolders "
-                                    + "left outer join fetch folder.roiLinks as roiLinks "
-                                    + "left outer join fetch roiLinks.child as roi "
-                                    + "left outer join fetch roi.shapes as shapes "
-                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
-                                    + "left outer join fetch folder.imageLinks as imageLinks "
-                                    + "left outer join fetch folder.details.owner as owner "
-                                    + "where owner.id = :userId",
+                                    + "where folder.details.owner.id = :userId",
                             param);
 
-            Map<Long, FolderData> folderById = new HashMap<Long, FolderData>();
-            for (IObject l : list) {
-                FolderData f = new FolderData((Folder) l);
-                folderById.put(f.getId(), f);
-            }
-            for (FolderData folder : folderById.values()) {
-                initFolders(folder, folderById);
-            }
-            return folderById.values();
+            Collection<FolderData> result = new ArrayList<FolderData>(
+                    list.size());
+            for (IObject obj : list)
+                result.add(new FolderData((Folder) obj));
+
+            return result;
             
         } catch (Throwable e) {
             handleException(this, e, "Cannot load folders.");
@@ -1418,20 +1453,4 @@ public class BrowseFacility extends Facility {
         return Collections.EMPTY_LIST;
     }
     
-    /**
-     * Helper method for properly initializing a FolderData; i. e. making sure
-     * parent folders are loaded
-     * 
-     * @param f
-     *            The Folder
-     * @param folders
-     *            All available, loaded Folders
-     */
-    private void initFolders(FolderData f, Map<Long, FolderData> folders) {
-        if (f.getParentFolder() != null && !f.getParentFolder().isLoaded()) {
-            FolderData parent = folders.get(f.getParentFolder().getId());
-            f.setParentFolder(parent.asFolder());
-            initFolders(parent, folders);
-        }
-    }
 }
