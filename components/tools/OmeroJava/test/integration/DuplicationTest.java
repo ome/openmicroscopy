@@ -1600,7 +1600,7 @@ public class DuplicationTest extends AbstractServerTest {
     }
 
     /**
-     * Test duplication of a plates that share logical channels.
+     * Test duplication of plates that share logical channels.
      * @throws Exception unexpected
      */
     @Test(groups = "ticket:13199")

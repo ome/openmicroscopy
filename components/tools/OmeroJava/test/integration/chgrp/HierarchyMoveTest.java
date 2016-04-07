@@ -1092,7 +1092,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
 
         /* add settings to the image's light source */
         LightSource lightSource = (LightSource) iQuery.findByQuery(
-                "SELECT image.instrument.lightSource FROM Image image WHERE image.id = :id", 
+                "SELECT image.instrument.lightSource FROM Image image WHERE image.id = :id",
                 new ParametersI().addId(image.getId())).proxy();
         LightSettings lightSettings = mmFactory.createLightSettings(lightSource);
         lightSettings = (LightSettings) iUpdate.saveAndReturnObject(lightSettings).proxy();
