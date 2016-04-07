@@ -134,20 +134,11 @@
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].parent = [DI]" p:changes="L:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].child = [DI]" p:changes="L:[D]"/>
 
-        <!-- Move settings if both holder and underlying object are moved. -->
+        <!-- Move settings if underlying object is moved. -->
 
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = S:[ED], S.detector = [I]"
-                                       p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = S:[ED], S.lightSource = [I]"
-                                       p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Image[I].objectiveSettings = S:[ED], S.objective = [I]"
-                                       p:changes="S:[I]"/>
-
-        <!-- Delete settings if only the underlying object is moved. -->
-
-        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[I]"/>
 
         <!-- Images may be moved only if doing so would not remove an imaging environment from any of them. -->
 
@@ -442,11 +433,6 @@
         <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{r}, L.child = [E]{a}" p:changes="J:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{r}, L.parent = [E]{a}" p:changes="P:{a}"/>
 
-        <!-- Delete remaining settings if holder object is moved. -->
-
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = DS:[E]" p:changes="DS:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = LS:[E]" p:changes="LS:[D]"/>
-
         <!-- Move a stage label only if all the images using it are moved. -->
 
         <bean parent="graphPolicyRule" p:matches="Image[E]{r}.stageLabel = SL:[E]{i}" p:changes="SL:{r}"/>
@@ -465,7 +451,22 @@
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[E]" p:changes="P:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].channels = C:[E]" p:changes="C:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].planeInfo = PI:[E]" p:changes="PI:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]" p:changes="LC:[I]"/>
+
+        <!-- Move a logical channel only if all its channels are to be moved. -->
+
+        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]{i}" p:changes="LC:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[E].logicalChannel = LC:[E]{r}" p:changes="LC:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]{o}" p:changes="LC:[I]"/>
+
+        <!-- Cannot separate channels from logical channels. -->
+
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E].channels = C:[I]"
+                                       p:error="cannot move {C} while {LC} remains"/>
+
+        <!-- Cannot separate channels from logical channels in a private group. -->
+
+        <bean parent="graphPolicyRule" p:matches="$to_private, LC:LogicalChannel[I].channels =/!o C:[I]"
+                                       p:error="cannot move {LC} to a private group because its {C} is differently owned"/>
 
         <!-- Delete remaining settings if holder object is moved. -->
 
