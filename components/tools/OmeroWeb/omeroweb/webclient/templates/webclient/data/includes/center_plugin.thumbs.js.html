@@ -106,6 +106,7 @@ $(document).ready(function() {
 
         // single click handler on image (container). Selection then update toolbar & metadata pane
         $( "#icon_table" ).on( "click", "li.row", function(event) {
+            event.preventDefault();
             handleClickSelection(event);
         });
 
