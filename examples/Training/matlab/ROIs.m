@@ -119,25 +119,25 @@ try
             y = shape.getY().getValue();
             width = shape.getWidth().getValue();
             height = shape.getHeight().getValue();
-            fprintf(1, '  Rectangle x: %g, y: %g, width: %g, height: %g\n',...
+            fprintf(1, '  Rectangle X: %g, Y: %g, Width: %g, Height: %g\n',...
                 x, y, width, height);      
         elseif (isa(shape, 'omero.model.Ellipse'))
-            cx = shape.getX().getValue();
-            cy = shape.getY().getValue();
-            rx = shape.getRadiusX().getValue();
-            ry = shape.getRadiusY().getValue();
-            fprintf(1, '  Ellipse x: %g, y: %g, rx: %g, ry: %g\n',...
-                cx, cy, rx, ry);
+            x = shape.getX().getValue();
+            y = shape.getY().getValue();
+            radiusx = shape.getRadiusX().getValue();
+            radiusy = shape.getRadiusY().getValue();
+            fprintf(1, '  Ellipse X: %g, Y: %g, RadiusX: %g, RadiusY: %g\n',...
+                x, y, radiusx, radiusy);
         elseif (isa(shape, 'omero.model.Point'))
-            cx = shape.getX().getValue();
-            cy = shape.getY().getValue();
-            fprintf(1, '  Point x: %g, y: %g\n', cx, cy);
+            x = shape.getX().getValue();
+            y = shape.getY().getValue();
+            fprintf(1, '  Point X: %g, Y: %g\n', x, y);
         elseif (isa(shape, 'omero.model.Line'))
             x1 = shape.getX1().getValue();
             x2 = shape.getX2().getValue();
             y1 = shape.getY1().getValue();
             y2 = shape.getY2().getValue();
-            fprintf(1, '  Line (x1, y1): (%g, %g), (x2, y2): (%g, %g)\n',...
+            fprintf(1, '  Line (X1, Y1): (%g, %g), (X2, Y2): (%g, %g)\n',...
                 x1, y1, x2, y2);
         elseif isa(shape, 'omero.model.Polyline')
             points = shape.getPoints().getValue();
