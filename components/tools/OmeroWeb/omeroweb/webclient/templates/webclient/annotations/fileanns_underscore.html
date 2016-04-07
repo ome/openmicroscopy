@@ -3,10 +3,10 @@
 <li class="file_ann_wrapper"
     data-added-by="<%= file.link.owner.id %>">
 	
-    <a class='tooltip' href="#">
-    <!-- href="{% if fileann.canDownload %}{% url 'download_annotation' fileann.id %}{% else %}#{% endif %}"> -->
+    <a class='tooltip'
+        href="<% if (file.permissions.canDownload) { print('/webclient/annotation/' + file.id)} else {print('#') } %>">
         <%= file.file.name %>
-        <span><%= file.file.size %></span>
+        <span>(<%= file.file.size %>)</span>
     </a>
     
 </li>

@@ -1667,11 +1667,11 @@ def _marshal_annotation(conn, annotation, link=None):
     ann['owner'] = {'id': ownerId}
     creation = annotation.details.creationEvent._time
     ann['date'] = _marshal_date(unwrap(creation))
-    p = annotation.details.permissions
-    ann['permissions'] = {'canDelete': p.canDelete(),
-                          'canAnnotate': p.canAnnotate(),
-                          'canLink': p.canLink(),
-                          'canEdit': p.canEdit()}
+    perms = annotation.details.permissions
+    ann['permissions'] = {'canDelete': perms.canDelete(),
+                          'canAnnotate': perms.canAnnotate(),
+                          'canLink': perms.canLink(),
+                          'canEdit': perms.canEdit()}
 
     if link is not None:
         ann['link'] = {}
@@ -1698,6 +1698,8 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['file']['name'] = unwrap(annotation.file.name)
         ann['file']['size'] = unwrap(annotation.file.size)
         ann['file']['path'] = unwrap(annotation.file.path)
+        ann['permissions']['canDownload'] = not perms.isRestricted(
+            omero.constants.permissions.BINARYACCESS)
     return ann
 
 
