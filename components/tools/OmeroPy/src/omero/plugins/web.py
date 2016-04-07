@@ -59,6 +59,9 @@ def config_required(func):
     """Decorator validating Django dependencies and omeroweb/settings.py"""
     def import_django_settings(func):
         def wrapper(self, *args, **kwargs):
+            if self._isWindows():
+                self.ctx.err("Windows platform will not longer be supported"
+                             " since OMERO 5.3.")
             try:
                 import django  # NOQA
             except:
