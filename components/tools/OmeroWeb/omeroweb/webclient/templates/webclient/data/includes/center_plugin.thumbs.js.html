@@ -399,6 +399,8 @@ $(document).ready(function() {
         if (event.target.nodeName.toLowerCase() == 'li') {
             $targetIcon = $(event.target);
         } else if (event.target.nodeName.toLowerCase() == 'img') {
+            $targetIcon = $(event.target).parent().parent().parent();
+        } else if (event.target.nodeName.toLowerCase() == 'a') {
             $targetIcon = $(event.target).parent().parent();
         } else {
             $targetIcon = $(event.target).parent();
