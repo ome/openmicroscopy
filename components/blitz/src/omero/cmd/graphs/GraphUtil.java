@@ -359,12 +359,46 @@ public class GraphUtil {
     }
 
     /**
+     * Filter the given value to return only objects from the mapping. If a collection type, recurse into filtering the elements.
+     * @param mapping a mapping of non-collection elements to replace with others
+     * @param value the value to filter, may be {@code null}
+     * @return the mapped objects for the objects found in the given value, never {@code null}
+     */
+    static <X> Set<X> filterComplexValue(Function<Object, X> mapping, Object value) {
+        return value == null ? Collections.<X>emptySet() : filterComplexValue(new HashSet<X>(), mapping, value);
+    }
+
+    private static <X> Set<X> filterComplexValue(Set<X> sought, Function<Object, X> mapping, Object value) {
+        if (value instanceof Iterable) {
+            @SuppressWarnings("unchecked")
+            final Iterable<Object> iterable = (Iterable<Object>) value;
+            for (final Object element : iterable) {
+                filterComplexValue(sought, mapping, element);
+            }
+            return sought;
+        } else if (value instanceof Map) {
+            @SuppressWarnings("unchecked")
+            final Map<Object, Object> map = (Map<Object, Object>) value;
+            for (final Map.Entry<Object, Object> element : map.entrySet()) {
+                filterComplexValue(sought, mapping, element.getKey());
+                filterComplexValue(sought, mapping, element.getValue());
+            }
+        } else if (value != null) {
+            final X mapped = mapping.apply(value);
+            if (mapped != null) {
+                sought.add(mapped);
+            }
+        }
+        return sought;
+    }
+
+    /**
      * Copy the given value. If a collection type, recurse into copying the elements.
      * @param mapping a mapping of non-collection elements to replace with others in the copy
      * @param value the value to copy, may be {@code null}
      * @return a copy of the value with newly instantiated lists, sets and maps
      */
-    static Object copyComplexValue(Function<Object, Object> mapping, Object value) {
+    static Object copyComplexValue(Function<Object, ? extends Object> mapping, Object value) {
         if (value == null) {
             return null;
         } else if (value instanceof List) {

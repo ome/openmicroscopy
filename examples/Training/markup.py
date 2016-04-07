@@ -17,10 +17,11 @@ $ python markup.py > wikiText.txt    # to file
 
 import sys
 import re
+import os
 
 
 def lines(file):
-    if file.name.endswith(".py"):
+    if file.name.endswith((".py", ".m", ".java")):
         all = [line for line in file]
         skip = check_header(all, quiet=True)
         for line in all[skip:]:
@@ -34,7 +35,11 @@ def lines(file):
 def blocks(file):
     block = []
     for line in lines(file):
-        if line.strip() and not line.startswith("# ======================="):
+        if END_MARKER in line:
+            break
+        elif (line.strip() and not (re.match('# =', line) or
+                                    re.match('% =', line) or
+                                    re.match('// =', line))):
             block.append(line.rstrip())
         elif block:
             # yield ''.join(block).strip()
@@ -332,106 +337,119 @@ class MatlabParser(Parser):
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
 
-PYHEADER = """#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+class JavaParser(Parser):
+    """
+    A specific Parser that adds rules for Java
+    """
+    def __init__(self, handler):
+        Parser.__init__(self, handler)
+        self.addRule(SphinxSubtitleRule('//'))
+        self.addRule(SphinxCommentRule('*'))
+        self.addRule(CodeRule())
 
-#
-# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
-#                    All Rights Reserved.
-# Use is subject to license terms supplied in LICENSE.txt
-#
+        # self.addFilter(r'\*(.+?)\*', 'emphasis')
+        self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
-\"\"\"
-FOR TRAINING PURPOSES ONLY!
-\"\"\"""".split("\n")
+# Marker to find in the file the blocks to parse
+START_MARKER = "start-code"
+END_MARKER = "end-code"
 
 
 def check_header(file_lines, quiet=False):
     """
     Checks the first N lines of the file that they match
-    PYHEADER. Returns the number of lines which should be skipped.
+    START_MARKER. Returns the number of lines which should be skipped.
     """
     lines = []
     for line in file_lines:
-        idx = len(lines)
         lines.append(line)
-        try:
-            test = PYHEADER[idx]
-            if test.strip() != line.strip():
-                raise Exception("bad header. expected: '%s'. found: '%s'."
-                                % (line.strip(), test.strip()))
-        except IndexError:
-            if not quiet:
-                print "ok"
-            break
+        if START_MARKER in line:
+            return len(lines)
     return len(lines)
+
+
+def parseMatlab(Parser):
+    """
+    Generates a doc page for the Matlab files.
+    """
+    exclude = [
+        'exampleSuite.m',
+        'LoadMetadataAdvanced.m',
+        'ReadDataAdvanced.m',
+        'parseOmeroProperties.m',
+        ]
+    files = []
+    os.chdir("matlab")
+    for file in os.listdir("."):
+        if os.path.isfile(file) and file not in exclude:
+            files.append(file)
+
+    parser = MatlabParser(handler)
+    parsefiles(parser, files)
+
+
+def parsePython(Parser):
+    """
+    Generates a doc page for the Python files.
+    """
+    exclude = [
+        '__main__.py',
+        'Metadata.py',
+        'Parse_OMERO_Properties.py',
+        'Scripting_Service_Example.py'
+        ]
+    files = []
+    os.chdir("python")
+    for file in os.listdir("."):
+        if os.path.isfile(file) and file not in exclude:
+            files.append(file)
+
+    parser = PythonParser(handler)
+    parsefiles(parser, files)
+
+
+def parseJava(Parser):
+    """
+    Generates a doc page for the Java files.
+    """
+    exclude = [
+        'Setup.java',
+        'LoadMetadataAdvanced.java',
+        'ReadDataAdvanced.java'
+        ]
+    files = []
+    os.chdir("java/src/training")
+    for file in os.listdir("."):
+        if os.path.isfile(file) and file not in exclude:
+            files.append(file)
+
+    parser = JavaParser(handler)
+    parsefiles(parser, files)
+
+
+def parsefiles(parser=Parser, files=[]):
+    '''
+    Parse the files
+    '''
+    for f in files:
+        # get title from file name
+        t = os.path.splitext(os.path.basename(f))[0]
+        t = t.replace("_", "")
+        l = re.findall('[A-Z][a-z]*', t)
+        t = " ".join(l)
+        # specific case to handle.
+        t = t.replace("R O I", "ROI")
+        t = t.replace("O M E R O", "OMERO")
+        read = open(f, 'r')
+        parser.parse(read, t)
 
 
 if __name__ == "__main__":
 
-    pythonFiles = [
-        'python/Connect_To_OMERO.py',
-        'python/Read_Data.py',
-        'python/Groups_Permissions.py',
-        'python/Raw_Data_Access.py',
-        'python/Write_Data.py',
-        'python/Tables.py',
-        'python/ROIs.py',
-        'python/Delete.py',
-        'python/Render_Images.py',
-        'python/Create_Image.py',
-        'python/Filesets.py']
-    titles = [
-        'Connect to OMERO',
-        'Read data',
-        'Groups and permissions',
-        'Raw data access', 'Write data',
-        'OMERO tables',
-        'ROIs',
-        'Delete data',
-        'Render Images',
-        'Create Image',
-        'Filesets - New in OMERO 5']
-
-    if "--check_header" in sys.argv:
-        for py in pythonFiles:
-            print "check_header(%s)" % py,
-            check_header([x for x in open(py, "r")])
-
+    handler = SphinxRenderer()
+    if "--matlab" in sys.argv:
+        parseMatlab(handler)
+    elif "--java" in sys.argv:
+        parseJava(handler)
     else:
-        # handler = HTMLRenderer()
-        handler = SphinxRenderer()
-
-        # parser.parse(sys.stdin)
-
-        print ("\n\n----------------------------------------"
-               "--------PYTHON------------------------------"
-               "-------------------------------\n\n")
-        parser = PythonParser(handler)
-        for f, name in zip(pythonFiles, titles):
-            read = open(f, 'r')
-            parser.parse(read, name)
-
-        matlabFiles = [
-            'matlab/ConnectToOMERO.m',
-            'matlab/ReadData.m',
-            'matlab/RawDataAccess.m',
-            'matlab/WriteData.m',
-            'matlab/ROIs.m',
-            'matlab/DeleteData.m',
-            'matlab/RenderImages.m']
-        mTitles = [
-            'Connect to OMERO',
-            'Read data',
-            'Raw data access',
-            'Write data',
-            'ROIs',
-            'Delete data',
-            'Render Images']
-        print ("\n\n----------------------------------------"
-               "--------MATLAB------------------------------"
-               "-------------------------------\n\n")
-        parser = MatlabParser(handler)
-        for f, name in zip(matlabFiles, mTitles):
-            read = open(f, 'r')
-            parser.parse(read, name)
+        parsePython(handler)
