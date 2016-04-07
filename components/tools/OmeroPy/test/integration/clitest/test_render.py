@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import json
 import pytest
 
 from omero.plugins.render import RenderControl
@@ -64,6 +65,56 @@ class TestRender(CLITest):
                     w.getImage(index=i).getThumbnail(
                         size=(96,), direct=False)
 
+    def get_target_imageids(self, target):
+        if target in (self.idonly, self.imageid):
+            return [self.idonly]
+        if target == self.plateid:
+            imgs = []
+            for w in self.plates[0].listChildren():
+                imgs.extend([w.getImage(0).id, w.getImage(1).id])
+            return imgs
+        if target == self.screenid:
+            imgs = []
+            for s in self.plates:
+                for w in self.plates[0].listChildren():
+                    imgs.extend([w.getImage(0).id, w.getImage(1).id])
+            return imgs
+        raise Exception('Unknown target: %s' % target)
+
+    def get_render_def(self):
+        channels = {}
+        channels[1] = {
+            'label': self.uuid(),
+            'color': '123456',
+            'min': 11,
+            'max': 22,
+        }
+        channels[2] = {
+            'label': self.uuid(),
+            'color': '789ABC',
+            'min': 33,
+            'max': 44,
+        }
+        channels[3] = {
+            'label': self.uuid(),
+            'color': 'DEF012',
+            'min': 55,
+            'max': 66,
+        }
+        channels[4] = {
+            'label': self.uuid(),
+            'color': '345678',
+            'min': 77,
+            'max': 88,
+        }
+        return {'channels': channels}
+
+    def assert_channel_rdef(self, channel, rdef):
+        assert channel.getLabel() == rdef['label']
+        assert channel.getColor().getHtml() == rdef['color']
+        assert channel.getWindowStart() == rdef['min']
+        assert channel.getWindowEnd() == rdef['max']
+
     # rendering tests
     # ========================================================================
 
@@ -87,3 +138,25 @@ class TestRender(CLITest):
         target = getattr(self, targetName)
         self.args += ["copy", self.source, target]
         self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.parametrize('targetName', sorted(SUPPORTED.keys()))
+    def testEdit(self, targetName, tmpdir):
+        self.create_image()
+        rd = self.get_render_def()
+        rdfile = tmpdir.join('render-test-edit.json')
+        # Should work with json and yaml, but yaml is an optional dependency
+        rdfile.write(json.dumps(rd))
+        target = getattr(self, targetName)
+        self.args += ["edit", target, str(rdfile)]
+        self.cli.invoke(self.args, strict=True)
+
+        iids = self.get_target_imageids(target)
+        print 'Got %d images' % len(iids)
+        gw = BlitzGateway(client_obj=self.client)
+        for iid in iids:
+            # Get the updated object
+            img = gw.getObject('Image', iid)
+            channels = img.getChannels()
+            assert len(channels) == 4
+            for c in xrange(len(channels)):
+                self.assert_channel_rdef(channels[c], rd['channels'][c + 1])
