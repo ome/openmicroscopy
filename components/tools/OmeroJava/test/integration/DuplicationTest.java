@@ -20,6 +20,7 @@
 package integration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ import omero.cmd.DuplicateResponse;
 import omero.cmd.ERR;
 import omero.cmd.Response;
 import omero.gateway.util.Requests;
+import omero.gateway.util.Requests.DuplicateBuilder;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
@@ -1595,5 +1597,77 @@ public class DuplicationTest extends AbstractServerTest {
         Assert.assertTrue(Sets.intersection(originalPlaneInfoIds, reportedPlaneInfoIds).isEmpty());
         Assert.assertTrue(Sets.intersection(originalRoiIds, reportedRoiIds).isEmpty());
         Assert.assertTrue(Sets.intersection(originalPointIds, reportedPointIds).isEmpty());
+    }
+
+    /**
+     * Test duplication of a plates that share logical channels.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13199")
+    public void testDuplicatePlatesSharingLogicalChannel() throws Exception {
+        newUserAndGroup("rw----");
+        final List<Long> plateIds = new ArrayList<Long>();
+
+        /* create the plates */
+
+        final Plate plate1 = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1, 1, 1, 1, true)).proxy();
+        final Plate plate2 = (Plate) iUpdate.saveAndReturnObject(mmFactory.createPlate(1, 1, 1, 1, true)).proxy();
+        plateIds.add(plate1.getId().getValue());
+        plateIds.add(plate2.getId().getValue());
+
+        /* combine all the logical channels into one */
+
+        final List<IObject> results = iQuery.findAllByQuery(
+                "FROM Channel WHERE pixels.image IN (SELECT image FROM WellSample WHERE well.plate.id IN (:ids))",
+                new ParametersI().addIds(plateIds));
+        final LogicalChannel originalLogicalChannel = ((Channel) results.get(0)).getLogicalChannel();
+        for (int index = 1; index < results.size(); index++) {
+            final Channel originalChannel = (Channel) results.get(index);
+            originalChannel.setLogicalChannel(originalLogicalChannel);
+        }
+        iUpdate.saveCollection(results);
+
+        /* perform the tests */
+
+        for (final boolean dupPlate1 : Arrays.asList(true, false)) {
+            for (final boolean dupPlate2 : Arrays.asList(true, false)) {
+                if (dupPlate1 || dupPlate2) {
+
+                    /* duplicate the plate(s) */
+
+                    final DuplicateBuilder dupBuilder = Requests.duplicate();
+                    if (dupPlate1) {
+                        dupBuilder.target(plate1);
+                    }
+                    if (dupPlate2) {
+                        dupBuilder.target(plate2);
+                    }
+                    final DuplicateResponse response = (DuplicateResponse) doChange(dupBuilder.build());
+
+                    /* note the response */
+
+                    final Collection<Long> reportedPlateIds = response.duplicates.get("ome.model.screen.Plate");
+                    final Collection<Long> reportedLogicalChannelIds = response.duplicates.get("ome.model.core.LogicalChannel");
+                    final Collection<Long> reportedChannelIds = response.duplicates.get("ome.model.core.Channel");
+                    plateIds.addAll(reportedPlateIds);
+
+                    /* check that duplication targeted the expected objects */
+
+                    if (dupPlate1 && dupPlate2) {
+                        Assert.assertEquals(reportedPlateIds.size(), 2);
+                        Assert.assertEquals(reportedChannelIds.size(), 2);
+                        Assert.assertEquals(reportedLogicalChannelIds.size(), 1);
+                    } else {
+                        Assert.assertEquals(reportedPlateIds.size(), 1);
+                        Assert.assertEquals(reportedChannelIds.size(), 1);
+                        Assert.assertNull(reportedLogicalChannelIds);
+                    }
+                }
+            }
+        }
+
+        /* delete the original and duplicate plates */
+
+        doChange(Requests.delete().target("Plate").id(plateIds).build());
     }
 }
