@@ -1,14 +1,39 @@
 
-<% _.each(files, function(file) { %>
+<% _.each(anns, function(ann) { %>
 <li class="file_ann_wrapper"
-    data-added-by="<%= file.link.owner.id %>">
-	
+    data-added-by="<%= ann.link.owner.id %>">
+
     <a class='tooltip'
-        href="<% if (file.permissions.canDownload) { print('/webclient/annotation/' + file.id)} else {print('#') } %>">
-        <%= file.file.name %>
-        <span>(<%= file.file.size %>)</span>
+        href="<% if (ann.permissions.canDownload) { print('/webclient/annotation/' + ann.id)} else {print('#') } %>">
+        <%= ann.file.name %>
+        <span>(<%= ann.file.size %>)</span>
     </a>
-    
+
+    <span class="tooltip_html" style='display:none'>
+        <b>Annotation ID:</b> <%= ann.id %><br />
+        <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
+        <b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %><br />
+        <b>On:</b> <%= ann.link.date %> <br />
+        <b>Description:</b> <%= ann.description %>
+        <% if (ann.ns){ %>
+            <br/><b>Namespace:</b> <%= ann.ns %>
+        <% } %>
+        <br/><b>File ID:</b> <%= ann.file.id %>
+    </span>
+
+    <div class="attachment_actions">
+        <input type="checkbox" style="display:none;"/>
+        <% if (ann.link.permissions.canDelete) { %> <!-- and not ann.isOriginalMetadata -->
+            <a class='removeFile action' id="<%= ann.id %>-file" title="Remove File"
+            href='/webclient/action/remove/file/<%= ann.id %>/'>-</a>
+        <% } %>
+
+        <% if (ann.permissions.canDelete) { %> <!-- and not ann.isOriginalMetadata -->
+            <a id="<%= ann.id %>-file" type="image" class="deleteFile action" title="Delete File"
+                href="/webclient/action/delete/file/<%= ann.id %>/"> &#215 </a>
+        <% } %>
+
+    </div>
 </li>
 
 <% }) %>

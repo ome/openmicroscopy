@@ -155,6 +155,12 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
     }).bind(this);
 
 
+    var isOriginalMetadata = function isOriginalMetadata(ann) {
+        return (ann.ns === omero.constants.namespaces.NSCOMPANIONFILE &&
+            ann.file.name === omero.constants.annotation.file.ORIGINALMETADATA);
+    }
+
+
     this.render = function render() {
 
         console.log('render files', $fileanns_container.is(":visible"));
@@ -180,20 +186,21 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
                 }, {});
 
                 // Populate experimenters within tags
-                var tags = data.annotations.map(function(f){
-                    f.owner = experimenters[f.owner.id];
-                    if (f.link && f.link.owner) {
-                        f.link.owner = experimenters[f.link.owner.id];
+                var tags = data.annotations.map(function(ann){
+                    ann.owner = experimenters[ann.owner.id];
+                    if (ann.link && ann.link.owner) {
+                        ann.link.owner = experimenters[ann.link.owner.id];
                     }
-                    f.textValue = _.escape(f.textValue);
-                    f.description = _.escape(f.description);
-                    f.file.size = f.file.size.filesizeformat();
-                    return f;
+                    ann.textValue = _.escape(ann.textValue);
+                    ann.description = _.escape(ann.description);
+                    ann.file.size = ann.file.size.filesizeformat();
+                    ann.isOriginalMetadata = isOriginalMetadata(ann);
+                    return ann;
                 });
                 console.log(tags);
 
                 // Update html...
-                var html = filesTempl({'files': tags});
+                var html = filesTempl({'anns': tags});
                 $fileanns_container.html(html);
 
                 // Finish up...

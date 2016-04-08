@@ -55,6 +55,13 @@
 
     <script type="text/javascript">
 
+    // OMERO constants
+    if (OMERO === undefined) {var OMERO = {};}
+    OMERO['constants'] = {'namespaces': {
+            'NSCOMPANIONFILE': "{{ omero.constants.namespaces.NSCOMPANIONFILE }}",
+            'ORIGINALMETADATA': "{{ omero.constants.namespaces.ORIGINALMETADATA }}"
+    }}
+
     // Variables used by static files, particularly ome.tree.js for jstree setup
     var WEBCLIENT = {};
 
