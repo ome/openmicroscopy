@@ -1438,25 +1438,26 @@ public class ROITable
             }
         }
         
-        if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name) ||
-                EditorDialog.CREATE_PROPERTY.equals(name)) {
-            FolderData parent = null;
+        if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)
+                || EditorDialog.CREATE_PROPERTY.equals(name)
+                && action == CreationActionType.CREATE_FOLDER) {
+            FolderData parentFolder = null;
             List<FolderData> sel = getSelectedFolders();
             if (sel.size() == 1)
-                parent = sel.get(0);
-            
-            Collection<FolderData> toSave = new ArrayList<FolderData>();
-            
+                parentFolder = sel.get(0);
+
             FolderData folder = (FolderData) evt.getNewValue();
-            if(action == CreationActionType.CREATE_FOLDER && parent!=null) {
-                folder.setParentFolder(parent.asFolder());
-                addRecentlyModifiedFolder(parent);
+            if (parentFolder != null) {
+                folder.setParentFolder(parentFolder.asFolder());
+                addRecentlyModifiedFolder(parentFolder);
             }
-            
-            toSave.add(folder);
-            
-            manager.saveROIFolders(Collections.singleton(folder));
-        } 
+
+            if (getSelectedROIShapes().isEmpty())
+                manager.saveROIFolders(Collections.singleton(folder));
+            else
+                manager.addRoisToFolder(getSelectedROIShapes(),
+                        Collections.singleton(folder));
+        }
         
         if (SelectionDialog.OBJECT_SELECTION_PROPERTY.equals(name)) {
             FolderData folder = getSelectedFolders().get(0);

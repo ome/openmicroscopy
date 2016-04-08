@@ -214,10 +214,22 @@ public class ROIPopupMenu
                 Object obj = selection.iterator().next();
                 if (obj instanceof FolderData) {
                     FolderData f = (FolderData) obj;
-                    f.canLink();
+                    f.canEdit();
                 }
             }
-            return false;
+            else {
+                for (Object obj : selection) {
+                    if (!(obj instanceof ROI) && !(obj instanceof ROIShape))
+                        return false;
+                    if (obj instanceof ROI && !((ROI) obj).canEdit())
+                        return false;
+                    if (obj instanceof ROIShape
+                            && !((ROIShape) obj).getROI().canEdit())
+                        return false;
+                }
+                //only editable ROIs selected
+                return true;
+            }
         }
            
         boolean isFolderSelection = true;
