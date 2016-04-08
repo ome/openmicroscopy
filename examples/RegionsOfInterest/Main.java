@@ -55,18 +55,18 @@ public class Main {
 
         // A real ellipse
         Ellipse ellipse = new EllipseI();
-        ellipse.setCx(rdouble(1));
-        ellipse.setCy(rdouble(1));
-        ellipse.setRx(rdouble(1));
-        ellipse.setRy(rdouble(2));
+        ellipse.setX(rdouble(1));
+        ellipse.setY(rdouble(1));
+        ellipse.setRadiusX(rdouble(1));
+        ellipse.setRadiusY(rdouble(2));
         roi.addShape(ellipse);
 
         // A circle as an ellipse
         Ellipse circle = new EllipseI();
-        circle.setCx(rdouble(5));
-        circle.setCy(rdouble(8));
-        circle.setRx(rdouble(1));
-        circle.setRy(rdouble(1)); // Same radius
+        circle.setX(rdouble(5));
+        circle.setY(rdouble(8));
+        circle.setRadiusX(rdouble(1));
+        circle.setRadiusY(rdouble(1)); // Same radius
         roi.addShape(circle);
 
         // Making a grouping of lines
@@ -131,8 +131,8 @@ public class Main {
         mask.setPixels(new PixelsI(0, false));
 
         Point point = new PointI();
-        point.setCx(rdouble(75.0));
-        point.setCy(rdouble(75.0));
+        point.setX(rdouble(75.0));
+        point.setY(rdouble(75.0));
         // Point.r should be removed
         point.setTransform(null);
         roi.addShape(point);
