@@ -341,14 +341,10 @@
                         $("#batch_attachments_form").dialog( "close" );
                         $("#fileann_spinner").show();
                     },
-                    success: function(data) {
+                    success: function() {
                         $("#fileann_spinner").hide();
                         // update the list of file annotations and bind actions
-                        var $fileanns = $($.trim(data));
-                        $("#fileanns_container").prepend( $fileanns ).show();
-                        $(".tooltip", $fileanns).tooltip_init();
-                        OME.filterAnnotationsAddedBy();
-                        OME.fileAnnotationCheckboxDynamicallyAdded();
+                        fileannsPane.render();
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();

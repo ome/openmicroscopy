@@ -158,10 +158,10 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
     var isOriginalMetadata = function isOriginalMetadata(ann) {
         return (ann.ns === OMERO.constants.namespaces.NSCOMPANIONFILE &&
             ann.file.name === OMERO.constants.annotation.file.ORIGINALMETADATA);
-    }
+    };
     var isNotCompanionFile = function isNotCompanionFile(ann) {
         return ann.ns !== OMERO.constants.namespaces.NSCOMPANIONFILE;
-    }
+    };
 
 
     this.render = function render() {
@@ -180,6 +180,10 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
             console.log(request);
 
             $.getJSON("/webclient/api/annotations/?type=file&" + request, function(data){
+
+                var checkboxesAreVisible = $(
+                    "#fileanns_container input[type=checkbox]:visible"
+                ).length > 0;
 
                 // manipulate data...
                 // make an object of eid: experimenter
@@ -213,6 +217,9 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
 
                 // Finish up...
                 OME.filterAnnotationsAddedBy();
+                if (checkboxesAreVisible) {
+                    $("#fileanns_container input[type=checkbox]:not(:visible)").toggle();
+                }
                 $(".tooltip", $fileanns_container).tooltip_init();
             });
             
