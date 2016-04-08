@@ -15,7 +15,30 @@
 //   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-var TagPane = function TagPane($element, objects) {
+(function() {
+// We use the "#metadata_general" element to store this data since
+// it is not reloaded on selection change.
+var setExpanded = function setExpanded(name, expanded) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    if (expanded && open_panes.indexOf(name) === -1) {
+        open_panes.push(name);
+    }
+    if (!expanded && open_panes.indexOf(name) > -1) {
+        open_panes = open_panes.reduce(function(l, item){
+            if (item !== name) l.push(item);
+            return l;
+        }, []);
+    }
+    $("#metadata_general").data('open_panes', open_panes);
+};
+
+var getExpanded = function getExpanded(name) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    return open_panes.indexOf(name) > -1;
+};
+
+
+window.TagPane = function TagPane($element, objects) {
 
     var $header = $element.children('h1'),
         $body = $element.children('div'),
@@ -32,7 +55,7 @@ var TagPane = function TagPane($element, objects) {
             $body.slideToggle();
 
             var expanded = !$header.hasClass('closed');
-            setExpanded(expanded);
+            setExpanded("tags", expanded);
 
             if (expanded && $tags_container.is(":empty")) {
                 this.render();
@@ -94,32 +117,9 @@ var TagPane = function TagPane($element, objects) {
         }
     };
 
-
-    // We use the "#metadata_general" element to store this data since
-    // it is not reloaded on selection change.
-    var setExpanded = function setExpanded(expanded) {
-        var open_panes = $("#metadata_general").data('open_panes') || [];
-        if (expanded && open_panes.indexOf('tags') === -1) {
-            open_panes.push("tags");
-        }
-        if (!expanded && open_panes.indexOf('tags') > -1) {
-            open_panes = open_panes.reduce(function(l, item){
-                if (item !== 'tags') l.push(item);
-                return l;
-            }, []);
-        }
-        $("#metadata_general").data('open_panes', open_panes);
-    };
-
-    var getExpanded = function getExpanded() {
-        var open_panes = $("#metadata_general").data('open_panes') || [];
-        return open_panes.indexOf('tags') > -1;
-    };
-
-
     initEvents();
 
-    if (getExpanded()) {
+    if (getExpanded('tags')) {
         $header.toggleClass('closed');
         $body.show();
     }
@@ -129,7 +129,7 @@ var TagPane = function TagPane($element, objects) {
 
 
 
-var FileAnnsPane = function FileAnnsPane($element, objects) {
+window.FileAnnsPane = function FileAnnsPane($element, objects) {
 
     var $header = $element.children('h1'),
         $body = $element.children('div'),
@@ -146,7 +146,7 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
             $body.slideToggle();
 
             var expanded = !$header.hasClass('closed');
-            setExpanded(expanded);
+            setExpanded('files', expanded);
 
             if (expanded && $fileanns_container.is(":empty")) {
                 this.render();
@@ -227,34 +227,15 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
     };
 
 
-    // We use the "#metadata_general" element to store this data since
-    // it is not reloaded on selection change.
-    var setExpanded = function setExpanded(expanded) {
-        var open_panes = $("#metadata_general").data('open_panes') || [];
-        if (expanded && open_panes.indexOf('tags') === -1) {
-            open_panes.push("tags");
-        }
-        if (!expanded && open_panes.indexOf('tags') > -1) {
-            open_panes = open_panes.reduce(function(l, item){
-                if (item !== 'tags') l.push(item);
-                return l;
-            }, []);
-        }
-        $("#metadata_general").data('open_panes', open_panes);
-    };
-
-    var getExpanded = function getExpanded() {
-        var open_panes = $("#metadata_general").data('open_panes') || [];
-        return open_panes.indexOf('tags') > -1;
-    };
-
-
     initEvents();
 
-    if (getExpanded()) {
+    if (getExpanded('files')) {
         $header.toggleClass('closed');
         $body.show();
     }
 
     this.render();
 };
+
+})();
+
