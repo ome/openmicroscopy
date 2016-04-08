@@ -218,7 +218,7 @@ public class BrowseFacility extends Facility {
      * @param allGroups
      *            Pass <code>true</code> to take all groups into account,
      *            <code>false</code> to only use ctx's group
-     * @return The last version of the object.
+     * @return The last version of the object (or <code>null</code> it doesn't exist).
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -230,6 +230,8 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         String klassName = PojoMapper.getModelType(klass).getSimpleName();
         IObject obj = findIObject(ctx, klassName, id, allGroups);
+        if (obj == null)
+            return null;
         return (T) PojoMapper.asDataObject(obj);
     }
 
@@ -328,7 +330,7 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @param allGroups
      *            Pass <code>true</code> to look for all groups
-     * @return The last version of the object.
+     * @return The last version of the object (or <code>null</code> it doesn't exist).
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -350,6 +352,8 @@ public class BrowseFacility extends Facility {
 
             IQueryPrx service = gateway.getQueryService(ctx);
             IObject iobj = service.find(klass.getSimpleName(), id, m);
+            if (iobj == null)
+                return null;
             return PojoMapper.asDataObject(iobj);
         } catch (Throwable t) {
             handleException(this, t,
