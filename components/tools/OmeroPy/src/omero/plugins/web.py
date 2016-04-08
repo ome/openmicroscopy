@@ -60,8 +60,10 @@ def config_required(func):
     def import_django_settings(func):
         def wrapper(self, *args, **kwargs):
             if self._isWindows():
-                self.ctx.err("Windows platform will not longer be supported"
-                             " since OMERO 5.3.")
+                self.ctx.err("Support for Windows will be removed in"
+                             " OMERO 5.3, see http://blog.openmicroscopy.org/"
+                             "tech-issues/future-plans/deployment/2016/03/22/"
+                             "windows-support/")
             try:
                 import django  # NOQA
             except:
