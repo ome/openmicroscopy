@@ -156,8 +156,11 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
 
 
     var isOriginalMetadata = function isOriginalMetadata(ann) {
-        return (ann.ns === omero.constants.namespaces.NSCOMPANIONFILE &&
-            ann.file.name === omero.constants.annotation.file.ORIGINALMETADATA);
+        return (ann.ns === OMERO.constants.namespaces.NSCOMPANIONFILE &&
+            ann.file.name === OMERO.constants.annotation.file.ORIGINALMETADATA);
+    }
+    var isNotCompanionFile = function isNotCompanionFile(ann) {
+        return ann.ns !== OMERO.constants.namespaces.NSCOMPANIONFILE;
     }
 
 
@@ -185,8 +188,8 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
                     return prev;
                 }, {});
 
-                // Populate experimenters within tags
-                var tags = data.annotations.map(function(ann){
+                // Populate experimenters within anns
+                var anns = data.annotations.map(function(ann){
                     ann.owner = experimenters[ann.owner.id];
                     if (ann.link && ann.link.owner) {
                         ann.link.owner = experimenters[ann.link.owner.id];
@@ -194,13 +197,18 @@ var FileAnnsPane = function FileAnnsPane($element, objects) {
                     ann.textValue = _.escape(ann.textValue);
                     ann.description = _.escape(ann.description);
                     ann.file.size = ann.file.size.filesizeformat();
-                    ann.isOriginalMetadata = isOriginalMetadata(ann);
                     return ann;
                 });
-                console.log(tags);
+                // Don't show companion files
+                anns = anns.filter(isNotCompanionFile);
+
+                console.log(anns);
 
                 // Update html...
-                var html = filesTempl({'anns': tags});
+                var html = "";
+                if (anns.length > 0) {
+                    html = filesTempl({'anns': anns});
+                }
                 $fileanns_container.html(html);
 
                 // Finish up...
