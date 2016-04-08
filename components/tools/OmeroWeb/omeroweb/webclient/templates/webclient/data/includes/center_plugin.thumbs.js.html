@@ -756,8 +756,8 @@ $(document).ready(function() {
                 //     url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
                 //     break;
                 case 'plate':
-                    // Only load plates if it does not have child acquisitions
-                    if (!inst.is_parent(node)) {
+                    // Only load plates if it has a single 'Run' (or none)
+                    if (node.children.length < 2) {
                         url += 'load_data/' + nodeType + '/' + nodeId + '/';
                         if (show) {
                             url += "?show=" + show;
