@@ -71,8 +71,6 @@ window.TagPane = function TagPane($element, objects) {
 
     this.render = function render() {
 
-        console.log('render', $tags_container.is(":visible"));
-
         if ($tags_container.is(":visible")) {
 
             if ($tags_container.is(":empty")) {
@@ -82,7 +80,6 @@ window.TagPane = function TagPane($element, objects) {
             var request = objects.map(function(o){
                 return o.replace("-", "=");
             });
-            console.log(request);
 
             $.getJSON("/webclient/api/annotations/?type=tag&" + request, function(data){
 
@@ -166,8 +163,6 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
 
     this.render = function render() {
 
-        console.log('render files', $fileanns_container.is(":visible"));
-
         if ($fileanns_container.is(":visible")) {
 
             if ($fileanns_container.is(":empty")) {
@@ -177,7 +172,6 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
             var request = objects.map(function(o){
                 return o.replace("-", "=");
             });
-            console.log(request);
 
             $.getJSON("/webclient/api/annotations/?type=file&" + request, function(data){
 
@@ -198,7 +192,6 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
                     if (ann.link && ann.link.owner) {
                         ann.link.owner = experimenters[ann.link.owner.id];
                     }
-                    ann.textValue = _.escape(ann.textValue);
                     ann.description = _.escape(ann.description);
                     ann.file.size = ann.file.size.filesizeformat();
                     return ann;
