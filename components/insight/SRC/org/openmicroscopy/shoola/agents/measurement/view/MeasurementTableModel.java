@@ -148,6 +148,11 @@ public class MeasurementTableModel extends AbstractTableModel
                     buffer.append(UIUtilities.formatToDecimal(d));
                     buffer.append(" ");
                 }
+                if (v instanceof Length) {
+                    Length n = (Length) v;
+                    buffer.append(UIUtilities.twoDecimalPlaces(n.getValue()));
+                    buffer.append(" ");
+                }
             }
             if (total > 0) {
                 buffer.append("= "+UIUtilities.formatToDecimal(total));
