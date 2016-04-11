@@ -19,7 +19,13 @@ from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
 HELP = "OMERO.web configuration/deployment tools"
+WINDOWS_WARNING = ("Support for Windows will be removed in"
+                   " OMERO 5.3, see http://blog.openmicroscopy.org/"
+                   "tech-issues/future-plans/deployment/2016/03/22/"
+                   "windows-support/")
 
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 LONGHELP = """OMERO.web configuration/deployment tools
 
@@ -60,10 +66,7 @@ def config_required(func):
     def import_django_settings(func):
         def wrapper(self, *args, **kwargs):
             if self._isWindows():
-                self.ctx.err("Support for Windows will be removed in"
-                             " OMERO 5.3, see http://blog.openmicroscopy.org/"
-                             "tech-issues/future-plans/deployment/2016/03/22/"
-                             "windows-support/")
+                self.ctx.err(WINDOWS_WARNING)
             try:
                 import django  # NOQA
             except:
