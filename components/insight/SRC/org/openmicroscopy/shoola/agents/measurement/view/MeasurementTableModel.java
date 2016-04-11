@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -131,39 +131,9 @@ public class MeasurementTableModel extends AbstractTableModel
         if (row < 0 || row > values.size()) return null;
         MeasurementObject rowData = values.get(row);
         Object value = rowData.getElement(col);
-        if (value instanceof List && !showUnits) {
-            List<Object> l = (List<Object>) value;
-            
-            if (l.size() == 1) 
-            	return l.get(0);
-            StringBuilder buffer = new StringBuilder();
-            Iterator<Object> i = l.iterator();
-            Object v;
-            double total = 0;
-            while (i.hasNext()) {
-                v = i.next();
-                if (v instanceof Number) {
-                    double d = ((Number) v).doubleValue();
-                    total += d;
-                    buffer.append(UIUtilities.formatToDecimal(d));
-                    buffer.append(" ");
-                }
-                if (v instanceof Length) {
-                    Length n = (Length) v;
-                    buffer.append(UIUtilities.twoDecimalPlaces(n.getValue()));
-                    buffer.append(" ");
-                }
-            }
-            if (total > 0) {
-                buffer.append("= "+UIUtilities.formatToDecimal(total));
-            }
-            return buffer.toString();
-        }
+                    
         if (showUnits) {
-            if (value instanceof Length) {
-                Length n = (Length) value;
-                return convertLength(n, col);
-            } else if (value instanceof List) {
+            if (value instanceof List) {
                 List l = (List) value;
                 Iterator<Object> i = l.iterator();
                 Object v;
@@ -175,7 +145,8 @@ public class MeasurementTableModel extends AbstractTableModel
                     if (v instanceof Length) {
                         Length n = (Length) v;
                         s = convertLength(n, col);
-                        if (size == 1) return s;
+                        if (size == 1)
+                            return s;
                         if (s != null) {
                             buffer.append(s);
                             buffer.append(" ");
@@ -193,12 +164,43 @@ public class MeasurementTableModel extends AbstractTableModel
                     }
                 }
                 return buffer.toString();
-            } else if (value instanceof Number) {
-                double d = ((Number) value).doubleValue();
-                return UIUtilities.twoDecimalPlacesAsNumber(d);
+            } else {
+                if (value instanceof Number) {
+                    double d = ((Number) value).doubleValue();
+                    return UIUtilities.twoDecimalPlacesAsNumber(d);
+                }
+                if (value instanceof Length) {
+                    convertLength((Length) value, col);
+                }
+                return value;
+            }
+        } else {
+            if (value instanceof List) {
+                List<Object> l = (List<Object>) value;
+                StringBuilder buffer = new StringBuilder();
+                Iterator<Object> i = l.iterator();
+                Object v;
+                while (i.hasNext()) {
+                    v = i.next();
+                    if (v instanceof Number) {
+                        double d = ((Number) v).doubleValue();
+                        buffer.append(UIUtilities.formatToDecimal(d));
+                    }
+                    if (v instanceof Length) {
+                        Length n = (Length) v;
+                        buffer.append(UIUtilities.twoDecimalPlaces(n.getValue()));
+                    }
+                    if (i.hasNext())
+                        buffer.append(" ");
+                }
+                return buffer.toString();
+            } else {
+                if (value instanceof Length) 
+                    return UIUtilities.formatToDecimal(((Length) value)
+                            .getValue());
+                return value;
             }
         }
-        return value;
     }
 
     /**
@@ -214,18 +216,14 @@ public class MeasurementTableModel extends AbstractTableModel
         String k = key.getKey();
         String s = null;
         if (!units.getUnit().equals(UnitsLength.PIXEL)) {
-            if (unitsDisplay.size() > col && unitsDisplay.get(col)) {
-                s = UIUtilities.formatValue(n,
-                        AnnotationKeys.AREA.getKey().equals(k));
-            } else {
-                return UIUtilities.formatValueNoUnitAsNumber(n,
-                        AnnotationKeys.AREA.getKey().equals(k));
-            }
+            s = UIUtilities.formatValue(n,
+                    AnnotationKeys.AREA.getKey().equals(k));
             if (CommonsLangUtils.isNotBlank(s))
                return s;
         }
         Number value = UIUtilities.twoDecimalPlacesAsNumber(n.getValue());
-        if (value.doubleValue() == 0) return null;
+        if (value.doubleValue() == 0)
+            return null;
         return value;
     }
 
@@ -237,12 +235,36 @@ public class MeasurementTableModel extends AbstractTableModel
 
     /**
      * Overridden to return the name of the specified column.
+     * 
      * @see AbstractTableModel#getColumnName(int)
      */
-    public String getColumnName(int col) 
-    {
-    	return columnNames.get(col).getDescription();
-     }
+    public String getColumnName(int col) {
+        KeyDescription k = columnNames.get(col);
+
+        UnitsLength unit = unitsType.getPixelSizeX().getUnit();
+        if (!unit.equals(UnitsLength.PIXEL)) {
+            String symbol = unitsType.getPixelSizeX().getSymbol();
+            if (k.getKey().equals(AnnotationKeys.LENGTH.getKey())
+                    || k.getKey().equals(AnnotationKeys.CENTREX.getKey())
+                    || k.getKey().equals(AnnotationKeys.CENTREY.getKey())
+                    || k.getKey().equals(AnnotationKeys.WIDTH.getKey())
+                    || k.getKey().equals(AnnotationKeys.HEIGHT.getKey())
+                    || k.getKey().equals(AnnotationKeys.ENDPOINTX.getKey())
+                    || k.getKey().equals(AnnotationKeys.ENDPOINTY.getKey())
+                    || k.getKey().equals(AnnotationKeys.PERIMETER.getKey())
+                    || k.getKey().equals(AnnotationKeys.POINTARRAYX.getKey())
+                    || k.getKey().equals(AnnotationKeys.POINTARRAYY.getKey())
+                    || k.getKey().equals(AnnotationKeys.STARTPOINTX.getKey())
+                    || k.getKey().equals(AnnotationKeys.STARTPOINTY.getKey()))
+                return k.getDescription() + "(" + symbol + ")";
+            
+            if (k.getKey().equals(AnnotationKeys.AREA.getKey()))
+                return k.getDescription() + "(" + symbol
+                        + UIUtilities.SQUARED_SYMBOL + ")";
+        }
+
+        return k.getDescription();
+    }
     
     /**
      * Overridden to return the number of columns.
