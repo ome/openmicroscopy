@@ -19,7 +19,7 @@ from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
 HELP = "OMERO.web configuration/deployment tools"
-WINDOWS_WARNING = ("Support for Windows will be removed in"
+WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
                    " OMERO 5.3, see http://blog.openmicroscopy.org/"
                    "tech-issues/future-plans/deployment/2016/03/22/"
                    "windows-support/")
