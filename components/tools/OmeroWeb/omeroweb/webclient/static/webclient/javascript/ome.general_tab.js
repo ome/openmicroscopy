@@ -230,5 +230,98 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
     this.render();
 };
 
+
+
+
+
+
+window.CommentsPane = function CommentsPane($element, objects) {
+
+    var $header = $element.children('h1'),
+        $body = $element.children('div'),
+        $comments_container = $("#comments_container");
+
+    var tmplText = $('#comments_template').html();
+    var commentsTempl = _.template(tmplText);
+
+
+    var initEvents = (function initEvents() {
+
+        $header.click(function(){
+            $header.toggleClass('closed');
+            $body.slideToggle();
+
+            var expanded = !$header.hasClass('closed');
+            setExpanded('comments', expanded);
+
+            if (expanded && $comments_container.is(":empty")) {
+                this.render();
+            }
+        }.bind(this));
+    }).bind(this);
+
+
+    this.render = function render() {
+
+        console.log("comments", $comments_container.is(":visible"));
+
+        if ($comments_container.is(":visible")) {
+
+            if ($comments_container.is(":empty")) {
+                $comments_container.html("Loading comments...");
+            }
+
+            var request = objects.map(function(o){
+                return o.replace("-", "=");
+            });
+
+            $.getJSON("/webclient/api/annotations/?type=comment&" + request, function(data){
+
+
+                // manipulate data...
+                // make an object of eid: experimenter
+                var experimenters = data.experimenters.reduce(function(prev, exp){
+                    prev[exp.id + ""] = exp;
+                    return prev;
+                }, {});
+
+                // Populate experimenters within anns
+                var anns = data.annotations.map(function(ann){
+                    ann.owner = experimenters[ann.owner.id];
+                    if (ann.link && ann.link.owner) {
+                        ann.link.owner = experimenters[ann.link.owner.id];
+                    }
+                    ann.textValue = _.escape(ann.textValue);
+                    // ann.description = _.escape(ann.description);
+                    return ann;
+                });
+
+                console.log(anns);
+
+                // Update html...
+                var html = "";
+                if (anns.length > 0) {
+                    html = commentsTempl({'anns': anns});
+                }
+                $comments_container.html(html);
+
+                // Finish up...
+                OME.filterAnnotationsAddedBy();
+                $(".tooltip", $comments_container).tooltip_init();
+            });
+        }
+    };
+
+
+    initEvents();
+
+    if (getExpanded('comments')) {
+        $header.toggleClass('closed');
+        $body.show();
+    }
+
+    this.render();
+};
+
 })();
 

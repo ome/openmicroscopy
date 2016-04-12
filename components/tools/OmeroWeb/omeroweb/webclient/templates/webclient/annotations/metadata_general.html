@@ -36,6 +36,7 @@
 
                 var tagPane = new TagPane($("#tagsPane"), dataModel);
                 var fileannsPane = new FileAnnsPane($("#fileannsPane"), dataModel);
+                var commentsPane = new CommentsPane($("#commentsPane"), dataModel);
 
 
                 var linkify = function(input) {
@@ -46,7 +47,7 @@
                     elements.each(function() { var $this = $(this); $this.html(linkify($this.html())); });
                 };
 
-                $("#comments_container").hide_if_empty();
+                // $("#comments_container").hide_if_empty();
                 // $("#fileanns_container").hide_if_empty();
                 // $("#tags_container").hide_if_empty();
                 
@@ -944,7 +945,7 @@
 
             <!-- FILES -->
             <div id="fileannsPane">
-            <h1 class="can-collapse closed" data-name="attachments">
+            <h1 class="can-collapse closed">
                 Attachments
             </h1>
             <div class="annotations_section" style="display:none">
@@ -1036,10 +1037,11 @@
 
             
             <!-- COMMENTS -->
-            <h1 class="can-collapse defclose" data-name="comments">
+            <div id="commentsPane">
+            <h1 class="can-collapse closed">
                 Comments
             </h1>
-            <div class="annotations_section">
+            <div class="annotations_section" style="display: none">
 
                     {% if manager.canAnnotate %}
                     <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
@@ -1066,13 +1068,8 @@
                     </form>
                     {% endif %}
 
-                    <div id="comments_container" class="lncomments">
-                        {% for tann in manager.text_annotations %}
-                            {% with added_by=tann.link.getDetails.getOwner.id %}
-                                {% include "webclient/annotations/comment.html" %}
-                            {% endwith %}
-                        {% endfor %}
-                    </div>
+                    <div id="comments_container" class="lncomments"></div>
+            </div>
             </div>
             <div class="clear"></div>          
             
