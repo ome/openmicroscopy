@@ -369,7 +369,6 @@ class ToolBar
         ExperimenterData exp;
 
         DataMenuItem item, allUser;
-        
         boolean view = true;
         if (group != null) {
             int level = group.getPermissions().getPermissionsLevel();
@@ -380,18 +379,38 @@ class ToolBar
         
         List<DataMenuItem> list = new ArrayList<DataMenuItem>();
 
-        allUser = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
+        String v = (String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_ALL_MEMBERS_NAME);
+        if (v == null || v.trim().length() == 0) {
+            v = DataMenuItem.ALL_USERS_TEXT;
+        }
+        Boolean enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_ALL_MEMBERS_ENABLED));
+        boolean b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        allUser = new DataMenuItem(v, b);
+        allUser.setRefString(DataMenuItem.ALL_USERS_TEXT);
+        allUser.addPropertyChangeListener(groupItem);
         items.add(allUser);
         if (view) p.add(allUser);
         int count = 0;
         int total = 0;
-        if (CollectionUtils.isNotEmpty(l)) {
+        enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_LEADERS_ENABLED));
+        b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        if (CollectionUtils.isNotEmpty(l) && b) {
             total += l.size();
             i = l.iterator();
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
-                    item = new DataMenuItem(exp, true);
+                    if (exp.getId() == loggedUserID) b = true;
+                    item = new DataMenuItem(exp, b);
                     item.setChecked(users.contains(exp.getId()));
                     if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
@@ -400,7 +419,12 @@ class ToolBar
                 }
             }
             if (list.size() > 0) {
-                p.add(formatHeader("Group owners"));
+                v = (String) TreeViewerAgent.getRegistry().lookup(
+                        LookupNames.GROUP_LEADERS_NAME);
+                if (v == null || v.trim().length() == 0) {
+                    v = "Group owners";
+                }
+                p.add(formatHeader(v));
                 for(DataMenuItem dmi : list)
                     p.add(dmi);
                 list.clear();
@@ -408,13 +432,20 @@ class ToolBar
         }
 
         if (group != null) l = sorter.sort(group.getMembersOnly());
-        if (CollectionUtils.isNotEmpty(l)) {
+        enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_MEMBERS_ENABLED));
+        b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        if (CollectionUtils.isNotEmpty(l) && b) {
             total += l.size();
             i = l.iterator();
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
-                    item = new DataMenuItem(exp, true);
+                    if (exp.getId() == loggedUserID) b = true;
+                    item = new DataMenuItem(exp, b);
                     item.setChecked(users.contains(exp.getId()));
                     if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
@@ -423,7 +454,12 @@ class ToolBar
                 }
             }
             if (list.size() > 0) {
-                p.add(formatHeader("Members"));
+                v = (String) TreeViewerAgent.getRegistry().lookup(
+                        LookupNames.GROUP_MEMBERS_NAME);
+                if (v == null || v.trim().length() == 0) {
+                    v = "Members";
+                }
+                p.add(formatHeader(v));
                 for(DataMenuItem dmi : list)
                     p.add(dmi);
             }
