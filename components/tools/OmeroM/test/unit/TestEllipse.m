@@ -3,7 +3,7 @@
 % Require MATLAB xUnit Test Framework to be installed
 % http://www.mathworks.com/matlabcentral/fileexchange/22846-matlab-xunit-test-framework
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,8 @@ classdef TestEllipse < TestShape
     properties
         x = 10
         y = 20
-        rx = 5
-        ry = 8
+        radiusx = 5
+        radiusy = 8
     end
     
     methods
@@ -40,9 +40,9 @@ classdef TestEllipse < TestShape
         
         function createEllipse(self, iscircle)
             if nargin<2 || ~iscircle
-                self.shape = createEllipse(self.x, self.y, self.rx, self.ry);
+                self.shape = createEllipse(self.x, self.y, self.radiusx, self.radiusy);
             else
-                self.shape = createEllipse(self.x, self.y, self.rx);
+                self.shape = createEllipse(self.x, self.y, self.radiusx);
             end
         end
         
@@ -50,8 +50,8 @@ classdef TestEllipse < TestShape
             assertTrue(isa(self.shape, 'omero.model.EllipseI'));
             assertEqual(self.shape.getX().getValue(), self.x);
             assertEqual(self.shape.getY().getValue(), self.y);
-            assertEqual(self.shape.getRadiusX().getValue(), self.rx);
-            assertEqual(self.shape.getRadiusY().getValue(), self.ry);
+            assertEqual(self.shape.getRadiusX().getValue(), self.radiusx);
+            assertEqual(self.shape.getRadiusY().getValue(), self.radiusy);
         end
         
         function testCircle(self)
@@ -60,30 +60,30 @@ classdef TestEllipse < TestShape
             assertTrue(isa(self.shape, 'omero.model.EllipseI'));
             assertEqual(self.shape.getX().getValue(), self.x);
             assertEqual(self.shape.getY().getValue(), self.y);
-            assertEqual(self.shape.getRadiusX().getValue(), self.rx);
-            assertEqual(self.shape.getRadiusY().getValue(), self.rx);
+            assertEqual(self.shape.getRadiusX().getValue(), self.radiusx);
+            assertEqual(self.shape.getRadiusY().getValue(), self.radiusx);
         end
         
         function testNegativeRadiusX(self)
-            self.rx = -1;
+            self.radiusx = -1;
             assertExceptionThrown(@() self.createEllipse(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function testNegativeRadiusY(self)
-            self.ry = -1;
+            self.radiusy = -1;
             assertExceptionThrown(@() self.createEllipse(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function testZeroRadiusX(self)
-            self.rx = 0;
+            self.radiusx = 0;
             assertExceptionThrown(@() self.createEllipse(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function testZeroRadiusY(self)
-            self.ry = 0;
+            self.radiusy = 0;
             assertExceptionThrown(@() self.createEllipse(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end

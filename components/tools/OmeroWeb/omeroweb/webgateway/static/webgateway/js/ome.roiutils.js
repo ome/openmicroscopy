@@ -87,8 +87,8 @@ $.fn.get_ome_point = function(center_x, center_y, z_plane, t_plane, transform, s
     var shape_config = typeof shape_config !== "undefined" ? shape_config : $.fn.get_shape_config();
 
     var point_conf = {
-        "cx": center_x,
-        "cy": center_y
+        "x": center_x,
+        "y": center_y
     };
 
     $.extend(point_conf, $.fn.get_generic_shape(transform, z_plane, t_plane, "Point"));
@@ -104,8 +104,8 @@ $.fn.get_ome_ellipse = function(center_x, center_y, radius_x, radius_y, z_plane,
     var shape_config = typeof shape_config !== "undefined" ? shape_config : $.fn.get_shape_config();
 
     var ellipse_conf = {
-        "rx": radius_x,
-        "ry": radius_y
+        "radiusX": radius_x,
+        "radiusY": radius_y
     };
 
     $.extend(ellipse_conf, $.fn.get_ome_point(center_x, center_y, z_plane, t_plane,

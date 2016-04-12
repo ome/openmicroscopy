@@ -3,7 +3,7 @@
 #
 #
 # ------------------------------------------------------------------------------
-#  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+#  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
 #
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -360,17 +360,18 @@ class EllipseData(ShapeData, ROIDrawingI):
     ##
     # Constructor for EllipseData object.
     # @param roicoord The ROICoordinate of the object (default: 0,0)
-    # @param cx The centre x coordinate of the ellipse.
-    # @param cy The centre y coordinate of the ellipse.
-    # @param rx The major axis of the ellipse.
-    # @param ry The minor axis of the ellipse.
+    # @param x The centre x coordinate of the ellipse.
+    # @param y The centre y coordinate of the ellipse.
+    # @param radiusX The major axis of the ellipse.
+    # @param radiusY The minor axis of the ellipse.
 
-    def __init__(self, roicoord=ROICoordinate(), cx=0, cy=0, rx=0, ry=0):
+    def __init__(self, roicoord=ROICoordinate(), x=0, y=0, radiusX=0,
+                 radiusY=0):
         ShapeData.__init__(self)
-        self.cx = rdouble(cx)
-        self.cy = rdouble(cy)
-        self.rx = rdouble(rx)
-        self.ry = rdouble(ry)
+        self.x = rdouble(x)
+        self.y = rdouble(y)
+        self.radiusX = rdouble(radiusX)
+        self.radiusY = rdouble(radiusY)
         self.setCoord(roicoord)
 
     ##
@@ -379,19 +380,19 @@ class EllipseData(ShapeData, ROIDrawingI):
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ)
         ellipse.setTheT(self.coord.theZ)
-        ellipse.setX(self.cx)
-        ellipse.setY(self.cy)
-        ellipse.setRadiusX(self.rx)
-        ellipse.setRadiusY(self.ry)
+        ellipse.setX(self.x)
+        ellipse.setY(self.y)
+        ellipse.setRadiusX(self.radiusX)
+        ellipse.setRadiusY(self.radiusY)
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
-        self.cx = roi.getX()
-        self.cy = roi.getY()
-        self.rx = roi.getRadiusX()
-        self.ry = roi.getRadiusY()
+        self.x = roi.getX()
+        self.y = roi.getY()
+        self.radiusX = roi.getRadiusX()
+        self.radiusY = roi.getRadiusY()
 
     ##
     # overridden, @See ShapeData#createBaseType
@@ -404,8 +405,8 @@ class EllipseData(ShapeData, ROIDrawingI):
     #
     def acceptVisitor(self, visitor):
         visitor.drawEllipse(
-            self.cx.getValue(), self.cy.getValue(), self.rx.getValue(),
-            self.ry.getValue(), self.shapeSettings.getSettings())
+            self.x.getValue(), self.y.getValue(), self.radiusX.getValue(),
+            self.radiusY.getValue(), self.shapeSettings.getSettings())
 
 ##
 # The RectangleData class contains all the manipulation and creation of
