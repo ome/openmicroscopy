@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -50,15 +50,15 @@ public class AnnotationKeys
 	
 	/** The area of the figure. */
 	public static final AnnotationKey<Length> AREA = 
-		new AnnotationKey<Length>("measurementArea", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementArea", null);
 	
 	/** The perimeter of the figure. */
 	public static final AnnotationKey<Length> PERIMETER = 
-		new AnnotationKey<Length>("measurementPerimeter", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementPerimeter", null);
 	
 	/** The volume of the figure. */
 	public static final AnnotationKey<Length> VOLUME = 
-		new AnnotationKey<Length>("measurementVolume", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementVolume", null);
 	
 	/** A list of angles in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows. 
@@ -88,39 +88,39 @@ public class AnnotationKeys
 	
 	/** The X coord of the centre of the object. */
 	public static final AnnotationKey<Length> CENTREX= 
-		new AnnotationKey<Length>("measurementCentreX", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementCentreX", null);
 
 	/** The Y coord of the centre of the object. */
 	public static final AnnotationKey<Length> CENTREY= 
-		new AnnotationKey<Length>("measurementCentreY", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementCentreY", null);
 
 	/** The X coord of the start of the object, this is used for line,
 	 * lineconnection and bezier figures. */
 	public static final AnnotationKey<Length> STARTPOINTX= 
-		new AnnotationKey<Length>("measurementStartPointX", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementStartPointX", null);
 
 	/** The X coord of the start of the object, this is used for line,
 	 * lineconnection and bezier figures. */
 	public static final AnnotationKey<Length> STARTPOINTY= 
-		new AnnotationKey<Length>("measurementStartPointY", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementStartPointY", null);
 	
 	/** The X coord of the end of the object, this is used for line,
 	 * lineconnection and bezier figures. */
 	public static final AnnotationKey<Length> ENDPOINTX= 
-		new AnnotationKey<Length>("measurementEndPointX", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementEndPointX", null);
 	
 	/** The Y coord of the end of the object, this is used for line,
 	 * lineconnection and bezier figures. */
 	public static final AnnotationKey<Length> ENDPOINTY= 
-		new AnnotationKey<Length>("measurementEndPointY", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementEndPointY", null);
 	
 	/** The width of the figure. */
 	public static final AnnotationKey<Length> WIDTH = 
-		new AnnotationKey<Length>("measurementWidth", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementWidth", null);
 	
 	/** The height of the figure.*/
 	public static final AnnotationKey<Length> HEIGHT = 
-		new AnnotationKey<Length>("measurementHeight", new LengthI(0, UnitsLength.PIXEL));
+		new AnnotationKey<Length>("measurementHeight", null);
 	
     /** Should the figure show the measurement text. */
     public static final AnnotationKey<Object> TAG =
