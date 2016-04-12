@@ -153,6 +153,7 @@ public abstract class Details implements Filterable, Serializable {
         setContexts(copy.contexts);
         setContext(copy.getContext());
         possiblySetPermissions(copy);
+        setExternalInfo(copy.getExternalInfo());
         setCreationEvent(copy.getCreationEvent());
         setOwner(copy.getOwner());
         setGroup(copy.getGroup());
