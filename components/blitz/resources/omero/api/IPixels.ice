@@ -153,7 +153,7 @@ module omero {
                  *
                  * @param enumClass Enumeration class.
                  * @return List of all enumeration objects for the
-                 *         <i>klass</i>.
+                 *         <i>enumClass</i>.
                  **/
                 idempotent IObjectList getAllEnumerations(string enumClass) throws ServerError;
 
@@ -178,9 +178,11 @@ module omero {
                  * @param sizeX The new size across the X-axis.
                  *              <code>null</code> if the copy should maintain
                  *              the same size.
-                 * @param sizeY The new size across the Y-axis.                                 *              <code>null</code> if the copy should maintain
+                 * @param sizeY The new size across the Y-axis.
+                 *              <code>null</code> if the copy should maintain
                  *              the same size.
-                 * @param sizeZ The new size across the Z-axis.                                 *              <code>null</code> if the copy should maintain
+                 * @param sizeZ The new size across the Z-axis.
+                 *              <code>null</code> if the copy should maintain
                  *              the same size.
                  * @param sizeT The new number of timepoints.
                  *              <code>null</code> if the copy should maintain

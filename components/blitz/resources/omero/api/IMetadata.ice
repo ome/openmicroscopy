@@ -24,8 +24,8 @@ module omero {
         ["ami", "amd"] interface IMetadata extends ServiceInterface
             {
                 /**
-                 * Loads the <code>logical channels</code> and the acquisition
-                 * metadata related to them.
+                 * Loads the logical channels and the acquisition metadata
+                 * related to them.
                  *
                  * @param ids The collection of logical channel's ids.
                  * 		      Mustn't be <code>null</code>.
@@ -91,11 +91,11 @@ module omero {
                 //idempotent omero::metadata::TagContainerList loadTags(long id, bool withObjects, omero::sys::Parameters options) throws ServerError;
 
                 /**
-                 * Loads the Tag Set if the id is specified otherwise loads
-                 * all the Tag Set.
+                 * Loads the TagSet if the id is specified otherwise loads
+                 * all the TagSet.
                  *
                  * @param ids The id of the tag to load or <code>-1</code>.
-                 * @return Map whose key is a <code>Tag/Tag Set</code> and the
+                 * @return Map whose key is a <code>Tag/TagSet</code> and the
                  *         value either a Map or a list of related
                  *         <code>DataObject</code>.
                  **/
@@ -106,7 +106,7 @@ module omero {
                  * <code>AnnotationAnnotatioLink</code> objects and, if the
                  * <code>orphan</code> parameters is <code>true</code>, the
                  * <code>TagAnnotation</code> object.
-                 * Note that the difference between a Tag Set and a Tag is made
+                 * Note that the difference between a TagSet and a Tag is made
                  * using the NS_INSIGHT_TAG_SET namespace.
                  *
                  * @param options The POJO options.
