@@ -50,5 +50,5 @@ if ~isa(fileAnnotation, 'omero.model.FileAnnotationI'),
         'Could not load the file annotation: %u', faID);
 end
 
-getOriginalFileContent(session, fileAnnotation.getFile(), path)
+getOriginalFileContent(session, fileAnnotation.getFile(), path);
 
