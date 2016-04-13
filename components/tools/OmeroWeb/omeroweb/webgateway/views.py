@@ -1446,12 +1446,40 @@ def api_dataset_list(request, conn=None, **kwargs):
 
     try:
         # Get the datasets
+        n = time.time()
         datasets = marshal_datasets(conn=conn,
                                     project_id=project_id,
                                     group_id=group_id,
                                     experimenter_id=experimenter_id,
+                                    childCount=True,
                                     page=page,
                                     limit=limit)
+        print time.time() - n, 'Projection childCount', len(datasets)
+
+        # time.sleep(1)
+        n = time.time()
+        datasets = marshal_datasets(conn=conn,
+                                    project_id=project_id,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    childCount=False,
+                                    page=page,
+                                    limit=limit)
+        print time.time() - n, 'Projection', len(datasets)
+
+        n = time.time()
+        datasets = omero_marshal_datasets(conn,
+                                          childCount=True,
+                                          page=page,
+                                          limit=limit)
+        print time.time() - n, 'omero-marshal childCount', len(datasets)
+
+        n = time.time()
+        datasets = omero_marshal_datasets(conn,
+                                          page=page,
+                                          limit=limit)
+        print time.time() - n, 'omero-marshal', len(datasets)
+
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
