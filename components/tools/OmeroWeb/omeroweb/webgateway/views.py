@@ -15,6 +15,13 @@
 
 import re
 import json
+import logging
+import os
+import traceback
+import time
+import zipfile
+import shutil
+
 import omero
 import omero.clients
 
@@ -34,7 +41,8 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
-from api_marshal import marshal_projects, marshal_datasets, omero_marshal_datasets, \
+from api_marshal import marshal_projects, marshal_datasets, \
+    omero_marshal_datasets, \
     marshal_images, marshal_screens, marshal_plates, \
     marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, \
@@ -60,21 +68,12 @@ import glob
 # from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
-
-cache = CacheBase()
-
-import logging
-import os
-import traceback
-import time
-import zipfile
-import shutil
-
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault, \
     getBoolOrDefault, getLongs
 
+cache = CacheBase()
 logger = logging.getLogger(__name__)
 
 try:
@@ -1001,8 +1000,8 @@ def render_ome_tiff(request, ctx, cid, conn=None, **kwargs):
         except:
             logger.debug(traceback.format_exc())
             raise
-        return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/'
-                                    + rpath)
+        return HttpResponseRedirect(settings.STATIC_URL +
+                                    'webgateway/tfiles/' + rpath)
 
 
 @login_required()
@@ -2157,8 +2156,8 @@ def list_compatible_imgs_json(request, iid, conn=None, **kwargs):
                 return False
             pp = i.getPrimaryPixels()
             if (pp is None or
-                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype
-                    or i.getSizeC() != img_ccount):
+                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype or
+                    i.getSizeC() != img_ccount):
                 return False
             ew = [x.getLabel() for x in i.getChannels()]
             ew.sort()

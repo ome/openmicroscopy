@@ -407,7 +407,8 @@ def omero_marshal_datasets(conn, childCount=False,
 
 
 def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
-                     experimenter_id=-1, childCount=False, page=1, limit=settings.PAGE):
+                     experimenter_id=-1, childCount=False,
+                     page=1, limit=settings.PAGE):
     ''' Marshals datasets
 
         @param conn OMERO gateway.
