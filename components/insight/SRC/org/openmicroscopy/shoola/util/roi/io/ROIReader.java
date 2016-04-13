@@ -342,65 +342,9 @@ public class ROIReader {
                     }
                 }
             } else if (r instanceof ShapeRoi) {
-                Roi[] subRois = ((ShapeRoi) r).getRois();
-                Roi shapeij;
+                Roi[] subRois = getProperSubRois((ShapeRoi) r);
                 
-                for (int j = 0; j < subRois.length; j++) {
-                	roiData = new ROIData();
-                    type = r.getTypeAsString();
-                    if (imageID >= 0) {
-                        roiData.setImage(new ImageI(imageID, false));
-                    }
-                    pojos.add(roiData);
-                	shapeij = subRois[j];
-
-                    // Set ImagePlus reference in subROIs for the check in L216 to work
-                    ImagePlus imp = r.getImage();
-                    shapeij.setImage(imp);
-                    // Transfer correct ROI positions (according to IJ) from superROI
-                    int pos = r.getPosition();
-                    int c = r.getCPosition();
-                    int z = r.getZPosition();
-                    int t = r.getTPosition();
-                    if (imp.getNChannels() == 1 && imp.getNSlices() == 1) {
-                        shapeij.setPosition(pos);
-                    } else if (imp.getNChannels() == 1 &&
-                            imp.getNFrames() == 1) {
-                        shapeij.setPosition(pos);
-                    } else if (imp.getNSlices() == 1 &&
-                            imp.getNFrames() == 1) {
-                        shapeij.setPosition(pos);
-                    } else if (imp.isHyperStack()) {
-                        shapeij.setPosition(c, z, t);
-                    }
-                    type = shapeij.getTypeAsString();
-                    if (shapeij instanceof Line) {
-                        shape = convertLine((Line) shapeij);
-                        if (shape != null) {
-                            roiData.addShapeData(shape);
-                        }
-                    } else if (shapeij instanceof OvalRoi) {
-                        shape = convertEllipse((OvalRoi) shapeij);
-                        if (shape != null) {
-                            roiData.addShapeData(shape);
-                        }
-                    } else if (shapeij instanceof PolygonRoi || r instanceof EllipseRoi) {
-                        if (type.matches("Point")) {
-                            convertPoint((PointRoi) shapeij, roiData);
-                        } else if (type.matches("Polyline") ||
-                                type.matches("Freeline") ||
-                                type.matches("Angle") ||
-                                type.matches("Polygon") ||
-                                type.matches("Freehand")
-                                || type.matches("Traced") ||
-                                type.matches("Oval")) {
-                            shape = convertPolygon((PolygonRoi) shapeij);
-                            if (shape != null) {
-                                roiData.addShapeData(shape);
-                            }
-                        }
-                    }
-                }
+                pojos.addAll(read(imageID, subRois));
             } else if (type.matches("Rectangle")) {
                 shape = convertRectangle(r);
                 if (shape != null) {
@@ -410,6 +354,42 @@ public class ROIReader {
         }
         return pojos;
     }
+
+	/**
+	 * Split up composite ROI using {@link ShapeRoi#getRois}. Also transfer
+     * information from composite ROI to the extracted sub-ROIs.
+     * 
+     * @param roi
+	 */
+	private Roi[] getProperSubRois(ShapeRoi roi) {
+		// Set ImagePlus reference in subROIs for the check in L216 to work
+        ImagePlus imp = roi.getImage();      
+        Roi[] subRois = roi.getRois();
+        
+        for (int i = 0; i < subRois.length; i++) {
+	        Roi subRoi = subRois[i];
+        	subRoi.setImage(imp);
+			
+			// Transfer correct ROI positions (according to IJ) from superROI
+			int pos = roi.getPosition();
+			int c = roi.getCPosition();
+			int z = roi.getZPosition();
+			int t = roi.getTPosition();
+			if (imp.getNChannels() == 1 && imp.getNSlices() == 1) {
+			    subRoi.setPosition(pos);
+			} else if (imp.getNChannels() == 1 &&
+			        imp.getNFrames() == 1) {
+			    subRoi.setPosition(pos);
+			} else if (imp.getNSlices() == 1 &&
+			        imp.getNFrames() == 1) {
+			    subRoi.setPosition(pos);
+			} else if (imp.isHyperStack()) {
+			    subRoi.setPosition(c, z, t);
+			}
+        }
+        
+        return subRois;
+	}
 
     /**
      * Reads the roi linked to the imageJ object.
