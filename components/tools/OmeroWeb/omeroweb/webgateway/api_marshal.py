@@ -29,6 +29,8 @@ from django.conf import settings
 from copy import deepcopy
 from datetime import datetime
 
+from omero_marshal import get_encoder
+
 
 def build_clause(components, name='', join=','):
     ''' Build a string from a list of components.
@@ -354,19 +356,58 @@ def _marshal_dataset(conn, row):
         @param row The Dataset row to marshal
         @type row L{list}
     '''
-    dataset_id, name, owner_id, permissions, child_count = row
+    if len(row) == 5:
+        dataset_id, name, owner_id, permissions, child_count = row
+    else:
+        dataset_id, name, owner_id, permissions = row
+        child_count = None
     dataset = dict()
     dataset['id'] = unwrap(dataset_id)
     dataset['name'] = unwrap(name)
     dataset['ownerId'] = unwrap(owner_id)
-    dataset['childCount'] = unwrap(child_count)
+    if child_count is not None:
+        dataset['childCount'] = unwrap(child_count)
     dataset['permsCss'] = \
         parse_permissions_css(permissions, unwrap(owner_id), conn)
     return dataset
 
 
+def omero_marshal_datasets(conn, childCount=False,
+                           page=1, limit=settings.PAGE):
+
+    qs = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    if page:
+        params.page((page-1) * limit, limit)
+    ctx = {'omero.group': '-1'}
+
+    withChildCount = ""
+    if childCount:
+        withChildCount = """, (select count(id) from DatasetImageLink dil
+                 where dil.parent=dataset.id)"""
+    query = """
+            select dataset %s from Dataset dataset
+            order by lower(dataset.name), dataset.id""" % withChildCount
+
+    datasets = []
+    if childCount:
+        result = qs.projection(query, params, ctx)
+        encoder = get_encoder(unwrap(result[0][0]).__class__)
+        for d in result:
+            ds = encoder.encode(unwrap(d[0]))
+            ds['childCount'] = unwrap(d[1])
+            datasets.append(ds)
+    else:
+        result = qs.findAllByQuery(query, params, ctx)
+        encoder = get_encoder(result[0].__class__)
+        for d in result:
+            datasets.append(encoder.encode(d))
+
+    return datasets
+
+
 def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
-                     experimenter_id=-1, page=1, limit=settings.PAGE):
+                     experimenter_id=-1, childCount=False, page=1, limit=settings.PAGE):
     ''' Marshals datasets
 
         @param conn OMERO gateway.
@@ -410,16 +451,20 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
         params.addId(experimenter_id)
         where_clause.append('dataset.details.owner.id = :id')
 
+    withChildCount = ""
+    if childCount:
+        withChildCount = """,
+               (select count(id) from DatasetImageLink dil
+                 where dil.parent=dataset.id) as childCount"""
+
     qs = conn.getQueryService()
     q = """
         select new map(dataset.id as id,
                dataset.name as name,
                dataset.details.owner.id as ownerId,
-               dataset as dataset_details_permissions,
-               (select count(id) from DatasetImageLink dil
-                 where dil.parent=dataset.id) as childCount)
+               dataset as dataset_details_permissions %s)
                from Dataset dataset
-        """
+        """ % withChildCount
 
     # If this is a query to get datasets from a parent project
     if project_id:
@@ -445,12 +490,13 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
 
     for e in qs.projection(q, params, service_opts):
         e = unwrap(e)
-        e = [e[0]["id"],
-             e[0]["name"],
-             e[0]["ownerId"],
-             e[0]["dataset_details_permissions"],
-             e[0]["childCount"]]
-        datasets.append(_marshal_dataset(conn, e[0:5]))
+        row = [e[0]["id"],
+               e[0]["name"],
+               e[0]["ownerId"],
+               e[0]["dataset_details_permissions"]]
+        if childCount:
+            row.append(e[0]["childCount"])
+        datasets.append(_marshal_dataset(conn, row))
     return datasets
 
 

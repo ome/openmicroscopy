@@ -34,7 +34,7 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
-from api_marshal import marshal_projects, marshal_datasets, \
+from api_marshal import marshal_projects, marshal_datasets, omero_marshal_datasets, \
     marshal_images, marshal_screens, marshal_plates, \
     marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, \
