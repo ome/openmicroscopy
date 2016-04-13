@@ -344,8 +344,15 @@ public class ROIReader {
             } else if (r instanceof ShapeRoi) {
                 Roi[] subRois = ((ShapeRoi) r).getRois();
                 Roi shapeij;
+                
                 for (int j = 0; j < subRois.length; j++) {
-                    shapeij = subRois[j];
+                	roiData = new ROIData();
+                    type = r.getTypeAsString();
+                    if (imageID >= 0) {
+                        roiData.setImage(new ImageI(imageID, false));
+                    }
+                    pojos.add(roiData);
+                	shapeij = subRois[j];
 
                     // Set ImagePlus reference in subROIs for the check in L216 to work
                     ImagePlus imp = r.getImage();
