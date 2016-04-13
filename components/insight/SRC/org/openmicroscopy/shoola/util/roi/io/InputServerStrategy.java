@@ -265,20 +265,20 @@ class InputServerStrategy
 	 */
 	private MeasureEllipseFigure createEllipseFigure(EllipseData data)
 	{
-		double cx = data.getX();
-		double cy = data.getY();
-		double rx = data.getRadiusX();
-		double ry = data.getRadiusY();
+		double x = data.getX();
+		double y = data.getY();
+		double radiusx = data.getRadiusX();
+		double radiusy = data.getRadiusY();
 		
-		double x = cx-rx;
-		double y = cy-ry;
-		double width = rx*2d;
-		double height = ry*2d;
+		double x0 = x-radiusx;
+		double y0 = y-radiusy;
+		double width = radiusx*2d;
+		double height = radiusy*2d;
 		MeasureEllipseFigure fig = new MeasureEllipseFigure(data.getText(), 
-				x, y, width, height, data.isReadOnly(), 
+				x0, y0, width, height, data.isReadOnly(),
 					data.isClientObject(), data.canEdit(), data.canDelete(), 
 					data.canAnnotate());
-		fig.setEllipse(x, y, width, height);
+		fig.setEllipse(x0, y0, width, height);
 		fig.setText(data.getText());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
