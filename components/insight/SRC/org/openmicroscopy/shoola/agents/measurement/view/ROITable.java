@@ -26,8 +26,20 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Insets;
+import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragSource;
+import java.awt.dnd.DragSourceDragEvent;
+import java.awt.dnd.DragSourceDropEvent;
+import java.awt.dnd.DragSourceEvent;
+import java.awt.dnd.DragSourceListener;
+import java.awt.dnd.DragSourceMotionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -49,6 +61,10 @@ import javax.swing.DropMode;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -60,7 +76,6 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jhotdraw.draw.Figure;
-import org.apache.commons.collections.CollectionUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
@@ -160,6 +175,87 @@ public class ROITable
 	    ROIS, SHAPES, FOLDERS, MIXED
 	}
 	
+	// DnD Scroll
+	
+	/** DnD autoscroll insets (this defines the scroll sensitive area) */
+    private static final int AUTOSCROLL_INSET = 10;
+    
+	/** DnD autoscroll timer */
+    private Timer timer;
+	
+	/** Track the last mouse drag position */
+    private Point lastPosition;
+    
+	/** outer DnD autoscroll rectable */
+    private Rectangle outer;
+
+    /** inner DnD autoscroll rectable */
+    private Rectangle inner;
+    
+	/**
+     * Autoscroll to position
+     */
+    private void autoscroll(Point position) {
+        System.out.println("autoscroll "+position);
+        Scrollable s = (Scrollable) this;
+        if (position.y < inner.y) {
+            // scroll upwards
+            int dy = s.getScrollableUnitIncrement(outer,
+                    SwingConstants.VERTICAL, -1);
+            Rectangle r = new Rectangle(inner.x, outer.y - dy, inner.width, dy);
+            scrollRectToVisible(r);
+        } else if (position.y > (inner.y + inner.height)) {
+            // scroll downwards
+            int dy = s.getScrollableUnitIncrement(outer,
+                    SwingConstants.VERTICAL, 1);
+            Rectangle r = new Rectangle(inner.x, outer.y + outer.height,
+                    inner.width, dy);
+            scrollRectToVisible(r);
+        }
+
+        if (position.x < inner.x) {
+            // scroll left
+            int dx = s.getScrollableUnitIncrement(outer,
+                    SwingConstants.HORIZONTAL, -1);
+            Rectangle r = new Rectangle(outer.x - dx, inner.y, dx, inner.height);
+            scrollRectToVisible(r);
+        } else if (position.x > (inner.x + inner.width)) {
+            // scroll right
+            int dx = s.getScrollableUnitIncrement(outer,
+                    SwingConstants.HORIZONTAL, 1);
+            Rectangle r = new Rectangle(outer.x + outer.width, inner.y, dx,
+                    inner.height);
+            scrollRectToVisible(r);
+        }
+    }
+    
+    /**
+     * Updates inner/outer autoscroll regions
+     */
+    private void updateRegion() {
+        // compute the outer
+        Rectangle visible = getVisibleRect();
+        outer.setBounds(visible.x, visible.y, visible.width, visible.height);
+
+        // compute the insets
+        Insets i = new Insets(0, 0, 0, 0);
+        if (this instanceof Scrollable) {
+            int minSize = 2 * AUTOSCROLL_INSET;
+
+            if (visible.width >= minSize) {
+                i.left = i.right = AUTOSCROLL_INSET;
+            }
+
+            if (visible.height >= minSize) {
+                i.top = i.bottom = AUTOSCROLL_INSET;
+            }
+        }
+
+        // set the inner from the insets
+        inner.setBounds(visible.x + i.left, visible.y + i.top, visible.width
+                - (i.left + i.right), visible.height - (i.top + i.bottom));
+    }
+    
 	/**
 	 * Returns <code>true</code> if all the roishapes in the shapelist 
 	 * have the same id, <code>false</code> otherwise.
@@ -283,6 +379,77 @@ public class ROITable
                     previousSelectionIndices = getSelectedRows();
             }
         });
+        
+        // DnD Scroll
+        
+        // after exportAsDrag is called (see CustomTableUI), events are no longer
+        // propagated to MouseListeners, so we'd have to listen to the DragSource
+        DragSource.getDefaultDragSource().addDragSourceMotionListener(
+                new DragSourceMotionListener() {
+                    @Override
+                    public void dragMouseMoved(DragSourceDragEvent e) {
+                        lastPosition = MouseInfo.getPointerInfo().getLocation();
+                        if (!timer.isRunning())
+                            timer.start();
+                    }
+
+                });
+        DragSource.getDefaultDragSource().addDragSourceListener(
+                new DragSourceListener() {
+
+                    @Override
+                    public void dropActionChanged(DragSourceDragEvent dsde) {
+                        // ignore
+                    }
+
+                    @Override
+                    public void dragOver(DragSourceDragEvent dsde) {
+                        // ignore
+                    }
+
+                    @Override
+                    public void dragExit(DragSourceEvent dse) {
+                        // ignore
+                    }
+
+                    @Override
+                    public void dragEnter(DragSourceDragEvent dsde) {
+                        // ignore
+                    }
+
+                    @Override
+                    public void dragDropEnd(DragSourceDropEvent dsde) {
+                        if (timer.isRunning())
+                            timer.stop();
+                    }
+                });
+        
+        outer = new Rectangle();
+        inner = new Rectangle();
+
+        Toolkit t = Toolkit.getDefaultToolkit();
+        Integer prop;
+
+        ActionListener al = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateRegion();
+                Point componentPosition = new Point(lastPosition);
+                SwingUtilities.convertPointFromScreen(componentPosition,
+                        ROITable.this);
+                if (outer.contains(componentPosition)
+                        && !inner.contains(componentPosition)) {
+                    autoscroll(componentPosition);
+                }
+            }
+        };
+
+        prop =  (Integer) t.getDesktopProperty("DnD.Autoscroll.interval");
+        timer = new Timer(prop == null ? 100 : prop.intValue(), al);
+
+        prop = (Integer) t.getDesktopProperty("DnD.Autoscroll.initialDelay");
+        timer.setInitialDelay(prop == null ? 100 : prop.intValue());
 	}
 	
     /**
@@ -1623,13 +1790,12 @@ public class ROITable
      * https://community.oracle.com/thread/1361004
      */
     class CustomTableUI extends BasicTableUI {
-
+        
         @Override
         protected MouseInputListener createMouseInputListener() {
             return new MouseInputHandler() {
 
                 public void mousePressed(MouseEvent e) {
-
                     Point origin = e.getPoint();
                     int row = table.rowAtPoint(origin);
                     int column = table.columnAtPoint(origin);
@@ -1642,10 +1808,37 @@ public class ROITable
 
                 @Override
                 public void mouseDragged(MouseEvent e) {
-
+                    super.mouseDragged(e);
                     table.getTransferHandler().exportAsDrag(table, e,
                             DnDConstants.ACTION_MOVE);
                 }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    super.mouseReleased(e);
+                    timer.stop();
+                }
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    super.mouseEntered(e);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    super.mouseExited(e);
+                }
+
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    super.mouseMoved(e);
+                }
+                
             };
         }
 
