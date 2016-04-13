@@ -102,7 +102,7 @@ module omero {
                 idempotent LongIObjectListMap loadTagContent(omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
 
                 /**
-                 * Loads all the tag Sets. Returns a collection of
+                 * Loads all the TagSets. Returns a collection of
                  * <code>AnnotationAnnotatioLink</code> objects and, if the
                  * <code>orphan</code> parameters is <code>true</code>, the
                  * <code>TagAnnotation</code> object.
