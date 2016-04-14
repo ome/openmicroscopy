@@ -29,15 +29,19 @@
 
                 // Delegate to sub-views to handle content of each collapsible panel
 
-                var dataModel = ["{{ manager.obj_type }}-{{ manager.obj_id }}"];
+                var selectedObjs = ["{{ manager.obj_type }}-{{ manager.obj_id }}"];
                 {% if manager.well.getWellSample.image %}
-                    dataModel = ["image-{{ manager.well.getWellSample.image.id }}"];
+                    selectedObjs = ["image-{{ manager.well.getWellSample.image.id }}"];
                 {% endif %}
+                var annPaneData = {
+                    'selected': selectedObjs,
+                    'canAnnotate': {% if manager.canAnnotate %}true{% else %}false{% endif %}
+                }
 
-                var tagPane = new TagPane($("#tagsPane"), dataModel);
-                var fileannsPane = new FileAnnsPane($("#fileannsPane"), dataModel);
-                var commentsPane = new CommentsPane($("#commentsPane"), dataModel);
-                var mapAnnsPane = new MapAnnsPane($("#mapAnnsPane"), dataModel);
+                var tagPane = new TagPane($("#tagsPane"), annPaneData);
+                var fileannsPane = new FileAnnsPane($("#fileannsPane"), annPaneData);
+                var commentsPane = new CommentsPane($("#commentsPane"), annPaneData);
+                var mapAnnsPane = new MapAnnsPane($("#mapAnnsPane"), annPaneData);
 
 
                 var linkify = function(input) {

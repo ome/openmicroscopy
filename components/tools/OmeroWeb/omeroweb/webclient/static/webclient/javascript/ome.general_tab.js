@@ -38,11 +38,13 @@ var getExpanded = function getExpanded(name) {
 };
 
 
-window.TagPane = function TagPane($element, objects) {
+window.TagPane = function TagPane($element, opts) {
 
     var $header = $element.children('h1'),
         $body = $element.children('div'),
-        $tags_container = $("#tags_container");
+        $tags_container = $("#tags_container"),
+        objects = opts.selected,
+        canAnnotate = opts.canAnnotate;
 
     var tmplText = $('#tags_template').html();
     var tagTmpl = _.template(tmplText);
@@ -126,11 +128,13 @@ window.TagPane = function TagPane($element, objects) {
 
 
 
-window.FileAnnsPane = function FileAnnsPane($element, objects) {
+window.FileAnnsPane = function FileAnnsPane($element, opts) {
 
     var $header = $element.children('h1'),
         $body = $element.children('div'),
-        $fileanns_container = $("#fileanns_container");
+        $fileanns_container = $("#fileanns_container"),
+        objects = opts.selected,
+        canAnnotate = opts.canAnnotate;
 
     var tmplText = $('#fileanns_template').html();
     var filesTempl = _.template(tmplText);
@@ -228,11 +232,13 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
 
 
 
-window.MapAnnsPane = function MapAnnsPane($element, objects) {
+window.MapAnnsPane = function MapAnnsPane($element, opts) {
 
     var $header = $element.children('h1'),
         $body = $element.children('div'),
-        $mapAnnContainer = $("#mapAnnContainer");
+        $mapAnnContainer = $("#mapAnnContainer"),
+        objects = opts.selected,
+        canAnnotate = opts.canAnnotate;
 
     var tmplText = $('#mapanns_template').html();
     var mapAnnsTempl = _.template(tmplText);
@@ -314,11 +320,13 @@ window.MapAnnsPane = function MapAnnsPane($element, objects) {
 
                 // Update html...
                 var html = "";
-                if (my_client_map_annotations.length === 0) {
-                    my_client_map_annotations = [{}];   // placeholder
-                }
-                html = mapAnnsTempl({'anns': my_client_map_annotations,
+                if (canAnnotate) {
+                    if (my_client_map_annotations.length === 0) {
+                        my_client_map_annotations = [{}];   // placeholder
+                    }
+                    html = mapAnnsTempl({'anns': my_client_map_annotations,
                     'showTableHead': true, 'showNs': false, 'clientMapAnn': true});
+                }
                 html = html + mapAnnsTempl({'anns': client_map_annotations,
                     'showTableHead': false, 'showNs': false, 'clientMapAnn': true});
                 html = html + mapAnnsTempl({'anns': map_annotations,
@@ -346,11 +354,13 @@ window.MapAnnsPane = function MapAnnsPane($element, objects) {
 
 
 
-window.CommentsPane = function CommentsPane($element, objects) {
+window.CommentsPane = function CommentsPane($element, opts) {
 
     var $header = $element.children('h1'),
         $body = $element.children('div'),
-        $comments_container = $("#comments_container");
+        $comments_container = $("#comments_container"),
+        objects = opts.selected,
+        canAnnotate = opts.canAnnotate;
 
     var tmplText = $('#comments_template').html();
     var commentsTempl = _.template(tmplText);
