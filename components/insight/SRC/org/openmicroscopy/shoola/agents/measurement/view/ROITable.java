@@ -1443,7 +1443,7 @@ public class ROITable
                 && action == CreationActionType.CREATE_FOLDER) {
             FolderData parentFolder = null;
             List<FolderData> sel = getSelectedFolders();
-            if (sel.size() == 1)
+            if (sel.size() == 1 && action != CreationActionType.EDIT_FOLDER)
                 parentFolder = sel.get(0);
 
             FolderData folder = (FolderData) evt.getNewValue();
