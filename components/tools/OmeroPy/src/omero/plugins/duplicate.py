@@ -32,10 +32,14 @@ HELP = """Duplicate OMERO data.
 
 Duplicate entire graphs of data based on the ID of the top-node.
 
+Note that no underlying binary data will be duplicated. For example,
+a duplicated Image will refer to the same underlying image files on
+the file system as the original image.
+
 Examples:
 
     # Duplicate a dataset
-    omero duplicate Datset:50
+    omero duplicate Dataset:50
     # Do the same reporting all the new duplicate objects
     omero duplicate Dataset:50 --report
 
