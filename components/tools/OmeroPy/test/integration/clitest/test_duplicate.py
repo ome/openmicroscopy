@@ -60,3 +60,25 @@ class TestDuplicate(CLITest):
         # Check object has been duplicated
         assert len(objs) == 2
         assert objs[0].id.val != objs[1].id.val
+
+    @pytest.mark.parametrize("model", model)
+    @pytest.mark.parametrize("object_type", object_types)
+    def testDuplicateSingleObjectDryRun(self, object_type, model, capfd):
+        name = self.uuid()
+        oid = self.create_object(object_type, name=name)
+
+        # Duplicate the object
+        obj_arg = '%s%s:%s' % (object_type, model, oid)
+        self.args += [obj_arg, "--dry-run"]
+        out = self.duplicate(capfd)
+
+        # Check output string
+        assert obj_arg in out
+        p = omero.sys.ParametersI()
+        p.addString("name", name)
+        query = "select obj from %s obj where obj.name=:name" % object_type
+        objs = self.query.findAllByQuery(query, p)
+
+        # Check object has been duplicated
+        assert len(objs) == 1
+        assert objs[0].id.val == oid
