@@ -15,7 +15,7 @@ class TestDuplicate(CLITest):
 
     @pytest.mark.parametrize("model", model)
     @pytest.mark.parametrize("object_type", object_types)
-    def testDeleteMyData(self, object_type, model):
+    def testDuplicateCheckOriginalObject(self, object_type, model):
         oid = self.create_object(object_type)
 
         # Duplicate the object
