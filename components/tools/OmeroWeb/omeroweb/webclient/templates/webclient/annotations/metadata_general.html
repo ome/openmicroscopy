@@ -37,6 +37,7 @@
                 var tagPane = new TagPane($("#tagsPane"), dataModel);
                 var fileannsPane = new FileAnnsPane($("#fileannsPane"), dataModel);
                 var commentsPane = new CommentsPane($("#commentsPane"), dataModel);
+                var mapAnnsPane = new MapAnnsPane($("#mapAnnsPane"), dataModel);
 
 
                 var linkify = function(input) {
@@ -915,13 +916,15 @@
 
 
             <!-- MAP ANNOTATIONS -->
-            <h1 class="can-collapse defclose" data-name="keyvaluepairs">
+            <div id="mapAnnsPane">
+            <h1 class="can-collapse closed" data-name="keyvaluepairs">
                 Key-Value Pairs
             </h1>
-            <div class="annotations_section">
+            <div class="annotations_section" style="display:none">
 
                 {% include "webclient/annotations/mapannotations.html" %}
 
+            </div>
             </div>
 
 

@@ -1,0 +1,57 @@
+<% _.each(anns, function(ann) { %>
+
+<table <% if (ann.id) { %>
+            data-annId="<%= ann.id %>"
+            data-added-by="<%= ann.owner.id %>"
+        <% } else { %>
+            data-added-by="<%= WEBCLIENT.USER.id %>"
+        <% } %>
+        class="keyValueTable
+            <% if (!ann.id || (ann.permissions.canEdit && clientMapAnn)){ %> editableKeyValueTable <% } %>
+            ">
+    <thead>
+      <tr class="tooltip">
+          <th colspan="2">
+            <% if (ann.id) { %>
+                Added by: <%= ann.owner.firstName %> <%= ann.owner.lastName %>
+
+                <span class="tooltip_html" style='display:none'>
+                    <b>ID:</b> <%= ann.id %><br />
+                    <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
+                    <b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %><br />
+                    <b>On:</b> <%= ann.link.date %>
+                </span>
+            <% } %>
+          </th>
+        </tr>
+        <% if (showTableHead) { %>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+        </tr>
+        <% } %>
+
+        <% if (showNs && ann.ns) { %>
+        <tr title="<%= ann.ns %>">
+            <th colspan="2"><%= ann.ns.slice(0, 50) %></th>
+        </tr>
+        <% } %>
+    </thead>
+
+    <!-- Last row always has empty key & value fields -->
+    <% if (ann.id) { %>
+      <% _.each(ann.values, function(row) { %>
+        <tr>
+            <td><% print(_.escape(row['0'])) %></td>
+            <td><% print(_.escape(row['1'])) %></td>
+        </tr>
+      <% }) %>
+    <% } else { %>
+      <tr class="placeholder">
+          <td>Add Key</td>
+          <td>Add Value</td>
+      </tr>
+    <% } %>
+</table>
+
+<% }) %>

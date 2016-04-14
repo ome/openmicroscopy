@@ -117,10 +117,11 @@ class render_response(omeroweb.decorators.render_response):
         conn = kwargs['conn']
 
         # omero constants
-        context['omero'] = {'constants': {'namespaces': {
+        context['omero'] = {'constants': {
             'NSCOMPANIONFILE': constants.namespaces.NSCOMPANIONFILE,
-            'ORIGINALMETADATA': constants.annotation.file.ORIGINALMETADATA
-        }}}
+            'ORIGINALMETADATA': constants.annotation.file.ORIGINALMETADATA,
+            'NSCLIENTMAPANNOTATION': constants.metadata.NSCLIENTMAPANNOTATION
+        }}
 
         context.setdefault('ome', {})   # don't overwrite existing ome
         context['ome']['eventContext'] = conn.getEventContext

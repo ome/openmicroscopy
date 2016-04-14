@@ -340,7 +340,7 @@
         });
 
         // Select (and Start editing?) when you click a td
-        $( ".keyValueTable tbody" ).on( "click", "td", function(event) {
+        $("#mapAnnContainer").on( "click", ".keyValueTable tbody td", function(event) {
             var $td = $(event.target);
             // ignore clicks on other elements, e.g. <input>
             if ($td[0].tagName.toLowerCase() != "td") return;
@@ -357,7 +357,7 @@
 
         // Handle keys when editing
         // Start editing when you click a td
-        $( ".editableKeyValueTable tbody" ).on( "keydown", "input", function(event) {
+        $("#mapAnnContainer").on( "keydown", ".editableKeyValueTable tbody input", function(event) {
             var $td = $(event.target).parent();
 
             switch (event.which) {
@@ -387,7 +387,7 @@
             if (event.which == 9) return false
         });
 
-        $( ".keyValueTable tbody" ).on( "blur", "input", function(event) {
+        $("#mapAnnContainer").on( "blur", ".keyValueTable tbody input", function(event) {
             saveEdit();
         });
 
@@ -425,42 +425,4 @@
     </ul>
 </div>
 
-<div class="mapAnnContainer">
-
-{% if manager.my_client_map_annotations %}
-    {% for ma in manager.my_client_map_annotations %}
-        {% with canEdit=ma.canEdit showTableHead=True %}
-            {% include "webclient/annotations/mapannotation.html" %}
-        {% endwith %}
-    {% endfor %}
-{% elif manager.canAnnotate %}
-    <!-- Add an empty placeholder -->
-    {% with canEdit=True %}
-        {% include "webclient/annotations/mapannotation.html" %}
-    {% endwith %}
-{% endif %}
-
-{% if manager.client_map_annotations %}
-
-{% if manager.canAnnotate %}
-    <!-- only need this <hr> if there is something already above -->
-    <hr>
-{% endif %}
-
-{% for ma in manager.client_map_annotations %}
-    {% with canEdit=ma.canEdit %}
-        {% include "webclient/annotations/mapannotation.html" %}
-    {% endwith %}
-{% endfor %}
-{% endif %}
-
-{% if manager.map_annotations %}
-<hr>
-{% for ma in manager.map_annotations %}
-    {% with canEdit=False showNs=True %}
-        {% include "webclient/annotations/mapannotation.html" %}
-    {% endwith %}    
-{% endfor %}
-{% endif %}
-
-</div>
+<div id="mapAnnContainer" class="mapAnnContainer"></div>

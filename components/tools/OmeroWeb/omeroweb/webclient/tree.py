@@ -1690,9 +1690,12 @@ def _marshal_annotation(conn, annotation, link=None):
     ann['type'] = annClass
     if annClass in ['TagAnnotationI', 'CommentAnnotationI']:
         ann['textValue'] = unwrap(annotation.textValue)
-    if annClass == 'LongAnnotationI':
+    elif annClass == 'LongAnnotationI':
         ann['longValue'] = unwrap(annotation.longValue)
-    if annClass == 'FileAnnotationI' and annotation.file:
+    elif annClass == 'MapAnnotationI':
+        kvs = [[kv.name, kv.value] for kv in annotation.getMapValue()]
+        ann['values'] = kvs
+    elif annClass == 'FileAnnotationI' and annotation.file:
         ann['file'] = {}
         ann['file']['id'] = annotation.file.id.val
         ann['file']['name'] = unwrap(annotation.file.name)
@@ -1746,6 +1749,8 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
         where_clause.append('ch.class=CommentAnnotation')
     if ann_type == 'rating':
         where_clause.append('ch.class=LongAnnotation')
+    if ann_type == 'map':
+        where_clause.append('ch.class=MapAnnotation')
 
     dtypes = ["Project", "Dataset", "Image",
               "Screen", "Plate", "PlateAcquisition"]
@@ -1762,6 +1767,7 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
         q = """
             select oal from %sAnnotationLink as oal
             join fetch oal.details.creationEvent
+            join fetch oal.details.owner
             left outer join fetch oal.child as ch
             left outer join fetch oal.parent as pa
             join fetch ch.details.creationEvent

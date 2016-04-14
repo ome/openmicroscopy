@@ -152,10 +152,6 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
     }).bind(this);
 
 
-    var isOriginalMetadata = function isOriginalMetadata(ann) {
-        return (ann.ns === OMERO.constants.namespaces.NSCOMPANIONFILE &&
-            ann.file.name === OMERO.constants.annotation.file.ORIGINALMETADATA);
-    };
     var isNotCompanionFile = function isNotCompanionFile(ann) {
         return ann.ns !== OMERO.constants.namespaces.NSCOMPANIONFILE;
     };
@@ -231,6 +227,121 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
 };
 
 
+
+window.MapAnnsPane = function MapAnnsPane($element, objects) {
+
+    var $header = $element.children('h1'),
+        $body = $element.children('div'),
+        $mapAnnContainer = $("#mapAnnContainer");
+
+    var tmplText = $('#mapanns_template').html();
+    var mapAnnsTempl = _.template(tmplText);
+
+
+    var initEvents = (function initEvents() {
+
+        $header.click(function(){
+            console.log('cic');
+            $header.toggleClass('closed');
+            $body.slideToggle();
+
+            var expanded = !$header.hasClass('closed');
+            setExpanded('maps', expanded);
+
+            if (expanded && $mapAnnContainer.is(":empty")) {
+                this.render();
+            }
+        }.bind(this));
+    }).bind(this);
+
+
+    var isClientMapAnn = function(ann) {
+        return ann.ns === OMERO.constants.metadata.NSCLIENTMAPANNOTATION;
+    };
+    var isMyClientMapAnn = function(ann) {
+        return isClientMapAnn(ann) && ann.owner.id == WEBCLIENT.USER.id;
+    };
+
+
+    this.render = function render() {
+
+        if ($mapAnnContainer.is(":visible")) {
+
+            if ($mapAnnContainer.is(":empty")) {
+                $mapAnnContainer.html("Loading key value annotations...");
+            }
+
+            var request = objects.map(function(o){
+                return o.replace("-", "=");
+            });
+
+            $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=map&" + request, function(data){
+
+                // manipulate data...
+                // make an object of eid: experimenter
+                var experimenters = data.experimenters.reduce(function(prev, exp){
+                    prev[exp.id + ""] = exp;
+                    return prev;
+                }, {});
+
+                // Populate experimenters within anns
+                var anns = data.annotations.map(function(ann){
+                    ann.owner = experimenters[ann.owner.id];
+                    if (ann.link && ann.link.owner) {
+                        ann.link.owner = experimenters[ann.link.owner.id];
+                    }
+                    return ann;
+                });
+
+                // Sort map anns into 3 lists...
+                var client_map_annotations = [];
+                var my_client_map_annotations = [];
+                var map_annotations = [];
+
+                anns.forEach(function(ann){
+                    if (isMyClientMapAnn(ann)) {
+                        my_client_map_annotations.push(ann);
+                    } else if (isClientMapAnn(ann)) {
+                        client_map_annotations.push(ann);
+                    } else {
+                        map_annotations.push(ann);
+                    }
+                });
+
+                console.log(my_client_map_annotations);
+                console.log(client_map_annotations);
+                console.log(map_annotations);
+
+                // Update html...
+                var html = "";
+                if (my_client_map_annotations.length === 0) {
+                    my_client_map_annotations = [{}];   // placeholder
+                }
+                html = mapAnnsTempl({'anns': my_client_map_annotations,
+                    'showTableHead': true, 'showNs': false, 'clientMapAnn': true});
+                html = html + mapAnnsTempl({'anns': client_map_annotations,
+                    'showTableHead': false, 'showNs': false, 'clientMapAnn': true});
+                html = html + mapAnnsTempl({'anns': map_annotations,
+                    'showTableHead': false, 'showNs': true, 'clientMapAnn': false});
+                $mapAnnContainer.html(html);
+
+                // Finish up...
+                OME.filterAnnotationsAddedBy();
+                $(".tooltip", $mapAnnContainer).tooltip_init();
+            });
+        }
+    };
+
+
+    initEvents();
+
+    if (getExpanded('maps')) {
+        $header.toggleClass('closed');
+        $body.show();
+    }
+
+    this.render();
+};
 
 
 
