@@ -11,7 +11,7 @@
 
         <% if (tag.link.permissions.canDelete) { %>
         <span class='removeTag' title="Remove Tag" id="<%= tag.id %>-tag"
-                url='/webclient/action/remove/tag/<%= tag.id %>/'>
+                url='<%= webindex %>action/remove/tag/<%= tag.id %>/'>
                 X
         </span>
         <% } %>

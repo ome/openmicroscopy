@@ -4,7 +4,7 @@
     data-added-by="<%= ann.link.owner.id %>">
 
     <a class='tooltip'
-        href="<% if (ann.permissions.canDownload) { print('/webclient/annotation/' + ann.id)} else {print('#') } %>">
+        href="<% if (ann.permissions.canDownload) { print(webindex + 'annotation/' + ann.id)} else {print('#') } %>">
         <%= ann.file.name %>
         <span>(<%= ann.file.size %>)</span>
     </a>
@@ -25,12 +25,12 @@
         <input type="checkbox" style="display:none;"/>
         <% if (ann.link.permissions.canDelete) { %> <!-- and not ann.isOriginalMetadata -->
             <a class='removeFile action' id="<%= ann.id %>-file" title="Remove File"
-            href='/webclient/action/remove/file/<%= ann.id %>/'>-</a>
+            href='<%= webindex %>action/remove/file/<%= ann.id %>/'>-</a>
         <% } %>
 
         <% if (ann.permissions.canDelete) { %> <!-- and not ann.isOriginalMetadata -->
             <a id="<%= ann.id %>-file" type="image" class="deleteFile action" title="Delete File"
-                href="/webclient/action/delete/file/<%= ann.id %>/"> &#215 </a>
+                href="<%= webindex %>action/delete/file/<%= ann.id %>/"> &#215 </a>
         <% } %>
 
     </div>

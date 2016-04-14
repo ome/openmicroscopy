@@ -18,8 +18,8 @@
     
         <% if (ann.permissions.canDelete) { %>
             <img class='removeComment' id="<%= ann.id %>-comment"
-                src="/webclient/image/icon_basic_delete.png"
-                url='/webclient/action/remove/comment/<%= ann.id %>/' 
+                src="<%= static %>image/icon_basic_delete.png"
+                url='<%= webindex %>action/remove/comment/<%= ann.id %>/' 
                 title="Delete comment"/>
         <% } %>
 

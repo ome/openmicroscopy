@@ -81,7 +81,7 @@ window.TagPane = function TagPane($element, objects) {
                 return o.replace("-", "=");
             });
 
-            $.getJSON("/webclient/api/annotations/?type=tag&" + request, function(data){
+            $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=tag&" + request, function(data){
 
                 // manipulate data...
                 // make an object of eid: experimenter
@@ -103,7 +103,7 @@ window.TagPane = function TagPane($element, objects) {
                 console.log(tags);
 
                 // Update html...
-                var html = tagTmpl({'tags': tags});
+                var html = tagTmpl({'tags': tags, 'webindex': WEBCLIENT.URLS.webindex});
                 $tags_container.html(html);
 
                 // Finish up...
@@ -173,7 +173,7 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
                 return o.replace("-", "=");
             });
 
-            $.getJSON("/webclient/api/annotations/?type=file&" + request, function(data){
+            $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=file&" + request, function(data){
 
                 var checkboxesAreVisible = $(
                     "#fileanns_container input[type=checkbox]:visible"
@@ -204,7 +204,7 @@ window.FileAnnsPane = function FileAnnsPane($element, objects) {
                 // Update html...
                 var html = "";
                 if (anns.length > 0) {
-                    html = filesTempl({'anns': anns});
+                    html = filesTempl({'anns': anns, 'webindex': WEBCLIENT.URLS.webindex});
                 }
                 $fileanns_container.html(html);
 
@@ -275,7 +275,7 @@ window.CommentsPane = function CommentsPane($element, objects) {
                 return o.replace("-", "=");
             });
 
-            $.getJSON("/webclient/api/annotations/?type=comment&" + request, function(data){
+            $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=comment&" + request, function(data){
 
 
                 // manipulate data...
@@ -292,8 +292,12 @@ window.CommentsPane = function CommentsPane($element, objects) {
                         ann.link.owner = experimenters[ann.link.owner.id];
                     }
                     ann.textValue = _.escape(ann.textValue);
-                    // ann.description = _.escape(ann.description);
                     return ann;
+                });
+
+                // Show most recent comments at the top
+                anns.sort(function(a, b) {
+                    return a.date < b.date;
                 });
 
                 console.log(anns);
@@ -301,7 +305,9 @@ window.CommentsPane = function CommentsPane($element, objects) {
                 // Update html...
                 var html = "";
                 if (anns.length > 0) {
-                    html = commentsTempl({'anns': anns});
+                    html = commentsTempl({'anns': anns,
+                                          'static': WEBCLIENT.URLS.static_webclient,
+                                          'webindex': WEBCLIENT.URLS.webindex});
                 }
                 $comments_container.html(html);
 
