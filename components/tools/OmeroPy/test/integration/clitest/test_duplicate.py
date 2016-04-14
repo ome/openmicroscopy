@@ -61,14 +61,13 @@ class TestDuplicate(CLITest):
         assert len(objs) == 2
         assert objs[0].id.val != objs[1].id.val
 
-    @pytest.mark.parametrize("model", model)
-    @pytest.mark.parametrize("object_type", object_types)
-    def testDuplicateSingleObjectDryRun(self, object_type, model, capfd):
+    def testDuplicateSingleObjectDryRun(self, capfd):
         name = self.uuid()
+        object_type = "Dataset"
         oid = self.create_object(object_type, name=name)
 
         # Duplicate the object
-        obj_arg = '%s%s:%s' % (object_type, model, oid)
+        obj_arg = '%s:%s' % (object_type, oid)
         self.args += [obj_arg, "--dry-run"]
         out = self.duplicate(capfd)
 
@@ -79,6 +78,53 @@ class TestDuplicate(CLITest):
         query = "select obj from %s obj where obj.name=:name" % object_type
         objs = self.query.findAllByQuery(query, p)
 
+        # Check original object is present and no duplication happened
+        assert len(objs) == 1
+        assert objs[0].id.val == oid
+
+    def testDuplicateSingleObjectReport(self, capfd):
+        name = self.uuid()
+        object_type = "Dataset"
+        oid = self.create_object(object_type, name=name)
+
+        # Duplicate the object
+        obj_arg = '%s:%s' % (object_type, oid)
+        self.args += [obj_arg, "--report"]
+        out = self.duplicate(capfd)
+        lines_out = out.splitlines()
+
+        p = omero.sys.ParametersI()
+        p.addString("name", name)
+        query = "select obj from %s obj where obj.name=:name" % object_type
+        objs = self.query.findAllByQuery(query, p)
+
+        # Check object has been duplicated
+        assert len(objs) == 2
+        assert objs[0].id.val != objs[1].id.val
+        assert len(lines_out) == 6
+        assert '%s:%s' % (object_type, objs[0].id.val) in out
+        assert '%s:%s' % (object_type, objs[1].id.val) in out
+
+    def testDuplicateSingleObjectDryRunReport(self, capfd):
+        name = self.uuid()
+        object_type = "Dataset"
+        oid = self.create_object(object_type, name=name)
+
+        # Duplicate the object
+        obj_arg = '%s:%s' % (object_type, oid)
+        self.args += [obj_arg, "--dry-run", "--report"]
+        out = self.duplicate(capfd)
+        lines_out = out.splitlines()
+
+        p = omero.sys.ParametersI()
+        p.addString("name", name)
+        query = "select obj from %s obj where obj.name=:name" % object_type
+        objs = self.query.findAllByQuery(query, p)
+
         # Check object has been duplicated
         assert len(objs) == 1
         assert objs[0].id.val == oid
+        assert len(lines_out) == 6
+        assert '%s:%s' % (object_type, objs[0].id.val) in out
+        # Check object has been found in two different places of the output
+        assert out.find(obj_arg) != out.rfind(obj_arg)
