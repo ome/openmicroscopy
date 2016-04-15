@@ -1517,7 +1517,17 @@ class GraphArg(object):
             assert '+' not in parts[0]
             parts[0] = parts[0].lstrip("/")
             graph = parts[0].split("/")
-            ids = [long(id) for id in parts[1].split(",")]
+            ids = []
+            needsForce = False
+            for id in parts[1].split(","):
+                if "-" in id:
+                    needsForce = True
+                    low, high = map(long, id.split("-"))
+                    if high < low:
+                        raise ValueError("Bad range: %s", arg)
+                    ids.extend(range(low, high+1))
+                else:
+                    ids.append(long(id))
             targetObjects[graph[0]] = ids
             cmd.targetObjects = targetObjects
             if len(graph) > 1:
@@ -1526,7 +1536,7 @@ class GraphArg(object):
                 skiphead.targetObjects = targetObjects
                 skiphead.startFrom = [graph[-1]]
                 cmd = skiphead
-            return cmd
+            return cmd, needsForce
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1687,6 +1697,9 @@ class GraphControl(CmdControl):
             "--dry-run", action="store_true",
             help=("Do a dry run of the command, providing a "
                   "report of what would have been done"))
+        parser.add_argument(
+            "--force", action="store_true",
+            help=("Force an action that otherwise defaults to a dry run"))
         self._pre_objects(parser)
         parser.add_argument(
             "obj", nargs="*", type=GraphArg(self.cmd_type()),
@@ -1747,9 +1760,12 @@ class GraphControl(CmdControl):
             if exc:
                 opt.excludeType = exc
 
-        commands = args.obj
+        commands, forces = zip(*args.obj)
+        needsForce = any(forces)
         for req in commands:
-            req.dryRun = args.dry_run
+            req.dryRun = args.dry_run or needsForce
+            if args.force:
+                req.dryRun = False
             if inc or exc:
                 req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
@@ -1763,7 +1779,7 @@ class GraphControl(CmdControl):
             self._check_command(command_check)
 
         if len(commands) == 1:
-            cmd = args.obj[0]
+            cmd = commands[0]
         else:
             cmd = omero.cmd.DoAll(commands)
 
