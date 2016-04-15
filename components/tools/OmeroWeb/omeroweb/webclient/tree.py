@@ -1743,15 +1743,21 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
     #     where_clause.append('dataset.details.owner.id = :eid')
     if ann_type == 'tag':
         where_clause.append('ch.class=TagAnnotation')
-    if ann_type == 'file':
+    elif ann_type == 'file':
         where_clause.append('ch.class=FileAnnotation')
-    if ann_type == 'comment':
+    elif ann_type == 'comment':
         where_clause.append('ch.class=CommentAnnotation')
-    if ann_type == 'rating':
+    elif ann_type == 'rating':
         where_clause.append('ch.class=LongAnnotation')
         where_clause.append("ch.ns='openmicroscopy.org/omero/insight/rating'")
-    if ann_type == 'map':
+    elif ann_type == 'map':
         where_clause.append('ch.class=MapAnnotation')
+    elif ann_type == 'custom':
+        where_clause.append('ch.class!=MapAnnotation')
+        where_clause.append('ch.class!=TagAnnotation')
+        where_clause.append('ch.class!=FileAnnotation')
+        where_clause.append('ch.class!=CommentAnnotation')
+        where_clause.append("(ch.ns=null or ch.ns!='openmicroscopy.org/omero/insight/rating')")
 
     dtypes = ["Project", "Dataset", "Image",
               "Screen", "Plate", "PlateAcquisition"]
