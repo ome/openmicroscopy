@@ -352,6 +352,112 @@ window.MapAnnsPane = function MapAnnsPane($element, opts) {
 };
 
 
+window.RatingsPane = function RatingsPane($element, opts) {
+
+    var $header = $element.children('h1'),
+        $body = $element.children('div'),
+        $rating_annotations = $("#rating_annotations"),
+        objects = opts.selected,
+        canAnnotate = opts.canAnnotate;
+
+    var tmplText = $('#ratings_template').html();
+    var ratingsTempl = _.template(tmplText);
+
+
+    var initEvents = (function initEvents() {
+
+        $header.click(function(){
+            $header.toggleClass('closed');
+            $body.slideToggle();
+
+            var expanded = !$header.hasClass('closed');
+            setExpanded('ratings', expanded);
+
+            if (expanded && $rating_annotations.is(":empty")) {
+                this.render();
+            }
+        }.bind(this));
+    }).bind(this);
+
+
+    var isClientMapAnn = function(ann) {
+        return ann.ns === OMERO.constants.metadata.NSCLIENTMAPANNOTATION;
+    };
+    var isMyClientMapAnn = function(ann) {
+        return isClientMapAnn(ann) && ann.owner.id == WEBCLIENT.USER.id;
+    };
+
+
+    this.render = function render() {
+
+        if ($rating_annotations.is(":visible")) {
+
+            if ($rating_annotations.is(":empty")) {
+                $rating_annotations.html("Loading ratings...");
+            }
+
+            var request = objects.map(function(o){
+                return o.replace("-", "=");
+            });
+
+            $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=rating&" + request, function(data){
+
+                // manipulate data...
+                // make an object of eid: experimenter
+                // var experimenters = data.experimenters.reduce(function(prev, exp){
+                //     prev[exp.id + ""] = exp;
+                //     return prev;
+                // }, {});
+
+                // // Populate experimenters within anns
+                // var anns = data.annotations.map(function(ann){
+                //     ann.owner = experimenters[ann.owner.id];
+                //     if (ann.link && ann.link.owner) {
+                //         ann.link.owner = experimenters[ann.link.owner.id];
+                //     }
+                //     return ann;
+                // });
+                var anns = data.annotations;
+                console.log(anns);
+
+                var sum = anns.reduce(function(prev, ann){
+                    return prev + ann.longValue;
+                }, 0);
+                var myRatings = anns.filter(function(ann){
+                    return ann.owner.id == WEBCLIENT.USER.id;
+                });
+                var myRating = myRatings.length > 0 ? myRatings[0].longValue : 0;
+                var average = Math.round(sum/anns.length);
+                console.log('myRating', myRating);
+
+                // Update html...
+                var html = "";
+                if (anns.length > 0) {
+                    html = ratingsTempl({'anns': anns,
+                                         'myRating': myRating,
+                                         'average': average,
+                                         'count': anns.length,
+                                         'static': WEBCLIENT.URLS.static_webclient});
+                }
+                $rating_annotations.html(html);
+
+                // Finish up...
+                OME.filterAnnotationsAddedBy();
+                $(".tooltip", $rating_annotations).tooltip_init();
+            });
+        }
+    };
+
+
+    initEvents();
+
+    if (getExpanded('ratings')) {
+        $header.toggleClass('closed');
+        $body.show();
+    }
+
+    this.render();
+};
 
 
 window.CommentsPane = function CommentsPane($element, opts) {

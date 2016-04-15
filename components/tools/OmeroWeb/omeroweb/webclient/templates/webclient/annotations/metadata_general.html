@@ -42,6 +42,7 @@
                 var fileannsPane = new FileAnnsPane($("#fileannsPane"), annPaneData);
                 var commentsPane = new CommentsPane($("#commentsPane"), annPaneData);
                 var mapAnnsPane = new MapAnnsPane($("#mapAnnsPane"), annPaneData);
+                var ratingsPane = new RatingsPane($("#ratingsPane"), annPaneData);
 
 
                 var linkify = function(input) {
@@ -900,7 +901,7 @@
 
             <!-- TAGS -->               
             <div id="tagsPane">
-            <h1 class="can-collapse closed">
+            <h1 class="can-collapse closed" data-name="tags">
                 Tags
             </h1>
             <div class="annotations_section" style="display:none">
@@ -996,10 +997,11 @@
 <!-- >>>>>>> origin/develop -->
 
             <!-- RATING -->
-            <h1 class="can-collapse defclose" data-name="ratings">
+            <div id="ratingsPane">
+            <h1 class="can-collapse closed" data-name="ratings">
                 Ratings
             </h1>
-            <div class="annotations_section">
+            <div class="annotations_section" style="display: none">
 
                 {% with ratings=manager.getGroupedRatings %}
 
@@ -1013,32 +1015,9 @@
 
                 <div style="clear:both"></div>
 
-                <ul id="rating_annotations" class="lnfiles">
-
-                    <li class="rating myRating" style="position: relative {% if not ratings.myRating %}; display:none{% endif %}">
-                        <a><img
-                        {% if ratings.myRating %}
-                        {% ifequal ratings.myRating 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                        {% ifequal ratings.myRating 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                        {% ifequal ratings.myRating 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                        {% ifequal ratings.myRating 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                        {% ifequal ratings.myRating 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
-
-                        {% else %}
-                            src="{% static "webclient/image/rating0.png" %}"
-                        {% endif %}
-                        />
-                        </a>
-                        <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
-                    </li>
-                </ul>
-                <div id="ratingsSummary" {% if not ratings.average %}style="display:none"{% endif %}>
-                    (avg:
-                    <span id="ratingsAverage">{{ ratings.average }}</span>
-                    / <span id="ratingsCount">{{ ratings.count }}</span>
-                    votes)
-                </div>
+                <div id="rating_annotations"></div>
                 {% endwith %}
+             </div>
              </div>
 
 

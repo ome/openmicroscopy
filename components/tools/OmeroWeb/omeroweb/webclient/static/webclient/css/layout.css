@@ -430,7 +430,7 @@
     }
     
     /* Rating */
-    #rating_annotations {
+    #rating_annotations ul {
         border-color: transparent;
     }
     .rating {

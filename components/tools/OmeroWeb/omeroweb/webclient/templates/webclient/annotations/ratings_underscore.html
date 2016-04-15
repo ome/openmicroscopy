@@ -1,0 +1,20 @@
+<ul class="lnfiles">
+
+    <li class="rating myRating" style="position: relative">
+        <a><img
+        <% if (myRating) { %>
+            src="<%= static %>image/rating<%= myRating %>.png"
+        <% } else { %>
+            src="<%= static %>image/rating0.png"
+        <% } %>
+        />
+        </a>
+        <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
+    </li>
+</ul>
+<div id="ratingsSummary" <% if (!average) { %>style="display:none"<% } %> >
+    (avg:
+    <span id="ratingsAverage"><%= average %></span>
+    / <span id="ratingsCount"><%= count %></span>
+    votes)
+</div>

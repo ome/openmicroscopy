@@ -1749,6 +1749,7 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
         where_clause.append('ch.class=CommentAnnotation')
     if ann_type == 'rating':
         where_clause.append('ch.class=LongAnnotation')
+        where_clause.append("ch.ns='openmicroscopy.org/omero/insight/rating'")
     if ann_type == 'map':
         where_clause.append('ch.class=MapAnnotation')
 
