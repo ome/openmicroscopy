@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementResults 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -51,7 +51,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 //Third-party libraries
-
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject
 import org.openmicroscopy.shoola.agents.measurement.util.ui.KeyDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
+import omero.gateway.model.FolderData;
 import omero.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
@@ -344,6 +345,9 @@ class MeasurementResults
 		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,
 			AnnotationDescription.annotationDescription.get(
 					AnnotationKeys.ENDPOINTY), false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.FOLDERS,
+	            AnnotationDescription.annotationDescription.get(
+	                    AnnotationKeys.FOLDERS), false)); 
 	}
 	
 	/**
@@ -420,40 +424,53 @@ class MeasurementResults
 				model.getMeasurementUnits());
 		
 		while (i.hasNext()) {
-			roi = (ROI) map.get(i.next());
-			shapes = roi.getShapes();
-			j = shapes.keySet().iterator();
-			while (j.hasNext()) {
-				shape = (ROIShape) shapes.get(j.next());
-				figure = shape.getFigure();
-				figure.calculateMeasurements();
-				
-				row = new MeasurementObject(shape);
-				//row.addElement(shape.getROI().getID());
-				if (shape.getROI().isClientSide())
-					row.addElement("--");
-				else
-					row.addElement(shape.getROIShapeID());
-				row.addElement(shape.getCoord3D().getZSection()+1);
-				row.addElement(shape.getCoord3D().getTimePoint()+1);
-				row.addElement(shape.getFigure().getType());
-				for (int k = 0; k < fields.size(); k++) {
-					key = fields.get(k).getKey();
-					Object value;
-					if (AnnotationKeys.TEXT.equals(key))
-						value = key.get(shape.getFigure());
-					else value = key.get(shape);
-					if (value instanceof List)
-					{
-						List valueArray = (List) value;
-						row.addElement(new ArrayList(valueArray));
-					}
-					else
-						row.addElement(value);
-				}
-				tm.addRow(row);
-			}
-		}
+            roi = (ROI) map.get(i.next());
+            shapes = roi.getShapes();
+            j = shapes.keySet().iterator();
+            while (j.hasNext()) {
+                shape = (ROIShape) shapes.get(j.next());
+                figure = shape.getFigure();
+                figure.calculateMeasurements();
+                
+                row = new MeasurementObject(shape);
+                if (shape.getROI().isClientSide())
+                    row.addElement("--");
+                else
+                    row.addElement(shape.getROIShapeID());
+                row.addElement(shape.getCoord3D().getZSection()+1);
+                row.addElement(shape.getCoord3D().getTimePoint()+1);
+                row.addElement(shape.getFigure().getType());
+                for (int k = 0; k < fields.size(); k++) {
+                    key = fields.get(k).getKey();
+                    Object value;
+                    if (AnnotationKeys.TEXT.equals(key))
+                        value = key.get(shape.getFigure());
+                    else if (AnnotationKeys.FOLDERS.equals(key)) {
+                        List<FolderData> folders = (List<FolderData>) figure.getAttribute(key);
+                        value = "";
+                        if(CollectionUtils.isNotEmpty(folders)) {
+                            Iterator<FolderData> it = folders.iterator();
+                            while(it.hasNext()) {
+                                value += it.next().getFolderPathString();
+                                if(it.hasNext())
+                                    value += "; ";
+                            }
+                        }
+                    }
+                    else 
+                        value = key.get(shape);
+                    
+                    if (value instanceof List) {
+                        List valueArray = (List) value;
+                        row.addElement(new ArrayList(valueArray));
+                    }
+                    else
+                        row.addElement(value);
+                }
+                
+                tm.addRow(row);
+            }
+        }
 		results.setModel(tm);
 		resizeTableColumns();
 		int n = tm.getRowCount();

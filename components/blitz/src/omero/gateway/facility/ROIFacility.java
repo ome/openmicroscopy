@@ -373,22 +373,23 @@ public class ROIFacility extends Facility {
         try {
             
             // 1. Save unsaved folders
+            List<FolderData> savedFolders = new ArrayList<FolderData>();
             List<IObject> foldersToSave = new ArrayList<IObject>();
             Iterator<FolderData> it = folders.iterator();
             while (it.hasNext()) {
                 FolderData folder = it.next();
-                if (folder.getId() < 0) {
+                if (folder.getId() < 0)
                     foldersToSave.add(folder.asIObject());
-                    it.remove();
-                }
+                else
+                    savedFolders.add(folder);
             }
 
             if (!foldersToSave.isEmpty()) {
                 List<Long> ids = gateway.getUpdateService(ctx)
                         .saveAndReturnIds(foldersToSave);
-                Collection<FolderData> savedFolders = gateway.getFacility(
+                Collection<FolderData> tmp = gateway.getFacility(
                         BrowseFacility.class).getFolders(ctx, ids);
-                folders.addAll(savedFolders);
+                savedFolders.addAll(tmp);
             }
 
             // 2. Save ROIs
@@ -403,9 +404,9 @@ public class ROIFacility extends Facility {
             }
             
             // Reload the folders
-            Collection<FolderData> foldersReloaded = folders.isEmpty() ? folders
+            Collection<FolderData> foldersReloaded = savedFolders.isEmpty() ? savedFolders
                     : gateway.getFacility(BrowseFacility.class).getFolders(ctx,
-                            Pojos.extractIds(folders));
+                            Pojos.extractIds(savedFolders));
 
             // Reload the ROIs
             Collection<Roi> rois = loadServerRois(ctx, ids);

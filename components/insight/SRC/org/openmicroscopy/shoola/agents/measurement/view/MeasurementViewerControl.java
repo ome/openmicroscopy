@@ -658,7 +658,8 @@ class MeasurementViewerControl
 				    AttributeKey<?> key = e.getAttribute();
 		            if (key != MeasurementAttributes.SHOWTEXT && 
 		                    key != MeasurementAttributes.SHOWMEASUREMENT &&
-		                    key != AnnotationKeys.TAG) {
+		                    key != AnnotationKeys.TAG &&
+		                    key != AnnotationKeys.FOLDERS) {
 		                model.setDataChanged();
 		            }
 				}

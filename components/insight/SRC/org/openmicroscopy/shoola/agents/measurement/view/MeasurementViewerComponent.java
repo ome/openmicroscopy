@@ -1126,6 +1126,7 @@ class MeasurementViewerComponent
             shape = f.getROIShape().getData();
             if (shape != null) {
                 f.setAttribute(AnnotationKeys.TAG, r.get(shape.getId()));
+                f.setAttribute(AnnotationKeys.FOLDERS, f.getROIShape().getROI().getFolders());
             }
         }
 	    
