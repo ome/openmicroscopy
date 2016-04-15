@@ -320,12 +320,14 @@ window.MapAnnsPane = function MapAnnsPane($element, opts) {
 
                 // Update html...
                 var html = "";
+                var showHead = true;
                 if (canAnnotate) {
                     if (my_client_map_annotations.length === 0) {
+                        showHead = false;
                         my_client_map_annotations = [{}];   // placeholder
                     }
                     html = mapAnnsTempl({'anns': my_client_map_annotations,
-                    'showTableHead': true, 'showNs': false, 'clientMapAnn': true});
+                    'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true});
                 }
                 html = html + mapAnnsTempl({'anns': client_map_annotations,
                     'showTableHead': false, 'showNs': false, 'clientMapAnn': true});
@@ -402,24 +404,7 @@ window.RatingsPane = function RatingsPane($element, opts) {
 
             $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=rating&" + request, function(data){
 
-                // manipulate data...
-                // make an object of eid: experimenter
-                // var experimenters = data.experimenters.reduce(function(prev, exp){
-                //     prev[exp.id + ""] = exp;
-                //     return prev;
-                // }, {});
-
-                // // Populate experimenters within anns
-                // var anns = data.annotations.map(function(ann){
-                //     ann.owner = experimenters[ann.owner.id];
-                //     if (ann.link && ann.link.owner) {
-                //         ann.link.owner = experimenters[ann.link.owner.id];
-                //     }
-                //     return ann;
-                // });
                 var anns = data.annotations;
-                console.log(anns);
-
                 var sum = anns.reduce(function(prev, ann){
                     return prev + ann.longValue;
                 }, 0);
@@ -430,15 +415,17 @@ window.RatingsPane = function RatingsPane($element, opts) {
                 var average = Math.round(sum/anns.length);
                 console.log('myRating', myRating);
 
+                // Manual UI update...
+                // if (myRating) {
+                //     $("#add_rating").hide();
+                // };
+
                 // Update html...
-                var html = "";
-                if (anns.length > 0) {
-                    html = ratingsTempl({'anns': anns,
+                var html = ratingsTempl({'anns': anns,
                                          'myRating': myRating,
                                          'average': average,
                                          'count': anns.length,
                                          'static': WEBCLIENT.URLS.static_webclient});
-                }
                 $rating_annotations.html(html);
 
                 // Finish up...

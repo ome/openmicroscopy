@@ -1544,7 +1544,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
             context['share'] = BaseShare(conn, share_id)
         else:
             template = "webclient/annotations/metadata_general.html"
-            manager.annotationList()
+            # manager.annotationList()
             context['canExportAsJpg'] = manager.canExportAsJpg(request)
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)

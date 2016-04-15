@@ -248,7 +248,8 @@
 
         var enableToolbarButtons = function enableToolbarButtons() {
 
-            var $selRows = $('.keyValueTable tr.ui-selected'),
+            var canEdit = {% if manager.canAnnotate %}true{% else %}false{% endif %},
+                $selRows = $('.keyValueTable tr.ui-selected'),
                 enabled = {"Insert rows": false,
                             "Copy rows": false,
                             "Paste rows": false,
@@ -258,14 +259,13 @@
 
             // Nothing selected - actions will apply to user's own table
             if ($selRows.length == 0) {
-                var canEdit = $('.editableKeyValueTable').length > 0;
                 enabled["Insert rows"] = canEdit;
                 enabled["Copy rows"] = false;
                 enabled["Paste rows"] = (canPaste && canEdit);
                 enabled["Delete rows"] = false;
             } else {
-                var $table = $selRows.parent().parent(),
-                    canEdit = $table.hasClass('editableKeyValueTable');
+                var $table = $selRows.parent().parent();
+                canEdit = $table.hasClass('editableKeyValueTable');
                 enabled["Insert rows"] = canEdit;
                 enabled["Copy rows"] = true;
                 enabled["Paste rows"] = (canPaste && canEdit);

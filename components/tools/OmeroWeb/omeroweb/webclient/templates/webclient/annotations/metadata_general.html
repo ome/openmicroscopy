@@ -514,10 +514,7 @@
             {% endif %}
 
                 // --- Rating ----
-                $("#add_rating").click(function(){
-                    $(".myRating").toggle();
-                });
-
+                {% if manager.canAnnotate %}
                 $("#rating_annotations").on("click", ".myRating img", function(event){
                     var $rating = $(this),
                         clickX = event.pageX - $rating.offset().left;
@@ -525,11 +522,11 @@
                     r = parseInt(Math.ceil(r));
                     setRating(r, $rating);
                 });
+                {% endif %}
 
                 $("#rating_annotations").on("click", ".removeRating", function(event){
                     var $liMyRating = $(this).parent(),
                         $ratingimg = $liMyRating.find('img');
-                    $liMyRating.hide();
                     setRating(0, $ratingimg);
                 });
 
@@ -538,12 +535,6 @@
                     if ($rating) {
                         var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", rating+".png");
                         $rating.attr('src', rating_src);
-                    }
-                    // hide the [+] button if we have set a rating
-                    if (rating > 0) {
-                        $("#add_rating").hide()
-                    } else {
-                        $("#add_rating").show()
                     }
                     // update rating annotation
                     var rating_url = "{% url 'annotate_rating' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}"
@@ -953,7 +944,7 @@
 
             <!-- FILES -->
             <div id="fileannsPane">
-            <h1 class="can-collapse closed">
+            <h1 class="can-collapse closed" data-name='attachments'>
                 Attachments
             </h1>
             <div class="annotations_section" style="display:none">
@@ -1002,21 +993,7 @@
                 Ratings
             </h1>
             <div class="annotations_section" style="display: none">
-
-                {% with ratings=manager.getGroupedRatings %}
-
-                {% if manager.canAnnotate %}
-                    <div>
-                        <a id="add_rating" href="#" class="btn silver btn_add"
-                            {% if ratings.myRating %}style="display: none"{% endif %}
-                        ><span></span></a>
-                    </div>
-                {% endif %}
-
-                <div style="clear:both"></div>
-
                 <div id="rating_annotations"></div>
-                {% endwith %}
              </div>
              </div>
 
@@ -1024,10 +1001,10 @@
             
             <!-- COMMENTS -->
             <div id="commentsPane">
-            <h1 class="can-collapse closed">
+            <h1 class="can-collapse closed" data-name="comments">
                 Comments
             </h1>
-            <div class="annotations_section" style="display: none">
+            <div class="annotations_section" style="display: none" data-name='comments'>
 
                     {% if manager.canAnnotate %}
                     <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
