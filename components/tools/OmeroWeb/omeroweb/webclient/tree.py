@@ -1757,7 +1757,8 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
         where_clause.append('ch.class!=TagAnnotation')
         where_clause.append('ch.class!=FileAnnotation')
         where_clause.append('ch.class!=CommentAnnotation')
-        where_clause.append("(ch.ns=null or ch.ns!='openmicroscopy.org/omero/insight/rating')")
+        where_clause.append("""(ch.ns=null or
+            ch.ns!='openmicroscopy.org/omero/insight/rating')""")
 
     dtypes = ["Project", "Dataset", "Image",
               "Screen", "Plate", "PlateAcquisition"]
