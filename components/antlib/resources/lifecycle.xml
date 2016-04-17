@@ -408,18 +408,20 @@ omero.version=${omero.version}
     </target>
 
     <target name="load-findbugs" depends="prepare">
+        <property name="findbugs.failOnError" value="false"/>
         <property name="findbugs.path"   value="omero.classpath"/>
         <property name="findbugs.type"   value="jar"/>
         <property name="findbugs.target" value="${target.dir}/${ivy.module}.${findbugs.type}"/>
-        <property name="findbugs.home"   value="${omero.home}/lib/findbugs-${versions.findbugs}"/>
+        <property name="findbugs.home"   value="PLEASE_SET_ME"/>
         <taskdef name="find-bugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="omero.classpath"/>
         <taskdef resource="checkstyletask.properties" classpathref="omero.classpath"/>
         <condition property="no.findbugs"><not><available file="${findbugs.target}"/></not></condition>
         <macrodef name="do-find-bugs">
             <sequential>
             <find-bugs home="${findbugs.home}" output="xml:withMessages" outputFile="${target.dir}/findbugs.xml"
-                                   excludeFilter="${import.dir}/excludebugs.xml">
+                       excludeFilter="${import.dir}/excludebugs.xml" failOnError="${findbugs.failOnError}">
                 <class location="${findbugs.target}" />
+
                 <auxClasspath>
                     <path refid="${findbugs.path}"/>
                 </auxClasspath>

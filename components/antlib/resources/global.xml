@@ -502,7 +502,9 @@
               <fileset dir="${deps.lib.dir}" excludes="**/*-sources.jar"/>
             </path>
             <path id="omero.classpath">
+              <!-- OmeroJava only
               <path location="${target.dir}/generated-classes" />
+              -->
               <path location="${classes.dir}" />
               <path location="${resrc.dir}" />
               <path location="${resrc.dest}" />
