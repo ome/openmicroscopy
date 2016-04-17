@@ -1687,12 +1687,8 @@ def _marshal_annotation(conn, annotation, link=None):
                                       'canEdit': p.canEdit()}
 
     annClass = annotation.__class__.__name__
-    ann['type'] = annClass
-    if annClass in ['TagAnnotationI', 'CommentAnnotationI']:
-        ann['textValue'] = unwrap(annotation.textValue)
-    elif annClass == 'LongAnnotationI':
-        ann['longValue'] = unwrap(annotation.longValue)
-    elif annClass == 'MapAnnotationI':
+    ann['class'] = annClass
+    if annClass == 'MapAnnotationI':
         kvs = [[kv.name, kv.value] for kv in annotation.getMapValue()]
         ann['values'] = kvs
     elif annClass == 'FileAnnotationI' and annotation.file:
@@ -1703,6 +1699,11 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['file']['path'] = unwrap(annotation.file.path)
         ann['permissions']['canDownload'] = not perms.isRestricted(
             omero.constants.permissions.BINARYACCESS)
+
+    else:
+        for a in ['timeValue', 'termValue', 'longValue', 'doubleValue', 'boolValue', 'textValue']:
+            if hasattr(annotation, a):
+                ann[a] = unwrap(getattr(annotation, a))
     return ann
 
 
