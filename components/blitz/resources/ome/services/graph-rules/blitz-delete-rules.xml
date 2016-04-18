@@ -346,8 +346,6 @@
         <!-- If a logical channel is deleted then delete the subgraph below it. -->
 
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].channels = C:[E]" p:changes="C:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].detectorSettings = DS:[E]" p:changes="DS:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].lightSourceSettings = LS:[E]" p:changes="LS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].lightPath = LP:[E]{i}" p:changes="LP:{r}"/>
 
         <!-- Delete a logical channel if its last associated channel is deleted. -->
@@ -367,7 +365,6 @@
              Delete its rendering settings and thumbnails regardless of permissions.
           -->
 
-        <bean parent="graphPolicyRule" p:matches="Image[D].objectiveSettings = OS:[E]" p:changes="OS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Image[D].pixels = P:[E]" p:changes="P:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[D].channels = C:[E]" p:changes="C:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[D].planeInfo = PI:[E]" p:changes="PI:[D]"/>

@@ -143,6 +143,11 @@
         <bean parent="graphPolicyRule" p:matches="Image[E].stageLabel =/!o SL:[E]"
                                        p:error="cannot downgrade to private as {E} uses differently owned {SL}"/>
 
+        <!-- Cannot downgrade to a private group if the logical channels are owned differently from their channels. -->
+
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E].channels =/!o C:[E]"
+                                       p:error="cannot downgrade to private as {LC} is for differently owned {C}"/>
+
         <!-- Ensure that rules with multiple matches may apply for links. -->
 
         <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap[!O]" p:changes="L:[-]"/>

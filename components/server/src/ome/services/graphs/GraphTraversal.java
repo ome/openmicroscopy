@@ -1028,6 +1028,9 @@ public class GraphTraversal {
 
         if (details == null) {
             final ome.model.internal.Details objectDetails = planning.detailsNoted.get(object);
+            if (objectDetails == null) {
+                throw new GraphException("cannot read " + object);
+            }
             final Experimenter owner = objectDetails.getOwner();
             final ExperimenterGroup group = objectDetails.getGroup();
             final Long ownerId = owner == null ? null : owner.getId();

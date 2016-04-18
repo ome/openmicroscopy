@@ -139,6 +139,12 @@
         <bean parent="graphPolicyRule" p:matches="IN:Instrument[E].lightSource = [I]" p:changes="IN:[I]"/>
         <bean parent="graphPolicyRule" p:matches="IN:Instrument[E].objective = [I]" p:changes="IN:[I]"/>
 
+        <!-- Duplicate objects' settings. -->
+
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[I]"/>
+
         <!-- Duplicate emission and excitation filter links if both parent and child are duplicated. -->
 
         <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[E].parent = [I], L.child = [I]"
@@ -255,13 +261,20 @@
         <!-- If a logical channel is duplicated then duplicate the subgraph below it. -->
 
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].channels = C:[E]" p:changes="C:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = DS:[E]" p:changes="DS:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = LS:[E]" p:changes="LS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightPath = LP:[E]" p:changes="LP:[I]"/>
 
-        <!-- Duplicate a logical channel if its associated channel is duplicated. -->
+        <!-- Duplicate a logical channel only if all its channels are to be duplicated. -->
 
-        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]" p:changes="LC:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]{i}" p:changes="LC:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[E].logicalChannel = LC:[E]{r}" p:changes="LC:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]{o}" p:changes="LC:[I]"/>
+
+        <!-- Respect linking rules outside private groups. -->
+
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]/!o.channels = C:[I];perms=??r-??"
+                                       p:error="may not duplicate {C} without {LC} in a read-only group"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]/!o.channels = C:[I];perms=??ra??"
+                                       p:error="may not duplicate {C} without {LC} in a read-annotate group"/>
 
         <!--
              If an image is duplicated then duplicate the subgraph below it.
@@ -270,7 +283,6 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[I].imagingEnvironment = IE:[E]" p:changes="IE:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].instrument = IN:[E]" p:changes="IN:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Image[I].objectiveSettings = OS:[E]" p:changes="OS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[E]" p:changes="P:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].stageLabel = SL:[E]" p:changes="SL:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].channels = C:[E]" p:changes="C:[I]"/>

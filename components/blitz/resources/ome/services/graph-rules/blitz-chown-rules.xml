@@ -154,20 +154,11 @@
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].parent = [I];perms=??-???" p:changes="L:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].child = [I];perms=??-???" p:changes="L:[D]"/>
 
-        <!-- Give settings if both holder and underlying object are given. -->
+        <!-- Give settings if underlying object is given. -->
 
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = S:[ED], S.detector = [I]"
-                                       p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = S:[ED], S.lightSource = [I]"
-                                       p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Image[I].objectiveSettings = S:[ED], S.objective = [I]"
-                                       p:changes="S:[I]"/>
-
-        <!-- Delete settings if only the underlying object is given in a private group. -->
-
-        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I];perms=??-???" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I];perms=??-???" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I];perms=??-???" p:changes="S:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[I]"/>
 
         <!-- Images may be given only if doing so would not remove an imaging environment from any of them. -->
 
@@ -480,11 +471,6 @@
         <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{r}, L.child = [E]{a}" p:changes="J:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{r}, L.parent = [E]{a}" p:changes="P:{a}"/>
 
-        <!-- Delete remaining settings if holder object is given but not the settings in a private group. -->
-
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = DS:[E];perms=??-???" p:changes="DS:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = LS:[E];perms=??-???" p:changes="LS:[D]"/>
-
         <!-- Give a stage label only if all the images using it are given. -->
 
         <bean parent="graphPolicyRule" p:matches="Image[E]{r}.stageLabel = SL:[E]{i}" p:changes="SL:{r}"/>
@@ -503,7 +489,17 @@
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[E]" p:changes="P:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].channels = C:[E]" p:changes="C:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].planeInfo = PI:[E]" p:changes="PI:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]" p:changes="LC:[I]"/>
+
+        <!-- Give a logical channel only if all its channels are to be given. -->
+
+        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]{i}" p:changes="LC:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[E].logicalChannel = LC:[E]{r}" p:changes="LC:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]{o}" p:changes="LC:[I]"/>
+
+        <!-- Cannot separate channels from logical channels in a private group. -->
+
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel.channels = C1:[I];perms=??-???, LC.channels = C2:[E]"
+                                       p:error="cannot give {C1} while {C2} remains as they share {LC}"/>
 
         <!-- Delete remaining settings if holder object is given but not the settings in a private group. -->
 
