@@ -2,7 +2,7 @@
   eqeqeq: true, immed: true, indent: 4, latedef: true,
   newcap: true, noarg: true, noempty: true,
   nonew: true, undef: true, unused: true, trailing: true */
-/*global $, setTimeout, clearTimeout, OME */
+/*global $, setTimeout, clearTimeout, OME, WEBCLIENT */
 /*exported tagging_form */
 //
 // Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
@@ -163,8 +163,8 @@ var tagging_form = function(
                 link_owner = 'you and ' + link_owner;
             }
         }
-        var title = create_tag_title(tag.d, owners[tag.o], parent_id ? parent_id.t : null,
-            link_owner);
+        var title = create_tag_title(tag.d, owners[tag.o],
+            parent_id ? parent_id.t : null, link_owner);
         $this.tooltip({
             track: false,
             show: false,
@@ -404,7 +404,8 @@ var tagging_form = function(
             html += " data-description='" + encode_html(description) + "'";
         }
         var title = create_tag_title(description, owner, tagset);
-        // Add content even if it is empty and handle case for no tooltip in the tooltip code
+        // Add content even if it is empty
+        // and handle case for no tooltip in the tooltip code
         html += " data-content='" + title.replace(/'/g, "&#39;") + "'";
         html += ">" + encode_html(text) + "</div>";
         return html;
@@ -738,13 +739,13 @@ var tagging_form = function(
             input.val('');
             input.removeClass('placeholder');
         }
-      }).blur(function() {
+    }).blur(function() {
         var input = $(this);
         if (input.val() === '' || input.val() === input.attr('placeholder')) {
             input.addClass('placeholder');
             input.val(input.attr('placeholder'));
         }
-      }).blur().parents('form').submit(function() {
+    }).blur().parents('form').submit(function() {
         $(this).find('[placeholder]').each(function() {
             var input = $(this);
             if (input.val() === input.attr('placeholder')) {

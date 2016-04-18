@@ -2445,7 +2445,6 @@ def annotate_tags(request, conn=None, **kwargs):
             if o_type is not None and o_id > 0:
                 kw[str(o_type)] = long(o_id)
             try:
-                print kw
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
                 return handlerInternalError(request, x)
