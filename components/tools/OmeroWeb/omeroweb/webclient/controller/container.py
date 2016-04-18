@@ -28,7 +28,6 @@ from omero.rtypes import rstring, rlong, unwrap
 from django.conf import settings
 from django.utils.encoding import smart_str
 import logging
-from omero.cmd import Delete2
 
 from webclient.controller import BaseController
 
@@ -1238,29 +1237,10 @@ class BaseContainer(BaseController):
                         self.conn.deleteObject(al._obj)
             elif self.comment:
                 # remove the comment from specified parent
+                # the comment is automatically deleted when orphaned
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObject(al._obj)
-                # if comment is orphan, delete it directly
-                orphan = True
-
-                # Use delete Dry Run...
-                cid = self.comment.getId()
-                command = Delete2(targetObjects={"CommentAnnotation": [cid]},
-                                  dryRun=True)
-                cb = self.conn.c.submit(command)
-                # ...to check for any remaining links
-                rsp = cb.getResponse()
-                cb.close(True)
-                for parentType in ["Project", "Dataset", "Image", "Screen",
-                                   "Plate", "PlateAcquisition", "Well"]:
-                    key = 'ome.model.annotations.%sAnnotationLink' % parentType
-                    if key in rsp.deletedObjects:
-                        orphan = False
-                        break
-                if orphan:
-                    self.conn.deleteObject(self.comment._obj)
-
             elif self.dataset is not None:
                 if dtype == 'project':
                     for pdl in self.dataset.getParentLinks([parentId]):

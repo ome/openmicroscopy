@@ -2145,7 +2145,7 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.save()
                 else:
                     self._conn.deleteObject(ratingLink._obj)
-                    self._conn.deleteObject(ratingAnn._obj)
+                    # ratingAnn was automatically deleted if orphaned
             # otherwise, unlink and create a new rating
             else:
                 self._conn.deleteObject(ratingLink._obj)
