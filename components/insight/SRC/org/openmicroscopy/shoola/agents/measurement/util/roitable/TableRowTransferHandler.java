@@ -51,6 +51,8 @@ public class TableRowTransferHandler extends TransferHandler {
     /** Reference to the table */
     private JTable table = null;
 
+    private DataFlavor flavor = new DataFlavor(int[].class, "Integer Array");
+    
     /**
      * Creates a new instance
      * 
@@ -63,15 +65,12 @@ public class TableRowTransferHandler extends TransferHandler {
 
     @Override
     protected Transferable createTransferable(JComponent c) {
-        // Just use String as transfer object to keep it simple
-        return new DataHandler(intArrayToString(table.getSelectedRows()),
-                DataFlavor.stringFlavor.getMimeType());
+        return new DataHandler(table.getSelectedRows(), flavor.getMimeType());
     }
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
         boolean b = info.getComponent() == table && info.isDrop()
-                && info.isDataFlavorSupported(DataFlavor.stringFlavor)
                 && checkDropTarget(info);
 
         table.setCursor(b ? DragSource.DefaultMoveDrop
@@ -136,9 +135,8 @@ public class TableRowTransferHandler extends TransferHandler {
             index = max;
         target.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         try {
-            String value = (String) info.getTransferable().getTransferData(
-                    DataFlavor.stringFlavor);
-            int[] rowsToMove = stringToIntArray(value);
+            int[] rowsToMove = (int[]) info.getTransferable().getTransferData(
+                   flavor);
             target.handleDragAndDrop(rowsToMove, index);
             return true;
         } catch (Exception e) {
@@ -152,28 +150,6 @@ public class TableRowTransferHandler extends TransferHandler {
     protected void exportDone(JComponent c, Transferable t, int act) {
         if (act == TransferHandler.MOVE || act == TransferHandler.NONE) {
             table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        }
-    }
-
-    private String intArrayToString(int[] array) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < array.length; i++) {
-            sb.append(array[i]);
-            if (i < array.length - 1)
-                sb.append(',');
-        }
-        return sb.toString();
-    }
-
-    private int[] stringToIntArray(String s) {
-        try {
-            String[] tmp = s.split(",");
-            int[] result = new int[tmp.length];
-            for (int i = 0; i < result.length; i++)
-                result[i] = Integer.parseInt(tmp[i]);
-            return result;
-        } catch (NumberFormatException e) {
-            return new int[0];
         }
     }
 }
