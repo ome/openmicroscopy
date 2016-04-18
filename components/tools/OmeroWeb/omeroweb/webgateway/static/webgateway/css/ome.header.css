@@ -297,6 +297,8 @@
 		    max-height: 500px;
 		    min-width: 300px !important;
 			left:-90px;
+			overflow-y: auto;
+			overflow-x: hidden;
 			display: none;
 		}
 		
