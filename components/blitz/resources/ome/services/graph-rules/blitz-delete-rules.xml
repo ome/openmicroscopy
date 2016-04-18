@@ -191,10 +191,8 @@
 
         <!-- If a basic or comment annotation is unlinked then consider it for deletion regardless of permissions. -->
 
-        <!-- omitted at present because it causes errors in the web client
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:BasicAnnotation[E]{i}" p:changes="A:{r}"/>
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:CommentAnnotation[E]{i}" p:changes="A:{r}"/>
-          -->
 
         <!--
              If an annotated object is deleted then consider its basic or comment annotations for deletion regardless of
@@ -218,11 +216,9 @@
 
         <!-- If a list, map, or XML annotation is unlinked then consider it for deletion. -->
 
-        <!-- omitted at present because it causes errors in the web client
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:ListAnnotation[E]{i}/d" p:changes="A:{r}"/>
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:MapAnnotation[E]{i}/d" p:changes="A:{r}"/>
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:XmlAnnotation[E]{i}/d"  p:changes="A:{r}"/>
-          -->
 
         <!-- If an annotated object is deleted then consider its list, map, or XML annotations for deletion. -->
 
