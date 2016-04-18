@@ -165,6 +165,11 @@ class TestDuplicate(CLITest):
         self.args += ['Project:%s' % proj.id.val]
         self.duplicate(capfd)
 
+        pp = omero.sys.ParametersI()
+        pp.addString("name", namep)
+        query = "select obj from Project obj where obj.name=:name"
+        objsp = self.query.findAllByQuery(query, pp)
+
         pd = omero.sys.ParametersI()
         pd.addString("name", named)
         query = "select obj from Dataset obj where obj.name=:name"
@@ -190,6 +195,10 @@ class TestDuplicate(CLITest):
         assert objsi[0].id.val != objsi[1].id.val
 
         # Check that the duplicated Dataset/Image is linked
-        # only to the duplicated Project/Dataset
+        # only to pne and just one Project/Dataset
         assert len(proj_linked) == 1
         assert len(dat_linked) == 1
+
+        # Check that the linked Project/Dataset are the duplicated ones
+        assert dat_linked[0].id.val == did
+        assert proj_linked[0].id.val == max(objsp[0].id.val, objsp[1].id.val)
