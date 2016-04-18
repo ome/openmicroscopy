@@ -599,15 +599,13 @@ window.CustomAnnsPane = function CustomAnnsPane($element, opts) {
                     if (ann.link && ann.link.owner) {
                         ann.link.owner = experimenters[ann.link.owner.id];
                     }
-                    ann.textValue = _.escape(ann.textValue);
 
                     // convert 'class' to 'type' E.g. XmlAnnotationI to Xml
                     ann.type = ann.class.replace('AnnotationI', '');
                     var attrs = ['textValue', 'timeValue', 'termValue', 'longValue', 'doubleValue', 'boolValue'];
                     attrs.forEach(function(a){
-                        console.log(a, ann[a]);
                         if (ann[a] !== undefined){
-                            ann.value = ann[a];
+                            ann.value = _.escape(ann[a]);
                         }
                     });
                     return ann;

@@ -4,13 +4,15 @@
 <tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
     <th><%= ann.type %></th>
     <td>
+        <div class="tooltip">
         <% if (ann.type === 'Xml') { %>
             <div><% print((ann.value + "").slice(0, 20)) %>...</div>
-            <div class="show_xml">Open in window</div>
+            <div class="show_xml">Open in new window</div>
             <div style="display: none"><%= ann.value %></div>
         <% } else { %>
             <div><%= ann.value %></div>
         <% } %>
+        </div>
         
         <span class="tooltip_html" style='display:none'>
             <b>ID:</b> <%= ann.id %><br />
