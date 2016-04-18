@@ -88,7 +88,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         if (src.equals("rwrw--")) n = 0;
         param = new ParametersI();
         param.addIds(annotationIdsUser2);
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), n);
+        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         loginUser(g);
         param = new ParametersI();
