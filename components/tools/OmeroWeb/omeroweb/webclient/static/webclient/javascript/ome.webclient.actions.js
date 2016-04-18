@@ -996,6 +996,27 @@ OME.applyRenderingSettings = function(rdef_url, selected) {
     );
 };
 
+// pair of methods used by right panel tab panes
+// to store expanded state between right-panel reloads
+OME.setPaneExpanded = function setPaneExpanded(name, expanded) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    if (expanded && open_panes.indexOf(name) === -1) {
+        open_panes.push(name);
+    }
+    if (!expanded && open_panes.indexOf(name) > -1) {
+        open_panes = open_panes.reduce(function(l, item){
+            if (item !== name) l.push(item);
+            return l;
+        }, []);
+    }
+    $("#metadata_general").data('open_panes', open_panes);
+};
+
+OME.getPaneExpanded = function getPaneExpanded(name) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    return open_panes.indexOf(name) > -1;
+};
+
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         items: '.tooltip',
