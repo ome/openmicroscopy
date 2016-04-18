@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 import static omero.rtypes.rstring;
 import omero.cmd.Delete2;
+import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -56,6 +57,8 @@ import integration.AbstractServerTest;
  * @since Beta4.4
  */
 public class RolesTest extends AbstractServerTest {
+
+    private static final ChildOption KEEP_ANN = Requests.option().excludeType("Annotation").build();
 
     /**
      * Since we are creating a new client on each invocation, we should also
@@ -126,7 +129,7 @@ public class RolesTest extends AbstractServerTest {
         }
 
         try {
-            Delete2 dc = Requests.delete().target(dl).build();
+            Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete "
@@ -231,7 +234,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
@@ -325,7 +328,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
@@ -435,7 +438,7 @@ public class RolesTest extends AbstractServerTest {
         }
 
         try {
-            Delete2 dc = Requests.delete().target(dl).build();
+            Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete "
@@ -541,7 +544,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
@@ -626,7 +629,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
@@ -722,7 +725,7 @@ public class RolesTest extends AbstractServerTest {
         }
 
         try {
-            Delete2 dc = Requests.delete().target(dl).build();
+            Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete "
@@ -824,7 +827,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
@@ -909,7 +912,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
@@ -993,7 +996,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
@@ -1082,7 +1085,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
@@ -1166,7 +1169,7 @@ public class RolesTest extends AbstractServerTest {
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete().target(dl).build();
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
