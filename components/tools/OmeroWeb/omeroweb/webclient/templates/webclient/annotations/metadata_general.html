@@ -33,8 +33,10 @@
                 {% if manager.well.getWellSample.image %}
                     selectedObjs = ["image-{{ manager.well.getWellSample.image.id }}"];
                 {% endif %}
+                var wellIndex = {{ index|default:"0" }};
                 var annPaneData = {
                     'selected': selectedObjs,
+                    'index': wellIndex,
                     'canAnnotate': {% if manager.canAnnotate %}true{% else %}false{% endif %}
                 }
 
@@ -44,15 +46,6 @@
                 var mapAnnsPane = new MapAnnsPane($("#mapAnnsPane"), annPaneData);
                 var ratingsPane = new RatingsPane($("#ratingsPane"), annPaneData);
                 var customAnnsPane = new CustomAnnsPane($("#customAnnotationsPane"), annPaneData);
-
-
-                var linkify = function(input) {
-                    var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
-                    return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
-                };
-                var linkify_element = function(elements) {
-                    elements.each(function() { var $this = $(this); $this.html(linkify($this.html())); });
-                };
 
                 // $("#comments_container").hide_if_empty();
                 // $("#fileanns_container").hide_if_empty();
@@ -72,11 +65,10 @@
                     .editable('{% url 'manage_action_containers' "editdescription" manager.obj_type manager.obj_id %}'+idx,
                         '{% url 'manage_action_containers' "savedescription" manager.obj_type manager.obj_id %}'+idx,
                         "{{ manager.obj_type }}description-{{ manager.obj_id }}", { post_save: linkify });
-                linkify_element($( "#{{ manager.obj_type }}description-{{ manager.obj_id }} > p > span" ));
+                OME.linkify_element($( "#{{ manager.obj_type }}description-{{ manager.obj_id }} > p > span" ));
                 {% else %}
-                linkify_element($( "#image_desc" ));
+                OME.linkify_element($( "#image_desc" ));
                 {% endif %}
-                linkify_element($( ".commentText" ));
 
                 var acquisition_load = false;
                 var preview_load = false;
@@ -243,41 +235,8 @@
                     $("#toolbar_info_panel").hide();
                 });
 
-                // handle submit of Add Comment form
-                $("#add_comment_form").ajaxForm({
-                    beforeSubmit: function(data) {
-                        var textArea = $('#add_comment_form textarea');
-                        if ($.trim(textArea.val()).length == 0) return false;
-                    },
-                    success: function(html) {
-                        var $comment = $($.trim(html));
-                        linkify_element($comment);
-                        $('#comments_container').prepend( $comment ).show();
-                        var textArea = $('#add_comment_form textarea');
-                        textArea.val('');
-                        OME.filterAnnotationsAddedBy();
-                    },
-                });
-
-                // Comment field - show/hide placeholder and submit button.
-                $("#add_comment_wrapper label").inFieldLabels();
-                $("#id_comment")
-                    .blur(function(event){
-                        setTimeout(function(){
-                            $("#add_comment_form input[type='submit']").hide();
-                        }, 200);    // Delay allows clicking on the submit button!
-                    })
-                    .focus(function(){
-                        $("#add_comment_form input[type='submit']").show();
-                    });
 
                 // bind removeItem to various [-] buttons
-                $("#comments_container").on("click", ".removeComment", function(event){
-                    var url = $(this).attr('url');
-                    OME.removeItem(event, ".ann_comment_wrapper", 
-                        url, $.trim($("#object-id").text()), {{ index|default:"0" }});
-                    return false;
-                });
                 $("#tags_container").on("click", ".removeTag", function(event){
                     var url = $(this).attr('url');
                     OME.removeItem(event, ".tag_annotation_wrapper", url, 

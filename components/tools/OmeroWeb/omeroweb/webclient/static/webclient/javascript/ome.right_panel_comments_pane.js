@@ -21,6 +21,7 @@ var CommentsPane = function CommentsPane($element, opts) {
         $body = $element.children('div'),
         $comments_container = $("#comments_container"),
         objects = opts.selected,
+        index = opts.index,
         canAnnotate = opts.canAnnotate;
 
     var tmplText = $('#comments_template').html();
@@ -42,10 +43,44 @@ var CommentsPane = function CommentsPane($element, opts) {
         }.bind(this));
     }).bind(this);
 
+    // Comment field - show/hide placeholder and submit button.
+    $("#add_comment_wrapper label").inFieldLabels();
+    $("#id_comment")
+        .blur(function(event){
+            setTimeout(function(){
+                $("#add_comment_form input[type='submit']").hide();
+            }, 200);    // Delay allows clicking on the submit button!
+        })
+        .focus(function(){
+            $("#add_comment_form input[type='submit']").show();
+        });
+
+    // bind removeItem to various [-] buttons
+    $("#comments_container").on("click", ".removeComment", function(event){
+        var url = $(this).attr('url');
+        var objId = objects[0];
+        OME.removeItem(event, ".ann_comment_wrapper", url, objId, index);
+        return false;
+    });
+
+    // handle submit of Add Comment form
+    $("#add_comment_form").ajaxForm({
+        beforeSubmit: function(data) {
+            var textArea = $('#add_comment_form textarea');
+            if ($.trim(textArea.val()).length === 0) return false;
+        },
+        success: function(html) {
+            var $comment = $($.trim(html));
+            OME.linkify_element($comment);
+            $('#comments_container').prepend( $comment ).show();
+            var textArea = $('#add_comment_form textarea');
+            textArea.val('');
+            OME.filterAnnotationsAddedBy();
+        },
+    });
+
 
     this.render = function render() {
-
-        console.log("comments", $comments_container.is(":visible"));
 
         if ($comments_container.is(":visible")) {
 
@@ -82,8 +117,6 @@ var CommentsPane = function CommentsPane($element, opts) {
                     return a.date < b.date;
                 });
 
-                console.log(anns);
-
                 // Update html...
                 var html = "";
                 if (anns.length > 0) {
@@ -94,6 +127,7 @@ var CommentsPane = function CommentsPane($element, opts) {
                 $comments_container.html(html);
 
                 // Finish up...
+                OME.linkify_element($( ".commentText" ));
                 OME.filterAnnotationsAddedBy();
                 $(".tooltip", $comments_container).tooltip_init();
             });

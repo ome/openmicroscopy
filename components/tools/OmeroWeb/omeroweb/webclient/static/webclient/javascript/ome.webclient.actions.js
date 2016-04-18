@@ -69,6 +69,17 @@ jQuery.fn.hide_if_empty = function() {
   return this;
 };
 
+var linkify = function(input) {
+    var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
+    return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
+};
+OME.linkify_element = function(elements) {
+    elements.each(function() {
+        var $this = $(this);
+        $this.html(linkify($this.html()));
+    });
+};
+
 // called from OME.tree_selection_changed() below
 OME.handle_tree_selection = function(data, event) {
 
