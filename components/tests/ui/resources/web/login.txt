@@ -12,6 +12,7 @@ Library           Selenium2Library
 *** Keywords ***
 User "${username}" logs in with password "${password}"
     Open Browser To Login Page
+    Select Server     ${SERVER_ID}
     Input username    ${username}
     Input password    ${password}
     Submit credentials
