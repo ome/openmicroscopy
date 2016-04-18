@@ -206,6 +206,8 @@ urlpatterns = patterns(
         name="manage_action_containers"),
     url(r'^batch_annotate/$', views.batch_annotate, name="batch_annotate"),
     url(r'^annotate_tags/$', views.annotate_tags, name="annotate_tags"),
+    url(r'^marshal_tagging_form_data/$', views.marshal_tagging_form_data,
+        name="marshal_tagging_form_data"),
     url(r'^annotate_rating/$',
         views.annotate_rating,
         name="annotate_rating"),
