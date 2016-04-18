@@ -28,7 +28,6 @@ from omero.rtypes import rstring, rlong, unwrap
 from django.conf import settings
 from django.utils.encoding import smart_str
 import logging
-from omero.cmd import Delete2
 
 from webclient.controller import BaseController
 
@@ -1254,11 +1253,10 @@ class BaseContainer(BaseController):
                         self.conn.deleteObject(al._obj)
             elif self.comment:
                 # remove the comment from specified parent
+                # the comment is automatically deleted when orphaned
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObject(al._obj)
-                # we delete the comment if orphaned below
-
             elif self.dataset is not None:
                 if dtype == 'project':
                     for pdl in self.dataset.getParentLinks([parentId]):
