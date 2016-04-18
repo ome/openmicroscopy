@@ -42,7 +42,7 @@ module omero {
                  * Returns the default rendering settings for a given pixels
                  * for the current user.
                  *
-                 * @param pixelsId The Id of the <code>Pixels</code>
+                 * @param pixelsId The Id of the Pixels
                  * @return See above.
                  * @throws ValidationException if the image qualified by
                  * <code>imageId</code> is unlocatable.
@@ -56,12 +56,11 @@ module omero {
                  * @param pixels The Pixels set to link to the rendering
                  *               definition.
                  * @return A new, blank rendering definition and sub-objects.
-                 * <b>NOTE:</b> the linked <code>Pixels</code> has been
-                 * unloaded.
+                 * <b>NOTE:</b> the linked Pixels has been unloaded.
                  **/
                 omero::model::RenderingDef createNewRenderingDef(omero::model::Pixels pixels) throws ServerError;
 
-        /**
+                /**
                  * Resets the given rendering settings to those that are
                  * specified by the rendering engine intelligent <i>pretty
                  * good image (PG)</i> logic for the pixels set linked to that
@@ -71,10 +70,10 @@ module omero {
                  * relies on certain objects being loaded. The rendering
                  * settings are saved upon completion.
                  *
-                 * @param def A <code>RenderingDef</code> to reset. It is
-                 *            expected that def.pixels will be <i>unloaded</i>
-                 *            and that the actual linked Pixels set will be
-                 *            provided in the <code>pixels</code> argument.
+                 * @param def A RenderingDef to reset. It is expected that
+                 *            def.pixels will be <i>unloaded</i> and that the
+                 *            actual linked Pixels set will be provided in the
+                 *            <code>pixels</code> argument.
                  * @param pixels The Pixels set for <code>def</code>.
                  **/
                 void resetDefaults(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;
@@ -89,10 +88,10 @@ module omero {
                  * relies on certain objects being loaded. The rendering
                  * settings are not saved.
                  *
-                 * @param def A <code>RenderingDef</code> to reset. It is
-                 *            expected that def.pixels will be <i>unloaded</i>
-                 *            and that the actual linked Pixels set will be
-                 *            provided in the <code>pixels</code> argument.
+                 * @param def A RenderingDef to reset. It is expected that
+                 *            def.pixels will be <i>unloaded</i> and that the
+                 *            actual linked Pixels set will be provided in the
+                 *            <code>pixels</code> argument.
                  * @param pixels The Pixels set for <code>def</code>.
                  * @return <code>def</code> with the rendering settings reset.
                  **/
@@ -103,7 +102,7 @@ module omero {
                  * that are specified by the rendering engine intelligent
                  * <i>pretty good image (PG)</i> logic.
                  *
-                 * @param imageId The Id of the <code>Image</code>.
+                 * @param imageId The Id of the Image.
                  * @throws ValidationException if the image qualified by
                  * <code>imageId</code> is unlocatable.
                  **/
@@ -114,7 +113,7 @@ module omero {
                  * that are specified by the rendering engine intelligent
                  * <i>pretty good image (PG)</i> logic.
                  *
-                 * @param pixelsId The Id of the <code>Pixels</code>.
+                 * @param pixelsId The Id of the Pixels.
                  * @throws ValidationException if the Pixels qualified by
                  * <code>pixelsId</code> is unlocatable.
                  **/
@@ -125,7 +124,7 @@ module omero {
                  * are specified by the rendering engine intelligent <i>pretty
                  * good image (PG)</i> logic.
                  *
-                 * @param dataSetId The Id of the <code>DataSet</code>.
+                 * @param dataSetId The Id of the Dataset.
                  * @return A {@link java.util.Set} of image IDs that have had
                  *         their rendering settings reset.
                  * @throws ValidationException if the image qualified by
@@ -154,207 +153,206 @@ module omero {
                  **/
                 omero::sys::LongList resetDefaultsInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
 
-		/**
-		 * Resets the rendering settings of a given group of
+                /**
+                 * Resets the rendering settings of a given group of
                  * containers based on the owner's (essentially a copy).
                  * Supported container types are:
-		 * <ul>
-		 *   <li>{@link omero.model.Project}</li>
-		 *   <li>{@link omero.model.Dataset}</li>
-		 *   <li>{@link omero.model.Image}</li>
-		 *   <li>{@link omero.model.Plate}</li>
-		 *   <li>{@link omero.model.Pixels}</li>
-		 * </ul>
-		 * @param type The type of nodes to handle.
-		 * @param nodeIds Ids of the node type.
-		 * @return A {@link omero.sys.LongList} of image IDs that have
+                 * <ul>
+                 *   <li>{@link omero.model.Project}</li>
+                 *   <li>{@link omero.model.Dataset}</li>
+                 *   <li>{@link omero.model.Image}</li>
+                 *   <li>{@link omero.model.Plate}</li>
+                 *   <li>{@link omero.model.Pixels}</li>
+                 * </ul>
+                 * @param type The type of nodes to handle.
+                 * @param nodeIds Ids of the node type.
+                 * @return A {@link omero.sys.LongList} of image IDs that have
                  *         had their rendering settings reset.
-		 * @throws ValidationException if an illegal <code>type</code>
+                 * @throws ValidationException if an illegal <code>type</code>
                  *         is used.
-		 */
+                 */
                 omero::sys::LongList resetDefaultsByOwnerInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
 
-		/**
-		 * Resets a the channel windows for one or many containers
+		        /**
+                 * Resets a the channel windows for one or many containers
                  * back to their global minimum and global maximum for the
                  * channel. Supported container types are:
-		 * <ul>
-		 *   <li>{@link omero.model.Project}</li>
-		 *   <li>{@link omero.model.Dataset}</li>
-		 *   <li>{@link omero.model.Image}</li>
-		 *   <li>{@link omero.model.Plate}</li>
-		 *   <li>{@link omero.model.Pixels}</li>
-		 * </ul>
-		 * @param type The type of nodes to handle.
-		 * @param nodeIds Ids of the node type.
-		 * @return A {@link omero.sys.LongList} of image IDs that have
+                 * <ul>
+                 *   <li>{@link omero.model.Project}</li>
+                 *   <li>{@link omero.model.Dataset}</li>
+                 *   <li>{@link omero.model.Image}</li>
+                 *   <li>{@link omero.model.Plate}</li>
+                 *   <li>{@link omero.model.Pixels}</li>
+                 * </ul>
+                 * @param type The type of nodes to handle.
+                 * @param nodeIds Ids of the node type.
+                 * @return A {@link omero.sys.LongList} of image IDs that have
                  *         had their rendering settings reset.
-		 * @throws ValidationException if an illegal <code>type</code>
+                 * @throws ValidationException if an illegal <code>type</code>
                  *         is used.
-		 */
+                 */
                 omero::sys::LongList resetMinMaxInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
 
-		/**
-		 * Applies rendering settings to one or many containers. If a
-                 * container such as <code>Dataset</code> is to be copied to,
-                 * all images within that <code>Dataset</code> will have the
-                 * rendering settings applied. Supported container types are:
-		 * <ul>
-		 *   <li>{@link omero.model.Project}</li>
-		 *   <li>{@link omero.model.Dataset}</li>
-		 *   <li>{@link omero.model.Image}</li>
-		 *   <li>{@link omero.model.Plate}</li>
-		 *   <li>{@link omero.model.Screen}</li>
-		 *   <li>{@link omero.model.Pixels}</li>
-		 * </ul>
-		 *
-		 * @param from The Id of the pixels set to copy the rendering
+		        /**
+                 * Applies rendering settings to one or many containers. If a
+                 * container such as Dataset is to be copied to, all images
+                 * within that Dataset will have the rendering settings
+                 * applied. Supported container types are:
+                 * <ul>
+                 *   <li>{@link omero.model.Project}</li>
+                 *   <li>{@link omero.model.Dataset}</li>
+                 *   <li>{@link omero.model.Image}</li>
+                 *   <li>{@link omero.model.Plate}</li>
+                 *   <li>{@link omero.model.Screen}</li>
+                 *   <li>{@link omero.model.Pixels}</li>
+                 * </ul>
+                 *
+                 * @param from The Id of the pixels set to copy the rendering
                  *             settings from.
-		 * @param toType The type of nodes to handle.
-		 * @param nodeIds Ids of the node type.
-		 * @return A map with two boolean keys. The value of the
+                 * @param toType The type of nodes to handle.
+                 * @param nodeIds Ids of the node type.
+                 * @return A map with two boolean keys. The value of the
                  *         <code>TRUE</code> is a collection of images ID, the
                  *         settings were successfully applied to.
-		 *         The value of the <code>FALSE</code> is a collection
+                 *         The value of the <code>FALSE</code> is a collection
                  *         of images ID, the settings could not be applied to.
-		 * @throws ValidationException if an illegal <code>type</code>
+                 * @throws ValidationException if an illegal <code>type</code>
                  *         is used.
-		 */
+                 */
                 BooleanIdListMap applySettingsToSet(long from, string toType, omero::sys::LongList nodeIds) throws ServerError;
 
-		/**
-		 * Applies rendering settings to all images in all
-                 * <code>Datasets</code> of a given <code>Project</code>.
-		 *
-		 * @param from The Id of the pixels set to copy the rendering
+		        /**
+                 * Applies rendering settings to all images in all Datasets of
+                 * a given Project.
+                 *
+                 * @param from The Id of the pixels set to copy the rendering
                  *             settings from.
-		 * @param to The Id of the project container to apply settings
+                 * @param to The Id of the project container to apply settings
                  *           to.
-		 * @return A map with two boolean keys. The value of the
+                 * @return A map with two boolean keys. The value of the
                  *         <code>TRUE</code> is a collection of images ID, the
                  *         settings were successfully applied to.
-		 *         The value of the <code>FALSE</code> is a collection
+                 *         The value of the <code>FALSE</code> is a collection
                  *         of images ID, the settings could not be applied to.
-		 * @throws ValidationException if the rendering settings
+                 * @throws ValidationException if the rendering settings
                  *         <code>from</code> is unlocatable or the project
                  *         <code>to</code> is unlocatable.
-		 */
+                 */
                 BooleanIdListMap applySettingsToProject(long from, long to) throws ServerError;
 
-		/**
-		 * Applies rendering settings to all images in a given
-                 * <code>Dataset</code>.
-		 *
-		 * @param from The Id of the pixels set to copy the rendering
+		        /**
+                 * Applies rendering settings to all images in a given Dataset.
+                 *
+                 * @param from The Id of the pixels set to copy the rendering
                  *             settings from.
-		 * @param to The Id of the dataset container to apply settings
+                 * @param to The Id of the dataset container to apply settings
                  *           to.
-		 * @return A map with two boolean keys. The value of the
+                 * @return A map with two boolean keys. The value of the
                  *         <code>TRUE</code> is a collection of images ID, the
                  *         settings were successfully applied to.
-		 *         The value of the <code>FALSE</code> is a collection
+                 *         The value of the <code>FALSE</code> is a collection
                  *         of images ID, the settings could not be applied to.
-		 * @throws ValidationException if the rendering settings
+                 * @throws ValidationException if the rendering settings
                  *         <code>from</code> is unlocatable or the dataset
                  *         <code>to</code> is unlocatable.
-		 */
+                 */
                 BooleanIdListMap applySettingsToDataset(long from, long to) throws ServerError;
 
-		/**
-		 * Applies rendering settings to a given <code>Image</code>.
-		 *
-		 * @param from The Id of the pixels set to copy the rendering
+		        /**
+                 * Applies rendering settings to a given Image.
+                 *
+                 * @param from The Id of the pixels set to copy the rendering
                  *             settings from.
-		 * @param to The Id of the image container to apply settings
+                 * @param to The Id of the image container to apply settings
                  *           to.
-		 * @return <code>true</code> if the settings were successfully
+                 * @return <code>true</code> if the settings were successfully
                  *         applied, <code>false</code> otherwise.
-		 * @throws ValidationException if the rendering settings
+                 * @throws ValidationException if the rendering settings
                  *         <code>from</code> is unlocatable or the image
                  *         <code>to</code> is unlocatable.
-		 */
+                 */
                 BooleanIdListMap applySettingsToImages(long from, omero::sys::LongList to) throws ServerError;
 
-		/**
-		 * Applies rendering settings to a given <code>Image</code>.
-		 *
-		 * @param from The Id of the pixels set to copy the rendering
+		        /**
+                 * Applies rendering settings to a given Image.
+                 *
+                 * @param from The Id of the pixels set to copy the rendering
                  *             settings from.
-		 * @param to The Id of the image container to apply settings
+                 * @param to The Id of the image container to apply settings
                  *           to.
-		 * @return <code>true</code> if the settings were successfully
+                 * @return <code>true</code> if the settings were successfully
                  *         applied, <code>false</code> otherwise.
-		 * @throws ValidationException if the rendering settings
+                 * @throws ValidationException if the rendering settings
                  *         <code>from</code> is unlocatable or the image
                  *         <code>to</code> is unlocatable.
-		 */
+                 */
                 bool applySettingsToImage(long from, long to) throws ServerError;
 
-		/**
-		 * Applies rendering settings to a given <code>Pixels</code>.
-		 *
-		 * @param from The Id of the pixels set to copy the rendering
+		        /**
+                 * Applies rendering settings to a given Pixels.
+                 *
+                 * @param from The Id of the pixels set to copy the rendering
                  *             settings from.
-		 * @param to The Id of the pixels container to apply settings
+                 * @param to The Id of the pixels container to apply settings
                  *           to.
-		 * @return See above.
-		 * @throws ValidationException if the rendering settings
+                 * @return See above.
+                 * @throws ValidationException if the rendering settings
                  *         <code>from</code> is unlocatable or the
                  *         pixels<code>to</code> is unlocatable.
-		 */
+                 */
                 bool applySettingsToPixels(long from, long to) throws ServerError;
 
-		/**
-		 * Resets an image's default rendering settings back to
+		        /**
+                 * Resets an image's default rendering settings back to
                  * channel global minimum and maximum.
-		 *
-		 * @param imageId The Id of the <code>Image</code>.
-		 * @throws ValidationException if the image qualified by
-		 *         <code>imageId</code> is unlocatable.
-		 */
+                 *
+                 * @param imageId The Id of the Image.
+                 * @throws ValidationException if the image qualified by
+                 *         <code>imageId</code> is unlocatable.
+                 */
                 void setOriginalSettingsInImage(long imageId) throws ServerError;
 
-		/**
-		 * Resets an Pixels' default rendering settings back to
+	         	/**
+                 * Resets an Pixels' default rendering settings back to
                  * channel global minimum and maximum.
-		 *
-		 * @param pixelsId The Id of the <code>Pixels</code> set.
-		 * @throws ValidationException if the image qualified by
-		 *         <code>pixelsId</code> is unlocatable.
-		 */
+                 *
+                 * @param pixelsId The Id of the Pixels set.
+                 * @throws ValidationException if the image qualified by
+                 *         <code>pixelsId</code> is unlocatable.
+                 */
                 void setOriginalSettingsForPixels(long pixelsId) throws ServerError;
 
-		/**
-		 * Resets a dataset's rendering settings back to channel global
-		 * minimum and maximum.
+		        /**
+                 * Resets a dataset's rendering settings back to channel global
+                 * minimum and maximum.
                  *
-		 * @param datasetId The id of the dataset to handle.
-		 * @return A {@link omero.sys.LongList} of image IDs that have
+                 * @param datasetId The id of the dataset to handle.
+                 * @return A {@link omero.sys.LongList} of image IDs that have
                  *         had their rendering settings reset.
-		 * @throws ValidationException if the image qualified by
-		 *         <code>datasetId</code> is unlocatable.
-		 */
+                 * @throws ValidationException if the image qualified by
+                 *         <code>datasetId</code> is unlocatable.
+                 */
                 omero::sys::LongList setOriginalSettingsInDataset(long dataSetId) throws ServerError;
 
-		/**
-		 * Resets a rendering settings back to channel global minimum
+		        /**
+                 * Resets a rendering settings back to channel global minimum
                  * and maximum for the specified containers. Supported
                  * container types are:
-		 * <ul>
-		 *   <li>{@link omero.model.Project}</li>
-		 *   <li>{@link omero.model.Dataset}</li>
-		 *   <li>{@link omero.model.Image}</li>
-		 *   <li>{@link omero.model.Plate}</li>
-		 *   <li>{@link omero.model.Pixels}</li>
-		 * </ul>
-		 *
-		 * @param type The type of nodes to handle.
-		 * @param nodeIds Ids of the node type.
-		 * @return A {@link omero.sys.LongList} of image IDs that have
+                 * <ul>
+                 *   <li>{@link omero.model.Project}</li>
+                 *   <li>{@link omero.model.Dataset}</li>
+                 *   <li>{@link omero.model.Image}</li>
+                 *   <li>{@link omero.model.Plate}</li>
+                 *   <li>{@link omero.model.Pixels}</li>
+                 * </ul>
+                 *
+                 * @param type The type of nodes to handle.
+                 * @param nodeIds Ids of the node type.
+                 * @return A {@link omero.sys.LongList} of image IDs that have
                  *         had their rendering settings reset.
-		 * @throws ValidationException if an illegal <code>type</code>
+                 * @throws ValidationException if an illegal <code>type</code>
                  *         is used.
-		 */
+                 */
                 omero::sys::LongList setOriginalSettingsInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
             };
     };
