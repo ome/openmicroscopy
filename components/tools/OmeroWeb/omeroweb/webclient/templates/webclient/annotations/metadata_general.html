@@ -74,30 +74,9 @@
                 var preview_load = false;
                 var hierarchy_load = false;
 
-                $("#custom_annotations td span").hide() // hide the tool tip source elements
-                // This does not use tooltip_init because of the relative positions of the
-                // tooltip_html elements being different
-                $("#custom_annotations td").tooltip({
-                    items: '#custom_annotations td',
-                    content: function() {
-                        return $("span.tooltip_html", $(this)).html();
-                    },
-                    track: true,
-                    show: false,
-                    hide: false
-                });
+
                 $(".tooltip").parent().children("span").hide(); // hide tool tip source
                 $(".tooltip").tooltip_init();
-
-                $(".show_xml").next().hide();   // hide any XML annotation blocks
-                // display in a new window      
-                $( "#customAnnotationsPane" ).on( "click", ".show_xml", function(event) {
-                    var xml = $(event.target).next().html();
-                    var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
-                    newWindow.document.write(xml);
-                    newWindow.document.close();
-                    return false;
-                });
                 
                 {% if manager.image %}
                 // handle loading of image hierarchy by ajax
@@ -295,57 +274,6 @@
                         // Re-render tag pane...
                         tagPane.render();
                     }
-                });
-
-
-                // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
-                if ($("#choose_attachments_form").length === 0) {
-                    $("<form id='choose_attachments_form' title='Choose attachments' action='{% url 'annotate_file' %}' method='post'></form>")
-                        .hide().appendTo('body');
-                }
-                $('#choose_attachments_form').ajaxForm({
-                    beforeSubmit: function(data) {
-                        $("#batch_attachments_form").dialog( "close" );
-                        $("#fileann_spinner").show();
-                    },
-                    success: function() {
-                        $("#fileann_spinner").hide();
-                        // update the list of file annotations and bind actions
-                        fileannsPane.render();
-                    },
-                    error: function(data){
-                        $("#fileann_spinner").hide();
-                        alert("Upload failed [" + data.status + " " + data.statusText + "]");
-                    }
-                });
-                // prepare dialog for choosing file to attach...
-                $("#choose_attachments_form").dialog({
-                    autoOpen: false,
-                    resizable: false,
-                    height: 420,
-                    width:360,
-                    modal: true,
-                    buttons: {
-                        "Accept": function() {
-                            // simply submit the form (AJAX handling set-up above)
-                            $("#choose_attachments_form").submit();
-                            $( this ).dialog( "close" );
-                        },
-                        "Cancel": function() {
-                            $( this ).dialog( "close" );
-                        }
-                    }
-                });
-                // show dialog for choosing file to attach...
-                $("#choose_file_anns").click(function() {
-                    // show dialog first, then do the AJAX call to load files...
-                    var $attach_form = $( "#choose_attachments_form" );
-                    $attach_form.dialog( "open" );
-                    // load form via AJAX...
-                    var load_url = $(this).attr('href');
-                    $attach_form.html("&nbsp<br><img src='{% static 'webgateway/img/spinner.gif' %}' /> Loading attachments");
-                    $attach_form.load(load_url);
-                    return false;
                 });
 
                 // Handle Download actions

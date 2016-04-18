@@ -42,6 +42,16 @@ var CustomAnnsPane = function CustomAnnsPane($element, opts) {
     }).bind(this);
 
 
+    // display xml in a new window      
+    $body.on( "click", ".show_xml", function(event) {
+        var xml = $(event.target).next().html();
+        var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
+        newWindow.document.write(xml);
+        newWindow.document.close();
+        return false;
+    });
+
+
     this.render = function render() {
 
         if ($custom_annotations.is(":visible")) {
@@ -55,7 +65,6 @@ var CustomAnnsPane = function CustomAnnsPane($element, opts) {
             });
 
             $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=custom&" + request, function(data){
-
 
                 // manipulate data...
                 // make an object of eid: experimenter
@@ -86,8 +95,6 @@ var CustomAnnsPane = function CustomAnnsPane($element, opts) {
                 anns.sort(function(a, b) {
                     return a.date < b.date;
                 });
-
-                console.log(anns);
 
                 // Update html...
                 var html = "";

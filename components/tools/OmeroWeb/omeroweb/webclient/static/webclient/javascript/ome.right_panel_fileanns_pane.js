@@ -22,6 +22,7 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
         $fileanns_container = $("#fileanns_container"),
         objects = opts.selected,
         canAnnotate = opts.canAnnotate;
+    var self = this;
 
     var tmplText = $('#fileanns_template').html();
     var filesTempl = _.template(tmplText);
@@ -41,6 +42,58 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
             }
         }.bind(this));
     }).bind(this);
+
+
+    // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
+    if ($("#choose_attachments_form").length === 0) {
+        $("<form id='choose_attachments_form' title='Choose attachments' " +
+            "action='" + WEBCLIENT.URLS.webindex + "annotate_file/' method='post'></form>")
+            .hide().appendTo('body');
+    }
+    $('#choose_attachments_form').ajaxForm({
+        beforeSubmit: function(data) {
+            $("#batch_attachments_form").dialog( "close" );
+            $("#fileann_spinner").show();
+        },
+        success: function() {
+            $("#fileann_spinner").hide();
+            // update the list of file annotations and bind actions
+            self.render();
+        },
+        error: function(data){
+            $("#fileann_spinner").hide();
+            alert("Upload failed [" + data.status + " " + data.statusText + "]");
+        }
+    });
+    // prepare dialog for choosing file to attach...
+    $("#choose_attachments_form").dialog({
+        autoOpen: false,
+        resizable: false,
+        height: 420,
+        width:360,
+        modal: true,
+        buttons: {
+            "Accept": function() {
+                // simply submit the form (AJAX handling set-up above)
+                $("#choose_attachments_form").submit();
+                $( this ).dialog( "close" );
+            },
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            }
+        }
+    });
+    // show dialog for choosing file to attach...
+    $("#choose_file_anns").click(function() {
+        // show dialog first, then do the AJAX call to load files...
+        var $attach_form = $( "#choose_attachments_form" );
+        $attach_form.dialog( "open" );
+        // load form via AJAX...
+        var load_url = $(this).attr('href');
+        $attach_form.html("&nbsp<br><img src='" + WEBCLIENT.URLS.static_webgateway + "img/spinner.gif' /> Loading attachments");
+        $attach_form.load(load_url);
+        return false;
+    });
 
 
     var isNotCompanionFile = function isNotCompanionFile(ann) {
