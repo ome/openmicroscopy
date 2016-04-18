@@ -1701,7 +1701,8 @@ def _marshal_annotation(conn, annotation, link=None):
             omero.constants.permissions.BINARYACCESS)
 
     else:
-        for a in ['timeValue', 'termValue', 'longValue', 'doubleValue', 'boolValue', 'textValue']:
+        for a in ['timeValue', 'termValue', 'longValue',
+                  'doubleValue', 'boolValue', 'textValue']:
             if hasattr(annotation, a):
                 ann[a] = unwrap(getattr(annotation, a))
     return ann
