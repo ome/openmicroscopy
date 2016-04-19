@@ -25,8 +25,10 @@
                 <div>
                     <% if (idx < 20) { %>
                         <b><%= link.parent.class %> <%= link.parent.id %></b>
-                        <% print(_.escape(link.parent.name).slice(0, 16)) %>
-                        (<% print(link.owner.firstName.slice(0, 1)) %> <%= link.owner.lastName %>)
+                        <% print(_.escape(link.parent.name).slice(0, 28)) %>
+                        <% if (link.owner.id !== userId){
+                            print("(" + link.owner.firstName.slice(0, 1) + " " + _.escape(link.owner.lastName) + ")")
+                        } %>
                     <% } else if (idx === 20) { %>
                         and <b><% print(tag.links.length - 20) %></b> other objects...
                     <% } %>

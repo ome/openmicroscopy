@@ -40,13 +40,11 @@ var TagPane = function TagPane($element, opts) {
                 this.render();
             }
         }.bind(this));
-
-        // Handle events on objects we will load later...
-        // $element.on( "click", "tr", function() {
-        //     console.log( $( this ).text() );
-        // });
     }).bind(this);
 
+    var compareParentName = function(a, b){
+        return a.parent.name > b.parent.name;
+    };
 
     this.render = function render() {
 
@@ -81,7 +79,6 @@ var TagPane = function TagPane($element, opts) {
                     tag.canRemove = tag.link.permissions.canDelete;
                     return tag;
                 });
-                console.log(tags);
 
                 // If we are batch annotating multiple objects, we show a summary of each tag
                 if (objects.length > 1) {
@@ -100,33 +97,33 @@ var TagPane = function TagPane($element, opts) {
                                               'links': []
                                              };
                         }
+                        // Add link to list...
                         var l = tag.link;
+                        // slice parent class 'ProjectI' > 'Project'
+                        l.parent.class = l.parent.class.slice(0, -1);
+                        summary[tagId].links.push(l);
+
+                        // ...and summarise other properties on the tag
                         if (l.permissions.canDelete) {
                             summary[tagId].canRemoveCount += 1;
                         }
                         summary[tagId].canRemove = summary[tagId].canRemove || l.permissions.canDelete;
-                        // slice parent class 'ProjectI' > 'Project'
-                        l.parent.class = l.parent.class.slice(0, -1);
-
-                        summary[tagId].links.push(l);
                     });
-                    console.log(summary);
-                    tags = [];
 
+                    // convert summary back to list of 'tags'
+                    tags = [];
                     for (var tagId in summary) {
                         if (summary.hasOwnProperty(tagId)) {
-                            summary[tagId].links.sort(function(a, b){
-                                return a.parent.name > b.parent.name;
-                            });
+                            summary[tagId].links.sort(compareParentName);
                             tags.push(summary[tagId]);
                         }
                     }
-                    console.log(tags);
-
                 }
 
                 // Update html...
-                var html = tagTmpl({'tags': tags, 'webindex': WEBCLIENT.URLS.webindex});
+                var html = tagTmpl({'tags': tags,
+                                    'webindex': WEBCLIENT.URLS.webindex,
+                                    'userId': WEBCLIENT.USER.id});
                 $tags_container.html(html);
 
                 // Finish up...
