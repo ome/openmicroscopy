@@ -23,6 +23,7 @@ var CommentsPane = function CommentsPane($element, opts) {
         objects = opts.selected,
         index = opts.index,
         canAnnotate = opts.canAnnotate;
+    var self = this;
 
     var tmplText = $('#comments_template').html();
     var commentsTempl = _.template(tmplText);
@@ -70,12 +71,7 @@ var CommentsPane = function CommentsPane($element, opts) {
             if ($.trim(textArea.val()).length === 0) return false;
         },
         success: function(html) {
-            var $comment = $($.trim(html));
-            OME.linkify_element($comment);
-            $('#comments_container').prepend( $comment ).show();
-            var textArea = $('#add_comment_form textarea');
-            textArea.val('');
-            OME.filterAnnotationsAddedBy();
+            self.render();
         },
     });
 
@@ -91,6 +87,7 @@ var CommentsPane = function CommentsPane($element, opts) {
             var request = objects.map(function(o){
                 return o.replace("-", "=");
             });
+            request = request.join("&");
 
             $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=comment&" + request, function(data){
 
@@ -114,7 +111,13 @@ var CommentsPane = function CommentsPane($element, opts) {
 
                 // Show most recent comments at the top
                 anns.sort(function(a, b) {
-                    return a.date < b.date;
+                    return a.date < b.date ? 1 : -1;
+                });
+
+                // Remove duplicates (same comment on multiple objects)
+                anns = anns.filter(function(ann, idx){
+                    // already sorted, so just compare with last item
+                    return (idx === 0 || anns[idx - 1].id !== ann.id);
                 });
 
                 // Update html...

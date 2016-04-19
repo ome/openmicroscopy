@@ -43,7 +43,7 @@ var TagPane = function TagPane($element, opts) {
     }).bind(this);
 
     var compareParentName = function(a, b){
-        return a.parent.name > b.parent.name;
+        return a.parent.name.toLowerCase() > b.parent.name.toLowerCase() ? 1 : -1;
     };
 
     this.render = function render() {
