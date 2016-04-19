@@ -844,32 +844,13 @@
                         <div class="toolbar">
                             <input type="button" title="Select Files for Scripts"
                                 class="btn silver btn_script_dark">
-                            <!-- Class "scriptButton" also on <span> as that
-                                 is actually what we're clicking on.
-                            -->
                         </div>
-                        <script type="text/javascript">
-                            $(".annotations_section .scriptButton").click(
-                                {webindex: "{% url 'webindex' %}"},
-                                OME.showScriptList
-                            );
-                        </script>
                     {% endif %}
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
 
                 <div style="clear:both"></div>
-                <!-- display existing file annotations -->
-
+                    <!-- file annotations loaded by FileAnnsPane -->
                     <ul id="fileanns_container" class="lnfiles"></ul>
-                    <script type="text/javascript">
-                        $(".annotations_section .toolbar input[type=button]").click(
-                            OME.toggleFileAnnotationCheckboxes
-                        );
-                        $("#fileanns_container").on(
-                            "change", "li input[type=checkbox]",
-                            OME.fileAnnotationCheckboxChanged
-                        );
-                    </script>
             </div>
             </div>
 

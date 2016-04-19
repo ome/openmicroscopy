@@ -458,17 +458,7 @@
             <div class="toolbar">
                 <input type="button" title="Select Files for Scripts"
                     class="btn silver btn_script_dark">
-                <!-- Class "scriptButton" also on <span> as that
-                     is actually what we're clicking on.
-                -->
-                <span class="scriptButton"></span>
             </div>
-            <script type="text/javascript">
-                $(".annotations_section .scriptButton").click(
-                    {webindex: "{% url 'webindex' %}"},
-                    OME.showScriptList
-                );
-            </script>
         {% endif %}
 			
 			

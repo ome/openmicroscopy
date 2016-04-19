@@ -96,6 +96,16 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
     });
 
 
+    // Show/hide checkboxes beside files to select files for scripts
+    $(".toolbar input[type=button]", $body).click(
+        OME.toggleFileAnnotationCheckboxes
+    );
+    $("#fileanns_container").on(
+        "change", "li input[type=checkbox]",
+        OME.fileAnnotationCheckboxChanged
+    );
+
+
     var isNotCompanionFile = function isNotCompanionFile(ann) {
         return ann.ns !== OMERO.constants.namespaces.NSCOMPANIONFILE;
     };
