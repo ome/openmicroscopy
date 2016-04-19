@@ -154,16 +154,11 @@
                         $("#add_tags_form").dialog( "close" );
                     },
                     success: function(data) {
-                        $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
-                        // update the list of tags
-                        var $tag = $($.trim(data));
-                        $tag.filter(".tag_annotation_wrapper").each(function(){
-                            $("#"+$(this).attr("id")).remove();     // if this Tag already exists, remove it
-                            $("#tags_container").prepend( this ).show();
-                        });
+                        // hide in case it was submitted via 'Enter'
+                        $("#add_tags_form").dialog( "close" );
+                        // update the list of tags: Re-render tag pane...
+                        tagPane.render();
                         show_batch_msg("Tags added to Objects");
-                        $(".tooltip", $tag).tooltip_init();
-                        OME.filterAnnotationsAddedBy();
                     },
                     error: function(data) {
                         $("#tagann_spinner").hide();
@@ -440,18 +435,6 @@
         </div>
     </div>
 
-    <hr/>
-
-    <!-- TAGS -->               
-    <div class="annotations_section">
-                
-		<h2>{% trans "Tags" %}</h2>
-
-        {% if not annotationBlocked %}
-        <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
-        {% endif %}
- 
-    </div>
 
     <!-- TAGS -->
     <div id="tagsPane">
@@ -460,10 +443,12 @@
         </h1>
         <div class="annotations_section" style="display:none">
             
-            {% if manager.canAnnotate %}
-                <div>
-                    <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
-                </div>
+            {% if not annotationBlocked %}
+                <a id="launch_tags_form"
+                    href="{% url 'annotate_tags' %}?{{ obj_string }}&index={{ index }}"
+                    class="btn silver btn_add">
+                    <span></span>
+                </a>
             {% endif %}
 
             <!-- display existing Tags -->
