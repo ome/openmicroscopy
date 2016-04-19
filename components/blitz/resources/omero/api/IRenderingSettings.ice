@@ -173,7 +173,7 @@ module omero {
                  */
                 omero::sys::LongList resetDefaultsByOwnerInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
 
-		        /**
+                /**
                  * Resets a the channel windows for one or many containers
                  * back to their global minimum and global maximum for the
                  * channel. Supported container types are:
@@ -193,7 +193,7 @@ module omero {
                  */
                 omero::sys::LongList resetMinMaxInSet(string type, omero::sys::LongList nodeIds) throws ServerError;
 
-		        /**
+                /**
                  * Applies rendering settings to one or many containers. If a
                  * container such as Dataset is to be copied to, all images
                  * within that Dataset will have the rendering settings
@@ -221,7 +221,7 @@ module omero {
                  */
                 BooleanIdListMap applySettingsToSet(long from, string toType, omero::sys::LongList nodeIds) throws ServerError;
 
-		        /**
+                /**
                  * Applies rendering settings to all images in all Datasets of
                  * a given Project.
                  *
@@ -240,7 +240,7 @@ module omero {
                  */
                 BooleanIdListMap applySettingsToProject(long from, long to) throws ServerError;
 
-		        /**
+                /**
                  * Applies rendering settings to all images in a given Dataset.
                  *
                  * @param from The Id of the pixels set to copy the rendering
@@ -258,7 +258,7 @@ module omero {
                  */
                 BooleanIdListMap applySettingsToDataset(long from, long to) throws ServerError;
 
-		        /**
+                /**
                  * Applies rendering settings to a given Image.
                  *
                  * @param from The Id of the pixels set to copy the rendering
@@ -273,7 +273,7 @@ module omero {
                  */
                 BooleanIdListMap applySettingsToImages(long from, omero::sys::LongList to) throws ServerError;
 
-		        /**
+                /**
                  * Applies rendering settings to a given Image.
                  *
                  * @param from The Id of the pixels set to copy the rendering
@@ -288,7 +288,7 @@ module omero {
                  */
                 bool applySettingsToImage(long from, long to) throws ServerError;
 
-		        /**
+                /**
                  * Applies rendering settings to a given Pixels.
                  *
                  * @param from The Id of the pixels set to copy the rendering
@@ -302,7 +302,7 @@ module omero {
                  */
                 bool applySettingsToPixels(long from, long to) throws ServerError;
 
-		        /**
+                /**
                  * Resets an image's default rendering settings back to
                  * channel global minimum and maximum.
                  *
@@ -312,7 +312,7 @@ module omero {
                  */
                 void setOriginalSettingsInImage(long imageId) throws ServerError;
 
-	         	/**
+                /**
                  * Resets an Pixels' default rendering settings back to
                  * channel global minimum and maximum.
                  *
@@ -322,7 +322,7 @@ module omero {
                  */
                 void setOriginalSettingsForPixels(long pixelsId) throws ServerError;
 
-		        /**
+                /**
                  * Resets a dataset's rendering settings back to channel global
                  * minimum and maximum.
                  *
@@ -334,7 +334,7 @@ module omero {
                  */
                 omero::sys::LongList setOriginalSettingsInDataset(long dataSetId) throws ServerError;
 
-		        /**
+                /**
                  * Resets a rendering settings back to channel global minimum
                  * and maximum for the specified containers. Supported
                  * container types are:
