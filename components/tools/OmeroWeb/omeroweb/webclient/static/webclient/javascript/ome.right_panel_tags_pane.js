@@ -59,6 +59,7 @@ var TagPane = function TagPane($element, opts) {
             var request = objects.map(function(o){
                 return o.replace("-", "=");
             });
+            request = request.join("&");
 
             $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=tag&" + request, function(data){
 
@@ -77,9 +78,52 @@ var TagPane = function TagPane($element, opts) {
                     }
                     tag.textValue = _.escape(tag.textValue);
                     tag.description = _.escape(tag.description);
+                    tag.canRemove = tag.link.permissions.canDelete;
                     return tag;
                 });
                 console.log(tags);
+
+                // If we are batch annotating multiple objects, we show a summary of each tag
+                if (objects.length > 1) {
+
+                    var canUnlinkCount = 0;
+                    // Map tag.id to summary for that tag
+                    // For each tag (link), need parentClass, parentId, parentName, link owner name
+                    var summary = {};
+                    tags.forEach(function(tag){
+                        var tagId = tag.id;
+                        if (summary[tagId] === undefined) {
+                            summary[tagId] = {'textValue': tag.textValue,
+                                              'id': tag.id,
+                                              'canRemove': false,
+                                              'canRemoveCount': 0,
+                                              'links': []
+                                             };
+                        }
+                        var l = tag.link;
+                        if (l.permissions.canDelete) {
+                            summary[tagId].canRemoveCount += 1;
+                        }
+                        summary[tagId].canRemove = summary[tagId].canRemove || l.permissions.canDelete;
+                        // slice parent class 'ProjectI' > 'Project'
+                        l.parent.class = l.parent.class.slice(0, -1);
+
+                        summary[tagId].links.push(l);
+                    });
+                    console.log(summary);
+                    tags = [];
+
+                    for (var tagId in summary) {
+                        if (summary.hasOwnProperty(tagId)) {
+                            summary[tagId].links.sort(function(a, b){
+                                return a.parent.name > b.parent.name;
+                            });
+                            tags.push(summary[tagId]);
+                        }
+                    }
+                    console.log(tags);
+
+                }
 
                 // Update html...
                 var html = tagTmpl({'tags': tags, 'webindex': WEBCLIENT.URLS.webindex});

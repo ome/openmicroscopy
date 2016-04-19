@@ -1677,7 +1677,9 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['link'] = {}
         ann['link']['id'] = link.id.val
         ann['link']['owner'] = {'id': link.details.owner.id.val}
-        ann['link']['parent'] = {'id': link.parent.id.val}
+        ann['link']['parent'] = {'id': link.parent.id.val,
+                                 'name': link.parent.name.val,
+                                 'class': link.parent.__class__.__name__}
         linkCreation = link.details.creationEvent._time
         ann['link']['date'] = _marshal_date(unwrap(linkCreation))
         p = link.details.permissions

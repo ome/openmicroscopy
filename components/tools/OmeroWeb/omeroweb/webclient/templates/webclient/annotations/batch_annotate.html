@@ -43,9 +43,25 @@
                     });
                 }
 
-                $("#comments_container").hide_if_empty();
-                $("#fileanns_container").hide_if_empty();
-                $("#tags_container").hide_if_empty();
+                // $("#comments_container").hide_if_empty();
+                // $("#fileanns_container").hide_if_empty();
+                // $("#tags_container").hide_if_empty();
+
+
+                var selectedObjs = [{% for o in obj_labels %}{% if forloop.counter > 1 %},{% endif %}"{{ o.type|lower }}-{{ o.id}}"{% endfor %}];
+                console.log(selectedObjs);
+
+                // {% if manager.well.getWellSample.image %}
+                //     selectedObjs = ["image-{{ manager.well.getWellSample.image.id }}"];
+                // {% endif %}
+                var wellIndex = {{ index|default:"0" }};
+                var annPaneData = {
+                    'selected': selectedObjs,
+                    'index': wellIndex,
+                    'canAnnotate': true // {% if manager.canAnnotate %}true{% else %}false{% endif %}
+                }
+
+                var tagPane = new TagPane($("#tagsPane"), annPaneData);
 
 
                 // show a link to the current objects
@@ -434,11 +450,26 @@
         {% if not annotationBlocked %}
         <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
         {% endif %}
-				
-        <div id="tags_container" class="lntags">
-            {% include "webclient/annotations/tags.html" %}
-        </div>
  
+    </div>
+
+    <!-- TAGS -->
+    <div id="tagsPane">
+        <h1 class="can-collapse closed" data-name="tags">
+            Tags
+        </h1>
+        <div class="annotations_section" style="display:none">
+            
+            {% if manager.canAnnotate %}
+                <div>
+                    <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
+                </div>
+            {% endif %}
+
+            <!-- display existing Tags -->
+            <div id="tags_container" class="lntags"></div>
+
+        </div>
     </div>
 	
 
