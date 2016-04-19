@@ -444,6 +444,9 @@ it may be useful to rename an existing fileset to match the new
 template. By default the original files and import log are also
 moved.
 """
+        if platform.system() == 'Windows':
+            self.ctx.out("\n%s\n" % WINDOWS_WARNING)
+
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
         uid = self.ctx.get_event_context().userId
