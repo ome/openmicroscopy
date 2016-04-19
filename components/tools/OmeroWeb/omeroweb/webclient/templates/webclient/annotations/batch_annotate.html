@@ -62,6 +62,7 @@
                 }
 
                 var tagPane = new TagPane($("#tagsPane"), annPaneData);
+                var fileannsPane = new FileAnnsPane($("#fileannsPane"), annPaneData);
 
 
                 // show a link to the current objects
@@ -456,17 +457,15 @@
 
         </div>
     </div>
-	
-
-	<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
 
 
     <!-- FILES -->
-    <div class="annotations_section">
-        <h2>{% trans "Attach" %}:</h2>
+    <div id="fileannsPane">
+    <h1 class="can-collapse closed" data-name='attachments'>
+        Attachments
+    </h1>
+    <div class="annotations_section" style="display:none">
 
-           
-			
         {% if not annotationBlocked %}
             <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
                 <span></span>
@@ -476,26 +475,13 @@
                     class="btn silver btn_script_dark">
             </div>
         {% endif %}
-			
-			
             <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
 
-        <!-- display existing file annotations -->
-
-            <ul id="fileanns_container" class="lnfiles">
-                {% include "webclient/annotations/fileanns.html" %}
-            </ul>
-            <script type="text/javascript">
-                $(".annotations_section .toolbar input[type=button]").click(
-                    OME.toggleFileAnnotationCheckboxes
-                );
-                $("#fileanns_container").on(
-                    "change", "li input[type=checkbox]",
-                    OME.fileAnnotationCheckboxChanged
-                );
-            </script>
-	</div>
-	
+        <div style="clear:both"></div>
+            <!-- file annotations loaded by FileAnnsPane -->
+            <ul id="fileanns_container" class="lnfiles"></ul>
+    </div>
+    </div>
 
 
 	<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->

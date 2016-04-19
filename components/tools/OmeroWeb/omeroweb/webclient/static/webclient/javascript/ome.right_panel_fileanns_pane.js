@@ -110,6 +110,10 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
         return ann.ns !== OMERO.constants.namespaces.NSCOMPANIONFILE;
     };
 
+    var compareParentName = function(a, b){
+        return a.parent.name > b.parent.name;
+    };
+
 
     this.render = function render() {
 
@@ -122,6 +126,7 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
             var request = objects.map(function(o){
                 return o.replace("-", "=");
             });
+            request = request.join("&");
 
             $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=file&" + request, function(data){
 
@@ -149,12 +154,49 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
                 // Don't show companion files
                 anns = anns.filter(isNotCompanionFile);
 
-                console.log(anns);
+                
+                // If we are batch annotating multiple objects, we show a summary of each tag
+                if (objects.length > 1) {
+
+                    // Map tag.id to summary for that tag
+                    var summary = {};
+                    anns.forEach(function(ann){
+                        var annId = ann.id;
+                        if (summary[annId] === undefined) {
+                            ann.canRemove = false;
+                            ann.canRemoveCount = 0;
+                            ann.links = [];
+                            summary[annId] = ann;
+                        }
+                        // Add link to list...
+                        var l = ann.link;
+                        // slice parent class 'ProjectI' > 'Project'
+                        l.parent.class = l.parent.class.slice(0, -1);
+                        summary[annId].links.push(l);
+
+                        // ...and summarise other properties on the ann
+                        if (l.permissions.canDelete) {
+                            summary[annId].canRemoveCount += 1;
+                        }
+                        summary[annId].canRemove = summary[annId].canRemove || l.permissions.canDelete;
+                    });
+
+                    // convert summary back to list of 'anns'
+                    anns = [];
+                    for (var annId in summary) {
+                        if (summary.hasOwnProperty(annId)) {
+                            summary[annId].links.sort(compareParentName);
+                            anns.push(summary[annId]);
+                        }
+                    }
+                }
 
                 // Update html...
                 var html = "";
                 if (anns.length > 0) {
-                    html = filesTempl({'anns': anns, 'webindex': WEBCLIENT.URLS.webindex});
+                    html = filesTempl({'anns': anns,
+                                       'webindex': WEBCLIENT.URLS.webindex,
+                                       'userId': WEBCLIENT.USER.id});
                 }
                 $fileanns_container.html(html);
 

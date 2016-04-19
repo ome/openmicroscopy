@@ -83,9 +83,7 @@ var TagPane = function TagPane($element, opts) {
                 // If we are batch annotating multiple objects, we show a summary of each tag
                 if (objects.length > 1) {
 
-                    var canUnlinkCount = 0;
                     // Map tag.id to summary for that tag
-                    // For each tag (link), need parentClass, parentId, parentName, link owner name
                     var summary = {};
                     tags.forEach(function(tag){
                         var tagId = tag.id;

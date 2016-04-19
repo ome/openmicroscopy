@@ -1,7 +1,7 @@
 
 <% _.each(anns, function(ann) { %>
 <li class="file_ann_wrapper"
-    data-added-by="<%= ann.link.owner.id %>">
+    data-added-by=""> <!-- TODO added by -->
 
     <a class='tooltip'
         href="<% if (ann.permissions.canDownload) { print(webindex + 'annotation/' + ann.id)} else {print('#') } %>">
@@ -10,15 +10,34 @@
     </a>
 
     <span class="tooltip_html" style='display:none'>
-        <b>Annotation ID:</b> <%= ann.id %><br />
-        <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
-        <b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %><br />
-        <b>On:</b> <%= ann.link.date %> <br />
-        <b>Description:</b> <%= ann.description %>
-        <% if (ann.ns){ %>
-            <br/><b>Namespace:</b> <%= ann.ns %>
+        <!-- show different tooltip for batch_annotate panel -->
+        <% if (ann.links) { %>
+            Can remove File from <b><%= ann.canRemoveCount %>
+            object<% if(ann.canRemoveCount !== 1) {print('s')} %></b>:<br/>
+            <% _.each(ann.links, function(link, idx) { %>
+                <div>
+                    <% if (idx < 20) { %>
+                        <b><%= link.parent.class %> <%= link.parent.id %></b>
+                        <% print(_.escape(link.parent.name).slice(0, 28)) %>
+                        <% if (link.owner.id !== userId){
+                            print("(" + link.owner.firstName.slice(0, 1) + " " + _.escape(link.owner.lastName) + ")")
+                        } %>
+                    <% } else if (idx === 20) { %>
+                        and <b><% print(ann.links.length - 20) %></b> other objects...
+                    <% } %>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <b>Annotation ID:</b> <%= ann.id %><br />
+            <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
+            <b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %><br />
+            <b>On:</b> <%= ann.link.date %> <br />
+            <b>Description:</b> <%= ann.description %>
+            <% if (ann.ns){ %>
+                <br/><b>Namespace:</b> <%= ann.ns %>
+            <% } %>
+            <br/><b>File ID:</b> <%= ann.file.id %>
         <% } %>
-        <br/><b>File ID:</b> <%= ann.file.id %>
     </span>
 
     <div class="attachment_actions">
