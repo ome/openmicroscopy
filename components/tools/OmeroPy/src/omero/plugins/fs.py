@@ -23,6 +23,7 @@
 fs plugin for querying repositories, filesets, and the like.
 """
 
+import platform
 import sys
 
 from collections import defaultdict
@@ -46,6 +47,14 @@ from omero.fs import TRANSFERS
 
 
 HELP = """Filesystem utilities"""
+
+WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
+                   " OMERO 5.3, see http://blog.openmicroscopy.org/"
+                   "tech-issues/future-plans/deployment/2016/03/22/"
+                   "windows-support/")
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
