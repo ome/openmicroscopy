@@ -34,8 +34,9 @@ from omero_ext.argparse import FileType, SUPPRESS
 from path import path
 
 import omero.java
-import time
+import platform
 import sys
+import time
 
 HELP = """Database tools for creating scripts, setting passwords, etc."""
 
