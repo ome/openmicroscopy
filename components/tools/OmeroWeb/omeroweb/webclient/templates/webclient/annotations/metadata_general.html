@@ -495,17 +495,33 @@
                                 hide: false
                             });
                     }
+
+                    // If user opens tables tab, also load tables
+                    $('.can-collapse.closed[data-name="tables"]').click(function(){
+                        var $header = $(this),
+                            $body = $header.next();
+
+                        $header.toggleClass('closed');
+                        $body.slideToggle();
+
+                        var expanded = !$header.hasClass('closed');
+                        OME.setPaneExpanded('tables', expanded);
+
+                        if (expanded && $("#bulk_annotations_table").is(":empty")) {
+                            loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
+                            loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
+                        }
+                    });
+
                     // Load tables if tables tab is open
-                    if (open_panes.indexOf("tables") > -1) {
+                    if (OME.getPaneExpanded("tables")) {
+                        $('.can-collapse.closed[data-name="tables"]')
+                            .toggleClass('closed')
+                            .next().slideToggle();
                         loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
                         loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
                     }
 
-                    // If user opens tables tab, also load tables
-                    $('.can-collapse.closed[data-name="tables"]').click(function(){
-                        loadBulkAnnotations(wellsUrl, wellId, showBulkAnnTooltip);
-                        loadBulkAnnotations(linksUrl, wellId, showBulkAnnTooltip);
-                    });
                 {% endif %}
             });
             
@@ -815,15 +831,14 @@
 
             <!-- TABLES -->
             {% if manager.well %}
-            <h1 class="can-collapse defclose" data-name="tables">
+            <h1 class="can-collapse closed" data-name="tables">
                 Tables
             </h1>
-            <div class="annotations_section">
+            <div class="annotations_section" style="display:none">
 
                 <h2 id="bulk-annotations" class="bulk_annotation" style="display: none;">Info</h2>
                 <div style="display: none;">
-                    <table id="bulk_annotations_table">
-                    </table>
+                    <table id="bulk_annotations_table"></table>
                 </div>
                 <div style="clear:both; margin:8px"></div>
             </div>
