@@ -34,21 +34,25 @@ Wait Until Right Panel Loads For MultiSelection
 	Wait Until Element Is Visible     xpath=//*[@id="metadata_general"]//div/button[contains(@title, 'Download Image as...')]
 	Wait Until Element Is Visible	  xpath=//*[@id="show_link_btn"]/span
 
-	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h2[contains(text(), 'Annotations')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
 	Wait Until Element Is Visible 	  xpath=//*[@id="annotationFilter"]
 
 	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h2[contains(text(), 'Rating')]
 	Wait Until Element Is Visible 	  xpath=//*[@id="add_rating"]/span
 
-	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h2[contains(text(), 'Tags')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Tags')]
+	Click Element 					  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Tags')]
 	Wait Until Element Is Visible 	  xpath=//*[@id="launch_tags_form"]/span
 
-	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h2[contains(text(), 'Attach')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
+	Click Element 					  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
 	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/input[contains(@title, 'Select Files for Scripts')]
 	Wait Until Element Is Visible 	  xpath=//*[@id="choose_file_anns"]/span
 
-	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h2[contains(text(), 'Comment')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Comments')]
+	Click Element 					  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Comments')]
 	Wait Until Element Is Visible 	  xpath=//*[@id="id_comment"]
+	Click Element 					  xpath=//*[@id="id_comment"]
 	Wait Until Element Is Visible 	  xpath=//*[@id="add_comment_form"]//td/input[contains(@value, 'Add Comment')]
 
 	Element Should Not Be Visible 	  xpath=//*[@id="general_tab"]

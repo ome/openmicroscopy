@@ -283,11 +283,11 @@ Wait Until Right Panel Loads Everything
 
     Wait Until Right Panel Loads        ${containerType}        ${containerId}
     Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'${containerType} Details')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Tags')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Key-Value Pairs')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Attachments')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Ratings')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Comments')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Tags')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Key-Value Pairs')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Attachments')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Ratings')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Comments')]
     Run Keyword If                      '${containerType}' == 'Project'        Wait Until Element Is Visible     ${detailsPane}//th[contains(text(),'Creation Date:')]
     Run Keyword If                      '${containerType}' == 'Dataset'        Wait Until Element Is Visible     ${detailsPane}//th[contains(text(),'Creation Date:')]
     Run Keyword If                      '${containerType}' == 'Image'          Check Right Panel Image
