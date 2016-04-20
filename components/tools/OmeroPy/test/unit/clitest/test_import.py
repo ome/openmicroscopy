@@ -262,3 +262,11 @@ class TestImport(object):
         assert outlines[-2] == str(fakefile)
         assert outlines[-3] == \
             "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
+
+    def testBulkNoPaths(self):
+        t = path(__file__) / "bulk_import" / "test_simple"
+        b = t / "bulk.yml"
+        self.add_client_dir()
+        self.args += [ "-f", "---bulk=%s" % b, "dne.fake"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
