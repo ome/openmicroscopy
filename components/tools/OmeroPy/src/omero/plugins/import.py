@@ -83,6 +83,9 @@ class ImportControl(BaseControl):
             help="Show the advanced help text")
 
         parser.add_argument(
+            "---bulk", nargs="?",
+            help="Bulk YAML file for driving multiple imports")
+        parser.add_argument(
             "---logprefix", nargs="?",
             help="Directory or file prefix to prepend to ---file and ---errs")
         parser.add_argument(
@@ -301,6 +304,10 @@ class ImportControl(BaseControl):
         self.set_skip_arguments(args)
         self.set_java_arguments(args)
         xargs.append("-Domero.import.depth=%s" % args.depth)
+
+        if args.bulk and args.path:
+            self.ctx.die(104, "When using bulk import, omit paths")
+
         import_command = self.COMMAND + self.command_args + args.path
 
         try:
