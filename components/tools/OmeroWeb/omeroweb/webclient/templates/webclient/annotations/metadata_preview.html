@@ -329,10 +329,9 @@
             {% endif %}
 
 
-            $("#preview_open_viewer").click(function(){
-
-              var url = "{% if share and not share.share.isOwned %}{% url 'web_image_viewer' share.share.id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
-
+            $("#preview_open_viewer").click(function(event){
+              event.preventDefault();
+              var url = $(this).attr('href');
               var vpQuery = OME.preview_viewport.getQuery();
               // remove &zm=50
               vpQuery = vpQuery.replace("&zm=" + OME.preview_viewport.getZoom(), "");
@@ -351,11 +350,14 @@
 	
 <!-- open-image link -->
 
-			<button id="preview_open_viewer" class="btn silver btn_text" href="#" alt="View" title="Open full viewer" rel="{% content_identifier "preview" manager.image.id %}"> <!-- rel is used by robot framework, do not remove it! -->
+			<a id="preview_open_viewer"
+        href="{% if share and not share.share.isOwned %}{% url 'web_image_viewer' share.share.id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}"
+        class="btn silver btn_text" alt="View"
+        title="Open full viewer" rel="{% content_identifier 'preview' manager.image.id %}"> <!-- rel is used by robot framework, do not remove it! -->
 				<span>
                 {% trans "Full viewer" %} 
 				</span>
-			</button>
+			</a>
 
     <div style="clear:both; margin-bottom: 3px"></div>
 

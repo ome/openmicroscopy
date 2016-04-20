@@ -192,6 +192,10 @@ $(function() {
                         if (!node) {
                             return;
                         }
+                        // If we have a 'childPage' greater than 0, need to paginate
+                        if (comp.childPage) {
+                            inst._set_page(node, comp.childPage);
+                        }
 
                         if (index < lastIndex) {
                             inst.open_node(node, function() {
@@ -360,9 +364,6 @@ $(function() {
                 // As this function will previously have prevented cross-select, just
                 // check the first selection instead.
                 if (selected.length > 0 && selected[0].type !== node.type) {
-                    return false;
-                }
-                if (selected.length > 0 && (node.type === 'tag' || node.type === 'tagset')) {
                     return false;
                 }
 
@@ -740,7 +741,7 @@ $(function() {
             },
             'experimenter': {
                 'icon' : WEBCLIENT.URLS.static_webclient + 'image/icon_user.png',
-                'valid_children': ['project','dataset','screen','plate']
+                'valid_children': ['project','dataset','screen','plate', 'tag', 'tagset']
             },
             'tagset': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tags.png',
@@ -748,7 +749,8 @@ $(function() {
             },
             'tag': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
-                'valid_children': ['project, dataset, image, screen, plate, acquisition']
+                'valid_children': ['project, dataset, image, screen, plate, acquisition'],
+                'draggable': true
             },
             'project': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder16.png',
@@ -757,11 +759,11 @@ $(function() {
             'dataset': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_image16.png',
                 'valid_children': ['image'],
-                'draggable': true
+                'draggable': !WEBCLIENT.TAG_TREE
             },
             'image': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/image16.png',
-                'draggable': true
+                'draggable': !WEBCLIENT.TAG_TREE
             },
             'screen': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_screen16.png',
@@ -770,7 +772,7 @@ $(function() {
             'plate': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/folder_plate16.png',
                 'valid_children': ['acquisition'],
-                'draggable': true
+                'draggable': !WEBCLIENT.TAG_TREE
             },
             'acquisition': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/run16.png',
@@ -786,9 +788,12 @@ $(function() {
                 var inst = $.jstree.reference(nodes[0]);
                 // Check if the node types are draggable and the particular nodes have the
                 // 'canLink' permission. All must pass
+                // Don't allow dragging of any object from under a tag
                 for (var index in nodes) {
-                    if (!inst.get_rules(nodes[index]).draggable ||
-                          !OME.nodeHasPermission(nodes[index], 'canLink')
+                    var node = nodes[index];
+                    if (!inst.get_rules(node).draggable ||
+                          !OME.nodeHasPermission(node, 'canLink') ||
+                            inst.get_node(node.parent).type === 'tag'
                         ) {
                         return false;
                     }
@@ -802,16 +807,29 @@ $(function() {
             'items' : function(node){
                 var config = {};
 
-                // Hack to disable context menu for tags tree
-                // Need to fix permissions using map() in api_tagged query first
-                if (WEBCLIENT.URLS.tree_top_level === WEBCLIENT.URLS.api_tags_and_tagged) {
-                    return config;
-                }
-
                 config["create"] = {
                     "label" : "Create new",
                     "_disabled": true,
-                    "submenu": {
+                };
+
+                var tagTree = (WEBCLIENT.URLS.tree_top_level === WEBCLIENT.URLS.api_tags_and_tagged);
+                if (tagTree) {
+                    config["create"]["submenu"] = {
+                        "tagset": {
+                            "label"     : "Tag Set",
+                            "_disabled" : true,
+                            "icon"      : WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tags.png',
+                            action      : function (node) {OME.handleNewContainer("tagset"); },
+                        },
+                        "tag": {
+                            "label"     : "Tag",
+                            "_disabled" : true,
+                            "icon"      : WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
+                            action      : function (node) {OME.handleNewContainer("tag"); },
+                        }
+                    };
+                } else {
+                    config["create"]["submenu"] = {
                         "project": {
                             "label" : "Project",
                             "_disabled": true,
@@ -830,8 +848,8 @@ $(function() {
                             "icon"  : WEBCLIENT.URLS.static_webclient + 'image/folder_screen16.png',
                             action: function (node) {OME.handleNewContainer("screen"); },
                           }
-                    }
-                };
+                    };
+                }
 
                 config["ccp"] = {
                     "label"     : "Edit",
@@ -961,9 +979,26 @@ $(function() {
                 // List of permissions related disabling
                 // use canLink, canDelete etc classes on each node to enable/disable right-click menu
 
-                // TODO Potentially #8879 needs to be handled either by disabling all subnodes or by never
-                // creating them. As the menu is created anew each time there is no reason not to never create
-                // those nodes
+                var userId = WEBCLIENT.active_user_id,
+                    canCreate = (userId === WEBCLIENT.USER.id || userId === -1),
+                    canLink = OME.nodeHasPermission(node, 'canLink'),
+                    parentAllowsCreate = (node.type === "orphaned" || node.type === "experimenter");
+
+
+                // Although not everything created here will go under selected node,
+                // we still don't allow creation if linking not allowed
+                if(canCreate && (canLink || parentAllowsCreate)) {
+                    // Enable tag or P/D/I submenus created above
+                    config["create"]["_disabled"] = false;
+                    if (tagTree) {
+                        config["create"]["submenu"]["tagset"]["_disabled"] = false;
+                        config["create"]["submenu"]["tag"]["_disabled"] = false;
+                    } else {
+                        config["create"]["submenu"]["project"]["_disabled"] = false;
+                        config["create"]["submenu"]["dataset"]["_disabled"] = false;
+                        config["create"]["submenu"]["screen"]["_disabled"] = false;
+                    }
+                }
 
                 // Disable delete if no canDelete permission
                 if (OME.nodeHasPermission(node, 'canDelete')) {
@@ -972,83 +1007,50 @@ $(function() {
 
                 // Enable 'Move to group' if 'canChgrp'
                 if(OME.nodeHasPermission(node, 'canChgrp')) {
-                    // Can chgrp everything except Plate 'run'
-                    if (node.type !== "acquisition") {
+                    // Can chgrp everything except Plate 'run', 'tag' and 'tagset'
+                    if (["acquisition", "tag", "tagset"].indexOf(node.type) === -1) {
                         config["chgrp"]["_disabled"] = false;
                     }
                 }
 
-                // The only cases where 'Create' menu depends on selected node are
-                // Project & Dataset (see below). For all others we can enable 'Create'...
-                if (node.type !== 'project' && node.type !== 'dataset') {
-
-                    var userId = WEBCLIENT.USER.id,
-                        canCreate = (userId === WEBCLIENT.USER.id || userId === -1);
-
-                    if(canCreate) {
-                        config["create"]["_disabled"] = false;
-                        config["create"]["submenu"]["project"]["_disabled"] = false;
-                        config["create"]["submenu"]["dataset"]["_disabled"] = false;
-                        config["create"]["submenu"]["screen"]["_disabled"] = false;
-                    }
-                }
-                if (OME.nodeHasPermission(node, 'canLink')) {
+                if (canLink) {
                     var to_paste = false,
                         buffer = this.get_buffer(),
-                        parent_id = node.parent;
+                        parent_id = node.parent,
+                        parent_type = this.get_node(parent_id).type,
+                        node_type = node.type;
 
                     if(this.can_paste() && buffer.node) {
                         to_paste = buffer.node[0].type;
                     }
-                    // If canLink, handle other node types...
-                    if (node.type === "project") {
-                        // Project: can create Dataset
-                        config["create"]["_disabled"] = false;
-                        config["create"]["submenu"]["dataset"]["_disabled"] = false;
-                        // if we have a dataset, allow paste
-                        if (to_paste === "dataset") {
-                            config["ccp"]["_disabled"] = false;
-                            config["ccp"]["submenu"]["paste"]["_disabled"] = false;
-                        }
-                    } else if(node.type === "dataset") {
-                        // Dataset, allow cut
+
+                    // Currently we allow to Cut, even if we don't delete parent link!
+                    // E.g. can Cut orphaned Image or orphaned Dataset. TODO: review this!
+                    var canCut = (["dataset", "image", "plate", "tag"].indexOf(node_type) > -1);
+                    // In Tag tree. Don't allow cut under tag
+                    if (tagTree && node_type !== "tag") {
+                        canCut = false;
+                    }
+
+                    // Currently we only allow Copy if parent is compatible?! TODO: review this!
+                    var canCopy = ((node_type === "dataset" && parent_type === "project") ||
+                                    (node_type === "image" && parent_type === "dataset") ||
+                                    (node_type === "plate" && parent_type === "screen") ||
+                                    (node_type === "tag" && parent_type === "tagset"));
+                    // In Tag tree, can't Copy anything except tag
+                    if (tagTree && node_type !== "tag"){
+                        canCopy = false;
+                    }
+
+                    var canPaste = ((node_type === "project" && to_paste === "dataset") ||
+                                    (node_type === "dataset" && to_paste === "image") ||
+                                    (node_type === "screen" && to_paste === "plate") ||
+                                    (node_type === "tagset" && to_paste === "tag"));
+                    if (canCut || canCopy || canPaste){
                         config["ccp"]["_disabled"] = false;
-                        config["ccp"]["submenu"]["cut"]["_disabled"] = false;
-                        // If project parent, allow copy.
-                        if (this.get_node(parent_id).type === 'project') {
-                            config["ccp"]["submenu"]["copy"]["_disabled"] = false;
-                        }
-                        // we have an image, allow paste
-                        if (to_paste === "image") {
-                            config["ccp"]["_disabled"] = false;
-                            config["ccp"]["submenu"]["paste"]["_disabled"] = false;
-                        }
-                    } else if (node.type === "image") {
-                        // Image, allow cut
-                        config["ccp"]["_disabled"] = false;
-                        config["ccp"]["submenu"]["cut"]["_disabled"] = false;
-                        // If dataset parent, allow copy.
-                        if (this.get_node(parent_id).type === 'dataset') {
-                            config["ccp"]["submenu"]["copy"]["_disabled"] = false;
-                        }
-                        // allow 'share'
-                        config["share"]["_disabled"] = false;
-                    } else if (node.type === "screen") {
-                        // Screen: we have a Plate, allow paste
-                        if (to_paste === "plate") {
-                            config["ccp"]["_disabled"] = false;
-                            config["ccp"]["submenu"]["paste"]["_disabled"] = false;
-                        }
-                    } else if (node.type === "plate") {
-                        // Plate, allow cut
-                        config["ccp"]["_disabled"] = false;
-                        config["ccp"]["submenu"]["cut"]["_disabled"] = false;
-                        // If Screen parent, allow copy.
-                        if (this.get_node(parent_id).type === 'screen') {
-                            config["ccp"]["submenu"]["copy"]["_disabled"] = false;
-                        }
-                    } else if (node.type === "acquisition") {
-                        // nothing else needs to be enabled
+                        config["ccp"]["submenu"]["cut"]["_disabled"] = !canCut;
+                        config["ccp"]["submenu"]["copy"]["_disabled"] = !canCopy;
+                        config["ccp"]["submenu"]["paste"]["_disabled"] = !canPaste;
                     }
                 }
 
@@ -1098,8 +1100,12 @@ $(function() {
                     return 6;
                 } else if (node.type === 'orphaned') {
                     return 7;
-                } else {
+                } else if (node.type === 'image') {
                     return 8;
+                } else if (node.type === 'acquisition') {
+                    return 9;
+                } else {
+                    return 10;
                 }
             }
             // If the nodes are the same type then just compare lexicographically

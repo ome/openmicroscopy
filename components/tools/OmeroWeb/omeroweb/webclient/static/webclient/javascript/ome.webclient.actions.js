@@ -465,7 +465,7 @@ OME.truncateNames = (function(){
     return truncateNames;
 }());
 
-// Handle deletion of selected objects in jsTree in container_tags.html and containers.html
+// Handle deletion of selected objects in jsTree in containers.html
 OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     var datatree = $.jstree.reference($('#dataTree'));
     var selected = datatree.get_selected(true);
@@ -503,8 +503,6 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     }
     var notOwned = false;
     $.each(selected, function(index, node) {
-        // Add the nodes that are to be deleted
-        ajax_data.push(node.type + '=' + node.data.obj.id);
         // What types are being deleted and how many (for pluralization)
         var dtype = node.type;
         if (dtype in dtypes) {
@@ -512,6 +510,8 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
         } else {
             dtypes[dtype] = 1;
         }
+        // Add the nodes that are to be deleted
+        ajax_data.push(dtype.replace('tagset', 'tag') + '=' + node.data.obj.id);
         // If the node type is not 'image' then ask about deleting contents
         if (!askDeleteContents && node.type != 'image') {
             askDeleteContents = true;
@@ -561,6 +561,20 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                 type: "POST",
                 success: function(r){
 
+                    // If we've deleted Tagset, child Tags should appear as orphans in tree
+                    // Before deleting, copy data from each child, to add back below...
+                    var child_tags = [];
+                    if (dtypes["tagset"]) {
+                        selected.forEach(function(node){
+                            node.children.forEach(function(ch) {
+                                ch = datatree.get_node(ch);
+                                // _get_node_data is provided by the omecut_plugin
+                                var d = datatree._get_node_data(ch);
+                                child_tags.push(d);
+                            });
+                        });
+                    }
+
                     datatree.delete_node(selected);
 
                     // Update the central panel with new selection
@@ -569,11 +583,30 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                     if (firstParent.type !== "plate") {
                         datatree.select_node(firstParent);
                     }
-                    $.each(disabledNodes, function(index, node) {
-                        //TODO Make use of server calculated update like chgrp?
-                        updateParentRemoveNode(datatree, node, firstParent);
-                        removeDuplicateNodes(datatree, node);
-                    });
+
+                    // Here we try to handle children of the deleted object.
+                    // In case we deleted a "tagset", child tags should be kept as orphans under experimenter
+                    // (unless they are found under other tag sets).
+                    // For other objects we remove any duplicates of the object
+                    // (E.g if "dataset" is deleted and appears in tree multiple times)
+                    // In both cases we can only work with loaded data - Don't know if 'tag' or 'dataset'
+                    // is under unloaded 'tagset' or 'project'.
+                    // Would need to get this info from server as we do with 'Cut'
+                    if (dtypes["tagset"]) {
+                        // Re-create child tags under experimenter parent
+                        child_tags.forEach(function(d){
+                            var nodeId = d.type + '-' + d.data.obj.id;
+                            if (!datatree.locate_node(nodeId, firstParent)) {
+                                datatree.create_node(firstParent, d);
+                            }
+                        });
+                    } else {
+                        // Remove duplicates of the deleted object
+                        $.each(disabledNodes, function(index, node) {
+                            updateParentRemoveNode(datatree, node, firstParent);
+                            removeDuplicateNodes(datatree, node);
+                        });
+                    }
 
                     // Update the central panel in case delete has removed an icon
                     $.each(selected, function(index, node) {
