@@ -241,3 +241,24 @@ class TestImport(object):
         expected_args += ['-p', '%s' % (port or 4064)]
         expected_args += ['-k', '%s' % sessionid]
         assert control.command_args == expected_args
+
+    def testLogPrefix(self, tmpdir, capfd):
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        prefix = tmpdir.join("log")
+
+        self.add_client_dir()
+        self.args += ["-f", "---logprefix=%s" % prefix,
+                      "---file=out", "---errs=errs"]
+        self.args += [str(fakefile)]
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capfd.readouterr()
+        assert o == ""
+        assert e == ""
+
+        outlines = prefix.join("out").read().split("\n")
+        reader = 'loci.formats.in.FakeReader'
+        assert outlines[-2] == str(fakefile)
+        assert outlines[-3] == \
+            "# Group: %s SPW: false Reader: %s" % (str(fakefile), reader)
