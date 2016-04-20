@@ -78,7 +78,6 @@ public class SkipHeadI extends SkipHead implements IRequest {
      * Construct a new <q>skip-head</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param graphPathBean the graph path bean to use
      * @param graphRequestFactory a means of instantiating the sub-request
-     * @throws GraphException if the request was not of an appropriate type
      */
     public SkipHeadI(GraphPathBean graphPathBean, GraphRequestFactory graphRequestFactory) {
         this.graphPathBean = graphPathBean;
