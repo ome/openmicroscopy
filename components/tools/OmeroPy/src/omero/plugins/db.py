@@ -47,7 +47,8 @@ WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
 
 if platform.system() == 'Windows':
     HELP += ("\n\n%s" % WINDOWS_WARNING)
- 
+
+
 class DatabaseControl(BaseControl):
 
     def _configure(self, parser):
