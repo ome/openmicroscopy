@@ -81,12 +81,17 @@ class ImportControl(BaseControl):
         parser.add_argument(
             "--advanced-help", action="store_true", dest="java_advanced_help",
             help="Show the advanced help text")
+
+        parser.add_argument(
+            "---logprefix", nargs="?",
+            help="Directory or file prefix to prepend to ---file and ---errs")
         parser.add_argument(
             "---file", nargs="?",
             help="File for storing the standard out of the Java process")
         parser.add_argument(
             "---errs", nargs="?",
             help="File for storing the standard err of the Java process")
+
         parser.add_argument(
             "--clientdir", type=str,
             help="Path to the directory containing the client JARs. "
@@ -299,18 +304,16 @@ class ImportControl(BaseControl):
         import_command = self.COMMAND + self.command_args + args.path
 
         try:
-            # Open file handles for stdout/stderr if applicable
-            out = args.file
-            err = args.errs
 
-            if out:
-                out = open(out, "w")
-            if err:
-                err = open(err, "w")
+            # Open file handles for stdout/stderr if applicable
+            out = err = None
+            out = self.open_log(args.file, args.logprefix)
+            err = self.open_log(args.errs, args.logprefix)
 
             p = omero.java.popen(
-                import_command, debug=False, xargs=xargs, stdout=out,
-                stderr=err)
+                import_command, debug=False, xargs=xargs,
+                stdout=out, stderr=err)
+
             self.ctx.rv = p.wait()
 
         finally:
@@ -319,6 +322,16 @@ class ImportControl(BaseControl):
                 out.close()
             if err:
                 err.close()
+
+    def open_log(self, file, prefix=None):
+        if not file:
+            return None
+        if prefix:
+            file = os.path.sep.join([prefix, file])
+        dir = os.path.dirname(file)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        return open(file, "w")
 
 
 class TestEngine(ImportControl):
