@@ -1627,17 +1627,62 @@ public class ROITable
         }
         
         if (SelectionDialog.OBJECT_SELECTION_PROPERTY.equals(name)) {
-            FolderData folder = getSelectedFolders().get(0);
+            // exclude child nodes
+            Set<Long> excludeIds = new HashSet<Long>();
+            for (FolderData f : getSelectedFolders()) {
+                if (excludeIds.contains(f.getId()))
+                    continue;
+
+                ROINode fnode = findFolderNode(f);
+                Collection<ROINode> subNodes = new ArrayList<ROINode>();
+                fnode.getAllDecendants(subNodes);
+                for (ROINode subNode : subNodes)
+                    if (subNode.isFolderNode())
+                        excludeIds.add(((FolderData) subNode.getUserObject())
+                                .getId());
+
+                excludeIds.remove(f.getId());
+            }
+
             FolderData target = (FolderData) evt.getNewValue();
-            folder.setParentFolder(target.asFolder());
             addRecentlyModifiedFolder(target);
-            manager.saveROIFolders(Collections.singleton(folder));
+
+            Collection<FolderData> toSave = new ArrayList<FolderData>();
+            for (FolderData folder : getSelectedFolders()) {
+                if (!excludeIds.contains(folder.getId())) {
+                    folder.setParentFolder(target.asFolder());
+                    toSave.add(folder);
+                }
+            }
+            manager.saveROIFolders(toSave);
         }
 
         if (SelectionDialog.NONE_SELECTION_PROPERTY.equals(name)) {
-            FolderData folder = getSelectedFolders().get(0);
-            folder.setParentFolder(null);
-            manager.saveROIFolders(Collections.singleton(folder));
+            // exclude child nodes
+            Set<Long> excludeIds = new HashSet<Long>();
+            for (FolderData f : getSelectedFolders()) {
+                if (excludeIds.contains(f.getId()))
+                    continue;
+
+                ROINode fnode = findFolderNode(f);
+                Collection<ROINode> subNodes = new ArrayList<ROINode>();
+                fnode.getAllDecendants(subNodes);
+                for (ROINode subNode : subNodes)
+                    if (subNode.isFolderNode())
+                        excludeIds.add(((FolderData) subNode.getUserObject())
+                                .getId());
+
+                excludeIds.remove(f.getId());
+            }
+
+            Collection<FolderData> toSave = new ArrayList<FolderData>();
+            for (FolderData folder : getSelectedFolders()) {
+                if (!excludeIds.contains(folder.getId())) {
+                    folder.setParentFolder(null);
+                    toSave.add(folder);
+                }
+            }
+            manager.saveROIFolders(toSave);
         }
     }
 
