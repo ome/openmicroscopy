@@ -26,6 +26,8 @@
 
 import os
 import sys
+import fileinput
+
 from omero.cli import BaseControl, CLI
 import omero.java
 from omero_ext.argparse import SUPPRESS
@@ -307,11 +309,15 @@ class ImportControl(BaseControl):
 
         if args.bulk and args.path:
             self.ctx.die(104, "When using bulk import, omit paths")
+        elif args.bulk:
+            self.do_bulk(args, xargs)
+        else:
+            self.do_import(args, xargs)
 
-        import_command = self.COMMAND + self.command_args + args.path
-
+    def do_import(self, args, xargs):
         try:
 
+            import_command = self.COMMAND + self.command_args + args.path
             # Open file handles for stdout/stderr if applicable
             out = err = None
             out = self.open_log(args.file, args.logprefix)
@@ -329,6 +335,27 @@ class ImportControl(BaseControl):
                 out.close()
             if err:
                 err.close()
+
+    def do_bulk(self, args, xargs):
+        try:
+            from yaml import safe_load
+        except ImportError:
+            self.ctx.die(105, "yaml is unsupported")
+
+        with open(args.bulk, "r") as f:
+            bulk = safe_load(f)
+        parent = os.path.dirname(args.bulk)
+
+        old_pwd = os.getcwd()
+        os.chdir(parent)
+        try:
+            path = bulk["path"]
+            for line in fileinput.input([path]):
+                line = line.strip()
+                args.path = [line]
+                self.do_import(args, xargs)
+        finally:
+            os.chdir(old_pwd)
 
     def open_log(self, file, prefix=None):
         if not file:

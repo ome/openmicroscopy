@@ -270,3 +270,11 @@ class TestImport(object):
         self.args += [ "-f", "---bulk=%s" % b, "dne.fake"]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
+
+    def testBulkSimple(self):
+        t = path(__file__).parent / "bulk_import" / "test_simple"
+        b = t / "bulk.yml"
+
+        self.add_client_dir()
+        self.args += [ "-f", "---bulk=%s" % b]
+        self.cli.invoke(self.args, strict=True)

@@ -1,0 +1,5 @@
+---
+_version: 1
+name: new-name
+logprefix: "%(name)s-log-"
+path: bulk.tsv
