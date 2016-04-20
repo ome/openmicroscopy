@@ -1202,7 +1202,7 @@ class BaseContainer(BaseController):
             else:
                 return 'Destination not supported.'
         else:
-            return 'No data was choosen.'
+            return 'No data was chosen.'
         return
 
     def remove(self, parents, index, tag_owner_id=None):
@@ -1342,7 +1342,7 @@ class BaseContainer(BaseController):
             else:
                 return 'Destination not supported.'
         else:
-            return 'No data was choosen.'
+            return 'No data was chosen.'
 
     def copyImageToDataset(self, source, destination=None):
         if destination is None:
