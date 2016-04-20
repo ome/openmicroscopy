@@ -1249,7 +1249,8 @@ public class DuplicationTest extends AbstractServerTest {
 
         /* duplicate the image via SkipHead */
 
-        final SkipHead dup = Requests.skipHead().target("Dataset").id(originalDatasetId).startFrom("Image").request(Duplicate.class).build();
+        final SkipHead dup =
+                Requests.skipHead().target("Dataset").id(originalDatasetId).startFrom("Image").request(Duplicate.class).build();
         final DuplicateResponse response = (DuplicateResponse) doChange(dup);
 
         /* check that the response includes duplication of only the image */
