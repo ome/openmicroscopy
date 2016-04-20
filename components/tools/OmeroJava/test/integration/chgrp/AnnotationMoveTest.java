@@ -45,7 +45,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
      * @param dest The permissions of the target group.
      * @param secondUserMemberOfTarget Indicates if the second user is a member
      * of the target group.
-     * @throws Exception Thrown if an error occured.
+     * @throws Exception Thrown if an error occurred.
      */
     private void moveImageWithNonSharedAnnotation(String src, String dest,
             boolean secondUserMemberOfTarget)

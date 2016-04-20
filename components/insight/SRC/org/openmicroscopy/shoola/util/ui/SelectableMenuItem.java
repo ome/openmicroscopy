@@ -135,12 +135,11 @@ public class SelectableMenuItem extends JMenuItem {
     @Override
     protected void processMouseEvent(MouseEvent e) {
         // All MouseEvents have to be caught, because the JMenuItem's
-        // MouseListeners shall not be triggered (i. e. makes sure the popup
+        // MouseListeners shall not be triggered (i.e. makes sure the popup
         // menu stays open)!
-        if (e.getButton() == MouseEvent.BUTTON1 && checkable) {
+        if (e.getID() == MouseEvent.MOUSE_CLICKED && checkable) {
             setChecked(!isChecked());
             repaint();
-            
             // but the ActionListeners have to triggered
             for(ActionListener l : getActionListeners()) {
                 l.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, ""));
@@ -174,7 +173,7 @@ public class SelectableMenuItem extends JMenuItem {
         fireProperty = true;
         this.checkable = checkable;
     }
-    
+
     public boolean isChecked() {
         return getIcon() == checkedIcon;
     }
@@ -184,7 +183,7 @@ public class SelectableMenuItem extends JMenuItem {
             setIcon(checkedIcon);
         else
             setIcon(uncheckedIcon);
-        
+
         if (fireProperty) {
             firePropertyChange(SELECTION_PROPERTY, !b, b);
         }

@@ -65,6 +65,9 @@ public class DataMenuItem
     /** Flag indicating if the item can be enabled or not.*/
     private boolean canBeEnabled;
 
+    /** The string of reference.*/
+    private String refString = null;
+
     /**
      * Creates a new instance.
      * 
@@ -107,6 +110,23 @@ public class DataMenuItem
     public DataMenuItem(Object data, boolean canBeEnabled)
     {
         this(data, null, canBeEnabled);
+    }
+
+    /**
+     * Returns the string of reference or <code>null</code> if not set.
+     *
+     * @return See above.
+     */
+    public String getRefString() { return refString; }
+
+    /**
+     * Sets the the string of reference.
+     *
+     * @param refString The value to set.
+     */
+    public void setRefString(String refString)
+    {
+        this.refString = refString;
     }
 
     /**

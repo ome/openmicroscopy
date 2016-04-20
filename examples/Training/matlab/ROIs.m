@@ -19,6 +19,10 @@
 % To learn about the model see  http://www.ome-xml.org/wiki/ROI/2010-04.
 % Note that annotation can be linked to ROI.
 try
+%%
+% start-code
+%%
+
     % Initialize a client and a session using the ice.config file
     % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
@@ -36,7 +40,9 @@ try
     image = getImages(session, imageId);
     assert(~isempty(image), 'OMERO:ROIs', 'Image id not valid');
     
-    %% Shapes creation
+% Create shapes
+% =============
+
     % Create a rectangle
     disp('Create rectangular shape');
     rectangle = createRectangle(0, 0, 10, 20);
@@ -166,7 +172,11 @@ try
     roi.setImage(omero.model.ImageI(imageId, false));
     roi = session.getUpdateService().saveAndReturnObject(roi);
     fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
-    
+
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);

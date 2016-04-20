@@ -30,7 +30,6 @@ import java.util.Set;
 import omero.api.StatefulServiceInterfacePrx;
 
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -195,7 +194,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	public Set getExperimenterImages(SecurityContext ctx, long userID, boolean
+	public Collection<ImageData> getExperimenterImages(SecurityContext ctx, long userID, boolean
 			orphan)
 		throws DSOutOfServiceException, DSAccessException;
 

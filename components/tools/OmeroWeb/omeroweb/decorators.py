@@ -24,7 +24,7 @@ Decorators for use with OMERO.web applications.
 """
 
 import logging
-
+import traceback
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden, StreamingHttpResponse
 
@@ -39,6 +39,7 @@ from django.core.cache import cache
 from omeroweb.http import HttpJsonResponse
 
 from omeroweb.connector import Connector
+from omero.gateway.utils import propertiesToDict
 
 logger = logging.getLogger(__name__)
 
@@ -243,29 +244,45 @@ class login_required(object):
             return self.allowPublic
         return False
 
+    def _cleanup_deprecated(self, s):
+        # TODO: remove in 5.3, cleanup deprecated
+        if 'omero.client.ui.tree.orphans.enabled' not in s:
+            s['omero.client.ui.tree.orphans.enabled'] = True
+
+        if 'omero.client.ui.menu.dropdown.everyone.label' not in s:
+            s['omero.client.ui.menu.dropdown.everyone.label'] = \
+                s['omero.client.ui.menu.dropdown.everyone']
+        if 'omero.client.ui.menu.dropdown.leaders.label' not in s:
+            s['omero.client.ui.menu.dropdown.leaders.label'] = \
+                s['omero.client.ui.menu.dropdown.leaders']
+        if 'omero.client.ui.menu.dropdown.colleagues.label' not in s:
+            s['omero.client.ui.menu.dropdown.colleagues.label'] = \
+                s['omero.client.ui.menu.dropdown.colleagues']
+
+        if 'omero.client.ui.menu.dropdown.everyone' in s:
+            del s['omero.client.ui.menu.dropdown.everyone']
+        if 'omero.client.ui.menu.dropdown.leaders' in s:
+            del s['omero.client.ui.menu.dropdown.leaders']
+        if 'omero.client.ui.menu.dropdown.colleagues' in s:
+            del s['omero.client.ui.menu.dropdown.colleagues']
+        return s
+
     def load_server_settings(self, conn, request):
         """Loads Client preferences from the server."""
-        request.session.modified = True
-
-        if request.session.get('server_settings') is None:
-            request.session['server_settings'] = {'ui': {}}
-            orphans_name, orphans_desc = conn.getOrphanedContainerSettings()
-            request.session['server_settings']['ui'] = {
-                'orphans_name': orphans_name,
-                'orphans_desc': orphans_desc
-            }
-            request.session['server_settings']['ui']['dropdown_menu'] = \
-                conn.getDropdownMenuSettings()
+        try:
+            request.session['server_settings']
+        except:
+            request.session.modified = True
+            request.session['server_settings'] = {}
+            try:
+                s = self._cleanup_deprecated(conn.getClientSettings())
+                request.session['server_settings'] = \
+                    propertiesToDict(s, prefix="omero.client.")
+            except:
+                logger.error(traceback.format_exc())
+            # make extra call for omero.mail, not a part of omero.client
             request.session['server_settings']['email'] = \
                 conn.getEmailSettings()
-            request.session['server_settings']['roi_limit'] = \
-                conn.getRoiLimitSetting()
-            request.session['server_settings']['initial_zoom_level'] = \
-                conn.getInitialZoomLevel()
-            request.session['server_settings']['interpolate_pixels'] = \
-                conn.getInterpolateSetting()
-            request.session['server_settings']['download_as_max_size'] = \
-                conn.getDownloadAsMaxSizeSetting()
 
     def get_public_user_connector(self):
         """

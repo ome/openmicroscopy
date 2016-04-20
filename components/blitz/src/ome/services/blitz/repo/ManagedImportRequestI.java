@@ -68,6 +68,8 @@ import omero.model.Plate;
 import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
 import omero.util.IceMapper;
+import omero.util.Resources;
+import omero.util.Resources.Entry;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -116,6 +118,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private ServiceFactoryPrx sf = null;
 
     private OMEROMetadataStoreClient store = null;
+
+    private Resources resources = null;
+
+    private Resources.Entry resourcesEntry = null;
 
     private OMEROWrapper reader = null;
 
@@ -173,6 +179,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         this.token = token;
     }
 
+    /**
+     * Late injection to not break the constructor
+     */
+    public void setResources(Resources resources) {
+        this.resources = resources;
+    }
+
     //
     // IRequest methods
     //
@@ -206,6 +219,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             store = new OMEROMetadataStoreClient();
             store.setCurrentLogFile(logFilename, token);
             store.initialize(sf);
+            registerKeepAlive();
 
             fileName = file.getFullFsPath();
             shortName = file.getName();
@@ -258,6 +272,40 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             throw helper.cancel(new ERR(), t, "error-on-init");
         } finally {
             MDC.clear();
+        }
+    }
+
+    /**
+     * If the {@link #setResources(Resources)} has been called with a
+     * non-null value, then create an {@link Entry} which will ping the
+     * {@link ServiceFactoryPrx} instance periodically to keep the import
+     * from timing out. This is especially important for autoClose imports
+     * since no other client is likely to keep them alive.
+     *
+     * If the ping fails, then the {@link Entry} returns null which will
+     * remove the instance for the {@link Resources} object. Otherwise,
+     * during {@link #cleanup()} remove will be called explicitly.
+     */
+    protected void registerKeepAlive() {
+        if (resources != null) {
+            resourcesEntry = new Entry() {
+                public boolean check() {
+                    try {
+                        if (sf != null) {
+                            sf.keepAlive(null);
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        log.warn("Proxy keep alive failed.", e);
+                    }
+                    return false;
+                }
+
+                public void cleanup() {
+                    // Nothing to do.
+                }
+            };
+            resources.add(resourcesEntry);
         }
     }
 
@@ -315,12 +363,15 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             return;
         }
 
+        ome.model.annotations.CommentAnnotation lastCA = null;
+        long maxCAId = 0;
         for (Annotation a : settings.userSpecifiedAnnotationList) {
             if (a == null) {
                 continue;
             }
 
             ome.model.annotations.Annotation ann = null;
+
             String ns = null;
             if (a.isLoaded()) {
                 ns = a.getNs() == null ? null : a.getNs().getValue();
@@ -339,30 +390,36 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (NSAUTOCLOSE.value.equals(ns)) {
                 autoClose = true;
             } else if (NSTARGETTEMPLATE.value.equals(ns)) {
-                ome.model.annotations.CommentAnnotation ca =
-                        (ome.model.annotations.CommentAnnotation) ann;
-                if (settings.userSpecifiedTarget != null) {
-                    // TODO: Exception
-                    String kls = settings.userSpecifiedTarget.getClass().getSimpleName();
-                    long id = settings.userSpecifiedTarget.getId().getValue();
-                    log.error("User-specified template target '{}' AND {}:{}",
-                            ca.getTextValue(), kls, id);
-                    continue;
+                ome.model.annotations.CommentAnnotation
+                    ca = (ome.model.annotations.CommentAnnotation) ann;
+                if (ca.getId().longValue() > maxCAId) {
+                    maxCAId = ca.getId().longValue();
+                    lastCA = ca;
                 }
-
+            }
+        }
+        if (lastCA != null) {
+            if (settings.userSpecifiedTarget != null) {
+                // TODO: Exception
+                String kls = settings.userSpecifiedTarget.getClass().getSimpleName();
+                long id = settings.userSpecifiedTarget.getId().getValue();
+                log.error("User-specified template target '{}' AND {}:{}",
+                        lastCA.getTextValue(), kls, id);
+            } else {
                 // Path converted to unix slashes.
-                String path = ca.getDescription();
+                String path = lastCA.getDescription();
                 File file = new File(path);
                 for (int i = 0; i < location.omittedLevels; i++) {
                     file = file.getParentFile();
                 }
                 path = file.toString();
+                log.debug("Using target path {}", path);
                 // Here we use the client-side (but unix-separated) path, since
                 // for simple imports, we don't have any context about the directory
                 // from the client.
                 ServerTemplateImportTarget target = new ServerTemplateImportTarget(path);
-                target.init(ca.getTextValue());
-                settings.userSpecifiedTarget = target.load(store, reader.isSPWReader());
+                target.init(lastCA.getTextValue());
+                    settings.userSpecifiedTarget = target.load(store, reader.isSPWReader());
             }
         }
     }
@@ -410,7 +467,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
             cleanupSession();
         } finally {
-            autoClose();
+            autoClose(); // Doesn't throw
+            if (resources != null) {
+                resources.remove(resourcesEntry);
+            }
         }
     }
 

@@ -156,6 +156,20 @@ class TestImport(CLITest):
         return query.get(obj_type, int(match.group('id')),
                          {"omero.group": "-1"})
 
+    def get_objects(self, err, obj_type, query=None):
+        if not query:
+            query = self.query
+        """Retrieve the created objects by parsing the stderr output"""
+        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        objs = []
+        for line in reversed(err.split('\n')):
+            match = re.match(pattern, line)
+            if match:
+                objs.append(
+                    query.get(obj_type, int(match.group('id')),
+                              {"omero.group": "-1"}))
+        return objs
+
     def get_linked_annotations(self, oid):
         """Retrieve the comment annotation linked to the image"""
 
@@ -188,6 +202,14 @@ class TestImport(CLITest):
         query += " select l from ScreenPlateLink as l"
         query += " where l.child.id=:id and l.parent=d.id) "
         return self.query.findByQuery(query, params)
+
+    def get_container(self, pid, spw=False):
+        """Retrieve the single container linked to an image or plate"""
+
+        if spw:
+            return self.get_screen(pid)
+        else:
+            return self.get_dataset(pid)
 
     def get_screens(self, pid):
         """Retrieve the screens linked to the plate"""
@@ -241,11 +263,11 @@ class TestImport(CLITest):
 
         # Check that there are no servants leftover
         stateful = []
-        for x in range(10):
+        for x in range(1000):
             stateful = self.client.getStatefulServices()
             if stateful:
                 import time
-                time.sleep(0.5)  # Give the backend some time to close
+                time.sleep(0.1)  # Give the backend some time to close
             else:
                 break
 
@@ -620,6 +642,116 @@ class TestImport(CLITest):
 
         with pytest.raises(NonZeroReturnCode):
             self.do_import(capfd)
+
+    @pytest.mark.parametrize("spw", (True, False))
+    def testNestedNameTemplateTargetArgument(
+            self, spw, tmpdir, capfd):
+
+        outer = "NestedNameTemplateTargetArgument-Test-" + self.uuid()
+        inner1 = "NestedNameTemplateTargetArgument-Test-" + self.uuid()
+        inner2 = "NestedNameTemplateTargetArgument-Test-" + self.uuid()
+        subdir = tmpdir.mkdir(outer)
+        if spw:
+            importType = "Plate"
+            fake = ("SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                    "fields=1&plateAcqs=1.fake")
+        else:
+            importType = "Image"
+            fake = "test.fake"
+        subdir.mkdir(inner1).join(fake).write('')
+        subdir.mkdir(inner2).join(fake).write('')
+
+        self.args += ("-T", "regex:name:^.*%s/(?<Container1>.*)" % outer)
+        self.args += [str(tmpdir)]
+
+        # Now, run the import and check that two distinct
+        # containers are created and used.
+        o, e = self.do_import(capfd)
+
+        objs = self.get_objects(e, importType)
+        assert len(objs) == 2
+        container1 = self.get_container(objs[0].id.val, spw=spw)
+        container2 = self.get_container(objs[1].id.val, spw=spw)
+        assert container1.id.val != container2.id.val
+        if container1.name.val == inner1:
+            assert container2.name.val == inner2
+        else:
+            assert container1.name.val == inner2
+            assert container2.name.val == inner1
+
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("qualifier", ("", "+", "-", "@"))
+    def testMultipleNameTemplateTargetArgument(
+            self, spw, qualifier, tmpdir, capfd):
+
+        outer = "MultipleNameTemplateTargetArgument-Test-" + self.uuid()
+        inner = "MultipleNameTemplateTargetArgument-Test-" + self.uuid()
+        oids = []
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            oid = self.create_object(kls, name=inner)
+            oids.append(oid)
+
+        subdir = tmpdir.mkdir(outer)
+        if spw:
+            fake = ("SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                    "fields=1&plateAcqs=1.fake")
+        else:
+            fake = "test.fake"
+        subdir.mkdir(inner).join(fake).write('')
+
+        self.args += ("-T",
+                      ("regex:%sname:^.*%s/(?<Container1>.*)"
+                       % (qualifier, outer)))
+        self.args += [str(tmpdir)]
+
+        # Now, run the import and check that the correct
+        # container is used or created and used.
+        found = self.parse_container(spw, capfd)
+        if qualifier == "-":
+            assert found == min(oids)
+        elif qualifier == "@":
+            assert found not in oids
+        else:
+            assert found == max(oids)
+
+    @pytest.mark.parametrize("spw", (True, False))
+    def testUniqueMultipleNameTemplateTargetArgument(
+            self, spw, tmpdir, capfd):
+
+        outer = "UniqueMultipleNameTemplateTargetArgument-Test-" + self.uuid()
+        inner = "UniqueMultipleNameTemplateTargetArgument-Test-" + self.uuid()
+        oids = []
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            oid = self.create_object(kls, name=inner)
+            oids.append(oid)
+
+        subdir = tmpdir.mkdir(outer)
+        if spw:
+            importType = "Plate"
+            fake = ("SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                    "fields=1&plateAcqs=1.fake")
+        else:
+            importType = "Image"
+            fake = "test.fake"
+        subdir.mkdir(inner).join(fake).write('')
+
+        self.args += ("-T", "regex:%%name:^.*%s/(?<Container1>.*)" % outer)
+        self.args += [str(tmpdir)]
+
+        # Now, run the import and check that the imported object
+        # is not in a container.
+        o, e = self.do_import(capfd)
+        obj = self.get_object(e, importType)
+        container = self.get_container(obj.id.val, spw=spw)
+        assert container is None
 
     @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
     def testBadTargetArgument(self, kls, tmpdir, capfd):

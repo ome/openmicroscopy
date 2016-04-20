@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1075,7 +1076,16 @@ public class client {
         }
 
         if (fileObject.getMimetype() == null) {
-            fileObject.setMimetype(rstring("application/octet-stream"));
+            String mimeType = null;
+            try {
+                mimeType = Files.probeContentType(file.toPath());
+            } catch (IOException | SecurityException e) {
+                /* can't guess */
+            }
+            if (mimeType == null) {
+                mimeType = "application/octet-stream";
+            }
+            fileObject.setMimetype(rstring(mimeType));
         }
 
         IUpdatePrx up = sf.getUpdateService();

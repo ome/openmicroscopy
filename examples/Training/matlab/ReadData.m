@@ -16,6 +16,10 @@
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 try
+%%
+% start-code
+%%
+
     % Initialize a client and a session using the ice.config file
     % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
@@ -38,7 +42,9 @@ try
         x.getDetails().getOwner().getId().getValue(),...
         x.getDetails().getGroup().getId().getValue());
 
-    %% Projects
+% Projects
+% =========
+
     % Retrieve all the projects and orphaned datasets owned by session
     % owner in the current context
     % If a project contains datasets, the datasets will automatically be
@@ -107,7 +113,9 @@ try
     end
     fprintf(1, '\n');
 
-    %% Datasets
+%% Datasets
+% =========
+
     % Retrieve all the unloaded datasets owned by the session owner.
     % If the datasets contain images, the images will not be loaded.
     disp('Listing datasets owned by the session user');
@@ -160,7 +168,9 @@ try
     end
     fprintf(1, '\n');
 
-    %% Images
+%% Images
+% =======
+
     % Retrieve all the images owned by the session user.
     disp('Retrieving images owned by the session user in the current group')
     allImages = getImages(session);
@@ -214,7 +224,6 @@ try
     assert(~isempty(image), 'OMERO:ReadData', 'Image Id not valid');
     
     % Access information about the image for example to draw it.
-    
     % The model is a follow: Image-Pixels i.e. to access valuable data about
     % the image you need to use the pixels object.
     % We now only support one set of pixels per image (it used to be more!).
@@ -232,9 +241,10 @@ try
     fprintf(1, '  SizeT: %g\n', sizeT);
     fprintf(1, '\n');
 
-    %% Screens
-    % Retrieve Screening data owned by the user currently logged in.
+%% Screens
+% ========
 
+    % Retrieve Screening data owned by the user currently logged in.
     % There is no explicit method in the gateway exposed to retrieve screening data
     % (to learn about the model go to ScreenPlateWell) but you can use the ContainerService to
     % load the data, you can use the method `findAllByQuery`.
@@ -286,7 +296,9 @@ try
     end
     fprintf(1, '\n');
 
-    %% Plates
+%% Plates
+% =======
+
     % Retrieve all the plates owned by the session user.
     disp('Listing plates owned by the session user');
     allPlates = getPlates(session);
@@ -316,7 +328,6 @@ try
     fprintf(1, '\n');
 
     % Retrieve Wells within a Plate, see ScreenPlateWell.
-
     % Given a plate ID, load the wells.
     % You will have to use the findAllByQuery method.
     fprintf(1, 'Listing wells for plate: %g\n ', plateId);
@@ -331,7 +342,11 @@ try
             pa = wellSamples(j).getPlateAcquisition();
         end
     end
-    
+
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);

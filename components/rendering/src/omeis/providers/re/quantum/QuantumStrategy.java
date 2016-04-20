@@ -235,8 +235,8 @@ public abstract class QuantumStrategy {
         //no range so we need to create it
         double min = getWindowStart();
         double max = getWindowEnd();
-        if (value < min) return (double) qDef.getCdStart();
-        if (value > max) return (double) qDef.getCdEnd();
+        if (value < min) return min;
+        if (value > max) return max;
         double step = Math.abs(max-min)/(qDef.getCdEnd()-qDef.getCdStart()+1);
         if (value == min) {
             return min+step/2;

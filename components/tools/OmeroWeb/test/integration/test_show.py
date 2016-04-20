@@ -20,7 +20,8 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
     WellI, WellSampleI, PlateAcquisitionI
 from omero.rtypes import rstring, rint
-from omeroweb.webclient.show import Show, IncorrectMenuError, paths_to_object
+from omeroweb.webclient.show import Show, IncorrectMenuError, \
+    paths_to_object, get_image_ids
 from django.test.client import RequestFactory
 
 
@@ -159,6 +160,17 @@ class TestShow(IWebTest):
         """
         image = self.new_image(name=self.uuid())
         return self.update.saveAndReturnObject(image)
+
+    @pytest.fixture
+    def images(self):
+        """
+        Returns a list of new OMERO Images populated by an
+        L{test.integration.library.ITest} instance.
+        """
+        images = []
+        for name in ['a', 'b', 'c', 'd', 'e']:
+            images.append(self.new_image(name=name))
+        return self.update.saveAndReturnArray(images)
 
     @pytest.fixture
     def screen(self):
@@ -785,6 +797,8 @@ class TestShow(IWebTest):
             image.details.owner.id.val
         assert show._first_selected == first_selected
         assert show.initially_select == image_path_request['initially_select']
+        # Delete orphaned image so it doesn't affect orphaned tests below
+        self.conn.deleteObject(image)
 
     def test_screen_legacy_path(self, screen_path_request, screen):
         show = Show(self.conn, screen_path_request['request'], None)
@@ -1063,6 +1077,23 @@ class TestShow(IWebTest):
         return [project1, project2, dataset1, dataset2, dataset3, image1]
 
     @pytest.fixture
+    def project_dataset_images(self):
+        """
+        Returns a new OMERO Project, linked Dataset and 5 linked Images
+        populated by an L{test.integration.library.ITest} instance with
+        required fields set.
+        """
+        project = ProjectI()
+        project.name = rstring(self.uuid())
+        dataset = DatasetI()
+        dataset.name = rstring(self.uuid())
+        for name in ['a', 'b', 'c', 'd', 'e']:
+            image = self.new_image(name=name)
+            dataset.linkImage(image)
+        project.linkDataset(dataset)
+        return self.update.saveAndReturnObject(project)
+
+    @pytest.fixture
     def screen_plate_run_well_multi(self):
         """
         Returns a new OMERO Screen, linked Plate, linked Well, linked
@@ -1176,6 +1207,60 @@ class TestShow(IWebTest):
              {'type': 'image', 'id': image.id.val}]]
 
         assert paths == expected
+
+    def test_project_dataset_images_pagination(self, project_dataset_images):
+        project = project_dataset_images
+        dataset, = project.linkedDatasetList()
+        images = dataset.linkedImageList()
+        images.sort(key=lambda x: x.getName().val)
+        iids = [i.id.val for i in images]
+        imgIndex = len(iids) - 1
+        iid = iids[imgIndex]
+
+        page_size = 3
+        paths = paths_to_object(self.conn, image_id=iid, page_size=page_size)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'childIndex': imgIndex,
+              'id': dataset.id.val, 'childPage': (imgIndex/page_size) + 1,
+              'childCount': len(iids)},
+             {'type': 'image', 'id': iid}]]
+        assert paths == expected
+
+    def test_orphaned_pagination(self, images):
+        images.sort(key=lambda x: x.getName().val)
+        iids = [i.id.val for i in images]
+        imgIndex = len(iids) - 1
+        iid = iids[imgIndex]
+        image = images[imgIndex]
+
+        page_size = 4
+        paths = paths_to_object(self.conn, image_id=iid, page_size=page_size)
+
+        ownerId = image.details.owner.id.val
+        groupId = image.details.group.id.val
+        expected = [
+            [{'type': 'experimenter', 'id': ownerId},
+             {'type': 'orphaned', 'id': ownerId,
+              'childIndex': imgIndex,
+              'childPage': (imgIndex/page_size) + 1,
+              'childCount': len(iids)},
+             {'type': 'image', 'id': iid}]]
+        assert paths == expected
+
+        image_ids = get_image_ids(self.conn, groupId=groupId, ownerId=ownerId)
+        assert iids == image_ids
+
+    def test_get_image_ids_dataset(self, project_dataset_images):
+        project = project_dataset_images
+        dataset, = project.linkedDatasetList()
+        images = dataset.linkedImageList()
+        images.sort(key=lambda x: x.getName().val)
+        expected_ids = [i.id.val for i in images]
+        iids = get_image_ids(self.conn, dataset.id.val)
+        assert iids == expected_ids
 
     def test_image(self, project_dataset_image):
         """

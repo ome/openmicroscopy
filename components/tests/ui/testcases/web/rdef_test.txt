@@ -239,9 +239,9 @@ Test Owners Rdef
     
     # Test 'Paste and Save' with right-click on different Image in tree
     # (check thumb refresh by change of src)
-    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/img@src
+    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/a/img@src
     Right Click Image Rendering Settings    ${imageId_2}            Paste and Save
-    Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/img[@src!='${thumbSrc}']
+    Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId_2}"]/div[@class="image"]/a/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Select Image By Id                      ${imageId_2}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
@@ -249,9 +249,9 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           200
 
     # Test Set Owner's in same way on first Image
-    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img@src
+    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img@src
     Right Click Image Rendering Settings    ${imageId}            Set Owner's and Save
-    Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img[@src!='${thumbSrc}']
+    Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
@@ -259,9 +259,9 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           100
 
     # Test "Set Imported" on first Image
-    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img@src
+    ${thumbSrc}=                            Get Element Attribute      xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img@src
     Right Click Image Rendering Settings    ${imageId}            Set Imported and Save
-    Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/img[@src!='${thumbSrc}']
+    Wait Until Page Contains Element        xpath=//li[@id="image_icon-${imageId}"]/div[@class="image"]/a/img[@src!='${thumbSrc}']
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
