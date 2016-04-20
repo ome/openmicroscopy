@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -38,11 +38,15 @@ import omero.cmd.Delete2;
 import omero.cmd.Duplicate;
 import omero.cmd.DuplicateResponse;
 import omero.cmd.ERR;
+import omero.cmd.SkipHead;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Channel;
+import omero.model.Dataset;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.DoubleAnnotationI;
 import omero.model.Ellipse;
 import omero.model.EllipseI;
@@ -1217,5 +1221,52 @@ public class DuplicationTest extends AbstractServerTest {
             final ERR response = (ERR) doChange(client, factory, dup, false);
             Assert.assertEquals(response.name, "bad-class");
         }
+    }
+
+    /**
+     * Test duplication of a dataset's image. {@link SkipHead} is used to identify the image via its dataset.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13197")
+    public void testDuplicateImageViaSkipHead() throws Exception {
+        newUserAndGroup("rwr---");
+
+        /* create a dataset with an image */
+
+        final Dataset originalDataset = mmFactory.simpleDataset();
+        final Image originalImage = mmFactory.simpleImage();
+        DatasetImageLink originalLink = new DatasetImageLinkI();
+        originalLink.setParent(originalDataset);
+        originalLink.setChild(originalImage);
+        originalLink = (DatasetImageLink) iUpdate.saveAndReturnObject(originalLink);
+
+        /* note the objects (and their IDs) that were thus created and saved */
+
+        final long originalDatasetId = originalLink.getParent().getId().getValue();
+        final long originalImageId = originalLink.getChild().getId().getValue();
+        final long originalLinkId = originalLink.getId().getValue();
+        testImages.add(originalImageId);
+
+        /* duplicate the image via SkipHead */
+
+        final SkipHead dup = Requests.skipHead().target("Dataset").id(originalDatasetId).startFrom("Image").request(Duplicate.class).build();
+        final DuplicateResponse response = (DuplicateResponse) doChange(dup);
+
+        /* check that the response includes duplication of only the image */
+
+        final List<Long> reportedDatasetIds = response.duplicates.get("ome.model.containers.Dataset");
+        final List<Long> reportedImageIds = response.duplicates.get("ome.model.core.Image");
+        final List<Long> reportedLinkIds = response.duplicates.get("ome.model.annotations.ImageAnnotationLink");
+
+        Assert.assertNull(reportedDatasetIds);
+        Assert.assertEquals(reportedImageIds.size(), 1);
+        Assert.assertNull(reportedLinkIds);
+
+        /* check that the reported image has a new ID */
+
+        final long reportedImageId = reportedImageIds.get(0);
+        testImages.add(reportedImageId);
+
+        Assert.assertNotEquals(originalImageId, reportedImageId);
     }
 }
