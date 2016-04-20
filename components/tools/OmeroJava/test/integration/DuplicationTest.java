@@ -152,7 +152,7 @@ public class DuplicationTest extends AbstractServerTest {
      */
     @AfterClass
     public void deleteTestImages() throws Exception {
-        final Delete2 delete = Requests.delete("Image", testImages);
+        final Delete2 delete = Requests.delete().target("Image").id(testImages).build();
         doChange(root, root.getSession(), delete, true);
         clearTestImages();
     }
