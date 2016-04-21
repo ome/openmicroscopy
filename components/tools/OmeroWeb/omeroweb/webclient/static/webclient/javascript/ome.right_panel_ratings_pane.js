@@ -21,7 +21,13 @@ var RatingsPane = function RatingsPane($element, opts) {
         $body = $element.children('div'),
         $rating_annotations = $("#rating_annotations"),
         objects = opts.selected,
+        index = opts.index,
         canAnnotate = opts.canAnnotate;
+
+    var request = objects.map(function(o){
+        return o.replace("-", "=");
+    });
+    request = request.join("&");
 
     var tmplText = $('#ratings_template').html();
     var ratingsTempl = _.template(tmplText);
@@ -43,6 +49,42 @@ var RatingsPane = function RatingsPane($element, opts) {
     }).bind(this);
 
 
+    $("#rating_annotations").on("click", ".myRating img", function(event){
+        var $rating = $(this),
+            clickX = event.pageX - $rating.offset().left;
+        var r = (clickX/ $rating.width()) * 5;
+        r = parseInt(Math.ceil(r), 10);
+        setRating(r, $rating);
+    });
+
+    $("#rating_annotations").on("click", ".removeRating", function(event){
+        var $liMyRating = $(this).parent(),
+            $ratingimg = $liMyRating.find('img');
+        setRating(0, $ratingimg);
+    });
+
+    var setRating = function(rating, $rating) {
+        // update rating
+        if ($rating) {
+            var rating_src = WEBCLIENT.URLS.static_webclient + "image/rating" + rating + ".png";
+            $rating.attr('src', rating_src);
+        }
+        // update rating annotation
+        var rating_url = WEBCLIENT.URLS.webindex + "annotate_rating/?" + request + "&index=" + index;
+        rating_url += "&rating=" + rating;
+        $.post(rating_url, function(data) {
+            // update summary
+            $("#ratingsAverage").text(data.average);
+            $("#ratingsCount").text(data.count);
+            if (data.count > 0) {
+                $("#ratingsSummary").show();
+            } else {
+                $("#ratingsSummary").hide();
+            }
+        });
+    };
+
+
     var isClientMapAnn = function(ann) {
         return ann.ns === OMERO.constants.metadata.NSCLIENTMAPANNOTATION;
     };
@@ -58,11 +100,6 @@ var RatingsPane = function RatingsPane($element, opts) {
             if ($rating_annotations.is(":empty")) {
                 $rating_annotations.html("Loading ratings...");
             }
-
-            var request = objects.map(function(o){
-                return o.replace("-", "=");
-            });
-            request = request.join("&");
 
             $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=rating&" + request, function(data){
 
