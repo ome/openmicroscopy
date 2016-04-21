@@ -62,6 +62,7 @@ var RatingsPane = function RatingsPane($element, opts) {
             var request = objects.map(function(o){
                 return o.replace("-", "=");
             });
+            request = request.join("&");
 
             $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=rating&" + request, function(data){
 
@@ -74,12 +75,6 @@ var RatingsPane = function RatingsPane($element, opts) {
                 });
                 var myRating = myRatings.length > 0 ? myRatings[0].longValue : 0;
                 var average = Math.round(sum/anns.length);
-                console.log('myRating', myRating);
-
-                // Manual UI update...
-                // if (myRating) {
-                //     $("#add_rating").hide();
-                // };
 
                 // Update html...
                 var html = ratingsTempl({'anns': anns,

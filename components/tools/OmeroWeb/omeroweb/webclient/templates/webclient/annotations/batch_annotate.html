@@ -64,6 +64,7 @@
                 var tagPane = new TagPane($("#tagsPane"), annPaneData);
                 var fileannsPane = new FileAnnsPane($("#fileannsPane"), annPaneData);
                 var commentsPane = new CommentsPane($("#commentsPane"), annPaneData);
+                var ratingsPane = new RatingsPane($("#ratingsPane"), annPaneData);
 
 
                 // show a link to the current objects
@@ -306,44 +307,14 @@
 
 
     <!-- RATING -->
-
-    <div class="annotations_section">
-
-        <h2>{% trans "Rating" %}</h2>
-
-        {% if not annotationBlocked %}
-        <a id="add_rating"
-            {% if userRatingAvg > 0 %}style="display:none"{% endif %} class="btn silver btn_add"><span></span></a>
-        {% endif %}
-
-
-        <ul id="rating_annotations" class="lnfiles">
-
-            <li class="rating {% if not annotationBlocked %}myRating{% endif %}" style="position: relative {% ifequal userRatingAvg 0 %}; display:none{% endifequal %}">
-                <a><img
-                {% ifequal userRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
-                />
-                <span class="ratingOwner">
-                    (avg of <span class="ratingCount">{{ batchAnns.UserRatings|length }}</span>)
-                </span>
-                </a>
-                {% if not annotationBlocked %}
-                <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
-                {% endif %}
-            </li>
-        </ul>
-        <div id="ratingsSummary" {% if not ratings.average %}style="display:none"{% endif %}>
-            (avg:
-            <span id="ratingsAverage">{{ ratings.average }}</span>
-            / <span id="ratingsCount">{{ ratings.count }}</span>
-            votes)
-        </div>
-    </div>
+    <div id="ratingsPane">
+        <h1 class="can-collapse closed" data-name="ratings">
+            Ratings
+        </h1>
+        <div class="annotations_section" style="display: none">
+            <div id="rating_annotations"></div>
+         </div>
+     </div>
 
 
     <!-- TAGS -->
