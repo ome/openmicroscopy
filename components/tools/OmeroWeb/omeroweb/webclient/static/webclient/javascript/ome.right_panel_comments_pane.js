@@ -71,6 +71,7 @@ var CommentsPane = function CommentsPane($element, opts) {
             if ($.trim(textArea.val()).length === 0) return false;
         },
         success: function(html) {
+            $("#id_comment").val("");
             self.render();
         },
     });

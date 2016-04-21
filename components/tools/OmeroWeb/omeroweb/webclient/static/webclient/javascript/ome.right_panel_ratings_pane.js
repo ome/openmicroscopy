@@ -49,7 +49,7 @@ var RatingsPane = function RatingsPane($element, opts) {
     }).bind(this);
 
 
-    $("#rating_annotations").on("click", ".myRating img", function(event){
+    $("#rating_annotations.canAnnotate").on("click", ".myRating img", function(event){
         var $rating = $(this),
             clickX = event.pageX - $rating.offset().left;
         var r = (clickX/ $rating.width()) * 5;
@@ -57,7 +57,7 @@ var RatingsPane = function RatingsPane($element, opts) {
         setRating(r, $rating);
     });
 
-    $("#rating_annotations").on("click", ".removeRating", function(event){
+    $("#rating_annotations.canAnnotate").on("click", ".removeRating", function(event){
         var $liMyRating = $(this).parent(),
             $ratingimg = $liMyRating.find('img');
         setRating(0, $ratingimg);
