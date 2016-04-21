@@ -2427,13 +2427,26 @@ def _table_query(request, fileid, conn=None, **kwargs):
         except Exception:
             return dict(error='Error executing query: %s' % query)
 
-    return dict(data=dict(
+    colDescriptions = []
+    for col in cols:
+        desc = col.description
+        # description might be json data
+        try:
+            if len(desc) > 0:
+                desc = json.loads(desc)
+        except:
+            pass
+        colDescriptions.append(desc)
+    data = dict(
         columns=[col.name for col in cols],
         rows=[[col.values[0] for col in t.read(range(len(cols)), hit,
                                                hit+1).columns]
               for hit in hits],
         )
-    )
+    # Only add descriptions if they're not all empty
+    if (sum([len(d) for d in colDescriptions]) > 0):
+        data['descriptions'] = colDescriptions
+    return dict(data=data)
 
 table_query = login_required()(jsonp(_table_query))
 

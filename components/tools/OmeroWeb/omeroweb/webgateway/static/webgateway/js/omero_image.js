@@ -279,12 +279,24 @@
                 if (result.data && result.data.rows) {
                     var table = $("#bulk-annotations").show().next().show().children("table");
                     var html = result.data.columns.map(function(col, colIdx) {
+                        var url = false;
                         var label = col.escapeHTML();
+                        if (result.data.descriptions && result.data.descriptions[colIdx]) {
+                            url = result.data.descriptions[colIdx].url;
+                        }
                         var values = result.data.rows.map(function(row){
-                            return ("" + row[colIdx]).escapeHTML();
+                            var v = ("" + row[colIdx]).escapeHTML();
+                            if (url) {
+                                var href = url.replace("%s", v);
+                                v = "<a target='new' href='" + href + "'>" + v + "</a>";
+                            }
+                            return v;
                         });
                         values = values.join('<br />');
                         var oddEvenClass = col % 2 == 1 ? 'odd' : 'even';
+                        if (values.length === 0) {
+                            oddEvenClass += ' noTabularData';
+                        }
                         return '<tr><td class="title ' + oddEvenClass + '">' + label + ':&nbsp;</td><td>' + values + '</td></tr>';
                     });
                     table.html(html.join(""));
