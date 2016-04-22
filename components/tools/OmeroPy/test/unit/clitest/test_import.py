@@ -305,3 +305,18 @@ class TestImport(object):
         self.add_client_dir()
         self.args += [ "-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
+
+    def testBulkName(self):
+        # Metadata provided in the yml file will be applied
+        # to the args
+        t = path(__file__).parent / "bulk_import" / "test_name"
+        b = t / "bulk.yml"
+
+        class MockImportControl(ImportControl):
+            def do_import(self, args, xargs):
+                assert args.java_name.startswith("testname")
+        self.cli.register("mock-import", MockImportControl, "HELP")
+
+        self.args = ["mock-import", "-f", "---bulk=%s" % b]
+        self.add_client_dir()
+        self.cli.invoke(self.args, strict=True)
