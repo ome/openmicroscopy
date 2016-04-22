@@ -162,7 +162,8 @@ class TestDuplicate(CLITest):
         self.link(dset, img)
 
         self.args += ['Project:%s' % proj.id.val]
-        self.duplicate(capfd)
+        self.args += ['--report']
+        out = self.duplicate(capfd)
 
         pp = omero.sys.ParametersI()
         pp.addString("name", namep)
@@ -172,6 +173,11 @@ class TestDuplicate(CLITest):
         # Check the Project has been duplicated
         assert len(objsp) == 2
         assert objsp[0].id.val != objsp[1].id.val
+
+        pid = max(objsp[0].id.val, objsp[1].id.val)
+
+        # Check the duplicated Project ID is in the --report output
+        assert str(pid) in out
 
         pd = omero.sys.ParametersI()
         pd.addString("name", named)
@@ -186,9 +192,12 @@ class TestDuplicate(CLITest):
         did = max(objsd[0].id.val, objsd[1].id.val)
         proj_linked = self.get_project(did)
 
+        # Check the duplicated Dataset ID is in the --report output
+        assert str(did) in out
+
         # Check the duplicated Dataset is linked to just the duplicated Project
         assert len(proj_linked) == 1
-        assert proj_linked[0].id.val == max(objsp[0].id.val, objsp[1].id.val)
+        assert proj_linked[0].id.val == pid
 
         pi = omero.sys.ParametersI()
         pi.addString("name", namei)
@@ -202,6 +211,9 @@ class TestDuplicate(CLITest):
         # Find the Datasets linked to the duplicated image
         iid = max(objsi[0].id.val, objsi[1].id.val)
         dat_linked = self.get_dataset(iid)
+
+        # Check the duplicated Image ID is in the --report output
+        assert str(iid) in out
 
         # Check the duplicated image is linked to just the duplicated Dataset
         assert len(dat_linked) == 1
