@@ -34,6 +34,15 @@ except ImportError:
     YAML_ENABLED = False
 
 
+def get_supported_formats():
+    """
+    Return the supported formats
+    """
+    if YAML_ENABLED:
+        return ('json', 'yaml')
+    return ('json',)
+
+
 def load(fileobj, filetype=None, single=True, session=None):
     """
     Try and load a file in a format that is convertible to a Python dictionary
@@ -68,6 +77,25 @@ def load(fileobj, filetype=None, single=True, session=None):
         if single:
             return data
         return [data]
+
+
+def dump(data, formattype):
+    """
+    Convert a python object to a string in the requested format
+
+    data: A python object (most likely a dictionary)
+    formattype: The output format
+    """
+
+    if formattype == 'yaml':
+        if not YAML_ENABLED:
+            raise ImportError("yaml (PyYAML) module required")
+        return yaml.dump(data)
+
+    if formattype == 'json':
+        return json.dumps(data)
+
+    raise ValueError('Unknown format: %s' % formattype)
 
 
 def _format_from_name(filename):
