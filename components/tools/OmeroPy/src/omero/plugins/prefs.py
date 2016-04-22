@@ -47,6 +47,11 @@ Environment variables:
 
 """
 
+WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
+                   " OMERO 5.3, see http://blog.openmicroscopy.org/"
+                   "tech-issues/future-plans/deployment/2016/03/22/"
+                   "windows-support/")
+
 
 def getprefs(args, dir):
     """
@@ -84,11 +89,7 @@ def windows_warning(func):
     def win_warn(func):
         def wrapper(self, *args, **kwargs):
             if self._isWindows():
-                self.ctx.err(
-                    "WARNING: Support for Windows will be removed in"
-                    " OMERO 5.3, see http://blog.openmicroscopy.org/"
-                    "tech-issues/future-plans/deployment/2016/03/22/"
-                    "windows-support/")
+                self.ctx.err(WINDOWS_WARNING)
             return func(self, *args, **kwargs)
         return wrapper
     return wraps(func)(win_warn(func))

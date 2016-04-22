@@ -31,7 +31,7 @@ from omero.cli import CLI
 
 from omero_ext.argparse import FileType, SUPPRESS
 
-from omero.plugins.prefs import windows_warning
+from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
 
 from path import path
 
@@ -42,10 +42,6 @@ import time
 
 HELP = """Database tools for creating scripts, setting passwords, etc."""
 
-WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
-                   " OMERO 5.3, see http://blog.openmicroscopy.org/"
-                   "tech-issues/future-plans/deployment/2016/03/22/"
-                   "windows-support/")
 
 if platform.system() == 'Windows':
     HELP += ("\n\n%s" % WINDOWS_WARNING)
