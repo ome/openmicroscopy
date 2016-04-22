@@ -363,12 +363,17 @@ class ImportControl(BaseControl):
         os.chdir(parent)
         try:
             path = bulk["path"]
+            self.optionally_add(args, bulk, "name")
             for line in fileinput.input([path]):
                 line = line.strip()
                 args.path = [line]
                 self.do_import(args, xargs)
         finally:
             os.chdir(old_pwd)
+
+    def optionally_add(self, args, bulk, key):
+        if key in bulk:
+            setattr(args, "java_"+key, bulk[key])
 
     def open_log(self, file, prefix=None):
         if not file:
