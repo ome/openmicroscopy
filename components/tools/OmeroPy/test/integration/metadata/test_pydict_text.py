@@ -30,7 +30,7 @@ from omero.util import pydict_text_io
 import pytest
 
 
-class TestPydictTextRead(lib.ITest):
+class TestPydictTextIo(lib.ITest):
 
     def getTestJson(self):
         # space after : is optional for json but required for yaml
@@ -110,3 +110,13 @@ class TestPydictTextRead(lib.ITest):
         data = pydict_text_io.load(
             fileobj, session=self.client.getSession())
         assert data == {'a': 2}
+
+    @pytest.mark.parametrize('format', ['json', 'yaml'])
+    def test_dump(data, tmpdir, format):
+        d = {'a': 2}
+        dumpstring = pydict_text_io.dump(d, format)
+        f = tmpdir.join('test-dump.%s' % format)
+        f.write(dumpstring)
+        fileobj = str(f)
+
+        assert pydict_text_io.load(fileobj, format) == d
