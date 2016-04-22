@@ -44,10 +44,10 @@ class TestRender(CLITest):
         self.cli.register("render", RenderControl, "TEST")
         self.args += ["render"]
 
-    def create_image(self):
+    def create_image(self, sizec=4):
         self.gw = BlitzGateway(client_obj=self.client)
         self.plates = []
-        for plate in self.importPlates(fields=2, sizeC=4):
+        for plate in self.importPlates(fields=2, sizeC=sizec):
             self.plates.append(self.gw.getObject("Plate", plate.id.val))
         # Now pick the first Image
         self.imgobj = list(self.plates[0].listChildren())[0].getImage(index=0)
@@ -81,7 +81,7 @@ class TestRender(CLITest):
             return imgs
         raise Exception('Unknown target: %s' % target)
 
-    def get_render_def(self):
+    def get_render_def(self, sizec=4, greyscale=None):
         channels = {}
         channels[1] = {
             'label': self.uuid(),
@@ -107,13 +107,23 @@ class TestRender(CLITest):
             'min': 77,
             'max': 88,
         }
-        return {'channels': channels}
+
+        for k in xrange(sizec, 4):
+            del channels[k + 1]
+        d = {'channels': channels}
+
+        if greyscale is not None:
+            d['greyscale'] = greyscale
+        return d
 
     def assert_channel_rdef(self, channel, rdef):
         assert channel.getLabel() == rdef['label']
         assert channel.getColor().getHtml() == rdef['color']
         assert channel.getWindowStart() == rdef['min']
         assert channel.getWindowEnd() == rdef['max']
+
+    def assert_image_rmodel(self, img, greyscale):
+        assert img.isGreyscaleRenderingModel() == greyscale
 
     # rendering tests
     # ========================================================================
@@ -147,8 +157,12 @@ class TestRender(CLITest):
         reason=('https://trello.com/c/lyyGuRow/'
                 '657-incorrect-logical-channels-in-clitest-importplates'))
     def testEdit(self, targetName, tmpdir):
-        self.create_image()
-        rd = self.get_render_def()
+        sizec = 4
+        greyscale = None
+        # 4 channels so should default to colour model
+        expected_greyscale = False
+        self.create_image(sizec=sizec)
+        rd = self.get_render_def(sizec=sizec, greyscale=greyscale)
         rdfile = tmpdir.join('render-test-edit.json')
         # Should work with json and yaml, but yaml is an optional dependency
         rdfile.write(json.dumps(rd))
@@ -163,6 +177,7 @@ class TestRender(CLITest):
             # Get the updated object
             img = gw.getObject('Image', iid)
             channels = img.getChannels()
-            assert len(channels) == 4
+            assert len(channels) == sizec
             for c in xrange(len(channels)):
                 self.assert_channel_rdef(channels[c], rd['channels'][c + 1])
+            self.assert_image_rmodel(img, expected_greyscale)
