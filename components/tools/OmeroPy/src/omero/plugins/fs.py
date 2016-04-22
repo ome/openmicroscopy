@@ -23,6 +23,7 @@
 fs plugin for querying repositories, filesets, and the like.
 """
 
+import platform
 import sys
 
 from collections import defaultdict
@@ -46,6 +47,14 @@ from omero.fs import TRANSFERS
 
 
 HELP = """Filesystem utilities"""
+
+WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
+                   " OMERO 5.3, see http://blog.openmicroscopy.org/"
+                   "tech-issues/future-plans/deployment/2016/03/22/"
+                   "windows-support/")
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
@@ -435,6 +444,9 @@ it may be useful to rename an existing fileset to match the new
 template. By default the original files and import log are also
 moved.
 """
+        if platform.system() == 'Windows':
+            self.ctx.out("\n%s\n" % WINDOWS_WARNING)
+
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
         uid = self.ctx.get_event_context().userId
