@@ -34,10 +34,19 @@ from omero_ext.argparse import FileType, SUPPRESS
 from path import path
 
 import omero.java
-import time
+import platform
 import sys
+import time
 
 HELP = """Database tools for creating scripts, setting passwords, etc."""
+
+WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
+                   " OMERO 5.3, see http://blog.openmicroscopy.org/"
+                   "tech-issues/future-plans/deployment/2016/03/22/"
+                   "windows-support/")
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
 class DatabaseControl(BaseControl):
@@ -265,6 +274,8 @@ BEGIN;
     def script(self, args):
         if args.posversion is not None:
             self.ctx.err("WARNING: Positional arguments are deprecated")
+        if platform.system() == 'Windows':
+            self.ctx.out("\n%s\n" % WINDOWS_WARNING)
 
         defaults = self.loaddefaults()
         db_vers = self._lookup("version", defaults, args)
