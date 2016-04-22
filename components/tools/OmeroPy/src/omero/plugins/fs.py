@@ -266,6 +266,17 @@ class FsControl(CmdControl):
             "fileset",
             type=ProxyStringType("Fileset"))
 
+        fixpyramid = parser.add(sub, self.fixpyramid)
+        fixpyramid.add_argument(
+            "image",
+            type=ProxyStringType("Image"),
+            help=("Image which should have its pyramid removed: "
+                  "ID or Fileset:ID"))
+        fixpyramid.add_argument(
+            "--wait", type=long,
+            help="Number of seconds to wait for the processing to complete "
+            "(Indefinite < 0; No wait=0).", default=-1)
+
         usage = parser.add(sub, self.usage)
         usage.set_args_unsorted()
         usage.add_login_arguments()
@@ -693,6 +704,32 @@ Examples:
         defaultdict(list)
         for ofile in fileset.listFiles():
             print ofile.path + ofile.name
+
+    @admin_only
+    def fixpyramid(self, args):
+        """ Remove the pyramid file associated with an image."""
+        from omero.cmd import ManageImageBinaries
+
+        client = self.ctx.conn(args)
+        mib = ManageImageBinaries()
+        mib.imageId = args.image.id.val
+        mib.deletePyramid = True
+        try:
+            rsp, status, cb = self.response(client, mib, wait=args.wait)
+            err = self.get_error(rsp)
+            if err:
+                self.ctx.err("Error: " + rsp.parameters['message'])
+            else:
+                if rsp.pyramidPresent:
+                    self.ctx.err(
+                        "Error: Failed to remove pyramid for Image:%s"
+                        % args.image.id.val)
+                else:
+                    self.ctx.out(
+                        "Pyramid for Image:%s removed" % args.image.id.val)
+        finally:
+            if cb is not None:
+                cb.close(True)  # Close handle
 
     @admin_only
     def set_repo(self, args):
