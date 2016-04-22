@@ -44,7 +44,7 @@
         <input type="checkbox" style="display:none;"/>
         <% if (ann.link.permissions.canDelete) { %> <!-- and not ann.isOriginalMetadata -->
             <a class='removeFile action' id="<%= ann.id %>-file" title="Remove File"
-            href='<%= webindex %>action/remove/file/<%= ann.id %>/'>-</a>
+            href='<%= webindex %>action/remove/file/<%= ann.id %>/'>&#8211</a>
         <% } %>
 
         <% if (ann.permissions.canDelete) { %> <!-- and not ann.isOriginalMetadata -->
