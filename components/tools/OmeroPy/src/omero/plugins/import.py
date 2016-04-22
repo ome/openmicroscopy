@@ -101,6 +101,10 @@ class ImportControl(BaseControl):
             "--clientdir", type=str,
             help="Path to the directory containing the client JARs. "
             " Default: lib/client")
+        parser.add_argument(
+            "--logback", type=str,
+            help="Path to a logback xml file. "
+            " Default: etc/logback-cli.xml")
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
@@ -285,7 +289,10 @@ class ImportControl(BaseControl):
         else:
             client_dir = self.ctx.dir / "lib" / "client"
         etc_dir = self.ctx.dir / "etc"
-        xml_file = etc_dir / "logback-cli.xml"
+        if args.logback:
+            xml_file = path(args.logback)
+        else:
+            xml_file = etc_dir / "logback-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % xml_file
 
         try:
