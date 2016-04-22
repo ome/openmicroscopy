@@ -6,6 +6,12 @@
  */
 package ome.formats.importer.cli;
 
+import java.util.List;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ListMultimap;
+
 import static ome.formats.importer.ImportEvent.*;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -30,6 +36,24 @@ public class LoggingImportMonitor implements IObserver
 
     private final ImportSummary importSummary = new ImportSummary();
 
+    private ImportOutput importOutput = ImportOutput.legacy;
+
+    /**
+     * Set the current {@link ImportOutput} (defaulting to null if
+     * a null value is passed).
+     *
+     * @param importOutput possibly null enumeration value.
+     * @return previous value.
+     */
+    public ImportOutput setImportOutput(ImportOutput importOutput) {
+        ImportOutput old = importOutput;
+        if (importOutput == null) {
+            this.importOutput = ImportOutput.legacy;
+        }
+        this.importOutput = importOutput;
+        return old;
+    }
+
     public void update(IObservable importLibrary, ImportEvent event)
     {
         if (event instanceof IMPORT_DONE) {
@@ -38,7 +62,13 @@ public class LoggingImportMonitor implements IObserver
 
             // send the import results to stdout
             // to enable external tools integration
-            importSummary.outputGreppableResults(ev);
+            switch (importOutput) {
+                case yaml:
+                    importSummary.outputYamlResults(ev);
+                    break;
+                default:
+                importSummary.outputGreppableResults(ev);
+            }
             importSummary.update(ev);
         } else if (event instanceof IMPORT_SUMMARY) {
             IMPORT_SUMMARY ev = (IMPORT_SUMMARY) event;
@@ -189,6 +219,39 @@ public class LoggingImportMonitor implements IObserver
                     System.err.print(":");
                     System.err.println(object.getId().getValue());
                 }
+            }
+        }
+
+        /**
+         * Displays a yaml description of the successfully imported Images
+         * and other objects to standard output.
+         *
+         * Note that this behavior is intended for other command line tools to
+         * pipe/grep the import results, and should be kept as is.
+         *
+         * @param ev the end of import event.
+         */
+        void outputYamlResults(IMPORT_DONE ev) {
+            System.err.println("Imported objects:");
+            System.out.println("---");
+            System.out.println("- Fileset: " + ev.fileset.getId().getValue());
+            ListMultimap<String, Long> collect = ArrayListMultimap.create();
+            for (IObject object : ev.objects) {
+                if (object != null && object.getId() != null) {
+                    String kls = object.getClass().getSimpleName();
+                    if (kls.endsWith("I")) {
+                        kls = kls.substring(0,kls.length()-1);
+                    }
+                    collect.put(kls, object.getId().getValue());
+                }
+            }
+            for (String kls : collect.keySet()) {
+                List<Long> ids = collect.get(kls);
+                System.out.print("  ");
+                System.out.print(kls);
+                System.out.print(": [");
+                System.out.print(Joiner.on(",").join(ids));
+                System.out.println("]");
             }
         }
     }
