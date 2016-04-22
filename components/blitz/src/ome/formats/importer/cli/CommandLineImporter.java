@@ -284,7 +284,9 @@ public class CommandLineImporter {
             }
         } else {
             sw.start();
-            library.addObserver(new LoggingImportMonitor());
+            LoggingImportMonitor lim = new LoggingImportMonitor();
+            lim.setImportOutput(importOutput);
+            library.addObserver(lim);
             // error handler has been configured in constructor from main args
             library.addObserver(this.handler);
 
