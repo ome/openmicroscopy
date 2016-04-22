@@ -147,13 +147,18 @@ class TestImport(object):
         self.args += ["-f", "--debug=ERROR"]
         self.args += [str(dir1)]
 
+        def f():
+            self.cli.invoke(self.args + ["--depth=%s" % depth], strict=True)
+
         depth, result = data
-        self.cli.invoke(self.args + ["--depth=%s" % depth], strict=True)
-        o, e = capfd.readouterr()
         if result:
+            f()
+            o, e = capfd.readouterr()
             assert str(fakefile) in str(o)
         else:
-            assert str(fakefile) not in str(o)
+            # Now a failure condition
+            with pytest.raises(NonZeroReturnCode):
+                f()
 
     def testImportFakeImage(self, tmpdir, capfd):
         """Test fake image import"""

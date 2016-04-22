@@ -240,7 +240,7 @@ public class CommandLineImporter {
         if (getUsedFiles) {
             try {
                 candidates.print();
-                return 0;
+                return candidates.size() == 0 ? 125 : 0;
             } catch (Throwable t) {
                 log.error("Error retrieving used files.", t);
                 return 1;
