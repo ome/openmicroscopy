@@ -169,6 +169,8 @@ class TestDuplicate(CLITest):
         query = "select obj from Project obj where obj.name=:name"
         objsp = self.query.findAllByQuery(query, pp)
 
+        assert len(objsp) == 2
+
         pd = omero.sys.ParametersI()
         pd.addString("name", named)
         query = "select obj from Dataset obj where obj.name=:name"
