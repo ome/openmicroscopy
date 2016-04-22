@@ -67,6 +67,7 @@ Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
+OUTPUT_CHOICES = ["legacy", "yaml"]
 SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 
 
@@ -202,6 +203,10 @@ class ImportControl(BaseControl):
             "--debug", choices=DEBUG_CHOICES, dest="java_debug",
             help="Turn debug logging on (**)",
             metavar="LEVEL")
+        java_group.add_argument(
+            "--output", choices=OUTPUT_CHOICES, dest="java_output",
+            help="Set an alternative output style",
+            metavar="TYPE")
 
         parser.add_argument(
             "--depth", default=4, type=int,
@@ -263,6 +268,7 @@ class ImportControl(BaseControl):
             "java_logs": ("--logs"),
             "java_email": ("--email"),
             "java_debug": ("--debug",),
+            "java_output": ("--output",),
             "java_qa_baseurl": ("--qa-baseurl",),
             "java_ns": "--annotation-ns",
             "java_text": "--annotation-text",
