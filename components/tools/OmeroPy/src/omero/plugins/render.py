@@ -28,7 +28,7 @@ from omero.gateway import BlitzGateway
 from omero.model import Image
 from omero.model import Plate
 from omero.model import Screen
-from omero.util import pydict_text_readers
+from omero.util import pydict_text_io
 
 
 DESC = {
@@ -338,7 +338,7 @@ class RenderControl(BaseControl):
         client = self.ctx.conn(args)
         gateway = BlitzGateway(client_obj=client)
         newchannels = {}
-        data = pydict_text_readers.load(
+        data = pydict_text_io.load(
             args.channels, session=client.getSession())
         if 'channels' not in data:
             self.ctx.die(104, "ERROR: No channels found in %s" % args.channels)
