@@ -19,8 +19,7 @@
         <span class="tooltip_html" style='display:none'>
         <!-- show different tooltip for batch_annotate panel -->
         <% if (tag.links) { %>
-            Can remove Tag from <b><%= tag.canRemoveCount %>
-            object<% if(tag.canRemoveCount !== 1) {print('s')} %></b>:<br/>
+            Can remove Tag from <b><%= tag.canRemoveCount %> object<% if(tag.canRemoveCount !== 1) {print('s')} %></b>:<br/>
             <% _.each(tag.links, function(link, idx) { %>
                 <div>
                     <% if (idx < 20) { %>
