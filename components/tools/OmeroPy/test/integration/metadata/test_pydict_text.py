@@ -25,7 +25,7 @@ Test of the yaml/json parameters file handling
 
 import library as lib
 from omero.rtypes import unwrap
-from omero.util import pydict_text_readers
+from omero.util import pydict_text_io
 
 import pytest
 
@@ -45,7 +45,7 @@ class TestPydictTextRead(lib.ITest):
         f = tmpdir.join('test.%s' % format)
         content = self.getTestYaml()
         f.write(content)
-        rawdata, filetype = pydict_text_readers.get_format_filename(
+        rawdata, filetype = pydict_text_io.get_format_filename(
             str(f), None)
         assert filetype == 'yaml'
         assert rawdata == content
@@ -55,7 +55,7 @@ class TestPydictTextRead(lib.ITest):
         f = tmpdir.join('test.%s' % format)
         content = self.getTestJson()
         f.write(content)
-        rawdata, filetype = pydict_text_readers.get_format_filename(
+        rawdata, filetype = pydict_text_io.get_format_filename(
             str(f), None)
         assert filetype == 'json'
         assert rawdata == content
@@ -71,7 +71,7 @@ class TestPydictTextRead(lib.ITest):
             name='test.%s' % format[0], binary=content, format=format[1])
         fid = unwrap(fa.file.id)
         print fid, unwrap(fa.file.mimetype)
-        retdata, rettype = pydict_text_readers.get_format_originalfileid(
+        retdata, rettype = pydict_text_io.get_format_originalfileid(
             fid, None, self.client.getSession())
         assert rettype == 'yaml'
         assert retdata == content
@@ -84,7 +84,7 @@ class TestPydictTextRead(lib.ITest):
         fa = self.make_file_annotation(
             name='test.%s' % format[0], binary=content, format=format[1])
         fid = unwrap(fa.file.id)
-        retdata, rettype = pydict_text_readers.get_format_originalfileid(
+        retdata, rettype = pydict_text_io.get_format_originalfileid(
             fid, None, self.client.getSession())
         assert rettype == 'json'
         assert retdata == content
@@ -107,6 +107,6 @@ class TestPydictTextRead(lib.ITest):
             f.write(content)
             fileobj = str(f)
 
-        data = pydict_text_readers.load(
+        data = pydict_text_io.load(
             fileobj, session=self.client.getSession())
         assert data == {'a': 2}
