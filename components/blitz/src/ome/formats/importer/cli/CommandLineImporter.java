@@ -93,6 +93,9 @@ public class CommandLineImporter {
     /** If true, then only a report on used files will be produced */
     private final boolean getUsedFiles;
 
+    /** Format which should be preferred for stdandard out messages */
+    private ImportOutput importOutput = ImportOutput.legacy;
+
     /**
      * Legacy constructor which uses a {@link UploadFileTransfer}.
      * @param config the import configuration
@@ -234,12 +237,34 @@ public class CommandLineImporter {
         }
     }
 
+    /**
+     * Set the current {@link ImportOutput} (defaulting to null if
+     * a null value is passed).
+     *
+     * @param importOutput possibly null enumeration value.
+     * @return previous value.
+     */
+    public ImportOutput setImportOutput(ImportOutput importOutput) {
+        ImportOutput old = importOutput;
+        if (importOutput == null) {
+            this.importOutput = ImportOutput.legacy;
+        }
+        this.importOutput = importOutput;
+        return old;
+    }
+
     public int start() {
         boolean successful = true;
 
         if (getUsedFiles) {
             try {
-                candidates.print();
+                switch (importOutput) {
+                    case yaml:
+                        candidates.printYaml();
+                        break;
+                    default:
+                        candidates.print();
+                }
                 return candidates.size() == 0 ? 125 : 0;
             } catch (Throwable t) {
                 log.error("Error retrieving used files.", t);
@@ -568,6 +593,9 @@ public class CommandLineImporter {
         LongOpt noUpgradeCheck =
                 new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
 
+        LongOpt outputFormat =
+                new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 25);
+
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
                 "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 90);
@@ -593,6 +621,7 @@ public class CommandLineImporter {
                                 closeCompleted, waitCompleted, autoClose,
                                 exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
+                                outputFormat,
                                 plateName, plateDescription,
                                 noThumbnailsDeprecated,
                                 checksumAlgorithmDeprecated,
@@ -601,6 +630,7 @@ public class CommandLineImporter {
                                 annotationLinkDeprecated
                                 });
         int a;
+        ImportOutput outputChoice = ImportOutput.legacy;
 
         boolean doCloseCompleted = false;
         boolean doWaitCompleted = false;
@@ -733,6 +763,12 @@ public class CommandLineImporter {
             case 24: {
                 log.info("Disabling upgrade check");
                 config.checkUpgrade.set(false);
+                break;
+            }
+            case 25: {
+                String outputArg = g.getOptarg();
+                log.info("Setting output format: {}", outputArg);
+                outputChoice = ImportOutput.valueOf(outputArg);
                 break;
             }
             // ADVANCED END ---------------------------------------------------
@@ -883,6 +919,7 @@ public class CommandLineImporter {
             }
             c = new CommandLineImporter(config, rest, getUsedFiles,
                     transfer, exclusions, minutesToWait);
+            c.setImportOutput(outputChoice);
             rc = c.start();
         } catch (Throwable t) {
             log.error("Error during import process.", t);
