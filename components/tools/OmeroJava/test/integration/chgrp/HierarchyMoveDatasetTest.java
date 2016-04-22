@@ -105,9 +105,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
 
-        // log out
-        //disconnect();
-
         // Create a new group, the user is now a member of the new group.
         ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
 
