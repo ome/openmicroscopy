@@ -95,6 +95,11 @@ Examples:
 """ % DESC
 
 
+def _set_if_not_none(dictionary, k, v):
+    if v is not None:
+        dictionary[k] = v
+
+
 class ChannelObject(object):
 
     def __init__(self, channel):
@@ -141,6 +146,29 @@ class ChannelObject(object):
             "max=%s" % self.max,
         ])
         return sb
+
+    def to_dict(self):
+        """
+        Return a dict of fields that are recognised by `render edit`
+        """
+        try:
+            color = self.color.getHtml()
+        except AttributeError:
+            color = self.color
+
+        label = None
+        if self.label is not None:
+            label = str(self.label)
+        d = {}
+        _set_if_not_none(d, 'label', label)
+        _set_if_not_none(d, 'color', color)
+        _set_if_not_none(d, 'min', self.min)
+        _set_if_not_none(d, 'max', self.max)
+        _set_if_not_none(d, 'start', self.start)
+        _set_if_not_none(d, 'end', self.end)
+        _set_if_not_none(d, 'active', self.active)
+        # self.emWave
+        return d
 
 
 class RenderObject(object):
@@ -208,6 +236,30 @@ class RenderObject(object):
             sb += "ch%s: %s\n" % (idx, ch)
         return sb
 
+    def to_dict(self):
+        """
+        Return a dict of fields that are recognised by `render edit`
+        """
+        d = {}
+        chs = {}
+        for idx, ch in enumerate(self.channels):
+            chs[idx] = ch.to_dict()
+        d['channels'] = chs
+        d['greyscale'] = True if self.model == 'greyscale' else False
+        # self.image
+        # self.name
+        # self.type
+        # self.tiles
+        # self.width
+        # self.height
+        # self.levels
+        # self.zoomLevelScaling
+        # self.range
+        # self.model
+        # self.projection
+        # self.invertAxis
+        return d
+
 
 class RenderControl(BaseControl):
 
@@ -237,6 +289,12 @@ class RenderControl(BaseControl):
             x.add_argument(
                 "--skipthumbs", help="Don't re-generate thumbnails",
                 action="store_true")
+
+        output_formats = ['plain'] + list(
+            pydict_text_io.get_supported_formats())
+        info.add_argument(
+            "--style", choices=output_formats, default='plain',
+            help="Output format")
 
         copy.add_argument("target", type=render_type, help=render_help,
                           nargs="+")
@@ -288,8 +346,17 @@ class RenderControl(BaseControl):
     def info(self, args):
         client = self.ctx.conn(args)
         gateway = BlitzGateway(client_obj=client)
+        first = True
         for img in self.render_images(gateway, args.object, batch=1):
-            print RenderObject(img)
+            ro = RenderObject(img)
+            if args.style == 'plain':
+                self.ctx.out(ro)
+            else:
+                if not first:
+                    self.ctx.die(
+                        103, "Output styles not supported for multiple images")
+                self.ctx.out(pydict_text_io.dump(ro.to_dict(), args.style))
+                first = False
 
     def copy(self, args):
         client = self.ctx.conn(args)
