@@ -142,6 +142,14 @@ class TestRender(CLITest):
         self.args += ["info", target]
         self.cli.invoke(self.args, strict=True)
 
+    @pytest.mark.parametrize('style', ['json', 'yaml'])
+    def testInfoStyle(self, style):
+        self.create_image()
+        target = self.imageid
+        self.args += ["info", target]
+        self.args += ['--style', style]
+        self.cli.invoke(self.args, strict=True)
+
     @pytest.mark.parametrize('targetName', sorted(SUPPORTED.keys()))
     def testCopy(self, targetName, tmpdir):
         self.create_image()
