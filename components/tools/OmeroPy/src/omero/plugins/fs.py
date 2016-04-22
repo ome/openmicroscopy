@@ -45,6 +45,7 @@ from omero.util.temp_files import create_path
 from omero.util.text import filesizeformat
 from omero.fs import TRANSFERS
 
+from omero.plugins.prefs import windows_warning
 
 HELP = """Filesystem utilities"""
 
@@ -435,6 +436,7 @@ Examples:
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
+    @windows_warning
     @admin_only
     def rename(self, args):
         """Moves an existing fileset to a new location (admin-only)
@@ -444,8 +446,6 @@ it may be useful to rename an existing fileset to match the new
 template. By default the original files and import log are also
 moved.
 """
-        if platform.system() == 'Windows':
-            self.ctx.out("\n%s\n" % WINDOWS_WARNING)
 
         fid = args.fileset.id.val
         client = self.ctx.conn(args)

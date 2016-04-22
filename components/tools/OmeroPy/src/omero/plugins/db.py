@@ -31,6 +31,8 @@ from omero.cli import CLI
 
 from omero_ext.argparse import FileType, SUPPRESS
 
+from omero.plugins.prefs import windows_warning
+
 from path import path
 
 import omero.java
@@ -244,6 +246,7 @@ BEGIN;
             if output != sys.stdout:
                 output.close()
 
+    @windows_warning
     def password(self, args):
         root_pass = None
         user_id = 0
@@ -261,6 +264,7 @@ BEGIN;
                      "WHERE experimenter_id  = %s;""" %
                      (password_hash, user_id))
 
+    @windows_warning
     def loaddefaults(self):
         try:
             data2 = self.ctx.initData({})
@@ -271,6 +275,7 @@ BEGIN;
             data2 = None
         return data2
 
+    @windows_warning
     def script(self, args):
         if args.posversion is not None:
             self.ctx.err("WARNING: Positional arguments are deprecated")

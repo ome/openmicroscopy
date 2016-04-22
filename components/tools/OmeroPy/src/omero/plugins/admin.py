@@ -34,6 +34,7 @@ from omero.cli import UserGroupControl
 
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config, with_rw_config
+from omero.plugins.prefs import windows_warning
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
@@ -68,6 +69,14 @@ Configuration properties:
  omero.web.server_list
 
 """ + "\n" + "="*50 + "\n"
+
+WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
+                   " OMERO 5.3, see http://blog.openmicroscopy.org/"
+                   "tech-issues/future-plans/deployment/2016/03/22/"
+                   "windows-support/")
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
 class AdminControl(WriteableConfigControl, UserGroupControl):
@@ -784,6 +793,7 @@ present, the user will enter a console""")
         internal_cfg = self._cfglist()[0]
         return os.path.exists(internal_cfg)
 
+    @windows_warning
     def status(self, args, node_only=False, can_force_rewrite=False):
         self.check_node(args)
         if not self.check_internal_cfg():
@@ -1063,6 +1073,7 @@ present, the user will enter a console""")
 
         return rv
 
+    @windows_warning
     @with_config
     def diagnostics(self, args, config):
 

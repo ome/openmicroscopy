@@ -18,6 +18,8 @@ import re
 from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
+from omero.plugins.prefs import windows_warning
+
 HELP = "OMERO.web configuration/deployment tools"
 WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
                    " OMERO 5.3, see http://blog.openmicroscopy.org/"
@@ -64,9 +66,8 @@ Example IIS usage:
 def config_required(func):
     """Decorator validating Django dependencies and omeroweb/settings.py"""
     def import_django_settings(func):
+        @windows_warning
         def wrapper(self, *args, **kwargs):
-            if self._isWindows():
-                self.ctx.err(WINDOWS_WARNING)
             try:
                 import django  # NOQA
             except:
