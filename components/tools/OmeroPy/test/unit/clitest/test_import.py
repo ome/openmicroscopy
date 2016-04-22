@@ -43,7 +43,9 @@ class TestImport(object):
             ".." / "dist"  # FIXME: should not be hard-coded
         dist_dir = dist_dir.abspath()
         client_dir = dist_dir / "lib" / "client"
+        logback = dist_dir / "etc" / "logback-cli.xml"
         self.args += ["--clientdir", client_dir]
+        self.args += ["--logback", logback]
 
     def mkdir(self, parent, name, with_ds_store=False):
         child = parent / name
