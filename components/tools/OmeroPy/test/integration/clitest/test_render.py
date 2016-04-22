@@ -181,3 +181,32 @@ class TestRender(CLITest):
             for c in xrange(len(channels)):
                 self.assert_channel_rdef(channels[c], rd['channels'][c + 1])
             self.assert_image_rmodel(img, expected_greyscale)
+
+    # Once testEdit is no longer broken testEditSingleC could be merged into
+    # it with sizec and greyscale parameters
+    @pytest.mark.parametrize('targetName', sorted(SUPPORTED.keys()))
+    @pytest.mark.parametrize('greyscale', [None, True, False])
+    def testEditSingleC(self, targetName, greyscale, tmpdir):
+        sizec = 1
+        # 1 channel so should default to greyscale model
+        expected_greyscale = ((greyscale is None) or greyscale)
+        self.create_image(sizec=sizec)
+        rd = self.get_render_def(sizec=sizec, greyscale=greyscale)
+        rdfile = tmpdir.join('render-test-editsinglec.json')
+        # Should work with json and yaml, but yaml is an optional dependency
+        rdfile.write(json.dumps(rd))
+        target = getattr(self, targetName)
+        self.args += ["edit", target, str(rdfile)]
+        self.cli.invoke(self.args, strict=True)
+
+        iids = self.get_target_imageids(target)
+        print 'Got %d images' % len(iids)
+        gw = BlitzGateway(client_obj=self.client)
+        for iid in iids:
+            # Get the updated object
+            img = gw.getObject('Image', iid)
+            channels = img.getChannels()
+            assert len(channels) == sizec
+            for c in xrange(len(channels)):
+                self.assert_channel_rdef(channels[c], rd['channels'][c + 1])
+            self.assert_image_rmodel(img, expected_greyscale)
