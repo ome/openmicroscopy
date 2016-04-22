@@ -49,8 +49,10 @@ Examples:
 
     # %(EDIT)s
     bin/omero render edit Image:1 <YAML or JSON file>
-    where the input file contains a top-level channels element, and
-    index:dictionaries of the form
+    where the input file contains a top-level channels key (required), and
+    an optional top-level greyscale key (True: greyscale, False: colour).
+    Channel elements are index:dictionaries of the form:
+
     channels:
       <index>: (Channel-index, int, 1-based)
         color: <HTML RGB triplet>
@@ -60,6 +62,8 @@ Examples:
         active: <Active (bool)>
       <index>:
         ...
+    greyscale: <(bool)>
+
     # Omitted fields will keep their current values, omitted channel-indices
     # will be turned off.
     bin/omero render edit --copy Screen:1 <YAML or JSON file>
@@ -358,6 +362,11 @@ class RenderControl(BaseControl):
                 self.ctx.die(
                     105, "Invalid channel description: %s" % chdict)
 
+        try:
+            greyscale = data['greyscale']
+        except KeyError:
+            greyscale = None
+
         namedict = {}
         cindices = []
         rangelist = []
@@ -377,6 +386,12 @@ class RenderControl(BaseControl):
         for img in self.render_images(gateway, args.object, batch=1):
             img.setActiveChannels(
                 cindices, windows=rangelist, colors=colourlist)
+            if greyscale is not None:
+                if greyscale:
+                    img.setGreyscaleRenderingModel()
+                else:
+                    img.setColorRenderingModel()
+
             img.saveDefaults()
             self.ctx.dbg("Updated rendering settings for Image:%s" % img.id)
             if not args.skipthumbs:
