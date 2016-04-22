@@ -245,18 +245,6 @@
     {% endif %}
 
 
-    <!-- RATING -->
-    <div id="ratingsPane">
-        <h1 class="can-collapse closed" data-name="ratings">
-            Ratings
-        </h1>
-        <div class="annotations_section"
-                style="display: none">
-            <div id="rating_annotations" {% if not annotationBlocked %}class="canAnnotate"{% endif %}></div>
-         </div>
-     </div>
-
-
     <!-- TAGS -->
     <div id="tagsPane">
         <h1 class="can-collapse closed" data-name="tags">
@@ -302,6 +290,18 @@
                 <ul id="fileanns_container" class="lnfiles"></ul>
         </div>
     </div>
+
+
+    <!-- RATING -->
+    <div id="ratingsPane">
+        <h1 class="can-collapse closed" data-name="ratings">
+            Ratings
+        </h1>
+        <div class="annotations_section"
+                style="display: none">
+            <div id="rating_annotations" {% if not annotationBlocked %}class="canAnnotate"{% endif %}></div>
+         </div>
+     </div>
 
 
     <!-- COMMENTS -->
