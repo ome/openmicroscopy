@@ -169,6 +169,7 @@ class TestDuplicate(CLITest):
         query = "select obj from Project obj where obj.name=:name"
         objsp = self.query.findAllByQuery(query, pp)
 
+        # Check that there are 2 Projects, the original and the duplicate
         assert len(objsp) == 2
 
         pd = omero.sys.ParametersI()
@@ -176,9 +177,16 @@ class TestDuplicate(CLITest):
         query = "select obj from Dataset obj where obj.name=:name"
         objsd = self.query.findAllByQuery(query, pd)
 
+        # Check there are 2 Datasets
+        assert len(objsd) == 2
+
         # Find the Projects linked to the duplicated dataset
         did = max(objsd[0].id.val, objsd[1].id.val)
         proj_linked = self.get_project(did)
+
+        # Check the duplicated Dataset is linked to just the duplicated Project
+        assert len(proj_linked) == 1
+        assert proj_linked[0].id.val == max(objsp[0].id.val, objsp[1].id.val)
 
         pi = omero.sys.ParametersI()
         pi.addString("name", namei)
@@ -190,16 +198,14 @@ class TestDuplicate(CLITest):
         dat_linked = self.get_dataset(iid)
 
         # Check that the Dataset and Image were duplicated
-        assert len(objsd) == 2
         assert len(objsi) == 2
         assert objsd[0].id.val != objsd[1].id.val
         assert objsi[0].id.val != objsi[1].id.val
 
         # Check that the duplicated Dataset/Image is linked
         # only to pne and just one Project/Dataset
-        assert len(proj_linked) == 1
+
         assert len(dat_linked) == 1
 
         # Check that the linked Project/Dataset are the duplicated ones
         assert dat_linked[0].id.val == did
-        assert proj_linked[0].id.val == max(objsp[0].id.val, objsp[1].id.val)
