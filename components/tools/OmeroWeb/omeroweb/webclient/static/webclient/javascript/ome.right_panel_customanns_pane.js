@@ -63,6 +63,7 @@ var CustomAnnsPane = function CustomAnnsPane($element, opts) {
             var request = objects.map(function(o){
                 return o.replace("-", "=");
             });
+            request = request.join("&");
 
             $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=custom&" + request, function(data){
 
@@ -91,7 +92,7 @@ var CustomAnnsPane = function CustomAnnsPane($element, opts) {
                     return ann;
                 });
 
-                // Show most recent comments at the top
+                // Show most recent annotations at the top
                 anns.sort(function(a, b) {
                     return a.date < b.date;
                 });

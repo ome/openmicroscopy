@@ -65,6 +65,7 @@
                 var fileannsPane = new FileAnnsPane($("#fileannsPane"), annPaneData);
                 var commentsPane = new CommentsPane($("#commentsPane"), annPaneData);
                 var ratingsPane = new RatingsPane($("#ratingsPane"), annPaneData);
+                var customAnnsPane = new CustomAnnsPane($("#customAnnotationsPane"), annPaneData);
 
 
                 // show a link to the current objects
@@ -337,6 +338,17 @@
             {% endif %}
 
             <div id="comments_container" class="lncomments"></div>
+        </div>
+    </div>
+
+
+    <!-- 'OTHER' ANNOTATIONS -->
+    <div id="customAnnotationsPane">
+        <h1 class="can-collapse closed" data-name="others">
+            Others
+        </h1>
+        <div class="annotations_section" style="display: none">
+            <table id="custom_annotations"></table>
         </div>
     </div>
 
