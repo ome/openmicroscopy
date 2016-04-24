@@ -3,15 +3,18 @@
 """
    User administration plugin (LDAP extension)
 
-   Copyright 2011 - 2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2011 - 2016 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import sys
+import platform
 
 from omero.cli import CLI, ExceptionHandler, admin_only, UserGroupControl
 from omero.rtypes import rbool
+
+from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
 
 HELP = """Administrative support for managing users' LDAP settings
 
@@ -33,6 +36,9 @@ Examples:
   bin/omero ldap create bob                     # User bob must exist in LDAP
 
 """
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
 class LdapControl(UserGroupControl):
@@ -92,6 +98,7 @@ to users.""")
         for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
 
+    @windows_warning
     @admin_only
     def active(self, args):
         c = self.ctx.conn(args)
@@ -102,6 +109,7 @@ to users.""")
         else:
             self.ctx.die(1, "No")
 
+    @windows_warning
     @admin_only
     def list(self, args):
         c = self.ctx.conn(args)
@@ -129,6 +137,7 @@ to users.""")
                 count += 1
         self.ctx.out(str(tb.build()))
 
+    @windows_warning
     @admin_only
     def getdn(self, args):
         c = self.ctx.conn(args)
@@ -163,6 +172,7 @@ to users.""")
         if dn is not None and dn.strip():
             self.ctx.out(dn)
 
+    @windows_warning
     @admin_only
     def setdn(self, args):
         c = self.ctx.conn(args)
@@ -188,6 +198,7 @@ to users.""")
                               in ("yes", "true", "t", "1")))
             iupdate.saveObject(obj)
 
+    @windows_warning
     @admin_only
     def discover(self, args):
         c = self.ctx.conn(args)
@@ -223,6 +234,7 @@ to users.""")
                                      % (e.getId().getValue(),
                                         e.getOmeName().getValue()))
 
+    @windows_warning
     @admin_only
     def create(self, args):
         c = self.ctx.conn(args)
