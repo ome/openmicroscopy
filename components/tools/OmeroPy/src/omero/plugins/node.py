@@ -7,7 +7,7 @@
 
  This is a python wrapper around icegridnode.
 
- Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
+ Copyright 2008, 2016 Glencoe Software, Inc.  All Rights Reserved.
  Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -17,7 +17,10 @@ from omero.util import tail_lines
 import os
 import sys
 import signal
+import platform
 from path import path
+
+from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
 
 HELP = """Control icegridnode.
 
@@ -32,6 +35,9 @@ return until stopped.
 
         node-name cannot be "start", "stop", "restart", "status", or "sync".
 """
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
 class NodeControl(BaseControl):
@@ -71,6 +77,7 @@ class NodeControl(BaseControl):
             print "from %s:" % str(myoutput)
             print tail_lines(str(myoutput), 2)
 
+    @windows_warning
     def start(self, args):
 
         self.ctx.invoke(["admin", "rewrite"])
@@ -102,6 +109,7 @@ class NodeControl(BaseControl):
     def status(self, args):
         self.ctx.invoke(["admin", "status", args.name])
 
+    @windows_warning
     def stop(self, args):
         if self._isWindows():
             try:
@@ -118,6 +126,7 @@ class NodeControl(BaseControl):
                 # shutdown %s" % args.name]
                 # self.ctx.call(command)
 
+    @windows_warning
     def kill(self, args):
         pid = open(self._pid(), "r").readline()
         os.kill(int(pid), signal.SIGKILL)
