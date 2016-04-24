@@ -7,17 +7,23 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008, 2016 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
 import os
 import sys
+import platform
 from omero.cli import BaseControl, CLI
 import omero.java
 
+from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
+
 HELP = """Start commands for server components"""
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
 class ServerControl(BaseControl):
@@ -32,6 +38,7 @@ class ServerControl(BaseControl):
     def _prop(self, data, key):
         return data.properties.getProperty("omero."+key)
 
+    @windows_warning
     def _checkIceConfig(self, args):
         try:
             args["--Ice.Config"]
@@ -59,6 +66,7 @@ class ServerControl(BaseControl):
             debug = False
         return xargs, debug
 
+    @windows_warning
     def help(self, args=None):
         self.ctx.out(
             "Start the blitz server -- Reads properties via omero prefs")
