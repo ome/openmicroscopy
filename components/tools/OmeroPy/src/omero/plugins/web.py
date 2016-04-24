@@ -3,7 +3,7 @@
 """
    Plugin for our configuring the OMERO.web installation
 
-   Copyright 2009-2014 University of Dundee. All rights reserved.
+   Copyright 2009-2016 University of Dundee. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """

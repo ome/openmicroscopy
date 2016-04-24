@@ -8,7 +8,7 @@
  This is a python wrapper around icegridregistry/icegridnode for master
  and various other tools needed for administration.
 
- Copyright 2008-14 Glencoe Software, Inc.  All Rights Reserved.
+ Copyright 2008-2016 Glencoe Software, Inc.  All Rights Reserved.
  Use is subject to license terms supplied in LICENSE.txt
 
 """
