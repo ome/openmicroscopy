@@ -1677,8 +1677,9 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['link'] = {}
         ann['link']['id'] = link.id.val
         ann['link']['owner'] = {'id': link.details.owner.id.val}
+        # Parent (Acquisition has no Name)
         ann['link']['parent'] = {'id': link.parent.id.val,
-                                 'name': link.parent.name.val,
+                                 'name': unwrap(link.parent.name),
                                  'class': link.parent.__class__.__name__}
         linkCreation = link.details.creationEvent._time
         ann['link']['date'] = _marshal_date(unwrap(linkCreation))
@@ -1783,6 +1784,7 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
             left outer join fetch oal.child as ch
             left outer join fetch oal.parent as pa
             join fetch ch.details.creationEvent
+            join fetch ch.details.owner
             left outer join fetch ch.file as file
             where %s
             """ % (dtype, ' and '.join(where_clause))
