@@ -5,7 +5,7 @@
    Simple unit test which makes various calls on the code
    generated model.
 
-   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007-2016 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -48,16 +48,23 @@ class TestProxyString(object):
         ("Image:1", None, ImageI, 1),
         ("ImageI:1", None, ImageI, 1),
         ("ImageI:1", "ImageI", ImageI, 1),
-        ("Image:1", "ImageI", ImageI, 1),
         ("1", "ImageI", ImageI, 1),
         ("1", "Image", ImageI, 1),
+        # Error cases as default does not match Class
+        ("Image:1", "ImageI", ImageI, 1),
+        ("Image:1", "Fileset", ImageI, 1),
     ))
     def testAll(self, data):
         source = data[0]
         default = data[1]
         type = data[2]
         id = data[3]
-        err = (type is None and id is None)
+        sourceId = source.split(":")
+        err = ((type is None and id is None) or
+               (default is not None
+                and len(sourceId) == 2
+                and sourceId[0] != default))
+
         try:
             obj = omero.proxy_to_instance(source, default)
             assert isinstance(obj, type)
