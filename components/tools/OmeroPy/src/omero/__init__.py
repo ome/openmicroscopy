@@ -6,7 +6,7 @@
    Classes:
       omero.client    -- Main OmeroPy connector object
 
-   Copyright 2007, 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007-2016 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -104,6 +104,14 @@ def proxy_to_instance(proxy_string, default=None):
     """
     import omero
     parts = proxy_string.split(":")
+    # If a default is provided and the format is Class:ID
+    # then the default and Class must be the same
+    if len(parts) == 2 and default is not None:
+        if parts[0] != default:
+            raise ClientError(
+                ("Invalid proxy string: %s "
+                 "does not match default %s") % (proxy_string, default))
+
     if len(parts) == 1 and default is not None:
         proxy_string = "%s:%s" % (default, proxy_string)
         parts.insert(0, default)
