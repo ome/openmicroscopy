@@ -30,7 +30,6 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
     var initEvents = (function initEvents() {
 
         $header.click(function(){
-            console.log('cic');
             $header.toggleClass('closed');
             $body.slideToggle();
 
@@ -79,6 +78,8 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                     if (ann.link && ann.link.owner) {
                         ann.link.owner = experimenters[ann.link.owner.id];
                     }
+                    // AddedBy IDs for filtering
+                    ann.addedBy = [ann.link.owner.id];
                     return ann;
                 });
 
@@ -96,10 +97,6 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                         map_annotations.push(ann);
                     }
                 });
-
-                console.log(my_client_map_annotations);
-                console.log(client_map_annotations);
-                console.log(map_annotations);
 
                 // Update html...
                 var html = "";

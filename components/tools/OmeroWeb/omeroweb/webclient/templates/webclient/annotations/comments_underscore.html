@@ -1,5 +1,5 @@
 <% _.each(anns, function(ann) { %>
-<div class="ann_comment_wrapper" data-added-by="<%= ann.link.owner.id %>">
+<div class="ann_comment_wrapper" data-added-by="<% print (ann.addedBy.join(',')) %>">
 
     <div class="avatar">
         <img src="/webclient/avatar/<%= ann.owner.id %>/"

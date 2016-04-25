@@ -1,7 +1,7 @@
 
 <% _.each(anns, function(ann) { %>
 
-<tr data-added-by="{{ ann.link.getDetails.getOwner.id }}">
+<tr data-added-by="<% print (ann.addedBy.join(',')) %>">
     <th><%= ann.type %></th>
     <td>
         <div class="tooltip">

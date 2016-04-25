@@ -2,7 +2,7 @@
 <% _.each(tags, function(tag) { %>
 <span class="tag_annotation_wrapper"
     data-tag-id="<%= tag.id %>"
-    data-added-by="">
+    data-added-by="<% print (tag.addedBy.join(',')) %>">
 	
     <div class="tag">
         <a class='tooltip tag_inner' href="?show=tag-<%= tag.id %>" target="_top">

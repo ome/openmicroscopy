@@ -69,11 +69,14 @@ var TagPane = function TagPane($element, opts) {
                 }, {});
 
                 // Populate experimenters within tags
+                // And do other tag marshalling
                 var tags = data.annotations.map(function(tag){
                     tag.owner = experimenters[tag.owner.id];
                     if (tag.link && tag.link.owner) {
                         tag.link.owner = experimenters[tag.link.owner.id];
                     }
+                    // AddedBy IDs for filtering
+                    tag.addedBy = [tag.link.owner.id];
                     tag.textValue = _.escape(tag.textValue);
                     tag.description = _.escape(tag.description);
                     tag.canRemove = tag.link.permissions.canDelete;
@@ -86,13 +89,15 @@ var TagPane = function TagPane($element, opts) {
                     // Map tag.id to summary for that tag
                     var summary = {};
                     tags.forEach(function(tag){
-                        var tagId = tag.id;
+                        var tagId = tag.id,
+                            linkOwner = tag.link.owner.id;
                         if (summary[tagId] === undefined) {
                             summary[tagId] = {'textValue': tag.textValue,
                                               'id': tag.id,
                                               'canRemove': false,
                                               'canRemoveCount': 0,
-                                              'links': []
+                                              'links': [],
+                                              'addedBy': []
                                              };
                         }
                         // Add link to list...
@@ -106,6 +111,9 @@ var TagPane = function TagPane($element, opts) {
                             summary[tagId].canRemoveCount += 1;
                         }
                         summary[tagId].canRemove = summary[tagId].canRemove || l.permissions.canDelete;
+                        if (summary[tagId].addedBy.indexOf(linkOwner) === -1) {
+                            summary[tagId].addedBy.push(linkOwner);
+                        }
                     });
 
                     // convert summary back to list of 'tags'

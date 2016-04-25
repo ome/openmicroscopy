@@ -81,6 +81,8 @@ var CustomAnnsPane = function CustomAnnsPane($element, opts) {
                         ann.link.owner = experimenters[ann.link.owner.id];
                     }
 
+                    // AddedBy IDs for filtering
+                    ann.addedBy = [ann.link.owner.id];
                     // convert 'class' to 'type' E.g. XmlAnnotationI to Xml
                     ann.type = ann.class.replace('AnnotationI', '');
                     var attrs = ['textValue', 'timeValue', 'termValue', 'longValue', 'doubleValue', 'boolValue'];

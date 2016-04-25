@@ -2,7 +2,7 @@
 
 <table <% if (ann.id) { %>
             data-annId="<%= ann.id %>"
-            data-added-by="<%= ann.owner.id %>"
+            data-added-by="<% print (ann.addedBy.join(',')) %>"
         <% } else { %>
             data-added-by="<%= WEBCLIENT.USER.id %>"
         <% } %>

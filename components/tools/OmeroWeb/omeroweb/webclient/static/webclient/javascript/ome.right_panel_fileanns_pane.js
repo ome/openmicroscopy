@@ -147,6 +147,8 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
                     if (ann.link && ann.link.owner) {
                         ann.link.owner = experimenters[ann.link.owner.id];
                     }
+                    // AddedBy IDs for filtering
+                    ann.addedBy = [ann.link.owner.id];
                     ann.description = _.escape(ann.description);
                     ann.file.size = ann.file.size.filesizeformat();
                     return ann;
@@ -161,11 +163,13 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
                     // Map tag.id to summary for that tag
                     var summary = {};
                     anns.forEach(function(ann){
-                        var annId = ann.id;
+                        var annId = ann.id,
+                            linkOwner = ann.link.owner.id;
                         if (summary[annId] === undefined) {
                             ann.canRemove = false;
                             ann.canRemoveCount = 0;
                             ann.links = [];
+                            ann.addedBy = [];
                             summary[annId] = ann;
                         }
                         // Add link to list...
@@ -179,6 +183,9 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
                             summary[annId].canRemoveCount += 1;
                         }
                         summary[annId].canRemove = summary[annId].canRemove || l.permissions.canDelete;
+                        if (summary[annId].addedBy.indexOf(linkOwner) === -1) {
+                            summary[annId].addedBy.push(linkOwner);
+                        }
                     });
 
                     // convert summary back to list of 'anns'

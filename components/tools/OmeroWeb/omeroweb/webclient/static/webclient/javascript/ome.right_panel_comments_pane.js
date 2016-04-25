@@ -106,6 +106,7 @@ var CommentsPane = function CommentsPane($element, opts) {
                     if (ann.link && ann.link.owner) {
                         ann.link.owner = experimenters[ann.link.owner.id];
                     }
+                    ann.addedBy = [ann.link.owner.id];
                     ann.textValue = _.escape(ann.textValue);
                     return ann;
                 });

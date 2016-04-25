@@ -1,7 +1,7 @@
 
 <% _.each(anns, function(ann) { %>
 <li class="file_ann_wrapper"
-    data-added-by=""> <!-- TODO added by -->
+    data-added-by="<% print (ann.addedBy.join(',')) %>">
 
     <a class='tooltip'
         href="<% if (ann.permissions.canDownload) { print(webindex + 'annotation/' + ann.id)} else {print('#') } %>">
