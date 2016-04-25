@@ -718,7 +718,7 @@ Examples:
             rsp, status, cb = self.response(client, mib, wait=args.wait)
             err = self.get_error(rsp)
             if err:
-                self.ctx.err("Error: " + rsp.parameters['message'])
+                self.ctx.err("Error: " + str(rsp))
             else:
                 if rsp.pyramidPresent:
                     self.ctx.err(
