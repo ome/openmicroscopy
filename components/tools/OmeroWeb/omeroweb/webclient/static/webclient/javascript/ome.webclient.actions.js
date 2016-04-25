@@ -1057,7 +1057,7 @@ OME.setPaneExpanded = function setPaneExpanded(name, expanded) {
 };
 
 OME.getPaneExpanded = function getPaneExpanded(name) {
-    var open_panes = $("#metadata_general").data('open_panes') || [];
+    var open_panes = $("#metadata_general").data('open_panes') || ["details"];
     return open_panes.indexOf(name) > -1;
 };
 

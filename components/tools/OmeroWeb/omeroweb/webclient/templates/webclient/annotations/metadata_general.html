@@ -47,10 +47,22 @@
                 var ratingsPane = new RatingsPane($("#ratingsPane"), annPaneData);
                 var customAnnsPane = new CustomAnnsPane($("#customAnnotationsPane"), annPaneData);
 
-                // $("#comments_container").hide_if_empty();
-                // $("#fileanns_container").hide_if_empty();
-                // $("#tags_container").hide_if_empty();
                 
+                // Most panes are expanded and collapsed in the Pane classes above.
+                // Manually add that behaviour for Details
+                $('.can-collapse[data-name="details"]').click(function(){
+                    var $this = $(this),
+                        expanded = $this.hasClass('closed');
+                    $this.toggleClass('closed')
+                        .next().slideToggle();
+                    OME.setPaneExpanded('details', expanded);
+                });
+                if (!OME.getPaneExpanded('details')){
+                    $('.can-collapse[data-name="details"]').addClass('closed')
+                        .next().hide();
+                }
+
+
                 {% if manager.canEdit %}
                 // we may have well-index, if we are editing an image within a Well
                 var idx = "{{ index }}";
