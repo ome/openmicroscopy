@@ -749,7 +749,9 @@
                 
                 {% if manager.canAnnotate %}
                     <div>
-                        <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
+                        <a id="launch_tags_form"
+                            href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" 
+                            class="btn silver btn_add" title="Add tags"><span></span></a>
                     </div>
                 {% endif %}
 
@@ -799,12 +801,14 @@
             <div class="annotations_section" style="display:none">
 
                     {% if manager.canAnnotate %}
-                        <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
+                        <a id="choose_file_anns"
+                            href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}"
+                            class="btn silver btn_add" title="Attach a file">
                             <span></span>
                         </a>
                     {% endif %}
                     <div class="toolbar">
-                        <input type="button" title="Select Files for Scripts"
+                        <input type="button" title="Select files for scripts"
                             class="btn silver btn_script_dark">
                     </div>
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
