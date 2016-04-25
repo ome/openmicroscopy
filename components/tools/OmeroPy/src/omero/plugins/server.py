@@ -18,7 +18,7 @@ import platform
 from omero.cli import BaseControl, CLI
 import omero.java
 
-from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 HELP = """Start commands for server components"""
 

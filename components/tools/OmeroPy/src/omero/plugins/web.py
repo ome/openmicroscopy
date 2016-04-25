@@ -18,7 +18,7 @@ import re
 from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
-from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 HELP = "OMERO.web configuration/deployment tools"
 

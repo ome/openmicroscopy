@@ -14,7 +14,7 @@ import platform
 from omero.cli import CLI, ExceptionHandler, admin_only, UserGroupControl
 from omero.rtypes import rbool
 
-from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 HELP = """Administrative support for managing users' LDAP settings
 

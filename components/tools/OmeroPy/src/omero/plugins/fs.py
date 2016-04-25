@@ -45,7 +45,7 @@ from omero.util.temp_files import create_path
 from omero.util.text import filesizeformat
 from omero.fs import TRANSFERS
 
-from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 HELP = """Filesystem utilities"""
 

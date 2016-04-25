@@ -34,7 +34,7 @@ from omero.cli import UserGroupControl
 
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config, with_rw_config
-from omero.plugins.prefs import windows_warning, WINDOWS_WARNING
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
