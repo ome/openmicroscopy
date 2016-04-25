@@ -19,9 +19,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from test.integration.clitest.cli import CLITest
+from test.integration.clitest.cli import CLITest, RootCLITest
 from omero.cli import NonZeroReturnCode
 from omero.plugins.fs import FsControl
+
+from path import path
 
 import pytest
 
@@ -110,3 +112,26 @@ class TestFS(CLITest):
             self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
+
+
+class TestFSRoot(RootCLITest):
+
+    def setup_method(self, method):
+        super(TestFSRoot, self).setup_method(method)
+        self.cli.register("fs", FsControl, "TEST")
+        self.args += ["fs"]
+
+    def testFixPyramid(self, capsys):
+        """Test fs fixpyramid"""
+
+        cfg = self.root.sf.getConfigService()
+        pixels_dir = path(cfg.getConfigValue("omero.data.dir")) / "Pixels"
+        if not pixels_dir.exists():
+            pixels_dir.mkdir()
+        iid = self.importSingleImage().id.val
+        pyramid_file = path(pixels_dir) / ("%s_pyramid" % iid)
+        pyramid_file.touch()
+        assert pyramid_file.exists()
+        self.args += ["fixpyramid", "Image:%s" % iid]
+        self.cli.invoke(self.args, strict=True)
+        assert not pyramid_file.exists()
