@@ -802,11 +802,11 @@
                         <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" class="btn silver btn_add">
                             <span></span>
                         </a>
-                        <div class="toolbar">
-                            <input type="button" title="Select Files for Scripts"
-                                class="btn silver btn_script_dark">
-                        </div>
                     {% endif %}
+                    <div class="toolbar">
+                        <input type="button" title="Select Files for Scripts"
+                            class="btn silver btn_script_dark">
+                    </div>
                     <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
 
                 <div style="clear:both"></div>

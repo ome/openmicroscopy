@@ -1,6 +1,7 @@
 
 <% _.each(anns, function(ann) { %>
 <li class="file_ann_wrapper"
+    id="file_ann-<%= ann.id %>"
     data-added-by="<% print (ann.addedBy.join(',')) %>">
 
     <a class='tooltip'
