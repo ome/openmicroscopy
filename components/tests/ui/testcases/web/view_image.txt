@@ -39,7 +39,7 @@ Test Open Viewer
     ${nodeId}=                          Wait For Image Node         ${imageId}
     ${imageName}=                       Wait For General Panel And Return Name      Image
     # Open Image Viewer 3 different ways and check
-    Click Element                       xpath=//button[@title='Open full image viewer in new window']
+    Click Element                       xpath=//a[@title='Open full image viewer in new window']
     Check Image Viewer                  ${imageName}
     Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
     Check Image Viewer                  ${imageName}

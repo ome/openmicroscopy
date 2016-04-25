@@ -24,13 +24,10 @@ working correctly.
 
 import omero
 import omero.clients
-from omero.rtypes import rstring, rtime
+from omero.rtypes import rstring
 from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _post_response
 from weblibrary import _csrf_get_response, _get_response
-from weblibrary import _csrf_delete_response, _delete_response
-
-import json
 
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -104,47 +101,6 @@ class TestCsrf(IWebTest):
         _post_response(self.django_client, request_url, data)
         _csrf_post_response(self.django_client, request_url, data)
 
-    def test_add_and_rename_container(self):
-
-        # Add project
-        request_url = reverse("manage_action_containers",
-                              args=["addnewcontainer"])
-        data = {
-            'folder_type': 'project',
-            'name': 'foobar'
-        }
-        _post_response(self.django_client, request_url, data)
-        response = _csrf_post_response(self.django_client, request_url, data)
-        pid = json.loads(response.content).get("id")
-
-        # Add dataset to the project
-        request_url = reverse("manage_action_containers",
-                              args=["addnewcontainer", "project", pid])
-        data = {
-            'folder_type': 'dataset',
-            'name': 'foobar'
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Rename project
-        request_url = reverse("manage_action_containers",
-                              args=["savename", "project", pid])
-        data = {
-            'name': 'anotherfoobar'
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Change project description
-        request_url = reverse("manage_action_containers",
-                              args=["savedescription", "project", pid])
-        data = {
-            'description': 'anotherfoobar'
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
     def test_move_data(self):
 
         group_id = self.new_group(experimenters=[self.user]).id.val
@@ -170,48 +126,6 @@ class TestCsrf(IWebTest):
 
         # Remove comment, see remove tag,
         # http://localhost/webclient/action/remove/[comment|tag|file]/ID/
-
-    def test_add_edit_and_remove_tag(self):
-
-        # Add tag
-        img = self.image_with_channels()
-        tag = self.new_tag()
-        request_url = reverse('annotate_tags')
-        data = {
-            'image': img.id.val,
-            'filter_mode': 'any',
-            'filter_owner_mode': 'all',
-            'index': 0,
-            'newtags-0-description': '',
-            'newtags-0-tag': 'foobar',
-            'newtags-0-tagset': '',
-            'newtags-INITIAL_FORMS': 0,
-            'newtags-MAX_NUM_FORMS': 1000,
-            'newtags-TOTAL_FORMS': 1,
-            'tags': tag.id.val
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Edit tag, see save container name and description
-        # http://localhost/webclient/action/savename/tag/ID/
-        # http://localhost/webclient/action/savedescription/tag/ID/
-
-        # Remove tag
-        request_url = reverse("manage_action_containers",
-                              args=["remove", "tag", tag.id.val])
-        data = {
-            'index': 0,
-            'parent': "image-%i" % img.id.val
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # Delete tag
-        request_url = reverse("manage_action_containers",
-                              args=["delete", "tag", tag.id.val])
-        _post_response(self.django_client, request_url, {})
-        _csrf_post_response(self.django_client, request_url, {})
 
     def test_attach_file(self):
 
@@ -253,92 +167,6 @@ class TestCsrf(IWebTest):
 
         # Remove file, see remove tag,
         # http://localhost/webclient/action/remove/[comment|tag|file]/ID/
-
-    def test_paste_move_remove_deletamany_image(self):
-
-        # Add dataset
-        request_url = reverse("manage_action_containers",
-                              args=["addnewcontainer"])
-        data = {
-            'folder_type': 'dataset',
-            'name': 'foobar'
-        }
-        _post_response(self.django_client, request_url, data)
-        response = _csrf_post_response(self.django_client, request_url, data)
-        did = json.loads(response.content).get("id")
-
-        img = self.image_with_channels()
-
-        # Link image to Dataset
-        request_url = reverse("api_links")
-        data = {
-            'dataset': {did: {'image': [img.id.val]}}
-        }
-
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client,
-                            request_url,
-                            json.dumps(data),
-                            content_type="application/json")
-
-        # Unlink image from Dataset
-        request_url = reverse("api_links")
-        data = {
-            'dataset': {did: {'image': [img.id.val]}}
-        }
-        _delete_response(self.django_client, request_url, data)
-        response = _csrf_delete_response(self.django_client,
-                                         request_url,
-                                         json.dumps(data),
-                                         content_type="application/json")
-        # Response will contain remaining links from image (see test_links.py)
-        response = json.loads(response.content)
-        assert response == {"success": True}
-
-    def test_create_share(self):
-
-        img = self.image_with_channels()
-        request_url = reverse("manage_action_containers",
-                              args=["add", "share"])
-        data = {
-            'enable': 'on',
-            'image': img.id.val,
-            'members': self.user.id.val,
-            'message': 'foobar'
-        }
-
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-    def test_edit_share(self):
-
-        # create images
-        images = [self.createTestImage(session=self.sf),
-                  self.createTestImage(session=self.sf)]
-
-        sid = self.sf.getShareService().createShare(
-            "foobar", rtime(None), images, [self.user], [], True)
-
-        request_url = reverse("manage_action_containers",
-                              args=["save", "share", sid])
-
-        data = {
-            'enable': 'on',
-            'image': [i.id.val for i in images],
-            'members': self.user.id.val,
-            'message': 'another foobar'
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
-
-        # remove image from share
-        request_url = reverse("manage_action_containers",
-                              args=["removefromshare", "share", sid])
-        data = {
-            'source': images[1].id.val,
-        }
-        _post_response(self.django_client, request_url, data)
-        _csrf_post_response(self.django_client, request_url, data)
 
     def test_edit_channel_names(self):
 
