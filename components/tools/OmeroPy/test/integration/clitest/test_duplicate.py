@@ -218,3 +218,44 @@ class TestDuplicate(CLITest):
         # Check the duplicated image is linked to just the duplicated Dataset
         assert len(dat_linked) == 1
         assert dat_linked[0].id.val == did
+
+    def testSkipheadDuplication(self, capfd):
+        namep = self.uuid()
+        named = self.uuid()
+
+        proj = self.make_project(namep)
+        dset = self.make_dataset(named)
+
+        self.link(proj, dset)
+
+        self.args += ['Project/Dataset:%s' % proj.id.val]
+        self.args += ['--report']
+        out = self.duplicate(capfd)
+
+        pd = omero.sys.ParametersI()
+        pd.addString("name", named)
+        query = "select obj from Dataset obj where obj.name=:name"
+        objsd = self.query.findAllByQuery(query, pd)
+
+        # Check the Dataset has been duplicated
+        assert len(objsd) == 2
+        assert objsd[0].id.val != objsd[1].id.val
+
+        did = max(objsd[0].id.val, objsd[1].id.val)
+
+        # Check the duplicated Dataset is in the --report output
+        assert 'Dataset:%s' % did in out
+
+        # Find the Projects linked to the duplicated dataset
+        proj_linked = self.get_project(did)
+
+        # Check the Dataset is not linked to any Project
+        assert len(proj_linked) == 0
+
+        pp = omero.sys.ParametersI()
+        pp.addString("name", namep)
+        query = "select obj from Project obj where obj.name=:name"
+        objsp = self.query.findAllByQuery(query, pp)
+
+        # Check the Project has not been duplicated
+        assert len(objsp) == 1
