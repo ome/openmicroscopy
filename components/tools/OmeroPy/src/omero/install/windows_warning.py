@@ -9,8 +9,8 @@
 
 from functools import wraps
 
-WINDOWS_WARNING = ("WARNING: Support for Windows will be removed in"
-                   " OMERO 5.3, see http://blog.openmicroscopy.org/"
+WINDOWS_WARNING = ("WARNING: OMERO.server support for Windows will be removed"
+                   " in OMERO 5.3, see http://blog.openmicroscopy.org/"
                    "tech-issues/future-plans/deployment/2016/03/22/"
                    "windows-support/")
 
