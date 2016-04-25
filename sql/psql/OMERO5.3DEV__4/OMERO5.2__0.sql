@@ -677,7 +677,40 @@ ALTER TABLE shape ADD COLUMN markerend   VARCHAR(255);
 
 -- ... up to patch 4:
 
--- TODO
+UPDATE pixels SET sha1 = 'Pending...' WHERE sha1 = 'Foo';
+
+DELETE FROM annotation WHERE
+    discriminator IN
+        ('/basic/bool/', '/basic/num/double/', '/basic/num/long/',
+         '/basic/term/', '/basic/time/', '/basic/text/comment/')
+    AND id NOT IN (SELECT child FROM annotationannotationlink)
+    AND id NOT IN (SELECT child FROM channelannotationlink)
+    AND id NOT IN (SELECT child FROM datasetannotationlink)
+    AND id NOT IN (SELECT child FROM detectorannotationlink)
+    AND id NOT IN (SELECT child FROM dichroicannotationlink)
+    AND id NOT IN (SELECT child FROM experimenterannotationlink)
+    AND id NOT IN (SELECT child FROM experimentergroupannotationlink)
+    AND id NOT IN (SELECT child FROM filesetannotationlink)
+    AND id NOT IN (SELECT child FROM filterannotationlink)
+    AND id NOT IN (SELECT child FROM folderannotationlink)
+    AND id NOT IN (SELECT child FROM imageannotationlink)
+    AND id NOT IN (SELECT child FROM instrumentannotationlink)
+    AND id NOT IN (SELECT child FROM lightpathannotationlink)
+    AND id NOT IN (SELECT child FROM lightsourceannotationlink)
+    AND id NOT IN (SELECT child FROM namespaceannotationlink)
+    AND id NOT IN (SELECT child FROM nodeannotationlink)
+    AND id NOT IN (SELECT child FROM objectiveannotationlink)
+    AND id NOT IN (SELECT child FROM originalfileannotationlink)
+    AND id NOT IN (SELECT child FROM planeinfoannotationlink)
+    AND id NOT IN (SELECT child FROM plateacquisitionannotationlink)
+    AND id NOT IN (SELECT child FROM plateannotationlink)
+    AND id NOT IN (SELECT child FROM projectannotationlink)
+    AND id NOT IN (SELECT child FROM reagentannotationlink)
+    AND id NOT IN (SELECT child FROM roiannotationlink)
+    AND id NOT IN (SELECT child FROM screenannotationlink)
+    AND id NOT IN (SELECT child FROM sessionannotationlink)
+    AND id NOT IN (SELECT child FROM shapeannotationlink)
+    AND id NOT IN (SELECT child FROM wellannotationlink);
 
 
 --
