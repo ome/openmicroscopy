@@ -2,7 +2,7 @@
 <div class="ann_comment_wrapper" data-added-by="<% print (ann.addedBy.join(',')) %>">
 
     <div class="avatar">
-        <img src="/webclient/avatar/<%= ann.owner.id %>/"
+        <img src="<%= webindex %>avatar/<%= ann.owner.id %>/"
         alt="<%= ann.owner.firstName %> <%= ann.owner.lastName %>"
         title="<%= ann.owner.firstName %> <%= ann.owner.lastName %>" />
     </div>
