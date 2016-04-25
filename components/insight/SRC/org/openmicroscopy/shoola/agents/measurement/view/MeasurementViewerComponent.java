@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -948,9 +948,13 @@ class MeasurementViewerComponent
 										"for "+model.getImageID());
 		}
 		model.fireLoadROIServerOrClient(false);
-		reg.getEventBus().post(new ROIEvent(model.getImageID()));
 	}
 
+    @Override
+    public long getImageID() {
+        return model.getImageID();
+    }
+	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#canAnnotate()

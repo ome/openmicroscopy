@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -264,6 +264,8 @@ public class MeasurementViewerFactory
 	 */
 	public static void onROIDeleted(long imageID)
 	{
+	    MeasurementAgent.getRegistry().getEventBus().post(new ROIEvent(imageID));
+	    
 		if (singleton.viewers.size() == 0) return;
 		Iterator<MeasurementViewer> i = singleton.viewers.iterator();
 		MeasurementViewerComponent comp;
@@ -273,7 +275,6 @@ public class MeasurementViewerFactory
 			if (comp.hasROIToSave())
 				comp.saveROIToServer(false);
 		}
-		MeasurementAgent.getRegistry().getEventBus().post(new ROIEvent(imageID));
 	}
 
 	/** All the tracked components. */
