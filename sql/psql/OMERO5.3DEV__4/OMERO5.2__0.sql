@@ -683,6 +683,7 @@ DELETE FROM annotation WHERE
     discriminator IN
         ('/basic/bool/', '/basic/num/double/', '/basic/num/long/',
          '/basic/term/', '/basic/time/', '/basic/text/comment/')
+    AND id NOT IN (SELECT parent FROM annotationannotationlink)
     AND id NOT IN (SELECT child FROM annotationannotationlink)
     AND id NOT IN (SELECT child FROM channelannotationlink)
     AND id NOT IN (SELECT child FROM datasetannotationlink)
