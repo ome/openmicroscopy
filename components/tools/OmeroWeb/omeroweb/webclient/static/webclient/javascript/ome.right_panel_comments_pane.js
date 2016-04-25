@@ -59,7 +59,7 @@ var CommentsPane = function CommentsPane($element, opts) {
     // bind removeItem to various [-] buttons
     $("#comments_container").on("click", ".removeComment", function(event){
         var url = $(this).attr('url');
-        var objId = objects[0];
+        var objId = objects.join("|");
         OME.removeItem(event, ".ann_comment_wrapper", url, objId, index);
         return false;
     });
