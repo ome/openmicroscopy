@@ -724,9 +724,6 @@ Examples:
                     self.ctx.err(
                         "Error: Failed to remove pyramid for Image:%s"
                         % args.image.id.val)
-                else:
-                    self.ctx.out(
-                        "Pyramid for Image:%s removed" % args.image.id.val)
         finally:
             if cb is not None:
                 cb.close(True)  # Close handle
