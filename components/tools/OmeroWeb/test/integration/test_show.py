@@ -563,8 +563,8 @@ class TestShow(IWebTest):
         plate_acquisition = ws_a.plateAcquisition
         as_string = 'well-%d|well-%d' % (well_a.id.val, well_b.id.val)
         initially_select = [
-            'acquisition-%d' % plate_acquisition.id.val,
-            'well-%d' % well_a.id.val
+            'well-%d' % well_a.id.val,
+            'well-%d' % well_b.id.val
         ]
         initially_open = [
             'screen-%d' % screen_plate_run_well.id.val,
