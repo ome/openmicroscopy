@@ -714,7 +714,7 @@ Examples:
         client = self.ctx.conn(args)
         mib = ManageImageBinaries()
         if not isinstance(args.image, omero.model.ImageI):
-            self.ctx.die(100, "Argument must reference and an Image")
+            self.ctx.die(100, "Argument must reference an Image")
         mib.imageId = args.image.id.val
         mib.deletePyramid = True
         try:
