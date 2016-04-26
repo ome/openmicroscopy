@@ -29,6 +29,7 @@ import sys
 from collections import defaultdict
 from collections import namedtuple
 
+import omero
 from omero import client as Client
 from omero import CmdError
 from omero import ServerError
@@ -720,6 +721,8 @@ Examples:
 
         client = self.ctx.conn(args)
         mib = ManageImageBinaries()
+        if not isinstance(args.image, omero.model.ImageI):
+            self.ctx.die(100, "Argument must reference and an Image")
         mib.imageId = args.image.id.val
         mib.deletePyramid = True
         try:
