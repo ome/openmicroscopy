@@ -967,7 +967,7 @@ class ITest(object):
         # save binary
         store = client.sf.createRawFileStore()
         store.setFileId(oFile.id.val)
-        store.write(binary, 0, 0)
+        store.write(binary, 0, len(binary))
         oFile = store.save()  # See ticket:1501
         store.close()
 
