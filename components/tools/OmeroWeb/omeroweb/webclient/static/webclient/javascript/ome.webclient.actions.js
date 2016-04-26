@@ -263,9 +263,7 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
                             OME.alert_dialog(r.errs);
                         } else {
                             // simply remove the item (parent class div)
-                            //console.log("Success function");
                             $parent.remove();
-                            $annContainer.hide_if_empty();
                         }
                     }
                 });
