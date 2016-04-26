@@ -2117,6 +2117,7 @@ def batch_annotate(request, conn=None, **kwargs):
         filesetInfo['size'] += archivedInfo['size']
 
     context = {
+        'iids': iids,
         'form_comment': form_comment,
         'obj_string': obj_string,
         'link_string': link_string,

@@ -43,12 +43,16 @@
                     });
                 }
 
-                // $("#comments_container").hide_if_empty();
-                // $("#fileanns_container").hide_if_empty();
-                // $("#tags_container").hide_if_empty();
 
-
+                // Make list of ['image-123', 'image-456'] for use in Annotation Tabs...
+                // If we have iids (possibly when Wells selected) just use these:
+                {% if iids|length > 0 %}
+                var selectedObjs = [{% for id in iids %}{% if forloop.counter > 1 %},{% endif %}"image-{{ id }}"{% endfor %}];
+                {% else %}
+                // ...otherwise use the obj_labels
                 var selectedObjs = [{% for o in obj_labels %}{% if forloop.counter > 1 %},{% endif %}"{{ o.type|lower }}-{{ o.id}}"{% endfor %}];
+                {% endif %}
+
                 console.log(selectedObjs);
 
                 // {% if manager.well.getWellSample.image %}
