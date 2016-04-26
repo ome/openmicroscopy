@@ -566,7 +566,10 @@ class WebControl(BaseControl):
                 'timeout': settings.WSGI_TIMEOUT,
                 'wsgi_args': d_args['wsgi_args']
             }).split()
-            rv = self.ctx.popen(args=runserver, cwd=location)  # popen
+            if args.foreground:
+                rv = self.ctx.call(args=runserver, cwd=location)  # popen
+            else:
+                rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,
                          "--noreload", "--nothreading"]
