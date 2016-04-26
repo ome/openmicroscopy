@@ -271,7 +271,7 @@ class FsControl(CmdControl):
             "image",
             type=ProxyStringType("Image"),
             help=("Image which should have its pyramid removed: "
-                  "ID or Fileset:ID"))
+                  "ID or Image:ID"))
         fixpyramid.add_argument(
             "--wait", type=long,
             help="Number of seconds to wait for the processing to complete "
