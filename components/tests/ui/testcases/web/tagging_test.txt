@@ -29,10 +29,11 @@ Test Tag
     Click Element                               id_add_new_tag
     Click Dialog Button                         Save
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
-    # Refresh, check and add another Tag, remove first one
-    Go To                                       ${WELCOME URL}?show=project-${pId}
-    Wait Until Page Contains Element            xpath=//h1[@data-name='tags']
-    Click Element                               xpath=//h1[@data-name='tags']
+    # Refresh (select other Project and re-select)
+    ${nodeId}=                                  Select Project By Id                        ${projectId}
+    Wait Until Right Panel Loads                Project                  ${projectId}
+    Select Project By Id                        ${pId}
+    # Check and add another Tag, remove first one
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
@@ -51,10 +52,10 @@ Test Tag
 
 
     # Now select both Projects...
-    Go To                                       ${WELCOME URL}?show=project-${projectId}|project-${pId}
+    Meta Click Node                             ${nodeId}
     Wait Until Page Contains Element            id=batch_ann_title
-
-    Click Element                               xpath=//h1[@data-name='tags']
+    # Previously added Tag will show up
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
     Wait Until Element Is Visible               launch_tags_form
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
