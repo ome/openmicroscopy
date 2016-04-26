@@ -323,10 +323,13 @@ public class ROIPopupMenu
         return false;
     }
 
-	/**
-	 * Returns the popup menu.
-	 * @return see above.
-	 */
-	public JPopupMenu getPopupMenu() { return popupMenu; }
+    /**
+     * Returns the popup menu.
+     * 
+     * @return see above.
+     */
+    public JPopupMenu getPopupMenu() {
+        return popupMenu;
+    }
 	
 }

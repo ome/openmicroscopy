@@ -545,6 +545,7 @@ public class ROITable
      */
     void showROIManagementMenu(Component c, int x, int y)
     {
+        popupMenu.setActionsEnabled(getSelectedObjects());
     	JPopupMenu menu = popupMenu.getPopupMenu();
     	if (menu.isVisible()) return;
     	menu.show(c, x, y);
