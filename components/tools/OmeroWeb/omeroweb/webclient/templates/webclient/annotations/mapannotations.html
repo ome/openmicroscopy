@@ -249,8 +249,9 @@
         var enableToolbarButtons = function enableToolbarButtons() {
 
             var canEdit = {% if manager.canAnnotate %}true{% else %}false{% endif %},
+                visible = $(".editableKeyValueTable:visible").length > 0,
                 $selRows = $('.keyValueTable tr.ui-selected'),
-                enabled = {"Insert rows": false,
+                enabled = {"Insert row": false,
                             "Copy rows": false,
                             "Paste rows": false,
                             "Delete rows": false},
@@ -259,14 +260,14 @@
 
             // Nothing selected - actions will apply to user's own table
             if ($selRows.length == 0) {
-                enabled["Insert rows"] = canEdit;
+                enabled["Insert row"] = canEdit && visible;
                 enabled["Copy rows"] = false;
                 enabled["Paste rows"] = (canPaste && canEdit);
                 enabled["Delete rows"] = false;
             } else {
                 var $table = $selRows.parent().parent();
                 canEdit = $table.hasClass('editableKeyValueTable');
-                enabled["Insert rows"] = canEdit;
+                enabled["Insert row"] = canEdit;
                 enabled["Copy rows"] = true;
                 enabled["Paste rows"] = (canPaste && canEdit);
                 enabled["Delete rows"] = canEdit;
@@ -334,7 +335,7 @@
                 case "Paste rows":
                     pasteSelectedRows();
                     break;
-                case "Insert rows":
+                case "Insert row":
                     insertRow();
             }
         });
@@ -412,7 +413,7 @@
               src="{% static "webgateway/img/spinner.gif" %}" title="Saving to server..." /></li>
         <li><input class="button button-disabled" type="image"
             src="{% static "webclient/image/icon_toolbar_add.png" %}"
-            alt="Insert row" title="Insert rows" /></li>
+            alt="Insert row" title="Insert row" /></li>
         <li><input class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
             alt="Copy rows" title="Copy rows" /></li>
         <li><input class="button button-disabled" type="image"
