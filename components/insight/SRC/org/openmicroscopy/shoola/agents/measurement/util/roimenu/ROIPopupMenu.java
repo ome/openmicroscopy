@@ -22,44 +22,19 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util.roimenu;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-
-
-
-
-
-
-
-
-//Third-party libraries
-import org.jhotdraw.draw.Figure;
-
-
-
-
-
-
-
-
-
-import omero.gateway.model.DataObject;
-//Application-internal dependencies
 import omero.gateway.model.FolderData;
 
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.CreationActionType;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -237,7 +212,9 @@ public class ROIPopupMenu
 
         for (Object obj : selection) {
             if (isROISelection
-                    && !(obj instanceof ROI || obj instanceof ROIShape)) {
+                    && !(obj instanceof ROI || 
+                            obj instanceof ROIShape || 
+                            obj instanceof ROIFigure)) {
                 isROISelection = false;
             }
             if (isFolderSelection && !(obj instanceof FolderData)) {
