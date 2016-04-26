@@ -136,3 +136,10 @@ class TestFSRoot(RootCLITest):
         self.args += ["fixpyramid", "Image:%s" % iid]
         self.cli.invoke(self.args, strict=True)
         assert not pyramid_file.exists()
+
+    def testFixPyramidWrongType(self):
+        """Test fs fixpyramid with incorrect argument type"""
+
+        self.args += ["fixpyramid", "Fileset:1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
