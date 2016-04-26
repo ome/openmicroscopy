@@ -341,6 +341,22 @@ class TestShow(IWebTest):
         }
 
     @pytest.fixture
+    def tagset_show_request(self, tag):
+        """
+        Returns a simple GET request object with the 'show' query string
+        variable set in the ("tagset-id") form.
+        """
+        as_string = 'tagset-%d' % tag.id.val
+        initially_select = ['tagset-%d' % tag.id.val]
+        initially_open = ['tagset-%d' % tag.id.val]
+        return {
+            'request': self.request_factory.get(
+                self.path, data={'show': as_string}),
+            'initially_select': initially_select,
+            'initially_open': initially_open
+        }
+
+    @pytest.fixture
     def tagset_tag_path_request(self, tagset_tag):
         """
         Returns a simple GET request object with the 'path' query string
@@ -350,7 +366,27 @@ class TestShow(IWebTest):
         as_string = 'tag=%d|tag=%d' % (tagset_tag.id.val, tag.id.val)
         initially_select = ['tag-%d' % tag.id.val]
         initially_open = [
-            'tag-%d' % tagset_tag.id.val,
+            'tagset-%d' % tagset_tag.id.val,
+            'tag-%d' % tag.id.val
+        ]
+        return {
+            'request': self.request_factory.get(
+                self.path, data={'path': as_string}),
+            'initially_select': initially_select,
+            'initially_open': initially_open
+        }
+
+    @pytest.fixture
+    def tagset_tag_show_request(self, tagset_tag):
+        """
+        Returns a simple GET request object with the 'show' query string
+        variable of 'tag-id' as the child tag of a tagset.
+        """
+        tag, = tagset_tag.linkedAnnotationList()
+        as_string = 'tag-%s' % (tag.id.val)
+        initially_select = ['tag-%d' % tag.id.val]
+        initially_open = [
+            'tagset-%d' % tagset_tag.id.val,
             'tag-%d' % tag.id.val
         ]
         return {
@@ -750,6 +786,14 @@ class TestShow(IWebTest):
             show.first_selected
         assert excinfo.value.uri is not None
 
+    def test_tagset_redirect(self, tagset_show_request):
+        show = Show(self.conn, tagset_show_request['request'], None)
+        self.assert_instantiation(show)
+
+        with pytest.raises(IncorrectMenuError) as excinfo:
+            show.first_selected
+        assert excinfo.value.uri is not None
+
     def test_tag_legacy_path(self, tag_path_request, tag):
         show = Show(self.conn, tag_path_request['request'], 'usertags')
         self.assert_instantiation(show)
@@ -945,6 +989,24 @@ class TestShow(IWebTest):
         assert show._first_selected == first_selected
         assert len(show.initially_select) == \
             len(tag_by_textvalue_path_request['initially_select'])
+
+    def test_tagset_tag_by_id(
+            self, tagset_tag_path_request, tagset_tag):
+        show = Show(self.conn, tagset_tag_path_request['request'], 'usertags')
+        self.assert_instantiation(show)
+
+        tag, = tagset_tag.linkedAnnotationList()
+        first_selected = show.first_selected
+        assert first_selected is not None
+        assert isinstance(first_selected, TagAnnotationWrapper)
+        assert first_selected.getId() == tag.id.val
+        assert show.initially_open == \
+            tagset_tag_path_request['initially_open']
+        assert show.initially_open_owner == \
+            tag.details.owner.id.val
+        assert show._first_selected == first_selected
+        assert show.initially_select == \
+            tagset_tag_path_request['initially_select']
 
     def test_multiple_well_by_id(
             self, wells_by_id_show_request, screen_plate_run_well):
