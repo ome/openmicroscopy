@@ -161,6 +161,9 @@ class WebControl(BaseControl):
             "--http", type=int,
             help="HTTP port for web server")
         nginx_group.add_argument(
+            "--servername", type=str, default='$hostname',
+            help="Nginx virtual server name")
+        nginx_group.add_argument(
             "--max-body-size", type=str, default='0',
             help="Maximum allowed size of the client request body."
             "Default: 0 (disabled)")
@@ -271,6 +274,8 @@ class WebControl(BaseControl):
             port = 8080
         else:
             port = 80
+        if args.servername:
+            servername = args.servername
 
         if settings.APPLICATION_SERVER in settings.WSGITCP:
             if settings.APPLICATION_SERVER_PORT == port:
@@ -291,6 +296,7 @@ class WebControl(BaseControl):
 
         if server in ("nginx", "nginx-development",):
             d["MAX_BODY_SIZE"] = args.max_body_size
+            d["SERVERNAME"] = servername
 
         # FORCE_SCRIPT_NAME always has a starting /, and will not have a
         # trailing / unless there is no prefix (/)
@@ -504,8 +510,10 @@ class WebControl(BaseControl):
         if deploy in (settings.WSGI,):
             self.ctx.die(609, "You are deploying OMERO.web using apache and"
                          " mod_wsgi. Generate apache config using"
-                         " 'omero web config apache' and reload"
+                         " 'omero web config apache' or"
+                         " 'omero web config apache24' and reload"
                          " web server.")
+
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
 

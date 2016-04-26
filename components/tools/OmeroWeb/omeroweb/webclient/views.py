@@ -92,7 +92,7 @@ from omeroweb.webgateway.util import getIntOrDefault
 from omero.model import ProjectI, DatasetI, ImageI, \
     ScreenI, PlateI, \
     ProjectDatasetLinkI, DatasetImageLinkI, \
-    ScreenPlateLinkI
+    ScreenPlateLinkI, AnnotationAnnotationLinkI, TagAnnotationI
 from omero import ApiUsageException, ServerError, CmdError
 from omero.rtypes import rlong, rlist
 
@@ -814,7 +814,7 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
         return None
     link_type = None
     if parent_type == 'experimenter':
-        if child_type == 'dataset' or child_type == 'plate':
+        if child_type in ['dataset', 'plate', 'tag']:
             # This will be a requested link if a dataset or plate is
             # moved from the de facto orphaned datasets/plates, it isn't
             # an error, but no link actually needs removing
@@ -828,7 +828,9 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     elif parent_type == 'screen':
         if child_type == 'plate':
             link_type = 'ScreenPlateLink'
-
+    elif parent_type == 'tagset':
+        if child_type == 'tag':
+            link_type = 'AnnotationAnnotationLink'
     if not link_type:
         raise Http404("json data needs 'parent_type' and 'child_type'")
 
@@ -836,8 +838,10 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     params.addIds(child_ids)
 
     qs = conn.getQueryService()
+    # Need to fetch child and parent, otherwise
+    # AnnotationAnnotationLink is not loaded
     q = """
-        from %s olink
+        from %s olink join fetch olink.child join fetch olink.parent
         where olink.child.id in (:ids)
         """ % link_type
     if parent_id:
@@ -852,52 +856,71 @@ def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
     return link_type, res
 
 
+def create_link(parent_type, parent_id, child_type, child_id):
+    """ This is just used internally by api_link DELETE below """
+    if parent_type == 'experimenter':
+        if child_type == 'dataset' or child_type == 'plate':
+            # This is actually not a link that needs creating, this
+            # dataset/plate is an orphan
+            return 'orphan'
+    if parent_type == 'project':
+        project = ProjectI(long(parent_id), False)
+        if child_type == 'dataset':
+            dataset = DatasetI(long(child_id), False)
+            l = ProjectDatasetLinkI()
+            l.setParent(project)
+            l.setChild(dataset)
+            return l
+    elif parent_type == 'dataset':
+        dataset = DatasetI(long(parent_id), False)
+        if child_type == 'image':
+            image = ImageI(long(child_id), False)
+            l = DatasetImageLinkI()
+            l.setParent(dataset)
+            l.setChild(image)
+            return l
+    elif parent_type == 'screen':
+        screen = ScreenI(long(parent_id), False)
+        if child_type == 'plate':
+            plate = PlateI(long(child_id), False)
+            l = ScreenPlateLinkI()
+            l.setParent(screen)
+            l.setChild(plate)
+            return l
+    elif parent_type == 'tagset':
+        if child_type == 'tag':
+            l = AnnotationAnnotationLinkI()
+            l.setParent(TagAnnotationI(long(parent_id), False))
+            l.setChild(TagAnnotationI(long(child_id), False))
+            return l
+    return None
+
+
 @login_required()
 def api_links(request, conn=None, **kwargs):
-    """ Creates or Deletes links between objects specified by a json
+    """
+    Entry point for the api_links methods.
+    We delegate depending on request method to
+    create or delete links between objects.
+    """
+    # Handle link creation/deletion
+    json_data = json.loads(request.body)
+
+    if request.method == 'POST':
+        return _api_links_POST(conn, json_data)
+    elif request.method == 'DELETE':
+        return _api_links_DELETE(conn, json_data)
+
+
+def _api_links_POST(conn, json_data, **kwargs):
+    """ Creates links between objects specified by a json
     blob in the request body.
     e.g. {"dataset":{"10":{"image":[1,2,3]}}}
     When creating a link, fails silently if ValidationException
     (E.g. adding an image to a Dataset that already has that image).
     """
 
-    def create_link(parent_type, parent_id, child_type, child_id):
-        # TODO Handle more types of link
-        if parent_type == 'experimenter':
-            if child_type == 'dataset' or child_type == 'plate':
-                # This is actually not a link that needs creating, this
-                # dataset/plate is an orphan
-                return 'orphan'
-        if parent_type == 'project':
-            project = ProjectI(long(parent_id), False)
-            if child_type == 'dataset':
-                dataset = DatasetI(long(child_id), False)
-                l = ProjectDatasetLinkI()
-                l.setParent(project)
-                l.setChild(dataset)
-                return l
-        elif parent_type == 'dataset':
-            dataset = DatasetI(long(parent_id), False)
-            if child_type == 'image':
-                image = ImageI(long(child_id), False)
-                l = DatasetImageLinkI()
-                l.setParent(dataset)
-                l.setChild(image)
-                return l
-        elif parent_type == 'screen':
-            screen = ScreenI(long(parent_id), False)
-            if child_type == 'plate':
-                plate = PlateI(long(child_id), False)
-                l = ScreenPlateLinkI()
-                l.setParent(screen)
-                l.setChild(plate)
-                return l
-        return None
-
     response = {'success': False}
-
-    # Handle link creation/deletion
-    json_data = json.loads(request.body)
 
     # json is [parent_type][parent_id][child_type][childIds]
     # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
@@ -908,48 +931,19 @@ def api_links(request, conn=None, **kwargs):
             continue
         for parent_id, children in parents.items():
             for child_type, child_ids in children.items():
-                if request.method == 'DELETE':
-                    objLnks = get_object_links(conn, parent_type,
-                                               parent_id,
-                                               child_type,
-                                               child_ids)
-                    if objLnks is None:
-                        continue
-                    linkType, links = objLnks
-                    linkIds = [r.id.val for r in links]
-                    logger.info("api_link: Deleting %s links" % len(linkIds))
-                    conn.deleteObjects(linkType, linkIds)
-                    # webclient needs to know what is orphaned
-                    linkType, remainingLinks = get_object_links(conn,
-                                                                parent_type,
-                                                                None,
-                                                                child_type,
-                                                                child_ids)
-                    # return remaining links in same format as json above
-                    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
-                    for rl in remainingLinks:
-                        pid = rl.parent.id.val
-                        cid = rl.child.id.val
-                        # Deleting links still in progress above - ignore these
-                        if pid == int(parent_id):
-                            continue
-                        if parent_type not in response:
-                            response[parent_type] = {}
-                        if pid not in response[parent_type]:
-                            response[parent_type][pid] = {child_type: []}
-                        response[parent_type][pid][child_type].append(cid)
+                for child_id in child_ids:
+                    parent_id = int(parent_id)
+                    link = create_link(parent_type, parent_id,
+                                       child_type, child_id)
+                    if link and link != 'orphan':
+                        linksToSave.append(link)
 
-                elif request.method == 'POST':
-                    for child_id in child_ids:
-                        parent_id = int(parent_id)
-                        link = create_link(parent_type, parent_id,
-                                           child_type, child_id)
-                        if link and link != 'orphan':
-                            linksToSave.append(link)
-
-    if request.method == 'POST' and len(linksToSave) > 0:
+    if len(linksToSave) > 0:
         # Need to set context to correct group (E.g parent group)
-        p = conn.getQueryService().get(parent_type.title(), parent_id,
+        ptype = parent_type.title()
+        if ptype in ["Tagset", "Tag"]:
+            ptype = "TagAnnotation"
+        p = conn.getQueryService().get(ptype, parent_id,
                                        conn.SERVICE_OPTS)
         conn.SERVICE_OPTS.setOmeroGroup(p.details.group.id.val)
         logger.info("api_link: Saving %s links" % len(linksToSave))
@@ -970,12 +964,57 @@ def api_links(request, conn=None, **kwargs):
                     pass
             response['success'] = True
 
-    elif request.method == 'DELETE':
-        # If we got here, DELETE was OK
-        response['success'] = True
+    return HttpJsonResponse(response)
 
-    # Currently we don't use the response for anything.
-    # Could return more info in future if useful?
+
+def _api_links_DELETE(conn, json_data):
+    """ Deletes links between objects specified by a json
+    blob in the request body.
+    e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+    """
+
+    response = {'success': False}
+
+    # json is [parent_type][parent_id][child_type][childIds]
+    # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+    for parent_type, parents in json_data.items():
+        if parent_type == "orphaned":
+            continue
+        for parent_id, children in parents.items():
+            for child_type, child_ids in children.items():
+                objLnks = get_object_links(conn, parent_type,
+                                           parent_id,
+                                           child_type,
+                                           child_ids)
+                if objLnks is None:
+                    continue
+                linkType, links = objLnks
+                linkIds = [r.id.val for r in links]
+                logger.info("api_link: Deleting %s links" % len(linkIds))
+                conn.deleteObjects(linkType, linkIds)
+                # webclient needs to know what is orphaned
+                linkType, remainingLinks = get_object_links(conn,
+                                                            parent_type,
+                                                            None,
+                                                            child_type,
+                                                            child_ids)
+                # return remaining links in same format as json above
+                # e.g. {"dataset":{"10":{"image":[1,2,3]}}}
+                for rl in remainingLinks:
+                    pid = rl.parent.id.val
+                    cid = rl.child.id.val
+                    # Deleting links still in progress above - ignore these
+                    if pid == int(parent_id):
+                        continue
+                    if parent_type not in response:
+                        response[parent_type] = {}
+                    if pid not in response[parent_type]:
+                        response[parent_type][pid] = {child_type: []}
+                    response[parent_type][pid][child_type].append(cid)
+
+    # If we got here, DELETE was OK
+    response['success'] = True
+
     return HttpJsonResponse(response)
 
 
@@ -1994,7 +2033,13 @@ def batch_annotate(request, conn=None, **kwargs):
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
     if len(groupIds) == 0:
-        return handlerInternalError(request, "No objects found")
+        # No supported objects found.
+        # If multiple tags / tagsets selected, return placeholder
+        if (len(request.GET.getlist('tag')) > 0 or
+                len(request.GET.getlist('tagset')) > 0):
+            return HttpResponse("<h2>Can't batch annotate tags</h2>")
+        else:
+            return handlerInternalError(request, "No objects found")
     groupId = list(groupIds)[0]
     conn.SERVICE_OPTS.setOmeroGroup(groupId)
 
@@ -2574,9 +2619,6 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
     manager = None
     if o_type in ("dataset", "project", "image", "screen", "plate",
                   "acquisition", "well", "comment", "file", "tag", "tagset"):
-        if o_type == 'tagset':
-            # TODO: this should be handled by the BaseContainer
-            o_type = 'tag'
         kw = {'index': index}
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)
@@ -2591,13 +2633,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
 
     form = None
     if action == 'addnewcontainer':
-        # Used within the jsTree to add a new Project, Dataset etc under a
-        # specified parent OR top-level
+        # Used within the jsTree to add a new Project, Dataset, Tag,
+        # Tagset etc under a specified parent OR top-level
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers",
                                         args=["edit", o_type, o_id]))
-        if o_type is not None and hasattr(manager, o_type) and o_id > 0:
-            # E.g. Parent o_type is 'project'...
+        if o_type == "project" and hasattr(manager, o_type) and o_id > 0:
+            # If Parent o_type is 'project'...
             form = ContainerForm(data=request.POST.copy())
             if form.is_valid():
                 logger.debug(
@@ -2613,8 +2655,22 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
                 return HttpJsonResponse(rdict)
+        elif o_type == "tagset" and o_id > 0:
+            form = ContainerForm(data=request.POST.copy())
+            if form.is_valid():
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']
+                oid = manager.createTag(name, description)
+                rdict = {'bad': 'false', 'id': oid}
+                return HttpJsonResponse(rdict)
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]: unicode(e[1])})
+                rdict = {'bad': 'true', 'errs': d}
+                return HttpJsonResponse(rdict)
         elif request.POST.get('folder_type') in ("project", "screen",
-                                                 "dataset"):
+                                                 "dataset", "tag", "tagset"):
             # No parent specified. We can create orphaned 'project', 'dataset'
             # etc.
             form = ContainerForm(data=request.POST.copy())
@@ -2628,6 +2684,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                         name, description,
                         img_ids=request.POST.getlist('image', None))
                 else:
+                    # lookup method, E.g. createTag, createProject etc.
                     oid = getattr(manager, "create" +
                                   folder_type.capitalize())(name, description)
                 rdict = {'bad': 'false', 'id': oid}

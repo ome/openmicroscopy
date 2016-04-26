@@ -2170,7 +2170,16 @@ div.paging input.button_pagination {
 #spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 #spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 
-
+#spw .well .wellLabel {
+    display: none;
+    position: absolute;
+    background: #eee;
+    padding: 2px;
+    color: black;
+}
+#spw .well:hover .wellLabel {
+    display: block;
+}
 
 
 /** Annotation Styles **/

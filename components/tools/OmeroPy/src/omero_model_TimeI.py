@@ -1153,6 +1153,7 @@ class TimeI(_omero_model.Time, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettas"))  # nopep8
     CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Pow(10, 42), Sym("zettas"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ATTOSECOND"] = "as"

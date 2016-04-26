@@ -366,6 +366,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		        model.getImportFor());
 		
 		addPropertyChangeListener(this);
+		
+		addButton.setEnabled(true);
 	}
 
 	/** 
@@ -508,6 +510,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		addButton.setToolTipText(TOOLTIP_QUEUE_ITEMS);
 		addButton.addActionListener(this);
 		addButton.setActionCommand("" + CMD_ADD);
+		addButton.setEnabled(false);
 		
 		closeButton = new JButton(TEXT_CLOSE);
 		closeButton.setToolTipText(TOOLTIP_CLOSE_DIALOGUE);
@@ -1401,6 +1404,7 @@ class LocationDialog extends JDialog implements ActionListener,
                 || ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
             busyLabel.setBusy(true);
             busyLabel.setVisible(true);
+            addButton.setEnabled(false);
             Object value = evt.getNewValue();
             if(value != null && value instanceof ImportLocationDetails) {
                 ImportLocationDetails details = (ImportLocationDetails) evt
@@ -1693,6 +1697,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	    this.container = container;
 	    this.busyLabel.setBusy(false);
 	    this.busyLabel.setVisible(false);
+	    this.addButton.setEnabled(true);
 	    populateUIWithDisplayData(findWithId(groups, currentGroupId), userID);
 	    setInputsEnabled(true);
 	}

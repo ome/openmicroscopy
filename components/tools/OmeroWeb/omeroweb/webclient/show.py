@@ -30,6 +30,7 @@ import re
 from omero.rtypes import rint, rlong
 from django.core.urlresolvers import reverse
 from copy import deepcopy
+from django.conf import settings
 
 
 class IncorrectMenuError(Exception):
@@ -412,21 +413,65 @@ class Show(object):
         return self._initially_open_owner
 
 
+def get_image_ids(conn, datasetId=None, groupId=-1, ownerId=None):
+    """
+    Retrieves a list of all image IDs in a Dataset or Orphaned
+    (with owner specified by ownerId). The groupId can be specified
+    as needed, particuarly when querying orphaned images.
+    """
+    qs = conn.getQueryService()
+    p = omero.sys.ParametersI()
+    so = deepcopy(conn.SERVICE_OPTS)
+    so.setOmeroGroup(groupId)
+    if datasetId is not None:
+        p.add('did', rlong(datasetId))
+        q = """select image.id from Image image
+            join image.datasetLinks dlink where dlink.parent.id = :did
+            order by lower(image.name), image.id"""
+    else:
+        p.add('ownerId', rlong(ownerId))
+        q = """select image.id from Image image where
+            image.details.owner.id = :ownerId and
+            not exists (
+                select dilink from DatasetImageLink as dilink
+                where dilink.child = image.id
+
+            )  and
+            not exists (
+                select ws from WellSample ws
+                where ws.image.id = image.id
+            )
+            order by lower(image.name), image.id"""
+    iids = [i[0].val for i in qs.projection(q, p, so)]
+    return iids
+
+
 def paths_to_object(conn, experimenter_id=None, project_id=None,
                     dataset_id=None, image_id=None, screen_id=None,
                     plate_id=None, acquisition_id=None, well_id=None,
-                    group_id=None):
+                    group_id=None, page_size=None):
+    """
+    Retrieves the parents of an object (E.g. P/D/I for image) as a list
+    of paths.
+    Lowest object in hierarchy is found by checking parameter ids in order:
+    image->dataset->project->well->acquisition->plate->screen->experimenter
+    If object has multiple paths, these can also be filtered by parent_ids.
+    E.g. paths to image_id filtered by dataset_id.
 
-    # Set any of the parameters present and find the lowest type to find
-    # If path components are specified for incompatible paths, e.g. a dataset
-    # id and a screen id then the following priority is enforced for the
-    # object to find:
-    # image->dataset->project->well->acquisition->plate->screen->experimenter
+    If image is in a Dataset or Orphaned collection that is paginated
+    (imageCount > page_size) then we include 'childPage', 'childCount'
+    and 'childIndex' in the dataset or orphaned dict.
+    The page_size default is settings.PAGE (omero.web.page_size)
 
-    # Note on wells:
-    # Selecting a 'well' is really for selecting well_sample paths
-    # if a well is specified on its own, we return all the well_sample paths
-    # than match
+    Note on wells:
+    Selecting a 'well' is really for selecting well_sample paths
+    if a well is specified on its own, we return all the well_sample paths
+    than match
+    """
+
+    qs = conn.getQueryService()
+    if page_size is None:
+        page_size = settings.PAGE
 
     params = omero.sys.ParametersI()
     service_opts = deepcopy(conn.SERVICE_OPTS)
@@ -463,8 +508,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
     if group_id is not None:
         service_opts.setOmeroGroup(group_id)
 
-    qs = conn.getQueryService()
-
     # Hierarchies for this object
     paths = []
     orphanedImage = False
@@ -478,7 +521,10 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             select coalesce(powner.id, downer.id, iowner.id),
                    pdlink.parent.id,
                    dilink.parent.id,
-                   image.id
+                   (select count(id) from DatasetImageLink dil
+                    where dil.parent=dilink.parent.id),
+                   image.id,
+                   image.details.group.id as groupId
             from Image image
             left outer join image.details.owner iowner
             left outer join image.datasetLinks dilink
@@ -507,6 +553,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
         for e in qs.projection(q, params, service_opts):
             path = []
+            imageId = e[4].val
 
             # Experimenter is always found
             path.append({
@@ -524,23 +571,42 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             # If it is experimenter->dataset->image or
             # experimenter->project->dataset->image
             if e[2] is not None:
-                path.append({
+                imgCount = e[3].val
+                datasetId = e[2].val
+                ds = {
                     'type': 'dataset',
-                    'id': e[2].val
-                })
+                    'id': datasetId,
+                }
+                if imgCount > page_size:
+                    # Need to know which page image is on
+                    iids = get_image_ids(conn, datasetId)
+                    index = iids.index(imageId)
+                    page = (index / page_size) + 1  # 1-based index
+                    ds['childCount'] = imgCount
+                    ds['childIndex'] = index
+                    ds['childPage'] = page
+                path.append(ds)
 
             # If it is orphaned->image
             if e[2] is None:
                 orphanedImage = True
-                path.append({
+                orph = {
                     'type': 'orphaned',
                     'id': e[0].val
-                })
+                }
+                iids = get_image_ids(conn, groupId=e[5].val, ownerId=e[0].val)
+                if len(iids) > page_size:
+                    index = iids.index(imageId)
+                    page = (index / page_size) + 1  # 1-based index
+                    orph['childCount'] = len(iids)
+                    orph['childIndex'] = index
+                    orph['childPage'] = page
+                path.append(orph)
 
             # Image always present
             path.append({
                 'type': 'image',
-                'id': e[3].val
+                'id': imageId
             })
             paths.append(path)
 
