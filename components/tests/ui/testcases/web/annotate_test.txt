@@ -1,0 +1,96 @@
+*** Settings ***
+Documentation     Tests submission of forms.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Variables ***
+${commentText}          Robot test adding this comment
+${commentTextTwo}       A second comment added by Robot test
+${commentTextThree}     This will be added to Two Datasets
+${commentTextFour}      I (Robot) just love adding comments!
+
+
+*** Keywords ***
+
+Check For Comment
+    [Arguments]                                 ${text}
+    Wait Until Page Contains Element            xpath=//div[@class='commentText'][contains(text(), '${text}')]
+
+Check Comment Gone
+    [Arguments]                                 ${text}
+    Page Should Not Contain Element             xpath=//div[@class='commentText'][contains(text(), '${text}')]
+
+Add Comment
+    [Arguments]                                 ${text}
+    Wait Until Element Is Visible               id=id_comment
+    Input Text                                  comment            ${text}
+    Click Element                               xpath=//input[@value='Add Comment']
+    Check For Comment                           ${text}
+
+Remove Comment
+    [Arguments]                                 ${text}
+    Click Element                               xpath=//div[contains(@class, 'ann_comment_text')][descendant::div[contains(text(), '${text}')]]/img[@class='removeComment']
+    Click Dialog Button                         OK
+    Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check Comment Gone  ${text}
+
+
+*** Test Cases ***
+
+Test Comments
+
+    Select Experimenter
+    ${dsId_One}=                                Create Dataset      robot test comments_1
+    ${dsId_Two}=                                Create Dataset      robot test comments_2
+
+    # Comment a single Dataset
+    Click Element                               xpath=//h1[@data-name='comments']
+    Add Comment                                 ${commentText}
+
+    # Refresh (select other Dataset and re-select)
+    ${nodeId}=                                  Select Dataset By Id        ${dsId_One}
+    Wait Until Right Panel Loads                Dataset                     ${dsId_One}
+    Select Dataset By Id                        ${dsId_Two}
+    # Check and add another Comment
+    Check For Comment                           ${commentText}
+    Add Comment                                 ${commentTextTwo}
+    # Remove first comment
+    Remove Comment                              ${commentText}
+
+    # Now select both Datasets...
+    Meta Click Node                             ${nodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    # Previously added Comment will show up
+    Check For Comment                           ${commentTextTwo}
+    Page Should Not Contain Element             xpath=//div[@class='commentText'][contains(text(), '${commentText}')]
+    # Add Comments to Both Datasets
+    Add Comment                                 ${commentTextThree}
+    Add Comment                                 ${commentTextFour}
+
+    # Select each single Dataset to check for Comment(s)
+    Select Dataset By Id                        ${dsId_One}
+    Check Comment Gone                          ${commentTextTwo}
+    Check For Comment                           ${commentTextThree}
+    Select Dataset By Id                        ${dsId_Two}
+    Check For Comment                           ${commentTextTwo}
+    Check For Comment                           ${commentTextThree}
+
+    # Select both Datasets and Remove Comments
+    Meta Click Node                             ${nodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    Remove Comment                              ${commentTextTwo}
+    Remove Comment                              ${commentTextThree}
+
+    # Select each single Dataset again to check for Comment(s)
+    Select Dataset By Id                        ${dsId_One}
+    Check For Comment                           ${commentTextFour}
+    Check Comment Gone                          ${commentTextTwo}
+    Check Comment Gone                          ${commentTextThree}
+    Select Dataset By Id                        ${dsId_Two}
+    Check For Comment                           ${commentTextFour}
+    Check Comment Gone                          ${commentTextTwo}
+    Check Comment Gone                          ${commentTextThree}
