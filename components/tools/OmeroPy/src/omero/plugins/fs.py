@@ -715,7 +715,7 @@ Examples:
 
     @admin_only
     def fixpyramid(self, args):
-        """ Remove the pyramid file associated with an image."""
+        """Remove the pyramid file associated with an image."""
         from omero.cmd import ManageImageBinaries
 
         client = self.ctx.conn(args)
