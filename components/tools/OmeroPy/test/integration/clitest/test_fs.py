@@ -22,6 +22,7 @@
 from test.integration.clitest.cli import CLITest, RootCLITest
 from omero.cli import NonZeroReturnCode
 from omero.plugins.fs import FsControl
+from omero.util import long_to_path
 
 from path import path
 
@@ -126,10 +127,10 @@ class TestFSRoot(RootCLITest):
 
         cfg = self.root.sf.getConfigService()
         pixels_dir = path(cfg.getConfigValue("omero.data.dir")) / "Pixels"
-        if not pixels_dir.exists():
-            pixels_dir.mkdir()
         iid = self.importSingleImage().id.val
-        pyramid_file = path(pixels_dir) / ("%s_pyramid" % iid)
+        subdir = path(long_to_path(iid, root=pixels_dir)).parent
+        subdir.makedirs_p()
+        pyramid_file = subdir / ("%s_pyramid" % iid)
         pyramid_file.touch()
         assert pyramid_file.exists()
         self.args += ["fixpyramid", "Image:%s" % iid]
