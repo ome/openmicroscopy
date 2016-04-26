@@ -85,6 +85,21 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Use populate_metadata to upload and attach bulk annotation csv
 PYTHONPATH=./lib/python python lib/python/omero/util/populate_metadata.py -s $HOSTNAME -p $PORT -k $key Plate:$plateid $BULK_ANNOTATION_CSV
 
+# Import Plate and rename for test ?show=image.name-NAME
+bin/omero import $PLATE_NAME --debug ERROR > show_import.log 2>&1
+plateid=$(sed -n -e 's/^Plate://p' show_import.log)
+bin/omero obj update Plate:$plateid name=testShowPlate
+# Import Image into Project/Dataset and rename for test
+showP=$(bin/omero obj new Project name='showProject')
+showD=$(bin/omero obj new Dataset name='showDataset')
+bin/omero obj new ProjectDatasetLink parent=$showP child=$showD
+for (( k=1; k<=2; k++ ))
+do
+  bin/omero import -d $showD $IMAGE_NAME --debug ERROR > show_import.log 2>&1
+  imageid=$(sed -n -e 's/^Image://p' show_import.log)
+  bin/omero obj update Image:$imageid name=testShowImage$k
+done
+
 # Create Screen with empty plates for Create Scenario
 scrDs=$(bin/omero obj new Screen name='CreateScenario')
 for (( k=1; k<=6; k++ ))
@@ -109,5 +124,7 @@ echo "omero.pass=$USER_PASSWORD" >> "$CONFIG_FILENAME"
 echo "omero.projectid=${project##*:}" >> "$CONFIG_FILENAME"
 echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
 
-# Remove fake file
+# Remove fake file and logs
 rm *.fake
+rm plate_import.log
+rm show_import.log
