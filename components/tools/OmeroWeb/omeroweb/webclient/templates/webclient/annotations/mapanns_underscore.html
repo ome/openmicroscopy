@@ -19,7 +19,7 @@
                     <b>ID:</b> <%= ann.id %><br />
                     <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
                     <b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %><br />
-                    <b>On:</b> <%= ann.link.date %>
+                    <b>On:</b> <% print(OME.formatDate(ann.link.date)) %>
                 </span>
             <% } %>
           </th>

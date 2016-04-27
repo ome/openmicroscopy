@@ -19,7 +19,7 @@
             <% if (ann.ns) { %><b>Namespace:</b> <%= ann.ns %><br /><% } %>
             <% if (ann.description) { %><b>Description:</b> <%= ann.description %><br /><% } %>
             <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
-            <b>Date:</b> <%= ann.date %>
+            <b>Date:</b> <% print(OME.formatDate(ann.date)) %>
         </span>
     </td>
 </tr>

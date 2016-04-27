@@ -13,7 +13,7 @@
                 <%= ann.owner.firstName %> <%= ann.owner.lastName %>
             </strong> 
             at
-            <%= ann.link.date %>
+            <% print(OME.formatDate(ann.link.date)) %>
         </div>
     
         <% if (ann.permissions.canDelete) { %>
