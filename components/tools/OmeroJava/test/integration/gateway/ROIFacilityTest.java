@@ -87,6 +87,13 @@ public class ROIFacilityTest extends GatewayTest {
     }
 
     @Test(dependsOnMethods = { "testSaveROIs" })
+    public void testGetROICount() throws DSOutOfServiceException,
+            DSAccessException {
+        int n = roifac.getROICount(rootCtx, img.getId());
+        Assert.assertEquals(2, n);
+    }
+    
+    @Test(dependsOnMethods = { "testSaveROIs" })
     public void testLoadROIs() throws DSOutOfServiceException,
             DSAccessException {
         List<ROIResult> roiResults = roifac.loadROIs(rootCtx, img.getId());

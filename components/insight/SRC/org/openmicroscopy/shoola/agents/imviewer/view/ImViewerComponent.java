@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -3450,5 +3450,15 @@ class ImViewerComponent
     void onSettingsChanged()
     {
         view.resetDefaults();
+    }
+
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#reloadROICount()
+     */
+    @Override
+    public void reloadROICount() {
+        model.reloadROICount();
     }
 }

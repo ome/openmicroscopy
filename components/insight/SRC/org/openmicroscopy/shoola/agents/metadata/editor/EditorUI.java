@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1049,5 +1049,14 @@ class EditorUI
      */
 	public Collection<FileAnnotationData> getSelectedFileAnnotations() { 
 	    return generalPane.getSelectedFileAnnotations();
+	}
+	
+	/**
+	 * Reload the ROI count
+	 */
+	public void reloadROICount() {
+	    if(model.getRefObject() instanceof ImageData) {
+	        generalPane.getPropertiesUI().loadROICount((ImageData) model.getRefObject());
+	    }
 	}
 }

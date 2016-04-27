@@ -698,8 +698,8 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected omero.client disconnect() throws Exception {
         omero.client oldClient = client;
-        client = null;
         clean();
+        client = null;
         return oldClient;
     }
 

@@ -163,7 +163,6 @@ public class ROIs
         line.setY2(omero.rtypes.rdouble(400));
         line.setTheZ(omero.rtypes.rint(1));
         line.setTheT(omero.rtypes.rint(0));
-        line.setTransform(omero.rtypes.rstring("100 0 0 200 0 0"));
         roi.addShape(line);
         //Create a point
         Point point = new PointI();
@@ -171,13 +170,11 @@ public class ROIs
         point.setCy(omero.rtypes.rdouble(75.0));
         point.setTheZ(omero.rtypes.rint(0));
         point.setTheT(omero.rtypes.rint(0));
-        point.setTransform(null);
         roi.addShape(point);
         //Polygon
         Polygon polygon = new PolygonI();
         polygon.setPoints(omero.rtypes.rstring(
                 "100.0,200.0 553.9,593.5 92.3,59.9"));
-        polygon.setTransform(null);
         polygon.setTheZ(omero.rtypes.rint(0));
         polygon.setTheT(omero.rtypes.rint(0));
         roi.addShape(polygon);
@@ -185,7 +182,6 @@ public class ROIs
         Polyline polyline = new PolylineI();
         polyline.setPoints(omero.rtypes.rstring(
                 "100.0,200.0 553.9,593.5 92.3,59.9"));
-        polyline.setTransform(null);
         roi.addShape(polyline);
         // Display fields which could quickly
         // be parsed from known formats
@@ -226,7 +222,6 @@ public class ROIs
         //Add a path shape
         Path path = new PathI();
         path.setD(omero.rtypes.rstring("M 100 100 L 300 100 L 200 300 z"));
-        path.setTransform(null);
         roi.addShape(path);
         //Add a mask
         Mask mask = new MaskI();

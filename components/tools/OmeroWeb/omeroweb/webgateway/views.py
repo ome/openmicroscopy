@@ -1372,7 +1372,7 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     except ValueError:
         field = 0
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
-    thumbsize = int(request.GET.get('size', 64))
+    thumbsize = int(request.GET.get('size', 96))
     logger.debug(thumbsize)
     server_id = kwargs['server_id']
 
