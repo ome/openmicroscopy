@@ -1,5 +1,5 @@
 --
--- Copyright 2006-2015 University of Dundee. All rights reserved.
+-- Copyright 2006-2016 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -375,6 +375,224 @@ $$ LANGUAGE plpgsql;
 --
 -- END #1390
 --
+
+--
+-- add reindexing triggers for ROI folders; see FullTextBridge.set_folders
+--
+
+CREATE FUNCTION folder_update_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        FOR iid IN SELECT DISTINCT r.image FROM roi AS r, folderroilink AS l
+            WHERE l.parent = NEW.id AND l.child = r.id AND r.image IS NOT NULL LOOP
+
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END LOOP;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION folder_roi_link_insert_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        FOR iid IN SELECT DISTINCT r.image FROM roi AS r
+            WHERE r.id = NEW.child AND r.image IS NOT NULL LOOP
+
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END LOOP;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION folder_roi_link_update_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        FOR iid IN SELECT DISTINCT r.image FROM roi AS r
+            WHERE r.id IN (OLD.child, NEW.child) AND r.image IS NOT NULL LOOP
+
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END LOOP;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION folder_roi_link_delete_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        FOR iid IN SELECT DISTINCT r.image FROM roi AS r
+            WHERE r.id = OLD.child AND r.image IS NOT NULL LOOP
+
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END LOOP;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION roi_insert_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        iid := NEW.image;
+
+        IF iid IS NOT NULL THEN
+            eid := _current_or_new_event();
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION roi_update_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        IF OLD.image = NEW.image THEN
+            RETURN NEW;
+        END IF;
+
+        iid := OLD.image;
+
+        IF iid IS NOT NULL THEN
+            eid := _current_or_new_event();
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END IF;
+
+        iid := NEW.image;
+
+        IF iid IS NOT NULL THEN
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION roi_delete_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        iid := OLD.image;
+
+        IF iid IS NOT NULL THEN
+            eid := _current_or_new_event();
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER folder_update_trigger
+    AFTER UPDATE ON folder
+    FOR EACH ROW
+    EXECUTE PROCEDURE folder_update_trigger();
+
+CREATE TRIGGER folder_roi_link_insert_trigger
+    AFTER INSERT ON folderroilink
+    FOR EACH ROW
+    EXECUTE PROCEDURE folder_roi_link_insert_trigger();
+
+CREATE TRIGGER folder_roi_link_update_trigger
+    AFTER UPDATE ON folderroilink
+    FOR EACH ROW
+    EXECUTE PROCEDURE folder_roi_link_update_trigger();
+
+CREATE TRIGGER folder_roi_link_delete_trigger
+    AFTER DELETE ON folderroilink
+    FOR EACH ROW
+    EXECUTE PROCEDURE folder_roi_link_delete_trigger();
+
+CREATE TRIGGER roi_insert_trigger
+    AFTER INSERT ON roi
+    FOR EACH ROW
+    EXECUTE PROCEDURE roi_insert_trigger();
+
+CREATE TRIGGER roi_update_trigger
+    AFTER UPDATE ON roi
+    FOR EACH ROW
+    EXECUTE PROCEDURE roi_update_trigger();
+
+CREATE TRIGGER roi_delete_trigger
+    AFTER DELETE ON roi
+    FOR EACH ROW
+    EXECUTE PROCEDURE roi_delete_trigger();
 
 --
 -- #12317 -- delete map property values along with their holders
