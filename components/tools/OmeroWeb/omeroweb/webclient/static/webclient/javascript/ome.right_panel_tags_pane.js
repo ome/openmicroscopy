@@ -42,6 +42,15 @@ var TagPane = function TagPane($element, opts) {
         }.bind(this));
     }).bind(this);
 
+
+    // bind removeItem to various [-] buttons
+    $("#tags_container").on("click", ".removeTag", function(event){
+        var url = $(this).attr('url'),
+            parents = objects.join("|");  // E.g image-123|image-456
+        OME.removeItem(event, ".tag_annotation_wrapper", url, parents);
+        return false;
+    });
+
     var compareParentName = function(a, b){
         return a.parent.name.toLowerCase() > b.parent.name.toLowerCase() ? 1 : -1;
     };

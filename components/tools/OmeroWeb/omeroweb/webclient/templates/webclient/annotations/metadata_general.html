@@ -226,26 +226,6 @@
                     $("#toolbar_info_panel").hide();
                 });
 
-
-                // bind removeItem to various [-] buttons
-                $("#tags_container").on("click", ".removeTag", function(event){
-                    var url = $(this).attr('url');
-                    OME.removeItem(event, ".tag_annotation_wrapper", url, 
-                        $.trim($("#object-id").text()), {{ index|default:"0" }});
-                    return false;
-                });
-                $("#fileanns_container").on("click", ".removeFile", function(event) {
-                    var url = $(this).attr('href');
-                    OME.removeItem(event, ".file_ann_wrapper", url, 
-                        $.trim($("#object-id").text()), {{ index|default:"0" }});
-                    return false;
-                });
-                
-                $("#fileanns_container").on("click", ".deleteFile", function(event) {
-                    var url = $(this).attr('href');
-                    OME.deleteItem(event, "file_ann_wrapper", url, $.trim($("#object-id").text()));
-                });
-
                 // Choose to add tags...
                 if ($("#add_tags_form").length === 0) {
                     $("<form id='add_tags_form' title='Tags Selection' action='{% url 'annotate_tags' %}' method='post'></form>")

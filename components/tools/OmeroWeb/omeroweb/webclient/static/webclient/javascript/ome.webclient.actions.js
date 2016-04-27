@@ -242,7 +242,7 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 
 // handle deleting of Tag, File, Comment
 // on successful delete via AJAX, the parent .domClass is hidden
-OME.removeItem = function(event, domClass, url, parentId, index) {
+OME.removeItem = function(event, domClass, url, parentId) {
     var removeId = $(event.target).attr('id');
     var dType = removeId.split("-")[1]; // E.g. 461-comment
     // /webclient/action/remove/comment/461/?parent=image-257
@@ -256,7 +256,7 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
                 $.ajax({
                     type: "POST",
                     url: url,
-                    data: {'parent':parentId, 'index':index},
+                    data: {'parent':parentId},
                     dataType: 'json',
                     success: function(r){
                         if(eval(r.bad)) {

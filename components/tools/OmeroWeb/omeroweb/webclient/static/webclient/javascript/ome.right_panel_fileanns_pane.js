@@ -105,6 +105,19 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
         OME.fileAnnotationCheckboxChanged
     );
 
+    $("#fileanns_container").on("click", ".removeFile", function(event) {
+        var url = $(this).attr('href'),
+            parents = objects.join("|");  // E.g image-123|image-456
+        OME.removeItem(event, ".file_ann_wrapper", url, parents);
+        return false;
+    });
+
+    // delete action (files)
+    $("#fileanns_container").on("click", ".deleteFile", function(event) {
+        var url = $(this).attr('href');
+        OME.deleteItem(event, "file_ann_wrapper", url);
+    });
+
 
     var isNotCompanionFile = function isNotCompanionFile(ann) {
         return ann.ns !== OMERO.constants.namespaces.NSCOMPANIONFILE;

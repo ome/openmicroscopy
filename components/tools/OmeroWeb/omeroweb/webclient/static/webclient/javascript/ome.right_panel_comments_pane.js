@@ -21,7 +21,6 @@ var CommentsPane = function CommentsPane($element, opts) {
         $body = $element.children('div'),
         $comments_container = $("#comments_container"),
         objects = opts.selected,
-        index = opts.index,
         canAnnotate = opts.canAnnotate;
     var self = this;
 
@@ -60,7 +59,7 @@ var CommentsPane = function CommentsPane($element, opts) {
     $("#comments_container").on("click", ".removeComment", function(event){
         var url = $(this).attr('url');
         var objId = objects.join("|");
-        OME.removeItem(event, ".ann_comment_wrapper", url, objId, index);
+        OME.removeItem(event, ".ann_comment_wrapper", url, objId);
         return false;
     });
 
