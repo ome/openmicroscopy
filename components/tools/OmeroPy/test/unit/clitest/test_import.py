@@ -278,7 +278,7 @@ class TestImport(object):
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
         self.add_client_dir()
-        self.args += [ "-f", "--output=yaml", str(fakefile) ]
+        self.args += ["-f", "--output=yaml", str(fakefile)]
         self.cli.invoke(self.args, strict=True)
 
         o, e = capfd.readouterr()
@@ -294,7 +294,7 @@ class TestImport(object):
         t = path(__file__) / "bulk_import" / "test_simple"
         b = t / "bulk.yml"
         self.add_client_dir()
-        self.args += [ "-f", "---bulk=%s" % b, "dne.fake"]
+        self.args += ["-f", "---bulk=%s" % b, "dne.fake"]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
@@ -303,7 +303,7 @@ class TestImport(object):
         b = t / "bulk.yml"
 
         self.add_client_dir()
-        self.args += [ "-f", "---bulk=%s" % b]
+        self.args += ["-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
 
     def testBulkName(self):
