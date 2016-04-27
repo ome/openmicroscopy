@@ -20,7 +20,8 @@ var TagPane = function TagPane($element, opts) {
     var $header = $element.children('h1'),
         $body = $element.children('div'),
         $tags_container = $("#tags_container"),
-        objects = opts.selected;
+        objects = opts.selected,
+        self = this;
 
     var tmplText = $('#tags_template').html();
     var tagTmpl = _.template(tmplText);
@@ -40,6 +41,59 @@ var TagPane = function TagPane($element, opts) {
             }
         }.bind(this));
     }).bind(this);
+
+
+    if ($("#add_tags_form").length === 0) {
+        $("<form id='add_tags_form' title='Tags Selection' action='" + WEBCLIENT.URLS.webindex + "annotate_tags/' method='post'>")
+            .hide().appendTo('body');
+    }
+
+    $("#launch_tags_form").click(function(event) {
+        $("#add_tags_form").dialog("open");
+        // load form via AJAX...
+        var load_url = $(this).attr('href');
+        $("#add_tags_form").load(load_url);
+        return false;
+    });
+    // set-up the tags form to use dialog
+
+    $("#add_tags_form").dialog({
+        autoOpen: false,
+        resizable: false,
+        height: 520,
+        width: 780,
+        modal: true,
+        buttons: {
+            "Save": function() {
+                // simply submit the form (AJAX handling set-up above)
+                $("#add_tags_form").trigger('prepare-submit').submit();
+                $( this ).dialog( "close" );
+            },
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            },
+            "Reset": function() {
+                // discard all changes and reload the form
+                $("#add_tags_form").html('').load($("#launch_tags_form").attr('href'));
+            }
+        }
+    });
+    $('#add_tags_form').ajaxForm({
+        beforeSubmit: function(data) {
+            $("#tagann_spinner").show();
+            // $("#add_tags_form").dialog( "close" );
+        },
+        success: function(data) {
+            // hide in case it was submitted via 'Enter'
+            $("#add_tags_form").dialog( "close" );
+            // update the list of tags: Re-render tag pane...
+            self.render();
+            // show_batch_msg("Tags added to Objects");
+        },
+        error: function(data) {
+            $("#tagann_spinner").hide();
+        }
+    });
 
 
     // bind removeItem to various [-] buttons
