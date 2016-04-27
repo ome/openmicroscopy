@@ -302,6 +302,7 @@ public class ROIReader {
         String type;
         ROIData roiData;
         ShapeData shape;
+        boolean addRoi = true;
         for (int i = 0; i < rois.length; i++) {
             r = rois[i];
             roiData = new ROIData();
@@ -309,7 +310,6 @@ public class ROIReader {
             if (imageID >= 0) {
                 roiData.setImage(new ImageI(imageID, false));
             }
-            pojos.add(roiData);
             if (r.isDrawingTool()) {//Checks if the given roi is a Text box/Arrow/Rounded Rectangle
                 if (type.matches("Text")){
                     roiData.addShapeData(convertText((TextRoi) r));
@@ -343,7 +343,7 @@ public class ROIReader {
                 }
             } else if (r instanceof ShapeRoi) {
                 Roi[] subRois = getProperSubRois((ShapeRoi) r);
-                
+                addRoi = false;
                 pojos.addAll(read(imageID, subRois));
             } else if (type.matches("Rectangle")) {
                 shape = convertRectangle(r);
@@ -351,45 +351,48 @@ public class ROIReader {
                     roiData.addShapeData(shape);
                 }
             }
+            if (addRoi) {
+                pojos.add(roiData);
+            }
         }
         return pojos;
     }
 
-	/**
-	 * Split up composite ROI using {@link ShapeRoi#getRois}. Also transfer
+    /**
+     * Split up composite ROI using {@link ShapeRoi#getRois}. Also transfer
      * information from composite ROI to the extracted sub-ROIs.
      * 
      * @param roi
-	 */
-	private Roi[] getProperSubRois(ShapeRoi roi) {
-		// Set ImagePlus reference in subROIs for the check in L216 to work
-        ImagePlus imp = roi.getImage();      
+     */
+    private Roi[] getProperSubRois(ShapeRoi roi) {
+        // Set ImagePlus reference in subROIs for the check in L216 to work
+        ImagePlus imp = roi.getImage();
         Roi[] subRois = roi.getRois();
-        
+
         for (int i = 0; i < subRois.length; i++) {
-	        Roi subRoi = subRois[i];
-        	subRoi.setImage(imp);
-			
-			// Transfer correct ROI positions (according to IJ) from superROI
-			int pos = roi.getPosition();
-			int c = roi.getCPosition();
-			int z = roi.getZPosition();
-			int t = roi.getTPosition();
-			if (imp.getNChannels() == 1 && imp.getNSlices() == 1) {
-			    subRoi.setPosition(pos);
-			} else if (imp.getNChannels() == 1 &&
-			        imp.getNFrames() == 1) {
-			    subRoi.setPosition(pos);
-			} else if (imp.getNSlices() == 1 &&
-			        imp.getNFrames() == 1) {
-			    subRoi.setPosition(pos);
-			} else if (imp.isHyperStack()) {
-			    subRoi.setPosition(c, z, t);
-			}
+            Roi subRoi = subRois[i];
+            subRoi.setImage(imp);
+
+            // Transfer correct ROI positions (according to IJ) from superROI
+            int pos = roi.getPosition();
+            int c = roi.getCPosition();
+            int z = roi.getZPosition();
+            int t = roi.getTPosition();
+            if (imp.getNChannels() == 1 && imp.getNSlices() == 1) {
+                subRoi.setPosition(pos);
+            } else if (imp.getNChannels() == 1 &&
+                    imp.getNFrames() == 1) {
+                subRoi.setPosition(pos);
+            } else if (imp.getNSlices() == 1 &&
+                    imp.getNFrames() == 1) {
+                subRoi.setPosition(pos);
+            } else if (imp.isHyperStack()) {
+                subRoi.setPosition(c, z, t);
+            }
         }
-        
+
         return subRois;
-	}
+    }
 
     /**
      * Reads the roi linked to the imageJ object.
