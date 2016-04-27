@@ -91,6 +91,12 @@ var CustomAnnsPane = function CustomAnnsPane($element, opts) {
                             ann.value = _.escape(ann[a]);
                         }
                     });
+                    if (objects.length > 1) {
+                        ann.parent = {
+                            'class': ann.link.parent.class.slice(0, -1), // slice parent class 'ProjectI' > 'Project'
+                            'id': ann.link.parent.id
+                        };
+                    }
                     return ann;
                 });
 

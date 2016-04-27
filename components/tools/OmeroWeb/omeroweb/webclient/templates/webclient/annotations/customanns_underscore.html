@@ -20,6 +20,11 @@
             <% if (ann.description) { %><b>Description:</b> <%= ann.description %><br /><% } %>
             <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
             <b>Date:</b> <% print(OME.formatDate(ann.date)) %>
+
+            <% if (ann.parent) { %>
+            <br />
+            <b>Linked to:</b> <%= ann.parent.class %> <%= ann.parent.id %>
+            <% } %>
         </span>
     </td>
 </tr>
