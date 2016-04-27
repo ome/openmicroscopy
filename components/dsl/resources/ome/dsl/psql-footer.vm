@@ -172,7 +172,7 @@ CREATE SEQUENCE seq_${table}; INSERT INTO _lock_ids (name, id) SELECT 'seq_${tab
 
 
 --
--- #1390 : Triggering the addition of an "REINDEX" event on annotation events.
+-- #1390 : Triggering the addition of an "REINDEX" event on annotation and other events.
 --
 
 CREATE OR REPLACE FUNCTION _prepare_session(_event_id int8, _user_id int8, _group_id int8) RETURNS void
@@ -221,19 +221,19 @@ CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
 LANGUAGE plpgsql;
 
 
-CREATE TABLE _updated_annotations (
+CREATE TABLE _reindexing_required (
     event_id BIGINT NOT NULL,
     entity_type TEXT NOT NULL,
     entity_id BIGINT NOT NULL,
-    CONSTRAINT FK_updated_annotations_event_id
+    CONSTRAINT FK_reindexing_required_event_id
         FOREIGN KEY (event_id)
         REFERENCES event);
 
-CREATE INDEX _updated_annotations_event_index
-    ON _updated_annotations (event_id);
+CREATE INDEX _reindexing_required_event_index
+    ON _reindexing_required (event_id);
 
-CREATE INDEX _updated_annotations_row_index
-    ON _updated_annotations (event_id, entity_type, entity_id);
+CREATE INDEX _reindexing_required_row_index
+    ON _reindexing_required (event_id, entity_type, entity_id);
 
 CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
 
@@ -248,9 +248,9 @@ CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
 #if( ${type.annotated} && !${type.superclass})
         FOR pid IN SELECT DISTINCT parent FROM ${type.tableName()}annotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, '${type.id}', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = '${type.id}' AND ua.entity_id = pid);
         END LOOP;
 
@@ -275,14 +275,14 @@ CREATE OR REPLACE FUNCTION annotation_link_update_trigger() RETURNS "trigger"
     BEGIN
         SELECT INTO eid _current_or_new_event();
 
-        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+        INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
             SELECT eid, TG_ARGV[0], old.parent
-            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+            WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                 WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = old.parent);
 
-        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+        INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
             SELECT eid, TG_ARGV[0], new.parent
-            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+            WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                 WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = new.parent);
 
         RETURN new;
@@ -298,9 +298,9 @@ CREATE OR REPLACE FUNCTION annotation_link_insert_trigger() RETURNS "trigger"
     BEGIN
         SELECT INTO eid _current_or_new_event();
 
-        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+        INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
             SELECT eid, TG_ARGV[0], new.parent
-            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+            WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                 WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = new.parent);
 
         RETURN new;
@@ -330,9 +330,9 @@ CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
     BEGIN
         SELECT INTO eid _current_or_new_event();
 
-        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+        INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
             SELECT eid, TG_ARGV[0], old.parent
-            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+            WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                 WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = old.parent);
 
         RETURN old;
@@ -350,18 +350,18 @@ CREATE TRIGGER ${type.tableName()}_annotation_link_delete_trigger
 #end
 
 
--- move annotation updates from updated_annotations to eventlog REINDEX entries
+-- move update notes from updated_annotations to eventlog REINDEX entries
 
-CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+CREATE OR REPLACE FUNCTION updated_entities_note_reindex() RETURNS void AS $$
 
     DECLARE
-        curs CURSOR FOR SELECT * FROM _updated_annotations ORDER BY event_id LIMIT 100000 FOR UPDATE;
-        row _updated_annotations%%rowtype;
+        curs CURSOR FOR SELECT * FROM _reindexing_required ORDER BY event_id LIMIT 100000 FOR UPDATE;
+        row _reindexing_required%%rowtype;
 
     BEGIN
         FOR row IN curs
         LOOP
-            DELETE FROM _updated_annotations WHERE CURRENT OF curs;
+            DELETE FROM _reindexing_required WHERE CURRENT OF curs;
 
             INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
                 SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
