@@ -54,10 +54,9 @@ class TestDuplicate(CLITest):
 
         params = omero.sys.ParametersI()
         params.addId(did)
-        query = "select p from Project as p"
-        query += " where exists ("
-        query += " select l from ProjectDatasetLink as l"
-        query += " where l.child.id=:id and l.parent=p.id) "
+        query = ("select p from Project as p where exists"
+                 "(select l from ProjectDatasetLink as l where "
+                 "l.child.id=:id and l.parent=p.id)")
         return self.query.findAllByQuery(query, params)
 
     @pytest.mark.parametrize("model", model)
