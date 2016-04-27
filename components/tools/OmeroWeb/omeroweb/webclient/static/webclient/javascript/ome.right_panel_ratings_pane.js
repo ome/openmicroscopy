@@ -21,8 +21,7 @@ var RatingsPane = function RatingsPane($element, opts) {
         $body = $element.children('div'),
         $rating_annotations = $("#rating_annotations"),
         objects = opts.selected,
-        index = opts.index,
-        canAnnotate = opts.canAnnotate;
+        index = opts.index;
 
     var request = objects.map(function(o){
         return o.replace("-", "=");

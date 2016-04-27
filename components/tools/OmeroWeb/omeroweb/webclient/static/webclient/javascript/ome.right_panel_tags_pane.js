@@ -20,8 +20,7 @@ var TagPane = function TagPane($element, opts) {
     var $header = $element.children('h1'),
         $body = $element.children('div'),
         $tags_container = $("#tags_container"),
-        objects = opts.selected,
-        canAnnotate = opts.canAnnotate;
+        objects = opts.selected;
 
     var tmplText = $('#tags_template').html();
     var tagTmpl = _.template(tmplText);

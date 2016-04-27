@@ -53,14 +53,8 @@
                 var selectedObjs = [{% for o in obj_labels %}{% if forloop.counter > 1 %},{% endif %}"{{ o.type|lower }}-{{ o.id}}"{% endfor %}];
                 {% endif %}
 
-                console.log(selectedObjs);
-
-                // {% if manager.well.getWellSample.image %}
-                //     selectedObjs = ["image-{{ manager.well.getWellSample.image.id }}"];
-                // {% endif %}
                 var annPaneData = {
-                    'selected': selectedObjs,
-                    'canAnnotate': true // {% if manager.canAnnotate %}true{% else %}false{% endif %}
+                    'selected': selectedObjs
                 }
 
                 var tagPane = new TagPane($("#tagsPane"), annPaneData);

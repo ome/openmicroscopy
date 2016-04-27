@@ -20,8 +20,7 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
     var $header = $element.children('h1'),
         $body = $element.children('div'),
         $fileanns_container = $("#fileanns_container"),
-        objects = opts.selected,
-        canAnnotate = opts.canAnnotate;
+        objects = opts.selected;
     var self = this;
 
     var tmplText = $('#fileanns_template').html();

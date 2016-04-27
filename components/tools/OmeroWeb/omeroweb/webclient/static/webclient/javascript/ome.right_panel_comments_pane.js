@@ -20,8 +20,7 @@ var CommentsPane = function CommentsPane($element, opts) {
     var $header = $element.children('h1'),
         $body = $element.children('div'),
         $comments_container = $("#comments_container"),
-        objects = opts.selected,
-        canAnnotate = opts.canAnnotate;
+        objects = opts.selected;
     var self = this;
 
     var tmplText = $('#comments_template').html();

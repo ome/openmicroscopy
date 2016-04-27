@@ -33,10 +33,9 @@
                 {% if manager.well.getWellSample.image %}
                     selectedObjs = ["image-{{ manager.well.getWellSample.image.id }}"];
                 {% endif %}
-                var wellIndex = {{ index|default:"0" }};
                 var annPaneData = {
                     'selected': selectedObjs,
-                    'index': wellIndex,
+                    // canAnnotate only used by map annotations pane (show placeholder table)
                     'canAnnotate': {% if manager.canAnnotate %}true{% else %}false{% endif %}
                 }
 
