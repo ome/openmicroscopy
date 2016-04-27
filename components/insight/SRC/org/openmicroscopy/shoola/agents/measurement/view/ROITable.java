@@ -73,11 +73,14 @@ import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
+
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jhotdraw.draw.Figure;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
@@ -196,7 +199,6 @@ public class ROITable
      * Autoscroll to position
      */
     private void autoscroll(Point position) {
-        System.out.println("autoscroll "+position);
         Scrollable s = (Scrollable) this;
         if (position.y < inner.y) {
             // scroll upwards
