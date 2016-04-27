@@ -568,6 +568,11 @@ class WebControl(BaseControl):
             }).split()
             if args.foreground:
                 rv = self.ctx.call(args=runserver, cwd=location)  # popen
+                pid_path = self._get_django_pid_path()
+                if pid_path.exists():
+                    pid_path.remove()
+                    self.ctx.out("Removed stale %s" % pid_path)
+                return 0
             else:
                 rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
