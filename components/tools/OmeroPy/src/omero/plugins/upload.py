@@ -64,7 +64,7 @@ class UploadControl(BaseControl):
                              " import")
             else:
                 obj = client.upload(file, type=omero_format)
-                self.ctx.out("Uploaded %s as " % file + str(obj.id.val))
+                self.ctx.out("OriginalFile:%s" % obj.id.val)
                 self.ctx.set("last.upload.id", obj.id.val)
 
 try:
