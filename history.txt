@@ -13,7 +13,7 @@ A bug-fix release. Improvements include:
    regularly going forward
 -  better support for metadata annotations in clients including tag/tagset
    support and performance issues
--  fixes in OMERO.web for deleting mifs
+-  fixes in OMERO.web for deleting MIFs
 -  improvements to the navigation of large datasets and display of plates in
    OMERO.web
 -  OMERO.insight and CLI import improvements
@@ -26,7 +26,7 @@ Developer updates include:
 System administrator updates include:
 
 -  required dependencies now fully tested
--  Ice 3.6 support, including specific installation walkthroughs
+-  Ice 3.6.2 support, including specific installation walkthroughs
 -  redis support for websessions caching
 -  warnings added regarding the end of Windows support (note that we will be
    preparing a guide for migrating from Windows for existing servers and
