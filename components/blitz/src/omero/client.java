@@ -330,14 +330,21 @@ public class client {
 
         // Strictly necessary for this class to work
         optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
-        optionallySetProperty(id, "Ice.ACM.Client", "0");
+        if (Ice.Util.intVersion() >= 30600) {
+            optionallySetProperty(id, "Ice.ACM.Client.Timeout",
+                    ""+omero.constants.ACMCLIENTTIMEOUT.value);
+            optionallySetProperty(id, "Ice.ACM.Client.Heartbeat", ""+
+                    omero.constants.ACMCLIENTHEARTBEAT.value);
+        } else {
+            optionallySetProperty(id, "Ice.ACM.Client", "0");
+        }
         optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");
         optionallySetProperty(id, "Ice.RetryIntervals", "-1");
         optionallySetProperty(id, "Ice.Default.EndpointSelection", "Ordered");
         optionallySetProperty(id, "Ice.Default.PreferSecure", "1");
         optionallySetProperty(id, "Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
         optionallySetProperty(id, "IceSSL.Protocols", "tls1");
-        optionallySetProperty(id, "IceSSL.Ciphers", "NONE (DH_anon)");
+        optionallySetProperty(id, "IceSSL.Ciphers", "NONE (DH_anon.*AES)");
         optionallySetProperty(id, "IceSSL.VerifyPeer", "0");
         optionallySetProperty(id, "omero.block_size", Integer
             .toString(omero.constants.DEFAULTBLOCKSIZE.value));
@@ -916,7 +923,6 @@ public class client {
         __previous = new Ice.InitializationData();
         __previous.properties = oldIc.getProperties()._clone();
         __previous.logger = oldIc.getLogger();
-        __previous.stats = oldIc.getStats();
         // ThreadHook is not support since not available from ic
 
         // Shutdown keep alive

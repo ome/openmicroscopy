@@ -142,6 +142,10 @@ public interface TopicManager extends ApplicationListener {
                 } catch (BadQoS e) {
                     throw new InternalException(null, null,
                             "BadQos in TopicManager.subscribe");
+                } catch (Ice.UserException ue) {
+                    // Actually IceStorm.InvalidSubscriber, for Ice 3.4/3.5 compatibility
+                    log.warn("Invalid subscriber on subscribeAndGetPublisher");
+                    continue;
                 }
                 break;
             }

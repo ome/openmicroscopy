@@ -84,7 +84,8 @@ from omeroweb.feedback.views import handlerInternalError
 from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
-from omeroweb.webclient.show import Show, IncorrectMenuError, paths_to_object
+from omeroweb.webclient.show import Show, IncorrectMenuError, \
+    paths_to_object, paths_to_tag
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
 from omeroweb.decorators import get_client_ip
@@ -472,7 +473,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     context['active_group'] = conn.getObject(
         "ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
-
+    context['initially_select'] = show.initially_select
     context['isLeader'] = conn.isLeader()
     context['current_url'] = url
     context['page_size'] = settings.PAGE
@@ -1046,13 +1047,19 @@ def api_paths_to_object(request, conn=None, **kwargs):
         acquisition_id = get_long_or_default(request, 'acquisition',
                                              acquisition_id)
         well_id = request.GET.get('well', None)
+        tag_id = get_long_or_default(request, 'tag', None)
+        tagset_id = get_long_or_default(request, 'tagset', None)
         group_id = get_long_or_default(request, 'group', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
-    paths = paths_to_object(conn, experimenter_id, project_id, dataset_id,
-                            image_id, screen_id, plate_id, acquisition_id,
-                            well_id, group_id)
+    if tag_id is not None or tagset_id is not None:
+        paths = paths_to_tag(conn, experimenter_id, tagset_id, tag_id)
+
+    else:
+        paths = paths_to_object(conn, experimenter_id, project_id,
+                                dataset_id, image_id, screen_id, plate_id,
+                                acquisition_id, well_id, group_id)
     return HttpJsonResponse({'paths': paths})
 
 
@@ -1255,27 +1262,14 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
             if index == 0:
                 index = fields[0]
 
-        # We don't know what our menu is so we're setting it to None.
-        # Should only raise an exception below if we've been asked to
-        # show some tags which we don't care about anyway in this
-        # context.
-        show = Show(conn, request, None)
-        # Constructor does no loading.  Show.first_selected must be
-        # called first in order to set up our initial state correctly.
-        try:
-            first_selected = show.first_selected
-            if first_selected is not None:
-                wells_to_select = list()
-                paths = show.initially_open + show.initially_select
-                for path in paths:
-                    m = Show.PATH_REGEX.match(path)
-                    if m is None:
-                        continue
-                    if m.group('object_type') == 'well':
-                        wells_to_select.append(m.group('value'))
-                context['select_wells'] = ','.join(wells_to_select)
-        except IncorrectMenuError:
-            pass
+        # Show parameter will be well-1|well-2
+        show = request.REQUEST.get('show')
+        if show is not None:
+            wells_to_select = []
+            for w in show.split("|"):
+                if 'well-' in w:
+                    wells_to_select.append(w.replace('well-', ''))
+            context['select_wells'] = ','.join(wells_to_select)
 
         context['baseurl'] = reverse('webgateway').rstrip('/')
         context['form_well_index'] = form_well_index

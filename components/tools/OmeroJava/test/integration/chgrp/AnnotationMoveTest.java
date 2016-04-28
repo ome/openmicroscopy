@@ -57,7 +57,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
 
         List<Long> annotationIdsUser1 = createNonSharableAnnotation(img, null);
 
-        omero.client clientUser1 = disconnect();
+        disconnect();
         // Add a user to that group
         EventContext ctx2 = newUserInGroup(ctx);
         init(ctx2);
@@ -71,7 +71,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(dest, users);
 
         // reconnect as user1
-        init(clientUser1);
+        init(ctx);
         // now move the image.
         final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);

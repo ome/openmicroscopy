@@ -749,7 +749,7 @@ $(document).ready(function() {
             node = inst.get_node(node);
             var nodeType = node.type;
             var nodeId = node.data.obj.id;
-            var show = OME.getURLParameter('show');
+            var show = WEBCLIENT.initially_select.join("|");
 
             switch(nodeType) {
                 // case 'dataset':

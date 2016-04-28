@@ -83,6 +83,19 @@ module omero {
     const string DEFAULTROUTER = "OMERO.Glacier2/router:ssl -p @omero.port@ -h @omero.host@";
 
     /**
+     * Introduce in Ice 3.6. Default Ice.ACM.Client.Heartbeat (2).
+     * Send a heartbeat at regular intervals when the connection is idle.
+     * To have any effect, ACMCLIENTTIMEOUT must be set to a non-zero value.
+     **/
+    const int ACMCLIENTHEARTBEAT = 2;
+
+    /**
+     * Introduce in Ice 3.6. Default Ice.ACM.Client.Timeout (60000).
+     * Timeout in seconds for Active Connection Management.
+     **/
+    const int ACMCLIENTTIMEOUT = 60000;
+
+    /**
      * Server-side names used for each of the services
      * defined in API.ice. These names can be used in
      * the ServiceFactory.getByName() and createByName()
