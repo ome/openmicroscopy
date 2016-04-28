@@ -780,18 +780,11 @@
                     {% if manager.canAnnotate %}
                     <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
                     <table>
-                        <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
-                        <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
                         <tr>
                             <td>
                                 <div id="add_comment_wrapper" style="position: relative">
                                     <label class="inline_label" for="id_comment">Add Comment:</label>
-                                    {{ form_comment.comment }}
+                                    <textarea cols="39" id="id_comment" name="comment" rows="2"></textarea>
                                 </div>
                             </td>
                         </tr>

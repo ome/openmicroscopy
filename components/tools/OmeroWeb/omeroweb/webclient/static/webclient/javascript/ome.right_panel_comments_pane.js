@@ -64,9 +64,14 @@ var CommentsPane = function CommentsPane($element, opts) {
 
     // handle submit of Add Comment form
     $("#add_comment_form").ajaxForm({
-        beforeSubmit: function(data) {
+        beforeSubmit: function(data, $form, options) {
             var textArea = $('#add_comment_form textarea');
             if ($.trim(textArea.val()).length === 0) return false;
+            // here we specify what objects are to be annotated
+            objects.forEach(function(o){
+                var dtypeId = o.split("-");
+                data.push({"name": dtypeId[0], "value": dtypeId[1]});
+            });
         },
         success: function(html) {
             $("#id_comment").val("");

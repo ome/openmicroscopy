@@ -1585,15 +1585,15 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
             template = "webclient/annotations/metadata_general.html"
             context['canExportAsJpg'] = manager.canExportAsJpg(request)
             figScripts = manager.listFigureScripts()
-            form_comment = CommentAnnotationForm(initial=initial)
     context['manager'] = manager
 
     if c_type in ("tag", "tagset"):
         context['insight_ns'] = omero.rtypes.rstring(
             omero.constants.metadata.NSINSIGHTTAGSET).val
     else:
-        context['form_comment'] = form_comment
         context['index'] = index
+    if form_comment is not None:
+        context['form_comment'] = form_comment
 
     context['figScripts'] = figScripts
     context['template'] = template
@@ -2052,17 +2052,6 @@ def batch_annotate(request, conn=None, **kwargs):
     """
 
     objs = getObjects(request, conn)
-    selected = getIds(request)
-    initial = {
-        'selected': selected,
-        'images': objs['image'],
-        'datasets': objs['dataset'],
-        'projects': objs['project'],
-        'screens': objs['screen'],
-        'plates': objs['plate'],
-        'acquisitions': objs['acquisition'],
-        'wells': objs['well']}
-    form_comment = CommentAnnotationForm(initial=initial)
     index = getIntOrDefault(request, 'index', 0)
 
     # get groups for selected objects - setGroup() and create links
@@ -2118,7 +2107,6 @@ def batch_annotate(request, conn=None, **kwargs):
 
     context = {
         'iids': iids,
-        'form_comment': form_comment,
         'obj_string': obj_string,
         'link_string': link_string,
         'obj_labels': obj_labels,
