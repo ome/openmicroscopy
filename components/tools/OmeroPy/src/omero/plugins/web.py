@@ -602,8 +602,12 @@ class WebControl(BaseControl):
             else:
                 self.ctx.err("[NOT STARTED]")
         elif deploy in (settings.WSGI,):
-            self.ctx.err("You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Cannot check status.")
+            self.ctx.err("You are deploying OMERO.web using Apache and"
+                         " mod_wsgi. OMERO.web does not provide any "
+                         " management for ‘daemon’ process which "
+                         " communicate with Apache child processes"
+                         " using UNIX sockets to handle a request."
+                         " Please check Apache directly.")
         elif deploy in (settings.DEVELOPMENT,):
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
