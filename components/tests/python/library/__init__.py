@@ -122,7 +122,9 @@ class ITest(object):
         """
         try:
             if self.root.sf is None:
-                assert self.root.connect()
+                p = Ice.createProperties(sys.argv)
+                rootpass = p.getProperty("omero.rootpass")
+                self.root.createSession("root", rootpass)
             else:
                 self.root.sf.keepAlive(None)
         except Exception:
