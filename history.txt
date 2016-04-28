@@ -25,7 +25,6 @@ Developer updates include:
 
 System administrator updates include:
 
--  required dependencies now fully tested
 -  Ice 3.6.2 support, including specific installation walkthroughs
 -  redis support for websessions caching
 -  warnings added regarding the end of Windows support (note that we will be
