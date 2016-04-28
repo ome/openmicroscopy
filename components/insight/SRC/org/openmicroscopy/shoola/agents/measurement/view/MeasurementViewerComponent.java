@@ -975,6 +975,11 @@ class MeasurementViewerComponent
 		reg.getEventBus().post(new ROIEvent(model.getImageID()));
 	}
 
+    @Override
+    public long getImageID() {
+        return model.getImageID();
+    }
+	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#canAnnotate()

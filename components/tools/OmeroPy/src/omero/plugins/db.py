@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2008-2013 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2008-2016 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -31,13 +31,20 @@ from omero.cli import CLI
 
 from omero_ext.argparse import FileType, SUPPRESS
 
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
+
 from path import path
 
 import omero.java
-import time
+import platform
 import sys
+import time
 
 HELP = """Database tools for creating scripts, setting passwords, etc."""
+
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
 class DatabaseControl(BaseControl):
@@ -235,6 +242,7 @@ BEGIN;
             if output != sys.stdout:
                 output.close()
 
+    @windows_warning
     def password(self, args):
         root_pass = None
         user_id = 0
@@ -252,6 +260,7 @@ BEGIN;
                      "WHERE experimenter_id  = %s;""" %
                      (password_hash, user_id))
 
+    @windows_warning
     def loaddefaults(self):
         try:
             data2 = self.ctx.initData({})
@@ -262,9 +271,12 @@ BEGIN;
             data2 = None
         return data2
 
+    @windows_warning
     def script(self, args):
         if args.posversion is not None:
             self.ctx.err("WARNING: Positional arguments are deprecated")
+        if platform.system() == 'Windows':
+            self.ctx.out("\n%s\n" % WINDOWS_WARNING)
 
         defaults = self.loaddefaults()
         db_vers = self._lookup("version", defaults, args)

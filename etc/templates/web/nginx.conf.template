@@ -4,7 +4,7 @@ upstream omeroweb%(PREFIX_NAME)s {
 
 server {
     listen %(HTTPPORT)d;
-    server_name $hostname;
+    server_name %(SERVERNAME)s;
 
     sendfile on;
     client_max_body_size %(MAX_BODY_SIZE)s;

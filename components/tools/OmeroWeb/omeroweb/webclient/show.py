@@ -56,12 +56,12 @@ class Show(object):
     """
 
     # List of prefixes that are at the top level of the tree
-    TOP_LEVEL_PREFIXES = ('project', 'screen')
+    TOP_LEVEL_PREFIXES = ('project', 'screen', 'tagset')
 
     # List of supported object types
     SUPPORTED_OBJECT_TYPES = (
         'project', 'dataset', 'image', 'screen', 'plate', 'tag',
-        'acquisition', 'run', 'well'
+        'acquisition', 'run', 'well', 'tagset'
     )
 
     # Regular expression which declares the format for a "path" used either
@@ -260,7 +260,7 @@ class Show(object):
         @type attributes L{dict}
         """
         first_selected = None
-        if first_obj == "tag":
+        if first_obj in ["tag", "tagset"]:
             first_selected = self._load_tag(attributes)
         elif first_obj == "well":
             first_selected = self._load_well(attributes)
@@ -299,22 +299,20 @@ class Show(object):
                 "%s-%s" % (first_obj, first_selected.getId())
             ]
             first_selected = parent_node
-            self._initially_select = self._initially_open[:]
         else:
             # Tree hierarchy open to first selected object.
             self._initially_open = [
                 '%s-%s' % (first_obj, first_selected.getId())
             ]
-            # support for multiple objects selected by ID,
-            # E.g. show=image-1|image-2
-            if 'id' in attributes.keys() and len(self._initially_select) > 1:
-                # 'image.id-1' -> 'image-1'
-                self._initially_select = [
-                    i.replace(".id", "") for i in self._initially_select]
-            else:
-                # Only select a single object
-                self._initially_select = self._initially_open[:]
-
+        # support for multiple objects selected by ID,
+        # E.g. show=image-1|image-2
+        if 'id' in attributes.keys() and len(self._initially_select) > 1:
+            # 'image.id-1' -> 'image-1'
+            self._initially_select = [
+                i.replace(".id", "") for i in self._initially_select]
+        else:
+            # Only select a single object
+            self._initially_select = self._initially_open[:]
         self._initially_open_owner = first_selected.details.owner.id.val
         return first_selected
 
@@ -329,7 +327,7 @@ class Show(object):
             return None
         first_obj = m.group('object_type')
         # if we're showing a tag, make sure we're on the tags page...
-        if first_obj == "tag" and self.menu != "usertags":
+        if first_obj in ["tag", "tagset"] and self.menu != "usertags":
             # redirect to usertags/?show=tag-123
             raise IncorrectMenuError(
                 reverse(viewname="load_template", args=['usertags']) +
@@ -358,13 +356,13 @@ class Show(object):
                         self._initially_select = ['well.id-%s' % p.getId()]
                         return self._find_first_selected()
                     if first_obj == "tag":
-                        # Parents of tags must be tags (no OMERO_CLASS)
-                        self._initially_open.insert(0, "tag-%s" % p.getId())
+                        # Parents of tags must be tagset (no OMERO_CLASS)
+                        self._initially_open.insert(0, "tagset-%s" % p.getId())
                     else:
                         self._initially_open.insert(
                             0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId())
                         )
-                        self._initially_open_owner = p.details.owner.id.val
+                    self._initially_open_owner = p.details.owner.id.val
                 m = self.PATH_REGEX.match(self._initially_open[0])
                 if m.group('object_type') == 'image':
                     self._initially_open.insert(0, "orphaned-0")
@@ -886,5 +884,115 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
         })
 
         paths.append(path)
+
+    return paths
+
+
+def paths_to_tag(conn, experimenter_id=None, tagset_id=None, tag_id=None):
+    """
+    Finds tag for tag_id, also looks for parent tagset in path.
+    If tag_id and tagset_id are given, only return paths that have both.
+    If no tagset/tag paths are found, simply look for tags with tag_id.
+    """
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+    where_clause = []
+
+    if experimenter_id is not None:
+        params.add('eid', rlong(experimenter_id))
+        where_clause.append(
+            'coalesce(tsowner.id, towner.id) = :eid')
+
+    if tag_id is not None:
+        params.add('tid', rlong(tag_id))
+        where_clause.append(
+            'ttlink.child.id = :tid')
+
+    if tagset_id is not None:
+        params.add('tsid', rlong(tagset_id))
+        where_clause.append(
+            'tagset.id = :tsid')
+
+    if tag_id is None and tagset_id is None:
+        return []
+
+    qs = conn.getQueryService()
+    paths = []
+
+    # Look for tag in a tagset...
+    if tag_id is not None:
+        q = '''
+            select coalesce(tsowner.id, towner.id),
+                   tagset.id,
+                   ttlink.child.id
+            from TagAnnotation tagset
+            left outer join tagset.details.owner tsowner
+            left outer join tagset.annotationLinks ttlink
+            left outer join ttlink.child.details.owner towner
+            where %s
+        ''' % ' and '.join(where_clause)
+
+        tagsets = qs.projection(q, params, service_opts)
+        for e in tagsets:
+            path = []
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+            path.append({
+                'type': 'tagset',
+                'id': e[1].val
+            })
+            path.append({
+                'type': 'tag',
+                'id': e[2].val
+            })
+            paths.append(path)
+
+    # If we haven't found tag in tagset, just look for tags with matching IDs
+    if len(paths) == 0:
+
+        where_clause = []
+
+        if experimenter_id is not None:
+            # params.add('eid', rlong(experimenter_id))
+            where_clause.append(
+                'coalesce(tsowner.id, towner.id) = :eid')
+
+        if tag_id is not None:
+            # params.add('tid', rlong(tag_id))
+            where_clause.append(
+                'tag.id = :tid')
+
+        elif tagset_id is not None:
+            # params.add('tsid', rlong(tagset_id))
+            where_clause.append(
+                'tag.id = :tsid')
+
+        q = '''
+            select towner.id, tag.id
+            from TagAnnotation tag
+            left outer join tag.details.owner towner
+            where %s
+        ''' % ' and '.join(where_clause)
+
+        tagsets = qs.projection(q, params, service_opts)
+        for e in tagsets:
+            path = []
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+            if tag_id is not None:
+                t = 'tag'
+            else:
+                t = 'tagset'
+            path.append({
+                'type': t,
+                'id': e[1].val
+            })
+            paths.append(path)
 
     return paths
