@@ -65,13 +65,14 @@ def get_update_service(user):
 
 # Projects
 @pytest.fixture(scope='function')
-def project_userA(request, userA):
+def project_userA(request, userA, groupA):
     """
     Returns new OMERO Project
     """
+    ctx = {'omero.group': str(groupA.id.val)}
     project = ProjectI()
     project.name = rstring("test_tree_annnotations")
-    project = get_update_service(userA).saveAndReturnObject(project)
+    project = get_update_service(userA).saveAndReturnObject(project, ctx)
     return project
 
 
@@ -91,15 +92,16 @@ def projects_userA(request, userA):
 
 
 @pytest.fixture(scope='function')
-def tags_userA_userB(request, userA, userB):
+def tags_userA_userB(request, userA, userB, groupA):
     """
     Returns new OMERO Tags
     """
     tags = []
+    ctx = {'omero.group': str(groupA.id.val)}
     for name, user in zip(["userAtag", "userBtag"], [userA, userB]):
         tag = TagAnnotationI()
         tag.textValue = rstring(name)
-        tag = get_update_service(user).saveAndReturnObject(tag)
+        tag = get_update_service(user).saveAndReturnObject(tag, ctx)
         tags.append(tag)
     tags.sort(cmp_id)
     return tags
@@ -111,10 +113,13 @@ def annotate_project(ann, project, user):
     Returns userA's Tag linked to userB's Project
     by userA and userB
     """
+    ctx = {'omero.group': str(project.details.group.id.val)}
+    print "annotate_project", ctx
     link = ProjectAnnotationLinkI()
     link.parent = ProjectI(project.id.val, False)
     link.child = ann
-    link = get_connection(user).getUpdateService().saveAndReturnObject(link)
+    update = get_connection(user).getUpdateService()
+    link = update.saveAndReturnObject(link, ctx)
     return link
 
 
@@ -208,35 +213,61 @@ class TestTreeAnnotations(lib.ITest):
     @pytest.fixture(scope='function')
     def groupA(self):
         """Returns a new read-annotate group."""
-        return self.new_group(perms='rwra--')
+        a = self.new_group(perms='rwra--')
+        print "GroupA", a.id.val
+        return a
 
     # Create a read-only group
     @pytest.fixture(scope='function')
     def groupB(self):
         """Returns a new read-only group."""
-        return self.new_group(perms='rwr---')
+        b = self.new_group(perms='rwr---')
+        print "Group B", b.id.val
+        return b
 
     # Create users in groups
     @pytest.fixture()
     def userA(self, groupA, groupB):
         """Returns a new user in the groupB (default) also add to groupA"""
-        user = self.new_client_and_user(group=groupB)
-        self.add_groups(user[1], [groupA])
-        return user
+        c, user = self.new_client_and_user(group=groupB)
+        self.add_groups(user, [groupA])
+        print "USER A", user.id.val, 'groupA', groupA.id.val
+        print c.getSession().getAdminService().getEventContext()
+        return c, user
 
     @pytest.fixture()
     def userB(self, groupA):
         """Returns another new user in the read-only group."""
-        return self.new_client_and_user(group=groupA)
+        c, userb = self.new_client_and_user(group=groupA)
+        print "USER B", userb.id.val, 'groupA', groupA.id.val
+        return c, userb
 
     def test_single_annotate(self, userA, project_userA, tags_userA_userB):
         """
-        Test
+        Test a single annotation added by userA
         """
         conn = get_connection(userA)
         tag = tags_userA_userB[0]
         project = project_userA
         link = annotate_project(tag, project, userA)
+        expected = expected_tags([link])
+        marshaled = marshal_annotations(conn=conn,
+                                        project_ids=[project.id.val])
+        annotations, experimenters = marshaled
+        anns, exps = expected
+
+        assert annotations == anns
+        assert experimenters == exps
+
+    def test_single_annotate_userB(self, userB, project_userA,
+                                   tags_userA_userB):
+        """
+        Test a single annotation added by userB
+        """
+        conn = get_connection(userB)
+        tag = tags_userA_userB[0]
+        project = project_userA
+        link = annotate_project(tag, project, userB)
         expected = expected_tags([link])
         marshaled = marshal_annotations(conn=conn,
                                         project_ids=[project.id.val])
