@@ -54,7 +54,8 @@
                 {% endif %}
 
                 var annPaneData = {
-                    'selected': selectedObjs
+                    'selected': selectedObjs,
+                    'canAnnotate': {% if annotationBlocked %}false{% else %}true{% endif %},
                 }
 
                 var tagPane = new TagPane($("#tagsPane"), annPaneData);

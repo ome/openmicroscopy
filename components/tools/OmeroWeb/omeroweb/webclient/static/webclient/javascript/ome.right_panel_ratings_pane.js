@@ -21,7 +21,8 @@ var RatingsPane = function RatingsPane($element, opts) {
         $body = $element.children('div'),
         $rating_annotations = $("#rating_annotations"),
         objects = opts.selected,
-        index = opts.index;
+        canAnnotate = opts.canAnnotate,
+        self = this;
 
     var request = objects.map(function(o){
         return o.replace("-", "=");
@@ -69,17 +70,11 @@ var RatingsPane = function RatingsPane($element, opts) {
             $rating.attr('src', rating_src);
         }
         // update rating annotation
-        var rating_url = WEBCLIENT.URLS.webindex + "annotate_rating/?" + request + "&index=" + index;
+        var rating_url = WEBCLIENT.URLS.webindex + "annotate_rating/?" + request;
         rating_url += "&rating=" + rating;
         $.post(rating_url, function(data) {
             // update summary
-            $("#ratingsAverage").text(data.average);
-            $("#ratingsCount").text(data.count);
-            if (data.count > 0) {
-                $("#ratingsSummary").show();
-            } else {
-                $("#ratingsSummary").hide();
-            }
+            self.render();
         });
     };
 
@@ -114,6 +109,7 @@ var RatingsPane = function RatingsPane($element, opts) {
 
                 // Update html...
                 var html = ratingsTempl({'anns': anns,
+                                         'canAnnotate': canAnnotate,
                                          'myRating': myRating,
                                          'average': average,
                                          'count': anns.length,

@@ -35,7 +35,7 @@
                 {% endif %}
                 var annPaneData = {
                     'selected': selectedObjs,
-                    // canAnnotate only used by map annotations pane (show placeholder table)
+                    // canAnnotate used by map annotations and ratings panes
                     'canAnnotate': {% if manager.canAnnotate %}true{% else %}false{% endif %}
                 }
 
