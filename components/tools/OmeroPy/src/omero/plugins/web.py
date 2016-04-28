@@ -3,7 +3,7 @@
 """
    Plugin for our configuring the OMERO.web installation
 
-   Copyright 2009-2014 University of Dundee. All rights reserved.
+   Copyright 2009-2016 University of Dundee. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -18,8 +18,12 @@ import re
 from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
+
 HELP = "OMERO.web configuration/deployment tools"
 
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 LONGHELP = """OMERO.web configuration/deployment tools
 
@@ -58,6 +62,7 @@ Example IIS usage:
 def config_required(func):
     """Decorator validating Django dependencies and omeroweb/settings.py"""
     def import_django_settings(func):
+        @windows_warning
         def wrapper(self, *args, **kwargs):
             try:
                 import django  # NOQA
