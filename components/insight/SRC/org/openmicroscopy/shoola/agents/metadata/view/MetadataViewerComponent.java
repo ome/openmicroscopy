@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1352,4 +1352,13 @@ class MetadataViewerComponent
 	public RndProxyDef getAlternativeRenderingSettings() {
 	    return model.getAlternativeRenderingSettings();
 	}
+
+	/**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#reloadROICount()
+     */
+    @Override
+    public void reloadROICount() {
+        model.getEditor().reloadROICount();
+    }
 }

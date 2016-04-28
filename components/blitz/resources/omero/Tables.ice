@@ -37,7 +37,7 @@ module omero {
 
     //
     // User-consumable types dealing with
-    // measurements/results ("tables").
+    // measurements/results (""tables"").
     // ========================================================================
     //
 
@@ -304,7 +304,7 @@ module omero {
                 throws omero::ServerError;
 
             /**
-             * Returns the Table service for the given "OMERO.tables" file.
+             * Returns the Table service for the given ""OMERO.tables"" file.
              * This service will open the file locally to access the data.
              * After any modification, the file will be saved locally and
              * the server asked to update the database record. This is done

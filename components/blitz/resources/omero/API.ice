@@ -54,7 +54,7 @@ module omero {
 
         /**
          * Primary callback interface for interaction between client and
-         * server session ("ServiceFactory"). Where possible these methods
+         * server session (""ServiceFactory""). Where possible these methods
          * will be called one-way to prevent clients from hanging the server.
          **/
 
