@@ -396,8 +396,7 @@ public class client {
         try {
             __ic = Ice.Util.initialize(id);
         } catch (Ice.EndpointParseException epe) {
-            throw new ClientError("No host specified. " +
-                "Use omero.client(HOSTNAME), ICE_CONFIG, or similar.");
+            throw new ClientError(epe.getStackTrace().toString());
         }
 
 
