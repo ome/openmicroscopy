@@ -153,6 +153,18 @@ class AdminServiceImpl
 	}
 
 	/**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#getPort()
+     */
+    public int getPort()
+    {
+        UserCredentials uc = (UserCredentials) 
+        context.lookup(LookupNames.USER_CREDENTIALS);
+        if (uc == null) return -1;
+        return uc.getPort();
+    }
+
+	/**
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#getServerVersion()
 	 */

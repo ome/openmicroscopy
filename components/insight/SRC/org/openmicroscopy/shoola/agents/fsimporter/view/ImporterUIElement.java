@@ -804,7 +804,7 @@ class ImporterUIElement
 		if (file.isFile()) {
 			fc.setStatus(result);
 			countImported++;
-			if (fc.isCancelled() && result != null &&
+			if ((fc.isCancelled() || fc.isOffLineImport()) && result != null &&
 				!(result instanceof Boolean))
 				countImported--;
 			if (isDone() && rotationIcon != null)
