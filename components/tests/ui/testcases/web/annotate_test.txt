@@ -13,6 +13,7 @@ ${commentText}          Robot test adding this comment
 ${commentTextTwo}       A second comment added by Robot test
 ${commentTextThree}     This will be added to Two Datasets
 ${commentTextFour}      I (Robot) just love adding comments!
+${fileName}             robot_file_annotation.txt
 
 
 *** Keywords ***
@@ -38,6 +39,14 @@ Remove Comment
     Click Dialog Button                         OK
     Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check Comment Gone  ${text}
 
+
+Add File Annotation
+    Wait Until Element Is Visible               id=choose_file_anns
+    Click Element                               id=choose_file_anns
+    Wait Until Page Contains Element            id=id_files
+    # Click Element                          xpath=//select[@id='id_files']/option[contains(text(), ${fileName})]
+    Select From List By Label                   id=id_files         ${fileName}
+    Click Dialog Button                         Accept
 
 *** Test Cases ***
 
@@ -94,3 +103,14 @@ Test Comments
     Check For Comment                           ${commentTextFour}
     Check Comment Gone                          ${commentTextTwo}
     Check Comment Gone                          ${commentTextThree}
+
+
+Test File Annotations
+
+    Select Experimenter
+    ${sId_One}=                                 Create Screen       robot file annotations_1
+    ${sId_Two}=                                 Create Screen       robot file annotations_2
+
+    # Annotate single Screen
+    Click Element                               xpath=//h1[@data-name='attachments']
+    Add File Annotation
