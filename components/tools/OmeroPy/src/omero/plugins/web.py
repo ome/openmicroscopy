@@ -142,6 +142,9 @@ class WebControl(BaseControl):
 
         for x in (start, restart):
             x.add_argument(
+                "--foreground", action="store_true",
+                help="Start OMERO.web in foreground mode (no daemon/service)")
+            x.add_argument(
                 "--workers", type=int, help=SUPPRESS)
             x.add_argument(
                 "--worker-connections", type=int, help=SUPPRESS)
@@ -480,7 +483,7 @@ class WebControl(BaseControl):
         return d_args
 
     def _build_run_cmd(self, settings):
-        cmd = "gunicorn -D -p %(base)s/var/django.pid"
+        cmd = "gunicorn %(daemon)s -p %(base)s/var/django.pid"
         cmd += " --bind %(host)s:%(port)d"
         cmd += " --workers %(workers)d "
 
@@ -560,10 +563,12 @@ class WebControl(BaseControl):
                 pass
 
             # wrap all deprecated args
+            daemon = "-D" if not args.foreground else ""
             d_args = self._deprecated_args(args, settings)
             cmd = self._build_run_cmd(settings)
 
             runserver = (cmd % {
+                'daemon': daemon,
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT,
@@ -572,7 +577,15 @@ class WebControl(BaseControl):
                 'timeout': settings.WSGI_TIMEOUT,
                 'wsgi_args': d_args['wsgi_args']
             }).split()
-            rv = self.ctx.popen(args=runserver, cwd=location)  # popen
+            if args.foreground:
+                rv = self.ctx.call(args=runserver, cwd=location)  # popen
+                pid_path = self._get_django_pid_path()
+                if pid_path.exists():
+                    pid_path.remove()
+                    self.ctx.out("Removed stale %s" % pid_path)
+                return 0
+            else:
+                rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,
                          "--noreload", "--nothreading"]
