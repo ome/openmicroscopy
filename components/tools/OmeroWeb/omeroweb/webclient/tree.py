@@ -1798,4 +1798,8 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
             exp = _marshal_exp_obj(ann.details.owner)
             experimenters[exp['id']] = exp
 
-    return annotations, experimenters.values()
+    experimenters = experimenters.values()
+    # sort by id mostly for testing
+    experimenters.sort(key=lambda x: x['id'])
+
+    return annotations, experimenters
