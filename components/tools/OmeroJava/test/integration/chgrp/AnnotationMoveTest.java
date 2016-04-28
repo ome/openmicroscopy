@@ -55,7 +55,6 @@ public class AnnotationMoveTest extends AbstractServerTest {
         Image img =
                 (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
 
-        long id = img.getId().getValue();
         List<Long> annotationIdsUser1 = createNonSharableAnnotation(img, null);
 
         omero.client clientUser1 = disconnect();
@@ -74,7 +73,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         // reconnect as user1
         init(clientUser1);
         // now move the image.
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
 
         // Annotation of user1 should be removed
@@ -89,7 +88,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         if (src.equals("rwrw--")) n = 0;
         param = new ParametersI();
         param.addIds(annotationIdsUser2);
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), n);
+        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         loginUser(g);
         param = new ParametersI();
@@ -124,12 +123,11 @@ public class AnnotationMoveTest extends AbstractServerTest {
         // Annotate the image.
         List<Long> annotationIds = createNonSharableAnnotation(img, null);
         // now move the image.
-        long id = img.getId().getValue();
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
-        param.addId(id);
+        param.addId(img.getId().getValue());
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -166,11 +164,10 @@ public class AnnotationMoveTest extends AbstractServerTest {
         // Annotate the image.
         List<Long> annotationIds = createSharableAnnotation(img, null);
         // now move the image.
-        long id = img.getId().getValue();
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         ParametersI param = new ParametersI();
-        param.addId(id);
+        param.addId(img.getId().getValue());
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -209,8 +206,8 @@ public class AnnotationMoveTest extends AbstractServerTest {
         assertTrue(annotationIds.size() > 0);
         // now move the image.
         long id = img.getId().getValue();
-        final ChildOption option = Requests.option(null, DeleteServiceTest.SHARABLE_TO_KEEP_LIST);
-        final Chgrp2 dc = Requests.chgrp("Image", id, option, g.getId().getValue());
+        final ChildOption option = Requests.option().excludeType(DeleteServiceTest.SHARABLE_TO_KEEP_LIST).build();
+        final Chgrp2 dc = Requests.chgrp().target(img).option(option).toGroup(g).build();
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -528,9 +525,8 @@ public class AnnotationMoveTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        long id = img1.getId().getValue();
-        final ChildOption option = Requests.option(null, DeleteServiceTest.SHARABLE_TO_KEEP_LIST);
-        final Chgrp2 dc = Requests.chgrp("Image", id, option, g.getId().getValue());
+        final ChildOption option = Requests.option().excludeType(DeleteServiceTest.SHARABLE_TO_KEEP_LIST).build();
+        final Chgrp2 dc = Requests.chgrp().target(img1).option(option).toGroup(g).build();
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -542,7 +538,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
 
         loginUser(g);
         param = new ParametersI();
-        param.addId(id);
+        param.addId(img1.getId().getValue());
         sb = new StringBuilder();
         sb.append("select i from ImageAnnotationLink i ");
         sb.append("where i.parent.id = :id");

@@ -98,9 +98,9 @@
 
         <!-- Delete orphaned annotations, ignoring permissions for BasicAnnotation and CommentAnnotation. -->
 
+        <bean parent="graphPolicyRule" p:matches="A:Annotation[E]{o}/d" p:changes="A:[D]"/>
         <bean parent="graphPolicyRule" p:matches="A:BasicAnnotation[E]{o}" p:changes="A:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="A:CommentAnnotation[E]{o}" p:changes="A:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="A:Annotation[E]{o}/d" p:changes="A:[D]"/>
 
         <!-- If an annotation link's parent or child is deleted then delete the link regardless of permissions. -->
 

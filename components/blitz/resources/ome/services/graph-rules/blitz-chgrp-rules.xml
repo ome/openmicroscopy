@@ -259,9 +259,11 @@
         <bean parent="graphPolicyRule" p:matches="!$to_private, L:IAnnotationLink.parent = X:[I], L.child = A:Annotation[D]/d"
                                        p:changes="A:[I]"/>
 
-        <!-- Delete remaining orphaned annotations. -->
+        <!-- Delete orphaned annotations, ignoring permissions for BasicAnnotation and CommentAnnotation. -->
 
         <bean parent="graphPolicyRule" p:matches="A:Annotation[E]{o}/d" p:changes="A:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="A:BasicAnnotation[E]{o}" p:changes="A:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="A:CommentAnnotation[E]{o}" p:changes="A:[D]/n"/>
 
         <!-- If an original file is moved then any corresponding file annotation must also be moved. -->
 
