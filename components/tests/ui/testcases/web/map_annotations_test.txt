@@ -17,7 +17,7 @@ Test Map Annotation
     Wait Until Page Contains Element    css=div.mapAnnContainer
     Click Element                       xpath=//h1[@data-name='keyvaluepairs']
     # No rows selected. Toolbar should allow 'Insert' only.
-    Xpath Should Not Have Class   xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Insert rows']  button-disabled
+    Xpath Should Not Have Class   xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Insert row']  button-disabled
     Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Copy rows']    button-disabled
     Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Paste rows']   button-disabled
     Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Delete rows']  button-disabled
