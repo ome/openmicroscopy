@@ -1348,7 +1348,17 @@ class CLI(cmd.Cmd, Context):
         in the parser
         """
 
-        for plugin_path in self._plugin_paths:
+        paths = set(self._plugin_paths)
+        for x in sys.path:
+            x = path(x)
+            if x.isdir():
+                x = x / "omero" / "plugins"
+                if x.exists():
+                    paths.add(x)
+            else:
+                if self.isdebug:
+                    print "Can't load %s" % x
+        for plugin_path in paths:
             self.loadpath(path(plugin_path))
 
         self.configure_plugins()
