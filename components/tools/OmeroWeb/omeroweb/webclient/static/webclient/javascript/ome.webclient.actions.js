@@ -60,15 +60,6 @@ OME.getURLParameter = function(key) {
     return false;
 };
 
-jQuery.fn.hide_if_empty = function() {
-    if ($(this).children().length === 0) {
-        $(this).hide();
-    } else {
-        $(this).show();
-    }
-  return this;
-};
-
 var linkify = function(input) {
     var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
     return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
@@ -292,7 +283,6 @@ OME.deleteItem = function(event, domClass, url) {
                         } else {
                             // simply remove the item (parent class div)
                             $parent.remove();
-                            $annContainer.hide_if_empty();
                             window.parent.OME.refreshActivities();
                         }
                     }
