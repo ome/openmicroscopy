@@ -26,6 +26,7 @@
 
 import os
 import sys
+import shlex
 import fileinput
 
 from omero.cli import BaseControl, CLI
@@ -366,7 +367,7 @@ class ImportControl(BaseControl):
             self.optionally_add(args, bulk, "name")
             for line in fileinput.input([path]):
                 line = line.strip()
-                args.path = [line]
+                self.parse_bulk(line, bulk, args)
                 self.do_import(args, xargs)
         finally:
             os.chdir(old_pwd)
@@ -374,6 +375,18 @@ class ImportControl(BaseControl):
     def optionally_add(self, args, bulk, key):
         if key in bulk:
             setattr(args, "java_"+key, bulk[key])
+
+    def parse_bulk(self, line, bulk, args):
+        cols = bulk.get("columns")
+        if not cols:
+                args.path = [line]
+        else:
+            parts = shlex.split(line)
+            for idx, col in enumerate(cols):
+                if hasattr(args, "java_%s" % col):
+                    setattr(args, "java_%s" % col, parts[idx])
+                else:
+                    setattr(args, col, parts[idx])
 
     def open_log(self, file, prefix=None):
         if not file:

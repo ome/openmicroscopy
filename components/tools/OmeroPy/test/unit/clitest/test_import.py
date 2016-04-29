@@ -320,3 +320,18 @@ class TestImport(object):
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
+
+    def testBulkCols(self):
+        # Metadata provided about the individual columns in
+        # the tsv will be used.
+        t = path(__file__).parent / "bulk_import" / "test_cols"
+        b = t / "bulk.yml"
+
+        class MockImportControl(ImportControl):
+            def do_import(self, args, xargs):
+                assert args.java_name.startswith("meta_")
+        self.cli.register("mock-import", MockImportControl, "HELP")
+
+        self.args = ["mock-import", "-f", "---bulk=%s" % b]
+        self.add_client_dir()
+        self.cli.invoke(self.args, strict=True)
