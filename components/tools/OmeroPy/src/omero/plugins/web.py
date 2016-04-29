@@ -60,9 +60,9 @@ Example IIS usage:
 
 APACHE_MOD_WSGI_ERR = ("[ERROR] You are deploying OMERO.web using Apache and"
                        " mod_wsgi. OMERO.web does not provide any management"
-                       " for ‘daemon’ process which communicate with Apache"
-                       " child processes using UNIX sockets to handle"
-                       " a request. Please check Apache directly.")
+                       " for the daemon process which communicates with"
+                       " Apache child processes using UNIX sockets to handle"
+                       " a request.")
 
 
 def config_required(func):
@@ -607,7 +607,8 @@ class WebControl(BaseControl):
             else:
                 self.ctx.err("[NOT STARTED]")
         elif deploy in (settings.WSGI,):
-            self.ctx.err(APACHE_MOD_WSGI_ERR)
+            self.ctx.err("%s Please check Apache "
+                         "directly." % APACHE_MOD_WSGI_ERR)
         elif deploy in (settings.DEVELOPMENT,):
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
