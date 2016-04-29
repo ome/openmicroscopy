@@ -114,6 +114,15 @@ class TestFS(CLITest):
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
 
+    def testFixPyramidAdminOnly(self, capsys):
+        """Test fs fixpyramid is admin-only"""
+
+        self.args += ["fixpyramid", "Image:1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+        assert err.endswith("SecurityViolation: Admins only!\n")
+
 
 class TestFSRoot(RootCLITest):
 
