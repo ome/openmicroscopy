@@ -31,6 +31,7 @@ import omero.gateway.model.AnnotationData;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -53,48 +54,6 @@ public class AnnotationTaskPane extends JXTaskPane {
     /** The component hosting the UI elements */
     private AnnotationTaskPaneUI ui;
 
-    /**
-     * The different kind of annotations
-     * 
-     * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
-     *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
-     */
-    public enum AnnotationType {
-        /** Tags */
-        TAGS("Tags"),
-
-        /** ROIs */
-        ROIS("ROIs"),
-
-        /** Map annotations */
-        MAP("Key-Value Pairs"),
-
-        /** File attachments */
-        ATTACHMENTS("Attachments"),
-
-        /** Other annotations */
-        OTHER("Others"),
-
-        /** Rating */
-        RATING("Ratings"),
-
-        /** User comments */
-        COMMENTS("Comments");
-
-        /** Human readable name for this annotation type */
-        String name = "";
-
-        /**
-         * Creates a new enumeration instance
-         * 
-         * @param name
-         *            Human readable name for this annotation type
-         */
-        AnnotationType(String name) {
-            this.name = name;
-        }
-    }
-
     /** The {@link AnnotationType} this taskpane should display */
     private AnnotationType type;
 
@@ -112,7 +71,7 @@ public class AnnotationTaskPane extends JXTaskPane {
      */
     AnnotationTaskPane(AnnotationType type, EditorUI view,
             EditorModel model, EditorControl controller) {
-        setTitle(type.name);
+        setTitle(type.getName());
         this.type = type;
         this.view = view;
         this.model = model;
@@ -144,7 +103,7 @@ public class AnnotationTaskPane extends JXTaskPane {
      *            The number of annotations available
      */
     void setAnnotationCount(int n) {
-        setTitle(type.name + " (" + n + ")");
+        setTitle(type.getName() + " (" + n + ")");
     }
 
     /**
@@ -218,16 +177,16 @@ public class AnnotationTaskPane extends JXTaskPane {
      */
     private void buildUI() {
         switch (type) {
-        case TAGS:
+        case TAG:
             ui = new TagsTaskPaneUI(model, view, controller);
             break;
         case MAP:
             ui = new MapTaskPaneUI(model, view, controller);
             break;
-        case ATTACHMENTS:
+        case ATTACHMENT:
             ui = new AttachmentsTaskPaneUI(model, view, controller);
             break;
-        case COMMENTS:
+        case COMMENT:
             ui = new CommentsTaskPaneUI(model, view, controller);
             break;
         case OTHER:
@@ -236,7 +195,7 @@ public class AnnotationTaskPane extends JXTaskPane {
         case RATING:
             ui = new RatingTaskPaneUI(model, view, controller);
             break;
-        case ROIS:
+        case ROI:
         default:
             ui = new DummyTaskPaneUI(model, view, controller);
             MetadataViewerAgent
