@@ -920,13 +920,42 @@ public class ROITable
      * @return See above.
      */
     private boolean displayFolder(FolderData folder) {
-        return ignoreFilters
-                || ((onlyShowFolderIds == null || onlyShowFolderIds
-                        .contains(folder.getId())) && folder.getName()
-                        .toLowerCase().contains(folderNameFilter));
+        return ignoreFilters || checkIDFilter(folder)
+                || checkNameFilter(folder);
     }
 
-	/**
+    /**
+     * Checks if the folder's ID is in the list of folders to display
+     * 
+     * @param folder
+     *            The {@link FolderData} to check
+     * @return <code>true</code> if the list of folders to display contains the
+     *         folder's id or if the list doesn't exist
+     */
+    private boolean checkIDFilter(FolderData folder) {
+        return onlyShowFolderIds == null
+                || onlyShowFolderIds.contains(folder.getId());
+    }
+
+    /**
+     * Checks if the folder's (or one of its parent folder's) name contains the
+     * name filter String.
+     * 
+     * @param folder
+     *            The {@link FolderData} to check
+     * @return <code>true</code> if the folder's (or one of its parent folder's)
+     *         name contains the name filter String.
+     */
+    private boolean checkNameFilter(FolderData folder) {
+        boolean match = folder.getName().toLowerCase()
+                .contains(folderNameFilter);
+        if (match || folder.getParentFolder() == null)
+            return match;
+
+        return checkNameFilter(folder.getParentFolder());
+    }
+    
+ 	/**
      * Finds the ROI Folder nodes of the ROI.
      * Folders which don't exist yet, will be created.
      * 
