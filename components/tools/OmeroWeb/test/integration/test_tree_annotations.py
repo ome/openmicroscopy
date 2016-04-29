@@ -27,7 +27,7 @@ from datetime import datetime
 
 import omero
 from omero.gateway import BlitzGateway
-from omero.model import ProjectI, \
+from omero.model import ProjectI, CommentAnnotationI, \
     TagAnnotationI, ProjectAnnotationLinkI
 from omero.rtypes import rstring
 from omeroweb.webclient.tree import marshal_annotations
@@ -117,6 +117,22 @@ def tags_userA_userB(request, userA, userB, groupA):
 
 
 @pytest.fixture(scope='function')
+def comments_userA(request, userA, groupA):
+    """
+    Returns new OMERO Comments
+    """
+    comments = []
+    ctx = {'omero.group': str(groupA.id.val)}
+    for text in ["Test Comment", "Another comment userA"]:
+        comment = CommentAnnotationI()
+        comment.textValue = rstring(text)
+        comments.append(comment)
+    comments = get_update_service(userA).saveAndReturnArray(comments, ctx)
+    comments.sort(cmp_id)
+    return comments
+
+
+@pytest.fixture(scope='function')
 def annotate_project(ann, project, user):
     """
     Returns userA's Tag linked to userB's Project
@@ -156,9 +172,7 @@ def lookup_expected_permissions(user, obj):
         loadChild = "join fetch obj.child as ann"
     sql = """select obj from %s as obj join fetch obj.details.owner as o
              %s where obj.id=:id""" % (objClass, loadChild)
-    print sql
     obj = query.findByQuery(sql, params, {'omero.group': '-1'})
-    print obj
     perms = obj.details.permissions
     return {
         'canAnnotate': perms.canAnnotate(),
@@ -168,26 +182,26 @@ def lookup_expected_permissions(user, obj):
     }
 
 
-def expected_tags(user, links):
+def expected_annotations(user, links):
 
     annotations = []
     exps = {}
     for link in links:
 
-        tag = link.child
+        ann = link.child
         parent = link.parent
 
-        creation = tag.details.creationEvent._time.val
+        creation = ann.details.creationEvent._time.val
         linkDate = link.details.creationEvent._time.val
         # Need to lookup permissions for user
-        tagPerms = lookup_expected_permissions(user, tag)
+        annPerms = lookup_expected_permissions(user, ann)
         linkPerms = lookup_expected_permissions(user, link)
 
         exps[link.details.owner.id.val] = link.details.owner
-        exps[tag.details.owner.id.val] = tag.details.owner
+        exps[ann.details.owner.id.val] = ann.details.owner
 
         annotations.append({
-            'class': 'TagAnnotationI',
+            'class': ann.__class__.__name__,
             'date': expected_date(creation),
             'link': {
                 'owner': {
@@ -202,13 +216,13 @@ def expected_tags(user, links):
                 },
                 'permissions': linkPerms
             },
-            'textValue': tag.textValue.val,
+            'textValue': ann.textValue.val,
             'owner': {
-                'id': tag.details.owner.id.val
+                'id': ann.details.owner.id.val
             },
-            'ns': unwrap(tag.ns),
-            'id': tag.id.val,
-            'permissions': tagPerms
+            'ns': unwrap(ann.ns),
+            'id': ann.id.val,
+            'permissions': annPerms
         })
     # remove duplicates
     experimenters = [expected_experimenter(e) for e in exps.values()]
@@ -254,7 +268,7 @@ class TestTreeAnnotations(lib.ITest):
         c, user = self.new_client_and_user(group=groupB)
         self.add_groups(user, [groupA])
         print "USER A", user.id.val, 'groupA', groupA.id.val
-        print c.getSession().getAdminService().getEventContext()
+        c.getSession().getAdminService().getEventContext()
         return c, user
 
     @pytest.fixture()
@@ -272,7 +286,7 @@ class TestTreeAnnotations(lib.ITest):
         tag = tags_userA_userB[0]
         project = project_userA
         link = annotate_project(tag, project, userA)
-        expected = expected_tags(userA, [link])
+        expected = expected_annotations(userA, [link])
         marshaled = marshal_annotations(conn=conn,
                                         project_ids=[project.id.val])
         annotations, experimenters = marshaled
@@ -290,7 +304,7 @@ class TestTreeAnnotations(lib.ITest):
         tag = tags_userA_userB[0]
         project = project_userA
         link = annotate_project(tag, project, userB)
-        expected = expected_tags(userB, [link])
+        expected = expected_annotations(userB, [link])
         marshaled = marshal_annotations(conn=conn,
                                         project_ids=[project.id.val])
         annotations, experimenters = marshaled
@@ -311,7 +325,7 @@ class TestTreeAnnotations(lib.ITest):
         link1 = annotate_project(tag1, project, userA)
         link2 = annotate_project(tag1, project, userB)
         link3 = annotate_project(tag2, project, userB)
-        expected = expected_tags(userA, [link1, link2, link3])
+        expected = expected_annotations(userA, [link1, link2, link3])
         marshaled = marshal_annotations(conn=conn,
                                         project_ids=[project.id.val])
         annotations, experimenters = marshaled
@@ -337,7 +351,7 @@ class TestTreeAnnotations(lib.ITest):
         link2 = annotate_project(tag1, project2, userB)
         link3 = annotate_project(tag2, project2, userB)
         link4 = annotate_project(tag2, project2, userA)
-        expected = expected_tags(userA, [link1, link2, link3, link4])
+        expected = expected_annotations(userA, [link1, link2, link3, link4])
         pids = [p.id.val for p in projects_userA]
         marshaled = marshal_annotations(conn=conn, project_ids=pids)
         annotations, experimenters = marshaled
@@ -346,5 +360,63 @@ class TestTreeAnnotations(lib.ITest):
 
         assert len(annotations) == 4
         assert len(experimenters) == 2
+        assert annotations == anns
+        assert experimenters == exps
+
+    def test_tags_comments_project(self, userA, project_userA,
+                                   tags_userA_userB, comments_userA):
+        """
+        Test annotate Project with the Tags and Comments
+        """
+        conn = get_connection(userA)
+        tag1, tag2 = tags_userA_userB
+        comment1, comment2 = comments_userA
+        project = project_userA
+        link1 = annotate_project(tag1, project, userA)
+        link2 = annotate_project(comment1, project, userA)
+        link3 = annotate_project(tag2, project, userA)
+        link4 = annotate_project(comment2, project, userA)
+
+        # Get just the tags...
+        marshaled = marshal_annotations(conn=conn,
+                                        project_ids=[project.id.val],
+                                        ann_type='tag')
+        expected = expected_annotations(userA, [link1, link3])
+        annotations, experimenters = marshaled
+        experimenters.sort(key=lambda x: x['id'])
+        anns, exps = expected
+
+        assert len(annotations) == 2
+        assert len(experimenters) == 2
+        assert annotations == anns
+        assert experimenters == exps
+
+        # Get just the comments...
+        marshaled = marshal_annotations(conn=conn,
+                                        project_ids=[project.id.val],
+                                        ann_type='comment')
+        expected = expected_annotations(userA, [link2, link4])
+        annotations, experimenters = marshaled
+        experimenters.sort(key=lambda x: x['id'])
+        anns, exps = expected
+
+        assert len(annotations) == 2
+        assert len(experimenters) == 1
+        assert annotations == anns
+        assert experimenters == exps
+
+        # Get all annotations
+        marshaled = marshal_annotations(conn=conn,
+                                        project_ids=[project.id.val])
+        expected = expected_annotations(userA, [link1, link2, link3, link4])
+        annotations, experimenters = marshaled
+        experimenters.sort(key=lambda x: x['id'])
+        anns, exps = expected
+
+        assert len(annotations) == 4
+        assert len(experimenters) == 2
+        # need to sort since marshal_annotations doesn't sort yet
+        annotations.sort(key=lambda x: x['link']['id'])
+        anns.sort(key=lambda x: x['link']['id'])
         assert annotations == anns
         assert experimenters == exps
