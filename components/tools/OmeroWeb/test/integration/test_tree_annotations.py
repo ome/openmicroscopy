@@ -85,17 +85,18 @@ def project_userA(request, userA, groupA):
 
 
 @pytest.fixture(scope='function')
-def projects_userA(request, userA):
+def projects_userA(request, userA, groupA):
     """
     Returns new OMERO Project
     """
     to_save = []
+    ctx = {'omero.group': str(groupA.id.val)}
     for name in "test_ann1", "test_ann2":
         project = ProjectI()
         project.name = rstring(name)
         to_save.append(project)
     projects = get_update_service(userA).saveAndReturnArray(
-        to_save)
+        to_save, ctx)
     return projects
 
 
@@ -318,6 +319,32 @@ class TestTreeAnnotations(lib.ITest):
         anns, exps = expected
 
         assert len(annotations) == 3
+        assert len(experimenters) == 2
+        assert annotations == anns
+        assert experimenters == exps
+
+    def test_twin_tags_projects(self, userA, userB, projects_userA,
+                                tags_userA_userB):
+        """
+        Test two users annotate the two Projects with the same tag(s)
+        """
+        conn = get_connection(userA)
+        tag1 = tags_userA_userB[0]
+        tag2 = tags_userA_userB[1]
+        project1 = projects_userA[0]
+        project2 = projects_userA[1]
+        link1 = annotate_project(tag1, project1, userA)
+        link2 = annotate_project(tag1, project2, userB)
+        link3 = annotate_project(tag2, project2, userB)
+        link4 = annotate_project(tag2, project2, userA)
+        expected = expected_tags(userA, [link1, link2, link3, link4])
+        pids = [p.id.val for p in projects_userA]
+        marshaled = marshal_annotations(conn=conn, project_ids=pids)
+        annotations, experimenters = marshaled
+        experimenters.sort(key=lambda x: x['id'])
+        anns, exps = expected
+
+        assert len(annotations) == 4
         assert len(experimenters) == 2
         assert annotations == anns
         assert experimenters == exps
