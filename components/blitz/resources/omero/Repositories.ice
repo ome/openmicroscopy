@@ -87,8 +87,8 @@ module omero {
             /**
              * Returns an array of abstract pathname objects denoting the
              * files in the directory denoted by an abstract pathname.  It
-             * is expected that at a minimum the "name", "path", "size" and
-             * "mtime" attributes will be present for each
+             * is expected that at a minimum the ""name"", ""path"", ""size"" and
+             * ""mtime"" attributes will be present for each
              * {@link omero.model.OriginalFile} instance.
              **/
             omero::api::OriginalFileList listFiles(string path)
@@ -103,8 +103,8 @@ module omero {
 
             /**
              * Returns a special RawFileStore which permits only the operations
-             * set out in the options string "wb", "a+", etc.
-             * FIXME: Initially only "r" and "rw" are supported as these are
+             * set out in the options string ""wb"", ""a+"", etc.
+             * FIXME: Initially only ""r"" and ""rw"" are supported as these are
              * handled directly by RandomAccessFile and so don't break the current
              * implementation.
              * Any call to that tries to break the options will throw an
@@ -176,19 +176,19 @@ module omero {
              * all of the paths into a single {@link omero.cmd.Delete2} command
              * and submits it.
              *
-             * If a "recursively" is true, then directories will be searched
+             * If a ""recursively"" is true, then directories will be searched
              * and all of their contained files will be placed before them in
              * the delete order. When the directory is removed from the database,
              * it will removed from the filesystem if and only if it is empty.
              *
-             * If "recursively" is false, then the delete will produce an error
-             * according to the "force" flag.
+             * If ""recursively"" is false, then the delete will produce an error
+             * according to the ""force"" flag.
              *
-             * If "force" is false, this method attempts the delete of all given
+             * If ""force"" is false, this method attempts the delete of all given
              * paths in a single transaction, and any failure will cause the
              * entire transaction to fail.
              *
-             * If "force" is true, however, then all the other deletes will succeed.
+             * If ""force"" is true, however, then all the other deletes will succeed.
              * which could possibly leave dangling files within no longer extant
              * directories.
              *
@@ -487,7 +487,7 @@ module omero {
             /**
              * Return the list of checksum algorithms supported by this repository
              * for verifying the integrity of uploaded files.
-             * They are named as "algorithm-integer",
+             * They are named as ""algorithm-integer"",
              * integer being the bit width of the resulting hash code.
              * It is possible for the same algorithm to be offered with
              * different bit widths.
@@ -534,7 +534,7 @@ module omero {
 
         /**
          * Command object which will be parsed by the internal
-         * repository given by "repo". This command will *only*
+         * repository given by ""repo"". This command will *only*
          * be processed if the user has sufficient rights (e.g.
          * is a member of "system") and is largely intended for
          * testing and diagnosis rather than actual client

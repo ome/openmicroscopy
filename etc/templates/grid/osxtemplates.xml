@@ -30,7 +30,7 @@
     </properties>
 
     <properties id="Basics">
-      <property name="Ice.MessageSizeMax" value="250000"/> <!-- 250 MB -->
+      <property name="Ice.MessageSizeMax" value="65536"/> <!-- 64 MB -->
       <property name="Ice.CacheMessageBuffers" value="0"/>
       <property name="Ice.Override.ConnectTimeout" value="5000"/>
     </properties>
@@ -455,7 +455,7 @@
          </adapter>
          <properties>
             <properties refid="Profile"/>
-            <property name="IcePatch2.Admin.Endpoints" value="tcp -h @omero.master.host@"/>
+            <property name="IcePatch2.Admin.Endpoints" value="tcp -h @Ice.Default.Host@"/>
             <property name="IcePatch2.Admin.RegisterProcess" value="1"/>
             <property name="IcePatch2.InstanceName" value="${instance-name}"/>
             <property name="IcePatch2.Directory" value="${directory}"/>
@@ -475,7 +475,7 @@
           <properties refid="Profile"/>
           <property name="Ice.Plugin.IceSSL" value="IceSSL:createIceSSL"/>
           <property name="IceSSL.ProtocolVersionMax" value="tls1_1"/><!-- mac bug -->
-          <property name="IceSSL.Ciphers" value="ADH:!LOW:!MD5:!EXP:!3DES:@STRENGTH"/>
+          <property name="IceSSL.Ciphers" value="(AES)"/>
           <property name="IceSSL.VerifyPeer" value="0"/>
           <property name="IceSSL.Protocols" value="tls1"/>
           <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>

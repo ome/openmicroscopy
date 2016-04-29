@@ -566,8 +566,7 @@ class FileSelectionTable
 	    }
 	    Iterator<FileObject> i = files.iterator();
 	    DataNode node = settings.getImportLocation();
-	    if (model.getType() != Importer.SCREEN_TYPE)
-	        node.setParent(settings.getParentImportLocation());
+	    node.setParent(settings.getParentImportLocation());
 	    String value = null;
 	    boolean v;
 	    long gID = group.getId();

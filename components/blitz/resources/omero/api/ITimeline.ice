@@ -32,7 +32,7 @@ module omero {
          * Return maps:
          * -----------
          * The map return values will be indexed by the short type name above:
-         * "Project", "Image", ... All keys which are passed in the StringSet
+         * ""Project", ""Image"", ... All keys which are passed in the StringSet
          * argument will be included in the returned map, even if they have no
          * values. A default value of 0 or the empty list \[] will be used.
          * The only exception to this rule is that the null or empty StringSet
@@ -51,7 +51,7 @@ module omero {
          * Merging:
          * -------
          * The methods which take a StringSet and a Parameters object, also have
-         * a "bool merge" argument. This argument defines whether or not the LIMIT
+         * a ""bool merge"" argument. This argument defines whether or not the LIMIT
          * applies to each object independently (\["a","b"] @ 100 == 200) or merges
          * the lists together chronologically (\["a","b"] @ 100 merged == 100).
          *
@@ -142,7 +142,7 @@ module omero {
 
             /**
              * Returns the EventLog table objects which are queried to produce the counts above.
-             * Note the concept of "period inclusion" mentioned above.
+             * Note the concept of ""period inclusion"" mentioned above.
              *
              * WORKAROUND WARNING: this method returns non-managed EventLogs (i.e.
              * eventLog.getId() == null) for "Image acquisitions".

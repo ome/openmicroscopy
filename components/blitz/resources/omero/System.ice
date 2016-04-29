@@ -81,7 +81,7 @@ module omero {
      * be interpreted as well as default values if they
      * are missing. In general they are intended to mean:
      *
-     *  unique        := similar to SQL's "DISTINCT" keyword
+     *  unique        := similar to SQL's ""DISTINCT"" keyword
      *
      *  ownerId       := (some) objects queried should belong
      *                   to this user
@@ -174,7 +174,7 @@ module omero {
       long   systemGroupId;
       string systemGroupName;
 
-      // The group which defines a "user". Any user not in the user
+      // The group which defines a ""user"". Any user not in the user
       // group is considered inactive.
       long   userGroupId;
       string userGroupName;
@@ -183,7 +183,7 @@ module omero {
       long   guestId;
       string guestName;
 
-      // "guest" group. Can log in and use some methods.
+      // ""guest"" group. Can log in and use some methods.
       long   guestGroupId;
       string guestGroupName;
     };

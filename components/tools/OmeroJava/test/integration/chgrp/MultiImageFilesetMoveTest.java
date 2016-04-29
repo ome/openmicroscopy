@@ -238,8 +238,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     	Response rsp = doChange(client, factory, mv, true);
     	OK err = (OK) rsp;
     	assertNotNull(err);
-    	disconnect();
-    	
+
     	// Reconnect in second group to check group.id for all objects in graph
     	long gid2 = secondGroup.getId().getValue();
     	loginUser(new ExperimenterGroupI(secondGroup.getId().getValue(),
@@ -422,7 +421,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         final Chgrp2 dc = Requests.chgrp("Dataset", dataset.getId().getValue(), secondGroup.getId().getValue());
 
     	doAllChanges(client, factory, true, dc);
-    	disconnect();
+
     	loginUser(new ExperimenterGroupI(secondGroup.getId().getValue(),
     			false));
     	//load the dataset

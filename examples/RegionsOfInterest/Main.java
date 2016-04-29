@@ -111,7 +111,6 @@ public class Main {
         rect.setY(rdouble(1.5));
         rect.setWidth(rdouble(10));
         rect.setHeight(rdouble(10));
-        rect.setTransform(null);
         roi.addShape(rect);
 
         Line line = new LineI();
@@ -119,7 +118,6 @@ public class Main {
         line.setX2(rdouble(200));
         line.setY1(rdouble(300));
         line.setY2(rdouble(400));
-        line.setTransform(rstring("100 0 0 200 0 0"));
         roi.addShape(line);
 
         Mask mask = new MaskI();
@@ -134,7 +132,6 @@ public class Main {
         point.setX(rdouble(75.0));
         point.setY(rdouble(75.0));
         // Point.r should be removed
-        point.setTransform(null);
         roi.addShape(point);
 
         // For the following three, the format for the string value is unclear:
@@ -145,17 +142,14 @@ public class Main {
         //
         Path path = new PathI();
         path.setD(rstring("M 100 100 L 300 100 L 200 300 z"));
-        path.setTransform(null);
         roi.addShape(path);
 
         Polygon polygon = new PolygonI();
         polygon.setPoints(rstring("100.0,200.0 553.9,593.5 92.3,59.9"));
-        polygon.setTransform(null);
         roi.addShape(polygon);
 
         Polyline polyline = new PolylineI();
         polyline.setPoints(rstring("100.0,200.0 553.9,593.5 92.3,59.9"));
-        polyline.setTransform(null);
         roi.addShape(polyline);
 
         // Display fields which could quickly

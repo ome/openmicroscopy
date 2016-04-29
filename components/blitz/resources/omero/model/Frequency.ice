@@ -64,7 +64,7 @@ module omero {
       void setUnit(omero::model::enums::UnitsFrequency unit);
 
       /**
-       * Returns the possibly unicode representation of the "unit"
+       * Returns the possibly unicode representation of the ""unit""
        * value for display.
        **/
       string getSymbol();
