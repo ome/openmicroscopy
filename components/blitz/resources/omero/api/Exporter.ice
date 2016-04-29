@@ -82,7 +82,7 @@ module omero {
             long generateTiff() throws ServerError;
 
             /**
-             * Returns "length" bytes from the output file. The file can
+             * Returns ""length"" bytes from the output file. The file can
              * be safely read until reset() is called.
              **/
             idempotent Ice::ByteSeq read(long position, int length) throws ServerError;

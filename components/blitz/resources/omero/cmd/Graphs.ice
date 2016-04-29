@@ -61,7 +61,7 @@ module omero {
          * existing data will need to be checked and there will be a
          * minimum of one step per table in the database.
          *
-         * At the moment, the only supported type is "/ExperimenterGroup".
+         * At the moment, the only supported type is ""/ExperimenterGroup"".
          *
          **/
         ["deprecated:use omero::cmd::Chmod2 instead"]
@@ -97,7 +97,7 @@ module omero {
         };
 
         /**
-         * Mirrors and replaces DeleteReport. There is no "error" field
+         * Mirrors and replaces DeleteReport. There is no ""error"" field
          * because if there was an error than an ERR object will be
          * returned.
          **/
@@ -113,7 +113,7 @@ module omero {
             string warning;
 
             /**
-             * Map from type name ("Thumbnail", "Pixels", "OriginalFile") to
+             * Map from type name (""Thumbnail"", ""Pixels"", ""OriginalFile"") to
              * a list of ids for any binary files which did not get deleted.
              *
              * Some action may be desired by the user to guarantee that this
@@ -141,7 +141,7 @@ module omero {
 
         /**
          * Options that modify GraphModify2 request execution.
-         * By default, a user's related "orphaned" objects are typically
+         * By default, a user's related ""orphaned"" objects are typically
          * included in a request's operation. These options override that
          * behavior, allowing the client to specify whether to always or
          * never include given kinds of child object regardless of if they

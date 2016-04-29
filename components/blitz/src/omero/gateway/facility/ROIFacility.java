@@ -137,6 +137,46 @@ public class ROIFacility extends Facility {
         }
         return -1;
     }
+    
+    /**
+     * Get the number of ROIs for an image (<code>-1</code>
+     * in case of error)
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param imageId
+     *            The image Id
+     * @return See above
+     * @throws DSOutOfServiceException
+     * @throws DSAccessException
+     */
+    public int getROICount(SecurityContext ctx, long imageId)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            ParametersI p = new ParametersI();
+            p.addId(imageId);
+            String query = "select count(*) from Roi roi "
+                    + "where roi.image.id = :id";
+            IQueryPrx service = gateway.getQueryService(ctx);
+            List<List<omero.RType>> tmp1 = service.projection(query, p);
+            if (CollectionUtils.isEmpty(tmp1)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            List<omero.RType> tmp2 = tmp1.iterator().next();
+            if (CollectionUtils.isEmpty(tmp2)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            omero.RType result = tmp2.iterator().next();
+            if (!(result instanceof RLong)) {
+                throw new Exception("Unexpected HQL result");
+            }
+            return (int) (((RLong) result).getValue());
+        } catch (Exception e) {
+            handleException(this, e, "Can't load ROI count for image "
+                    + imageId);
+        }
+        return -1;
+    }
 
     /**
      * Loads the ROI 
