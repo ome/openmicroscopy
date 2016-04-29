@@ -86,6 +86,7 @@ import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.AffineTransform;
 import ome.xml.model.MapPair;
+import ome.xml.model.enums.Compression;
 import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
 import ome.xml.model.enums.FontStyle;
@@ -5128,6 +5129,21 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
+    public void setMaskBinDataBigEndian(Boolean arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setMaskBinDataCompression(Compression arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setMaskBinDataLength(NonNegativeLong arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
     public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
         final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
         o.setMapValue(IceMapper.convertMapPairs(value));
@@ -5666,9 +5682,14 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean,int)
      */
     @Override
-    public void  setPixelsBigEndian(Boolean value,  int index)
+    public void setPixelsBigEndian(Boolean value, int index)
     {
         ignoreUnneeded("setPixelsBigEndian", value, index);
+    }
+
+    @Override
+    public void setPixelsBinData(byte[] arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
     }
 
     /* (non-Javadoc)
@@ -5679,6 +5700,16 @@ public class OMEROMetadataStoreClient
             int binDataIndex)
     {
         ignoreUnneeded("setPixelsBinDataBigEndian", bigEndian, imageIndex);
+    }
+
+    @Override
+    public void setPixelsBinDataCompression(Compression arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setPixelsBinDataLength(NonNegativeLong arg0, int arg1, int arg2) {
+        // TODO Auto-generated method stub
     }
 
     /* (non-Javadoc)
@@ -8150,6 +8181,26 @@ public class OMEROMetadataStoreClient
     public void setPlateFieldIndex(NonNegativeInteger fieldIndex, int plateIndex)
     {
         ignoreMissing("setPlateFieldIndex", fieldIndex, plateIndex);
+    }
+
+    @Override
+    public void setBinaryFileBinData(byte[] arg0, int arg1) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setBinaryFileBinDataBigEndian(Boolean arg0, int arg1) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setBinaryFileBinDataCompression(Compression arg0, int arg1) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setBinaryFileBinDataLength(NonNegativeLong arg0, int arg1) {
+        // TODO Auto-generated method stub
     }
 
     /* (non-Javadoc)
