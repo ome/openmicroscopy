@@ -263,7 +263,7 @@ class TestTreeAnnotations(lib.ITest):
         print "USER B", userb.id.val, 'groupA', groupA.id.val
         return c, userb
 
-    def test_single_annotate(self, userA, project_userA, tags_userA_userB):
+    def test_single_tag(self, userA, project_userA, tags_userA_userB):
         """
         Test a single annotation added by userA
         """
@@ -280,8 +280,8 @@ class TestTreeAnnotations(lib.ITest):
         assert annotations == anns
         assert experimenters == exps
 
-    def test_single_annotate_userB(self, userB, project_userA,
-                                   tags_userA_userB):
+    def test_single_tag_userB(self, userB, project_userA,
+                              tags_userA_userB):
         """
         Test a single annotation added by userB
         """
@@ -298,21 +298,26 @@ class TestTreeAnnotations(lib.ITest):
         assert annotations == anns
         assert experimenters == exps
 
-    def test_twin_annotate_userA_userB(self, userA, userB, project_userA,
-                                       tags_userA_userB):
+    def test_twin_tags_userA_userB(self, userA, userB, project_userA,
+                                   tags_userA_userB):
         """
         Test two users annotate the same Project with the same tag
         """
         conn = get_connection(userA)
-        tag = tags_userA_userB[0]
+        tag1 = tags_userA_userB[0]
+        tag2 = tags_userA_userB[1]
         project = project_userA
-        link1 = annotate_project(tag, project, userA)
-        link2 = annotate_project(tag, project, userB)
-        expected = expected_tags(userA, [link1, link2])
+        link1 = annotate_project(tag1, project, userA)
+        link2 = annotate_project(tag1, project, userB)
+        link3 = annotate_project(tag2, project, userB)
+        expected = expected_tags(userA, [link1, link2, link3])
         marshaled = marshal_annotations(conn=conn,
                                         project_ids=[project.id.val])
         annotations, experimenters = marshaled
+        experimenters.sort(key=lambda x: x['id'])
         anns, exps = expected
 
-        assert annotations[0] == anns[0]
-        assert annotations[1] == anns[1]
+        assert len(annotations) == 3
+        assert len(experimenters) == 2
+        assert annotations == anns
+        assert experimenters == exps
