@@ -2663,7 +2663,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)
         try:
+            conn.SERVICE_OPTS.setOmeroGroup('-1')
             manager = BaseContainer(conn, **kw)
+            obj = manager._get_object()
+            if obj is not None:
+                gid = obj.getDetails().group.id.val
+                conn.SERVICE_OPTS.setOmeroGroup(gid)
         except AttributeError, x:
             return handlerInternalError(request, x)
     elif o_type in ("share", "sharecomment", "chat"):

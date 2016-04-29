@@ -173,6 +173,8 @@ class BaseContainer(BaseController):
             return self.tag
         if self.file is not None:
             return self.file
+        if self.comment is not None:
+            return self.comment
 
     def obj_id(self):
         obj = self._get_object()
