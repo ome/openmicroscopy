@@ -58,6 +58,12 @@ Example IIS usage:
 
 """
 
+APACHE_MOD_WSGI_ERR = ("[ERROR] You are deploying OMERO.web using Apache and"
+                       " mod_wsgi. OMERO.web does not provide any management"
+                       " for ‘daemon’ process which communicate with Apache"
+                       " child processes using UNIX sockets to handle"
+                       " a request. Please check Apache directly.")
+
 
 def config_required(func):
     """Decorator validating Django dependencies and omeroweb/settings.py"""
@@ -513,11 +519,10 @@ class WebControl(BaseControl):
         deploy = getattr(settings, 'APPLICATION_SERVER')
 
         if deploy in (settings.WSGI,):
-            self.ctx.die(609, "You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Generate apache config using"
+            self.ctx.die(609, "%s\nGenerate apache config using"
                          " 'omero web config apache' or"
                          " 'omero web config apache24' and reload"
-                         " web server.")
+                         " web server." % APACHE_MOD_WSGI_ERR)
 
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
@@ -602,12 +607,7 @@ class WebControl(BaseControl):
             else:
                 self.ctx.err("[NOT STARTED]")
         elif deploy in (settings.WSGI,):
-            self.ctx.err("You are deploying OMERO.web using Apache and"
-                         " mod_wsgi. OMERO.web does not provide any "
-                         " management for ‘daemon’ process which "
-                         " communicate with Apache child processes"
-                         " using UNIX sockets to handle a request."
-                         " Please check Apache directly.")
+            self.ctx.err(APACHE_MOD_WSGI_ERR)
         elif deploy in (settings.DEVELOPMENT,):
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")
