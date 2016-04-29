@@ -48,7 +48,7 @@ module omero {
                  * a brand new pixel buffer using <code>true</code> here is a safe
                  * optimization otherwise <code>false</code> is expected.
                  *
-                 * See "read-only caveat" under {@link RawPixelsStore}
+                 * See ""read-only caveat"" under {@link RawPixelsStore}
                  **/
                 void setPixelsId(long pixelsId, bool bypassOriginalFile) throws ServerError;
 
@@ -252,7 +252,7 @@ module omero {
                  * @throws BufferOverflowException if an attempt is made to write off the
                  * end of the file.
                  *
-                 * See "read-only caveat" under {@link RawPixelsStore}
+                 * See ""read-only caveat"" under {@link RawPixelsStore}
                  */
                 idempotent void setTile(Ice::ByteSeq buf, int z, int c, int t, int x, int y, int w, int h) throws ServerError;
 
@@ -262,7 +262,7 @@ module omero {
                  * @param offset offset within the pixel buffer.
                  * @param buf a byte array of the data.
                  *
-                 * See "read-only caveat" under {@link RawPixelsStore}
+                 * See ""read-only caveat"" under {@link RawPixelsStore}
                  **/
                 idempotent void setRegion(int size, long offset, Ice::ByteSeq buf) throws ServerError;
 
@@ -274,7 +274,7 @@ module omero {
                  * @param c offset across the C-axis of the pixel store.
                  * @param t offset across the T-axis of the pixel store.
                  *
-                 * See "read-only caveat" under {@link RawPixelsStore}
+                 * See ""read-only caveat"" under {@link RawPixelsStore}
                  **/
                 idempotent void setRow(Ice::ByteSeq buf, int y, int z, int c, int t) throws ServerError;
 
@@ -285,7 +285,7 @@ module omero {
                  * @param c offset across the C-axis of the pixel store.
                  * @param t offset across the T-axis of the pixel store.
                  *
-                 * See "read-only caveat" under {@link RawPixelsStore}
+                 * See ""read-only caveat"" under {@link RawPixelsStore}
                  **/
                 idempotent void setPlane(Ice::ByteSeq buf, int z, int c, int t) throws ServerError;
 
@@ -296,7 +296,7 @@ module omero {
                  * @param c offset across the C-axis of the pixel store.
                  * @param t offset across the T-axis of the pixel store.
                  *
-                 * See "read-only caveat" under {@link RawPixelsStore}
+                 * See ""read-only caveat"" under {@link RawPixelsStore}
                  **/
                 idempotent void setStack(Ice::ByteSeq buf, int z, int c, int t) throws ServerError;
 
@@ -306,7 +306,7 @@ module omero {
                  * @param buf a byte array of the data comprising this timepoint.
                  * @param t offset across the T-axis of the pixel buffer.
                  *
-                 * See "read-only caveat" under {@link RawPixelsStore}
+                 * See ""read-only caveat"" under {@link RawPixelsStore}
                  **/
                 idempotent void setTimepoint(Ice::ByteSeq buf, int t) throws ServerError;
 

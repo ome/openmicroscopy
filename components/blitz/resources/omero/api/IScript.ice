@@ -88,7 +88,7 @@ module omero {
                 /**
                  * Returns non-official scripts which have been uploaded by individual users.
                  * These scripts will <em>not</me> be run by the server, though a user can
-                 * start a personal "usermode processor" which will allow the scripts to be
+                 * start a personal ""usermode processor"" which will allow the scripts to be
                  * executed. This is particularly useful for testing new scripts.
                  */
                 idempotent OriginalFileList getUserScripts(IObjectList acceptsList) throws ServerError;
