@@ -25,6 +25,7 @@ import pytest
 import library as lib
 from datetime import datetime
 
+import omero
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, \
     TagAnnotationI, ProjectAnnotationLinkI
@@ -61,6 +62,13 @@ def get_update_service(user):
     Get the update_service for the given user's client
     """
     return user[0].getSession().getUpdateService()
+
+
+def get_query_service(user):
+    """
+    Get the query_service for the given user's client
+    """
+    return user[0].getSession().getQueryService()
 
 
 # Projects
@@ -137,7 +145,29 @@ def expected_experimenter(experimenter):
     }
 
 
-def expected_tags(links):
+def lookup_expected_permissions(user, obj):
+    query = get_query_service(user)
+    params = omero.sys.ParametersI()
+    params.addId(obj.id.val)
+    objClass = obj.__class__.__name__[:-1]
+    loadChild = ""
+    if "Link" in objClass:
+        loadChild = "join fetch obj.child as ann"
+    sql = """select obj from %s as obj join fetch obj.details.owner as o
+             %s where obj.id=:id""" % (objClass, loadChild)
+    print sql
+    obj = query.findByQuery(sql, params, {'omero.group': '-1'})
+    print obj
+    perms = obj.details.permissions
+    return {
+        'canAnnotate': perms.canAnnotate(),
+        'canEdit': perms.canEdit(),
+        'canDelete': perms.canDelete(),
+        'canLink': perms.canLink()
+    }
+
+
+def expected_tags(user, links):
 
     annotations = []
     exps = {}
@@ -148,8 +178,9 @@ def expected_tags(links):
 
         creation = tag.details.creationEvent._time.val
         linkDate = link.details.creationEvent._time.val
-        tagPerms = tag.details.permissions
-        linkPerms = link.details.permissions
+        # Need to lookup permissions for user
+        tagPerms = lookup_expected_permissions(user, tag)
+        linkPerms = lookup_expected_permissions(user, link)
 
         exps[link.details.owner.id.val] = link.details.owner
         exps[tag.details.owner.id.val] = tag.details.owner
@@ -168,12 +199,7 @@ def expected_tags(links):
                     'id': parent.id.val,
                     'name': parent.name.val
                 },
-                'permissions': {
-                    'canAnnotate': linkPerms.canAnnotate(),
-                    'canEdit': linkPerms.canEdit(),
-                    'canDelete': linkPerms.canDelete(),
-                    'canLink': linkPerms.canLink()
-                }
+                'permissions': linkPerms
             },
             'textValue': tag.textValue.val,
             'owner': {
@@ -181,12 +207,7 @@ def expected_tags(links):
             },
             'ns': unwrap(tag.ns),
             'id': tag.id.val,
-            'permissions': {
-                'canAnnotate': tagPerms.canAnnotate(),
-                'canEdit': tagPerms.canEdit(),
-                'canDelete': tagPerms.canDelete(),
-                'canLink': tagPerms.canLink()
-            }
+            'permissions': tagPerms
         })
     # remove duplicates
     experimenters = [expected_experimenter(e) for e in exps.values()]
@@ -250,7 +271,7 @@ class TestTreeAnnotations(lib.ITest):
         tag = tags_userA_userB[0]
         project = project_userA
         link = annotate_project(tag, project, userA)
-        expected = expected_tags([link])
+        expected = expected_tags(userA, [link])
         marshaled = marshal_annotations(conn=conn,
                                         project_ids=[project.id.val])
         annotations, experimenters = marshaled
@@ -268,7 +289,7 @@ class TestTreeAnnotations(lib.ITest):
         tag = tags_userA_userB[0]
         project = project_userA
         link = annotate_project(tag, project, userB)
-        expected = expected_tags([link])
+        expected = expected_tags(userB, [link])
         marshaled = marshal_annotations(conn=conn,
                                         project_ids=[project.id.val])
         annotations, experimenters = marshaled
@@ -276,3 +297,22 @@ class TestTreeAnnotations(lib.ITest):
 
         assert annotations == anns
         assert experimenters == exps
+
+    def test_twin_annotate_userA_userB(self, userA, userB, project_userA,
+                                       tags_userA_userB):
+        """
+        Test two users annotate the same Project with the same tag
+        """
+        conn = get_connection(userA)
+        tag = tags_userA_userB[0]
+        project = project_userA
+        link1 = annotate_project(tag, project, userA)
+        link2 = annotate_project(tag, project, userB)
+        expected = expected_tags(userA, [link1, link2])
+        marshaled = marshal_annotations(conn=conn,
+                                        project_ids=[project.id.val])
+        annotations, experimenters = marshaled
+        anns, exps = expected
+
+        assert annotations[0] == anns[0]
+        assert annotations[1] == anns[1]
