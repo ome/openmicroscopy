@@ -53,11 +53,11 @@ import javax.swing.JTextField;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
-import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPane.AnnotationType;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.AnnotationData;
@@ -249,19 +249,19 @@ class GeneralPaneUI extends JPanel
 		propertiesTaskPane.add(propertiesUI);
 		propertiesTaskPane.setCollapsed(false);
 		
-		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAGS, view, model, controller);
+		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAG, view, model, controller);
 	    
-	    roiTaskPane = new AnnotationTaskPane(AnnotationType.ROIS, view, model, controller);
+	    roiTaskPane = new AnnotationTaskPane(AnnotationType.ROI, view, model, controller);
 	    
 	    mapTaskPane = new AnnotationTaskPane(AnnotationType.MAP, view, model, controller);
 	    
-	    attachmentTaskPane = new AnnotationTaskPane(AnnotationType.ATTACHMENTS, view, model, controller);
+	    attachmentTaskPane = new AnnotationTaskPane(AnnotationType.ATTACHMENT, view, model, controller);
 	    
 	    otherTaskPane = new AnnotationTaskPane(AnnotationType.OTHER, view, model, controller);
 	    
 	    ratingTaskPane = new AnnotationTaskPane(AnnotationType.RATING, view, model, controller);
 	    
-	    commentTaskPane = new AnnotationTaskPane(AnnotationType.COMMENTS, view, model, controller); 
+	    commentTaskPane = new AnnotationTaskPane(AnnotationType.COMMENT, view, model, controller); 
 	}
 	
 	/**
