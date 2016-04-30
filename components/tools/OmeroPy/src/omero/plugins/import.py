@@ -329,11 +329,10 @@ class ImportControl(BaseControl):
             self.do_import(args, xargs)
 
     def do_import(self, args, xargs):
+        out = err = None
         try:
-
             import_command = self.COMMAND + self.command_args + args.path
             # Open file handles for stdout/stderr if applicable
-            out = err = None
             out = self.open_log(args.file, args.logprefix)
             err = self.open_log(args.errs, args.logprefix)
 
@@ -369,6 +368,11 @@ class ImportControl(BaseControl):
                 line = line.strip()
                 self.parse_bulk(line, bulk, args)
                 self.do_import(args, xargs)
+                if self.ctx.rv:
+                    if args.java_c:
+                        self.ctx.err("Import failed with error code: %s. Continuing" % self.ctx.rv)
+                    else:
+                        self.ctx.die(106, "Import failed. Use -c to continue after errors")
         finally:
             os.chdir(old_pwd)
 
@@ -383,7 +387,9 @@ class ImportControl(BaseControl):
         else:
             parts = shlex.split(line)
             for idx, col in enumerate(cols):
-                if hasattr(args, "java_%s" % col):
+                if col == "path":
+                    args.path = [parts[idx]]
+                elif hasattr(args, "java_%s" % col):
                     setattr(args, "java_%s" % col, parts[idx])
                 else:
                     setattr(args, col, parts[idx])
