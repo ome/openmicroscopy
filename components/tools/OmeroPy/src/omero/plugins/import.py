@@ -324,7 +324,7 @@ class ImportControl(BaseControl):
         if args.bulk and args.path:
             self.ctx.die(104, "When using bulk import, omit paths")
         elif args.bulk:
-            self.do_bulk(args, xargs)
+            self.bulk_import(args, xargs)
         else:
             self.do_import(args, xargs)
 
@@ -349,21 +349,41 @@ class ImportControl(BaseControl):
             if err:
                 err.close()
 
-    def do_bulk(self, args, xargs):
+    def bulk_import(self, args, xargs):
+
         try:
             from yaml import safe_load
         except ImportError:
             self.ctx.die(105, "yaml is unsupported")
 
-        with open(args.bulk, "r") as f:
-            bulk = safe_load(f)
-        parent = os.path.dirname(args.bulk)
-
         old_pwd = os.getcwd()
-        os.chdir(parent)
         try:
+
+            # Walk the .yml graph looking for includes
+            # and load them all so that the top parent
+            # values can be overwritten.
+            contents = list()
+            bulkfile = args.bulk
+            while bulkfile:
+                bulkfile = os.path.abspath(bulkfile)
+                parent = os.path.dirname(bulkfile)
+                with open(bulkfile, "r") as f:
+                    data = safe_load(f)
+                    contents.append((bulkfile, parent, data))
+                    bulkfile = data.get("include")
+                    os.chdir(parent)
+                    # TODO: include file are updated based on the including file
+                    # but other file paths aren't!
+
+            bulk = dict()
+            for bulkfile, parent, data in reversed(contents):
+                bulk.update(data)
+                os.chdir(parent)
+
             path = bulk["path"]
             self.optionally_add(args, bulk, "name")
+            # TODO: need better mapping
+            self.optionally_add(args, bulk, "continue", "java_c")
             for line in fileinput.input([path]):
                 line = line.strip()
                 self.parse_bulk(line, bulk, args)
@@ -376,9 +396,11 @@ class ImportControl(BaseControl):
         finally:
             os.chdir(old_pwd)
 
-    def optionally_add(self, args, bulk, key):
+    def optionally_add(self, args, bulk, key, dest=None):
+        if dest is None:
+            dest = "java_" + key
         if key in bulk:
-            setattr(args, "java_"+key, bulk[key])
+            setattr(args, dest, bulk[key])
 
     def parse_bulk(self, line, bulk, args):
         cols = bulk.get("columns")
