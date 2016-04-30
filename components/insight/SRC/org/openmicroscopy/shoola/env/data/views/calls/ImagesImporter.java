@@ -39,7 +39,8 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.OmeroSessionService;
+import org.openmicroscopy.shoola.env.data.OmeroSessionServiceImpl;
 import org.openmicroscopy.shoola.env.data.model.ImportRequestData;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -150,13 +151,9 @@ public class ImagesImporter
                 }
                 //create a new client //no sudo for that demo
                 if (sessionKey == null) {
-                    omero.client cc = new omero.client(svc.getServerName(),
-                            svc.getPort());
-                    //use the login credentials.
-                    UserCredentials uc = (UserCredentials)
-                            context.lookup(LookupNames.USER_CREDENTIALS);
-                    cc.createSession(uc.getUserName(), uc.getPassword());
-                    sessionKey = cc.getSessionId();
+                    OmeroSessionService oss =
+                            new OmeroSessionServiceImpl(context);
+                    sessionKey = oss.createOfflineImportSession();
                 }
                 data.sessionKey = sessionKey;
                 //Prepare json string
