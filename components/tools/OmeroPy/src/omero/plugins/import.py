@@ -25,6 +25,7 @@
 """
 
 import os
+import csv
 import sys
 import shlex
 import fileinput
@@ -380,13 +381,11 @@ class ImportControl(BaseControl):
                 bulk.update(data)
                 os.chdir(parent)
 
-            path = bulk["path"]
             self.optionally_add(args, bulk, "name")
             # TODO: need better mapping
             self.optionally_add(args, bulk, "continue", "java_c")
-            for line in fileinput.input([path]):
-                line = line.strip()
-                self.parse_bulk(line, bulk, args)
+
+            for step in self.parse_bulk(bulk, args):
                 self.do_import(args, xargs)
                 if self.ctx.rv:
                     if args.java_c:
@@ -402,19 +401,40 @@ class ImportControl(BaseControl):
         if key in bulk:
             setattr(args, dest, bulk[key])
 
-    def parse_bulk(self, line, bulk, args):
+    def parse_bulk(self, bulk, args):
+        path = bulk["path"]
         cols = bulk.get("columns")
+
         if not cols:
-                args.path = [line]
+            # No parsing necessary
+            args.path = [line]
+
         else:
-            parts = shlex.split(line)
-            for idx, col in enumerate(cols):
-                if col == "path":
-                    args.path = [parts[idx]]
-                elif hasattr(args, "java_%s" % col):
-                    setattr(args, "java_%s" % col, parts[idx])
-                else:
-                    setattr(args, col, parts[idx])
+            function = self.parse_text
+            if path.endswith(".tsv"):
+                function = lambda x: self.parse_csv(x, delimiter="\t")
+            elif path.endswith(".csv"):
+                function = self.parse_csv
+
+            for parts in function(path):
+                for idx, col in enumerate(cols):
+                    if col == "path":
+                        args.path = [parts[idx]]
+                    elif hasattr(args, "java_%s" % col):
+                        setattr(args, "java_%s" % col, parts[idx])
+                    else:
+                        setattr(args, col, parts[idx])
+                yield parts
+
+    def parse_text(self, path):
+        for line in fileinput.input([path]):
+            line = line.strip()
+            yield shlex.split(line)
+
+    def parse_csv(self, path, delimiter=","):
+        with open(path, "r") as data:
+            for line in csv.reader(data, delimiter=delimiter):
+                yield line
 
     def open_log(self, file, prefix=None):
         if not file:
