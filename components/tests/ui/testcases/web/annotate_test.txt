@@ -183,6 +183,7 @@ Test Search Results File Annotations
     Submit Form
     Location Should Be                          ${SEARCH URL}
 
+    Wait Until Page Contains Element            xpath=//img[contains(@alt, 'plate')]
     Click Element                               xpath=//img[contains(@alt, 'plate')]
     Wait Until Page Contains Element            //*[@id="general_tab"]//th[contains(text(), 'Plate ID:')]
 
