@@ -14,6 +14,8 @@ ${commentTextTwo}       A second comment added by Robot test
 ${commentTextThree}     This will be added to Two Datasets
 ${commentTextFour}      I (Robot) just love adding comments!
 ${fileName}             robot_file_annotation.txt
+${fileNameTwo}          bulk_annotations
+${SEARCH URL}           ${WELCOME URL}search/
 
 
 *** Keywords ***
@@ -41,12 +43,37 @@ Remove Comment
 
 
 Add File Annotation
+    [Arguments]                                 ${fileAnnotationName}
     Wait Until Element Is Visible               id=choose_file_anns
     Click Element                               id=choose_file_anns
     Wait Until Page Contains Element            id=id_files
     # Click Element                          xpath=//select[@id='id_files']/option[contains(text(), ${fileName})]
-    Select From List By Label                   id=id_files         ${fileName}
+    Select From List By Label                   id=id_files     ${fileAnnotationName}    
     Click Dialog Button                         Accept
+    Check For File Annotation                   ${fileAnnotationName}
+
+Check For File Annotation
+    [Arguments]                                 ${fileAnnotationName} 
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//a[@class='deleteFile action']
+    Wait Until Element Is Visible               xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//span
+    # Mouse Over                                  //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')]
+    # Wait Until Element Is Visible               //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')][contains(@aria-describedby, 'ui-tooltip')]     
+
+Remove File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+    Click Element                               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::*[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+
+    Click Dialog Button                         OK
+    Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check File Annotation Gone  ${fileAnnotationName}
+
+Check File Annotation Gone
+    [Arguments]                                 ${fileAnnotationName}
+    Page Should Not Contain Element             xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
+
 
 *** Test Cases ***
 
@@ -113,4 +140,60 @@ Test File Annotations
 
     # Annotate single Screen
     Click Element                               xpath=//h1[@data-name='attachments']
-    Add File Annotation
+    Add File Annotation                         ${fileName}
+
+    # Refresh (select other Screen and re-select)
+    ${nodeId}=                                  Select Screen By Id         ${sId_One}
+    Wait Until Right Panel Loads                Screen                      ${sId_One}
+    Select Screen By Id                         ${sId_Two}
+    # Check and add another File Annotation
+    Check For File Annotation                   ${fileName}
+    Add File Annotation                         ${fileNameTwo}
+    # Remove first File Annotation
+    Remove File Annotation                      ${fileName}
+
+    # Now select both Screens...
+    Meta Click Node                             ${nodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    # Previously added File Annotation will show up
+    Check For File Annotation                   ${fileNameTwo}
+    Check File Annotation Gone                  ${fileName}
+    # Add File Annotation to Both Screens
+    Add File Annotation                         ${fileName}
+    Select Screen By Id                         ${sId_One}
+    Check For File Annotation                   ${fileName}
+    Select Screen By Id                         ${sId_Two}
+    Check For File Annotation                   ${fileName}
+
+    # Now select both Screens...
+    Meta Click Node                             ${nodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    # Remove first File Annotation
+    Remove File Annotation                      ${fileName}
+    Select Screen By Id                         ${sId_One}
+    Check File Annotation Gone                  ${fileName}
+    Select Screen By Id                         ${sId_Two}
+    Check File Annotation Gone                  ${fileName}
+
+# Test Rating
+
+Test Search Results File Annotations
+    
+    Input Text  id=id_search_query              ${fileNameTwo}
+    Submit Form
+    Location Should Be                          ${SEARCH URL}
+
+    Click Element                               xpath=//img[contains(@alt, 'plate')]
+    Wait Until Page Contains Element            //*[@id="general_tab"]//th[contains(text(), 'Plate ID:')]
+
+    #Minimal checking to check if you can add Annotations on the search result page
+    Click Element                               xpath=//h1[@data-name='attachments']
+    Check For File Annotation                   ${fileNameTwo}
+    Remove File Annotation                      ${fileNameTwo}
+    Add File Annotation                         ${fileNameTwo}
+    Click Element                               xpath=//h1[@data-name='comments']
+    Add Comment                                 ${commentText}
+
+
+
+    
