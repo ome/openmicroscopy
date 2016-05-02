@@ -147,7 +147,7 @@ Test Batch Annotate
     Click Element                               xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Comments')]
     Wait Until Element Is Visible               id=id_comment
     Input Text                                  comment     test add comment
-    Click Element                               xpath=//input[@value='Add Comment']
+    Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
 
     # Tags

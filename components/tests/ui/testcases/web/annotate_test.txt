@@ -32,7 +32,7 @@ Add Comment
     [Arguments]                                 ${text}
     Wait Until Element Is Visible               id=id_comment
     Input Text                                  comment            ${text}
-    Click Element                               xpath=//input[@value='Add Comment']
+    Submit Form                                 add_comment_form
     Check For Comment                           ${text}
 
 Remove Comment
