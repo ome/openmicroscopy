@@ -5143,12 +5143,6 @@ public class OMEROMetadataStoreClient
         // TODO Auto-generated method stub
     }
 
-    @Override
-    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
-        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
-        o.setMapValue(IceMapper.convertMapPairs(value));
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskText(java.lang.String, int, int)
      */
@@ -7977,6 +7971,12 @@ public class OMEROMetadataStoreClient
     public void setMapAnnotationNamespace(String namespace, int mapAnnotationIndex) {
         final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
         o.setNs(toRType(namespace));
+    }
+
+    @Override
+    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
+        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
+        o.setMapValue(IceMapper.convertMapPairs(value));
     }
 
     /**
