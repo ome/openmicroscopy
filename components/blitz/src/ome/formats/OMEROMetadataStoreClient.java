@@ -5129,18 +5129,18 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setMaskBinDataBigEndian(Boolean arg0, int arg1, int arg2) {
-        // TODO Auto-generated method stub
+    public void setMaskBinDataBigEndian(Boolean isBigEndian, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataBigEndian", isBigEndian, roiIndex, shapeIndex);
     }
 
     @Override
-    public void setMaskBinDataCompression(Compression arg0, int arg1, int arg2) {
-        // TODO Auto-generated method stub
+    public void setMaskBinDataCompression(Compression compression, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataCompression", compression, roiIndex, shapeIndex);
     }
 
     @Override
-    public void setMaskBinDataLength(NonNegativeLong arg0, int arg1, int arg2) {
-        // TODO Auto-generated method stub
+    public void setMaskBinDataLength(NonNegativeLong length, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataLength", length, roiIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -5682,8 +5682,8 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setPixelsBinData(byte[] arg0, int arg1, int arg2) {
-        // TODO Auto-generated method stub
+    public void setPixelsBinData(byte[] binData, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinData", imageIndex, binDataIndex);
     }
 
     /* (non-Javadoc)
@@ -5697,13 +5697,13 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setPixelsBinDataCompression(Compression arg0, int arg1, int arg2) {
-        // TODO Auto-generated method stub
+    public void setPixelsBinDataCompression(Compression compression, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinDataCompression", compression, imageIndex, binDataIndex);
     }
 
     @Override
-    public void setPixelsBinDataLength(NonNegativeLong arg0, int arg1, int arg2) {
-        // TODO Auto-generated method stub
+    public void setPixelsBinDataLength(NonNegativeLong length, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinDataLength", length, imageIndex, binDataIndex);
     }
 
     /* (non-Javadoc)
@@ -8184,23 +8184,23 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setBinaryFileBinData(byte[] arg0, int arg1) {
-        // TODO Auto-generated method stub
+    public void setBinaryFileBinData(byte[] binData, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinData", fileAnnotationIndex);
     }
 
     @Override
-    public void setBinaryFileBinDataBigEndian(Boolean arg0, int arg1) {
-        // TODO Auto-generated method stub
+    public void setBinaryFileBinDataBigEndian(Boolean isBigEndian, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataBigEndian", isBigEndian, fileAnnotationIndex);
     }
 
     @Override
-    public void setBinaryFileBinDataCompression(Compression arg0, int arg1) {
-        // TODO Auto-generated method stub
+    public void setBinaryFileBinDataCompression(Compression compression, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataCompression", compression, fileAnnotationIndex);
     }
 
     @Override
-    public void setBinaryFileBinDataLength(NonNegativeLong arg0, int arg1) {
-        // TODO Auto-generated method stub
+    public void setBinaryFileBinDataLength(NonNegativeLong length, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataLength", length, fileAnnotationIndex);
     }
 
     /* (non-Javadoc)
