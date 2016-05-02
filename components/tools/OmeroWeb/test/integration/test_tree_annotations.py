@@ -331,10 +331,15 @@ class TestTreeAnnotations(lib.ITest):
         annotations, experimenters = marshaled
         experimenters.sort(key=lambda x: x['id'])
         anns, exps = expected
+        # need to sort since marshal_annotations doesn't sort yet
+        annotations.sort(key=lambda x: x['link']['id'])
+        anns.sort(key=lambda x: x['link']['id'])
 
         assert len(annotations) == 3
         assert len(experimenters) == 2
-        assert annotations == anns
+        assert annotations[0] == anns[0]
+        assert annotations[1] == anns[1]
+        assert annotations[2] == anns[2]
         assert experimenters == exps
 
     def test_twin_tags_projects(self, userA, userB, projects_userA,
@@ -357,10 +362,16 @@ class TestTreeAnnotations(lib.ITest):
         annotations, experimenters = marshaled
         experimenters.sort(key=lambda x: x['id'])
         anns, exps = expected
+        # need to sort since marshal_annotations doesn't sort yet
+        annotations.sort(key=lambda x: x['link']['id'])
+        anns.sort(key=lambda x: x['link']['id'])
 
         assert len(annotations) == 4
         assert len(experimenters) == 2
-        assert annotations == anns
+        assert annotations[0] == anns[0]
+        assert annotations[1] == anns[1]
+        assert annotations[2] == anns[2]
+        assert annotations[3] == anns[3]
         assert experimenters == exps
 
     def test_tags_comments_project(self, userA, project_userA,
@@ -385,10 +396,14 @@ class TestTreeAnnotations(lib.ITest):
         annotations, experimenters = marshaled
         experimenters.sort(key=lambda x: x['id'])
         anns, exps = expected
+        # need to sort since marshal_annotations doesn't sort yet
+        annotations.sort(key=lambda x: x['link']['id'])
+        anns.sort(key=lambda x: x['link']['id'])
 
         assert len(annotations) == 2
         assert len(experimenters) == 2
-        assert annotations == anns
+        assert annotations[0] == anns[0]
+        assert annotations[1] == anns[1]
         assert experimenters == exps
 
         # Get just the comments...
@@ -399,8 +414,13 @@ class TestTreeAnnotations(lib.ITest):
         annotations, experimenters = marshaled
         experimenters.sort(key=lambda x: x['id'])
         anns, exps = expected
+        # need to sort since marshal_annotations doesn't sort yet
+        annotations.sort(key=lambda x: x['link']['id'])
+        anns.sort(key=lambda x: x['link']['id'])
 
         assert len(annotations) == 2
+        assert annotations[0] == anns[0]
+        assert annotations[1] == anns[1]
         assert len(experimenters) == 1
         assert annotations == anns
         assert experimenters == exps
@@ -418,5 +438,8 @@ class TestTreeAnnotations(lib.ITest):
         # need to sort since marshal_annotations doesn't sort yet
         annotations.sort(key=lambda x: x['link']['id'])
         anns.sort(key=lambda x: x['link']['id'])
-        assert annotations == anns
+        assert annotations[0] == anns[0]
+        assert annotations[1] == anns[1]
+        assert annotations[2] == anns[2]
+        assert annotations[3] == anns[3]
         assert experimenters == exps
