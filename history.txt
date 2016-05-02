@@ -30,6 +30,7 @@ System administrator updates include:
    walkthroughs
 -  redis support for websessions caching
 -  a fix to allow OMERO.web to be run in a Docker container
+-  improved OMERO.web configuration
 -  warnings added regarding the
    `end of Windows support in the 5.3.0 release <http://blog.openmicroscopy.org/tech-issues/future-plans/deployment/2016/03/22/windows-support/>`_
    (note that we will be preparing a guide for migrating from Windows for
