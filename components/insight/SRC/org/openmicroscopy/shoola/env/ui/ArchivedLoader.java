@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,11 +29,12 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-
 import org.openmicroscopy.shoola.env.config.Registry;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
+import omero.gateway.model.PlateData;
 
 /** 
  * Loads the image.
@@ -53,7 +54,7 @@ public class ArchivedLoader
     private CallHandle handle;
 
     /** The archived images to load. */
-    private List<ImageData> images;
+    private List<DataObject> objects;
 
     /** The file where to download the content of the image. */
     private File file;
@@ -87,7 +88,7 @@ public class ArchivedLoader
      *               Mustn't be <code>null</code>.
      * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
-     * @param images The images to export.
+     * @param objects The images to export.
      * @param file The location where to download the image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.
@@ -96,32 +97,31 @@ public class ArchivedLoader
      * @param activity The activity associated to this loader.
      */
 	public ArchivedLoader(UserNotifier viewer, Registry registry,
-			SecurityContext ctx, List<ImageData> images, File file,
+			SecurityContext ctx, List<DataObject> objects, File file,
 			boolean override, boolean zip, boolean keepOriginalPaths, ActivityComponent activity)
 	{
 		super(viewer, registry, ctx, activity);
-		if (images == null)
-			throw new IllegalArgumentException("Image not valid.");
-		this.images = images;
+		if (objects == null)
+			throw new IllegalArgumentException("No objects provided.");
+		this.objects = objects;
 		this.file = file;
 		this.override = override;
 		this.zip = zip;
 		this.keepOriginalPaths = keepOriginalPaths;
 	}
+    
+    /**
+     * Downloads the archived image.
+     * 
+     * @see UserNotifierLoader#load()
+     */
+    public void load() {
+        if (CollectionUtils.isEmpty(objects))
+            return;
 
-	/**
-	 * Downloads the archived image.
-	 * @see UserNotifierLoader#load()
-	 */
-	public void load()
-	{
-	    List<Long> imageIds = new ArrayList<Long>(images.size());
-	    for(ImageData d : images)
-	        imageIds.add(d.getId());
-	    
-	    handle = mhView.loadArchivedImage(ctx, imageIds, file,
-	            override, zip, keepOriginalPaths, this);
-	}
+        handle = mhView.loadArchivedImage(ctx, objects, file, override, zip,
+                keepOriginalPaths, this);
+    }
 
 	/**
 	 * Cancels the ongoing data retrieval.

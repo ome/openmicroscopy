@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+import omero.model.PlateAcquisition;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
@@ -344,7 +345,7 @@ class EditorModel
 	 */
 	private void downloadImages(File file, boolean override)
 	{
-	    List<ImageData> images = new ArrayList<ImageData>();
+	    List<DataObject> images = new ArrayList<DataObject>();
 	    List<DataObject> l = getSelectedObjects();
 	    if (!CollectionUtils.isEmpty(l)) {
 	        Iterator<DataObject> i = l.iterator();
@@ -366,7 +367,6 @@ class EditorModel
 	        }
 	    }
 	    if (!CollectionUtils.isEmpty(images)) {
-	        Iterator<ImageData> i = images.iterator();
 	        DownloadArchivedActivityParam p;
 	        UserNotifier un =
 	                MetadataViewerAgent.getRegistry().getUserNotifier();
@@ -3125,10 +3125,12 @@ class EditorModel
      *            <code>false</code> otherwise.
      */
     void downloadOriginal(String path, boolean override) {
-        if (!(refObject instanceof ImageData))
+        if (!(refObject instanceof ImageData || refObject instanceof PlateData
+                || refObject instanceof WellData
+                || refObject instanceof WellSampleData || refObject instanceof PlateAcquisitionData))
             return;
 
-        List<ImageData> images = new ArrayList<ImageData>();
+        List<DataObject> images = new ArrayList<DataObject>();
         List<DataObject> l = getSelectedObjects();
         if (!CollectionUtils.isEmpty(l)) {
             Iterator<DataObject> i = l.iterator();
@@ -3138,6 +3140,7 @@ class EditorModel
             ImageData image;
             while (i.hasNext()) {
                 o = i.next();
+                if(o instanceof ImageData) {
                 if (isArchived(o)) {
                     image = (ImageData) o;
                     id = image.getFilesetId();
@@ -3146,6 +3149,38 @@ class EditorModel
                     else if (!filesetIds.contains(id)) {
                         images.add(image);
                         filesetIds.add(id);
+                    }
+                }
+                }
+                if (o instanceof PlateData) {
+                    PlateData p = (PlateData) o;
+                    images.add(p);
+                }
+                if (o instanceof PlateAcquisitionData) {
+                    PlateAcquisitionData p = (PlateAcquisitionData) o;
+                    PlateData pl = new PlateData(((PlateAcquisition)p.asIObject()).getPlate());
+                    images.add(pl);
+                }
+                if (o instanceof WellSampleData) {
+                    WellSampleData w = (WellSampleData) o;
+                    id = w.getImage().getFilesetId();
+                    if (id < 0)
+                        images.add(w.getImage());
+                    else if (!filesetIds.contains(id)) {
+                        images.add(w.getImage());
+                        filesetIds.add(id);
+                    }
+                }
+                if (o instanceof WellData) {
+                    WellData w = (WellData) o;
+                    for(WellSampleData s : w.getWellSamples()) {
+                        id = s.getImage().getFilesetId();
+                        if (id < 0)
+                            images.add(s.getImage());
+                        else if (!filesetIds.contains(id)) {
+                            images.add(s.getImage());
+                            filesetIds.add(id);
+                        }
                     }
                 }
             }

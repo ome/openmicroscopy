@@ -24,21 +24,25 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.Action;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.PojosUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ImageData;
 
@@ -74,14 +78,12 @@ public class DownloadAction
         if (CollectionUtils.isNotEmpty(list)) {
             Iterator<DataObject> i = list.iterator();
             DataObject d;
+
             while (i.hasNext()) {
                 d = i.next();
-                if (d instanceof ImageData) {
-                    ImageData data = (ImageData) d;
-                    if (data.isArchived()) {
-                        enabled = true;
-                        break;
-                    }
+                if (PojosUtil.isDownloadable(d)) {
+                    enabled = true;
+                    break;
                 }
             }
         }
@@ -113,6 +115,10 @@ public class DownloadAction
         if (node == null)
             return;
         
+        List<DataObject> selection = new ArrayList<DataObject>();
+        selection.add((DataObject)node.getHierarchyObject());
+        
+        
         JFrame f = DataBrowserAgent.getRegistry().getTaskBar().getFrame();
 
         int type = FileChooser.FOLDER_CHOOSER;
@@ -131,7 +137,7 @@ public class DownloadAction
                 if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
                     String path = (String) evt.getNewValue();
                     EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-                    bus.post(new DownloadEvent(new File(path), src.isOverride()));
+                    bus.post(new DownloadEvent(new File(path), src.isOverride(), selection));
                 }
             }
         });

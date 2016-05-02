@@ -23,10 +23,14 @@ package org.openmicroscopy.shoola.util;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
+import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateAcquisitionData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
+import omero.gateway.model.WellData;
+import omero.gateway.model.WellSampleData;
+import omero.model.PlateAcquisition;
 
 /**
  * Provides some static utility methods for dealing the with Gateway
@@ -52,4 +56,68 @@ public class PojosUtil {
                 || PlateAcquisitionData.class.equals(type);
     }
 
+    /**
+     * Checks the permissions if the object (image, plate or well) can be
+     * downloaded.
+     * 
+     * @param obj
+     *            The object to check.
+     *            
+     * @return Returns <code>true</code> if the object can be downloaded,
+     *         <code>false</code> otherwise.
+     */
+    public static boolean isDownloadable(DataObject obj) {
+        if (obj instanceof ImageData) {
+            ImageData img = (ImageData) obj;
+            return img.isArchived()
+                    && !img.asIObject()
+                            .getDetails()
+                            .getPermissions()
+                            .isRestricted(
+                                    omero.constants.permissions.BINARYACCESS.value);
+        }
+
+        if (obj instanceof PlateData) {
+            PlateData p = (PlateData) obj;
+            return !p
+                    .asIObject()
+                    .getDetails()
+                    .getPermissions()
+                    .isRestricted(
+                            omero.constants.permissions.BINARYACCESS.value);
+        }
+        if (obj instanceof PlateAcquisitionData) {
+            PlateAcquisitionData p = (PlateAcquisitionData) obj;
+            PlateAcquisition pa = (PlateAcquisition) p.asIObject();
+            return !pa
+                    .getPlate()
+                    .getDetails()
+                    .getPermissions()
+                    .isRestricted(
+                            omero.constants.permissions.BINARYACCESS.value);
+        }
+        if (obj instanceof WellSampleData) {
+            WellSampleData w = (WellSampleData) obj;
+            return w.getImage().isArchived()
+                    && !w.asWellSample()
+                            .getPlateAcquisition()
+                            .getPlate()
+                            .getDetails()
+                            .getPermissions()
+                            .isRestricted(
+                                    omero.constants.permissions.BINARYACCESS.value);
+        }
+        if (obj instanceof WellData) {
+            WellData w = (WellData) obj;
+            return w.getWellSamples().iterator().next().getImage().isArchived()
+                    && !w.getPlate()
+                            .asIObject()
+                            .getDetails()
+                            .getPermissions()
+                            .isRestricted(
+                                    omero.constants.permissions.BINARYACCESS.value);
+        }
+
+        return false;
+    }
 }
