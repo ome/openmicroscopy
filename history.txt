@@ -16,6 +16,7 @@ A bug-fix release. Improvements include:
 -  fixes in OMERO.web for deleting MIFs
 -  improvements to the navigation of large datasets and display of plates in
    OMERO.web
+-  other OMERO.web bug fixes
 -  OMERO.insight and CLI import improvements
 -  other OMERO.insight bug fixes, including for downloading data
 
@@ -25,11 +26,14 @@ Developer updates include:
 
 System administrator updates include:
 
--  Ice 3.6.2 support, including specific installation walkthroughs
+-  Ice 3.6.2 support for UNIX-like systems, including specific installation
+   walkthroughs
 -  redis support for websessions caching
--  warnings added regarding the end of Windows support (note that we will be
-   preparing a guide for migrating from Windows for existing servers and
-   adding it to the documentation as soon as we can)
+-  a fix to allow OMERO.web to be run in a Docker container
+-  warnings added regarding the
+   `end of Windows support in the 5.3.0 release <http://blog.openmicroscopy.org/tech-issues/future-plans/deployment/2016/03/22/windows-support/>`_
+   (note that we will be preparing a guide for migrating from Windows for
+   existing servers and adding it to the documentation as soon as we can)
 
 This release also upgrades the version of Bio-Formats which OMERO uses to
 5.1.9. `See whats-new for more information <https://www.openmicroscopy.org/site/support/bio-formats5.1/about/whats-new.html>`_.
