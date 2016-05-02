@@ -131,6 +131,12 @@ Test Comments
     Check Comment Gone                          ${commentTextTwo}
     Check Comment Gone                          ${commentTextThree}
 
+    Select Dataset By Id                        ${dsId_One}
+    Delete Container
+
+    Select Dataset By Id                        ${dsId_Two}
+    Delete Container
+
 
 Test File Annotations
 
@@ -175,9 +181,19 @@ Test File Annotations
     Select Screen By Id                         ${sId_Two}
     Check File Annotation Gone                  ${fileName}
 
+    Delete Container
+    Select Screen By Id                         ${sId_One}
+    Delete Container                        
+
 # Test Rating
 
 Test Search Results File Annotations
+
+    Select Experimenter
+    ${sId_One}=                                 Create Screen       robot file annotations_1
+
+    # Annotate single Screen
+    Add File Annotation                         ${fileNameTwo}
     
     Input Text  id=id_search_query              ${fileNameTwo}
     Submit Form
@@ -193,6 +209,11 @@ Test Search Results File Annotations
     Add File Annotation                         ${fileNameTwo}
     Click Element                               xpath=//h1[@data-name='comments']
     Add Comment                                 ${commentText}
+
+    Go To                                       ${WELCOME URL}
+    Select Experimenter
+    Select Screen By Id                         ${sId_One}
+    Delete Container
 
 
 
