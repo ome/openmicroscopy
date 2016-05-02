@@ -120,6 +120,7 @@ class TestImport(CLITest):
         self.cli.register("import", plugin.ImportControl, "TEST")
         self.args += ["import"]
         self.add_client_dir()
+        self.keepRootAlive()
 
     def set_conn_args(self):
         host = self.root.getProperty("omero.host")

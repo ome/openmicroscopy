@@ -117,6 +117,20 @@ class ITest(object):
         cls.root = None
         cls.__clients.__del__()
 
+    def keepRootAlive(self):
+        """
+        Keeps root connection alive.
+        """
+        try:
+            if self.root.sf is None:
+                p = Ice.createProperties(sys.argv)
+                rootpass = p.getProperty("omero.rootpass")
+                self.root.createSession("root", rootpass)
+            else:
+                self.root.sf.keepAlive(None)
+        except Exception:
+            raise
+
     @classmethod
     def omeropydir(self):
         count = 10
