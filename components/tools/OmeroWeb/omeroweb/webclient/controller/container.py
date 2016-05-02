@@ -242,7 +242,7 @@ class BaseContainer(BaseController):
         # As used in metadata_general panel
         else:
             return self.image.canDownload() or \
-                self.well.canDownload() or self.plate.canDonwload()
+                self.well.canDownload() or self.plate.canDownload()
 
     def listFigureScripts(self, objDict=None):
         """
