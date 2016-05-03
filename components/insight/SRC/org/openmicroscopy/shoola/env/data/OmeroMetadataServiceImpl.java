@@ -978,7 +978,7 @@ class OmeroMetadataServiceImpl
 	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, DataObject, long, boolean)
 	 */
 	public StructuredDataResults loadStructuredData(SecurityContext ctx,
-			Object object, long userID, boolean viewed) 
+			Object object, long userID) 
 	    throws DSOutOfServiceException, DSAccessException 
 	{
 		if (object == null)
@@ -1017,11 +1017,11 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, List, long, boolean)
+	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, List, long)
 	 */
 	public Map<DataObject, StructuredDataResults>
 		loadStructuredData(SecurityContext ctx, List<DataObject> data,
-			long userID, boolean viewed) 
+			long userID) 
 	    throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
@@ -2316,7 +2316,6 @@ class OmeroMetadataServiceImpl
 	public DataObject loadAnnotation(SecurityContext ctx, long annotationID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		//Tmp code
 	    Collection<DataObject> set = gateway.loadAnnotation(ctx, 
 				Arrays.asList(annotationID));
 		if (set.size() != 1) return null;

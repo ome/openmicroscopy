@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -25,12 +25,14 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import omero.gateway.SecurityContext;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import omero.gateway.model.FileAnnotationData;
@@ -82,7 +84,7 @@ public class AnnotationDataLoader
 		List<String> nsInclude = new ArrayList<String>();
 		nsInclude.add(FileAnnotationData.LOG_FILE_NS);
 		handle = mhView.loadAnnotations(ctx, FilesetData.class,
-				Arrays.asList(fileSetID), FileAnnotationData.class, nsInclude,
+				Arrays.asList(fileSetID), EnumSet.of(AnnotationType.ATTACHMENT), nsInclude,
 				null, this);
 	}
 	

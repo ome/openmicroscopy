@@ -22,10 +22,12 @@ package org.openmicroscopy.shoola.env.data.views;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -39,6 +41,8 @@ import org.openmicroscopy.shoola.env.data.views.calls.FileAnnotationCheckLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FileUploader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesetLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.MeasurementLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.RatingLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
@@ -95,19 +99,6 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadStructuredData(SecurityContext, DataObject,
-	 * long, AgentEventListener)
-	 */
-	public CallHandle loadStructuredData(SecurityContext ctx, Object dataObject,
-								long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(ctx,
-						StructuredAnnotationLoader.ALL, dataObject, userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadStructuredData(SecurityContext, List,
 	 * long, boolean, AgentEventListener)
 	 */
@@ -115,21 +106,33 @@ class MetadataHandlerViewImpl
 		List<DataObject> data, long userID, boolean viewed,
 		AgentEventListener observer)
 	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(ctx,
-						StructuredAnnotationLoader.ALL, data, userID, viewed);
+		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, null, data, userID);
 		return cmd.exec(observer);
 	}
+	
+	/**
+     * Implemented as specified by the view interface.
+     * @see MetadataHandlerView#loadStructuredData(SecurityContext, List,
+     * long, boolean, EnumSet, AgentEventListener)
+     */
+	@Override
+    public CallHandle loadStructuredData(SecurityContext ctx,
+        List<DataObject> data, long userID, boolean viewed, EnumSet<AnnotationType> types,
+        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new StructuredAnnotationLoader(ctx, types, data, userID);
+        return cmd.exec(observer);
+    }
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadExistingAnnotations(SecurityContext, Class,
-	 * long, long, AgentEventListener)
+	 * @see MetadataHandlerView#loadExistingAnnotations(SecurityContext, AnnotationType,
+	 * long, AgentEventListener)
 	 */
 	public CallHandle loadExistingAnnotations(SecurityContext ctx,
-		Class annotation, long userID, AgentEventListener observer)
+		AnnotationType annotation, long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, annotation,
-														userID);
+		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, annotation, userID);
 		return cmd.exec(observer);
 	}
 
@@ -145,10 +148,10 @@ class MetadataHandlerViewImpl
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadExistingAnnotations(SecurityContext,
-	 * Class, long, AgentEventListener)
+	 * AnnotationType, long, AgentEventListener)
 	 */
 	public CallHandle loadExistingAnnotations(List<SecurityContext> ctx,
-		Class annotation, long userID, AgentEventListener observer)
+	        AnnotationType annotation, long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, annotation,
 														userID);
@@ -257,8 +260,7 @@ class MetadataHandlerViewImpl
 	public CallHandle loadRatings(SecurityContext ctx, Class nodeType,
 		List<Long> nodeIDs, long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(ctx,
- 				StructuredAnnotationLoader.RATING, nodeType, nodeIDs, userID);
+		BatchCallTree cmd = new RatingLoader(ctx, nodeType, nodeIDs, userID);
 		return cmd.exec(observer);
 	}
 
@@ -330,16 +332,6 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadAnnotation(SecurityContext, long, AgentEventListener)
-	 */
-	public CallHandle loadAnnotation(SecurityContext ctx, long annotationID,
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, annotationID);
-		return cmd.exec(observer);
-	}
 
 	/**
 	 * Implemented as specified by the view interface.
@@ -373,8 +365,7 @@ class MetadataHandlerViewImpl
 	public CallHandle loadROIMeasurement(SecurityContext ctx,
 		Object dataObject, long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(ctx,
- 				StructuredAnnotationLoader.ROI_MEASUREMENT, dataObject,
+		BatchCallTree cmd = new MeasurementLoader(ctx, dataObject,
  					userID);
 		return cmd.exec(observer);
 	}
@@ -455,14 +446,15 @@ class MetadataHandlerViewImpl
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadAnnotations(SecurityContext, Class, List,
-	 * Class, List, List, AgentEventListener)
+	 * EnumSet, List, List, AgentEventListener)
 	 */
+	@Override
 	public CallHandle loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
-			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<Long> rootIDs, EnumSet<AnnotationType> annotationTypes, List<String> nsInclude,
 			List<String> nsExlcude, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, rootType,
-			rootIDs, annotationType, nsInclude, nsExlcude);
+			rootIDs, annotationTypes, nsInclude, nsExlcude);
 		return cmd.exec(observer);
 	}
 

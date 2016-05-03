@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1716,6 +1716,8 @@ class OMEROGateway
 		}
 		try {
 		    IMetadataPrx service = gw.getMetadataService(ctx);
+            if (types == null || types.isEmpty())
+                System.out.println("Avoid this !!!");
 			return PojoMapper.asDataObjects(
 					service.loadAnnotations(PojoMapper.getModelType(nodeType).getName(),
 							nodeIDs, types, annotatorIDs, options));

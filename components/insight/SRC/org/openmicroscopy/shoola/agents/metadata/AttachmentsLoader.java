@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,8 @@ import java.util.Collection;
 
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import omero.gateway.SecurityContext;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import omero.gateway.model.FileAnnotationData;
 
 /** 
  * Retrieves the files already uploaded to the server by the currently
@@ -78,7 +78,7 @@ public class AttachmentsLoader
 	{
 		long userID = viewer.getUserID();
 		if (canAnnotate) userID = -1;
-		handle = mhView.loadExistingAnnotations(ctx, FileAnnotationData.class,
+		handle = mhView.loadExistingAnnotations(ctx, AnnotationType.ATTACHMENT,
 												userID, this);
 	}
 	
