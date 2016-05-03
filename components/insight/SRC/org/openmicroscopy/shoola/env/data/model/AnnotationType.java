@@ -4,6 +4,7 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.LongAnnotationData;
 import omero.gateway.model.MapAnnotationData;
+import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.TextualAnnotationData;
 
@@ -25,7 +26,7 @@ public enum AnnotationType {
     ATTACHMENT("Attachments", FileAnnotationData.class), 
     
     /** Rating Annotation */
-    RATING("Ratings", LongAnnotationData.class), 
+    RATING("Ratings", RatingAnnotationData.class), 
     
     /** Other Annotations */
     OTHER("Others", null), 

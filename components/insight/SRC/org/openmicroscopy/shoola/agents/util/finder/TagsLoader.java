@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.List;
 
 import omero.gateway.SecurityContext;
+
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import omero.gateway.model.ExperimenterData;
@@ -65,7 +67,7 @@ public class TagsLoader
      */
     public void load()
     {
-		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
+		handle = mhView.loadExistingAnnotations(ctx, AnnotationType.TAG,
 				-1, this);
     }
 

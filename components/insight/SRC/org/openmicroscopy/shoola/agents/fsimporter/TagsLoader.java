@@ -21,13 +21,17 @@
 package org.openmicroscopy.shoola.agents.fsimporter;
 
 import java.util.Collection;
+import java.util.EnumSet;
 
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import omero.gateway.SecurityContext;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import omero.log.LogMessage;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 
+import omero.gateway.SecurityContext;
+
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import omero.log.LogMessage;
 import omero.gateway.model.TagAnnotationData;
 
 /** 
@@ -79,7 +83,7 @@ public class TagsLoader
 	{
 		long userID = getCurrentUserID();
 		if (loadAll) userID = -1;
-		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
+		handle = mhView.loadExistingAnnotations(ctx, AnnotationType.TAG,
 				userID, this);
 	}
 	

@@ -23,8 +23,12 @@ package org.openmicroscopy.shoola.agents.metadata;
 import java.util.Collection;
 
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+
 import omero.gateway.SecurityContext;
+
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import omero.gateway.model.FileAnnotationData;
 
 /** 
@@ -78,7 +82,7 @@ public class AttachmentsLoader
 	{
 		long userID = viewer.getUserID();
 		if (canAnnotate) userID = -1;
-		handle = mhView.loadExistingAnnotations(ctx, FileAnnotationData.class,
+		handle = mhView.loadExistingAnnotations(ctx, AnnotationType.ATTACHMENT,
 												userID, this);
 	}
 	
