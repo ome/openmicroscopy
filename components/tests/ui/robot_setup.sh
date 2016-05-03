@@ -21,6 +21,7 @@ TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00.fake
 MIF_IMAGE_NAME=${MIF_IMAGE_NAME:-test&series=3.fake}
 PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake}
 BULK_ANNOTATION_CSV=${BULK_ANNOTATION_CSV:-bulk_annotation.csv}
+FILE_ANNOTATION=${FILE_ANNOTATION:-robot_file_annotation.txt}
 
 # Create robot user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
@@ -40,6 +41,9 @@ touch $MIF_IMAGE_NAME
 echo "Well,Well Type,Concentration" > "$BULK_ANNOTATION_CSV"
 echo "A1,Control,0" >> "$BULK_ANNOTATION_CSV"
 echo "A2,Treatment,10" >> "$BULK_ANNOTATION_CSV"
+
+# Create file for upload as File Annotation
+echo "Robot test file annotations" > "$FILE_ANNOTATION"
 
 # Create robot setup
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
@@ -112,6 +116,11 @@ for (( k=1; k<=10; k++ ))
 do
   bin/omero import $TINY_IMAGE_NAME --debug ERROR
 done
+
+# Uplodad file and create FileAnnotation
+bin/omero upload $FILE_ANNOTATION > file_upload.log
+fileId=$(sed "s/^Uploaded $FILE_ANNOTATION as //" file_upload.log)
+bin/omero obj new FileAnnotation file=OriginalFile:$fileId
 
 # Logout
 bin/omero logout
