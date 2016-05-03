@@ -356,7 +356,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
         addDocsButton = new JButton(
                 icons.getIcon(IconManager.PLUS_12));
         addDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        addDocsButton.setToolTipText("Attach a document.");
+        addDocsButton.setToolTipText("Attach a document");
         addDocsButton.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -374,7 +374,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
                 icons.getIcon(IconManager.MINUS_12));
         UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
         removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        removeDocsButton.setToolTipText("Remove attachment.");
+        removeDocsButton.setToolTipText("Remove attachment");
         removeDocsButton.addMouseListener(controller);
         removeDocsButton.setActionCommand("" + EditorControl.REMOVE_DOCS);
         buttons.add(removeDocsButton);
