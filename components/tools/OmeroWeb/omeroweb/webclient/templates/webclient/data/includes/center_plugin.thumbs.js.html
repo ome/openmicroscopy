@@ -106,6 +106,7 @@ $(document).ready(function() {
 
         // single click handler on image (container). Selection then update toolbar & metadata pane
         $( "#icon_table" ).on( "click", "li.row", function(event) {
+            event.preventDefault();
             handleClickSelection(event);
         });
 
@@ -399,6 +400,8 @@ $(document).ready(function() {
         if (event.target.nodeName.toLowerCase() == 'li') {
             $targetIcon = $(event.target);
         } else if (event.target.nodeName.toLowerCase() == 'img') {
+            $targetIcon = $(event.target).parent().parent().parent();
+        } else if (event.target.nodeName.toLowerCase() == 'a') {
             $targetIcon = $(event.target).parent().parent();
         } else {
             $targetIcon = $(event.target).parent();
@@ -666,7 +669,7 @@ $(document).ready(function() {
                     loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), undefined);
 
                 // Fields are only applicable for acquisitions
-                } else if (containerNode.type === 'acquisition' &&
+                } else if ((containerNode.type === 'acquisition' || containerNode.type === 'plate') && 
                            getfieldOr0(inst, containerNode) !== currentField) {
                     loadThumbnailsPanel(containerNode, undefined, getfieldOr0(inst, containerNode));
                 }
@@ -746,7 +749,7 @@ $(document).ready(function() {
             node = inst.get_node(node);
             var nodeType = node.type;
             var nodeId = node.data.obj.id;
-            var show = OME.getURLParameter('show');
+            var show = WEBCLIENT.initially_select.join("|");
 
             switch(nodeType) {
                 // case 'dataset':
@@ -756,11 +759,11 @@ $(document).ready(function() {
                 //     url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
                 //     break;
                 case 'plate':
-                    // Only load plates if it does not have child acquisitions
-                    if (!inst.is_parent(node)) {
-                        url += 'load_data/' + nodeType + '/' + nodeId + '/';
+                    // Only load plates if it has a single 'Run' (or none)
+                    if (node.children.length < 2) {
+                        url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
                         if (show) {
-                            url += "?show=" + show;
+                            url += "&show=" + show;
                         }
                     } else {
                         url = undefined;

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -405,4 +405,11 @@ public interface MeasurementViewer
 
     /** Notifies that the annotations have been saved. Reloads.*/
     public void onAnnotationSaved();
+
+    /**
+     * Get the image ID
+     * 
+     * @return See above.
+     */
+    public long getImageID();
 }

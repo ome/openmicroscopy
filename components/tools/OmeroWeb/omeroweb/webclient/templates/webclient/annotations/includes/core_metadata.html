@@ -111,12 +111,4 @@
         <th>ROI Count:</th>
         <td>{{ image.getROICount }}</td>
     </tr>
-    {% if manager.well %}
-    <tr>
-        <th>Status:</th>
-        <td id='well_status'>
-            {{ manager.well.status|default:"None" }}
-        </td>
-    </tr>
-    {% endif %}
 </table>

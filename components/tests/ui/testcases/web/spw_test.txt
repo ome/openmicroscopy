@@ -24,6 +24,13 @@ Bulk Annotation Should Contain Row
 
 *** Test Cases ***
 
+Test Auto Load Single Run
+    [Documentation]     Selecting Plate with single Run should load plate
+
+    Select Experimenter
+    Select First Plate
+    Click Well By Name                      A1
+
 Test Bulk Annotations
     [Documentation]     Test display of bulk annotations added in setup
 

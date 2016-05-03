@@ -440,7 +440,7 @@ button::-moz-focus-inner {
 */
     
     
- .tag {
+.tag_annotation_wrapper .tag {
 	 display:inline-block;
 	 float:left;
 	 margin:1px 1px;
@@ -512,7 +512,7 @@ button::-moz-focus-inner {
 	margin-left:5px;
 	overflow:hidden;
 	display:block !important;
-	background:url(../image/icon_tag_delete.png) center center no-repeat;
+	background:url(../image/icon_tag_remove.png) center center no-repeat;
 	text-indent:-99px;
 }
 
