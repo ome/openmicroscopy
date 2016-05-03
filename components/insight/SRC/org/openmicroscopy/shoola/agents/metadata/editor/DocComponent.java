@@ -530,7 +530,7 @@ class DocComponent
 		unlinkButton.setActionCommand(""+REMOVE);
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) data;
-			unlinkButton.setToolTipText("Remove the attachment.");
+			unlinkButton.setToolTipText("Remove the file.");
 			
 			if (fa.getId() > 0) {
 				unlinkButton.setEnabled(deletable);
