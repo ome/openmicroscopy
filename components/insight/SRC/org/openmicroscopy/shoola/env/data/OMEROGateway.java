@@ -1716,6 +1716,8 @@ class OMEROGateway
 		}
 		try {
 		    IMetadataPrx service = gw.getMetadataService(ctx);
+            if (types == null || types.isEmpty())
+                System.out.println("Avoid this !!!");
 			return PojoMapper.asDataObjects(
 					service.loadAnnotations(PojoMapper.getModelType(nodeType).getName(),
 							nodeIDs, types, annotatorIDs, options));

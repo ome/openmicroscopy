@@ -23,8 +23,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 import java.util.Collection;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+
 import omero.gateway.SecurityContext;
+
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import omero.gateway.model.TagAnnotationData;
 
 /** 
@@ -85,7 +89,7 @@ public class TagsLoader
 	{
 		long userID = getCurrentUser();
 		if (loadAll) userID = -1;
-		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
+		handle = mhView.loadExistingAnnotations(ctx, AnnotationType.TAG,
 												userID, this);
 	}
 	

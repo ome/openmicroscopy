@@ -189,8 +189,6 @@ public interface OmeroMetadataService
 	 * @param object The object to handle.
      * @param userID The id of the user who added attachments to the object 
      *               or <code>-1</code> if the user is not specified.
-     * @param viewed Pass <code>true</code> to load the rendering settings 
-	 *               related to the objects, <code>false<code> otherwise.
      * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
@@ -198,7 +196,7 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public StructuredDataResults loadStructuredData(SecurityContext ctx,
-			Object object, long userID, boolean viewed)
+			Object object, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -217,8 +215,7 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map<DataObject, StructuredDataResults> loadStructuredData(
-			SecurityContext ctx, List<DataObject> data, long userID,
-			boolean viewed)
+			SecurityContext ctx, List<DataObject> data, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
