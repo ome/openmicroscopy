@@ -920,8 +920,8 @@ public class ROITable
      * @return See above.
      */
     private boolean displayFolder(FolderData folder) {
-        return ignoreFilters || checkIDFilter(folder)
-                || checkNameFilter(folder);
+        return ignoreFilters
+                || (checkIDFilter(folder) && checkNameFilter(folder));
     }
 
     /**
