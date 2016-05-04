@@ -18,6 +18,7 @@ from omero.cli import CLI, NonZeroReturnCode
 plugin = __import__('omero.plugins.import', globals(), locals(),
                     ['ImportControl'], -1)
 ImportControl = plugin.ImportControl
+CommandArguments = plugin.CommandArguments
 
 help_arguments = ("-h", "--javahelp", "--java-help", "--advanced-help")
 
@@ -227,7 +228,6 @@ class TestImport(object):
     def testLoginArguments(self, monkeypatch, hostname, port, tmpdir):
         self.args += ['test.fake']
         control = self.cli.controls['import']
-        control.command_args = []
         sessionid = str(uuid.uuid4())
 
         def new_client(x):
@@ -242,12 +242,14 @@ class TestImport(object):
         ice_config.write('omero.host=%s\nomero.port=%g' % (
             hostname, (port or 4064)))
         monkeypatch.setenv("ICE_CONFIG", ice_config)
-        control.set_login_arguments(self.cli.parser.parse_args(self.args))
+        args = self.cli.parser.parse_args(self.args)
+        command_args = CommandArguments(self.cli, args)
 
         expected_args = ['-s', '%s' % hostname]
         expected_args += ['-p', '%s' % (port or 4064)]
         expected_args += ['-k', '%s' % sessionid]
-        assert control.command_args == expected_args
+        expected_args += ['test.fake']
+        assert list(command_args) == expected_args
 
     def testLogPrefix(self, tmpdir, capfd):
         fakefile = tmpdir.join("test.fake")
@@ -283,7 +285,6 @@ class TestImport(object):
 
         o, e = capfd.readouterr()
         result = yaml.load(StringIO(o))
-        print result
         result = result[0]
         assert "fake" in result["group"]
         assert 1 == len(result["files"])
@@ -314,7 +315,7 @@ class TestImport(object):
 
         class MockImportControl(ImportControl):
             def do_import(self, args, xargs):
-                assert args.java_name.startswith("testname")
+                assert args.name.startswith("testname")
         self.cli.register("mock-import", MockImportControl, "HELP")
 
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
@@ -329,7 +330,7 @@ class TestImport(object):
 
         class MockImportControl(ImportControl):
             def do_import(self, args, xargs):
-                assert args.java_name.startswith("meta_")
+                assert args.name.startswith("meta_")
         self.cli.register("mock-import", MockImportControl, "HELP")
 
         self.args = ["mock-import", "-f", "---bulk=%s" % b]

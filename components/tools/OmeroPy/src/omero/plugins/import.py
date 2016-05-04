@@ -80,7 +80,29 @@ class CommandArguments(object):
         self.command_args = []
         self.set_login_arguments(ctx, args)
         self.set_skip_arguments(args)
-        self.set_java_arguments(args)
+        # Python arguments
+        skip_list = (
+            "javahelp", "skip", "file", "errs", "logback",
+            "port", "password", "group", "create", "func",
+            "bulk", "prog", "user", "key", "path", "logprefix",
+            "JAVA_DEBUG", "quiet", "server", "depth", "clientdir")
+
+        for key in vars(args):
+
+            val = getattr(args, key)
+            if key in skip_list:
+                setattr(self, key, val)
+
+            elif not val:
+                pass
+
+            elif len(key) == 1:
+                self.command_args.append("-"+key)
+                if isinstance(val, (str, unicode)):
+                    self.command_args.append(val)
+            else:
+                self.command_args.append(
+                    "--%s=%s" % (key, val))
 
     def __iter__(self):
         return iter([] + self.command_args + self.__args.path)
@@ -93,8 +115,8 @@ class CommandArguments(object):
 
         # Connection is required unless help arguments or -f is passed
         connection_required = ("-h" not in self.command_args and
-                               not args.java_f and
-                               not args.java_advanced_help)
+                               not args.f and
+                               not args.advanced_help)
         if connection_required:
             client = ctx.conn(args)
             self.command_args.extend(["-s", client.getProperty("omero.host")])
@@ -114,47 +136,6 @@ class CommandArguments(object):
             self.command_args.append("--no-stats-info")
         if ('all' in args.skip or 'upgrade' in args.skip):
             self.command_args.append("--no-upgrade-check")
-
-    def set_java_arguments(self, args):
-        """Set the arguments passed to Java"""
-        # Due to the use of "--" some of these like debug
-        # will never be filled out. But for completeness
-        # sake, we include them here.
-        java_args = {
-            "java_f": "-f",
-            "java_c": "-c",
-            "java_l": "-l",
-            "java_d": "-d",
-            "java_r": "-r",
-            "java_target": ("--target",),
-            "java_name": ("--name",),
-            "java_description": ("--description",),
-            "java_plate_name": ("--plate_name",),
-            "java_plate_description": ("--plate_description",),
-            "java_report": ("--report"),
-            "java_upload": ("--upload"),
-            "java_logs": ("--logs"),
-            "java_email": ("--email"),
-            "java_debug": ("--debug",),
-            "java_output": ("--output",),
-            "java_qa_baseurl": ("--qa-baseurl",),
-            "java_ns": "--annotation-ns",
-            "java_text": "--annotation-text",
-            "java_link": "--annotation-link",
-            "java_advanced_help": "--advanced-help",
-            }
-
-        for attr_name, arg_name in java_args.items():
-            arg_value = getattr(args, attr_name)
-            if arg_value:
-                if isinstance(arg_name, tuple):
-                    arg_name = arg_name[0]
-                    self.command_args.append(
-                        "%s=%s" % (arg_name, arg_value))
-                else:
-                    self.command_args.append(arg_name)
-                    if isinstance(arg_value, (str, unicode)):
-                        self.command_args.append(arg_value)
 
     def open_files(self):
         # Open file handles for stdout/stderr if applicable
@@ -178,6 +159,7 @@ class ImportControl(BaseControl):
     COMMAND = [START_CLASS]
 
     def _configure(self, parser):
+
         parser.add_login_arguments()
 
         def add_python_argument(*args, **kwargs):
@@ -188,7 +170,7 @@ class ImportControl(BaseControl):
             action="store_true", help="Show the Java help text")
 
         parser.add_argument(  # Special?
-            "--advanced-help", action="store_true", dest="java_advanced_help",
+            "--advanced-help", action="store_true",
             help="Show the advanced help text")
 
         add_python_argument(
@@ -221,19 +203,19 @@ class ImportControl(BaseControl):
             name_group.add_argument(*args, **kwargs)
 
         add_java_name_argument(
-            "-n", "--name", dest="java_name",
+            "-n", "--name",
             help="Image or plate name to use (**)",
             metavar="NAME")
         add_java_name_argument(
-            "-x", "--description", dest="java_description",
+            "-x", "--description",
             help="Image or plate description to use (**)",
             metavar="DESCRIPTION")
         # Deprecated naming arguments
         add_java_name_argument(
-            "--plate_name", dest="java_plate_name",
+            "--plate_name",
             help=SUPPRESS)
         add_java_name_argument(
-            "--plate_description", dest="java_plate_description",
+            "--plate_description",
             help=SUPPRESS)
 
         # Feedback options
@@ -246,22 +228,22 @@ class ImportControl(BaseControl):
             feedback_group.add_argument(*args, **kwargs)
 
         add_feedback_argument(
-            "--report", action="store_true", dest="java_report",
+            "--report", action="store_true",
             help="Report errors to the OME team (**)")
         add_feedback_argument(
-            "--upload", action="store_true", dest="java_upload",
+            "--upload", action="store_true",
             help=("Upload broken files and log file (if any) with report."
                   " Required --report (**)"))
         add_feedback_argument(
-            "--logs", action="store_true", dest="java_logs",
+            "--logs", action="store_true",
             help=("Upload log file (if any) with report."
                   " Required --report (**)"))
         add_feedback_argument(
-            "--email", dest="java_email",
+            "--email",
             help="Email for reported errors. Required --report (**)",
             metavar="EMAIL")
         add_feedback_argument(
-            "--qa-baseurl", dest="java_qa_baseurl",
+            "--qa-baseurl",
             help=SUPPRESS)
 
         # Annotation options
@@ -274,23 +256,23 @@ class ImportControl(BaseControl):
             annotation_group.add_argument(*args, **kwargs)
 
         add_annotation_argument(
-            "--annotation-ns", dest="java_ns", metavar="ANNOTATION_NS",
+            "--annotation-ns", metavar="ANNOTATION_NS",
             help="Namespace to use for subsequent annotation (**)")
         add_annotation_argument(
-            "--annotation-text", dest="java_text", metavar="ANNOTATION_TEXT",
+            "--annotation-text", metavar="ANNOTATION_TEXT",
             help="Content for a text annotation (requires namespace) (**)")
         add_annotation_argument(
-            "--annotation-link", dest="java_link",
+            "--annotation-link",
             metavar="ANNOTATION_LINK",
             help="Comment annotation ID to link all images to (**)")
         add_annotation_argument(
-            "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
+            "--annotation_ns", metavar="ANNOTATION_NS",
             help=SUPPRESS)
         add_annotation_argument(
-            "--annotation_text", dest="java_text", metavar="ANNOTATION_TEXT",
+            "--annotation_text", metavar="ANNOTATION_TEXT",
             help=SUPPRESS)
         add_annotation_argument(
-            "--annotation_link", dest="java_link", metavar="ANNOTATION_LINK",
+            "--annotation_link", metavar="ANNOTATION_LINK",
             help=SUPPRESS)
 
         java_group = parser.add_argument_group(
@@ -300,33 +282,33 @@ class ImportControl(BaseControl):
             java_group.add_argument(*args, **kwargs)
 
         add_java_argument(
-            "-f", dest="java_f", action="store_true",
+            "-f", action="store_true",
             help="Display the used files and exit (**)")
         add_java_argument(
-            "-c", dest="java_c", action="store_true",
+            "-c", action="store_true",
             help="Continue importing after errors (**)")
         add_java_argument(
-            "-l", dest="java_l",
+            "-l",
             help="Use the list of readers rather than the default (**)",
             metavar="READER_FILE")
         add_java_argument(
-            "-d", dest="java_d",
+            "-d",
             help="OMERO dataset ID to import image into (**)",
             metavar="DATASET_ID")
         add_java_argument(
-            "-r", dest="java_r",
+            "-r",
             help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
         add_java_argument(
-            "-T", "--target", dest="java_target",
+            "-T", "--target",
             help="OMERO target specification (**)",
             metavar="TARGET")
         add_java_argument(
-            "--debug", choices=DEBUG_CHOICES, dest="java_debug",
+            "--debug", choices=DEBUG_CHOICES,
             help="Turn debug logging on (**)",
-            metavar="LEVEL")
+            metavar="LEVEL", dest="JAVA_DEBUG")
         add_java_argument(
-            "--output", choices=OUTPUT_CHOICES, dest="java_output",
+            "--output", choices=OUTPUT_CHOICES,
             help="Set an alternative output style",
             metavar="TYPE")
 
@@ -379,6 +361,8 @@ class ImportControl(BaseControl):
         out = err = None
         try:
             import_command = self.COMMAND + list(command_args)
+            if self.ctx.isdebug:
+                self.ctx.err("COMMAND:%s" % " ".join(import_command))
             out, err = command_args.open_files()
 
             p = omero.java.popen(
