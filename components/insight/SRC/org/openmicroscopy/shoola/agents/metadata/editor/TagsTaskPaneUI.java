@@ -333,4 +333,9 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
             return model.getTags().size();
         }
     }
+    
+    void onCollapsed(boolean collapsed) {
+        
+    }
+   
 }

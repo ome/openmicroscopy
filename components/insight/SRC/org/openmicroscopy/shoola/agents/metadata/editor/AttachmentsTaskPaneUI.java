@@ -517,6 +517,11 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
         
         
     }
+    
+    @Override
+    void onCollapsed(boolean collapsed) {
+        
+    }
 
     @Override
     int getUnfilteredAnnotationCount() {

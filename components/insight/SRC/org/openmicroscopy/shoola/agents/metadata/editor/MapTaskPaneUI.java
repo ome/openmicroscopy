@@ -784,4 +784,9 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         }
         return count;
     }
+    
+    @Override
+    void onCollapsed(boolean collapsed) {
+        
+    }
 }
