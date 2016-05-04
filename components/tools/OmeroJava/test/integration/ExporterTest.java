@@ -943,7 +943,7 @@ public class ExporterTest extends AbstractServerTest {
      * Test the export of an image with ROI as OME-XML. Downgrade it.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(dataProvider = "createTransform")
+    // @Test(dataProvider = "createTransform")
     public void testExportAsOMEXMLDowngradeImageWithROI(Target target) throws Exception {
         File f = null;
         File transformed = null;
