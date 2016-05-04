@@ -960,6 +960,48 @@ $(function() {
                     }
                 };
 
+                if (WEBCLIENT.OPEN_WITH.length > 0) {
+                    // build a submenu of viewers...
+                    var viewers = WEBCLIENT.OPEN_WITH.map(function(v){
+                        return {
+                            "label": v.label,
+                            "action": function() {
+                                var inst = $.jstree.reference('#dataTree'),
+                                    sel = inst.get_selected(true).map(function(s){
+                                        return s.type + "=" + s.data.id;
+                                    }),
+                                    query = sel.join("&"),
+                                    url = v.url + "?" + query;
+                                if (v.open && v.open === 'tab') {
+                                    // tries to open in a new tab (not reliable)
+                                    // see http://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window-using-javascript
+                                    window.open(url,'_blank');
+                                } else {
+                                    OME.openPopup(url);
+                                }
+                            },
+                            "_disabled": function() {
+                                var sel = $.jstree.reference('#dataTree').get_selected(true),
+                                    // selType = 'image' or 'images' or 'dataset'
+                                    selType = sel.reduce(function(prev, s){
+                                        return s.type + (sel.length > 1 ? "s" : "");
+                                    }, "undefined");
+                                // v.objects is ['image'] or ['dataset', 'images']
+                                var enabled = v.objects.reduce(function(prev, o){
+                                    return prev || o.indexOf(selType) > -1;
+                                }, false);
+                                return !enabled;
+                            }
+                        };
+                    });
+                    config["open_with"] = {
+                        "label": "Open With...",
+                        "_disabled": false,
+                        "action": false,
+                        "submenu": viewers
+                    };
+                }
+
                 // List of permissions related disabling
                 // use canLink, canDelete etc classes on each node to enable/disable right-click menu
 
