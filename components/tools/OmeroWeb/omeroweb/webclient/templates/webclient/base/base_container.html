@@ -195,6 +195,13 @@
         {% if page_size %}
             var PAGE_SIZE = {{ page_size }};
         {% endif %}
+
+        WEBCLIENT.OPEN_WITH = [];
+        {% if ome.open_with %}
+            // This is a json dump, so we can add it directly without escaping
+            WEBCLIENT.OPEN_WITH = {{ ome.open_with|safe }};
+        {% endif %}
+
         $(document).ready(function(){
             // initially hidden
             $("#user_dropdown ul").css('visibility', 'hidden');

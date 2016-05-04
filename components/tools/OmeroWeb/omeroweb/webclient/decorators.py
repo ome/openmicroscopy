@@ -24,6 +24,7 @@ Decorators for use with the webclient application.
 """
 
 import logging
+import json
 
 import omeroweb.decorators
 from omero import constants
@@ -191,3 +192,30 @@ class render_response(omeroweb.decorators.render_response):
             c_plugins.append({
                 "label": label, "include": include, "plugin_id": plugin_id})
         context['ome']['center_plugins'] = c_plugins
+
+        open_with = settings.OPEN_WITH
+        viewers = []
+        for ow in open_with:
+            viewer = {}
+            viewer['objects'] = ['image']
+            viewer['open'] = 'window'
+            # try non-essential parameters...
+            try:
+                if len(ow) > 2:
+                    if 'objects' in ow[2]:
+                        viewer['objects'] = ow[2]['objects']
+                    if 'open' in ow[2]:
+                        viewer['open'] = ow[2]['open']
+            except:
+                # ignore invalid params
+                pass
+            # try essential parameters...
+            try:
+                viewer['label'] = ow[0]
+                viewer['url'] = reverse(ow[1])
+                # Only add if we have label and url
+                viewers.append(viewer)
+            except:
+                pass
+        viewers = json.dumps(viewers)
+        context['ome']['open_with'] = viewers
