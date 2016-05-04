@@ -21,6 +21,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 import java.awt.Container;
 import java.awt.Font;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -42,6 +44,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class AnnotationTaskPane extends JXTaskPane {
 
+    /** The {@link JXTaskPane} property fired on collapse/expansion of the pane */
+    private static final String COLLAPSED_PROPERTY = "collapsed";
+    
     /** Reference to the {@link EditorUI} */
     private EditorUI view;
 
@@ -206,6 +211,16 @@ public class AnnotationTaskPane extends JXTaskPane {
                                     + " annotations not implemented yet!");
         }
 
+        addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (COLLAPSED_PROPERTY.equals(evt.getPropertyName())) {
+                    ui.onCollapsed((Boolean) evt.getNewValue());
+                }
+            }
+        });
+        
         add(ui);
     }
 

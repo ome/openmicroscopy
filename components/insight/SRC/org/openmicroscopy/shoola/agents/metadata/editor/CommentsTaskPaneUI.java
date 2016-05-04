@@ -414,4 +414,9 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
     int getUnfilteredAnnotationCount() {
         return model.getTextualAnnotationCount();
     }
+    
+    @Override
+    void onCollapsed(boolean collapsed) {
+        
+    }
 }

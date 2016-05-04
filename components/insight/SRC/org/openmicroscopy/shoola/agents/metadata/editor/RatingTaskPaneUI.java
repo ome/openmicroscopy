@@ -212,4 +212,8 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
             return model.getRatingCount(EditorModel.ALL);
         }
     }
+    
+    void onCollapsed(boolean collapsed) {
+        
+    }
 }
