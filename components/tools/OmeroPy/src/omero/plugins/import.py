@@ -389,9 +389,11 @@ class ImportControl(BaseControl):
                 self.do_import(args, xargs)
                 if self.ctx.rv:
                     if args.java_c:
-                        self.ctx.err("Import failed with error code: %s. Continuing" % self.ctx.rv)
+                        msg = "Import failed with error code: %s. Continuing"
+                        self.ctx.err(msg % self.ctx.rv)
                     else:
-                        self.ctx.die(106, "Import failed. Use -c to continue after errors")
+                        msg = "Import failed. Use -c to continue after errors"
+                        self.ctx.die(106, msg)
         finally:
             os.chdir(old_pwd)
 
@@ -407,12 +409,12 @@ class ImportControl(BaseControl):
 
         if not cols:
             # No parsing necessary
-            args.path = [line]
+            args.path = [path]
 
         else:
             function = self.parse_text
             if path.endswith(".tsv"):
-                function = lambda x: self.parse_csv(x, delimiter="\t")
+                function = self.parse_tsv
             elif path.endswith(".csv"):
                 function = self.parse_csv
 
@@ -430,6 +432,10 @@ class ImportControl(BaseControl):
         for line in fileinput.input([path]):
             line = line.strip()
             yield shlex.split(line)
+
+    def parse_tsv(self, path, delimiter="\t"):
+        for line in self.parse_csv(path, delimiter):
+            yield line
 
     def parse_csv(self, path, delimiter=","):
         with open(path, "r") as data:
