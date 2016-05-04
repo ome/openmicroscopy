@@ -932,7 +932,7 @@ public class ROITable
      * @param roi The ROI
      * @return The folder nodes this ROI is part of
      */
-    Collection<ROINode> findFolders(ROI roi) {
+    public Collection<ROINode> findFolders(ROI roi) {
         if(roi.getFolders().isEmpty())
             return Collections.EMPTY_LIST;
         
