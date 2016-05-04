@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import omero.gateway.model.AnnotationData;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -227,4 +228,13 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
      * @return the number of annotations regardless of current filter
      */
     abstract int getUnfilteredAnnotationCount();
+    
+    /**
+     * Called when the parent {@link JXTaskPane} is collapsed/expanded
+     * 
+     * @param collapsed
+     *            <code>true</code> if the new state is collapsed,
+     *            <code>false</code> if it is expanded
+     */
+    abstract void onCollapsed(boolean collapsed);
 }

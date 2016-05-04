@@ -317,4 +317,10 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
             return model.getOtherAnnotations().size();
         }
     }
+    
+    @Override
+    void onCollapsed(boolean collapsed) {
+        
+    }
+  
 }
