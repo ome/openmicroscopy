@@ -72,7 +72,13 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
             this.name = name;
         }
     }
+    
+    enum State {
+        LOADING, READY
+    }
 
+    State state = State.LOADING;
+    
     /** Reference to the {@link EditorModel} */
     EditorModel model;
 
@@ -237,4 +243,9 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
      *            <code>false</code> if it is expanded
      */
     abstract void onCollapsed(boolean collapsed);
+    
+    void onLoaded() {
+        state = State.READY;
+        refreshUI();
+    }
 }
