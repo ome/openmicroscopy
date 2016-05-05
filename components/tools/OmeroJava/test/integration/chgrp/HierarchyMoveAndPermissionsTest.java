@@ -852,8 +852,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         Assert.assertNull(returnFolder(bottomFolder));
 
-        disconnect();
-
         /* work in second group */
 
         loginUser(toGroup);
@@ -870,8 +868,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         bottomFolder = returnFolder(bottomFolder);
         Assert.assertEquals(bottomFolder.getParentFolder().getId().getValue(), middleFolder.getId().getValue());
         Assert.assertTrue(bottomFolder.copyChildFolders().isEmpty());
-
-        disconnect();
     }
 
     /**
@@ -882,7 +878,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
      */
     private void assertObjectInGroup(IObject object, ExperimenterGroup group) throws Exception {
         if (iAdmin.getEventContext().groupId != group.getId().getValue()) {
-            disconnect();
             loginUser(group);
         }
         Class <? extends IObject> objectClass = object.getClass();
@@ -923,7 +918,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         Folder parentFolder = (Folder) saveAndReturnFolder(mmFactory.simpleFolder()).proxy();
 
         if (!myChildFolder) {
-            disconnect();
             loginUser(myChildFolder ? mover : other, fromGroup);
         }
 
@@ -932,7 +926,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         childFolder = (Folder) saveAndReturnFolder(childFolder).proxy();
 
         if (myChildFolder != myRoi) {
-            disconnect();
             loginUser(myRoi ? mover : other, fromGroup);
         }
 
@@ -956,7 +949,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         /* perform the specified move */
 
         if (!myRoi) {
-            disconnect();
             loginUser(mover, fromGroup);
         }
 
@@ -1149,8 +1141,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
             Assert.assertEquals(countInstances(Folder.class, folderIds), expectedRemainingFolderCount);
             Assert.assertEquals(countInstances(Image.class, imageIds), expectedRemainingImageCount);
 
-            disconnect();
-
             /* work in second group */
 
             loginUser(toGroup);
@@ -1161,8 +1151,6 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
             Assert.assertEquals(countInstances(Folder.class, folderIds), expectedMovedFolderCount);
             Assert.assertEquals(countInstances(Image.class, imageIds), expectedMovedImageCount);
         }
-
-        disconnect();
     }
 
     /**
