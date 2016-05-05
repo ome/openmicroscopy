@@ -79,31 +79,34 @@ class CommandArguments(object):
         self.__ctx = ctx
         self.__args = args
         self.__accepts = set()
-        self.__initial = list()
-        self.__additional = list()
-        self.set_login_arguments(ctx, args)
-        self.set_skip_arguments(args)
+        self.__java_initial = list()
+        self.__java_additional = list()
+        self.__py_initial = list()
+        self.__py_additional = list()
         # Python arguments
-        self.skip_list = (
+        self.__py_keys = (
             "javahelp", "skip", "file", "errs", "logback",
             "port", "password", "group", "create", "func",
             "bulk", "prog", "user", "key", "path", "logprefix",
             "JAVA_DEBUG", "quiet", "server", "depth", "clientdir")
+        self.set_login_arguments(ctx, args)
+        self.set_skip_arguments(args)
 
         for key in vars(args):
             self.__accepts.add(key)
             val = getattr(args, key)
-            if key in self.skip_list:
+            if key in self.__py_keys:
                 # Place the Python elements on the CommandArguments
                 # instance so that it behaves like `args`
                 setattr(self, key, val)
+                self.append_arg(self.__py_initial, key, val)
 
             elif not val:
                 # If there's no value, do nothing
                 pass
 
             else:
-                self.append_arg(self.__initial, key, val)
+                self.append_arg(self.__java_initial, key, val)
 
     def append_arg(self, cmd_list, key, val):
         if len(key) == 1:
@@ -120,40 +123,58 @@ class CommandArguments(object):
         else:
             self.path = path
 
-    def __iter__(self):
-        return iter([] + self.__initial + self.__additional + self.path)
+    def java_args(self):
+        rv = list()
+        rv.extend(self.__java_initial)
+        rv.extend(self.__java_additional)
+        rv.extend(self.path)
+        return rv
+
+    def initial_args(self):
+        rv = list()
+        rv.extend(self.__py_initial)
+        rv.extend(self.__java_initial)
+        return rv
+
+    def added_args(self):
+        rv = list()
+        rv.extend(self.__py_additional)
+        rv.extend(self.__java_additional)
+        rv.extend(self.path)
+        return rv
 
     def accepts(self, key):
         return key in self.__accepts
 
     def add(self, key, val):
 
-        if key in self.skip_list:
+        if key in self.__py_keys:
             # First we check if this is a Python argument, in which
             # case it's set directly on the instance itself. This
             # may need to be later set elsewhere if multiple bulk
             # files are supported.
             setattr(self, key, val)
+            self.append_arg(self.__py_additional, key, val)
         elif not self.accepts(key):
             self.__ctx.die(200, "Unknown argument: %s" % key)
         else:
-            self.append_arg(self.__additional, key, val)
+            self.append_arg(self.__java_additional, key, val)
 
     def set_login_arguments(self, ctx, args):
         """Set the connection arguments"""
 
         if args.javahelp:
-            self.__initial.append("-h")
+            self.__java_initial.append("-h")
 
         # Connection is required unless help arguments or -f is passed
-        connection_required = ("-h" not in self.__initial and
+        connection_required = ("-h" not in self.__java_initial and
                                not args.f and
                                not args.advanced_help)
         if connection_required:
             client = ctx.conn(args)
-            self.__initial.extend(["-s", client.getProperty("omero.host")])
-            self.__initial.extend(["-p", client.getProperty("omero.port")])
-            self.__initial.extend(["-k", client.getSessionId()])
+            self.__java_initial.extend(["-s", client.getProperty("omero.host")])
+            self.__java_initial.extend(["-p", client.getProperty("omero.port")])
+            self.__java_initial.extend(["-k", client.getSessionId()])
 
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
@@ -161,13 +182,13 @@ class CommandArguments(object):
             return
 
         if ('all' in args.skip or 'checksum' in args.skip):
-            self.__initial.append("--checksum-algorithm=File-Size-64")
+            self.__java_initial.append("--checksum-algorithm=File-Size-64")
         if ('all' in args.skip or 'thumbnails' in args.skip):
-            self.__initial.append("--no-thumbnails")
+            self.__java_initial.append("--no-thumbnails")
         if ('all' in args.skip or 'minmax' in args.skip):
-            self.__initial.append("--no-stats-info")
+            self.__java_initial.append("--no-stats-info")
         if ('all' in args.skip or 'upgrade' in args.skip):
-            self.__initial.append("--no-upgrade-check")
+            self.__java_initial.append("--no-upgrade-check")
 
     def open_files(self):
         # Open file handles for stdout/stderr if applicable
@@ -395,11 +416,7 @@ class ImportControl(BaseControl):
         out = err = None
         try:
 
-            if command_args.dry_run:
-                self.ctx.out(" ".join(['"%s"' % x for x in list(command_args)]))
-                return  # Early exit!
-
-            import_command = self.COMMAND + list(command_args)
+            import_command = self.COMMAND + command_args.java_args()
             out, err = command_args.open_files()
 
             p = omero.java.popen(
@@ -447,7 +464,10 @@ class ImportControl(BaseControl):
                 os.chdir(parent)
 
             for cont in self.parse_bulk(bulk, command_args):
-                self.do_import(command_args, xargs)
+                if command_args.dry_run:
+                    self.ctx.out(" ".join(['"%s"' % x for x in command_args.added_args()]))
+                else:
+                    self.do_import(command_args, xargs)
                 if self.ctx.rv:
                     if cont:
                         msg = "Import failed with error code: %s. Continuing"
@@ -462,6 +482,7 @@ class ImportControl(BaseControl):
         # Known keys with special handling
         cont = False
 
+        command_args.dry_run = False
         if "dry_run" in bulk:
             dry_run = bulk.pop("dry_run")
             command_args.dry_run = dry_run
