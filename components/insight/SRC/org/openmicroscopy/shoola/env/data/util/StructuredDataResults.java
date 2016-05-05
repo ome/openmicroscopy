@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -50,28 +51,28 @@ public class StructuredDataResults
 {
 	
 	/** The tags related to the object. */
-	private Collection<TagAnnotationData>	tags;
+	private Collection<TagAnnotationData>	tags = new ArrayList<TagAnnotationData>();
 	
 	/** The attachments related to the object. */
-	private Collection<FileAnnotationData>	attachments;
+	private Collection<FileAnnotationData>	attachments = new ArrayList<FileAnnotationData>();
 	
 	/** The terms related to the object. */
-	private Collection<TermAnnotationData>	terms;
+	private Collection<TermAnnotationData>	terms = new ArrayList<TermAnnotationData>();
 	
 	/** The textual annotations. */
-	private Collection<TextualAnnotationData> texts;
+	private Collection<TextualAnnotationData> texts = new ArrayList<TextualAnnotationData>();
 
 	/** The ratings of the objects. */
-	private Collection<RatingAnnotationData>  ratings;
+	private Collection<RatingAnnotationData>  ratings = new ArrayList<RatingAnnotationData>();
 	
 	/** The XML type of the objects. */
-	private Collection<XMLAnnotationData>  xmlAnnotations;
+	private Collection<XMLAnnotationData>  xmlAnnotations = new ArrayList<XMLAnnotationData>();
 	
 	/** Collection of annotations not already stored. */
-	private Collection<AnnotationData>     otherAnnotation;
+	private Collection<AnnotationData>     otherAnnotation = new ArrayList<AnnotationData>();
 	
 	/** The MapAnnotations. */
-	private Collection<MapAnnotationData>     mapAnnotations;
+	private Collection<MapAnnotationData>     mapAnnotations = new ArrayList<MapAnnotationData>();
 	
 	/** The object the results are for. */
 	private DataObject					relatedObject;
@@ -360,5 +361,51 @@ public class StructuredDataResults
 	{
 		this.mapAnnotations = mapAnnotations;
 	}
+
+    /**
+     * Add Annotations
+     * 
+     * @param annos
+     *            The Annotations to add
+     */
+    public void addAnnotations(Collection<AnnotationData> annos) {
+        for (AnnotationData data : annos) {
+            if (data instanceof TermAnnotationData) {
+                terms.add((TermAnnotationData) data);
+            } else if (data instanceof TextualAnnotationData)
+                texts.add((TextualAnnotationData) data);
+            else if (data instanceof TagAnnotationData) {
+                tags.add((TagAnnotationData) data);
+            } else if (data instanceof RatingAnnotationData)
+                ratings.add((RatingAnnotationData) data);
+            else if (data instanceof FileAnnotationData) {
+                attachments.add((FileAnnotationData) data);
+            } else if (data instanceof XMLAnnotationData) {
+                xmlAnnotations.add((XMLAnnotationData) data);
+            } else if (data instanceof MapAnnotationData) {
+                mapAnnotations.add((MapAnnotationData) data);
+            } else {
+                otherAnnotation.add(data);
+            }
+        }
+    }
+
+    /**
+     * Get all Annotations
+     * 
+     * @return All Annotations
+     */
+    public Collection getAllAnnotations() {
+        Collection<AnnotationData> result = new ArrayList<AnnotationData>();
+        result.addAll(attachments);
+        result.addAll(mapAnnotations);
+        result.addAll(otherAnnotation);
+        result.addAll(ratings);
+        result.addAll(tags);
+        result.addAll(terms);
+        result.addAll(texts);
+        result.addAll(xmlAnnotations);
+        return result;
+    }
 
 }

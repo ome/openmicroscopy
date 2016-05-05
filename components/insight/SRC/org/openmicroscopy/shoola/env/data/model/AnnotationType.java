@@ -1,12 +1,19 @@
 package org.openmicroscopy.shoola.env.data.model;
 
+import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.DoubleAnnotation;
+import omero.gateway.model.BooleanAnnotationData;
 import omero.gateway.model.DataObject;
+import omero.gateway.model.DoubleAnnotationData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.LongAnnotationData;
 import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.RatingAnnotationData;
 import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.TermAnnotationData;
 import omero.gateway.model.TextualAnnotationData;
+import omero.gateway.model.TimeAnnotationData;
+import omero.gateway.model.XMLAnnotationData;
 
 /**
  * The different types of Annotations
@@ -35,7 +42,25 @@ public enum AnnotationType {
     COMMENT("Comments", TextualAnnotationData.class), 
     
     /** ROIs */
-    ROI("ROIs", null);
+    ROI("ROIs", null),
+    
+    /** Boolean */
+    BOOLEAN("Boolean", BooleanAnnotationData.class),
+    
+    /** Double */
+    DOUBLE("Numeric (double)", DoubleAnnotationData.class),
+    
+    /** Long */
+    LONG("Numeric (long)", LongAnnotationData.class),
+    
+    /** Term */
+    TERM("Term", TermAnnotationData.class),
+    
+    /** Time */
+    TIME("Time", TimeAnnotationData.class),
+    
+    /** XML */
+    XML("XML", XMLAnnotationData.class);
 
     /** The {@link DataObject} type this annotation is represented by (if any) */
     private Class<? extends DataObject> pojoClass;
