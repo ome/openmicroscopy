@@ -248,7 +248,7 @@ class TestImport(object):
         expected_args += ['-p', '%s' % (port or 4064)]
         expected_args += ['-k', '%s' % sessionid]
         expected_args += ['test.fake']
-        assert list(command_args) == expected_args
+        assert command_args.java_args() == expected_args
 
     def testLogPrefix(self, tmpdir, capfd):
         fakefile = tmpdir.join("test.fake")
@@ -322,7 +322,7 @@ class TestImport(object):
 
         class MockImportControl(ImportControl):
             def do_import(self, command_args, xargs):
-                assert "--name=testname" in list(command_args)
+                assert "--name=testname" in command_args.java_args()
         self.cli.register("mock-import", MockImportControl, "HELP")
 
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
@@ -337,7 +337,7 @@ class TestImport(object):
 
         class MockImportControl(ImportControl):
             def do_import(self, command_args, xargs):
-                cmd = list(command_args)
+                cmd = command_args.java_args()
                 assert "--name=meta_one" in cmd or \
                        "--name=meta_two" in cmd
 
