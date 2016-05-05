@@ -2210,25 +2210,7 @@ def annotate_file(request, conn=None, **kwargs):
                 newFileId = manager.createFileAnnotations(
                     fileupload, oids, well_index=index)
                 added_files.append(newFileId)
-            if len(added_files) == 0:
-                return HttpResponse("<div>No Files chosen</div>")
-            template = "webclient/annotations/fileanns.html"
-            context = {}
-            # Now we lookup the object-annotations (same as for def
-            # batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(
-                oids, ann_ids=added_files, addedByMe=(obj_count == 1))
-            if obj_count > 1:
-                context["batchAnns"] = batchAnns
-                context['batch_ann'] = True
-            else:
-                # We only need a subset of the info in batchAnns
-                fileanns = []
-                for a in batchAnns['File']:
-                    for l in a['links']:
-                        fileanns.append(l.getAnnotation())
-                context['fileanns'] = fileanns
-                context['can_remove'] = True
+            return HttpJsonResponse({'fileIds': added_files})
         else:
             return HttpResponse(form_file.errors)
 
@@ -2562,23 +2544,7 @@ def annotate_tags(request, conn=None, **kwargs):
                     "%s-%s" % (dtype, obj.id)
                     for dtype, objs in oids.items()
                     for obj in objs], index, tag_owner_id=self_id)
-            template = "webclient/annotations/tags.html"
-            context = {}
-            # Now we lookup the object-annotations (same as for def
-            # batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(
-                oids, ann_ids=form_tags.cleaned_data['tags'] + added_tags)
-            if obj_count > 1:
-                context["batchAnns"] = batchAnns
-                context['batch_ann'] = True
-            else:
-                # We only need a subset of the info in batchAnns
-                taganns = []
-                for a in batchAnns['Tag']:
-                    for l in a['links']:
-                        taganns.append(l.getAnnotation())
-                context['tags'] = taganns
-                context['can_remove'] = True
+            return HttpJsonResponse({'added': tags, 'removed': removed, 'new': added_tags})
         else:
             # TODO: handle invalid form error
             return HttpResponse(str(form_tags.errors))

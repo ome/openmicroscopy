@@ -854,7 +854,7 @@ class BaseContainer(BaseController):
 
         if len(new_links) > 0:
             self.conn.saveArray(new_links)
-        return self.conn.getObject("CommentAnnotation", ann.getId())
+        return ann.getId()
 
     def createTagAnnotations(self, tag, desc, oids, well_index=0,
                              tag_group_id=None):
