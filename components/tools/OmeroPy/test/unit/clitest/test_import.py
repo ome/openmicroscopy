@@ -307,6 +307,14 @@ class TestImport(object):
         self.args += ["-f", "---bulk=%s" % b]
         self.cli.invoke(self.args, strict=True)
 
+    def testBulkInclude(self):
+        t = path(__file__).parent / "bulk_import" / "test_include" / "inner"
+        b = t / "bulk.yml"
+
+        self.add_client_dir()
+        self.args += ["-f", "---bulk=%s" % b]
+        self.cli.invoke(self.args, strict=True)
+
     def testBulkName(self):
         # Metadata provided in the yml file will be applied
         # to the args
@@ -314,8 +322,8 @@ class TestImport(object):
         b = t / "bulk.yml"
 
         class MockImportControl(ImportControl):
-            def do_import(self, args, xargs):
-                assert args.name.startswith("testname")
+            def do_import(self, command_args, xargs):
+                assert "--name=testname" in list(command_args)
         self.cli.register("mock-import", MockImportControl, "HELP")
 
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
@@ -329,10 +337,22 @@ class TestImport(object):
         b = t / "bulk.yml"
 
         class MockImportControl(ImportControl):
-            def do_import(self, args, xargs):
-                assert args.name.startswith("meta_")
+            def do_import(self, command_args, xargs):
+                cmd = list(command_args)
+                assert "--name=meta_one" in cmd or \
+                       "--name=meta_two" in cmd
+
         self.cli.register("mock-import", MockImportControl, "HELP")
 
         self.args = ["mock-import", "-f", "---bulk=%s" % b]
         self.add_client_dir()
         self.cli.invoke(self.args, strict=True)
+
+    def testBulkBad(self):
+        t = path(__file__).parent / "bulk_import" / "test_bad"
+        b = t / "bulk.yml"
+
+        self.add_client_dir()
+        self.args += ["-f", "---bulk=%s" % b]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)

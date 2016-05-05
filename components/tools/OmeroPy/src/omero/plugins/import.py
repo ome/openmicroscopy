@@ -76,8 +76,11 @@ SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 class CommandArguments(object):
 
     def __init__(self, ctx, args):
+        self.__ctx = ctx
         self.__args = args
-        self.command_args = []
+        self.__accepts = set()
+        self.__initial = list()
+        self.__additional = list()
         self.set_login_arguments(ctx, args)
         self.set_skip_arguments(args)
         # Python arguments
@@ -88,40 +91,63 @@ class CommandArguments(object):
             "JAVA_DEBUG", "quiet", "server", "depth", "clientdir")
 
         for key in vars(args):
-
+            self.__accepts.add(key)
             val = getattr(args, key)
             if key in skip_list:
+                # Place the Python elements on the CommandArguments
+                # instance so that it behaves like `args`
                 setattr(self, key, val)
 
             elif not val:
+                # If there's no value, do nothing
                 pass
 
-            elif len(key) == 1:
-                self.command_args.append("-"+key)
-                if isinstance(val, (str, unicode)):
-                    self.command_args.append(val)
             else:
-                self.command_args.append(
-                    "--%s=%s" % (key, val))
+                self.append_arg(self.__initial, key, val)
+
+    def append_arg(self, cmd_list, key, val):
+        if len(key) == 1:
+            cmd_list.append("-"+key)
+            if isinstance(val, (str, unicode)):
+                cmd_list.append(val)
+        else:
+            cmd_list.append(
+                "--%s=%s" % (key, val))
+
+    def set_path(self, path):
+        if self.path:
+            self.__ctx.die(201, "Path already set")
+        elif not isinstance(path, list):
+            self.__ctx.die(202, "Path is not a list")
+        else:
+            self.path = path
 
     def __iter__(self):
-        return iter([] + self.command_args + self.__args.path)
+        return iter([] + self.__initial + self.__additional + self.path)
+
+    def accepts(self, key):
+        return key in self.__accepts
+
+    def add(self, key, val):
+        if not self.accepts(key):
+            self.__ctx.die(200, "Unknown argument: %s" % key)
+        self.append_arg(self.__additional, key, val)
 
     def set_login_arguments(self, ctx, args):
         """Set the connection arguments"""
 
         if args.javahelp:
-            self.command_args.append("-h")
+            self.__initial.append("-h")
 
         # Connection is required unless help arguments or -f is passed
-        connection_required = ("-h" not in self.command_args and
+        connection_required = ("-h" not in self.__initial and
                                not args.f and
                                not args.advanced_help)
         if connection_required:
             client = ctx.conn(args)
-            self.command_args.extend(["-s", client.getProperty("omero.host")])
-            self.command_args.extend(["-p", client.getProperty("omero.port")])
-            self.command_args.extend(["-k", client.getSessionId()])
+            self.__initial.extend(["-s", client.getProperty("omero.host")])
+            self.__initial.extend(["-p", client.getProperty("omero.port")])
+            self.__initial.extend(["-k", client.getSessionId()])
 
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
@@ -129,13 +155,13 @@ class CommandArguments(object):
             return
 
         if ('all' in args.skip or 'checksum' in args.skip):
-            self.command_args.append("--checksum-algorithm=File-Size-64")
+            self.__initial.append("--checksum-algorithm=File-Size-64")
         if ('all' in args.skip or 'thumbnails' in args.skip):
-            self.command_args.append("--no-thumbnails")
+            self.__initial.append("--no-thumbnails")
         if ('all' in args.skip or 'minmax' in args.skip):
-            self.command_args.append("--no-stats-info")
+            self.__initial.append("--no-stats-info")
         if ('all' in args.skip or 'upgrade' in args.skip):
-            self.command_args.append("--no-upgrade-check")
+            self.__initial.append("--no-upgrade-check")
 
     def open_files(self):
         # Open file handles for stdout/stderr if applicable
@@ -409,14 +435,10 @@ class ImportControl(BaseControl):
                 bulk.update(data)
                 os.chdir(parent)
 
-            self.optionally_add(command_args, bulk, "name")
-            # TODO: need better mapping
-            self.optionally_add(command_args, bulk, "continue", "java_c")
-
             for step in self.parse_bulk(bulk, command_args):
                 self.do_import(command_args, xargs)
                 if self.ctx.rv:
-                    if command_args.java_c:
+                    if command_args.c:
                         msg = "Import failed with error code: %s. Continuing"
                         self.ctx.err(msg % self.ctx.rv)
                     else:
@@ -425,19 +447,34 @@ class ImportControl(BaseControl):
         finally:
             os.chdir(old_pwd)
 
-    def optionally_add(self, command_args, bulk, key, dest=None):
-        if dest is None:
-            dest = "java_" + key
-        if key in bulk:
-            setattr(command_args, dest, bulk[key])
-
     def parse_bulk(self, bulk, command_args):
-        path = bulk["path"]
-        cols = bulk.get("columns")
+        # Known keys with special handling
+        if "continue" in bulk:
+            c = bulk.pop("continue")
+            command_args.add("c", c)
+
+        if "path" not in bulk:
+            # Required until @file format is implemented
+            self.ctx.die(107, "No path specified")
+        path = bulk.pop("path")
+
+        cols = None
+        if "columns" in bulk:
+            cols = bulk.pop("columns")
+        if "include" in bulk:
+            bulk.pop("include")
+
+        # Now parse all other keys
+        for key in bulk:
+            command_args.add(key, bulk[key])
+
+        # All properties are set, yield each path
+        # That's been detected in turn.
 
         if not cols:
             # No parsing necessary
-            command_args.path = [path]
+            command_args.set_path([path])
+            yield path
 
         else:
             function = self.parse_text
@@ -449,11 +486,9 @@ class ImportControl(BaseControl):
             for parts in function(path):
                 for idx, col in enumerate(cols):
                     if col == "path":
-                        command_args.path = [parts[idx]]
-                    elif hasattr(command_args, "java_%s" % col):
-                        setattr(command_args, "java_%s" % col, parts[idx])
+                        command_args.set_path([parts[idx]])
                     else:
-                        setattr(command_args, col, parts[idx])
+                        command_args.add(col, parts[idx])
                 yield parts
 
     def parse_text(self, path):
