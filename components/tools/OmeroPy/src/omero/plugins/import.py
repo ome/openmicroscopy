@@ -45,6 +45,26 @@ OMERO.cli. To see more options, use "--javahelp".
 Options marked with "**" are passed strictly to Java. If they interfere with
 any of the Python arguments, you may need to end precede your arguments with a
 "--".
+
+Bulk imports:
+
+Rather than passing one or more files to the import command, a single
+dictionary-like file (e.g. yml or json) can be passed to the `--bulk`
+argument. Most keys in the bulk file will be treated like additional
+command-line arguments. Special keys include:
+
+ * columns      A list of columns for parsing the value of path
+ * continue     Like the "-c" changes error handling
+ * dry_run      Prints out additional arguments rather than running them
+ * include      Relative path (from the bulk file) of a parent bulk file
+ * path         A file which will be parsed line by line based on its file
+                ending. Lines containing zero or more keys along with a
+                single file to be imported. Options for formats include:
+                  - .tsv and .csv files will be parsed by the existing library
+                  - other files will be parsed with shlex
+                  - unless no columns are specified, in which case each line
+                    is treated as a file
+
 """
 EXAMPLES = """
 Examples:
