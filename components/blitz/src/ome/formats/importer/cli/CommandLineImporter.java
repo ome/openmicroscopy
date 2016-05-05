@@ -429,17 +429,17 @@ public class CommandLineImporter {
             + "\n"
             + "  Background imports:\n"
             + "  -------------------\n\n"
-            + "    --auto_close            \tClose completed imports immediately.\n\n"
-            + "    --minutes_wait=ARG      \tChoose how long the importer will wait on server-side processing.\n"
+            + "    --auto-close            \tClose completed imports immediately.\n\n"
+            + "    --minutes-wait=ARG      \tChoose how long the importer will wait on server-side processing.\n"
             + "                            \tARG > 0 implies the number of minutes to wait.\n"
-            + "                            \tARG = 0 exits immediately. Use a *_completed option to clean up.\n"
+            + "                            \tARG = 0 exits immediately. Use a *-completed option to clean up.\n"
             + "                            \tARG < 0 waits indefinitely. This is the default.\n\n"
-            + "    --close_completed       \tClose completed imports.\n\n"
-            + "    --wait_completed        \tWait for all background imports to complete.\n\n"
+            + "    --close-completed       \tClose completed imports.\n\n"
+            + "    --wait-completed        \tWait for all background imports to complete.\n\n"
             + "\n"
-            + "  e.g. $ bin/omero import -- --minutes_wait=0 file1.tiff file2.tiff file3.tiff\n"
-            + "       $ ./importer-cli --minutes_wait=0 some_directory/\n"
-            + "       $ ./importer-cli --wait_completed # Waits on all 3 imports.\n"
+            + "  e.g. $ bin/omero import -- --minutes-wait=0 file1.tiff file2.tiff file3.tiff\n"
+            + "       $ ./importer-cli --minutes-wait=0 some_directory/\n"
+            + "       $ ./importer-cli --wait-completed # Waits on all 3 imports.\n"
             + "\n"
             + "  File exclusion:\n"
             + "  ---------------\n\n"
@@ -576,13 +576,13 @@ public class CommandLineImporter {
         LongOpt checksumAlgorithm =
                 new LongOpt("checksum-algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
         LongOpt minutesWait =
-                new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
+                new LongOpt("minutes-wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
         LongOpt closeCompleted =
-                new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 17);
+                new LongOpt("close-completed", LongOpt.NO_ARGUMENT, null, 17);
         LongOpt waitCompleted =
-                new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 18);
+                new LongOpt("wait-completed", LongOpt.NO_ARGUMENT, null, 18);
         LongOpt autoClose =
-                new LongOpt("auto_close", LongOpt.NO_ARGUMENT, null, 19);
+                new LongOpt("auto-close", LongOpt.NO_ARGUMENT, null, 19);
         LongOpt exclude =
                 new LongOpt("exclude", LongOpt.REQUIRED_ARGUMENT, null, 20);
 
@@ -601,6 +601,14 @@ public class CommandLineImporter {
                 new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 25);
 
         // DEPRECATED OPTIONS
+        LongOpt minutesWaitDeprecated =
+                new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 86);
+        LongOpt closeCompletedDeprecated =
+                new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 87);
+        LongOpt waitCompletedDeprecated =
+                new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 88);
+        LongOpt autoCloseDeprecated =
+                new LongOpt("auto_close", LongOpt.NO_ARGUMENT, null, 89);
         LongOpt plateName = new LongOpt(
                 "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 90);
         LongOpt plateDescription = new LongOpt(
@@ -631,7 +639,11 @@ public class CommandLineImporter {
                                 checksumAlgorithmDeprecated,
                                 annotationNamespaceDeprecated,
                                 annotationTextDeprecated,
-                                annotationLinkDeprecated
+                                annotationLinkDeprecated,
+                                minutesWaitDeprecated,
+                                closeCompletedDeprecated,
+                                waitCompletedDeprecated,
+                                autoCloseDeprecated
                                 });
         int a;
         ImportOutput outputChoice = ImportOutput.legacy;
@@ -704,7 +716,7 @@ public class CommandLineImporter {
                 annotationIds.add(Long.parseLong(g.getOptarg()));
                 break;
             }
-            case 13:
+            case 13: {
                 advUsage();
                 break;
             }
@@ -723,20 +735,24 @@ public class CommandLineImporter {
                 config.checksumAlgorithm.set(arg);
                 break;
             }
-            case 16: {
+            case 16:
+            case 86: {
                 minutesToWait = Integer.parseInt(g.getOptarg());
                 log.info("Setting minutes to wait to {}", minutesToWait);
                 break;
             }
-            case 17: {
+            case 17:
+            case 87: {
                 doCloseCompleted = true;
                 break;
             }
-            case 18: {
+            case 18:
+            case 88: {
                 doWaitCompleted = true;
                 break;
             }
-            case 19: {
+            case 19:
+            case 89: {
                 minutesToWait = 0;
                 config.autoClose.set(true);
                 break;
