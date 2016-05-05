@@ -136,13 +136,17 @@ class render_response(omeroweb.decorators.render_response):
             context['ome']['email'] = request.session.get(
                 'server_settings').get('email', False)
             if request.session.get('server_settings').get('ui'):
-                context.setdefault('ui', {})  # don't overwrite existing ui
+                # don't overwrite existing ui
+                context.setdefault('ui', {'tree': {}})
                 context['ui']['orphans'] = \
                     request.session.get('server_settings').get('ui', {}) \
                     .get('tree', {}).get('orphans')
                 context['ui']['dropdown_menu'] = \
                     request.session.get('server_settings').get('ui', {}) \
                     .get('menu', {}).get('dropdown')
+                context['ui']['tree']['type_order'] = \
+                    request.session.get('server_settings').get('ui', {}) \
+                    .get('tree', {}).get('type_order')
 
         self.load_settings(request, context, conn)
 
