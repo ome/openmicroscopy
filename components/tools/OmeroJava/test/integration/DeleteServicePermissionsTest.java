@@ -419,18 +419,16 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // owner creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
-
         omero.client owner = disconnect();
 
         // tagger creates tag
-        newUserInGroup(ec);
+        EventContext tagger = newUserInGroup(ec);
 
         TagAnnotation c = new TagAnnotationI();
         c.setTextValue(omero.rtypes.rstring("tag"));
         c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
-        omero.client tagger = disconnect();
-        init(owner);
-
+        disconnect();
+        init(ec);
         // Image's owner tags the image.
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setParent(img);
@@ -466,19 +464,19 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
 
-        omero.client owner = disconnect();
+        disconnect();
 
         // tagger creates tag
-        ec = newUserInGroup(ec);
+        EventContext tagger = newUserInGroup(ec);
         // make the tagger the group owner.
         makeGroupOwner();
 
         TagAnnotation c = new TagAnnotationI();
         c.setTextValue(omero.rtypes.rstring("tag"));
         c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
-        omero.client tagger = disconnect();
+        disconnect();
 
-        init(owner);
+        init(ec);
 
         // Image's owner tags the image with another group's owner tag.
         ImageAnnotationLink link = new ImageAnnotationLinkI();

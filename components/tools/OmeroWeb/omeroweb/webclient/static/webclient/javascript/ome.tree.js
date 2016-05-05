@@ -134,29 +134,13 @@ $(function() {
         */
         var inst = data.instance;
 
-        // Introspect the URL to get the show parameter
-        var param = OME.getURLParameter('show');
-        if (!param) {
+        // Global variable specifies what to select
+        var nodeIds = WEBCLIENT.initially_select;
+        if (nodeIds.length === 0) {
             // If not found, just select root node
             inst.select_node('ul > li:first');
-        } else if (param.split("-")[0] === "tag") {
-            // Tags not yet supported by paths_to_object lookup
-            // So, we only support top-level tags (not under TagSet)
-            // Tree root may be experimenter or 'All members' (this supports both)
-            var root = inst.get_node('ul > li:first');
-            inst.open_node(root, function() {
-                var node = inst.locate_node(param, root)[0];
-                if (!node) return;
-                inst.select_node(node);
-                inst.open_node(node);
-                // we also focus the node, to scroll to it and setup hotkey events
-                $("#" + node.id).children('.jstree-anchor').focus();
-            });
         } else {
-            // Gather data for request
-            // Might have multiple objects separated by |
-            // We just use the first
-            var nodeIds = param.split('|');
+            // We load hierachy for first item...
             var paramSplit = nodeIds[0].split('-');
 
             var payload = {};
