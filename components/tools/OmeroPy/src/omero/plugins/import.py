@@ -394,9 +394,12 @@ class ImportControl(BaseControl):
     def do_import(self, command_args, xargs):
         out = err = None
         try:
+
+            if command_args.dry_run:
+                self.ctx.out(" ".join(['"%s"' % x for x in list(command_args)]))
+                return  # Early exit!
+
             import_command = self.COMMAND + list(command_args)
-            if self.ctx.isdebug:
-                self.ctx.err("COMMAND:%s" % " ".join(import_command))
             out, err = command_args.open_files()
 
             p = omero.java.popen(
@@ -458,6 +461,11 @@ class ImportControl(BaseControl):
     def parse_bulk(self, bulk, command_args):
         # Known keys with special handling
         cont = False
+
+        if "dry_run" in bulk:
+            dry_run = bulk.pop("dry_run")
+            command_args.dry_run = dry_run
+
         if "continue" in bulk:
             cont = True
             c = bulk.pop("continue")
@@ -471,6 +479,7 @@ class ImportControl(BaseControl):
         cols = None
         if "columns" in bulk:
             cols = bulk.pop("columns")
+
         if "include" in bulk:
             bulk.pop("include")
 
@@ -485,28 +494,36 @@ class ImportControl(BaseControl):
 
         if not cols:
             # No parsing necessary
-            command_args.set_path([path])
-            yield cont
-
-        else:
             function = self.parse_text
+        else:
+            function = self.parse_shlex
             if path.endswith(".tsv"):
                 function = self.parse_tsv
             elif path.endswith(".csv"):
                 function = self.parse_csv
 
-            for parts in function(path):
+        for parts in function(path):
+            if not cols:
+                command_args.set_path(parts)
+            else:
                 for idx, col in enumerate(cols):
                     if col == "path":
                         command_args.set_path([parts[idx]])
                     else:
                         command_args.add(col, parts[idx])
-                yield cont
+            yield cont
 
-    def parse_text(self, path):
-        for line in fileinput.input([path]):
-            line = line.strip()
-            yield shlex.split(line)
+    def parse_text(self, path, parse=False):
+        with open(path, "r") as o:
+            for line in o:
+                line = line.strip()
+                if parse:
+                    line = shlex.split(line)
+                yield [line]
+
+    def parse_shlex(self, path):
+        for line in self.parse_text(path, parse=True):
+            yield line
 
     def parse_tsv(self, path, delimiter="\t"):
         for line in self.parse_csv(path, delimiter):

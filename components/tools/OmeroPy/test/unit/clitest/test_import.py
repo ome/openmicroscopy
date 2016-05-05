@@ -227,7 +227,6 @@ class TestImport(object):
     @pytest.mark.parametrize('port', [None, 4064, 14064])
     def testLoginArguments(self, monkeypatch, hostname, port, tmpdir):
         self.args += ['test.fake']
-        control = self.cli.controls['import']
         sessionid = str(uuid.uuid4())
 
         def new_client(x):
@@ -356,3 +355,13 @@ class TestImport(object):
         self.args += ["-f", "---bulk=%s" % b]
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
+
+    def testBulkDry(self, capfd):
+        t = path(__file__).parent / "bulk_import" / "test_dryrun"
+        b = t / "bulk.yml"
+
+        self.add_client_dir()
+        self.args += ["-f", "---bulk=%s" % b]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        assert o == '"--name=no-op" "1.fake"\n'
