@@ -84,7 +84,7 @@ class CommandArguments(object):
         self.set_login_arguments(ctx, args)
         self.set_skip_arguments(args)
         # Python arguments
-        skip_list = (
+        self.skip_list = (
             "javahelp", "skip", "file", "errs", "logback",
             "port", "password", "group", "create", "func",
             "bulk", "prog", "user", "key", "path", "logprefix",
@@ -93,7 +93,7 @@ class CommandArguments(object):
         for key in vars(args):
             self.__accepts.add(key)
             val = getattr(args, key)
-            if key in skip_list:
+            if key in self.skip_list:
                 # Place the Python elements on the CommandArguments
                 # instance so that it behaves like `args`
                 setattr(self, key, val)
@@ -115,9 +115,7 @@ class CommandArguments(object):
                 "--%s=%s" % (key, val))
 
     def set_path(self, path):
-        if self.path:
-            self.__ctx.die(201, "Path already set")
-        elif not isinstance(path, list):
+        if not isinstance(path, list):
             self.__ctx.die(202, "Path is not a list")
         else:
             self.path = path
@@ -129,9 +127,17 @@ class CommandArguments(object):
         return key in self.__accepts
 
     def add(self, key, val):
-        if not self.accepts(key):
+
+        if key in self.skip_list:
+            # First we check if this is a Python argument, in which
+            # case it's set directly on the instance itself. This
+            # may need to be later set elsewhere if multiple bulk
+            # files are supported.
+            setattr(self, key, val)
+        elif not self.accepts(key):
             self.__ctx.die(200, "Unknown argument: %s" % key)
-        self.append_arg(self.__additional, key, val)
+        else:
+            self.append_arg(self.__additional, key, val)
 
     def set_login_arguments(self, ctx, args):
         """Set the connection arguments"""
@@ -437,10 +443,10 @@ class ImportControl(BaseControl):
                 bulk.update(data)
                 os.chdir(parent)
 
-            for step in self.parse_bulk(bulk, command_args):
+            for cont in self.parse_bulk(bulk, command_args):
                 self.do_import(command_args, xargs)
                 if self.ctx.rv:
-                    if command_args.c:
+                    if cont:
                         msg = "Import failed with error code: %s. Continuing"
                         self.ctx.err(msg % self.ctx.rv)
                     else:
@@ -451,7 +457,9 @@ class ImportControl(BaseControl):
 
     def parse_bulk(self, bulk, command_args):
         # Known keys with special handling
+        cont = False
         if "continue" in bulk:
+            cont = True
             c = bulk.pop("continue")
             command_args.add("c", c)
 
@@ -470,13 +478,15 @@ class ImportControl(BaseControl):
         for key in bulk:
             command_args.add(key, bulk[key])
 
-        # All properties are set, yield each path
-        # That's been detected in turn.
+        # All properties are set, yield for each path
+        # to be imported in turn. The value for `cont`
+        # is yielded so that the caller knows whether
+        # or not an error should be fatal.
 
         if not cols:
             # No parsing necessary
             command_args.set_path([path])
-            yield path
+            yield cont
 
         else:
             function = self.parse_text
@@ -491,7 +501,7 @@ class ImportControl(BaseControl):
                         command_args.set_path([parts[idx]])
                     else:
                         command_args.add(col, parts[idx])
-                yield parts
+                yield cont
 
     def parse_text(self, path):
         for line in fileinput.input([path]):
