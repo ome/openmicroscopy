@@ -147,9 +147,11 @@ class CommandArguments(object):
         else:
             if val == NO_ARG:
                 arg_list.append("--%s" % key)
-            else:
+            elif isinstance(val, (str, unicode)):
                 arg_list.append(
                     "--%s=%s" % (key, val))
+            else:
+                arg_list.append("--%s" % key)
         return arg_list
 
     def set_path(self, path):
@@ -264,10 +266,6 @@ class ImportControl(BaseControl):
         parser.add_argument(
             "--javahelp", "--java-help",
             action="store_true", help="Show the Java help text")
-
-        parser.add_argument(  # Special?
-            "--advanced-help", action="store_true",
-            help="Show the advanced help text")
 
         # The following arguments are strictly used by Python
         # The "---" form is kept for backwards compatibility.
@@ -422,6 +420,9 @@ class ImportControl(BaseControl):
         def add_advjava_argument(*args, **kwargs):
             advjava_group.add_argument(*args, **kwargs)
 
+        add_advjava_argument(
+            "--advanced-help", action="store_true",
+            help="Show the advanced help text")
         add_advjava_argument(
             "--transfer", nargs="?", metavar="TYPE",
             help="Transfer methods like in-place import")
