@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ome.api.IQuery;
 import ome.conditions.RootException;
 import ome.io.nio.PixelsService;
@@ -81,6 +84,8 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
             }
         }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManageImageBinariesI.class);
 
     private static final long serialVersionUID = -1L;
 
@@ -268,6 +273,11 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
             if (!file.delete()) {
                 // TODO: should we schedule for deleteOnExit here?
                 throw helper.cancel(new ERR(), null, which + "-delete-false");
+            }
+            if (file.exists()) {
+                LOGGER.debug("Failed to delete: " + file.getPath());
+            } else {
+                LOGGER.debug("File deleted: " + file.getPath());
             }
         }
     }
