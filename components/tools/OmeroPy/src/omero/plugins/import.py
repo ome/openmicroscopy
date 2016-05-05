@@ -145,6 +145,7 @@ class CommandArguments(object):
                 if isinstance(val, (str, unicode)):
                     arg_list.append(val)
         else:
+            key = key.replace("_", "-")
             if val == NO_ARG:
                 arg_list.append("--%s" % key)
             elif isinstance(val, (str, unicode)):
