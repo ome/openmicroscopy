@@ -188,10 +188,7 @@ class ImportControl(BaseControl):
 
         parser.add_login_arguments()
 
-        def add_python_argument(*args, **kwargs):
-            parser.add_argument(*args, **kwargs)
-
-        add_python_argument(
+        parser.add_argument(
             "--javahelp", "--java-help",
             action="store_true", help="Show the Java help text")
 
@@ -199,18 +196,23 @@ class ImportControl(BaseControl):
             "--advanced-help", action="store_true",
             help="Show the advanced help text")
 
-        add_python_argument(
-            "---bulk", nargs="?",
-            help="Bulk YAML file for driving multiple imports")
-        add_python_argument(
-            "---logprefix", nargs="?",
-            help="Directory or file prefix to prepend to ---file and ---errs")
-        add_python_argument(
-            "---file", nargs="?",
-            help="File for storing the standard out of the Java process")
-        add_python_argument(
-            "---errs", nargs="?",
-            help="File for storing the standard err of the Java process")
+        # The following arguments are strictly used by Python
+        # The "---" form is kept for backwards compatibility.
+        py_group = parser.add_argument_group(
+            'Python arguments',
+            'Optional arguments which are used to configure import.')
+
+        def add_python_argument(*args, **kwargs):
+            py_group.add_argument(*args, **kwargs)
+
+        for name, help in (
+            ("bulk", "Bulk YAML file for driving multiple imports"),
+            ("logprefix", "Directory or file prefix for --file and --errs"),
+            ("file", "File for storing the standard out of the Java process"),
+            ("errs", "File for storing the standard err of the Java process")
+        ):
+            add_python_argument("--%s" % name, nargs="?", help=help)
+            add_python_argument("---%s" % name, nargs="?", help=SUPPRESS)
 
         add_python_argument(
             "--clientdir", type=str,
