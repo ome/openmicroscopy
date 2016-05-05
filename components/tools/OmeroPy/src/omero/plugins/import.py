@@ -463,18 +463,26 @@ class ImportControl(BaseControl):
                 bulk.update(data)
                 os.chdir(parent)
 
+            failed = 0
+            total = 0
             for cont in self.parse_bulk(bulk, command_args):
                 if command_args.dry_run:
                     self.ctx.out(" ".join(['"%s"' % x for x in command_args.added_args()]))
                 else:
                     self.do_import(command_args, xargs)
                 if self.ctx.rv:
+                    failed += 1
+                    total += self.ctx.rv
                     if cont:
                         msg = "Import failed with error code: %s. Continuing"
                         self.ctx.err(msg % self.ctx.rv)
                     else:
                         msg = "Import failed. Use -c to continue after errors"
                         self.ctx.die(106, msg)
+                # Fail if any import failed
+                self.ctx.rv = total
+                if failed:
+                    self.ctx.err("%x failed imports" % failed)
         finally:
             os.chdir(old_pwd)
 
