@@ -8,7 +8,7 @@
  This is a python wrapper around icegridregistry/icegridnode for master
  and various other tools needed for administration.
 
- Copyright 2008-14 Glencoe Software, Inc.  All Rights Reserved.
+ Copyright 2008-2016 Glencoe Software, Inc.  All Rights Reserved.
  Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -34,6 +34,7 @@ from omero.cli import UserGroupControl
 
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config, with_rw_config
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
@@ -68,6 +69,10 @@ Configuration properties:
  omero.web.server_list
 
 """ + "\n" + "="*50 + "\n"
+
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
 class AdminControl(WriteableConfigControl, UserGroupControl):
@@ -784,6 +789,7 @@ present, the user will enter a console""")
         internal_cfg = self._cfglist()[0]
         return os.path.exists(internal_cfg)
 
+    @windows_warning
     def status(self, args, node_only=False, can_force_rewrite=False):
         self.check_node(args)
         if not self.check_internal_cfg():
@@ -1063,6 +1069,7 @@ present, the user will enter a console""")
 
         return rv
 
+    @windows_warning
     @with_config
     def diagnostics(self, args, config):
 
