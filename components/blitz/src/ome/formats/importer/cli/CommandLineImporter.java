@@ -571,6 +571,8 @@ public class CommandLineImporter {
         // ADVANCED OPTIONS
         LongOpt advancedHelp =
                 new LongOpt("advanced-help", LongOpt.NO_ARGUMENT, null, 13);
+        LongOpt advancedHelp10 =
+                new LongOpt("advanced_help", LongOpt.NO_ARGUMENT, null, 1013);
         LongOpt transferOpt =
                 new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 14);
         LongOpt checksumAlgorithm =
@@ -620,7 +622,7 @@ public class CommandLineImporter {
                 new LongOpt[] { debug, report, upload, logs, email,
                                 name, description, noThumbnails,
                                 agent, annotationNamespace, annotationText,
-                                annotationLink, transferOpt, advancedHelp,
+                                annotationLink, transferOpt, advancedHelp, advancedHelp10,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
                                 exclude, target, noStatsInfo,
@@ -704,7 +706,8 @@ public class CommandLineImporter {
                 annotationIds.add(Long.parseLong(g.getOptarg()));
                 break;
             }
-            case 13: {
+            case 13:
+            case 1013: {
                 advUsage();
                 break;
             }
