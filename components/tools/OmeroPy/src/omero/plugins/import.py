@@ -28,7 +28,6 @@ import os
 import csv
 import sys
 import shlex
-import fileinput
 
 from omero.cli import BaseControl, CLI
 import omero.java
@@ -71,6 +70,7 @@ TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
 OUTPUT_CHOICES = ["legacy", "yaml"]
 SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
+NO_ARG = object()
 
 
 class CommandArguments(object):
@@ -79,6 +79,7 @@ class CommandArguments(object):
         self.__ctx = ctx
         self.__args = args
         self.__accepts = set()
+        self.__added = dict()
         self.__java_initial = list()
         self.__java_additional = list()
         self.__py_initial = list()
@@ -108,14 +109,28 @@ class CommandArguments(object):
             else:
                 self.append_arg(self.__java_initial, key, val)
 
-    def append_arg(self, cmd_list, key, val):
+    def append_arg(self, cmd_list, key, val=NO_ARG):
+        arg_list = self.build_arg_list(key, val)
+        cmd_list.extend(arg_list)
+
+    def reset_arg(self, cmd_list, idx, key, val=NO_ARG):
+        arg_list = self.build_arg_list(key, val)
+        cmd_list[idx:idx+len(arg_list)] = arg_list
+
+    def build_arg_list(self, key, val=NO_ARG):
+        arg_list = []
         if len(key) == 1:
-            cmd_list.append("-"+key)
-            if isinstance(val, (str, unicode)):
-                cmd_list.append(val)
+            arg_list.append("-"+key)
+            if val != NO_ARG:
+                if isinstance(val, (str, unicode)):
+                    arg_list.append(val)
         else:
-            cmd_list.append(
-                "--%s=%s" % (key, val))
+            if val == NO_ARG:
+                arg_list.append("--%s" % key)
+            else:
+                arg_list.append(
+                    "--%s=%s" % (key, val))
+        return arg_list
 
     def set_path(self, path):
         if not isinstance(path, list):
@@ -146,7 +161,11 @@ class CommandArguments(object):
     def accepts(self, key):
         return key in self.__accepts
 
-    def add(self, key, val):
+    def add(self, key, val=NO_ARG):
+
+        idx = None
+        if key in self.__added:
+            idx = self.__added[key]
 
         if key in self.__py_keys:
             # First we check if this is a Python argument, in which
@@ -154,11 +173,18 @@ class CommandArguments(object):
             # may need to be later set elsewhere if multiple bulk
             # files are supported.
             setattr(self, key, val)
-            self.append_arg(self.__py_additional, key, val)
+            where = self.__py_additional
         elif not self.accepts(key):
             self.__ctx.die(200, "Unknown argument: %s" % key)
         else:
-            self.append_arg(self.__java_additional, key, val)
+            where = self.__java_additional
+
+        if idx is None:
+            idx = len(where)
+            self.append_arg(where, key, val)
+            self.__added[key] = idx
+        else:
+            self.reset_arg(where, idx, key, val)
 
     def set_login_arguments(self, ctx, args):
         """Set the connection arguments"""
@@ -367,6 +393,25 @@ class ImportControl(BaseControl):
             help="Set an alternative output style",
             metavar="TYPE")
 
+        # Arguments previously *following" `--`
+        advjava_group = parser.add_argument_group(
+            'Advanced Java arguments', (
+                'Optional arguments passed strictly to Java.'
+                'For more information, see --advanced-help'))
+
+        def add_advjava_argument(*args, **kwargs):
+            advjava_group.add_argument(*args, **kwargs)
+
+        add_advjava_argument(
+            "--transfer", nargs="?", metavar="TYPE",
+            help="Transfer methods like in-place import")
+        add_advjava_argument(
+            "--exclude", nargs="?", metavar="TYPE",
+            help="Exclusion filters for preventing re-import")
+        add_advjava_argument(
+            "--checksum-algorithm", nargs="?", metavar="TYPE",
+            help="Alternative hashing mechanisms balancing speed & accuracy")
+
         # Unsure on these.
         add_python_argument(
             "--depth", default=4, type=int,
@@ -467,7 +512,9 @@ class ImportControl(BaseControl):
             total = 0
             for cont in self.parse_bulk(bulk, command_args):
                 if command_args.dry_run:
-                    self.ctx.out(" ".join(['"%s"' % x for x in command_args.added_args()]))
+                    rv = ['"%s"' % x for x in command_args.added_args()]
+                    rv = " ".join(rv)
+                    self.ctx.out(rv)
                 else:
                     self.do_import(command_args, xargs)
                 if self.ctx.rv:
@@ -498,7 +545,8 @@ class ImportControl(BaseControl):
         if "continue" in bulk:
             cont = True
             c = bulk.pop("continue")
-            command_args.add("c", c)
+            if bool(c):
+                command_args.add("c")
 
         if "path" not in bulk:
             # Required until @file format is implemented
