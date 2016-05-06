@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util.roimenu;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,34 +31,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-
-
-
-
-
-
-
-
-//Third-party libraries
-import org.jhotdraw.draw.Figure;
-
-
-
-
-
-
-
-
-
-import omero.gateway.model.DataObject;
-//Application-internal dependencies
 import omero.gateway.model.FolderData;
 
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.CreationActionType;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
+import org.openmicroscopy.shoola.agents.measurement.view.ROITable;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -98,20 +75,19 @@ public class ROIPopupMenu
 	/** The menubar which holds the menu items. */
 	private JPopupMenu				popupMenu;
 	
-	/** The link to the controller for the pop up menu. */
-	private ROIActionController		controller; 	
-	
 	/** The list of actions. */
 	private List<ROIAction>			actions;
 	
+	/** The reference to the {@link ROITable}*/
+	private ROITable table;
+	
 	/**
 	 * Instantiate the popup menu
-	 * @param controller class which has interface ROIActionController that 
-	 * determines which action to perform depending on menu item selected.
+	 * @param table Reference to the {@link ROITable}
 	 */
-	public ROIPopupMenu(ROIActionController controller)
+	public ROIPopupMenu(ROITable table)
 	{
-		this.controller = controller;
+		this.table = table;
 		actions = new ArrayList<ROIAction>();
 		createPopupMenu();
 	}
@@ -129,7 +105,7 @@ public class ROIPopupMenu
 			ROIActionController.CreationActionType.values();
 		for (int indexCnt = 0 ; indexCnt < values.length ; indexCnt++)
 		{
-			action = new ROIAction(controller, values[indexCnt]);
+			action = new ROIAction(table, values[indexCnt]);
 			actions.add(action);
 			popupMenu.add(new JMenuItem(action));
 		}
@@ -214,8 +190,12 @@ public class ROIPopupMenu
                 Object obj = selection.iterator().next();
                 if (obj instanceof FolderData) {
                     FolderData f = (FolderData) obj;
-                    f.canEdit();
+                    return f.canEdit();
                 }
+                if (obj instanceof ROI)
+                    return ((ROI) obj).canEdit();
+                if (obj instanceof ROIShape)
+                    return ((ROIShape) obj).getROI().canEdit();
             }
             else {
                 for (Object obj : selection) {
@@ -237,7 +217,9 @@ public class ROIPopupMenu
 
         for (Object obj : selection) {
             if (isROISelection
-                    && !(obj instanceof ROI || obj instanceof ROIShape)) {
+                    && !(obj instanceof ROI || 
+                            obj instanceof ROIShape || 
+                            obj instanceof ROIFigure)) {
                 isROISelection = false;
             }
             if (isFolderSelection && !(obj instanceof FolderData)) {
@@ -248,6 +230,7 @@ public class ROIPopupMenu
         if (!(isFolderSelection ^ isROISelection))
             return false;
 
+        boolean isInFolder = false;
         int delete = 0;
         int edit = 0;
         int link = 0;
@@ -273,6 +256,8 @@ public class ROIPopupMenu
                 if (obj instanceof ROI) {
                     boolean shapeEdit = true;
                     boolean shapeDel = true;
+                    if (!isInFolder)
+                        isInFolder = !table.findFolders((ROI) obj).isEmpty();
                     for (ROIShape s : ((ROI) obj).getShapes().values()) {
                         roi = s.getFigure();
                         if (shapeEdit && !roi.canEdit())
@@ -288,6 +273,9 @@ public class ROIPopupMenu
                         delete++;
                 }
                 if (obj instanceof ROIShape) {
+                    if (!isInFolder)
+                        isInFolder = !table.findFolders(
+                                ((ROIShape) obj).getROI()).isEmpty();
                     shape = (ROIShape) obj;
                     roi = shape.getFigure();
                     if (!(roi.isReadOnly())) {
@@ -300,6 +288,9 @@ public class ROIPopupMenu
                     }
                 }
                 if (obj instanceof ROIFigure) {
+                    if (!isInFolder)
+                        isInFolder = !table.findFolders(
+                                ((ROIFigure) obj).getROI()).isEmpty();
                     roi = (ROIFigure) obj;
                     if (!(roi.isReadOnly())) {
                         if (roi.canEdit()) {
@@ -326,7 +317,7 @@ public class ROIPopupMenu
         case PROPAGATE:
             return isROISelection && edit == selection.size();
         case REMOVE_FROM_FOLDER:
-            return isROISelection && link == selection.size();
+            return isROISelection && link == selection.size() && isInFolder;
         case SPLIT:
             return isROISelection && edit == selection.size();
         case TAG:
@@ -346,10 +337,13 @@ public class ROIPopupMenu
         return false;
     }
 
-	/**
-	 * Returns the popup menu.
-	 * @return see above.
-	 */
-	public JPopupMenu getPopupMenu() { return popupMenu; }
+    /**
+     * Returns the popup menu.
+     * 
+     * @return see above.
+     */
+    public JPopupMenu getPopupMenu() {
+        return popupMenu;
+    }
 	
 }

@@ -318,10 +318,7 @@ class MeasurementViewerControl
     			setROIFigureStatus(ROIFigure.IDLE);
     			if (!UIUtilities.isWindowsOS()) {
         			if (isRightClick(e)) {
-        				Collection l = 
-        					view.getDrawingView().getSelectedFigures();
-        				if (l != null && l.size() == 1)
-        					view.showROIManagementMenu(e.getX(), e.getY());
+        			    view.showROIManagementMenu(e.getX(), e.getY());
         			}
     			}
     		}
@@ -331,10 +328,7 @@ class MeasurementViewerControl
     			setROIFigureStatus(ROIFigure.IDLE);
     			if (UIUtilities.isWindowsOS()) {
         			if (isRightClick(e)) {
-        				Collection l = 
-        					view.getDrawingView().getSelectedFigures();
-        				if (l != null && l.size() == 1)
-        					view.showROIManagementMenu(e.getX(), e.getY());
+        			    view.showROIManagementMenu(e.getX(), e.getY());
         			}
     			}
     		}
