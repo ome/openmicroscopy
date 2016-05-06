@@ -115,7 +115,7 @@ public class DownloadAction
         if (node == null)
             return;
         
-        List<DataObject> selection = new ArrayList<DataObject>();
+        final List<DataObject> selection = new ArrayList<DataObject>();
         selection.add((DataObject)node.getHierarchyObject());
         
         
