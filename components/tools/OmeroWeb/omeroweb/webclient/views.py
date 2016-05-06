@@ -2076,15 +2076,6 @@ def batch_annotate(request, conn=None, **kwargs):
     conn.SERVICE_OPTS.setOmeroGroup(groupId)
 
     manager = BaseContainer(conn)
-    batchAnns = manager.loadBatchAnnotations(objs)
-    # get average values for User ratings and Other ratings.
-    r = [r['ann'].getLongValue() for r in batchAnns['UserRatings']]
-    userRatingAvg = r and sum(r) / len(r) or 0
-    # get all ratings and summarise
-    allratings = [a['ann'] for a in batchAnns['UserRatings']]
-    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
-    ratings = manager.getGroupedRatings(allratings)
-
     figScripts = manager.listFigureScripts(objs)
     canExportAsJpg = manager.canExportAsJpg(request, objs)
     filesetInfo = None
@@ -2104,15 +2095,12 @@ def batch_annotate(request, conn=None, **kwargs):
         'obj_string': obj_string,
         'link_string': link_string,
         'obj_labels': obj_labels,
-        'batchAnns': batchAnns,
         'batch_ann': True,
         'index': index,
         'figScripts': figScripts,
         'canExportAsJpg': canExportAsJpg,
         'filesetInfo': filesetInfo,
         'annotationBlocked': annotationBlocked,
-        'userRatingAvg': userRatingAvg,
-        'ratings': ratings,
         'differentGroups': False}
     if len(groupIds) > 1:
         context['annotationBlocked'] = ("Can't add annotations because"
@@ -2240,12 +2228,7 @@ def annotate_rating(request, conn=None, **kwargs):
             o.setRating(rating)
 
     # return a summary of ratings
-    manager = BaseContainer(conn)
-    batchAnns = manager.loadBatchAnnotations(oids)
-    allratings = [a['ann'] for a in batchAnns['UserRatings']]
-    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
-    ratings = manager.getGroupedRatings(allratings)
-    return ratings
+    return HttpJsonResponse({'success': True})
 
 
 @login_required()
@@ -2433,68 +2416,55 @@ def annotate_tags(request, conn=None, **kwargs):
 
     tags = []
 
-    # Prepare list of 'selected_tags' either for creation of the Tag dialog,
-    # OR to use with form POST to know what has been added / removed from
-    # selected tags.
-    if obj_count == 1:
-        for t in selected:
-            if len(selected[t]) > 0:
-                o_type = t[:-1]         # "images" -> "image"
-                o_id = selected[t][0]
-                objWrapper = oids[o_type][0]
-                conn.SERVICE_OPTS.setOmeroGroup(
-                    objWrapper.getDetails().group.id.val)
-                break
-        if o_type in ("dataset", "project", "image", "screen", "plate",
-                      "acquisition", "well", "comment", "file", "tag",
-                      "tagset"):
-            if o_type == 'tagset':
-                # TODO: this should be handled by the BaseContainer
-                o_type = 'tag'
-            kw = {'index': index}
-            if o_type is not None and o_id > 0:
-                kw[str(o_type)] = long(o_id)
-            try:
-                manager = BaseContainer(conn, **kw)
-            except AttributeError, x:
-                return handlerInternalError(request, x)
-        elif o_type in ("share", "sharecomment"):
-            manager = BaseShare(conn, o_id)
+    # Use the first object we find to set context (assume all objects are
+    # in same group!)
+    for obs in oids.values():
+        if len(obs) > 0:
+            conn.SERVICE_OPTS.setOmeroGroup(
+                obs[0].getDetails().group.id.val)
+            break
 
-        manager.annotationList()
-        tags = manager.tag_annotations
+    taglist, users = tree.marshal_annotations(
+        conn,
+        project_ids=selected['projects'],
+        dataset_ids=selected['datasets'],
+        image_ids=selected['images'],
+        screen_ids=selected['screens'],
+        plate_ids=selected['plates'],
+        run_ids=selected['acquisitions'],
+        ann_type='tag')
 
-    else:
-        manager = BaseContainer(conn)
-        # Use the first object we find to set context (assume all objects are
-        # in same group!)
-        for obs in oids.values():
-            if len(obs) > 0:
-                conn.SERVICE_OPTS.setOmeroGroup(
-                    obs[0].getDetails().group.id.val)
-                break
+    userMap = {}
+    for exp in users:
+        userMap[exp['id']] = exp
 
-        batchAnns = manager.loadBatchAnnotations(oids)
-        tags = []
-        for t in batchAnns['Tag']:
-            mylinks = [l for l in t['links'] if l.isOwned()]
-            if len(mylinks) == obj_count:
-                # make sure we pick a link that we own
-                t['ann'].link = mylinks[0]
-                tags.append(t['ann'])
+    # For batch annotate, we only include tags that user has added to all objects
+    if obj_count > 1:
+        # count my links
+        myLinkCount = {}
+        for t in taglist:
+            tid = t['id']
+            if tid not in myLinkCount:
+                myLinkCount[tid] = 0
+            if t['link']['owner']['id'] == self_id:
+                myLinkCount[tid] += 1
+        # filter
+        taglist = [t for t in taglist if myLinkCount[t['id']] == obj_count]
 
     selected_tags = []
-    for tag in tags:
-        ownerId = unwrap(tag.link.details.owner.id)
+    for tag in taglist:
+        linkOwnerId = tag['link']['owner']['id']
+        owner = userMap[linkOwnerId]
         ownerName = "%s %s" % (
-            unwrap(tag.link.details.owner.firstName),
-            unwrap(tag.link.details.owner.lastName))
-        canDelete = unwrap(tag.link.details.getPermissions().canDelete())
-        created = str(datetime.datetime.fromtimestamp(
-            unwrap(tag.link.details.getCreationEvent().getTime()) / 1000))
-        owned = self_id == unwrap(tag.link.details.owner.id)
+            owner['firstName'],
+            owner['lastName'])
+        canDelete = True
+        created = tag['link']['date']
+        linkOwned = linkOwnerId == self_id
         selected_tags.append(
-            (tag.id, ownerId, ownerName, canDelete, created, owned))
+            (tag['id'], self_id, ownerName, canDelete, created, linkOwned))
+
+    selected_tags.sort(key=lambda x: x[0])
 
     initial = {
         'selected': selected,
@@ -2517,11 +2487,13 @@ def annotate_tags(request, conn=None, **kwargs):
             # filter down previously selected tags to the ones linked by
             # current user
             selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
-            added_tags = [stag[0] for stag in selected_tags if not stag[5]]
-            tags = [tag for tag in form_tags.cleaned_data['tags']
+            # added_tags = [stag[0] for stag in selected_tags if not stag[5]]
+            post_tags = form_tags.cleaned_data['tags']
+            tags = [tag for tag in post_tags
                     if tag not in selected_tag_ids]
             removed = [tag for tag in selected_tag_ids
-                       if tag not in form_tags.cleaned_data['tags']]
+                       if tag not in post_tags]
+            manager = BaseContainer(conn)
             if tags:
                 manager.createAnnotationsLinks(
                     'tag',
@@ -2529,8 +2501,9 @@ def annotate_tags(request, conn=None, **kwargs):
                     oids,
                     well_index=index,
                 )
+            new_tags = []
             for form in newtags_formset.forms:
-                added_tags.append(manager.createTagAnnotations(
+                new_tags.append(manager.createTagAnnotations(
                     form.cleaned_data['tag'],
                     form.cleaned_data['description'],
                     oids,
@@ -2544,7 +2517,7 @@ def annotate_tags(request, conn=None, **kwargs):
                     "%s-%s" % (dtype, obj.id)
                     for dtype, objs in oids.items()
                     for obj in objs], index, tag_owner_id=self_id)
-            return HttpJsonResponse({'added': tags, 'removed': removed, 'new': added_tags})
+            return HttpJsonResponse({'added': tags, 'removed': removed, 'new': new_tags})
         else:
             # TODO: handle invalid form error
             return HttpResponse(str(form_tags.errors))

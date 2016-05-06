@@ -309,7 +309,8 @@ var tagging_form = function(
             for (idx in selected_tags) {
                 if (!selected_tags[idx][5]) {
                     others_tags.push(selected_tags[idx][0]);
-                    continue; // not owned by current user, don't add to list
+                    // link(s) not owned by current user, don't add to list
+                    continue;
                 }
                 var selected_tag = $(".tag_selection div[data-id=" +
                                      selected_tags[idx][0] + "]");
