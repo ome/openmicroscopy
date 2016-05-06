@@ -105,9 +105,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
 
-        // log out
-        disconnect();
-
         // Create a new group, the user is now a member of the new group.
         ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
 
@@ -117,9 +114,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         // Create project in the new group.
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asIObject());
-
-        // log out
-        disconnect();
 
         // Step 2: log into source group to perform the move // No. See below.
         switch (memberLevel) {
@@ -193,9 +187,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         param.addId(d.getId().getValue());
         String sql = "select i from Dataset as i where i.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
-
-        // log out from source group
-        disconnect();
 
         // Step 3:
 

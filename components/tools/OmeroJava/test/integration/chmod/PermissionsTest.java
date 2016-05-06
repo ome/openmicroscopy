@@ -211,7 +211,6 @@ public class PermissionsTest extends AbstractServerTest {
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
         ownerAnnotations = annotateImage(imageId);
-        disconnect();
 
         /* perhaps have another user annotate the image */
 
@@ -220,7 +219,6 @@ public class PermissionsTest extends AbstractServerTest {
         } else {
             init(annotator);
             otherAnnotations = annotateImage(image.getId().getValue());
-            disconnect();
         }
 
         /* perform the chmod */
@@ -228,7 +226,6 @@ public class PermissionsTest extends AbstractServerTest {
         init(chmodder);
         final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
         doChange(client, factory, chmod, isExpectSuccess);
-        disconnect();
 
         if (!isExpectSuccess) {
             return;
@@ -272,7 +269,6 @@ public class PermissionsTest extends AbstractServerTest {
         } else {
             assertAllExist(otherAnnotations);
         }
-        disconnect();
     }
 
     /**
@@ -368,7 +364,6 @@ public class PermissionsTest extends AbstractServerTest {
         init(containerOwner);
         IObject container = isInDataset ? mmFactory.simpleDataset() : mmFactory.simpleFolder();
         container = iUpdate.saveAndReturnObject(container).proxy();
-        disconnect();
 
         /* create an image */
 
@@ -376,7 +371,6 @@ public class PermissionsTest extends AbstractServerTest {
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        disconnect();
 
         /* move the image into the container */
 
@@ -393,14 +387,12 @@ public class PermissionsTest extends AbstractServerTest {
             linkFI.setChild(image);
             link = iUpdate.saveAndReturnObject(linkFI);
         }
-        disconnect();
 
         /* perform the chmod */
 
         init(chmodder);
         final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, "rw----");
         doChange(client, factory, chmod, true);
-        disconnect();
 
         /* check that exactly the expected object deletions have occurred */
 
@@ -412,7 +404,6 @@ public class PermissionsTest extends AbstractServerTest {
         } else {
             assertDoesNotExist(link);
         }
-        disconnect();
     }
 
     /**
@@ -469,13 +460,11 @@ public class PermissionsTest extends AbstractServerTest {
         init(alice);
         Folder topFolder = mmFactory.simpleFolder();
         topFolder = (Folder) iUpdate.saveAndReturnObject(topFolder).proxy();
-        disconnect();
 
         init(bob);
         Folder bottomFolder = mmFactory.simpleFolder();
         bottomFolder.setParentFolder(topFolder);
         bottomFolder = (Folder) iUpdate.saveAndReturnObject(bottomFolder).proxy();
-        disconnect();
 
         /* check that the hierarchy is correctly constructed */
 
@@ -498,7 +487,6 @@ public class PermissionsTest extends AbstractServerTest {
         Assert.assertEquals(aliceFolder.getDetails().getOwner().getId().getValue(), alice.userId);
         Assert.assertEquals(bobFolder.getDetails().getOwner().getId().getValue(), bob.userId);
         Assert.assertNull(bobFolder.getParentFolder());  /* currently fails to unlink */
-        disconnect();
     }
 
     /**
@@ -532,7 +520,6 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(imageId);
         final Instrument instrument = (Instrument) image.getInstrument().proxy();
         image = (Image) image.proxy();
-        disconnect();
 
         /* another user projects the image */
 
@@ -543,7 +530,6 @@ public class PermissionsTest extends AbstractServerTest {
         final long projectionId = projection.getId().getValue();
         testImages.add(projectionId);
         projection = (Image) projection.proxy();
-        disconnect();
 
         /* perform the chmod */
 
@@ -552,7 +538,6 @@ public class PermissionsTest extends AbstractServerTest {
         init(chmodder);
         final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
         doChange(client, factory, chmod, isExpectSuccess);
-        disconnect();
 
         if (!isExpectSuccess) {
             return;
@@ -564,7 +549,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertExists(image);
         assertExists(projection);
         assertExists(instrument);
-        disconnect();
     }
 
 
@@ -599,7 +583,6 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(imageId);
         final Experiment experiment = (Experiment) image.getExperiment().proxy();
         image = (Image) image.proxy();
-        disconnect();
 
         /* another user's image is part of the same experiment */
 
@@ -610,7 +593,6 @@ public class PermissionsTest extends AbstractServerTest {
         final long otherImageId = otherImage.getId().getValue();
         testImages.add(otherImageId);
         otherImage = (Image) otherImage.proxy();
-        disconnect();
 
         /* perform the chmod */
 
@@ -619,7 +601,6 @@ public class PermissionsTest extends AbstractServerTest {
         init(chmodder);
         final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
         doChange(client, factory, chmod, isExpectSuccess);
-        disconnect();
 
         if (!isExpectSuccess) {
             return;
@@ -631,7 +612,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertExists(image);
         assertExists(otherImage);
         assertExists(experiment);
-        disconnect();
     }
 
     /**
@@ -671,7 +651,6 @@ public class PermissionsTest extends AbstractServerTest {
             final Long imageId = ((RLong) result.get(0)).getValue();
             imageIds.add(imageId);
         }
-        disconnect();
 
         /* the images should be owned by the dataset owner */
 
@@ -683,7 +662,6 @@ public class PermissionsTest extends AbstractServerTest {
             image.getDetails().setOwner(datasetOwnerActual);
         }
         iUpdate.saveCollection(images);
-        disconnect();
 
         /* create the dataset and link the images to it */
 
@@ -698,7 +676,6 @@ public class PermissionsTest extends AbstractServerTest {
             link.setChild((Image) image.proxy());
             links.add((DatasetImageLink) iUpdate.saveAndReturnObject(link).proxy());
         }
-        disconnect();
 
         /* perform the chmod */
 
@@ -707,7 +684,6 @@ public class PermissionsTest extends AbstractServerTest {
         init(chmodder);
         final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
         doChange(client, factory, chmod, isExpectSuccess);
-        disconnect();
 
         logRootIntoGroup(dataGroupId);
 
@@ -728,7 +704,6 @@ public class PermissionsTest extends AbstractServerTest {
                 "Dataset", Collections.singletonList(datasetId),
                 "Plate", Collections.singletonList(plateId));
         doChange(client, factory, delete, true);
-        disconnect();
     }
 
     /**

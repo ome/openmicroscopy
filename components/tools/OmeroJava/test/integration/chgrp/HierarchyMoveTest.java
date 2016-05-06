@@ -1109,12 +1109,10 @@ public class HierarchyMoveTest extends AbstractServerTest {
         assertNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
 
         /* switch to the destination group */
-        disconnect();
         loginUser(destination);
 
         /* check what was moved to the destination group */
         assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
         assertNotNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
-        disconnect();
     }
 }

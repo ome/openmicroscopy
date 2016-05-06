@@ -1319,8 +1319,6 @@ public class DuplicationTest extends AbstractServerTest {
             linkOwner = newUserInGroup();
         }
 
-        disconnect();
-
         /* create the model objects */
 
         final IObject container, contained, link;
@@ -1340,7 +1338,6 @@ public class DuplicationTest extends AbstractServerTest {
         }
 
         if (containerOwner != containedOwner) {
-            disconnect();
             loginUser(containedOwner);
         }
 
@@ -1358,7 +1355,6 @@ public class DuplicationTest extends AbstractServerTest {
         }
 
         if (containedOwner != linkOwner) {
-            disconnect();
             loginUser(linkOwner);
         }
 
@@ -1394,7 +1390,6 @@ public class DuplicationTest extends AbstractServerTest {
         /* duplicate the link */
 
         if (linkOwner != duplicator) {
-            disconnect();
             loginUser(duplicator);
         }
 
