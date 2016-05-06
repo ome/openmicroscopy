@@ -1223,8 +1223,8 @@ class BaseContainer(BaseController):
     def remove(self, parents, index, tag_owner_id=None):
         """
         Removes the current object (file, tag, comment, dataset, plate, image)
-        from its parents by manually deleting the link.
-        For Comments, we check whether it becomes an orphan & delete if true
+        from its parents by manually deleting the link. Orphaned comments will
+        be deleted server side.
         If self.tag and owner_id is specified, only remove the tag if it is
         owned by that owner
 
@@ -1274,27 +1274,6 @@ class BaseContainer(BaseController):
             else:
                 raise AttributeError(
                     "Attribute not specified. Cannot be removed.")
-
-        # Having removed comment from all parents, we can delete if orphan
-        if self.comment:
-            orphan = True
-
-            # Use delete Dry Run...
-            cid = self.comment.getId()
-            command = Delete2(targetObjects={"CommentAnnotation": [cid]},
-                              dryRun=True)
-            cb = self.conn.c.submit(command)
-            # ...to check for any remaining links
-            rsp = cb.getResponse()
-            cb.close(True)
-            for parentType in ["Project", "Dataset", "Image", "Screen",
-                               "Plate", "PlateAcquisition", "Well"]:
-                key = 'ome.model.annotations.%sAnnotationLink' % parentType
-                if key in rsp.deletedObjects:
-                    orphan = False
-                    break
-            if orphan:
-                self.conn.deleteObject(self.comment._obj)
 
     def removemany(self, images):
         if self.dataset is not None:
