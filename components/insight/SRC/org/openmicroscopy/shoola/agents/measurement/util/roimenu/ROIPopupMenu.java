@@ -78,13 +78,12 @@ public class ROIPopupMenu
 	/** The list of actions. */
 	private List<ROIAction>			actions;
 	
-	/** The link to the controller for the pop up menu. */
+	/** The reference to the {@link ROITable}*/
 	private ROITable table;
 	
 	/**
 	 * Instantiate the popup menu
-	 * @param controller class which has interface ROIActionController that 
-	 * determines which action to perform depending on menu item selected.
+	 * @param table Reference to the {@link ROITable}
 	 */
 	public ROIPopupMenu(ROITable table)
 	{
