@@ -669,7 +669,7 @@ $(document).ready(function() {
                     loadThumbnailsPanel(containerNode, getPageOr1(inst, containerNode), undefined);
 
                 // Fields are only applicable for acquisitions
-                } else if (containerNode.type === 'acquisition' &&
+                } else if ((containerNode.type === 'acquisition' || containerNode.type === 'plate') && 
                            getfieldOr0(inst, containerNode) !== currentField) {
                     loadThumbnailsPanel(containerNode, undefined, getfieldOr0(inst, containerNode));
                 }
@@ -761,9 +761,9 @@ $(document).ready(function() {
                 case 'plate':
                     // Only load plates if it has a single 'Run' (or none)
                     if (node.children.length < 2) {
-                        url += 'load_data/' + nodeType + '/' + nodeId + '/';
+                        url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
                         if (show) {
-                            url += "?show=" + show;
+                            url += "&show=" + show;
                         }
                     } else {
                         url = undefined;

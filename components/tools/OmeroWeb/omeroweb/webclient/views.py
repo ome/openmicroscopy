@@ -1158,6 +1158,31 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
 
 
 @login_required()
+def api_annotations(request, conn=None, **kwargs):
+
+    r = request.GET or request.POST
+
+    image_ids = r.getlist('image')
+    dataset_ids = r.getlist('dataset')
+    project_ids = r.getlist('project')
+    screen_ids = r.getlist('screen')
+    plate_ids = r.getlist('plate')
+    run_ids = r.getlist('acquisition')
+
+    ann_type = r.get('type', None)
+
+    anns, exps = tree.marshal_annotations(conn, project_ids=project_ids,
+                                          dataset_ids=dataset_ids,
+                                          image_ids=image_ids,
+                                          screen_ids=screen_ids,
+                                          plate_ids=plate_ids,
+                                          run_ids=run_ids,
+                                          ann_type=ann_type)
+
+    return HttpJsonResponse({'annotations': anns, 'experimenters': exps})
+
+
+@login_required()
 def api_share_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -1552,18 +1577,17 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
             context['share'] = BaseShare(conn, share_id)
         else:
             template = "webclient/annotations/metadata_general.html"
-            manager.annotationList()
             context['canExportAsJpg'] = manager.canExportAsJpg(request)
             figScripts = manager.listFigureScripts()
-            form_comment = CommentAnnotationForm(initial=initial)
     context['manager'] = manager
 
     if c_type in ("tag", "tagset"):
         context['insight_ns'] = omero.rtypes.rstring(
             omero.constants.metadata.NSINSIGHTTAGSET).val
     else:
-        context['form_comment'] = form_comment
         context['index'] = index
+    if form_comment is not None:
+        context['form_comment'] = form_comment
 
     context['figScripts'] = figScripts
     context['template'] = template
@@ -2022,17 +2046,6 @@ def batch_annotate(request, conn=None, **kwargs):
     """
 
     objs = getObjects(request, conn)
-    selected = getIds(request)
-    initial = {
-        'selected': selected,
-        'images': objs['image'],
-        'datasets': objs['dataset'],
-        'projects': objs['project'],
-        'screens': objs['screen'],
-        'plates': objs['plate'],
-        'acquisitions': objs['acquisition'],
-        'wells': objs['well']}
-    form_comment = CommentAnnotationForm(initial=initial)
     index = getIntOrDefault(request, 'index', 0)
 
     # get groups for selected objects - setGroup() and create links
@@ -2087,7 +2100,7 @@ def batch_annotate(request, conn=None, **kwargs):
         filesetInfo['size'] += archivedInfo['size']
 
     context = {
-        'form_comment': form_comment,
+        'iids': iids,
         'obj_string': obj_string,
         'link_string': link_string,
         'obj_labels': obj_labels,
@@ -2378,6 +2391,48 @@ def annotate_map(request, conn=None, **kwargs):
 
 @login_required()
 @render_response()
+def marshal_tagging_form_data(request, conn=None, **kwargs):
+    """
+    Provides json data to ome.tagging_form.js
+    """
+
+    group = get_long_or_default(request, 'group', -1)
+    conn.SERVICE_OPTS.setOmeroGroup(str(group))
+    try:
+        offset = int(request.GET.get('offset'))
+        limit = int(request.GET.get('limit', 1000))
+    except:
+        offset = limit = None
+
+    jsonmode = request.GET.get('jsonmode')
+    if jsonmode == 'tagcount':
+        tag_count = conn.getTagCount()
+        return dict(tag_count=tag_count)
+
+    manager = BaseContainer(conn)
+    manager.loadTagsRecursive(eid=-1, offset=offset, limit=limit)
+    all_tags = manager.tags_recursive
+    all_tags_owners = manager.tags_recursive_owners
+
+    if jsonmode == 'tags':
+        # send tag information without descriptions
+        r = list((i, t, o, s) for i, d, t, o, s in all_tags)
+        print len(r)
+        return r
+
+    elif jsonmode == 'desc':
+        # send descriptions for tags
+        return dict((i, d) for i, d, t, o, s in all_tags)
+
+    elif jsonmode == 'owners':
+        # send owner information
+        return all_tags_owners
+
+    return HttpResponse()
+
+
+@login_required()
+@render_response()
 def annotate_tags(request, conn=None, **kwargs):
     """
     This handles creation AND submission of Tags form, adding new AND/OR
@@ -2394,7 +2449,6 @@ def annotate_tags(request, conn=None, **kwargs):
     manager = None
     self_id = conn.getEventContext().userId
 
-    jsonmode = request.GET.get('jsonmode')
     tags = []
 
     # Prepare list of 'selected_tags' either for creation of the Tag dialog,
@@ -2425,10 +2479,8 @@ def annotate_tags(request, conn=None, **kwargs):
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
 
-        # we only need selected tags for original form, not for json loading
-        if jsonmode is None:
-            manager.annotationList()
-            tags = manager.tag_annotations
+        manager.annotationList()
+        tags = manager.tag_annotations
 
     else:
         manager = BaseContainer(conn)
@@ -2440,16 +2492,14 @@ def annotate_tags(request, conn=None, **kwargs):
                     obs[0].getDetails().group.id.val)
                 break
 
-        # we only need selected tags for original form, not for json loading
-        if jsonmode is None:
-            batchAnns = manager.loadBatchAnnotations(oids)
-            tags = []
-            for t in batchAnns['Tag']:
-                mylinks = [l for l in t['links'] if l.isOwned()]
-                if len(mylinks) == obj_count:
-                    # make sure we pick a link that we own
-                    t['ann'].link = mylinks[0]
-                    tags.append(t['ann'])
+        batchAnns = manager.loadBatchAnnotations(oids)
+        tags = []
+        for t in batchAnns['Tag']:
+            mylinks = [l for l in t['links'] if l.isOwned()]
+            if len(mylinks) == obj_count:
+                # make sure we pick a link that we own
+                t['ann'].link = mylinks[0]
+                tags.append(t['ann'])
 
     selected_tags = []
     for tag in tags:
@@ -2473,35 +2523,6 @@ def annotate_tags(request, conn=None, **kwargs):
         'plates': oids['plate'],
         'acquisitions': oids['acquisition'],
         'wells': oids['well']}
-
-    if jsonmode:
-        try:
-            offset = int(request.GET.get('offset'))
-            limit = int(request.GET.get('limit', 1000))
-        except:
-            offset = limit = None
-        if jsonmode == 'tagcount':
-            tag_count = manager.getTagCount()
-        else:
-            manager.loadTagsRecursive(eid=-1, offset=offset, limit=limit)
-            all_tags = manager.tags_recursive
-            all_tags_owners = manager.tags_recursive_owners
-
-        if jsonmode == 'tagcount':
-            # send number of tags for better paging progress bar
-            return dict(tag_count=tag_count)
-
-        elif jsonmode == 'tags':
-            # send tag information without descriptions
-            return list((i, t, o, s) for i, d, t, o, s in all_tags)
-
-        elif jsonmode == 'desc':
-            # send descriptions for tags
-            return dict((i, d) for i, d, t, o, s in all_tags)
-
-        elif jsonmode == 'owners':
-            # send owner information
-            return all_tags_owners
 
     if request.method == 'POST':
         # handle form submission
