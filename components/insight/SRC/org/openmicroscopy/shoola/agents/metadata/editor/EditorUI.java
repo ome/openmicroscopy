@@ -44,12 +44,12 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
-
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -1052,4 +1052,17 @@ class EditorUI
 	        generalPane.getPropertiesUI().loadROICount((ImageData) model.getRefObject());
 	    }
 	}
+	
+    /**
+     * Get a reference to the {@link AnnotationTaskPane} which is responsible
+     * for displaying annotations of the specified type
+     * 
+     * @param type
+     *            The type of annotation
+     * @return See above
+     */
+    public AnnotationTaskPane getAnnotationTaskPane(AnnotationType type) {
+        return generalPane != null ? generalPane.getAnnotationTaskPane(type)
+                : null;
+    }
 }

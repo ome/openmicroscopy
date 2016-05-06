@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +85,7 @@ public class StructuredAnnotationLoader extends BatchCallTree {
             final List<String> nsInclude, final List<String> nsExlcude) {
         return new BatchCall("Loading Specified Annotations") {
             public void doCall() throws Exception {
-                
+
                 for (AnnotationType annotationType : annotationTypes) {
                     if (annotationType.getPojoClass() != null) {
                         OmeroMetadataService os = context.getMetadataService();
@@ -113,7 +114,7 @@ public class StructuredAnnotationLoader extends BatchCallTree {
             }
         };
     }
-
+    
     /**
      * Creates a {@link BatchCall} to load the existing annotations of the
      * specified type related to the passed type of object.
@@ -149,26 +150,6 @@ public class StructuredAnnotationLoader extends BatchCallTree {
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
      * 
-     * @param object
-     *            The type of the object.
-     * @param userID
-     *            The id of the user who tagged the object or <code>-1</code> if
-     *            the user is not specified.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall loadStructuredData(final Object object, final long userID) {
-        return new BatchCall("Loading Structured Data") {
-            public void doCall() throws Exception {
-                OmeroMetadataService os = context.getMetadataService();
-                result = os.loadStructuredData(ctx, object, userID);
-            }
-        };
-    }
-
-    /**
-     * Creates a {@link BatchCall} to load the ratings related to the object
-     * identified by the class and the id.
-     * 
      * @param data
      *            The objects.
      * @param userID
@@ -185,6 +166,31 @@ public class StructuredAnnotationLoader extends BatchCallTree {
             public void doCall() throws Exception {
                 OmeroMetadataService os = context.getMetadataService();
                 result = os.loadStructuredData(ctx, data, userID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load the ratings related to the object
+     * identified by the class and the id.
+     * 
+     * @param data
+     *            The objects.
+     * @param types The types of annotations to load
+     * @param userID
+     *            The id of the user who tagged the object or <code>-1</code> if
+     *            the user is not specified.
+     * @param viewed
+     *            Pass <code>true</code> to load the rendering settings related
+     *            to the objects, <code>false<code> otherwise.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadStructuredData(final List<DataObject> data, EnumSet<AnnotationType> types,
+            final long userID) {
+        return new BatchCall("Loading Structured Data") {
+            public void doCall() throws Exception {
+                OmeroMetadataService os = context.getMetadataService();
+                result = os.loadStructuredData(ctx, data, types, userID);
             }
         };
     }
@@ -223,6 +229,13 @@ public class StructuredAnnotationLoader extends BatchCallTree {
         return result;
     }
 
+    /**
+     * Creates a new instance
+     * @param ctx The {@link SecurityContext}
+     * @param types The types of annotations to load
+     * @param data The object to load the annotations for
+     * @param userID The user id
+     */
     public StructuredAnnotationLoader(SecurityContext ctx,
             EnumSet<AnnotationType> types, List<DataObject> data, long userID) {
         this.ctx = ctx;
@@ -241,11 +254,17 @@ public class StructuredAnnotationLoader extends BatchCallTree {
                 ids.add(obj.getId());
             }
 
-            loadCall = loadSpecifiedAnnotationLinkedTo(objType, ids, types,
-                    null, null);
+            loadCall = loadStructuredData(data, types, userID);
         }
     }
 
+    /**
+     * Creates a new instance
+     * @param ctx The {@link SecurityContext}
+     * @param annotationType The type of annotations to load
+     * @param userID The user id
+     * 
+     */
     public StructuredAnnotationLoader(SecurityContext ctx,
             AnnotationType annotationType, long userID) {
         this.ctx = ctx;

@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,6 +55,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -330,7 +332,8 @@ class MetadataViewerModel
 		}
 		browser.setRootObject(refObject);
 		editor.setRootObject(refObject);
-		data = null;
+		data = new HashMap<DataObject, StructuredDataResults>();
+		data.put((DataObject)refObject, new StructuredDataResults((DataObject)refObject));
 		if (!(refObject instanceof WellSampleData) && parentData != null) {
 			parentData = null;
 		}
@@ -442,8 +445,9 @@ class MetadataViewerModel
 	 * to the passed node.
 	 * 
 	 * @param node The node to handle.
+	 * @param types The types of annotations to load
 	 */
-	void fireStructuredDataLoading(Object node)
+	void fireStructuredDataLoading(Object node, EnumSet<AnnotationType> types)
 	{
 		if (!(node instanceof DataObject)) return;
 		if (node instanceof ExperimenterData) return;
@@ -456,7 +460,7 @@ class MetadataViewerModel
 			}
 			ctx = retrieveContext((DataObject) node);
 			StructuredDataLoader loader = new StructuredDataLoader(component,
-					ctx, Arrays.asList((DataObject) node), loaderID);
+					ctx, Arrays.asList((DataObject) node), types, loaderID);
 			loaders.put(loaderID, loader);
 			loader.load();
 			state = MetadataViewer.LOADING_METADATA;
@@ -723,9 +727,15 @@ class MetadataViewerModel
 	void setStructuredDataResults(Map<DataObject, StructuredDataResults> data, 
 			int loaderID)
 	{
-		loaders.remove(loaderID);
-		this.data = data;
-		state = MetadataViewer.READY;
+        loaders.remove(loaderID);
+        for (Entry<DataObject, StructuredDataResults> e : data.entrySet()) {
+            StructuredDataResults r = this.data.get(e.getKey());
+            if (r == null)
+                this.data.put(e.getKey(), e.getValue());
+            else
+                this.data.get(e.getKey()).merge(e.getValue());
+        }
+        state = MetadataViewer.READY;
 	}
 	
 	/**
@@ -836,6 +846,7 @@ class MetadataViewerModel
 	 */
 	void setRelatedNodes(List<DataObject> relatedNodes)
 	{ 
+	    System.out.println("setRelatedNodes "+relatedNodes);
 	    this.relatedNodes = relatedNodes;
 	    if (CollectionUtils.isEmpty(relatedNodes)) return;
 	    DataObject ho = relatedNodes.get(0);
@@ -846,13 +857,15 @@ class MetadataViewerModel
 	            l.add(((WellSampleData) i.next()).getImage());
 	        }
 	    } else l.addAll(relatedNodes);
-	    loaderID++;
-	    ctx = retrieveContext(ho);
-	    StructuredDataLoader loader = new StructuredDataLoader(component,
-	            ctx, l, loaderID);
-	    loaders.put(loaderID, loader);
-	    loader.load();
-	    state = MetadataViewer.LOADING_METADATA;
+	    
+	    // commented out, don't load all annotations by default
+//	    loaderID++;
+//	    ctx = retrieveContext(ho);
+//	    StructuredDataLoader loader = new StructuredDataLoader(component,
+//	            ctx, l, loaderID);
+//	    loaders.put(loaderID, loader);
+//	    loader.load();
+//	    state = MetadataViewer.LOADING_METADATA;
 	}
 
 	/**

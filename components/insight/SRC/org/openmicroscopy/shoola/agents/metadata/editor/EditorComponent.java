@@ -28,6 +28,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -255,18 +256,29 @@ class EditorComponent
 	 */
 	public JComponent getUI() { return view; }
 
+	public void layoutUI() {
+	    view.layoutUI();
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setStructuredDataResults()
+	 * @see Editor#setStructuredDataResults(EnumSet)
 	 */
-	public void setStructuredDataResults()
+	public void setStructuredDataResults(EnumSet<AnnotationType> types)
 	{
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		
+		for (AnnotationType type : types) {
+            AnnotationTaskPane p = view.getAnnotationTaskPane(type);
+            if (p != null)
+                p.onLoaded();
+        }
+		
 		view.layoutUI();
 		view.setStatus(false);
 	}
-
-	/** 
+	
+    /** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setRootObject(Object)
 	 */
@@ -1251,5 +1263,9 @@ class EditorComponent
     @Override
     public void reloadROICount() {
         view.reloadROICount();
+    }
+    
+    public void fireStructuredDataLoading(EnumSet<AnnotationType> types) {
+        
     }
 }

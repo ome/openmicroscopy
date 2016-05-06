@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter;
 
 import java.util.Collection;
-import java.util.EnumSet;
 
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
@@ -32,7 +31,6 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 import omero.log.LogMessage;
-import omero.gateway.model.TagAnnotationData;
 
 /** 
  * Loads the available Tags
