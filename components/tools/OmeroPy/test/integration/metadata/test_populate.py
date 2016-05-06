@@ -39,6 +39,7 @@ from omero.model import FileAnnotationI, MapAnnotationI, PlateAnnotationLinkI
 from omero.model import RoiAnnotationLinkI
 from omero.model import RoiI, PointI
 from omero.rtypes import rdouble, rint, rstring, unwrap
+from omero.sys import ParametersI
 
 from omero.util.populate_metadata import (
     ParsingContext, BulkToMapAnnotationContext, DeleteMapAnnotationContext)
@@ -51,6 +52,7 @@ from omero.constants.namespaces import NSMEASUREMENT
 from omero.util.temp_files import create_path
 
 from pytest import skip
+from pytest import mark
 
 
 def coord2offset(coord):
@@ -88,6 +90,19 @@ class BasePopulate(lib.ITest):
             csvFile.close()
         return str(csvFileName)
 
+    def createDataset(self, names=("A1", "A2")):
+        q = self.client.sf.getQueryService()
+        up = self.client.sf.getUpdateService()
+        ds = self.make_dataset()
+        for name in names:
+            img = self.importSingleImage(name=name)
+            # Name must match exactly. No ".fake"
+            img = q.get("Image", img.id.val)
+            img.setName(rstring(name))
+            img = up.saveAndReturnObject(img)
+            self.link(ds, img)
+        return ds.proxy()
+
     def createPlate(self, rowCount, colCount):
         plates = self.importPlates(plateRows=rowCount,
                                    plateCols=colCount)
@@ -118,10 +133,36 @@ class BasePopulate(lib.ITest):
 class TestPopulateMetadata(BasePopulate):
 
     def setup_method(self, method):
-        self.csvName = self.createCsv()
+        self.plate_csv = self.createCsv()
+        self.dataset_csv = self.createCsv(
+            colNames="Image Name,Type,Concentration",
+        )
         self.rowCount = 1
         self.colCount = 2
-        self.plate = self.createPlate(self.rowCount, self.colCount)
+        self.plate = None
+        self.dataset = None
+        self.images = []
+
+    def get_plate(self):
+        if not self.plate:
+            self.plate = self.createPlate(self.rowCount, self.colCount)
+        return self.plate
+
+    def get_dataset(self):
+        if not self.dataset:
+            self.dataset = self.createDataset()
+            self.images = self.get_dataset_images()
+        return self.dataset
+
+    def get_dataset_images(self):
+        if not self.dataset:
+            return []
+        query = """select i from Image i
+            left outer join fetch i.datasetLinks links
+            left outer join fetch links.parent d
+            where d.id=%s""" % self.dataset.id.val
+        qs = self.client.sf.getQueryService()
+        return qs.findAllByQuery(query, None)
 
     def get_plate_annotations(self):
         query = """select p from Plate p
@@ -133,7 +174,31 @@ class TestPopulateMetadata(BasePopulate):
         anns = plate.linkedAnnotationList()
         return anns
 
+    def get_dataset_annotations(self):
+        query = """select d from Dataset d
+            left outer join fetch d.annotationLinks links
+            left outer join fetch links.child
+            where d.id=%s""" % self.dataset.id.val
+        qs = self.client.sf.getQueryService()
+        ds = qs.findByQuery(query, None)
+        anns = ds.linkedAnnotationList()
+        return anns
+
+    def get_image_annotations(self):
+        if not self.images:
+            return []
+        params = ParametersI()
+        params.addIds([x.id for x in self.images])
+        query = """select a from Image i
+            left outer join i.annotationLinks links
+            left outer join links.child as a
+            where i.id in (:ids) and a <> null"""
+        qs = self.client.sf.getQueryService()
+        return qs.findAllByQuery(query, params)
+
     def get_well_annotations(self):
+        if not self.plate:
+            return []
         query = """
             SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
             FROM WellAnnotationLink wal
@@ -142,7 +207,14 @@ class TestPopulateMetadata(BasePopulate):
         was = unwrap(qs.projection(query, None))
         return was
 
-    def testPopulateMetadataPlate(self):
+    METADATA_TESTS = (
+        ("plate", 4, 2),
+        ("dataset", 4, 1)
+    )
+    METADATA_IDS = [x[0] for x in METADATA_TESTS]
+
+    @mark.parametrize("data", METADATA_TESTS, ids=METADATA_IDS)
+    def testPopulateMetadata(self, data):
         """
         We should really test each of the parsing contexts in separate tests
         but in practice each one uses data created by the others, so for
@@ -153,22 +225,25 @@ class TestPopulateMetadata(BasePopulate):
             print yaml, "found"
         except Exception:
             skip("PyYAML not installed.")
-        self._test_parsing_context()
-        self._test_bulk_to_map_annotation_context()
-        self._test_delete_map_annotation_context()
+        type, count, anns = data
+        self._test_parsing_context(type, count)
+        self._test_bulk_to_map_annotation_context(type, anns)
+        self._test_delete_map_annotation_context(type)
 
-    def _test_parsing_context(self):
+    def _test_parsing_context(self, type, count):
         """
             Create a small csv file, use populate_metadata.py to parse and
             attach to Plate. Then query to check table has expected content.
         """
 
-        ctx = ParsingContext(self.client, self.plate, file=self.csvName)
+        target = getattr(self, "get_%s" % type)()
+        csv = getattr(self, "%s_csv" % type)
+        ctx = ParsingContext(self.client, target, file=csv)
         ctx.parse()
         ctx.write_to_omero()
 
         # Get file annotations
-        anns = self.get_plate_annotations()
+        anns = getattr(self, "get_%s_annotations" % type)()
         # Only expect a single annotation which is a 'bulk annotation'
         assert len(anns) == 1
         tableFileAnn = anns[0]
@@ -184,30 +259,44 @@ class TestPopulateMetadata(BasePopulate):
         for hit in range(rows):
             rowValues = [col.values[0] for col in t.read(range(len(cols)),
                                                          hit, hit+1).columns]
-            assert len(rowValues) == 4
-            if "a1" in rowValues:
+            assert len(rowValues) == count
+            if "A1" in rowValues:
                 assert "Control" in rowValues
-            elif "a2" in rowValues:
+            elif "A2" in rowValues:
                 assert "Treatment" in rowValues
             else:
-                assert False, "Row does not contain 'a1' or 'a2'"
+                assert False, \
+                    "Row does not contain 'a1' or 'a2': %s" % rowValues
 
-    def _test_bulk_to_map_annotation_context(self):
+    def _test_bulk_to_map_annotation_context(self, type, ann_count):
         # self._testPopulateMetadataPlate()
         assert len(self.get_well_annotations()) == 0
+        assert len(self.get_image_annotations()) == 0
 
         cfg = os.path.join(
             os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
 
-        fileid = self.get_plate_annotations()[0].file.id.val
+        target = getattr(self, "get_%s" % type)()
+        anns = getattr(self, "get_%s_annotations" % type)()
+        fileid = anns[0].file.id.val
         ctx = BulkToMapAnnotationContext(
-            self.client, self.plate, fileid=fileid, cfg=cfg)
+            self.client, target, fileid=fileid, cfg=cfg)
         ctx.parse()
         assert len(self.get_well_annotations()) == 0
+        assert len(self.get_image_annotations()) == 0
 
         ctx.write_to_omero()
         was = self.get_well_annotations()
-        assert len(was) == 2
+        ias = self.get_image_annotations()
+
+        if len(was) == ann_count:
+            assert len(ias) == 0
+            oas = was
+        elif len(ias) == ann_count:
+            assert len(was) == 0
+            oas = ias
+        else:
+            assert False, "W:%s & I:%s" % (len(was), len(ias))
 
         for ma, wid, wr, wc in was:
             assert isinstance(ma, MapAnnotationI)

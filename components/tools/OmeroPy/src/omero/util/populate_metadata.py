@@ -38,6 +38,7 @@ from omero.rtypes import rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
 from omero.model import PlateAcquisitionI, WellI, WellSampleI, ImageI
+from omero.model import ProjectAnnotationLinkI, ProjectI
 from omero.model import ScreenAnnotationLinkI
 from omero.model import MapAnnotationI, NamedValue
 from omero.grid import ImageColumn, LongColumn, PlateColumn, RoiColumn
@@ -94,6 +95,7 @@ BOOLEAN_TRUE = ["yes", "true", "t", "1"]
 
 PLATE_NAME_COLUMN = 'Plate Name'
 WELL_NAME_COLUMN = 'Well Name'
+DATASET_NAME_COLUMN = 'Dataset Name'
 IMAGE_NAME_COLUMN = 'Image Name'
 
 COLUMN_TYPES = {
@@ -126,14 +128,17 @@ class HeaderResolver(object):
 
     DEFAULT_COLUMN_SIZE = 1
 
-    plate_keys = {
+    dataset_keys = {
+        'image': ImageColumn,
+    }
+
+    plate_keys = dict({
         'well': WellColumn,
         'field': ImageColumn,
         'row': LongColumn,
         'column': LongColumn,
         'wellsample': ImageColumn,
-        'image': ImageColumn
-    }
+    }, **dataset_keys)
 
     screen_keys = dict({
         'plate': PlateColumn,
@@ -187,51 +192,15 @@ class HeaderResolver(object):
         log.debug('Sanity check passed')
 
     def create_columns_screen(self):
-        if self.types is not None and len(self.types) != len(self.headers):
-            message = "Number of columns and column types not equal."
-            raise MetadataError(message)
-        columns = list()
-        for i, header_as_lower in enumerate(self.headers_as_lower):
-            name = self.headers[i]
-            description = ""
-            if "%%" in name:
-                name, description = name.split("%%", 1)
-                name = name.strip()
-                # description is key=value. Convert to json
-                if "=" in description:
-                    k, v = description.split("=", 1)
-                    k = k.strip()
-                    description = json.dumps({k: v.strip()})
-            # HDF5 does not allow / in column names
-            name = name.replace('/', '\\')
-            if self.types is not None and \
-                    COLUMN_TYPES[self.types[i]] is StringColumn:
-                column = COLUMN_TYPES[self.types[i]](
-                    name, description, self.DEFAULT_COLUMN_SIZE, list())
-            elif self.types is not None:
-                column = COLUMN_TYPES[self.types[i]](name, description, list())
-            else:
-                try:
-                    column = self.screen_keys[header_as_lower](
-                        name, description, list())
-                except KeyError:
-                    column = StringColumn(
-                        name, description, self.DEFAULT_COLUMN_SIZE, list())
-            columns.append(column)
-        for column in columns:
-            if column.__class__ is PlateColumn:
-                columns.append(StringColumn(PLATE_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
-            if column.__class__ is WellColumn:
-                columns.append(StringColumn(WELL_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
-            if column.__class__ is ImageColumn:
-                columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
-        self.columns_sanity_check(columns)
-        return columns
+        return self._create_columns("screen")
 
     def create_columns_plate(self):
+        return self._create_columns("plate")
+
+    def create_columns_dataset(self):
+        return self._create_columns("dataset")
+
+    def _create_columns(self, klass):
         if self.types is not None and len(self.types) != len(self.headers):
             message = "Number of columns and column types not equal."
             raise MetadataError(message)
@@ -257,7 +226,8 @@ class HeaderResolver(object):
                 column = COLUMN_TYPES[self.types[i]](name, description, list())
             else:
                 try:
-                    column = self.plate_keys[header_as_lower](
+                    keys = getattr(self, "%s_keys" % klass)
+                    column = keys[header_as_lower](
                         name, description, list())
                 except KeyError:
                     column = StringColumn(
@@ -275,12 +245,6 @@ class HeaderResolver(object):
                                self.DEFAULT_COLUMN_SIZE, list()))
         self.columns_sanity_check(columns)
         return columns
-
-    def create_columns_dataset(self):
-        if self.types is not None and len(self.types) != len(self.headers):
-            message = "Number of columns and column types not equal."
-            raise MetadataError(message)
-        raise Exception('To be implemented!')
 
 
 class ValueResolver(object):
@@ -298,9 +262,9 @@ class ValueResolver(object):
         self.target_class = self.target_object.__class__
         if PlateI is self.target_class:
             return self.load_plate()
-        if DatasetI is self.target_class:
+        elif DatasetI is self.target_class:
             return self.load_dataset()
-        if ScreenI is self.target_class:
+        elif ScreenI is self.target_class:
             return self.load_screen()
         raise MetadataError(
             'Unsupported target object class: %s' % self.target_class)
@@ -395,7 +359,54 @@ class ValueResolver(object):
             log.debug('%s: %r' % (row, wells_by_location[row].keys()))
 
     def load_dataset(self):
-        raise Exception('To be implemented!')
+        query_service = self.client.getSession().getQueryService()
+        parameters = omero.sys.ParametersI()
+        parameters.addId(self.target_object.id.val)
+        log.debug('Loading Dataset:%d' % self.target_object.id.val)
+
+        parameters.page(0, 1)
+        self.target_object = unwrap(query_service.findByQuery(
+            'select d from Dataset d where d.id = :id',
+            parameters, {'omero.group': '-1'}))
+        self.target_name = self.target_object.name.val
+
+        data = list()
+        while True:
+            parameters.page(len(data), 1000)
+            rv = unwrap(query_service.projection((
+                'select distinct i.id, i.name from Dataset as d '
+                'join d.imageLinks as l '
+                'join l.child as i '
+                'where d.id = :id order by i.id desc'),
+                parameters, {'omero.group': '-1'}))
+            if len(rv) == 0:
+                break
+            else:
+                data.extend(rv)
+        if not data:
+            raise MetadataError('Could not find target object!')
+
+        self.images_by_id = dict()
+        self.images_by_name = dict()
+        images_by_id = dict()
+        images_by_name = dict()
+
+        self.images_by_id[self.target_object.id.val] = images_by_id
+        self.images_by_name[self.target_object.id.val] = images_by_name
+        self.parse_dataset(
+            self.target_name, images_by_id, images_by_name, data
+        )
+
+    def parse_dataset(self, dname, images_by_id, images_by_name, data):
+        for iid, iname in data:
+            images_by_id[iid] = iname
+            if iname in images_by_name:
+                log.warn("Image named %s(id=%d) present. Skipping %s" % (
+                    iname, images_by_name[iname], iid
+                ))
+            else:
+                images_by_name[iname] = iid
+        log.debug('Completed parsing dataset: %s' % dname)
 
     def resolve(self, column, value, row):
         column_class = column.__class__
@@ -511,6 +522,8 @@ class ParsingContext(object):
             return PlateAnnotationLinkI()
         if DatasetI is self.target_class:
             return DatasetAnnotationLinkI()
+        if ProjectI is self.target_class:
+            return ProjectAnnotationLinkI()
         raise MetadataError(
             'Unsupported target object class: %s' % self.target_class)
 
