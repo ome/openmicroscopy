@@ -77,6 +77,9 @@
     WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'webgateway.views.copy_image_rdef_json' %}";
     WEBCLIENT.URLS.reset_owners_rdef_json = "{% url 'reset_owners_rdef_json' %}";
     WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
+    // jsTree code in ome.tree.js and center panel code in center_plugin.thumbs.js.html uses initially_select
+    // instead of browser URL since URL may be /webclient/?path=plate.name-barcode|well.name-A1
+    WEBCLIENT.initially_select = [{% for o in initially_select %}"{{ o }}"{% if not forloop.last %},{% endif %}{% endfor %}];
 
     {% ifequal menu 'usertags' %}
         WEBCLIENT.TAG_TREE = true;
