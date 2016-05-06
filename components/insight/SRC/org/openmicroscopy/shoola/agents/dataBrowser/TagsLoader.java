@@ -27,6 +27,7 @@ import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+
 /** 
  * Loads the available tags owned by the currently logged in user.
  * This class calls the <code>loadExistingAnnotations</code> method in the

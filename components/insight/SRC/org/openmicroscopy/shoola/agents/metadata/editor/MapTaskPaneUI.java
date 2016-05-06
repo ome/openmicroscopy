@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -65,6 +66,7 @@ import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableSelecti
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ToolTipGenerator;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -123,7 +125,7 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
      */
     MapTaskPaneUI(EditorModel model, EditorUI view, EditorControl controller) {
         super(model, view, controller);
-        buildUI();
+        refreshUI();
     }
 
     
@@ -319,11 +321,13 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     void clearDisplay() {
-        mapTables.clear();
-        tablePanel.removeAll();
-        c.gridy = 0;
-        tablePanel.add(headerPanel, c);
-        c.gridy++;
+        if (tablePanel != null) {
+            mapTables.clear();
+            tablePanel.removeAll();
+            c.gridy = 0;
+            tablePanel.add(headerPanel, c);
+            c.gridy++;
+        }
     }
 
     /**
@@ -707,6 +711,15 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     void refreshUI() {
+        clearDisplay();
+        
+        if(state == State.LOADING) {
+            add(loadingLabel);
+            return;
+        }
+        
+        buildUI();
+        
         List<MapAnnotationData> list = new ArrayList<MapAnnotationData>();
 
         if (filter == Filter.SHOW_ALL || filter == Filter.ADDED_BY_ME) {
@@ -787,6 +800,8 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
     
     @Override
     void onCollapsed(boolean collapsed) {
-        
+        if(!collapsed) {
+            model.loadStructuredData(EnumSet.of(AnnotationType.MAP));
+        }
     }
 }

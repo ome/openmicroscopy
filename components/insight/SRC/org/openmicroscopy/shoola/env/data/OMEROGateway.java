@@ -210,6 +210,7 @@ import omero.gateway.model.BooleanAnnotationData;
 import omero.gateway.model.ChannelAcquisitionData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
 import omero.gateway.model.EllipseData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
@@ -240,6 +241,7 @@ import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.TimeAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 
 /**
@@ -1280,6 +1282,14 @@ class OMEROGateway
 			return "ome.model.annotations.TimeAnnotation";
 		else if (BooleanAnnotationData.class.equals(pojo))
 			return "ome.model.annotations.BooleanAnnotation";
+		else if (DoubleAnnotationData.class.equals(pojo))
+            return "ome.model.annotations.DoubleAnnotation";
+		else if (LongAnnotationData.class.equals(pojo))
+            return "ome.model.annotations.LongAnnotation";
+		else if (MapAnnotationData.class.equals(pojo))
+            return "ome.model.annotations.MapAnnotation";
+		else if (XMLAnnotationData.class.equals(pojo))
+            return "ome.model.annotations.XMLAnnotation";
 		return null;
 	}
 

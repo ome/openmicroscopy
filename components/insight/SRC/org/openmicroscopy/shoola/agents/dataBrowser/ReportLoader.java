@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.Map.Entry;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import omero.gateway.SecurityContext;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import omero.gateway.model.DataObject;
@@ -112,7 +114,7 @@ public class ReportLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadStructuredData(ctx, nodes, -1, false, this);
+		handle = mhView.loadStructuredData(ctx, nodes, EnumSet.of(AnnotationType.TAG), -1, false, this);
 	}
 	
 	/**

@@ -127,6 +127,7 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param data The objects to handle. Mustn't be <code>null</code>.
+	 * @param types The types of annotations to load (<code>null</code> means all annotation).
 	 * @param userID Pass <code>-1</code> if no user specified.
 	 * @param viewed Pass <code>true</code> to load the rendering settings 
 	 * related to the objects, <code>false<code> otherwise.
@@ -147,7 +148,7 @@ public interface MetadataHandlerView
 	 * @return 
 	 */
 	public CallHandle loadStructuredData(SecurityContext ctx,
-	        List<DataObject> data, long userID, boolean viewed, EnumSet<AnnotationType> types,
+	        List<DataObject> data, EnumSet<AnnotationType> types, long userID, boolean viewed,
 	        AgentEventListener observer);
 	        
 	/**
@@ -444,6 +445,7 @@ public interface MetadataHandlerView
 	 * @param userID The id of the experimenter or <code>-1</code>.
 	 * @param all Pass <code>true</code> to retrieve all the scripts uploaded
 	 * ones and the default ones, <code>false</code>.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadScripts(SecurityContext ctx, long userID, boolean all,
@@ -454,6 +456,7 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param scriptID The id of the script.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadScript(SecurityContext ctx, long scriptID,
@@ -465,6 +468,7 @@ public interface MetadataHandlerView
 	 * @param ctx The security context.
 	 * @param parameters The parameters indicating the data to load.
 	 * @param userID The id of the experimenter or <code>-1</code>.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadTabularData(SecurityContext ctx,
@@ -475,6 +479,7 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param imageId The id of the image.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFileset(SecurityContext ctx,
@@ -493,7 +498,11 @@ public interface MetadataHandlerView
 	 * @param annotationTypes The type of annotation to load.
 	 * @param nsInclude The annotation's name space to include if any.
 	 * @param nsExlcude The annotation's name space to exclude if any.
+<<<<<<< HEAD
 	 * @param observer 
+=======
+	 * @param observer Call-back handler.
+>>>>>>> dbc1038... Load annotations only on TaskPane expansion
 	 * @return A handle that can be used to cancel the call.
 	 */
 

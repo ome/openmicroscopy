@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.env.data;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -44,8 +45,11 @@ import omero.model.MicroscopeType;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
 
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
+
 import omero.gateway.model.TableResult;
+
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 
@@ -218,6 +222,25 @@ public interface OmeroMetadataService
 			SecurityContext ctx, List<DataObject> data, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	
+	/**
+     * Loads data related to the specified objects
+     * 
+     * @param ctx The security context.
+     * @param data The objects to handle.
+     * @param types The types of annotations to load
+     * @param userID The id of the user who added attachments to the object 
+     *               or <code>-1</code> if the user is not specified.
+     * @return See above.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occurred while trying to 
+     *                                  retrieve data from OMEDS service.
+     */
+    public Map<DataObject, StructuredDataResults> loadStructuredData(
+            SecurityContext ctx, List<DataObject> data, EnumSet<AnnotationType> types, long userID)
+        throws DSOutOfServiceException, DSAccessException;
+    
 	/**
 	 * Annotates the specified data object and returns the annotated object.
 	 * 
