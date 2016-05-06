@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -891,4 +891,33 @@ class GeneralPaneUI extends JPanel
 	    AttachmentsTaskPaneUI p = (AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI();
 	    return p.getSelectedFileAnnotations();
 	}
+	
+    /**
+     * Get a reference to the {@link AnnotationTaskPane} which is responsible
+     * for displaying annotations of the specified type
+     * 
+     * @param type
+     *            The type of annotation
+     * @return See above
+     */
+    public AnnotationTaskPane getAnnotationTaskPane(AnnotationType type) {
+        switch (type) {
+        case ATTACHMENT:
+            return attachmentTaskPane;
+        case COMMENT:
+            return commentTaskPane;
+        case MAP:
+            return mapTaskPane;
+        case OTHER:
+            return otherTaskPane;
+        case RATING:
+            return ratingTaskPane;
+        case ROI:
+            return roiTaskPane;
+        case TAG:
+            return tagsTaskPane;
+        default:
+            return null;
+        }
+    }
 }

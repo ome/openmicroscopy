@@ -23,7 +23,10 @@ package org.openmicroscopy.shoola.env.data.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 
@@ -123,6 +126,39 @@ public class StructuredDataResults
 		this.loaded = loaded;
 	}
 
+    /**
+     * Merges the specified {@link StructuredDataResults} into this one. Throws
+     * an {@link IllegalArgumentException} if they are not compatible (ie. refer
+     * to different objects)
+     * 
+     * @param other
+     *            The {@link StructuredDataResults} to merge
+     */
+    public void merge(StructuredDataResults other) {
+        DataObject o1 = (DataObject) getRelatedObject();
+        DataObject o2 = (DataObject) other.getRelatedObject();
+        if (!o1.getClass().equals(o2.getClass()) || o1.getId() != o2.getId())
+            throw new IllegalArgumentException(
+                    "Can't merge results for two differente objects!");
+
+        Set<String> ownData = new HashSet<String>();
+        for (Object o : getAllAnnotations()) {
+            AnnotationData a = (AnnotationData) o;
+            ownData.add(a.getClass().getSimpleName() + "_" + a.getId());
+        }
+
+        Collection toAdd = other.getAllAnnotations();
+        Iterator it = toAdd.iterator();
+        while (it.hasNext()) {
+            AnnotationData a = (AnnotationData) it.next();
+            if (ownData
+                    .contains(a.getClass().getSimpleName() + "_" + a.getId()))
+                it.remove();
+        }
+
+        addAnnotations(toAdd);
+    }
+	
 	/**
 	 * Returns <code>true</code> if the annotations are loaded,
 	 * <code>false</code> otherwise.

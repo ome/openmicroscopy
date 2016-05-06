@@ -27,6 +27,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
@@ -36,6 +37,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -239,14 +241,19 @@ public interface MetadataViewer
 	 */
 	public void cancel(int loaderID);
 	
-	/**
-	 * Feeds the metadata back to the viewer.
-	 * 
-	 * @param results The result to feed back.
-	 * @param loader The identifier of the loader.
-	 */
-	public void setMetadata(Map<DataObject, StructuredDataResults> results,
-			int loader);
+    /**
+     * Feeds the metadata back to the viewer.
+     * 
+     * @param results
+     *            The result to feed back.
+     * @param types
+     *            The type of annotations which have been requested to be
+     *            loaded.
+     * @param loader
+     *            The identifier of the loader.
+     */
+    public void setMetadata(Map<DataObject, StructuredDataResults> results,
+            EnumSet<AnnotationType> types, int loader);
 	
 	/**
 	 * Returns the UI used to select the metadata.
@@ -712,4 +719,12 @@ public interface MetadataViewer
 	 * Reload the ROI count
 	 */
     void reloadROICount();
+
+    /**
+     * Triggers the loading of the annotations of the specified types
+     * 
+     * @param types
+     *            The types of annotations to load
+     */
+    public void loadStructuredData(EnumSet<AnnotationType> types);
 }

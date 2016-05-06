@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -31,9 +31,7 @@ import java.util.Map;
 
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
-
 import omero.gateway.SecurityContext;
-
 import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 

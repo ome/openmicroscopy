@@ -29,7 +29,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
 import omero.gateway.model.AnnotationData;
-
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
@@ -224,4 +223,10 @@ public class AnnotationTaskPane extends JXTaskPane {
         add(ui);
     }
 
+    /**
+     * Called when the data for this annotation task pane has been loaded
+     */
+    public void onLoaded() {
+        ui.onLoaded();
+    }
 }

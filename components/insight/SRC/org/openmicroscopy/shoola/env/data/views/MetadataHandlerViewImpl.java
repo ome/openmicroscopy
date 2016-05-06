@@ -31,9 +31,7 @@ import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-
 import omero.gateway.SecurityContext;
-
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader;
@@ -98,28 +96,15 @@ class MetadataHandlerViewImpl
 				thumbHeight, userIDs);
 		return cmd.exec(observer);
 	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadStructuredData(SecurityContext, List,
-	 * long, boolean, AgentEventListener)
-	 */
-	public CallHandle loadStructuredData(SecurityContext ctx,
-		List<DataObject> data, long userID, boolean viewed,
-		AgentEventListener observer)
-	{
-		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, null, data, userID);
-		return cmd.exec(observer);
-	}
 	
 	/**
      * Implemented as specified by the view interface.
-     * @see MetadataHandlerView#loadStructuredData(SecurityContext, List,
-     * long, boolean, EnumSet, AgentEventListener)
+     * @see MetadataHandlerView#loadStructuredData(SecurityContext, List, EnumSet,
+     * long, boolean, AgentEventListener)
      */
 	@Override
     public CallHandle loadStructuredData(SecurityContext ctx,
-        List<DataObject> data, long userID, boolean viewed, EnumSet<AnnotationType> types,
+        List<DataObject> data, EnumSet<AnnotationType> types, long userID, boolean viewed,
         AgentEventListener observer)
     {
         BatchCallTree cmd = new StructuredAnnotationLoader(ctx, types, data, userID);

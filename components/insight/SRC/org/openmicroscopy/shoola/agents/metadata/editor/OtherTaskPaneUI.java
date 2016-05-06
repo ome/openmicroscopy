@@ -26,6 +26,8 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +48,7 @@ import omero.gateway.model.XMLAnnotationData;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -90,6 +93,11 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
     @Override
     void refreshUI() {
         clearDisplay();
+        
+        if(state == State.LOADING) {
+            add(loadingLabel);
+            return;
+        }
         
         Collection l;
         if (!model.isMultiSelection())
@@ -320,7 +328,9 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
     
     @Override
     void onCollapsed(boolean collapsed) {
-        
+        if(!collapsed) {
+            model.loadStructuredData(EnumSet.of(AnnotationType.OTHER));
+        }
     }
   
 }

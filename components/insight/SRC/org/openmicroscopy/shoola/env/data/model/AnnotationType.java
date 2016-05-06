@@ -1,7 +1,5 @@
 package org.openmicroscopy.shoola.env.data.model;
 
-import ome.model.annotations.BooleanAnnotation;
-import ome.model.annotations.DoubleAnnotation;
 import omero.gateway.model.BooleanAnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DoubleAnnotationData;
