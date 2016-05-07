@@ -26,6 +26,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.PermissionsI;
+import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
 
@@ -160,4 +161,24 @@ public class ClientUsageTest extends AbstractServerTest {
         sf.setSecurityContext(new omero.model.ExperimenterGroupI(1L, false));
     }
 
+    public void testJoinSession() throws Exception {
+        
+        //create a new user.
+        EventContext ec = newUserAndGroup("rw----", true);
+        String session = ec.sessionUuid;
+        //delete the active client
+        disconnect();
+        client c = new client();
+        try {
+            c.joinSession(session);
+            if (Ice.Util.intVersion() >= 30600) {
+                fail("The session should have been deleted");
+            }
+        } catch (Exception e) {
+            if (Ice.Util.intVersion() < 30600) {
+                fail("Ice 3.5 do not close the session."
+                        + "An error should not have been thrown");
+            }
+        }
+    }
 }

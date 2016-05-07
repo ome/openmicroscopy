@@ -55,41 +55,6 @@
 
     <script type="text/javascript">
 
-    // Variables used by static files, particularly ome.tree.js for jstree setup
-    var WEBCLIENT = {};
-
-    WEBCLIENT.active_group_id = {{ active_group.id }};
-    WEBCLIENT.USER = {'id': {{ ome.user.id }} };
-    WEBCLIENT.active_user_id = {{ ome.user_id }};
-
-    WEBCLIENT.URLS = {};
-    WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";
-    WEBCLIENT.URLS.api_paths_to_object = "{% url 'api_paths_to_object' %}";
-    WEBCLIENT.URLS.api_containers = "{% url 'api_containers' %}";
-    WEBCLIENT.URLS.api_datasets = "{% url 'api_datasets' %}";
-    WEBCLIENT.URLS.api_images = "{% url 'api_images' %}";
-    WEBCLIENT.URLS.api_plates = "{% url 'api_plates' %}";
-    WEBCLIENT.URLS.api_plate_acquisitions = "{% url 'api_plate_acquisitions' %}";
-    WEBCLIENT.URLS.static_webclient = "{% static 'webclient' %}/";
-    WEBCLIENT.URLS.api_tags_and_tagged = "{% url 'api_tags_and_tagged' %}";
-    WEBCLIENT.URLS.fileset_check = "{% url 'fileset_check' 'delete' %}";
-    WEBCLIENT.URLS.deletemany = "{% url 'manage_action_containers' 'deletemany' %}";
-    WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-    WEBCLIENT.URLS.reset_owners_rdef_json = "{% url 'reset_owners_rdef_json' %}";
-    WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
-
-    {% ifequal menu 'usertags' %}
-        WEBCLIENT.TAG_TREE = true;
-        WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
-    {% else %}
-        WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_containers;
-    {% endifequal %}
-
-    {% if active_user %}
-    WEBCLIENT.active_user = {'id': {{ active_user.id }} };
-    WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' active_user.id %}";
-    {% endif %}
-
 
     // Variable to store selection data when using jstree refresh
     var refreshPathsReverse = [];

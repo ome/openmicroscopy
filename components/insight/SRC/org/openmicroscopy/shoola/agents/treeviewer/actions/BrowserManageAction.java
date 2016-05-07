@@ -261,7 +261,7 @@ public class BrowserManageAction
  						if (model.canLink(selected[i].getUserObject())) 
  							count++;
  					}
- 		    		if (index == COPY) {
+ 		    		if (index == CUT) {
  	                    if (ho instanceof DatasetData) {
  	                        if (!(parent instanceof ProjectData)) {
  	                            setEnabled(false);

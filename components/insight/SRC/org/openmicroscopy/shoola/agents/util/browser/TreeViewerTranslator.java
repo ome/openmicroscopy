@@ -213,10 +213,17 @@ public class TreeViewerTranslator
             if (!CollectionUtils.isEmpty(tags)) {
                 tag.setChildrenLoaded(Boolean.valueOf(true));
                 Iterator<TagAnnotationData> i = tags.iterator();
+                TagAnnotationData t;
+                int count = 0;
                 while (i.hasNext()) {
-                    tag.addChildDisplay(transformTag(i.next()));
+                    t = i.next();
+                    if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals
+                            (t.getNameSpace())) {
+                        tag.addChildDisplay(transformTag(t));
+                        count++;
+                    }
                 }
-                tag.setNumberItems(tags.size());
+                tag.setNumberItems(count);
                 return tag;
             }
             tag.setChildrenLoaded(Boolean.valueOf(true));

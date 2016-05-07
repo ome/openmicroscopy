@@ -26,6 +26,7 @@ Decorators for use with the webclient application.
 import logging
 
 import omeroweb.decorators
+from omero import constants
 
 from django.http import HttpResponse
 from django.conf import settings
@@ -114,6 +115,13 @@ class render_response(omeroweb.decorators.render_response):
         if 'conn' not in kwargs:
             return
         conn = kwargs['conn']
+
+        # omero constants
+        context['omero'] = {'constants': {
+            'NSCOMPANIONFILE': constants.namespaces.NSCOMPANIONFILE,
+            'ORIGINALMETADATA': constants.annotation.file.ORIGINALMETADATA,
+            'NSCLIENTMAPANNOTATION': constants.metadata.NSCLIENTMAPANNOTATION
+        }}
 
         context.setdefault('ome', {})   # don't overwrite existing ome
         context['ome']['eventContext'] = conn.getEventContext

@@ -283,11 +283,11 @@ Wait Until Right Panel Loads Everything
 
     Wait Until Right Panel Loads        ${containerType}        ${containerId}
     Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'${containerType} Details')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Tags')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Key-Value Pairs')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Attachments')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Ratings')]
-    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/h1[contains(text(),'Comments')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Tags')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Key-Value Pairs')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Attachments')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Ratings')]
+    Wait Until Element Is Visible       xpath=//*[@id="general_tab"]/div/h1[contains(text(),'Comments')]
     Run Keyword If                      '${containerType}' == 'Project'        Wait Until Element Is Visible     ${detailsPane}//th[contains(text(),'Creation Date:')]
     Run Keyword If                      '${containerType}' == 'Dataset'        Wait Until Element Is Visible     ${detailsPane}//th[contains(text(),'Creation Date:')]
     Run Keyword If                      '${containerType}' == 'Image'          Check Right Panel Image
@@ -339,6 +339,11 @@ Wait For Image Node Text
     ${nodeId}=                      Get NodeId By Icon And Text       ${imageIcon}          ${text}
     [Return]                        ${nodeId}
 
+Wait For Plate Node Text
+    [Arguments]                     ${text}
+    ${nodeId}=                      Get NodeId By Icon And Text       ${plateIcon}          ${text}
+    [Return]                        ${nodeId}
+
 
 # Methods for querying nodes by ID
 
@@ -376,6 +381,11 @@ Wait For Screen Node
 Wait For Plate Node
     [Arguments]                     ${plateId}
     ${nodeId}=                      Get NodeId By Icon And Id       ${plateIcon}         ${plateId}
+    [Return]                        ${nodeId}
+
+Wait For Run Node
+    [Arguments]                     ${runId}
+    ${nodeId}=                      Get NodeId By Icon And Id       ${runIcon}          ${runId}
     [Return]                        ${nodeId}
 
 # Or checking Nodes don't exist by ID (only checks what's loaded in jsTree)
@@ -457,6 +467,11 @@ Dataset Should Be Selected By Id
     ${nodeId}=                          Wait For Dataset Node       ${datasetId}
     Node Should Be Selected By Id       ${nodeId}                   ${expected}
 
+Run Should Be Selected By Id
+    [Arguments]                         ${runId}                    ${expected}=${true}
+    ${nodeId}=                          Wait For Run Node           ${runId}
+    Node Should Be Selected By Id       ${nodeId}                   ${expected}
+
 User Should Be Selected
     [Arguments]                         ${expected}=${true}
     ${nodeId}=                          Get NodeId By Icon          ${userIcon}
@@ -477,6 +492,17 @@ Node Should Be Selected By Icon
 Dataset Should Be Selected
     ${nodeId}=                  Node Should Be Selected By Icon     ${datasetIcon}
     [Return]                    ${nodeId}
+
+Plate Should Be Selected By Name
+    [Arguments]                         ${text}                     ${expected}=${true}
+    ${nodeId}=                          Wait For Plate Node Text    ${text}
+    Node Should Be Selected By Id       ${nodeId}                   ${expected}
+
+
+# Get the Object Id of the currently seleted Node
+Get Selected Id From Tree
+    ${objectId}=        Get Element Attribute    xpath=//a[contains(@class, 'jstree-clicked')]/parent::li@data-id
+    [Return]            ${objectId}
 
 
 Click Node
@@ -509,6 +535,9 @@ Click Previous Thumbnail
 
 Click Next Thumbnail
     Click Element  xpath=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]/following-sibling::li
+
+Click Next Well
+    Click Element  xpath=//td[contains(@class, 'well')][contains(@class, 'ui-selected')]/following-sibling::td/img
 
 
 Thumbnail Should Be Selected

@@ -90,7 +90,6 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
         iAdmin.getEventContext(); // Refresh
 
-        disconnect();
         loginUser(ctx);
         //login is as root
         if (moveMemberRole == AbstractServerTest.ADMIN) {
@@ -108,11 +107,9 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         settings = svc.retrieveAllRndSettings(pixelsID, -1);
         assertEquals(settings.size(), 0);
 
-        disconnect();
         // Log in to other group
         if (moveMemberRole == AbstractServerTest.ADMIN) {
             loginUser(ctx); //require if log as root.
-            disconnect();
         }
         loginUser(g);
 
