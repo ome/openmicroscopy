@@ -130,6 +130,7 @@ class HeaderResolver(object):
 
     dataset_keys = {
         'image': ImageColumn,
+        'image_name': StringColumn,
     }
 
     plate_keys = dict({
@@ -138,7 +139,7 @@ class HeaderResolver(object):
         'row': LongColumn,
         'column': LongColumn,
         'wellsample': ImageColumn,
-    }, **dataset_keys)
+    })
 
     screen_keys = dict({
         'plate': PlateColumn,
@@ -233,16 +234,21 @@ class HeaderResolver(object):
                     column = StringColumn(
                         name, description, self.DEFAULT_COLUMN_SIZE, list())
             columns.append(column)
+        append = []
         for column in columns:
             if column.__class__ is PlateColumn:
-                columns.append(StringColumn(PLATE_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
+                append.append(StringColumn(PLATE_NAME_COLUMN, '',
+                              self.DEFAULT_COLUMN_SIZE, list()))
             if column.__class__ is WellColumn:
-                columns.append(StringColumn(WELL_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
+                append.append(StringColumn(WELL_NAME_COLUMN, '',
+                              self.DEFAULT_COLUMN_SIZE, list()))
             if column.__class__ is ImageColumn:
-                columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
+                append.append(StringColumn(IMAGE_NAME_COLUMN, '',
+                              self.DEFAULT_COLUMN_SIZE, list()))
+            # Currently hard-coded, but "if image name, then add image id"
+            if column.name == IMAGE_NAME_COLUMN:
+                append.append(ImageColumn("image", '', list()))
+        columns.extend(append)
         self.columns_sanity_check(columns)
         return columns
 
@@ -592,7 +598,6 @@ class ParsingContext(object):
 
     def populate(self, rows):
         nrows = len(rows)
-
         for (r, row) in enumerate(rows):
             values = list()
             row = [(self.columns[i], value) for i, value in enumerate(row)]
@@ -615,15 +620,20 @@ class ParsingContext(object):
             if value.__class__ is not Skip:
                 values.reverse()
                 for column in self.columns:
-                    if column.name in (PLATE_NAME_COLUMN, WELL_NAME_COLUMN,
-                                       IMAGE_NAME_COLUMN):
-                        continue
-                    try:
+                    if not values:
+                        if isinstance(column, ImageColumn) or \
+                           column.name in (PLATE_NAME_COLUMN,
+                                           WELL_NAME_COLUMN,
+                                           IMAGE_NAME_COLUMN):
+                            # Then assume that the values will be calculated
+                            # later based on another column.
+                            continue
+                        else:
+                            msg = 'Column %s has no values.' % column.name
+                            log.error(msg)
+                            raise IndexError(msg)
+                    else:
                         column.values.append(values.pop())
-                    except IndexError:
-                        log.error(
-                            'Column %s has no values to pop.' % column.name)
-                        raise
 
     def post_process(self):
         columns_by_name = dict()
@@ -646,10 +656,14 @@ class ParsingContext(object):
                 image_name_column = column
             elif column.__class__ is ImageColumn:
                 image_column = column
+
         if well_name_column is None and plate_name_column is None \
                 and image_name_column is None:
             log.info('Nothing to do during post processing.')
-        for i in range(0, len(self.columns[0].values)):
+            return
+
+        sz = max([len(x.values) for x in self.columns])
+        for i in range(0, sz):
             if well_name_column is not None:
                 if PlateI is self.value_resolver.target_class:
                     plate = self.value_resolver.target_object.id.val
@@ -674,17 +688,23 @@ class ParsingContext(object):
                 log.info('Missing well name column, skipping.')
 
             if image_name_column is not None:
+                # Josh: I understand here that an Image Name column
+                # was provided and therefore we need to find the image
+                # id for the given image_name
+                did = self.value_resolver.target_object.id.val
+                iname = image_name_column.values[i]
+                # TODO: This may throw!
                 try:
-                    image = self.value_resolver.images_by_id[
-                        self.target_object.id.val]
-                    image = image[image_column.values[i]]
+                    images_by_name = self.value_resolver.images_by_name[did]
+                    iid = images_by_name[iname]
+                    assert i == len(image_column.values)
+                    image_column.values.append(iid)
+                    image_name_column.size = max(
+                        image_name_column.size, len(iname))
                 except KeyError:
-                    log.error(
-                        'Missing row or column for image name population!')
-                    raise
-                name = image.name.val
-                image_name_column.size = max(image_name_column.size, len(name))
-                image_name_column.values.append(name)
+                    raise Exception(
+                        "%s not found in image names: %" % (
+                            iname, ", ".join(images_by_name.keys())))
             else:
                 log.info('Missing image name column, skipping.')
 
