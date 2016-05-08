@@ -172,7 +172,7 @@ DECLARATION BLOCK:
 #end##ome
 #end##foreach
 
-[$jav] package omero.model;
+[$JAV] package omero.model;
 [$jav] import java.util.*;
 [$jav] import static omero.rtypes.*;
 [$jav] import ome.conditions.*;
