@@ -927,6 +927,56 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
   };
 
+  // get difference between last 2 states in undo queue
+  this.get_last_change = function() {
+
+    if (channels_undo_stack_ptr === 0) {
+      return false;
+    }
+
+    var e1 = channels_undo_stack[channels_undo_stack_ptr - 1],
+      e2 = channels_undo_stack[channels_undo_stack_ptr];
+
+    var diff = {};
+    if (e1.model != e2.model) {
+      diff.model = e2.model;
+    }
+    var diffChannels = {},
+      ch1, ch2,
+      chdiff;
+    for (var i=0; i<e1.channels.length; i++) {
+      ch1 = e1.channels[i];
+      ch2 = e2.channels[i];
+      chdiff = {};
+      if (ch1.active != ch2.active) {
+        chdiff.active = ch2.active;
+      }
+      if (OME.rgbToHex(ch1.color) != OME.rgbToHex(ch2.color)) {
+        chdiff.color = ch2.color;
+      }
+      if (ch1.windowStart != ch2.windowStart) {
+        chdiff.windowStart = ch2.windowStart;
+      }
+      if (ch1.windowEnd != ch2.windowEnd) {
+        chdiff.windowEnd = ch2.windowEnd;
+      }
+      if (ch1.metalabel != ch2.metalabel) {
+        chdiff.metalabel = ch2.metalabel;
+      }
+      if (_.size(chdiff) > 0) {
+        diffChannels['' + i] = chdiff;
+      }
+    }
+    if (_.size(diffChannels) > 0) {
+      diff.channels = diffChannels;
+    }
+    return diff;
+  };
+
+  this.save_last_change = function() {
+
+  };
+
   this.undo_channels = function (redo) {
     if (channels_undo_stack_ptr >= 0) {
 //      if (channels_undo_stack.length-1 == channels_undo_stack_ptr && !redo) {

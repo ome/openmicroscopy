@@ -212,6 +212,11 @@
               syncRDCW(OME.preview_viewport);
             });
 
+            $("#save-last-change").click(function(){
+              OME.preview_viewport.save_last_change();
+              // syncRDCW(OME.preview_viewport);
+            });
+
             var rdefs = {{ rdefsJson|safe }};
             // All button events are delegated, so will also apply to new buttons
             $( "#rdef-buttons" )
@@ -371,7 +376,7 @@
       T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
     </div>
 
-    <ul class="toolbar borderless labels">
+    <ul class="toolbar borderless labels" style="overflow:visible">
       <li>
         <button id="rdef-setdef-btn" class="button button-disabled"
             {% if manager.image.canAnnotate %}
@@ -414,8 +419,14 @@
         <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
         Paste
       </button></li>
+      <li><button id="save-last-change" class="button"
+          title="Save last change to all">
+        <img src="{% static 'webclient/image/icon_save.png' %}"/><br>
+        <span>Save Change</span>
+      </button></li>
     </ul>
 
+    <div style="clear: both"></div>
     <div id="rdef-postit">
       <div id="rdef-active-area">
         <input id="rd-wblitz-rmodel" type="checkbox" />

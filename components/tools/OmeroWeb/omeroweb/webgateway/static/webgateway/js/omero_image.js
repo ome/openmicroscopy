@@ -148,7 +148,7 @@
         }
         //var t = $('#rd-wblitz-ch'+idx).get(0);
         //if (t != undefined) t.checked=ch.active;
-        var rgb = OME.hexToRgb(ch.color)
+        var rgb = OME.hexToRgb(ch.color);
         $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')').attr('title', ch.label);
     };
 
@@ -215,6 +215,38 @@
         } else {
             $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
         }
+
+        // update 'save last change' button according to diff between last changes
+        if (viewport.has_channels_undo()) {
+            $('#save-last-change').removeAttr('disabled').removeClass("button-disabled");
+        } else {
+            $('#save-last-change').attr("disabled", "disabled").addClass("button-disabled");
+        }
+        var diff = viewport.get_last_change();
+        var btnHtml = "Save Change<br>to All";
+        var btnTooltip = "Save last change to all images";
+        if (diff.channels) {
+            if (_.size(diff.channels) > 1) {
+                btnHtml = "Save Changes<br>to all";
+            } else if (_.size(diff.channels) === 1) {
+                for (var ch in diff.channels) {
+                    if (diff.channels.hasOwnProperty(ch)){
+                        for (var attr in diff.channels[ch]) {
+                            btnHtml = "Save Ch-" + (parseInt(ch, 10) + 1) + " " + "<br>to all";
+
+                            btnTooltip = "Save Ch-" + (parseInt(ch, 10) + 1) + " ";
+                            if (attr === "windowStart" || attr === "windowEnd"){
+                                btnTooltip += 'slider to all images';
+                            } else {
+                                btnTooltip += attr + " to all images";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $('#save-last-change').attr('title', btnTooltip);
+        $('#save-last-change span').html(btnHtml);
     };
 
     var on_batchCopyRDefs = false;
@@ -325,8 +357,9 @@
                 updateUndoRedo(viewport);
             };
         };
+        var rgb;
         for (i=0; i<channels.length; i++) {
-            var rgb = OME.hexToRgb(channels[i].color)
+            rgb = OME.hexToRgb(channels[i].color);
             $('<button id="wblitz-ch'+i+
                 '"class="squared' + (channels[i].active?' pressed':'') +
                 '"style="background-color: rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')' +
@@ -465,7 +498,7 @@
             if (lbl.length > 7) {
                 lbl = lbl.slice(0, 5) + "...";
             }
-            var rgb = OME.hexToRgb(channels[i].color)
+            rgb = OME.hexToRgb(channels[i].color);
             tmp.after(template
                 .replace(/\$class/g, btnClass)
                 .replace(/\$col/g, 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')')
