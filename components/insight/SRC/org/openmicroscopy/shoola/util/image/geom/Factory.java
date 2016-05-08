@@ -574,7 +574,7 @@ public class Factory
 			int[] masks, int sizeX,  int sizeY)
 	{
 		if (buf instanceof DataBufferInt) {
-			DataBufferInt db = (DataBufferInt) buf;
+		    DataBufferInt db = (DataBufferInt) buf;
 			final SampleModel sm = new SinglePixelPackedSampleModel(
 							DataBuffer.TYPE_INT, sizeX, sizeY, sizeX, masks);
 			final WritableRaster raster = Raster.createWritableRaster(sm, db,

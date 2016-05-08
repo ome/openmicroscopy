@@ -130,7 +130,7 @@ class ViewerPane
 			int sizeY)
     {
     	if (buf == null) return null;
-    	DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
+    	DataBufferInt j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
 		SinglePixelPackedSampleModel sampleModel =
 					new SinglePixelPackedSampleModel(
 						DataBuffer.TYPE_INT, sizeX, sizeY, sizeX, RGB);

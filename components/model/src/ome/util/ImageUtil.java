@@ -44,7 +44,7 @@ public class ImageUtil
     public static BufferedImage createBufferedImage(int[] buf, int sizeX, int sizeY)
     {
         // First wrap the packed integer array with a Java2D buffer
-        DataBuffer j2DBuf = new DataBufferInt(buf, sizeX * sizeY, 0);
+        DataBufferInt j2DBuf = new DataBufferInt(buf, sizeX * sizeY, 0);
 
         // Create a sample model which supplies the bit masks for each colour
         // component.
