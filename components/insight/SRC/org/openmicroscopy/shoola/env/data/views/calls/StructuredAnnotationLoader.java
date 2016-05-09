@@ -184,7 +184,7 @@ public class StructuredAnnotationLoader extends BatchCallTree {
      *            to the objects, <code>false<code> otherwise.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadStructuredData(final List<DataObject> data, EnumSet<AnnotationType> types,
+    private BatchCall loadStructuredData(final List<DataObject> data, final EnumSet<AnnotationType> types,
             final long userID) {
         return new BatchCall("Loading Structured Data") {
             public void doCall() throws Exception {
