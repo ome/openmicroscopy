@@ -1066,8 +1066,6 @@ $(function() {
             var inst = this;
             var node1 = inst.get_node(nodeId1);
             var node2 = inst.get_node(nodeId2);
-            var name1 = node1.text.toLowerCase();
-            var name2 = node2.text.toLowerCase();
 
             function getRanking(node) {
                 // return rank based on 'omero.client.ui.tree.type_order' list
@@ -1081,8 +1079,9 @@ $(function() {
                 return WEBCLIENT.UI.TREE.type_order.length + 1;
             }
 
-            // if sorting list is turned off mix object and sort by name
-            if (WEBCLIENT.UI.TREE.type_order.indexOf('false') > -1) {
+            function sortingStrategy(node1, node2) {
+                // sorting strategy
+
                 if(node1.type === 'experimenter') {
                     if (node1.data.obj.id === WEBCLIENT.USER.id) {
                         return -1;
@@ -1090,27 +1089,24 @@ $(function() {
                         return 1;
                     }
                 }
+                var name1 = node1.text.toLowerCase();
+                var name2 = node2.text.toLowerCase();
+
                 // If names are same, sort by ID
                 if (name1 === name2) {
                     return node1.data.obj.id <= node2.data.obj.id ? -1 : 1;
                 }
                 return name1 <= name2 ? -1 : 1;
             }
+
+            // if sorting list is turned off mix object and sort by name
+            if (WEBCLIENT.UI.TREE.type_order.indexOf('false') > -1) {
+                return sortingStrategy(node1, node2);
+            }
             // If the nodes are the same type then just compare lexicographically
             if (node1.type === node2.type && node1.text && node2.text) {
                 // Unless they are experimenters and one of them is the current user.
-                if(node1.type === 'experimenter') {
-                    if (node1.data.obj.id === WEBCLIENT.USER.id) {
-                        return -1;
-                    } else if (node2.data.obj.id === WEBCLIENT.USER.id) {
-                        return 1;
-                    }
-                }
-                // If names are same, sort by ID
-                if (name1 === name2) {
-                    return node1.data.obj.id <= node2.data.obj.id ? -1 : 1;
-                }
-                return name1 <= name2 ? -1 : 1;
+                return sortingStrategy(node1, node2);
             // Otherwise explicitly order the type that might be siblings
             } else {
 
