@@ -106,7 +106,8 @@ class Fixture(object):
         prj.setName(rstring(name))
         for x in datasets:
             ds = self.createDataset(names=images)
-            prj.linkDataset(ds)
+            ds = self.setName(ds, x)
+            prj.linkDataset(ds.proxy())
         return self.test.client.sf.getUpdateService().saveAndReturnObject(prj)
 
     def createDataset(self, names=("A1", "A2")):
