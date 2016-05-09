@@ -122,30 +122,14 @@ public interface MetadataHandlerView
 		AgentEventListener observer);
 	
 	/**
-	 * Loads all annotations related the specified objects.
-	 * Retrieves the files if the userID is not <code>-1</code>.
-	 * 
+	 * Loads annotations related the specified objects.
 	 * @param ctx The security context.
 	 * @param data The objects to handle. Mustn't be <code>null</code>.
-	 * @param types The types of annotations to load (<code>null</code> means all annotation).
-	 * @param userID Pass <code>-1</code> if no user specified.
-	 * @param viewed Pass <code>true</code> to load the rendering settings 
-	 * related to the objects, <code>false<code> otherwise.
+	 * @param userID  Pass <code>-1</code> if no user specified.
+	 * @param viewed  Pass <code>true</code> to load the rendering settings
+	 * @param types The type of annotations to load
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadStructuredData(SecurityContext ctx,
-		List<DataObject> data, long userID, boolean viewed,
-		AgentEventListener observer);
-	
-	/**
-	 * @param ctx 
-	 * @param data 
-	 * @param userID 
-	 * @param viewed 
-	 * @param types 
-	 * @param observer 
-	 * @return 
 	 */
 	public CallHandle loadStructuredData(SecurityContext ctx,
 	        List<DataObject> data, EnumSet<AnnotationType> types, long userID, boolean viewed,

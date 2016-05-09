@@ -32,6 +32,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -361,6 +362,11 @@ class EditorUI
 			}
 			generalPane.setRootObject(oldObject);
 			acquisitionPane.setRootObject(load);
+			
+            EnumSet<AnnotationType> annosOnDisplay = generalPane
+                    .getAnnotationTypesOnDisplay();
+            if (!annosOnDisplay.isEmpty())
+                model.loadStructuredData(annosOnDisplay);
 		}
 	}
 	
