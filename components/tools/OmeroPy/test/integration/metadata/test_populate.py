@@ -37,7 +37,7 @@ from omero.grid import StringColumn
 from omero.model import OriginalFileI
 from omero.model import FileAnnotationI, MapAnnotationI, PlateAnnotationLinkI
 from omero.model import RoiAnnotationLinkI
-from omero.model import RoiI, PointI, ScreenI
+from omero.model import RoiI, PointI, ProjectI, ScreenI
 from omero.rtypes import rdouble, rstring, unwrap
 from omero.sys import ParametersI
 
@@ -100,6 +100,15 @@ class Fixture(object):
             csvFile.close()
         return str(csvFileName)
 
+    def createProject(self, name, datasets=("D001", "D002"),
+                      images=("A1", "A2")):
+        prj = ProjectI()
+        prj.setName(rstring(name))
+        for x in datasets:
+            ds = self.createDataset(names=images)
+            prj.linkDataset(ds)
+        return self.test.client.sf.getUpdateService().saveAndReturnObject(prj)
+
     def createDataset(self, names=("A1", "A2")):
         ds = self.test.make_dataset()
         for name in names:
@@ -133,6 +142,20 @@ class Fixture(object):
 
     def assert_rows(self, rows):
         assert rows == self.rowCount * self.colCount
+
+    def assert_child_annotations(self, oas):
+        for ma, wid, wr, wc in oas:
+            assert isinstance(ma, MapAnnotationI)
+            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
+            mv = ma.getMapValueAsMap()
+            assert mv['Well'] == str(wid)
+            assert coord2offset(mv['Well Name']) == (wr, wc)
+            if (wr, wc) == (0, 0):
+                assert mv['Well Type'] == 'Control'
+                assert mv['Concentration'] == '0'
+            else:
+                assert mv['Well Type'] == 'Treatment'
+                assert mv['Concentration'] == '10'
 
 
 class Screen2Plates(Fixture):
@@ -261,12 +284,108 @@ class Dataset2Images(Fixture):
             return []
         params = ParametersI()
         params.addIds([x.id for x in self.images])
-        query = """select a from Image i
+        query = """ select a, i.id, 'NA', 'NA'
+            from Image i
             left outer join i.annotationLinks links
             left outer join links.child as a
             where i.id in (:ids) and a <> null"""
         qs = self.test.client.sf.getQueryService()
-        return qs.findAllByQuery(query, params)
+        return unwrap(qs.projection(query, params))
+
+    def assert_child_annotations(self, oas):
+        for ma, iid, na1, na2 in oas:
+            assert isinstance(ma, MapAnnotationI)
+            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
+            mv = ma.getMapValueAsMap()
+            img = mv['Image Name']
+            con = mv['Concentration']
+            typ = mv['Type']
+            if img == "A1":
+                assert con == '0'
+                assert typ == 'Control'
+            elif img == "A2":
+                assert con == '10'
+                assert typ == 'Treatment'
+            else:
+                raise Exception("Unknown img: %s" % img)
+
+
+class Project2Datasets(Fixture):
+
+    def __init__(self):
+        self.count = 5
+        self.annCount = 4
+        self.csv = self.createCsv(
+            colNames="Dataset Name,Image Name,Type,Concentration",
+            rowData=("D001,A1,Control,0", "D001,A2,Treatment,10",
+                     "D002,A1,Control,0", "D002,A2,Treatment,10"))
+        self.project = None
+
+    def assert_rows(self, rows):
+        # Hard-coded in createCsv's arguments
+        assert rows == 4
+
+    def get_target(self):
+        if not self.project:
+            self.project = self.createProject("P123")
+            self.images = self.get_project_images()
+        return self.project
+
+    def get_project_images(self):
+        if not self.project:
+            return []
+        query = """select i from Image i
+            left outer join fetch i.datasetLinks dil
+            left outer join fetch dil.parent d
+            left outer join fetch d.projectLinks pdl
+            left outer join fetch pdl.parent p
+            where p.id=%s""" % self.project.id.val
+        qs = self.test.client.sf.getQueryService()
+        return qs.findAllByQuery(query, None)
+
+    def get_annotations(self):
+        query = """select p from Project p
+            left outer join fetch p.annotationLinks links
+            left outer join fetch links.child
+            where p.id=%s""" % self.project.id.val
+        qs = self.test.client.sf.getQueryService()
+        ds = qs.findByQuery(query, None)
+        anns = ds.linkedAnnotationList()
+        return anns
+
+    def get_child_annotations(self):
+        if not self.images:
+            return []
+        params = ParametersI()
+        params.addIds([x.id for x in self.images])
+        query = """ select a, i.id, 'NA', 'NA'
+            from Image i
+            left outer join i.annotationLinks links
+            left outer join links.child as a
+            where i.id in (:ids) and a <> null"""
+        qs = self.test.client.sf.getQueryService()
+        return unwrap(qs.projection(query, params))
+
+    def assert_child_annotations(self, oas):
+        for ma, iid, na1, na2 in oas:
+            assert isinstance(ma, MapAnnotationI)
+            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
+            mv = ma.getMapValueAsMap()
+            ds = mv['Dataset Name']
+            img = mv['Image Name']
+            con = mv['Concentration']
+            typ = mv['Type']
+            if ds == 'D001' or ds == 'D002':
+                if img == "A1":
+                    assert con == '0'
+                    assert typ == 'Control'
+                elif img == "A2":
+                    assert con == '10'
+                    assert typ == 'Treatment'
+                else:
+                    raise Exception("Unknown img: %s" % img)
+            else:
+                raise Exception("Unknown dataset: %s" % ds)
 
 
 class TestPopulateMetadata(lib.ITest):
@@ -275,6 +394,7 @@ class TestPopulateMetadata(lib.ITest):
         Screen2Plates(),
         Plate2Wells(),
         Dataset2Images(),
+        Project2Datasets(),
     )
     METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
 
@@ -353,19 +473,7 @@ class TestPopulateMetadata(lib.ITest):
         ctx.write_to_omero()
         oas = fixture.get_child_annotations()
         assert len(oas) == fixture.annCount
-
-        for ma, wid, wr, wc in oas:
-            assert isinstance(ma, MapAnnotationI)
-            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
-            mv = ma.getMapValueAsMap()
-            assert mv['Well'] == str(wid)
-            assert coord2offset(mv['Well Name']) == (wr, wc)
-            if (wr, wc) == (0, 0):
-                assert mv['Well Type'] == 'Control'
-                assert mv['Concentration'] == '0'
-            else:
-                assert mv['Well Type'] == 'Treatment'
-                assert mv['Concentration'] == '10'
+        fixture.assert_child_annotations(oas)
 
     def _test_delete_map_annotation_context(self, fixture):
         # self._test_bulk_to_map_annotation_context()

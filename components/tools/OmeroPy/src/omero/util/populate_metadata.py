@@ -43,6 +43,7 @@ from omero.model import ScreenAnnotationLinkI
 from omero.model import MapAnnotationI, NamedValue
 from omero.grid import ImageColumn, LongColumn, PlateColumn, RoiColumn
 from omero.grid import StringColumn, WellColumn, DoubleColumn, BoolColumn
+from omero.grid import DatasetColumn
 from omero.util.metadata_utils import KeyValueListPassThrough
 from omero.util.metadata_utils import KeyValueListTransformer
 from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
@@ -133,6 +134,13 @@ class HeaderResolver(object):
         'image_name': StringColumn,
     }
 
+    project_keys = {
+        'dataset': DatasetColumn,
+        'dataset_name': StringColumn,
+        'image': ImageColumn,
+        'image_name': StringColumn,
+    }
+
     plate_keys = dict({
         'well': WellColumn,
         'field': ImageColumn,
@@ -174,12 +182,15 @@ class HeaderResolver(object):
         if ScreenI is target_class:
             log.debug('Creating columns for Screen:%d' % target_id)
             return self.create_columns_screen()
-        if PlateI is target_class:
+        elif PlateI is target_class:
             log.debug('Creating columns for Plate:%d' % target_id)
             return self.create_columns_plate()
-        if DatasetI is target_class:
+        elif DatasetI is target_class:
             log.debug('Creating columns for Dataset:%d' % target_id)
             return self.create_columns_dataset()
+        elif ProjectI is target_class:
+            log.debug('Creating columns for Project:%d' % target_id)
+            return self.create_columns_project()
         raise MetadataError(
             'Unsupported target object class: %s' % target_class)
 
@@ -200,6 +211,9 @@ class HeaderResolver(object):
 
     def create_columns_dataset(self):
         return self._create_columns("dataset")
+
+    def create_columns_project(self):
+        return self._create_columns("project")
 
     def _create_columns(self, klass):
         if self.types is not None and len(self.types) != len(self.headers):
@@ -272,6 +286,8 @@ class ValueResolver(object):
             return self.load_dataset()
         elif ScreenI is self.target_class:
             return self.load_screen()
+        elif ProjectI is self.target_class:
+            return self.load_project()
         raise MetadataError(
             'Unsupported target object class: %s' % self.target_class)
 
@@ -413,6 +429,60 @@ class ValueResolver(object):
             else:
                 images_by_name[iname] = iid
         log.debug('Completed parsing dataset: %s' % dname)
+
+    def load_project(self):
+        query_service = self.client.getSession().getQueryService()
+        parameters = omero.sys.ParametersI()
+        parameters.addId(self.target_object.id.val)
+        log.debug('Loading Project:%d' % self.target_object.id.val)
+
+        parameters.page(0, 1)
+        self.target_object = unwrap(query_service.findByQuery(
+            'select p from Project p where p.id = :id',
+            parameters, {'omero.group': '-1'}))
+        self.target_name = self.target_object.name.val
+
+        data = list()
+        while True:
+            parameters.page(len(data), 1000)
+            rv = unwrap(query_service.projection((
+                'select distinct i.id, i.name '
+                'from Project p '
+                'join p.datasetLinks as pdl '
+                'join pdl.child as d '
+                'join d.imageLinks as l '
+                'join l.child as i '
+                'where p.id = :id order by i.id desc'),
+                parameters, {'omero.group': '-1'}))
+            if len(rv) == 0:
+                break
+            else:
+                data.extend(rv)
+        if not data:
+            raise MetadataError('Could not find target object!')
+
+        self.images_by_id = dict()
+        self.images_by_name = dict()
+        images_by_id = dict()
+        images_by_name = dict()
+
+        self.images_by_id[self.target_object.id.val] = images_by_id
+        self.images_by_name[self.target_object.id.val] = images_by_name
+        self.parse_project(
+            self.target_name, images_by_id, images_by_name, data
+        )
+
+    def parse_project(self, pname, images_by_id, images_by_name, data):
+        # TODO: idential to parse_dataset
+        for iid, iname in data:
+            images_by_id[iid] = iname
+            if iname in images_by_name:
+                log.warn("Image named %s(id=%d) present. Skipping %s" % (
+                    iname, images_by_name[iname], iid
+                ))
+            else:
+                images_by_name[iname] = iid
+        log.debug('Completed parsing dataset: %s' % pname)
 
     def resolve(self, column, value, row):
         column_class = column.__class__
@@ -1000,6 +1070,7 @@ class DeleteMapAnnotationContext(_QueryContext):
             "WellSample": None,
             "Image": None,
             "Dataset": None,
+            "Project": None,
         }
 
         target = self.target_object
@@ -1044,6 +1115,14 @@ class DeleteMapAnnotationContext(_QueryContext):
         if parentids["WellSample"]:
             q = "SELECT image.id FROM WellSample WHERE id IN (:ids)"
             parentids["Image"] = self.projection(q, parentids["WellSample"])
+
+        if isinstance(target, ProjectI):
+            parentids["Project"] = ids
+        if parentids["Project"]:
+            q = ("SELECT ds.id FROM ProjectDatasetLink link "
+                 "join link.parent prj "
+                 "join link.child as ds WHERE prj.id IN (:ids)")
+            parentids["Dataset"] = self.projection(q, parentids["Project"])
 
         if isinstance(target, DatasetI):
             parentids["Dataset"] = ids
