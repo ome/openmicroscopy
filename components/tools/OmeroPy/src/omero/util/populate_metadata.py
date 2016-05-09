@@ -929,9 +929,12 @@ class BulkToMapAnnotationContext(_QueryContext):
             for omerotype, n in idcols:
                 if row[n] > 0:
                     obj = omerotype(row[n], False)
-                    # Josh: disabling to prevent duplication in UI
-                    # targets.append(obj)
+                    additional = self._get_additional_targets(obj)
                     targets.extend(self._get_additional_targets(obj))
+                    # Josh: disabling to prevent duplication in UI
+                    # if there are other targets to be used. FIXME
+                    if not additional:
+                        targets.append(obj)
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
             if targets:
@@ -996,6 +999,7 @@ class DeleteMapAnnotationContext(_QueryContext):
             "Well": None,
             "WellSample": None,
             "Image": None,
+            "Dataset": None,
         }
 
         target = self.target_object
@@ -1041,8 +1045,19 @@ class DeleteMapAnnotationContext(_QueryContext):
             q = "SELECT image.id FROM WellSample WHERE id IN (:ids)"
             parentids["Image"] = self.projection(q, parentids["WellSample"])
 
+        if isinstance(target, DatasetI):
+            parentids["Dataset"] = ids
+        if parentids["Dataset"]:
+            q = ("SELECT i.id FROM DatasetImageLink link "
+                 "join link.parent ds "
+                 "join link.child as i WHERE ds.id IN (:ids)")
+            parentids["Image"] = self.projection(q, parentids["Dataset"])
+
         if isinstance(target, ImageI):
             parentids["Image"] = ids
+
+        # TODO: This should really include:
+        #    raise Exception("Unknown target: %s" % target.__class__.__name__)
 
         log.debug("Parent IDs: %s", parentids)
 

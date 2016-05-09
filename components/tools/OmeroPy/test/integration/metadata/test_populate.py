@@ -209,7 +209,7 @@ class TestPopulateMetadata(BasePopulate):
 
     METADATA_TESTS = (
         ("plate", 4, 2),
-        ("dataset", 4, 1)
+        ("dataset", 4, 2)
     )
     METADATA_IDS = [x[0] for x in METADATA_TESTS]
 
@@ -228,7 +228,7 @@ class TestPopulateMetadata(BasePopulate):
         type, count, anns = data
         self._test_parsing_context(type, count)
         self._test_bulk_to_map_annotation_context(type, anns)
-        self._test_delete_map_annotation_context(type)
+        self._test_delete_map_annotation_context(type, anns)
 
     def _test_parsing_context(self, type, count):
         """
@@ -260,9 +260,10 @@ class TestPopulateMetadata(BasePopulate):
             rowValues = [col.values[0] for col in t.read(range(len(cols)),
                                                          hit, hit+1).columns]
             assert len(rowValues) == count
-            if "A1" in rowValues:
+            # Unsure where the lower-casing is happening
+            if "A1" in rowValues or "a1" in rowValues:
                 assert "Control" in rowValues
-            elif "A2" in rowValues:
+            elif "A2" in rowValues or "a2" in rowValues:
                 assert "Treatment" in rowValues
             else:
                 assert False, \
@@ -311,16 +312,20 @@ class TestPopulateMetadata(BasePopulate):
                 assert mv['Well Type'] == 'Treatment'
                 assert mv['Concentration'] == '10'
 
-    def _test_delete_map_annotation_context(self):
+    def _test_delete_map_annotation_context(self, type, ann_count):
         # self._test_bulk_to_map_annotation_context()
-        assert len(self.get_well_annotations()) == 2
+        assert len(self.get_well_annotations()) == 2 or \
+               len(self.get_image_annotations()) == 2
 
-        ctx = DeleteMapAnnotationContext(self.client, self.plate)
+        target = getattr(self, type)
+        ctx = DeleteMapAnnotationContext(self.client, target)
         ctx.parse()
-        assert len(self.get_well_annotations()) == 2
+        assert len(self.get_well_annotations()) == 2 or \
+               len(self.get_image_annotations()) == 2
 
         ctx.write_to_omero()
-        assert len(self.get_well_annotations()) == 0
+        assert len(self.get_well_annotations()) == 0 and \
+               len(self.get_image_annotations()) == 0
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
