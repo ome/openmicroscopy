@@ -23,15 +23,18 @@ import java.awt.Container;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
 import omero.gateway.model.AnnotationData;
+
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
+import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.State;
 import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -229,4 +232,10 @@ public class AnnotationTaskPane extends JXTaskPane {
     public void onLoaded() {
         ui.onLoaded();
     }
+
+    public void setLoadingState() {
+        ui.state = State.LOADING;
+    }
+
 }
+
