@@ -34,11 +34,11 @@ from omero.api import RoiOptions
 from omero.grid import ImageColumn
 from omero.grid import RoiColumn
 from omero.grid import StringColumn
-from omero.model import PlateI, WellI, WellSampleI, OriginalFileI
+from omero.model import OriginalFileI
 from omero.model import FileAnnotationI, MapAnnotationI, PlateAnnotationLinkI
 from omero.model import RoiAnnotationLinkI
 from omero.model import RoiI, PointI, ScreenI
-from omero.rtypes import rdouble, rint, rstring, unwrap
+from omero.rtypes import rdouble, rstring, unwrap
 from omero.sys import ParametersI
 
 from omero.util.populate_metadata import (
@@ -72,11 +72,14 @@ def coord2offset(coord):
     return r - 1, c - 1
 
 
-class BasePopulate(lib.ITest):
+class Fixture(object):
+
+    def init(self, test):
+        self.test = test
 
     def setName(self, obj, name):
-        q = self.client.sf.getQueryService()
-        up = self.client.sf.getUpdateService()
+        q = self.test.client.sf.getQueryService()
+        up = self.test.client.sf.getUpdateService()
         obj = q.get(obj.__class__.__name__, obj.id.val)
         obj.setName(rstring(name))
         return up.saveAndReturnObject(obj)
@@ -98,83 +101,136 @@ class BasePopulate(lib.ITest):
         return str(csvFileName)
 
     def createDataset(self, names=("A1", "A2")):
-        ds = self.make_dataset()
+        ds = self.test.make_dataset()
         for name in names:
-            img = self.importSingleImage(name=name)
+            img = self.test.importSingleImage(name=name)
             # Name must match exactly. No ".fake"
             img = self.setName(img, name)
-            self.link(ds, img)
+            self.test.link(ds, img)
         return ds.proxy()
 
     def createScreen(self, rowCount, colCount):
-        plate1 = self.importPlates(plateRows=rowCount,
-                                   plateCols=colCount)[0]
-        plate2 = self.importPlates(plateRows=rowCount,
-                                   plateCols=colCount)[0]
+        plate1 = self.test.importPlates(plateRows=rowCount,
+                                        plateCols=colCount)[0]
+        plate2 = self.test.importPlates(plateRows=rowCount,
+                                        plateCols=colCount)[0]
         plate1 = self.setName(plate1, "P001")
         plate2 = self.setName(plate2, "P002")
         screen = ScreenI()
         screen.name = rstring("Screen")
         screen.linkPlate(plate1.proxy())
         screen.linkPlate(plate2.proxy())
-        return self.client.sf.getUpdateService().saveAndReturnObject(screen)
+        return self.test.client.sf.getUpdateService().\
+            saveAndReturnObject(screen)
 
     def createPlate(self, rowCount, colCount):
-        plates = self.importPlates(plateRows=rowCount,
-                                   plateCols=colCount)
+        plates = self.test.importPlates(plateRows=rowCount,
+                                        plateCols=colCount)
         return plates[0]
 
-    def createPlate1(self, rowCount, colCount):
-        uuid = self.ctx.sessionUuid
+    def get_csv(self):
+        return self.csv
 
-        def createWell(row, column):
-            well = WellI()
-            well.row = rint(row)
-            well.column = rint(column)
-            ws = WellSampleI()
-            image = self.new_image(name=uuid)
-            ws.image = image
-            well.addWellSample(ws)
-            return well
-
-        plate = PlateI()
-        plate.name = rstring("TestPopulateMetadata%s" % uuid)
-        for row in range(rowCount):
-            for col in range(colCount):
-                well = createWell(row, col)
-                plate.addWell(well)
-        return self.client.sf.getUpdateService().saveAndReturnObject(plate)
+    def assert_rows(self, rows):
+        assert rows == self.rowCount * self.colCount
 
 
-class TestPopulateMetadata(BasePopulate):
+class Screen2Plates(Fixture):
 
-    def setup_method(self, method):
-        self.screen_csv = self.createCsv(
+    def __init__(self):
+        self.count = 6
+        self.annCount = 4
+        self.rowCount = 1
+        self.colCount = 2
+        self.csv = self.createCsv(
             colNames="Plate,Well,Well Type,Concentration",
             rowData=("P001,A1,Control,0", "P001,A2,Treatment,10",
                      "P002,A1,Control,0", "P002,A2,Treatment,10"))
-        self.plate_csv = self.createCsv()
-        self.dataset_csv = self.createCsv(
-            colNames="Image Name,Type,Concentration",
-        )
-        self.rowCount = 1
-        self.colCount = 2
         self.screen = None
-        self.plate = None
-        self.dataset = None
-        self.images = []
 
-    def get_screen(self):
+    def assert_rows(self, rows):
+        """
+        Double the number of rows due to 2 plates.
+        """
+        assert rows == 2 * self.rowCount * self.colCount
+
+    def get_target(self):
         if not self.screen:
             self.screen = self.createScreen(self.rowCount, self.colCount)
         return self.screen
 
-    def get_plate(self):
+    def get_annotations(self):
+        query = """select s from Screen s
+            left outer join fetch s.annotationLinks links
+            left outer join fetch links.child
+            where s.id=%s""" % self.screen.id.val
+        qs = self.test.client.sf.getQueryService()
+        screen = qs.findByQuery(query, None)
+        anns = screen.linkedAnnotationList()
+        return anns
+
+    def get_child_annotations(self):
+        query = """
+            SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
+            FROM WellAnnotationLink wal join wal.parent well
+                    join well.plate p join p.screenLinks l join l.parent s
+            WHERE s.id=%d""" % self.screen.id.val
+        qs = self.test.client.sf.getQueryService()
+        was = unwrap(qs.projection(query, None))
+        return was
+
+
+class Plate2Wells(Fixture):
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 2
+        self.rowCount = 1
+        self.colCount = 2
+        self.csv = self.createCsv()
+        self.plate = None
+
+    def get_target(self):
         if not self.plate:
             self.plate = self.createPlate(self.rowCount, self.colCount)
         return self.plate
 
-    def get_dataset(self):
+    def get_annotations(self):
+        query = """select p from Plate p
+            left outer join fetch p.annotationLinks links
+            left outer join fetch links.child
+            where p.id=%s""" % self.plate.id.val
+        qs = self.test.client.sf.getQueryService()
+        plate = qs.findByQuery(query, None)
+        anns = plate.linkedAnnotationList()
+        return anns
+
+    def get_child_annotations(self):
+        query = """
+            SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
+            FROM WellAnnotationLink wal
+            WHERE wal.parent.plate.id=%d""" % self.plate.id.val
+        qs = self.test.client.sf.getQueryService()
+        was = unwrap(qs.projection(query, None))
+        return was
+
+
+class Dataset2Images(Fixture):
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 2
+        self.csv = self.createCsv(
+            colNames="Image Name,Type,Concentration",
+        )
+        self.dataset = None
+        self.images = None
+
+    def assert_rows(self, rows):
+        # Hard-coded in createCsv's arguments
+        assert rows == 2
+
+    def get_target(self):
         if not self.dataset:
             self.dataset = self.createDataset()
             self.images = self.get_dataset_images()
@@ -187,40 +243,20 @@ class TestPopulateMetadata(BasePopulate):
             left outer join fetch i.datasetLinks links
             left outer join fetch links.parent d
             where d.id=%s""" % self.dataset.id.val
-        qs = self.client.sf.getQueryService()
+        qs = self.test.client.sf.getQueryService()
         return qs.findAllByQuery(query, None)
 
-    def get_screen_annotations(self):
-        query = """select s from Screen s
-            left outer join fetch s.annotationLinks links
-            left outer join fetch links.child
-            where s.id=%s""" % self.screen.id.val
-        qs = self.client.sf.getQueryService()
-        screen = qs.findByQuery(query, None)
-        anns = screen.linkedAnnotationList()
-        return anns
-
-    def get_plate_annotations(self):
-        query = """select p from Plate p
-            left outer join fetch p.annotationLinks links
-            left outer join fetch links.child
-            where p.id=%s""" % self.plate.id.val
-        qs = self.client.sf.getQueryService()
-        plate = qs.findByQuery(query, None)
-        anns = plate.linkedAnnotationList()
-        return anns
-
-    def get_dataset_annotations(self):
+    def get_annotations(self):
         query = """select d from Dataset d
             left outer join fetch d.annotationLinks links
             left outer join fetch links.child
             where d.id=%s""" % self.dataset.id.val
-        qs = self.client.sf.getQueryService()
+        qs = self.test.client.sf.getQueryService()
         ds = qs.findByQuery(query, None)
         anns = ds.linkedAnnotationList()
         return anns
 
-    def get_image_annotations(self):
+    def get_child_annotations(self):
         if not self.images:
             return []
         params = ParametersI()
@@ -229,39 +265,21 @@ class TestPopulateMetadata(BasePopulate):
             left outer join i.annotationLinks links
             left outer join links.child as a
             where i.id in (:ids) and a <> null"""
-        qs = self.client.sf.getQueryService()
+        qs = self.test.client.sf.getQueryService()
         return qs.findAllByQuery(query, params)
 
-    def get_well_annotations(self):
-        if self.plate:
-            query = """
-                SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
-                FROM WellAnnotationLink wal
-                WHERE wal.parent.plate.id=%d""" % self.plate.id.val
-            qs = self.client.sf.getQueryService()
-            was = unwrap(qs.projection(query, None))
-            return was
-        elif self.screen:
-            query = """
-                SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
-                FROM WellAnnotationLink wal join wal.parent well
-                     join well.plate p join p.screenLinks l join l.parent s
-                WHERE s.id=%d""" % self.screen.id.val
-            qs = self.client.sf.getQueryService()
-            was = unwrap(qs.projection(query, None))
-            return was
-        else:
-            return []
 
-    METADATA_TESTS = (
-        ("screen", 6, 4),
-        ("plate", 4, 2),
-        ("dataset", 4, 2)
+class TestPopulateMetadata(lib.ITest):
+
+    METADATA_FIXTURES = (
+        Screen2Plates(),
+        Plate2Wells(),
+        Dataset2Images(),
     )
-    METADATA_IDS = [x[0] for x in METADATA_TESTS]
+    METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
 
-    @mark.parametrize("data", METADATA_TESTS, ids=METADATA_IDS)
-    def testPopulateMetadata(self, data):
+    @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
+    def testPopulateMetadata(self, fixture):
         """
         We should really test each of the parsing contexts in separate tests
         but in practice each one uses data created by the others, so for
@@ -272,25 +290,26 @@ class TestPopulateMetadata(BasePopulate):
             print yaml, "found"
         except Exception:
             skip("PyYAML not installed.")
-        type, count, anns = data
-        self._test_parsing_context(type, count)
-        self._test_bulk_to_map_annotation_context(type, anns)
-        self._test_delete_map_annotation_context(type, anns)
 
-    def _test_parsing_context(self, type, count):
+        fixture.init(self)
+        self._test_parsing_context(fixture)
+        self._test_bulk_to_map_annotation_context(fixture)
+        self._test_delete_map_annotation_context(fixture)
+
+    def _test_parsing_context(self, fixture):
         """
             Create a small csv file, use populate_metadata.py to parse and
             attach to Plate. Then query to check table has expected content.
         """
 
-        target = getattr(self, "get_%s" % type)()
-        csv = getattr(self, "%s_csv" % type)
+        target = fixture.get_target()
+        csv = fixture.get_csv()
         ctx = ParsingContext(self.client, target, file=csv)
         ctx.parse()
         ctx.write_to_omero()
 
         # Get file annotations
-        anns = getattr(self, "get_%s_annotations" % type)()
+        anns = fixture.get_annotations()
         # Only expect a single annotation which is a 'bulk annotation'
         assert len(anns) == 1
         tableFileAnn = anns[0]
@@ -302,14 +321,11 @@ class TestPopulateMetadata(BasePopulate):
         t = r.openTable(OriginalFileI(fileid), None)
         cols = t.getHeaders()
         rows = t.getNumberOfRows()
-        if self.screen:
-            assert rows == 2 * self.rowCount * self.colCount
-        else:
-            assert rows == self.rowCount * self.colCount
+        fixture.assert_rows(rows)
         for hit in range(rows):
             rowValues = [col.values[0] for col in t.read(range(len(cols)),
                                                          hit, hit+1).columns]
-            assert len(rowValues) == count
+            assert len(rowValues) == fixture.count
             # Unsure where the lower-casing is happening
             if "A1" in rowValues or "a1" in rowValues:
                 assert "Control" in rowValues
@@ -319,37 +335,26 @@ class TestPopulateMetadata(BasePopulate):
                 assert False, \
                     "Row does not contain 'a1' or 'a2': %s" % rowValues
 
-    def _test_bulk_to_map_annotation_context(self, type, ann_count):
+    def _test_bulk_to_map_annotation_context(self, fixture):
         # self._testPopulateMetadataPlate()
-        assert len(self.get_well_annotations()) == 0
-        assert len(self.get_image_annotations()) == 0
+        assert len(fixture.get_child_annotations()) == 0
 
         cfg = os.path.join(
             os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
 
-        target = getattr(self, "get_%s" % type)()
-        anns = getattr(self, "get_%s_annotations" % type)()
+        target = fixture.get_target()
+        anns = fixture.get_annotations()
         fileid = anns[0].file.id.val
         ctx = BulkToMapAnnotationContext(
             self.client, target, fileid=fileid, cfg=cfg)
         ctx.parse()
-        assert len(self.get_well_annotations()) == 0
-        assert len(self.get_image_annotations()) == 0
+        assert len(fixture.get_child_annotations()) == 0
 
         ctx.write_to_omero()
-        was = self.get_well_annotations()
-        ias = self.get_image_annotations()
+        oas = fixture.get_child_annotations()
+        assert len(oas) == fixture.annCount
 
-        if len(was) == ann_count:
-            assert len(ias) == 0
-            oas = was
-        elif len(ias) == ann_count:
-            assert len(was) == 0
-            oas = ias
-        else:
-            assert False, "W:%s & I:%s" % (len(was), len(ias))
-
-        for ma, wid, wr, wc in was:
+        for ma, wid, wr, wc in oas:
             assert isinstance(ma, MapAnnotationI)
             assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
             mv = ma.getMapValueAsMap()
@@ -362,20 +367,17 @@ class TestPopulateMetadata(BasePopulate):
                 assert mv['Well Type'] == 'Treatment'
                 assert mv['Concentration'] == '10'
 
-    def _test_delete_map_annotation_context(self, type, ann_count):
+    def _test_delete_map_annotation_context(self, fixture):
         # self._test_bulk_to_map_annotation_context()
-        assert len(self.get_well_annotations()) == ann_count or \
-               len(self.get_image_annotations()) == ann_count
+        assert len(fixture.get_child_annotations()) == fixture.annCount
 
-        target = getattr(self, type)
+        target = fixture.get_target()
         ctx = DeleteMapAnnotationContext(self.client, target)
         ctx.parse()
-        assert len(self.get_well_annotations()) == ann_count or \
-               len(self.get_image_annotations()) == ann_count
+        assert len(fixture.get_child_annotations()) == fixture.annCount
 
         ctx.write_to_omero()
-        assert len(self.get_well_annotations()) == 0 and \
-               len(self.get_image_annotations()) == 0
+        assert len(fixture.get_child_annotations()) == 0
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
@@ -495,7 +497,27 @@ class MockPlateAnalysisCtx(AbstractPlateAnalysisCtx):
         return 1
 
 
-class TestPopulateRois(BasePopulate):
+class ROICSV(Fixture):
+
+    def __init__(self):
+        self.count = 1
+        self.annCount = 2
+        self.csvName = self.createCsv(
+            colNames="Well,Field,X,Y,Type",
+            rowData=("A1,0,15,15,Test",))
+
+        self.rowCount = 1
+        self.colCount = 1
+        self.plate = None
+
+    def get_target(self):
+        if not self.plate:
+            self.plate = self.createPlate(
+                self.rowCount, self.colCount)
+        return self.plate
+
+
+class TestPopulateRois(lib.ITest):
 
     def testPopulateRoisPlate(self):
         """
@@ -503,17 +525,13 @@ class TestPopulateRois(BasePopulate):
             attach to Plate. Then query to check table has expected content.
         """
 
-        csvName = self.createCsv(
-            colNames="Well,Field,X,Y,Type",
-            rowData=("A1,0,15,15,Test",))
-
-        rowCount = 1
-        colCount = 1
-        plate = self.createPlate(rowCount, colCount)
+        fixture = ROICSV()
+        fixture.init(self)
+        plate = fixture.get_target()
 
         # As opposed to the ParsingContext, here we are expected
         # to link the file ourselves
-        ofile = self.client.upload(csvName).proxy()
+        ofile = self.client.upload(fixture.csvName).proxy()
         ann = FileAnnotationI()
         ann.file = ofile
         link = PlateAnnotationLinkI()
