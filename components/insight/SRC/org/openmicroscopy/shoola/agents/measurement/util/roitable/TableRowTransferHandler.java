@@ -106,6 +106,8 @@ public class TableRowTransferHandler extends TransferHandler {
      * Check if the current selection is draggable
      */
     private boolean checkDragSource() {
+        if (table.getSelectedColumn() > 0)
+            return false;
         int[] selection = table.getSelectedRows();
         for (int i = 0; i < selection.length; i++) {
             ROINode n = (ROINode) ((ROITable) table).getNodeAtRow(selection[i]);
