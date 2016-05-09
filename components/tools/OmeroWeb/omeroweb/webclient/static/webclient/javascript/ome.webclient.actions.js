@@ -60,13 +60,15 @@ OME.getURLParameter = function(key) {
     return false;
 };
 
-jQuery.fn.hide_if_empty = function() {
-    if ($(this).children().length === 0) {
-        $(this).hide();
-    } else {
-        $(this).show();
-    }
-  return this;
+var linkify = function(input) {
+    var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
+    return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
+};
+OME.linkify_element = function(elements) {
+    elements.each(function() {
+        var $this = $(this);
+        $this.html(linkify($this.html()));
+    });
 };
 
 // called from OME.tree_selection_changed() below
@@ -231,7 +233,7 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 
 // handle deleting of Tag, File, Comment
 // on successful delete via AJAX, the parent .domClass is hidden
-OME.removeItem = function(event, domClass, url, parentId, index) {
+OME.removeItem = function(event, domClass, url, parentId) {
     var removeId = $(event.target).attr('id');
     var dType = removeId.split("-")[1]; // E.g. 461-comment
     // /webclient/action/remove/comment/461/?parent=image-257
@@ -245,16 +247,14 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
                 $.ajax({
                     type: "POST",
                     url: url,
-                    data: {'parent':parentId, 'index':index},
+                    data: {'parent':parentId},
                     dataType: 'json',
                     success: function(r){
                         if(eval(r.bad)) {
                             OME.alert_dialog(r.errs);
                         } else {
                             // simply remove the item (parent class div)
-                            //console.log("Success function");
                             $parent.remove();
-                            $annContainer.hide_if_empty();
                         }
                     }
                 });
@@ -283,7 +283,6 @@ OME.deleteItem = function(event, domClass, url) {
                         } else {
                             // simply remove the item (parent class div)
                             $parent.remove();
-                            $annContainer.hide_if_empty();
                             window.parent.OME.refreshActivities();
                         }
                     }
@@ -1027,6 +1026,27 @@ OME.applyRenderingSettings = function(rdef_url, selected) {
         350,
         175
     );
+};
+
+// pair of methods used by right panel tab panes
+// to store expanded state between right-panel reloads
+OME.setPaneExpanded = function setPaneExpanded(name, expanded) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    if (expanded && open_panes.indexOf(name) === -1) {
+        open_panes.push(name);
+    }
+    if (!expanded && open_panes.indexOf(name) > -1) {
+        open_panes = open_panes.reduce(function(l, item){
+            if (item !== name) l.push(item);
+            return l;
+        }, []);
+    }
+    $("#metadata_general").data('open_panes', open_panes);
+};
+
+OME.getPaneExpanded = function getPaneExpanded(name) {
+    var open_panes = $("#metadata_general").data('open_panes') || ["details"];
+    return open_panes.indexOf(name) > -1;
 };
 
 jQuery.fn.tooltip_init = function() {

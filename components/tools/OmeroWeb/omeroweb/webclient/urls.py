@@ -206,6 +206,8 @@ urlpatterns = patterns(
         name="manage_action_containers"),
     url(r'^batch_annotate/$', views.batch_annotate, name="batch_annotate"),
     url(r'^annotate_tags/$', views.annotate_tags, name="annotate_tags"),
+    url(r'^marshal_tagging_form_data/$', views.marshal_tagging_form_data,
+        name="marshal_tagging_form_data"),
     url(r'^annotate_rating/$',
         views.annotate_rating,
         name="annotate_rating"),
@@ -314,6 +316,9 @@ urlpatterns = patterns(
 
     url(r'^api/tags/$', views.api_tags_and_tagged_list,
         name='api_tags_and_tagged'),
+
+    url(r'^api/annotations/$', views.api_annotations,
+        name='api_annotations'),
 
     url(r'^api/shares/$', views.api_share_list, name='api_shares'),
 

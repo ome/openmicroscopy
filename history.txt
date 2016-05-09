@@ -1,6 +1,44 @@
 OMERO version history
 =====================
 
+5.2.3 (May 2016)
+----------------
+
+A bug-fix release. Improvements include:
+
+-  fixed problem with float images
+-  all scripts currently exposed to users via our website have been reviewed
+   and fixed where necessary so they are all now 5.2.x compatible, and a new
+   omero-install workflow has been developed to ensure these are reviewed
+   regularly going forward
+-  better support for metadata annotations in clients including tag/tagset
+   support and performance issues
+-  fixes in OMERO.web for deleting MIFs
+-  improvements to the navigation of large datasets and display of plates in
+   OMERO.web
+-  other OMERO.web bug fixes
+-  OMERO.insight and CLI import improvements
+-  other OMERO.insight bug fixes, including for downloading data
+
+Developer updates include:
+
+-  Java gateway improvements
+
+System administrator updates include:
+
+-  Ice 3.6.2 support for UNIX-like systems, including specific installation
+   walkthroughs
+-  redis support for websessions caching
+-  a fix to allow OMERO.web to be run in a Docker container
+-  improved OMERO.web configuration
+-  warnings added regarding the
+   `end of Windows support in the 5.3.0 release <http://blog.openmicroscopy.org/tech-issues/future-plans/deployment/2016/03/22/windows-support/>`_
+   (note that we will be preparing a guide for migrating from Windows for
+   existing servers and adding it to the documentation as soon as we can)
+
+This release also upgrades the version of Bio-Formats which OMERO uses to
+5.1.9. `See whats-new for more information <https://www.openmicroscopy.org/site/support/bio-formats5.1/about/whats-new.html>`_.
+
 5.2.2 (February 2016)
 ---------------------
 

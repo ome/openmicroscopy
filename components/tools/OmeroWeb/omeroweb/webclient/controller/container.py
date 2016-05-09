@@ -241,7 +241,7 @@ class BaseContainer(BaseController):
         # As used in metadata_general panel
         else:
             return self.image.canDownload() or \
-                self.well.canDownload() or self.plate.canDonwload()
+                self.well.canDownload() or self.plate.canDownload()
 
     def listFigureScripts(self, objDict=None):
         """
@@ -1223,8 +1223,8 @@ class BaseContainer(BaseController):
     def remove(self, parents, index, tag_owner_id=None):
         """
         Removes the current object (file, tag, comment, dataset, plate, image)
-        from its parents by manually deleting the link.
-        For Comments, we check whether it becomes an orphan & delete if true
+        from its parents by manually deleting the link. Orphaned comments will
+        be deleted server side.
         If self.tag and owner_id is specified, only remove the tag if it is
         owned by that owner
 
