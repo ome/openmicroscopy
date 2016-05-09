@@ -1651,3 +1651,155 @@ def marshal_discussions(conn, member_id=-1, owner_id=-1,
     for e in qs.projection(q, params, service_opts):
         discussions.append(_marshal_discussion(conn, e[0:4]))
     return discussions
+
+
+def _marshal_annotation(conn, annotation, link=None):
+    ''' Given an OMERO annotation, marshals it into a dictionary.
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Dataset row to marshal
+        @type row L{list}
+    '''
+    ann = {}
+    ownerId = annotation.details.owner.id.val
+    ann['id'] = annotation.id.val
+    ann['ns'] = unwrap(annotation.ns)
+    ann['owner'] = {'id': ownerId}
+    creation = annotation.details.creationEvent._time
+    ann['date'] = _marshal_date(unwrap(creation))
+    perms = annotation.details.permissions
+    ann['permissions'] = {'canDelete': perms.canDelete(),
+                          'canAnnotate': perms.canAnnotate(),
+                          'canLink': perms.canLink(),
+                          'canEdit': perms.canEdit()}
+
+    if link is not None:
+        ann['link'] = {}
+        ann['link']['id'] = link.id.val
+        ann['link']['owner'] = {'id': link.details.owner.id.val}
+        # Parent (Acquisition has no Name)
+        ann['link']['parent'] = {'id': link.parent.id.val,
+                                 'name': unwrap(link.parent.name),
+                                 'class': link.parent.__class__.__name__}
+        linkCreation = link.details.creationEvent._time
+        ann['link']['date'] = _marshal_date(unwrap(linkCreation))
+        p = link.details.permissions
+        ann['link']['permissions'] = {'canDelete': p.canDelete(),
+                                      'canAnnotate': p.canAnnotate(),
+                                      'canLink': p.canLink(),
+                                      'canEdit': p.canEdit()}
+
+    annClass = annotation.__class__.__name__
+    ann['class'] = annClass
+    if annClass == 'MapAnnotationI':
+        kvs = [[kv.name, kv.value] for kv in annotation.getMapValue()]
+        ann['values'] = kvs
+    elif annClass == 'FileAnnotationI' and annotation.file:
+        ann['file'] = {}
+        ann['file']['id'] = annotation.file.id.val
+        ann['file']['name'] = unwrap(annotation.file.name)
+        ann['file']['size'] = unwrap(annotation.file.size)
+        ann['file']['path'] = unwrap(annotation.file.path)
+        ann['permissions']['canDownload'] = not perms.isRestricted(
+            omero.constants.permissions.BINARYACCESS)
+
+    else:
+        for a in ['timeValue', 'termValue', 'longValue',
+                  'doubleValue', 'boolValue', 'textValue']:
+            if hasattr(annotation, a):
+                ann[a] = unwrap(getattr(annotation, a))
+    return ann
+
+
+def init_params(group_id, page, limit):
+    params = omero.sys.ParametersI()
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+    return params
+
+
+def _marshal_exp_obj(experimenter):
+    exp = {}
+    exp['id'] = experimenter.id.val
+    exp['omeName'] = experimenter.omeName.val
+    exp['firstName'] = unwrap(experimenter.firstName)
+    exp['lastName'] = unwrap(experimenter.lastName)
+    return exp
+
+
+def marshal_annotations(conn, project_ids=None, dataset_ids=None,
+                        image_ids=None, screen_ids=None, plate_ids=None,
+                        run_ids=None, ann_type=None,
+                        group_id=-1, page=1, limit=settings.PAGE):
+
+    annotations = []
+    qs = conn.getQueryService()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    where_clause = ['pa.id in (:ids)']
+    # if experimenter_id is not None and experimenter_id != -1:
+    #     params.addId('eid', rlong(experimenter_id))
+    #     where_clause.append('dataset.details.owner.id = :eid')
+    if ann_type == 'tag':
+        where_clause.append('ch.class=TagAnnotation')
+    elif ann_type == 'file':
+        where_clause.append('ch.class=FileAnnotation')
+    elif ann_type == 'comment':
+        where_clause.append('ch.class=CommentAnnotation')
+    elif ann_type == 'rating':
+        where_clause.append('ch.class=LongAnnotation')
+        where_clause.append("ch.ns='openmicroscopy.org/omero/insight/rating'")
+    elif ann_type == 'map':
+        where_clause.append('ch.class=MapAnnotation')
+    elif ann_type == 'custom':
+        where_clause.append('ch.class!=MapAnnotation')
+        where_clause.append('ch.class!=TagAnnotation')
+        where_clause.append('ch.class!=FileAnnotation')
+        where_clause.append('ch.class!=CommentAnnotation')
+        where_clause.append("""(ch.ns=null or
+            ch.ns!='openmicroscopy.org/omero/insight/rating')""")
+
+    dtypes = ["Project", "Dataset", "Image",
+              "Screen", "Plate", "PlateAcquisition"]
+    obj_ids = [project_ids, dataset_ids, image_ids,
+               screen_ids, plate_ids, run_ids]
+
+    experimenters = {}
+
+    for dtype, ids in zip(dtypes, obj_ids):
+        if ids is None or len(ids) == 0:
+            continue
+        params = init_params(group_id, page, limit)
+        params.addIds(ids)
+        q = """
+            select oal from %sAnnotationLink as oal
+            join fetch oal.details.creationEvent
+            join fetch oal.details.owner
+            left outer join fetch oal.child as ch
+            left outer join fetch oal.parent as pa
+            join fetch ch.details.creationEvent
+            join fetch ch.details.owner
+            left outer join fetch ch.file as file
+            where %s
+            """ % (dtype, ' and '.join(where_clause))
+
+        for link in qs.findAllByQuery(q, params, service_opts):
+            ann = link.child
+            d = _marshal_annotation(conn, ann, link)
+            annotations.append(d)
+            exp = _marshal_exp_obj(link.details.owner)
+            experimenters[exp['id']] = exp
+            exp = _marshal_exp_obj(ann.details.owner)
+            experimenters[exp['id']] = exp
+
+    experimenters = experimenters.values()
+    # sort by id mostly for testing
+    experimenters.sort(key=lambda x: x['id'])
+
+    return annotations, experimenters

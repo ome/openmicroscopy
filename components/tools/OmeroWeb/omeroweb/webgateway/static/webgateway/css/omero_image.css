@@ -419,8 +419,6 @@ img.figure-box-hide {
 }
 
 td.title {
-  width: 1%;
-  white-space: nowrap;
   text-align: right;
   font-weight: bold;
 }

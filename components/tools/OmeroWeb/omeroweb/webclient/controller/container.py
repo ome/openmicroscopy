@@ -242,7 +242,7 @@ class BaseContainer(BaseController):
         # As used in metadata_general panel
         else:
             return self.image.canDownload() or \
-                self.well.canDownload() or self.plate.canDonwload()
+                self.well.canDownload() or self.plate.canDownload()
 
     def listFigureScripts(self, objDict=None):
         """
@@ -1257,25 +1257,7 @@ class BaseContainer(BaseController):
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObject(al._obj)
-                # if comment is orphan, delete it directly
-                orphan = True
-
-                # Use delete Dry Run...
-                cid = self.comment.getId()
-                command = Delete2(targetObjects={"CommentAnnotation": [cid]},
-                                  dryRun=True)
-                cb = self.conn.c.submit(command)
-                # ...to check for any remaining links
-                rsp = cb.getResponse()
-                cb.close(True)
-                for parentType in ["Project", "Dataset", "Image", "Screen",
-                                   "Plate", "PlateAcquisition", "Well"]:
-                    key = 'ome.model.annotations.%sAnnotationLink' % parentType
-                    if key in rsp.deletedObjects:
-                        orphan = False
-                        break
-                if orphan:
-                    self.conn.deleteObject(self.comment._obj)
+                # we delete the comment if orphaned below
 
             elif self.dataset is not None:
                 if dtype == 'project':
@@ -1295,6 +1277,27 @@ class BaseContainer(BaseController):
             else:
                 raise AttributeError(
                     "Attribute not specified. Cannot be removed.")
+
+        # Having removed comment from all parents, we can delete if orphan
+        if self.comment:
+            orphan = True
+
+            # Use delete Dry Run...
+            cid = self.comment.getId()
+            command = Delete2(targetObjects={"CommentAnnotation": [cid]},
+                              dryRun=True)
+            cb = self.conn.c.submit(command)
+            # ...to check for any remaining links
+            rsp = cb.getResponse()
+            cb.close(True)
+            for parentType in ["Project", "Dataset", "Image", "Screen",
+                               "Plate", "PlateAcquisition", "Well"]:
+                key = 'ome.model.annotations.%sAnnotationLink' % parentType
+                if key in rsp.deletedObjects:
+                    orphan = False
+                    break
+            if orphan:
+                self.conn.deleteObject(self.comment._obj)
 
     def removemany(self, images):
         if self.dataset is not None:

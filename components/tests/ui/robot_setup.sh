@@ -21,6 +21,7 @@ TINY_IMAGE_NAME=${TINY_IMAGE_NAME:-test&acquisitionDate=2012-01-01_00-00-00.fake
 MIF_IMAGE_NAME=${MIF_IMAGE_NAME:-test&series=3.fake}
 PLATE_NAME=${PLATE_NAME:-test&plates=1&plateAcqs=1&plateRows=2&plateCols=3&fields=1&screens=0.fake}
 BULK_ANNOTATION_CSV=${BULK_ANNOTATION_CSV:-bulk_annotation.csv}
+FILE_ANNOTATION=${FILE_ANNOTATION:-robot_file_annotation.txt}
 
 # Create robot user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
@@ -40,6 +41,9 @@ touch $MIF_IMAGE_NAME
 echo "Well,Well Type,Concentration" > "$BULK_ANNOTATION_CSV"
 echo "A1,Control,0" >> "$BULK_ANNOTATION_CSV"
 echo "A2,Treatment,10" >> "$BULK_ANNOTATION_CSV"
+
+# Create file for upload as File Annotation
+echo "Robot test file annotations" > "$FILE_ANNOTATION"
 
 # Create robot setup
 bin/omero login $USER_NAME@$HOSTNAME:$PORT -w $USER_PASSWORD
@@ -85,6 +89,21 @@ plateid=$(sed -n -e 's/^Plate://p' plate_import.log)
 # Use populate_metadata to upload and attach bulk annotation csv
 PYTHONPATH=./lib/python python lib/python/omero/util/populate_metadata.py -s $HOSTNAME -p $PORT -k $key Plate:$plateid $BULK_ANNOTATION_CSV
 
+# Import Plate and rename for test ?show=image.name-NAME
+bin/omero import $PLATE_NAME --debug ERROR > show_import.log 2>&1
+plateid=$(sed -n -e 's/^Plate://p' show_import.log)
+bin/omero obj update Plate:$plateid name=testShowPlate
+# Import Image into Project/Dataset and rename for test
+showP=$(bin/omero obj new Project name='showProject')
+showD=$(bin/omero obj new Dataset name='showDataset')
+bin/omero obj new ProjectDatasetLink parent=$showP child=$showD
+for (( k=1; k<=2; k++ ))
+do
+  bin/omero import -d $showD $IMAGE_NAME --debug ERROR > show_import.log 2>&1
+  imageid=$(sed -n -e 's/^Image://p' show_import.log)
+  bin/omero obj update Image:$imageid name=testShowImage$k
+done
+
 # Create Screen with empty plates for Create Scenario
 scrDs=$(bin/omero obj new Screen name='CreateScenario')
 for (( k=1; k<=6; k++ ))
@@ -98,6 +117,11 @@ do
   bin/omero import $TINY_IMAGE_NAME --debug ERROR
 done
 
+# Uplodad file and create FileAnnotation
+bin/omero upload $FILE_ANNOTATION > file_upload.log
+fileId=$(sed "s/^Uploaded $FILE_ANNOTATION as //" file_upload.log)
+bin/omero obj new FileAnnotation file=OriginalFile:$fileId
+
 # Logout
 bin/omero logout
 
@@ -109,5 +133,7 @@ echo "omero.pass=$USER_PASSWORD" >> "$CONFIG_FILENAME"
 echo "omero.projectid=${project##*:}" >> "$CONFIG_FILENAME"
 echo "omero.datasetid=${dataset##*:}" >> "$CONFIG_FILENAME"
 
-# Remove fake file
+# Remove fake file and logs
 rm *.fake
+rm plate_import.log
+rm show_import.log

@@ -96,6 +96,7 @@ class ITest(object):
             cls.__clients.add(cls.root)
             cls.root.setAgent("OMERO.py.root_test")
             cls.root.createSession("root", rootpass)
+            cls.root.getSession().keepAlive(None)
         except:
             raise Exception("Could not initiate a root connection")
 
@@ -115,6 +116,20 @@ class ITest(object):
         cls.root.killSession()
         cls.root = None
         cls.__clients.__del__()
+
+    def keepRootAlive(self):
+        """
+        Keeps root connection alive.
+        """
+        try:
+            if self.root.sf is None:
+                p = Ice.createProperties(sys.argv)
+                rootpass = p.getProperty("omero.rootpass")
+                self.root.createSession("root", rootpass)
+            else:
+                self.root.sf.keepAlive(None)
+        except Exception:
+            raise
 
     @classmethod
     def omeropydir(self):

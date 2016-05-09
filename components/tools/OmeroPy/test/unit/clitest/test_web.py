@@ -185,13 +185,17 @@ class TestWeb(object):
         csout = "Clearing expired sessions. This may take some time... [OK]"
         assert csout == o.split(os.linesep)[0]
         if app_server in ('wsgi',):
-            stderr = (
-                ("You are deploying OMERO.web using apache and mod_wsgi. "
-                 "Generate apache config using 'omero web config apache' "
-                 "or 'omero web config apache24' "
-                 "and reload web server."))
-            assert stderr == e.split(os.linesep)[0]
-            assert 1 == len(e.split(os.linesep))-1
+            stderr0 = ("[ERROR] You are deploying OMERO.web using Apache and"
+                       " mod_wsgi. OMERO.web does not provide any management"
+                       " for the daemon process which communicates"
+                       " with Apache child processes using UNIX sockets"
+                       " to handle a request.")
+            stderr1 = ("Generate apache config using"
+                       " 'omero web config apache' or"
+                       " 'omero web config apache24' and reload web server.")
+            assert stderr0 == e.split(os.linesep)[0]
+            assert stderr1 == e.split(os.linesep)[1]
+            assert 2 == len(e.split(os.linesep))-1
         elif app_server in ('wsgi-tcp',):
             startout = "Starting OMERO.web... [OK]"
             assert startout == o.split(os.linesep)[1]

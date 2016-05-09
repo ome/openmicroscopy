@@ -3,7 +3,7 @@
 """
    Plugin for our configuring the OMERO.web installation
 
-   Copyright 2009-2014 University of Dundee. All rights reserved.
+   Copyright 2009-2016 University of Dundee. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -18,8 +18,12 @@ import re
 from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
+
 HELP = "OMERO.web configuration/deployment tools"
 
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 LONGHELP = """OMERO.web configuration/deployment tools
 
@@ -54,10 +58,17 @@ Example IIS usage:
 
 """
 
+APACHE_MOD_WSGI_ERR = ("[ERROR] You are deploying OMERO.web using Apache and"
+                       " mod_wsgi. OMERO.web does not provide any management"
+                       " for the daemon process which communicates with"
+                       " Apache child processes using UNIX sockets to handle"
+                       " a request.")
+
 
 def config_required(func):
     """Decorator validating Django dependencies and omeroweb/settings.py"""
     def import_django_settings(func):
+        @windows_warning
         def wrapper(self, *args, **kwargs):
             try:
                 import django  # NOQA
@@ -136,6 +147,9 @@ class WebControl(BaseControl):
                 help="Do not wait on expired sessions clean-up")
 
         for x in (start, restart):
+            x.add_argument(
+                "--foreground", action="store_true",
+                help="Start OMERO.web in foreground mode (no daemon/service)")
             x.add_argument(
                 "--workers", type=int, help=SUPPRESS)
             x.add_argument(
@@ -475,7 +489,7 @@ class WebControl(BaseControl):
         return d_args
 
     def _build_run_cmd(self, settings):
-        cmd = "gunicorn -D -p %(base)s/var/django.pid"
+        cmd = "gunicorn %(daemon)s -p %(base)s/var/django.pid"
         cmd += " --bind %(host)s:%(port)d"
         cmd += " --workers %(workers)d "
 
@@ -508,11 +522,10 @@ class WebControl(BaseControl):
         deploy = getattr(settings, 'APPLICATION_SERVER')
 
         if deploy in (settings.WSGI,):
-            self.ctx.die(609, "You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Generate apache config using"
+            self.ctx.die(609, "%s\nGenerate apache config using"
                          " 'omero web config apache' or"
                          " 'omero web config apache24' and reload"
-                         " web server.")
+                         " web server." % APACHE_MOD_WSGI_ERR)
 
         else:
             self.ctx.out("Starting OMERO.web... ", newline=False)
@@ -555,10 +568,12 @@ class WebControl(BaseControl):
                 pass
 
             # wrap all deprecated args
+            daemon = "-D" if not args.foreground else ""
             d_args = self._deprecated_args(args, settings)
             cmd = self._build_run_cmd(settings)
 
             runserver = (cmd % {
+                'daemon': daemon,
                 'base': self.ctx.dir,
                 'host': settings.APPLICATION_SERVER_HOST,
                 'port': settings.APPLICATION_SERVER_PORT,
@@ -567,7 +582,15 @@ class WebControl(BaseControl):
                 'timeout': settings.WSGI_TIMEOUT,
                 'wsgi_args': d_args['wsgi_args']
             }).split()
-            rv = self.ctx.popen(args=runserver, cwd=location)  # popen
+            if args.foreground:
+                rv = self.ctx.call(args=runserver, cwd=location)  # popen
+                pid_path = self._get_django_pid_path()
+                if pid_path.exists():
+                    pid_path.remove()
+                    self.ctx.out("Removed stale %s" % pid_path)
+                return 0
+            else:
+                rv = self.ctx.popen(args=runserver, cwd=location)  # popen
         else:
             runserver = [sys.executable, "manage.py", "runserver", link,
                          "--noreload", "--nothreading"]
@@ -597,8 +620,8 @@ class WebControl(BaseControl):
             else:
                 self.ctx.err("[NOT STARTED]")
         elif deploy in (settings.WSGI,):
-            self.ctx.err("You are deploying OMERO.web using apache and"
-                         " mod_wsgi. Cannot check status.")
+            self.ctx.err("%s Please check Apache "
+                         "directly." % APACHE_MOD_WSGI_ERR)
         elif deploy in (settings.DEVELOPMENT,):
             self.ctx.err(
                 "DEVELOPMENT: You will have to kill processes by hand!")

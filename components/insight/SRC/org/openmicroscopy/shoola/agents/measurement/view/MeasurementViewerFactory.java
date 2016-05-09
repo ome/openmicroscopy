@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,16 +27,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.measurement.ROIEvent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.ActivationAction;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.PixelsData;
 
@@ -259,6 +264,8 @@ public class MeasurementViewerFactory
 	 */
 	public static void onROIDeleted(long imageID)
 	{
+	    MeasurementAgent.getRegistry().getEventBus().post(new ROIEvent(imageID));
+	    
 		if (singleton.viewers.size() == 0) return;
 		Iterator<MeasurementViewer> i = singleton.viewers.iterator();
 		MeasurementViewerComponent comp;
