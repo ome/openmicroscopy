@@ -37,7 +37,7 @@ from omero.grid import StringColumn
 from omero.model import PlateI, WellI, WellSampleI, OriginalFileI
 from omero.model import FileAnnotationI, MapAnnotationI, PlateAnnotationLinkI
 from omero.model import RoiAnnotationLinkI
-from omero.model import RoiI, PointI
+from omero.model import RoiI, PointI, ScreenI
 from omero.rtypes import rdouble, rint, rstring, unwrap
 from omero.sys import ParametersI
 
@@ -74,6 +74,13 @@ def coord2offset(coord):
 
 class BasePopulate(lib.ITest):
 
+    def setName(self, obj, name):
+        q = self.client.sf.getQueryService()
+        up = self.client.sf.getUpdateService()
+        obj = q.get(obj.__class__.__name__, obj.id.val)
+        obj.setName(rstring(name))
+        return up.saveAndReturnObject(obj)
+
     def createCsv(
         self,
         colNames="Well,Well Type,Concentration",
@@ -91,17 +98,26 @@ class BasePopulate(lib.ITest):
         return str(csvFileName)
 
     def createDataset(self, names=("A1", "A2")):
-        q = self.client.sf.getQueryService()
-        up = self.client.sf.getUpdateService()
         ds = self.make_dataset()
         for name in names:
             img = self.importSingleImage(name=name)
             # Name must match exactly. No ".fake"
-            img = q.get("Image", img.id.val)
-            img.setName(rstring(name))
-            img = up.saveAndReturnObject(img)
+            img = self.setName(img, name)
             self.link(ds, img)
         return ds.proxy()
+
+    def createScreen(self, rowCount, colCount):
+        plate1 = self.importPlates(plateRows=rowCount,
+                                   plateCols=colCount)[0]
+        plate2 = self.importPlates(plateRows=rowCount,
+                                   plateCols=colCount)[0]
+        plate1 = self.setName(plate1, "P001")
+        plate2 = self.setName(plate2, "P002")
+        screen = ScreenI()
+        screen.name = rstring("Screen")
+        screen.linkPlate(plate1.proxy())
+        screen.linkPlate(plate2.proxy())
+        return self.client.sf.getUpdateService().saveAndReturnObject(screen)
 
     def createPlate(self, rowCount, colCount):
         plates = self.importPlates(plateRows=rowCount,
@@ -133,15 +149,25 @@ class BasePopulate(lib.ITest):
 class TestPopulateMetadata(BasePopulate):
 
     def setup_method(self, method):
+        self.screen_csv = self.createCsv(
+            colNames="Plate,Well,Well Type,Concentration",
+            rowData=("P001,A1,Control,0", "P001,A2,Treatment,10",
+                     "P002,A1,Control,0", "P002,A2,Treatment,10"))
         self.plate_csv = self.createCsv()
         self.dataset_csv = self.createCsv(
             colNames="Image Name,Type,Concentration",
         )
         self.rowCount = 1
         self.colCount = 2
+        self.screen = None
         self.plate = None
         self.dataset = None
         self.images = []
+
+    def get_screen(self):
+        if not self.screen:
+            self.screen = self.createScreen(self.rowCount, self.colCount)
+        return self.screen
 
     def get_plate(self):
         if not self.plate:
@@ -163,6 +189,16 @@ class TestPopulateMetadata(BasePopulate):
             where d.id=%s""" % self.dataset.id.val
         qs = self.client.sf.getQueryService()
         return qs.findAllByQuery(query, None)
+
+    def get_screen_annotations(self):
+        query = """select s from Screen s
+            left outer join fetch s.annotationLinks links
+            left outer join fetch links.child
+            where s.id=%s""" % self.screen.id.val
+        qs = self.client.sf.getQueryService()
+        screen = qs.findByQuery(query, None)
+        anns = screen.linkedAnnotationList()
+        return anns
 
     def get_plate_annotations(self):
         query = """select p from Plate p
@@ -197,17 +233,28 @@ class TestPopulateMetadata(BasePopulate):
         return qs.findAllByQuery(query, params)
 
     def get_well_annotations(self):
-        if not self.plate:
+        if self.plate:
+            query = """
+                SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
+                FROM WellAnnotationLink wal
+                WHERE wal.parent.plate.id=%d""" % self.plate.id.val
+            qs = self.client.sf.getQueryService()
+            was = unwrap(qs.projection(query, None))
+            return was
+        elif self.screen:
+            query = """
+                SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
+                FROM WellAnnotationLink wal join wal.parent well
+                     join well.plate p join p.screenLinks l join l.parent s
+                WHERE s.id=%d""" % self.screen.id.val
+            qs = self.client.sf.getQueryService()
+            was = unwrap(qs.projection(query, None))
+            return was
+        else:
             return []
-        query = """
-            SELECT wal.child,wal.parent.id,wal.parent.row,wal.parent.column
-            FROM WellAnnotationLink wal
-            WHERE wal.parent.plate.id=%d""" % self.plate.id.val
-        qs = self.client.sf.getQueryService()
-        was = unwrap(qs.projection(query, None))
-        return was
 
     METADATA_TESTS = (
+        ("screen", 6, 4),
         ("plate", 4, 2),
         ("dataset", 4, 2)
     )
@@ -255,7 +302,10 @@ class TestPopulateMetadata(BasePopulate):
         t = r.openTable(OriginalFileI(fileid), None)
         cols = t.getHeaders()
         rows = t.getNumberOfRows()
-        assert rows == self.rowCount * self.colCount
+        if self.screen:
+            assert rows == 2 * self.rowCount * self.colCount
+        else:
+            assert rows == self.rowCount * self.colCount
         for hit in range(rows):
             rowValues = [col.values[0] for col in t.read(range(len(cols)),
                                                          hit, hit+1).columns]
@@ -314,14 +364,14 @@ class TestPopulateMetadata(BasePopulate):
 
     def _test_delete_map_annotation_context(self, type, ann_count):
         # self._test_bulk_to_map_annotation_context()
-        assert len(self.get_well_annotations()) == 2 or \
-               len(self.get_image_annotations()) == 2
+        assert len(self.get_well_annotations()) == ann_count or \
+               len(self.get_image_annotations()) == ann_count
 
         target = getattr(self, type)
         ctx = DeleteMapAnnotationContext(self.client, target)
         ctx.parse()
-        assert len(self.get_well_annotations()) == 2 or \
-               len(self.get_image_annotations()) == 2
+        assert len(self.get_well_annotations()) == ann_count or \
+               len(self.get_image_annotations()) == ann_count
 
         ctx.write_to_omero()
         assert len(self.get_well_annotations()) == 0 and \
