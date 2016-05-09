@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__3.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__4.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  3,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  4,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -675,6 +675,44 @@ ALTER TABLE shape DROP COLUMN strokelinecap;
 ALTER TABLE shape ADD COLUMN markerstart VARCHAR(255);
 ALTER TABLE shape ADD COLUMN markerend   VARCHAR(255);
 
+-- ... up to patch 4:
+
+UPDATE pixels SET sha1 = 'Pending...' WHERE sha1 = 'Foo';
+
+DELETE FROM annotation WHERE
+    discriminator IN
+        ('/basic/bool/', '/basic/num/double/', '/basic/num/long/',
+         '/basic/term/', '/basic/time/', '/basic/text/comment/')
+    AND id NOT IN (SELECT parent FROM annotationannotationlink)
+    AND id NOT IN (SELECT child FROM annotationannotationlink)
+    AND id NOT IN (SELECT child FROM channelannotationlink)
+    AND id NOT IN (SELECT child FROM datasetannotationlink)
+    AND id NOT IN (SELECT child FROM detectorannotationlink)
+    AND id NOT IN (SELECT child FROM dichroicannotationlink)
+    AND id NOT IN (SELECT child FROM experimenterannotationlink)
+    AND id NOT IN (SELECT child FROM experimentergroupannotationlink)
+    AND id NOT IN (SELECT child FROM filesetannotationlink)
+    AND id NOT IN (SELECT child FROM filterannotationlink)
+    AND id NOT IN (SELECT child FROM folderannotationlink)
+    AND id NOT IN (SELECT child FROM imageannotationlink)
+    AND id NOT IN (SELECT child FROM instrumentannotationlink)
+    AND id NOT IN (SELECT child FROM lightpathannotationlink)
+    AND id NOT IN (SELECT child FROM lightsourceannotationlink)
+    AND id NOT IN (SELECT child FROM namespaceannotationlink)
+    AND id NOT IN (SELECT child FROM nodeannotationlink)
+    AND id NOT IN (SELECT child FROM objectiveannotationlink)
+    AND id NOT IN (SELECT child FROM originalfileannotationlink)
+    AND id NOT IN (SELECT child FROM planeinfoannotationlink)
+    AND id NOT IN (SELECT child FROM plateacquisitionannotationlink)
+    AND id NOT IN (SELECT child FROM plateannotationlink)
+    AND id NOT IN (SELECT child FROM projectannotationlink)
+    AND id NOT IN (SELECT child FROM reagentannotationlink)
+    AND id NOT IN (SELECT child FROM roiannotationlink)
+    AND id NOT IN (SELECT child FROM screenannotationlink)
+    AND id NOT IN (SELECT child FROM sessionannotationlink)
+    AND id NOT IN (SELECT child FROM shapeannotationlink)
+    AND id NOT IN (SELECT child FROM wellannotationlink);
+
 
 --
 -- FINISHED
@@ -682,10 +720,10 @@ ALTER TABLE shape ADD COLUMN markerend   VARCHAR(255);
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 3             AND
+          currentPatch    = 4             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__3'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__4'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
