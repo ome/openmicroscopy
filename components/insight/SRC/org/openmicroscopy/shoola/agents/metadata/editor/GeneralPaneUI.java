@@ -38,6 +38,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -613,6 +614,14 @@ class GeneralPaneUI extends JPanel
         ratingTaskPane.clearDisplay();
         commentTaskPane.clearDisplay();
         
+        tagsTaskPane.setLoadingState();
+        roiTaskPane.setLoadingState();
+        mapTaskPane.setLoadingState();
+        attachmentTaskPane.setLoadingState();
+        otherTaskPane.setLoadingState();
+        ratingTaskPane.setLoadingState();
+        commentTaskPane.setLoadingState();
+        
     	browserTaskPane.removeAll();
     	browserTaskPane.setCollapsed(true);
     	
@@ -919,5 +928,36 @@ class GeneralPaneUI extends JPanel
         default:
             return null;
         }
+    }
+    
+    /**
+     * Get the annotation types which are currently shown
+     * 
+     * @return See above
+     */
+    public EnumSet<AnnotationType> getAnnotationTypesOnDisplay() {
+        EnumSet<AnnotationType> result = EnumSet.noneOf(AnnotationType.class);
+        if (!attachmentTaskPane.isCollapsed()) {
+            result.add(AnnotationType.ATTACHMENT);
+        }
+        if (!commentTaskPane.isCollapsed()) {
+            result.add(AnnotationType.COMMENT);
+        }
+        if (!mapTaskPane.isCollapsed()) {
+            result.add(AnnotationType.MAP);
+        }
+        if (!otherTaskPane.isCollapsed()) {
+            result.add(AnnotationType.OTHER);
+        }
+        if (!ratingTaskPane.isCollapsed()) {
+            result.add(AnnotationType.RATING);
+        }
+        if (!roiTaskPane.isCollapsed()) {
+            result.add(AnnotationType.ROI);
+        }
+        if (!tagsTaskPane.isCollapsed()) {
+            result.add(AnnotationType.TAG);
+        }
+        return result;
     }
 }
