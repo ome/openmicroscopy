@@ -415,20 +415,9 @@ class ValueResolver(object):
 
         self.images_by_id[self.target_object.id.val] = images_by_id
         self.images_by_name[self.target_object.id.val] = images_by_name
-        self.parse_dataset(
+        self.parse_by_name(
             self.target_name, images_by_id, images_by_name, data
         )
-
-    def parse_dataset(self, dname, images_by_id, images_by_name, data):
-        for iid, iname in data:
-            images_by_id[iid] = iname
-            if iname in images_by_name:
-                log.warn("Image named %s(id=%d) present. Skipping %s" % (
-                    iname, images_by_name[iname], iid
-                ))
-            else:
-                images_by_name[iname] = iid
-        log.debug('Completed parsing dataset: %s' % dname)
 
     def load_project(self):
         query_service = self.client.getSession().getQueryService()
@@ -468,20 +457,18 @@ class ValueResolver(object):
 
         self.images_by_id[self.target_object.id.val] = images_by_id
         self.images_by_name[self.target_object.id.val] = images_by_name
-        self.parse_project(
+        self.parse_by_name(
             self.target_name, images_by_id, images_by_name, data
         )
 
-    def parse_project(self, pname, images_by_id, images_by_name, data):
-        # TODO: idential to parse_dataset
+    def parse_by_name(self, name, images_by_id, images_by_name, data):
         for iid, iname in data:
             images_by_id[iid] = iname
             if iname in images_by_name:
-                log.warn("Image named %s(id=%d) present. Skipping %s" % (
+                raise Exception("Image named %s(id=%d) present. Skipping %s" % (
                     iname, images_by_name[iname], iid
                 ))
-            else:
-                images_by_name[iname] = iid
+            images_by_name[iname] = iid
         log.debug('Completed parsing dataset: %s' % pname)
 
     def resolve(self, column, value, row):
