@@ -1279,7 +1279,8 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @return see above.
     """
     from omero.util.OmeroPopo import WorkflowData as WorkflowData
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     # Support rstring and str namespaces
     namespace = unwrap(namespace)
     keywords = unwrap(keywords)
@@ -1311,6 +1312,8 @@ def findROIByImage(roiService, image, namespace):
     @return see above.
     """
     from omero.util.OmeroPopo import ROIData as ROIData
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     roiOptions = omero.api.RoiOptions()
     roiOptions.namespace = omero.rtypes.rstring(namespace)
     results = roiService.findByImage(image, roiOptions)
