@@ -54,7 +54,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.3DEV',  4,            'OMERO5.3DEV',   3);
 
--- TODO
+UPDATE pixels SET sha1 = 'Pending...' WHERE sha1 = 'Foo';
 
 
 --

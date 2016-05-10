@@ -677,7 +677,7 @@ ALTER TABLE shape ADD COLUMN markerend   VARCHAR(255);
 
 -- ... up to patch 4:
 
--- TODO
+UPDATE pixels SET sha1 = 'Pending...' WHERE sha1 = 'Foo';
 
 
 --
