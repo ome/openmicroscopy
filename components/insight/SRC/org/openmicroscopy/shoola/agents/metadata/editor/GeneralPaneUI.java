@@ -377,7 +377,6 @@ class GeneralPaneUI extends JPanel
         add(browserTaskPane, c);
         c.gridy++;
         
-        otherTaskPane.setVisible(false);
         add(otherTaskPane, c);
         c.gridy++;
         
@@ -468,9 +467,6 @@ class GeneralPaneUI extends JPanel
                 attachmentTaskPane.refreshUI();
                 ratingTaskPane.refreshUI();
                 commentTaskPane.refreshUI();
-
-                otherTaskPane.setVisible(
-                        !model.getAllOtherAnnotations().isEmpty());
                 otherTaskPane.refreshUI();
             }
 

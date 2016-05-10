@@ -1205,9 +1205,18 @@ class OmeroMetadataServiceImpl
         }
         
         List<Class> annotationTypes = new ArrayList<Class>();
-        for(AnnotationType t : types)
+        for(AnnotationType t : types) {
             if(t.getPojoClass()!=null)
                 annotationTypes.add(t.getPojoClass());
+            else if(t==AnnotationType.OTHER) {
+                annotationTypes.add(AnnotationType.BOOLEAN.getPojoClass());
+                annotationTypes.add(AnnotationType.DOUBLE.getPojoClass());
+                annotationTypes.add(AnnotationType.LONG.getPojoClass());
+                annotationTypes.add(AnnotationType.XML.getPojoClass());
+                annotationTypes.add(AnnotationType.TERM.getPojoClass());
+                annotationTypes.add(AnnotationType.TIME.getPojoClass());
+            }
+        }
         
         Map map = gateway.loadAnnotations(ctx, klass, ids, annotationTypes, usersIDs,
                 new Parameters());
