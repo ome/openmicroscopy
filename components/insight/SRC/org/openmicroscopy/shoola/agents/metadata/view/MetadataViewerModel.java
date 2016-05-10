@@ -332,11 +332,14 @@ class MetadataViewerModel
 		}
 		browser.setRootObject(refObject);
 		editor.setRootObject(refObject);
-		data = new HashMap<DataObject, StructuredDataResults>();
-		data.put((DataObject)refObject, new StructuredDataResults((DataObject)refObject));
-		if (!(refObject instanceof WellSampleData) && parentData != null) {
-			parentData = null;
-		}
+        if (refObject instanceof DataObject) {
+            data = new HashMap<DataObject, StructuredDataResults>();
+            data.put((DataObject) refObject, new StructuredDataResults(
+                    (DataObject) refObject));
+            if (!(refObject instanceof WellSampleData) && parentData != null) {
+                parentData = null;
+            }
+        }
 		parentRefObject = null;
 		viewedBy = null;
 	}
