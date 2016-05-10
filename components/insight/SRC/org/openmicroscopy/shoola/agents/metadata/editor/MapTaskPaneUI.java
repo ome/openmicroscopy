@@ -113,6 +113,9 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
     /** Scrollpane hosting the tables component */
     private JScrollPane sp;
 
+    /** Flag to indicate that the UI has to be initialized */
+    private boolean init = true;
+    
     /**
      * Creates a new instance
      * 
@@ -146,11 +149,15 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
        return result;
     }
 
-
     /**
      * Builds the component
      */
     private void buildUI() {
+        if (!init) {
+            return;
+        }
+        
+        init = false;
         setLayout(new BorderLayout());
         setBackground(UIUtilities.BACKGROUND_COLOR);
 
@@ -212,7 +219,6 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         d.width += 5;
         d.height += 5;
         sp.setPreferredSize(d);
-        view.revalidate();
     }
 
     /**
@@ -776,6 +782,11 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         refreshButtonStates();
         setVisible(!mapTables.isEmpty());
         adjustScrollPane();
+        
+        // remove and add the scrollpane again to
+        // trigger a complete refresh of the UI
+        remove(sp);
+        add(sp, BorderLayout.CENTER);
     }
 
 
