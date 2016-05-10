@@ -21,7 +21,7 @@
 import pytest
 import omero
 import omero.clients
-from omero.rtypes import rlong, rstring
+from omero.rtypes import rlong, rstring, rdouble
 from omeroweb.webgateway.marshal import shapeMarshal
 
 
@@ -85,6 +85,26 @@ def empty_polygon(default_id):
     return shape
 
 
+@pytest.fixture(scope='function')
+def basic_point(default_id):
+    shape = omero.model.PointI()
+    shape.id = rlong(default_id)
+    shape.x = rdouble(0.0)
+    shape.y = rdouble(.1)
+    return shape
+
+
+@pytest.fixture(scope='function')
+def basic_ellipse(default_id):
+    shape = omero.model.EllipseI()
+    shape.id = rlong(default_id)
+    shape.x = rdouble(0.0)
+    shape.y = rdouble(.1)
+    shape.radiusX = rdouble(1.0)
+    shape.radiusY = rdouble(.5)
+    return shape
+
+
 class TestShapeMarshal(object):
     """
     Tests to ensure that OME-XML model and OMERO.insight shape point
@@ -93,29 +113,39 @@ class TestShapeMarshal(object):
 
     DEFAULT_ID = 1L
 
-    def assert_polyline(self, marshaled):
-        assert marshaled['type'] == 'PolyLine'
+    def assert_marshal(self, marshaled, type):
+        assert marshaled['type'] == type
         assert marshaled['id'] == self.DEFAULT_ID
 
-    def assert_polygon(self, marshaled):
-        assert marshaled['type'] == 'Polygon'
-        assert marshaled['id'] == self.DEFAULT_ID
-
-    def test_ployline_marshal(self, basic_polyline):
+    def test_polyline_marshal(self, basic_polyline):
         marshaled = shapeMarshal(basic_polyline)
-        self.assert_polyline(marshaled)
+        self.assert_marshal(marshaled, 'PolyLine')
         assert 'M 1 2 L 2 3 L 4 5' == marshaled['points']
 
     def test_polyline_float_marshal(self, float_polyline):
         marshaled = shapeMarshal(float_polyline)
-        self.assert_polyline(marshaled)
+        self.assert_marshal(marshaled, 'PolyLine')
         assert 'M 1.5 2.5 L 2 3 L 4.1 5.1' == marshaled['points']
 
     def test_polygon_marshal(self, basic_polygon):
         marshaled = shapeMarshal(basic_polygon)
-        self.assert_polygon(marshaled)
+        self.assert_marshal(marshaled, 'Polygon')
         assert 'M 1 2 L 2 3 L 4 5 z' == marshaled['points']
 
     def test_unrecognised_roi_shape_points_string(self, empty_polygon):
         marshaled = shapeMarshal(empty_polygon)
         assert ' z' == marshaled['points']
+
+    def test_point_marshal(self, basic_point):
+        marshaled = shapeMarshal(basic_point)
+        self.assert_marshal(marshaled, 'Point')
+        assert 0.0 == marshaled['x']
+        assert 0.1 == marshaled['y']
+
+    def test_ellipse_marshal(self, basic_ellipse):
+        marshaled = shapeMarshal(basic_ellipse)
+        self.assert_marshal(marshaled, 'Ellipse')
+        assert 0.0 == marshaled['x']
+        assert 0.1 == marshaled['y']
+        assert 1.0 == marshaled['radiusX']
+        assert 0.5 == marshaled['radiusY']

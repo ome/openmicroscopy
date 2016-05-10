@@ -147,10 +147,10 @@ public class ROIs
         roi.addShape(rect); //Add the shape
         //Create an ellipse.
         Ellipse ellipse = new EllipseI();
-        ellipse.setCx(omero.rtypes.rdouble(10));
-        ellipse.setCy(omero.rtypes.rdouble(10));
-        ellipse.setRx(omero.rtypes.rdouble(10));
-        ellipse.setRy(omero.rtypes.rdouble(10));
+        ellipse.setX(omero.rtypes.rdouble(10));
+        ellipse.setY(omero.rtypes.rdouble(10));
+        ellipse.setRadiusX(omero.rtypes.rdouble(10));
+        ellipse.setRadiusY(omero.rtypes.rdouble(10));
         ellipse.setTheZ(omero.rtypes.rint(1));
         ellipse.setTheT(omero.rtypes.rint(0));
         ellipse.setTextValue(omero.rtypes.rstring("ellipse text"));
@@ -166,8 +166,8 @@ public class ROIs
         roi.addShape(line);
         //Create a point
         Point point = new PointI();
-        point.setCx(omero.rtypes.rdouble(75.0));
-        point.setCy(omero.rtypes.rdouble(75.0));
+        point.setX(omero.rtypes.rdouble(75.0));
+        point.setY(omero.rtypes.rdouble(75.0));
         point.setTheZ(omero.rtypes.rint(0));
         point.setTheT(omero.rtypes.rint(0));
         roi.addShape(point);
@@ -188,34 +188,19 @@ public class ROIs
         RInt GREY = omero.rtypes.rint(11184810);
         Label text = new LabelI();
         text.setTextValue(omero.rtypes.rstring("This is a polyline"));
-        text.setFontFamily(omero.rtypes.rstring("Verdana"));
+        text.setFontFamily(omero.rtypes.rstring("sans-serif"));
         text.setFontSize(new LengthI(40, UnitsLength.POINT));
-        text.setFontWeight(omero.rtypes.rstring("bold"));
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);
         text.setStrokeWidth(new LengthI(25, UnitsFactory.Shape_StrokeWidth));
-        text.setVisibility(omero.rtypes.rbool(true));
         text.setLocked(omero.rtypes.rbool(true));
         // Other options which may come with time
-        text.setVectorEffect(omero.rtypes.rstring("non-scaling-stroke"));
-        text.setFontStretch(omero.rtypes.rstring("wider"));
         text.setFontStyle(omero.rtypes.rstring("italic"));
-        text.setFontVariant(omero.rtypes.rstring("small-caps"));
         text.setFillColor(GREY);
         text.setFillRule(omero.rtypes.rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(omero.rtypes.rstring("10 20 30 10"));
-        text.setStrokeDashOffset(omero.rtypes.rint(1));
-        text.setStrokeLineCap(omero.rtypes.rstring("butt"));
-        text.setStrokeLineJoin(omero.rtypes.rstring("bevel"));
-        text.setStrokeMiterLimit(omero.rtypes.rint(1));
         text.setStrokeWidth(new LengthI(10, UnitsFactory.Shape_StrokeWidth));
-        text.setAnchor(omero.rtypes.rstring("middle"));
-        text.setDecoration(omero.rtypes.rstring("underline"));
-        text.setBaselineShift(omero.rtypes.rstring("70%"));
-        text.setGlyphOrientationVertical(omero.rtypes.rint(90));
-        text.setDirection(omero.rtypes.rstring("rtl"));
-        text.setWritingMode(omero.rtypes.rstring("tb-rl"));
         text.setTheZ(omero.rtypes.rint(0));
         text.setTheT(omero.rtypes.rint(0));
         roi.addShape(text);

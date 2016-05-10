@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2012-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -258,10 +258,10 @@ def shapeMarshal(shape):
         # TODO: support for mask
     elif shape_type == omero.model.EllipseI:
         rv['type'] = 'Ellipse'
-        rv['cx'] = shape.getCx().getValue()
-        rv['cy'] = shape.getCy().getValue()
-        rv['rx'] = shape.getRx().getValue()
-        rv['ry'] = shape.getRy().getValue()
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
+        rv['radiusX'] = shape.getRadiusX().getValue()
+        rv['radiusY'] = shape.getRadiusY().getValue()
     elif shape_type == omero.model.PolylineI:
         rv['type'] = 'PolyLine'
         rv['points'] = stringToSvg(shape.getPoints().getValue())
@@ -273,8 +273,8 @@ def shapeMarshal(shape):
         rv['y2'] = shape.getY2().getValue()
     elif shape_type == omero.model.PointI:
         rv['type'] = 'Point'
-        rv['cx'] = shape.getCx().getValue()
-        rv['cy'] = shape.getCy().getValue()
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
     elif shape_type == omero.model.PolygonI:
         rv['type'] = 'Polygon'
         # z = closed line

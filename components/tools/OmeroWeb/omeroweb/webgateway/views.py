@@ -476,12 +476,12 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
         # TODO: support for mask
     elif type(s) == omero.model.EllipseI:
         shape['type'] = 'Ellipse'
-        shape['cx'] = int(s.getCx().getValue())
-        shape['cy'] = int(s.getCy().getValue())
-        shape['rx'] = int(s.getRx().getValue())
-        shape['ry'] = int(s.getRy().getValue())
-        bBox = (shape['cx']-shape['rx'], shape['cy']-shape['ry'],
-                2*shape['rx'], 2*shape['ry'])
+        shape['x'] = int(s.getX().getValue())
+        shape['y'] = int(s.getY().getValue())
+        shape['radiusX'] = int(s.getRadiusX().getValue())
+        shape['radiusY'] = int(s.getRadiusY().getValue())
+        bBox = (shape['x']-shape['radiusX'], shape['y']-shape['radiusY'],
+                2*shape['radiusX'], 2*shape['radiusY'])
     elif type(s) == omero.model.PolylineI:
         shape['type'] = 'PolyLine'
         shape['xyList'] = pointsStringToXYlist(s.getPoints().getValue())
@@ -498,9 +498,9 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
                 max(shape['y1'], shape['y2'])-y)
     elif type(s) == omero.model.PointI:
         shape['type'] = 'Point'
-        shape['cx'] = s.getCx().getValue()
-        shape['cy'] = s.getCy().getValue()
-        bBox = (shape['cx']-50, shape['cy']-50, 100, 100)
+        shape['x'] = s.getX().getValue()
+        shape['y'] = s.getY().getValue()
+        bBox = (shape['x']-50, shape['y']-50, 100, 100)
     elif type(s) == omero.model.PolygonI:
         shape['type'] = 'Polygon'
         shape['xyList'] = pointsStringToXYlist(s.getPoints().getValue())

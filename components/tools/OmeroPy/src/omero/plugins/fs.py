@@ -727,8 +727,8 @@ Examples:
         """Shows the disk usage for various objects.
 
 This command shows the total disk usage of various objects including:
-ExperimenterGroup, Experimenter, Project, Dataset, Screen, Plate, Well,
-WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+ExperimenterGroup, Experimenter, Project, Dataset, Folder, Screen, Plate,
+Well, WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
 The total size returned will comprise the disk usage by all related files. Thus
 an image's size would typically include the files uploaded to a fileset,
 import log (Job), thumbnails, and, possibly, associated pixels or original
@@ -751,10 +751,10 @@ Examples:
     # then the size returned would be identical to:
     bin/omero fs usage Project:1,2 --units M
         """
-        from omero.cmd import DiskUsage
+        from omero.cmd import DiskUsage2
 
         client = self.ctx.conn(args)
-        req = DiskUsage()
+        req = DiskUsage2()
         if not args.obj:
             admin = client.sf.getAdminService()
             uid = admin.getEventContext().userId
@@ -767,7 +767,7 @@ Examples:
                 args.obj.append(
                     "ExperimenterGroup:%s" % ",".join(map(str, gids)))
 
-        req.objects, req.classes = self._usage_obj(args.obj)
+        req.targetObjects, req.targetClasses = self._usage_obj(args.obj)
         cb = None
         try:
             rsp, status, cb = self.response(client, req, wait=args.wait)

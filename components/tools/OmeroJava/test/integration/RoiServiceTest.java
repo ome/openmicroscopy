@@ -8,8 +8,6 @@ package integration;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import omero.ServerError;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -42,6 +41,7 @@ import omero.model.RoiI;
 import omero.model.Shape;
 import omero.model.Well;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import omero.gateway.model.FileAnnotationData;
@@ -85,7 +85,7 @@ public class RoiServiceTest extends AbstractServerTest {
         int n = shapes.size();
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
         shapes = roi.copyShapes();
-        assertTrue(shapes.size() == (n - 1));
+        Assert.assertEquals(shapes.size(), (n - 1));
     }
 
     /**
@@ -118,15 +118,15 @@ public class RoiServiceTest extends AbstractServerTest {
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
         RoiResult r = svc.findByImage(image.getId().getValue(),
                 new RoiOptions());
-        assertNotNull(r);
+        Assert.assertNotNull(r);
         List<Roi> rois = r.rois;
-        assertTrue(rois.size() == 1);
+        Assert.assertEquals(rois.size(), 1);
         List<Shape> shapes;
         Iterator<Roi> i = rois.iterator();
         while (i.hasNext()) {
             roi = i.next();
             shapes = roi.copyShapes();
-            assertTrue(shapes.size() == 3);
+            Assert.assertEquals(shapes.size(), 3);
         }
     }
 
@@ -167,7 +167,7 @@ public class RoiServiceTest extends AbstractServerTest {
         IRoiPrx svc = factory.getRoiService();
         List<Annotation> l = svc.getRoiMeasurements(image.getId().getValue(),
                 options);
-        assertTrue(l.size() == 0);
+        Assert.assertEquals(l.size(), 0);
 
         // create measurements.
         // First create a table
@@ -176,9 +176,9 @@ public class RoiServiceTest extends AbstractServerTest {
         Column[] columns = new Column[1];
         columns[0] = new LongColumn("Uid", "", new long[1]);
         table.initialize(columns);
-        assertNotNull(table);
+        Assert.assertNotNull(table);
         OriginalFile of = table.getOriginalFile();
-        assertTrue(of.getId().getValue() > 0);
+        Assert.assertTrue(of.getId().getValue() > 0);
         FileAnnotation fa = new FileAnnotationI();
         fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS));
         fa.setFile(of);
@@ -196,8 +196,8 @@ public class RoiServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         l = svc.getRoiMeasurements(image.getId().getValue(), options);
-        assertTrue(l.size() == 1);
-        assertTrue(l.get(0) instanceof FileAnnotation);
+        Assert.assertEquals(l.size(), 1);
+        Assert.assertTrue(l.get(0) instanceof FileAnnotation);
         // Now create another file annotation linked to the ROI
 
         links.clear();
@@ -217,7 +217,7 @@ public class RoiServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
         // we should still have one
         l = svc.getRoiMeasurements(image.getId().getValue(), options);
-        assertTrue(l.size() == 1);
+        Assert.assertEquals(l.size(), 1);
     }
 
     /**
@@ -290,16 +290,16 @@ public class RoiServiceTest extends AbstractServerTest {
 
         List<Annotation> l = svc.getRoiMeasurements(image.getId().getValue(),
                 options);
-        assertTrue(l.size() == n);
+        Assert.assertEquals(l.size(), n);
         FileAnnotation f = (FileAnnotation) l.get(0);
 
         List<Long> ids = new ArrayList<Long>();
         ids.add(f.getId().getValue());
         Map<Long, RoiResult> values = svc.getMeasuredRoisMap(image.getId()
                 .getValue(), ids, options);
-        assertNotNull(values);
-        assertTrue(values.size() == 1);
-        assertNotNull(values.get(f.getId().getValue()));
+        Assert.assertNotNull(values);
+        Assert.assertEquals(values.size(), 1);
+        Assert.assertNotNull(values.get(f.getId().getValue()));
     }
 
     /**
@@ -345,7 +345,7 @@ public class RoiServiceTest extends AbstractServerTest {
         columns[0] = new LongColumn("Uid", "", new long[1]);
         table.initialize(columns);
         OriginalFile of = table.getOriginalFile();
-        assertTrue(of.getId().getValue() > 0);
+        Assert.assertTrue(of.getId().getValue() > 0);
         FileAnnotation fa = new FileAnnotationI();
         fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS));
         fa.setFile(of);
@@ -366,9 +366,115 @@ public class RoiServiceTest extends AbstractServerTest {
         FileAnnotation f = (FileAnnotation) l.get(0);
 
         table = svc.getTable(f.getId().getValue());
-        assertNotNull(table);
+        Assert.assertNotNull(table);
         Column[] cols = table.getHeaders();
-        assertTrue(cols.length == columns.length);
+        Assert.assertEquals(cols.length, columns.length);
     }
 
+    /**
+     * Compare findByImage, findByROI and findByPlane results (similar to
+     * test/integration/test_rois.py TestRois )
+     */
+    @Test
+    public void testFindByImageRoiPlane() throws Exception {
+        IRoiPrx svc = factory.getRoiService();
+        // create the roi.
+        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
+                .simpleImage());
+
+        Roi r1 = createRoi(image, 0, 0);
+        Roi r2 = createRoi(image, 0, 1);
+        Roi r3 = createRoi(image, 1, 0);
+        Roi r4 = createRoi(image, 1, 1);
+
+        RoiResult r = svc.findByImage(image.getId().getValue(),
+                new RoiOptions());
+        Assert.assertNotNull(r);
+        List<Roi> rois = r.rois;
+        Assert.assertEquals(rois.size(), 4);
+        List<Shape> shapes;
+        Roi roi;
+        Iterator<Roi> i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            shapes = roi.copyShapes();
+            Assert.assertEquals(shapes.size(), 3);
+        }
+
+        r = svc.findByRoi(r1.getId().getValue(), new RoiOptions());
+        rois = r.rois;
+        Assert.assertEquals(rois.size(), 1);
+        i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            Assert.assertEquals(roi.getId().getValue(), r1.getId().getValue());
+            shapes = roi.copyShapes();
+            Assert.assertEquals(shapes.size(),  3);
+        }
+
+        r = svc.findByRoi(r2.getId().getValue(), new RoiOptions());
+        rois = r.rois;
+        Assert.assertEquals(rois.size(),  1);
+        i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            Assert.assertEquals(roi.getId().getValue(), r2.getId().getValue());
+            shapes = roi.copyShapes();
+            Assert.assertEquals(shapes.size(), 3);
+        }
+
+        r = svc.findByPlane(image.getId().getValue(), 1, 0, new RoiOptions());
+        rois = r.rois;
+        Assert.assertEquals(rois.size(), 1);
+        i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            Assert.assertEquals(roi.getId().getValue(),  r3.getId().getValue());
+            shapes = roi.copyShapes();
+            Assert.assertEquals(shapes.size(), 3);
+        }
+
+        r = svc.findByPlane(image.getId().getValue(), 1, 1, new RoiOptions());
+        rois = r.rois;
+        Assert.assertEquals(rois.size(), 1);
+        i = rois.iterator();
+        while (i.hasNext()) {
+            roi = i.next();
+            Assert.assertEquals(roi.getId().getValue(), r4.getId().getValue());
+            shapes = roi.copyShapes();
+            Assert.assertEquals(shapes.size(), 3);
+        }
+    }
+    
+    /**
+     * Creates an ROI with 3 rectangluar shapes on the specified plane
+     * 
+     * @param img
+     *            The Image the ROI will be linked to
+     * @param z
+     *            The Z plane
+     * @param t
+     *            The T plane
+     * @return See above.
+     * @throws ServerError
+     *             If ROI couldn't be created
+     */
+    private Roi createRoi(Image img, int z, int t) throws ServerError {
+        Roi roi = new RoiI();
+        roi.setImage(img);
+        Rectangle rect;
+        roi = (Roi) iUpdate.saveAndReturnObject(roi);
+        for (int i = 0; i < 3; i++) {
+            rect = new RectangleI();
+            rect.setX(rdouble(10));
+            rect.setY(rdouble(10));
+            rect.setWidth(rdouble(10));
+            rect.setHeight(rdouble(10));
+            rect.setTheZ(rint(z));
+            rect.setTheT(rint(t));
+            roi.addShape(rect);
+        }
+        roi = (RoiI) iUpdate.saveAndReturnObject(roi);
+        return roi;
+    }
 }

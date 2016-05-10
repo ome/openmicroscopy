@@ -15,10 +15,12 @@ import java.util.List;
 import java.util.UUID;
 
 import omero.cmd.Chgrp2;
+import omero.cmd.Chgrp2Response;
 import omero.gateway.util.Requests;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
+import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -30,6 +32,8 @@ import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Instrument;
+import omero.model.LightSettings;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
@@ -58,6 +62,7 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
@@ -1063,5 +1068,51 @@ public class HierarchyMoveTest extends AbstractServerTest {
         assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(original.getId())));
         assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(projection.getId())));
         assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(other.getId())));
+    }
+
+    /**
+     * Test to move an image whose light source settings are not referenced by a logical channel.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13128")
+    public void testMoveLightSourceSettings() throws Exception {
+        /* prepare a pair of groups for the user */
+        newUserAndGroup("rwr---");
+        final EventContext ctx = iAdmin.getEventContext();
+        final ExperimenterGroup source = iAdmin.getGroup(ctx.groupId);
+        final ExperimenterGroup destination = newGroupAddUser("rwr---", ctx.userId);
+
+        /* start in the source group */
+        loginUser(source);
+
+        /* create an image with a light source */
+        Image image = mmFactory.createImage();
+        image.setInstrument(mmFactory.createInstrument(Arc.class.getName()));
+        image = (Image) iUpdate.saveAndReturnObject(image).proxy();
+
+        /* add settings to the image's light source */
+        LightSource lightSource = (LightSource) iQuery.findByQuery(
+                "SELECT image.instrument.lightSource FROM Image image WHERE image.id = :id",
+                new ParametersI().addId(image.getId())).proxy();
+        LightSettings lightSettings = mmFactory.createLightSettings(lightSource);
+        lightSettings = (LightSettings) iUpdate.saveAndReturnObject(lightSettings).proxy();
+
+        /* move the image */
+        final Chgrp2Response rsp = (Chgrp2Response) doChange(Requests.chgrp().target(image).toGroup(destination).build());
+
+        /* check that the move reported that light source settings moved and nothing was deleted */
+        Assert.assertTrue(rsp.includedObjects.containsKey(ome.model.acquisition.Arc.class.getName()));
+        Assert.assertTrue(rsp.deletedObjects.isEmpty());
+
+        /* check what remains in the source group */
+        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
+        assertNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
+
+        /* switch to the destination group */
+        loginUser(destination);
+
+        /* check what was moved to the destination group */
+        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
+        assertNotNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
     }
 }

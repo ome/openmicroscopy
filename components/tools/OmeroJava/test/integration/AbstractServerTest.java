@@ -45,6 +45,7 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.cmd.Chmod2;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete2;
 import omero.cmd.Delete2Response;
@@ -57,6 +58,7 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
+import omero.gateway.util.Requests;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.BooleanAnnotation;
@@ -79,6 +81,7 @@ import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetI;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -123,6 +126,7 @@ import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
 import omero.sys.EventContext;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.lang.StringUtils;
@@ -343,10 +347,8 @@ public class AbstractServerTest extends AbstractTest {
      *             Thrown if an error occurred.
      */
     protected void resetGroupPerms(String perms, long groupId) throws Exception {
-        IAdminPrx rootAdmin = root.getSession().getAdminService();
-        ExperimenterGroup g = rootAdmin.getGroup(groupId);
-        g.getDetails().setPermissions(new PermissionsI(perms));
-        rootAdmin.updateGroup(g);
+        final Chmod2 chmod = Requests.chmod().target("ExperimenterGroup").id(groupId).toPerms(perms).build();
+        doChange(root, root.getSession(), chmod, true);
     }
 
     /**
@@ -648,6 +650,24 @@ public class AbstractServerTest extends AbstractTest {
     protected void loginUser(EventContext ownerEc) throws Exception {
         omero.client client = newOmeroClient();
         client.createSession(ownerEc.userName, ownerEc.userName);
+        init(client);
+    }
+
+    /**
+     * Logs in the user.
+     *
+     * @param ownerEc
+     *            The context of the user.
+     * @param g
+     *            The group to log into.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    protected void loginUser(EventContext ownerEc, ExperimenterGroup g) throws Exception {
+        final omero.client client = newOmeroClient();
+        client.createSession(ownerEc.userName, ownerEc.userName);
+        client.getSession().setSecurityContext(
+                new ExperimenterGroupI(g.getId(), false));
         init(client);
     }
 
@@ -1913,6 +1933,30 @@ public class AbstractServerTest extends AbstractTest {
         experimenter.setLastName(rtypes.rstring(lastName));
         experimenter.setLdap(rtypes.rbool(false));
         return experimenter;
+    }
+
+    /**
+     * Refresh a folder.
+     * @param folder the folder to refresh
+     * @return the same folder refreshed with its child folder and image link collections loaded
+     * @throws ServerError unexpected
+     */
+    protected Folder returnFolder(Folder folder) throws ServerError {
+        final String query =
+                "FROM Folder AS f LEFT OUTER JOIN FETCH f.childFolders LEFT OUTER JOIN FETCH f.imageLinks WHERE f.id = :id";
+        final Parameters params = new ParametersI().addId(folder.getId().getValue());
+        return (Folder) iQuery.findByQuery(query, params);
+    }
+
+    /**
+     * Save and refresh a folder.
+     * @param folder the folder to save and refresh
+     * @return the same folder refreshed with its child folder and image link collections loaded
+     * @throws ServerError unexpected
+     */
+    protected Folder saveAndReturnFolder(Folder folder) throws ServerError {
+        folder = (Folder) iUpdate.saveAndReturnObject(folder);
+        return returnFolder(folder);
     }
 
     /**

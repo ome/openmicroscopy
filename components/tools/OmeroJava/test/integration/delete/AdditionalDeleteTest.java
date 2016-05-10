@@ -10,6 +10,7 @@ import integration.AbstractServerTest;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import ome.testing.ObjectFactory;
 
@@ -24,6 +25,8 @@ import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.ExternalInfo;
+import omero.model.ExternalInfoI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -591,6 +594,28 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         assertGone(ann);
         assertGone(file);
 
+    }
+
+    /**
+     * Test that deleting an project also deletes its external information.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13176")
+    public void testDeleteExternalInfoWithProject() throws Exception {
+        ExternalInfo info = new ExternalInfoI();
+        info.setEntityType(omero.rtypes.rstring("ExternalEntity"));
+        info.setEntityId(omero.rtypes.rlong(0));
+        info.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        info = (ExternalInfo) iUpdate.saveAndReturnObject(info).proxy();
+
+        IObject object = mmFactory.simpleProject();
+        object.getDetails().setExternalInfo(info);
+        object = iUpdate.saveAndReturnObject(object).proxy();
+
+        doChange(Requests.delete().target(object).build());
+
+        assertGone(object);
+        assertGone(info);
     }
 
     private FileAnnotationI mockAnnotation()

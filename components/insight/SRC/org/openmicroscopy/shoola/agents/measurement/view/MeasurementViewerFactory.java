@@ -275,6 +275,7 @@ public class MeasurementViewerFactory
 			if (comp.hasROIToSave())
 				comp.saveROIToServer(false);
 		}
+		MeasurementAgent.getRegistry().getEventBus().post(new ROIEvent(imageID));
 	}
 
 	/** All the tracked components. */

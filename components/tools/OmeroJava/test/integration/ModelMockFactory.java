@@ -1,5 +1,5 @@
 /*
- *  Copyright 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright 2006-2016 University of Dundee. All rights reserved.
  *  Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -234,6 +234,51 @@ public class ModelMockFactory {
         Fileset fs = new FilesetI();
         fs.setTemplatePrefix(omero.rtypes.rstring("fileset-" + System.nanoTime() + "/"));
         return fs;
+    }
+
+    /**
+     * @return a new folder
+     */
+    public Folder simpleFolder() {
+        final Folder folder = new FolderI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-folder:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        folder.setName(rstring(uniqueName));
+        folder.setDescription(rstring(uniqueDesc));
+        return folder;
+    }
+
+    /**
+     * Creates a default project and returns it.
+     *
+     * @return See above.
+     */
+    public Project simpleProject() {
+        // prepare data
+        final Project project = new ProjectI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-project:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        project.setName(rstring(uniqueName));
+        project.setDescription(rstring(uniqueDesc));
+        return project;
+    }
+
+    /**
+     * Creates a default screen and returns it.
+     *
+     * @return See above.
+     */
+    public Screen simpleScreen() {
+        // prepare data
+        final Screen screen = new ScreenI();
+        String uuidAsString = UUID.randomUUID().toString();
+        String uniqueName = String.format("test-screen:%s", uuidAsString);
+        String uniqueDesc = String.format("test-desc:%s", uuidAsString);
+        screen.setName(rstring(uniqueName));
+        screen.setDescription(rstring(uniqueDesc));
+        return screen;
     }
 
     /**
@@ -898,7 +943,7 @@ public class ModelMockFactory {
      *             Thrown if an error occurred.
      */
     public Pixels createPixels() throws Exception {
-        return createPixels(SIZE_X, SIZE_Y, SIZE_Y, SIZE_Y,
+        return createPixels(SIZE_X, SIZE_Y, SIZE_Z, SIZE_T,
                 DEFAULT_CHANNELS_NUMBER);
     }
 
@@ -957,8 +1002,40 @@ public class ModelMockFactory {
      */
     public Plate createPlate(int rows, int columns, int fields,
             int numberOfPlateAcquisition, boolean fullImage) throws Exception {
+        return fullImage ?
+                createPlate(rows, columns, fields, numberOfPlateAcquisition, 1, 1, 1, 1, 1) :
+                createPlate(rows, columns, fields, numberOfPlateAcquisition, 0, 0, 0, 0, 0);
+    }
+
+    /**
+     * Creates a plate.
+     *
+     * @param rows
+     *            The number of rows.
+     * @param columns
+     *            The number of columns.
+     * @param fields
+     *            The number of fields.
+     * @param numberOfPlateAcquisition
+     *            The number of plate acquisitions.
+     * @param sizeX
+     *            The size along the X-axis.
+     * @param sizeY
+     *            The size along the Y-axis.
+     * @param sizeZ
+     *            The number of Z-sections.
+     * @param sizeT
+     *            The number of time-points.
+     * @param sizeC
+     *            The number of channels.
+     * @return See above.
+     */
+    public Plate createPlate(int rows, int columns, int fields,
+            int numberOfPlateAcquisition, int sizeX, int sizeY, int sizeZ, int sizeT,
+            int sizeC) throws Exception {
         if (numberOfPlateAcquisition < 0)
             numberOfPlateAcquisition = 0;
+        final boolean fullImage = sizeX > 0 && sizeY > 0 && sizeZ > 0 && sizeT > 0 && sizeC > 0;
         Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
         p.setColumns(omero.rtypes.rint(columns));
@@ -987,7 +1064,7 @@ public class ModelMockFactory {
                     for (int field = 0; field < fields; field++) {
                         sample = new WellSampleI();
                         if (fullImage)
-                            sample.setImage(createImage());
+                            sample.setImage(createImage(sizeX, sizeY, sizeZ, sizeT, sizeC));
                         else
                             sample.setImage(simpleImage());
                         well.addWellSample(sample);
@@ -999,7 +1076,7 @@ public class ModelMockFactory {
                         for (int field = 0; field < fields; field++) {
                             sample = new WellSampleI();
                             if (fullImage)
-                                sample.setImage(createImage());
+                                sample.setImage(createImage(sizeX, sizeY, sizeZ, sizeT, sizeC));
                             else
                                 sample.setImage(simpleImage());
                             well.addWellSample(sample);

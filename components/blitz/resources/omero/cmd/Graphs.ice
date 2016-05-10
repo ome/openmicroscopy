@@ -197,16 +197,21 @@ module omero {
         };
 
         /**
-         * Base class for new requests for operating upon the model object
-         * graph.
+         * Base class for new requests for reading the model object graph.
          **/
-        class GraphModify2 extends Request {
+        class GraphQuery extends Request {
 
             /**
              * The model objects upon which to operate.
              * Related model objects may also be targeted.
              **/
             omero::api::StringLongListMap targetObjects;
+        };
+
+        /**
+         * Base class for new requests for modifying the model object graph.
+         **/
+        class GraphModify2 extends GraphQuery {
 
             /**
              * If the request should operate on specific kinds of children.
@@ -362,6 +367,40 @@ module omero {
         };
 
         /**
+         * Request to determine the disk usage of the given objects
+         * and their contents. File-system paths used by multiple objects
+         * are de-duplicated in the total count. Specifying a class is
+         * equivalent to specifying all its instances as objects.
+         *
+         * Permissible classes include:
+         *   ExperimenterGroup, Experimenter, Project, Dataset,
+         *   Folder, Screen, Plate, Well, WellSample,
+         *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+         **/
+        class DiskUsage2 extends GraphQuery {
+            omero::api::StringSet targetClasses;
+        };
+
+        /**
+         * Disk usage report: bytes used and non-empty file counts on the
+         * repository file-system for specific objects. The counts from the
+         * maps may sum to more than the total if different types of object
+         * refer to the same file. Common referers include:
+         *   Annotation for file annotations
+         *   FilesetEntry for OMERO 5 image files (OMERO.fs)
+         *   Job for import logs
+         *   Pixels for pyramids and OMERO 4 images and archived files
+         *   Thumbnail for the image thumbnails
+         * The above map values are broken down by owner-group keys.
+         **/
+        class DiskUsage2Response extends Response {
+            omero::api::LongPairToStringIntMap fileCountByReferer;
+            omero::api::LongPairToStringLongMap bytesUsedByReferer;
+            omero::api::LongPairIntMap totalFileCount;
+            omero::api::LongPairLongMap totalBytesUsed;
+        };
+
+        /**
          * Duplicate model objects with some selection of their subgraph.
          * All target model objects must be in the current group context.
          * The extra three data members allow adjustment of the related
@@ -400,6 +439,68 @@ module omero {
              * objects that would have been duplicated.
              **/
             omero::api::StringLongListMap duplicates;
+        };
+
+        /**
+         * Identify the parents or containers of model objects.
+         * Traverses the model graph to identify indirect relationships.
+         **/
+        class FindParents extends GraphQuery {
+
+            /**
+             * The types of parents being sought.
+             **/
+            omero::api::StringSet typesOfParents;
+
+            /**
+             * Classes of model objects to exclude from the recursive
+             * search. Search does not include or pass such objects.
+             * For efficiency the server automatically excludes various
+             * classes depending on the other arguments of the request.
+             **/
+            omero::api::StringSet stopBefore;
+        };
+
+        /**
+         * Result of identifying the parents or containers of model objects.
+         **/
+        class FoundParents extends OK {
+
+            /**
+             * The parents that were identified.
+             **/
+            omero::api::StringLongListMap parents;
+        };
+
+        /**
+         * Identify the children or contents of model objects.
+         * Traverses the model graph to identify indirect relationships.
+         **/
+        class FindChildren extends GraphQuery {
+
+            /**
+             * The types of children being sought.
+             **/
+            omero::api::StringSet typesOfChildren;
+
+            /**
+             * Classes of model objects to exclude from the recursive
+             * search. Search does not include or pass such objects.
+             * For efficiency the server automatically excludes various
+             * classes depending on the other arguments of the request.
+             **/
+            omero::api::StringSet stopBefore;
+        };
+
+        /**
+         * Result of identifying the children or contents of model objects.
+         **/
+        class FoundChildren extends OK {
+
+            /**
+             * The children that were identified.
+             **/
+            omero::api::StringLongListMap children;
         };
 
         /**

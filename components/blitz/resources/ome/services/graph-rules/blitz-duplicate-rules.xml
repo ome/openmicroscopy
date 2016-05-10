@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,9 @@
         <value>DatasetImageLink</value>
         <value>Project</value>
         <value>ProjectDatasetLink</value>
+        <value>Folder</value>
+        <value>FolderImageLink</value>
+        <value>FolderRoiLink</value>
 
         <!-- core -->
         <value>Channel</value>
@@ -136,6 +139,12 @@
         <bean parent="graphPolicyRule" p:matches="IN:Instrument[E].lightSource = [I]" p:changes="IN:[I]"/>
         <bean parent="graphPolicyRule" p:matches="IN:Instrument[E].objective = [I]" p:changes="IN:[I]"/>
 
+        <!-- Duplicate objects' settings. -->
+
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[I]"/>
+
         <!-- Duplicate emission and excitation filter links if both parent and child are duplicated. -->
 
         <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[E].parent = [I], L.child = [I]"
@@ -173,7 +182,7 @@
 
         <!-- If a link to an annotation is duplicated then duplicate the annotation itself. -->
 
-        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[I].child = A:Annotation[E]" p:changes="A:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[I].child = A:[E]" p:changes="A:[I]"/>
 
         <!-- If an original file is duplicated then also duplicate the corresponding file annotation -->
 
@@ -190,15 +199,23 @@
 
         <!-- CONTAINERS -->
 
-        <!-- If a project or dataset is duplicated then duplicate their links -->
+        <!-- If a project, dataset or folder is duplicated then duplicate their links -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I]" p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [I]" p:changes="L:[I]"/>
+
+        <!-- If a folder is duplicated then duplicate its child folders. -->
+
+        <bean parent="graphPolicyRule" p:matches="Folder[I].childFolders = C:[E]" p:changes="C:[I]"/>
 
         <!-- If a container's link is duplicated then duplicate the contents. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[I].child = D:[E]" p:changes="D:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[I].child = I:[E]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="ProjectDatasetLink[I].child = D:[E]" p:changes="D:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="DatasetImageLink[I].child = I:[E]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FolderImageLink[I].child = I:[E]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FolderRoiLink[I].child = ROI:[E]" p:changes="ROI:[I]"/>
 
         <!-- Respect linking rules outside read-write groups. -->
 
@@ -213,6 +230,18 @@
 
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[I].parent = [E]/!o;perms=??ra??"
                                        p:error="duplicating {L} creates an image in another's dataset in a read-annotate group"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[I].parent = [E]/!o;perms=??r-??"
+                                       p:error="duplicating {L} creates an image in another's folder in a read-only group"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[I].parent = [E]/!o;perms=??ra??"
+                                       p:error="duplicating {L} creates an image in another's folder in a read-annotate group"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[I].parent = [E]/!o;perms=??r-??"
+                                       p:error="duplicating {L} creates a ROI in another's folder in a read-only group"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[I].parent = [E]/!o;perms=??ra??"
+                                       p:error="duplicating {L} creates a ROI in another's folder in a read-annotate group"/>
 
         <!-- CORE -->
 
@@ -232,13 +261,20 @@
         <!-- If a logical channel is duplicated then duplicate the subgraph below it. -->
 
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].channels = C:[E]" p:changes="C:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = DS:[E]" p:changes="DS:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = LS:[E]" p:changes="LS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightPath = LP:[E]" p:changes="LP:[I]"/>
 
-        <!-- Duplicate a logical channel if its associated channel is duplicated. -->
+        <!-- Duplicate a logical channel only if all its channels are to be duplicated. -->
 
-        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]" p:changes="LC:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]{i}" p:changes="LC:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[E].logicalChannel = LC:[E]{r}" p:changes="LC:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]{o}" p:changes="LC:[I]"/>
+
+        <!-- Respect linking rules outside private groups. -->
+
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]/!o.channels = C:[I];perms=??r-??"
+                                       p:error="may not duplicate {C} without {LC} in a read-only group"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]/!o.channels = C:[I];perms=??ra??"
+                                       p:error="may not duplicate {C} without {LC} in a read-annotate group"/>
 
         <!--
              If an image is duplicated then duplicate the subgraph below it.
@@ -247,7 +283,6 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[I].imagingEnvironment = IE:[E]" p:changes="IE:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].instrument = IN:[E]" p:changes="IN:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Image[I].objectiveSettings = OS:[E]" p:changes="OS:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[E]" p:changes="P:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].stageLabel = SL:[E]" p:changes="SL:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].channels = C:[E]" p:changes="C:[I]"/>
@@ -333,8 +368,8 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[I].rois = ROI:[E]" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[E]" p:changes="P:[-]"/>
-        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[E], P.image = I:[E]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI]" p:changes="P:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI], P.image = I:[E]" p:changes="I:[I]"/>
 
         <!-- SCREEN -->
 

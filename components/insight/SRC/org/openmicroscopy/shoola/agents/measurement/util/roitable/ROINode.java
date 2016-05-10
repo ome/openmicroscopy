@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,16 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -40,6 +44,8 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
+
+import omero.gateway.model.FolderData;
 
 /**
  * The ROINode is an extension of the DefaultMutableTreeTableNode
@@ -88,6 +94,15 @@ public class ROINode
 	/** The map of the children, ROIShapes belonging to the ROINode. */
 	private TreeMap<Coord3D, ROINode>			childCoordMap;
 		
+	/** The map of the children, FolderData belonging to the ROINode. */
+    private HashMap<FolderData, ROINode>           folderMap;
+    
+    /**
+     * Flag to indicate if this node is marked as visible; only used for folder
+     * nodes, which can override shape node visibility
+     */
+    private boolean visible = true;
+    
 	/**
 	 * Constructor for parent node. 
 	 * @param str parent type.
@@ -108,6 +123,21 @@ public class ROINode
 		initMaps();
 	}
 	
+    /**
+     * Provides an ID based on the user object's type and it's id.
+     * 
+     * @return See above
+     */
+    public String getUUID() {
+        if (getUserObject() instanceof ROI)
+            return "ROI_" + ((ROI) getUserObject()).getID();
+        if (getUserObject() instanceof ROIShape)
+            return "ROIShape_" + ((ROIShape) getUserObject()).getID();
+        if (getUserObject() instanceof FolderData)
+            return "FolderData_" + ((FolderData) getUserObject()).getId();
+        return "" + hashCode();
+    }
+	
 	/**
 	 * Construct ROINode with ROIShape type.
 	 * @param nodeName see above.
@@ -117,7 +147,62 @@ public class ROINode
 		super(nodeName);
 		initMaps();
 	}
+	
+	/**
+     * Construct a node for a ROI Folder
+     * @param folder see above.
+     */
+    public ROINode(FolderData folder)
+    {
+        super(folder);
+        initMaps();
+    }
 
+    /**
+     * Checks if this node is a folder node
+     * 
+     * @return <code>true</code> if the ROINode represents a folder,
+     *         <code>false</code> otherwise
+     */
+    public boolean isFolderNode() {
+        return getUserObject() instanceof FolderData;
+    }
+
+    /**
+     * Checks if this node is a roi node
+     * 
+     * @return <code>true</code> if the ROINode represents a ROI,
+     *         <code>false</code> otherwise
+     */
+    public boolean isROINode() {
+        return getUserObject() instanceof ROI;
+    }
+    
+    /**
+     * Checks if this node is a shape node
+     * 
+     * @return <code>true</code> if the ROINode represents a ROIShape,
+     *         <code>false</code> otherwise
+     */
+    public boolean isShapeNode() {
+        return getUserObject() instanceof ROIShape;
+    }
+
+    /**
+     * Checks if node is an ancestor of this node
+     * 
+     * @param node
+     *            The node to check
+     * @return <code>true</code> if node is an ancestor of this node
+     */
+    public boolean isAncestorOf(ROINode node) {
+        for (int i = 0; i < node.getPath().getPathCount(); i++) {
+            if (node.getPath().getPathComponent(i) == this)
+                return true;
+        }
+        return false;
+    }
+    
 	/**
 	 * Get the point in the parent where a child with coordinate should be 
 	 * inserted.
@@ -140,11 +225,40 @@ public class ROINode
 		return index;
 	}
 	
+    /**
+     * Get the point in the parent where a child should be inserted.
+     * 
+     * @param f
+     *            see above.
+     * @return see above.
+     */
+    public int getInsertionPoint(FolderData f) {
+        int index = 0;
+
+        if (f == null)
+            return index;
+
+        for (MutableTreeTableNode n : children) {
+            ROINode r = (ROINode) n;
+            if (r.getUserObject() == null)
+                continue;
+            if (r.isFolderNode()) {
+                if (((FolderData) r.getUserObject()).getName()
+                        .compareToIgnoreCase(f.getName()) > 0)
+                    break;
+            }
+            index++;
+        }
+
+        return index;
+    }
+    
 	/** Initializes the maps for the child nodes. */
 	private void initMaps()
 	{
 		childMap = new HashMap<ROIShape, ROINode>();
 		childCoordMap = new TreeMap<Coord3D, ROINode>(new Coord3D());
+		folderMap = new HashMap<FolderData, ROINode>();
 	}
 	
 	/**
@@ -155,9 +269,7 @@ public class ROINode
 	 */
 	public ROINode findChild(ROIShape shape)
 	{
-		if (childMap.containsKey(shape))
-			return childMap.get(shape);
-		return null;
+	    return childMap.get(shape);
 	}
 
 	/**
@@ -168,11 +280,20 @@ public class ROINode
 	 */
 	public ROINode findChild(Coord3D shapeCoord)
 	{
-		if (childCoordMap.containsKey(shapeCoord))
-			return childCoordMap.get(shapeCoord);
-		return null;
+	    return childCoordMap.get(shapeCoord);
 	}
 	
+    /**
+     * Find the child node representing the given folder
+     * 
+     * @param folder
+     *            see above.
+     * @return see above.
+     */
+    public ROINode findChild(FolderData folder) {
+        return folderMap.get(folder);
+    }
+    
 	/**
 	 * Returns <code>true</code> if the node can be edited, <code>false</code>
 	 * otherwise.
@@ -208,6 +329,9 @@ public class ROINode
 			 childMap.put(shape, (ROINode) child);
 			 childCoordMap.put(shape.getCoord3D(), (ROINode) child);
 		 }
+		 else if(child.isFolderNode()) {
+		     folderMap.put((FolderData)userObject, (ROINode) child);
+		 }
 	 }
 
 	 /**
@@ -224,6 +348,9 @@ public class ROINode
 			 childMap.remove(shape);
 			 childCoordMap.remove(shape.getCoord3D());
 		 }
+		 else if(child.isFolderNode()) {
+             folderMap.remove((FolderData)userObject);
+         }
 	 }
 	 
 	 /**
@@ -269,7 +396,7 @@ public class ROINode
 				case ANNOTATION_COLUMN+1:
 					return AnnotationKeys.TEXT.get(roi);
 				case VISIBLE_COLUMN+1:
-					return roi.isVisible();
+					return isVisible();
 				default:
 					return null;
 			}
@@ -300,13 +427,38 @@ public class ROINode
 					return roiShape.getFigure().getAttribute(
 							MeasurementAttributes.TEXT);
 				case VISIBLE_COLUMN+1:
-					return Boolean.valueOf(roiShape.getFigure().isVisible());
+					return isVisible();
 				default:
 					return null;
 			}
-		}
+        } 
+		else if (userObject instanceof FolderData) {
+		    FolderData folder = (FolderData)userObject;
+            switch (column) {
+            case ROIID_COLUMN+1:
+                return folder.getId();
+            case ANNOTATION_COLUMN+1:
+                return folder.getDescription();
+            case VISIBLE_COLUMN + 1:
+                return isVisible();
+            default:
+                return "";
+            }
+        }
+		
 		return null;
 	}
+
+    boolean isVisible() {
+        if (isROINode()) {
+            return ((ROI) getUserObject()).isVisible();
+        } else if (isShapeNode()) {
+            return ((ROIShape) getUserObject()).getFigure().isVisible();
+        } else if (isFolderNode()) {
+            return this.visible;
+        }
+        return false;
+    }
 	
 	/**
 	 * Get the value for the node at column
@@ -333,13 +485,9 @@ public class ROINode
 				case VISIBLE_COLUMN+1:
 					if (value instanceof Boolean)
 					{
-						Iterator<ROIShape> roiIterator = 
-										roi.getShapes().values().iterator();
-						while(roiIterator.hasNext())
-						{
-							ROIShape shape = roiIterator.next();
-							shape.getFigure().setVisible((Boolean) value);
-						}
+					    for(MutableTreeTableNode child : getChildList()) {
+	                        child.setValueAt(value, column);
+	                    }
 					}
 					break;
 					default:
@@ -370,7 +518,218 @@ public class ROINode
 				default:
 					break;
 			}
+		} else if (userObject instanceof FolderData) {
+		    
+            switch (column) {
+            case VISIBLE_COLUMN + 1:
+                if(value instanceof Boolean) {
+                    this.visible = (Boolean) value;
+                    for (int i = 0; i < getChildCount(); i++) {
+                        ROINode child = (ROINode) getChildAt(i);
+                        propateFolderVisibility(this.visible, child);
+                    }
+                    updateShapeVisibility();
+                }
+                break;
+            default:
+                break;
+
+            }
 		}
 	}
 	
+	/**
+	 * Runs through all shape nodes and updates their visibility with
+	 * respect to the folders' visibility state they are part of.
+	 */
+    private void updateShapeVisibility() {
+        Collection<ROINode> shapes = getShapeNodes();
+
+        for (ROINode shape : shapes) {
+            ROIShape s = (ROIShape) shape.getUserObject();
+            s.getFigure().setVisible(isShapeVisible(shape));
+        }
+    }
+
+    /**
+     * Propagates the visibility status down to all subfolders of the given node
+     * 
+     * @param vis
+     *            The visibility status
+     * @param node
+     *            The node
+     */
+    private void propateFolderVisibility(boolean vis, ROINode node) {
+        if (!node.isFolderNode())
+            return;
+        node.setValueAt((Boolean) vis, VISIBLE_COLUMN + 1);
+        for (int i = 0; i < node.getChildCount(); i++) {
+            ROINode child = (ROINode) node.getChildAt(i);
+            propateFolderVisibility(vis, child);
+        }
+    }
+    
+    /**
+     * Determines the visibility of a shape node with respect to the folders'
+     * visibility the shape is part of.
+     * 
+     * @param shape
+     *            The shape node to check
+     * @return Returns <code>true</code> if any folder the shape is part of is
+     *         visible, <code>false</code> otherwise. If the shape is not part
+     *         of any folder, the shape's visibility itself is returned.
+     */
+    private boolean isShapeVisible(ROINode shape) {
+        Boolean b = null;
+        Collection<ROINode> shapeNodes = getShapeNodes(((ROIShape) shape
+                .getUserObject()).getROIShapeID());
+        for (ROINode shapeNode : shapeNodes) {
+            TreePath path = shapeNode.getPath();
+            if (path.getPathCount() > 2) {
+                // the direct parent of a shape node is always an roi node
+                // therefore take a step of length 2 to get the folder node
+                ROINode folder = (ROINode) path.getPathComponent(path
+                        .getPathCount() - 3);
+                if (folder.isRoot())
+                    return shape.isVisible();
+                if (b == null)
+                    b = folder.isVisible();
+                else
+                    b = b == true || folder.isVisible();
+            }
+        }
+
+        if (b == null)
+            return shape.isVisible();
+        else
+            return b;
+    }
+
+    /**
+     * Gathers all sub nodes of this node and adds them to the provided nodes
+     * collection (the node itself will be added to the collection, too)
+     * 
+     * @param nodes
+     *            The collection to put the sub nodes into
+     */
+    public void getAllDecendants(Collection<ROINode> nodes) {
+        nodes.add(this);
+        for (MutableTreeTableNode n : this.getChildList()) {
+            gatherNodes((ROINode) n, nodes);
+        }
+    }
+    
+    /**
+     * Indicates if the node can be annotated if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canAnnotate() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canAnnotate();
+        if (isROINode())
+            return ((ROI) getUserObject()).canAnnotate();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canAnnotate();
+
+        return false;
+    }
+
+    /**
+     * Indicates if the node can be deleted if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canDelete() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canDelete();
+        if (isROINode())
+            return ((ROI) getUserObject()).canDelete();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canDelete();
+
+        return false;
+    }
+
+    /**
+     * Indicates if the node can be edited if <code>true</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean canEdit() {
+        if (isFolderNode())
+            return ((FolderData) getUserObject()).canEdit();
+        if (isROINode())
+            return ((ROI) getUserObject()).canEdit();
+        if (isShapeNode())
+            return ((ROIShape) getUserObject()).getROI().canEdit();
+
+        return false;
+    }
+    
+    /**
+     * Gathers all sub nodes of a node and adds them to the provided nodes
+     * collection (the node itself will be added to the collection, too)
+     * 
+     * @param node
+     *            The node for which to gather the sub nodes for
+     * @param nodes
+     *            The collection to put the sub nodes into
+     */
+    private void gatherNodes(ROINode node, Collection<ROINode> nodes) {
+        nodes.add(node);
+        for (MutableTreeTableNode n : node.getChildList()) {
+            gatherNodes((ROINode) n, nodes);
+        }
+    }
+
+    /**
+     * Get all nodes which represent the given shape
+     * 
+     * @param shapeId
+     *            The id of the shape
+     * @return See above
+     */
+    private Collection<ROINode> getShapeNodes(long shapeId) {
+        Collection<ROINode> nodes = getShapeNodes();
+        Iterator<ROINode> it = nodes.iterator();
+        while (it.hasNext()) {
+            ROINode next = it.next();
+            ROIShape shape = (ROIShape) next.getUserObject();
+            if (shape.getROIShapeID() != shapeId)
+                it.remove();
+        }
+        return nodes;
+    }
+
+    /**
+     * Get all nodes which represent shapes
+     * 
+     * @return See above.
+     */
+    private Collection<ROINode> getShapeNodes() {
+        ROINode root = getRoot();
+        Collection<ROINode> nodes = new ArrayList<ROINode>();
+        gatherNodes(root, nodes);
+        Iterator<ROINode> it = nodes.iterator();
+        while (it.hasNext()) {
+            ROINode next = it.next();
+            if (!next.isShapeNode())
+                it.remove();
+        }
+        return nodes;
+    }
+
+    /**
+     * Get the root node of this branch
+     * 
+     * @return See above
+     */
+    private ROINode getRoot() {
+        return (ROINode) getPath().getPathComponent(0);
+    }
+
 }

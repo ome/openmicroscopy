@@ -190,11 +190,16 @@ public class IconManager
     /** The <code>ROI stack</code> icon if ROI is owned by other users. */
     public static final int ROISTACK_OTHER_OWNER = 46;
     
+    public static final int ROIFOLDER = 47;
+    
+    /** The <code>Filter Menu</code> icon. */
+    public static final int           FILTER_MENU = 48;
+    
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 46;
+    private static final int    MAX_ID = 48;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -249,6 +254,8 @@ public class IconManager
         relPaths[DELETE_22] = "nuvola_cancel22.png";
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[ROISTACK_OTHER_OWNER] = "roistack_owner_16.png";
+        relPaths[ROIFOLDER] = "ROI-foldertest-24.png";
+        relPaths[FILTER_MENU] = "eclipse_view_menu16.png";
     }
     
     /** 

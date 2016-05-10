@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import omero.gateway.model.FolderData;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -126,6 +127,10 @@ public class AnnotationKeys
     public static final AnnotationKey<Object> TAG =
         new AnnotationKey<Object>("Tag", null);
 
+    /** The folders the figure is part of. */
+    public static final AnnotationKey<List<FolderData>> FOLDERS =
+        new AnnotationKey<List<FolderData>>("Folders", null);
+    
 	 /**
      * A set with all attributes defined by this class.
      */
@@ -155,7 +160,8 @@ public class AnnotationKeys
         		ENDPOINTY, 
         		WIDTH,
         		HEIGHT,
-        		TAG
+        		TAG,
+        		FOLDERS
         }));
         
         supportedAnnotations = Collections.unmodifiableSet(as);

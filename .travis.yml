@@ -40,6 +40,8 @@ before_install:
     - scc travis-merge
     - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3; fi
     - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-flake8; fi
+    # Remove OME Maven cache as we are working on a breaking branch
+    - rm -rf ~/.m2/repository/ome
 
 # retries the build due to:
 # https://github.com/travis-ci/travis-ci/issues/2507

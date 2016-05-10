@@ -34,6 +34,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.hibernate.Session;
 
+import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.services.graphs.GraphException;
@@ -46,6 +47,7 @@ import omero.cmd.Request;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -545,5 +547,24 @@ public class GraphUtil {
         public String toString() {
             return Joiner.on(", ").join(parameters);
         }
+    }
+
+    /**
+     * Construct a predicate to test if an object's class is of any of the given classes.
+     * @param matchTypes model object classes
+     * @return a predicate for testing membership of those classes
+     */
+    public static Predicate<Class<? extends IObject>> getPredicateFromClasses(final Iterable<Class<? extends IObject>> matchTypes) {
+        return new Predicate<Class<? extends IObject>>() {
+            @Override
+            public boolean apply(Class<? extends IObject> subjectType) {
+                for (final Class<? extends IObject> matchType : matchTypes) {
+                    if (matchType.isAssignableFrom(subjectType)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
     }
 }

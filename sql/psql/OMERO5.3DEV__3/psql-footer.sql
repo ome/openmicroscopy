@@ -415,6 +415,21 @@
   CREATE INDEX i_filtersetexcitationfilterlink_group ON filtersetexcitationfilterlink(group_id);
   CREATE INDEX i_FilterSetExcitationFilterLink_parent ON filtersetexcitationfilterlink(parent);
   CREATE INDEX i_FilterSetExcitationFilterLink_child ON filtersetexcitationfilterlink(child);
+  CREATE INDEX i_folder_owner ON folder(owner_id);
+  CREATE INDEX i_folder_group ON folder(group_id);
+  CREATE INDEX i_Folder_parentFolder ON folder(parentFolder);
+  CREATE INDEX i_folderannotationlink_owner ON folderannotationlink(owner_id);
+  CREATE INDEX i_folderannotationlink_group ON folderannotationlink(group_id);
+  CREATE INDEX i_FolderAnnotationLink_parent ON folderannotationlink(parent);
+  CREATE INDEX i_FolderAnnotationLink_child ON folderannotationlink(child);
+  CREATE INDEX i_folderimagelink_owner ON folderimagelink(owner_id);
+  CREATE INDEX i_folderimagelink_group ON folderimagelink(group_id);
+  CREATE INDEX i_FolderImageLink_parent ON folderimagelink(parent);
+  CREATE INDEX i_FolderImageLink_child ON folderimagelink(child);
+  CREATE INDEX i_folderroilink_owner ON folderroilink(owner_id);
+  CREATE INDEX i_folderroilink_group ON folderroilink(group_id);
+  CREATE INDEX i_FolderRoiLink_parent ON folderroilink(parent);
+  CREATE INDEX i_FolderRoiLink_child ON folderroilink(child);
   CREATE INDEX i_GroupExperimenterMap_parent ON groupexperimentermap(parent);
   CREATE INDEX i_GroupExperimenterMap_child ON groupexperimentermap(child);
   CREATE INDEX i_image_owner ON image(owner_id);
@@ -714,28 +729,6 @@ BEGIN
     RETURN ur || uw || gr || gw || wr || ww;
 END;' LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION omero_43_check_pg_advisory_lock() RETURNS void AS '
-DECLARE
-    txt text;
-BEGIN
-      BEGIN
-        PERFORM pg_advisory_lock(1, 1);
-        PERFORM pg_advisory_unlock(1, 1);
-      EXCEPTION
-        WHEN undefined_function THEN
-         txt := chr(10) ||
-            ''====================================================================================='' || chr(10) ||
-            ''pg_advisory_lock does not exist!'' || chr(10) || chr(10) ||
-            ''You must upgrade to PostgreSQL 8.2 or above'' || chr(10) ||
-            ''====================================================================================='' || chr(10) || chr(10);
-         -- 8.1 is unsupported starting with OMERO4.3 (See #4902)
-         RAISE EXCEPTION ''%%'', txt;
-      END;
-END;' LANGUAGE plpgsql;
-SELECT omero_43_check_pg_advisory_lock();
-DROP FUNCTION omero_43_check_pg_advisory_lock();
-
-
 
 set constraints all deferred;
 
@@ -836,6 +829,10 @@ CREATE SEQUENCE seq_filterset; INSERT INTO _lock_ids (name, id) SELECT 'seq_filt
 CREATE SEQUENCE seq_filtersetemissionfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetemissionfilterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtersetexcitationfilterlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtersetexcitationfilterlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filtertype; INSERT INTO _lock_ids (name, id) SELECT 'seq_filtertype', nextval('_lock_seq');
+CREATE SEQUENCE seq_folder; INSERT INTO _lock_ids (name, id) SELECT 'seq_folder', nextval('_lock_seq');
+CREATE SEQUENCE seq_folderannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_folderannotationlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_folderimagelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_folderimagelink', nextval('_lock_seq');
+CREATE SEQUENCE seq_folderroilink; INSERT INTO _lock_ids (name, id) SELECT 'seq_folderroilink', nextval('_lock_seq');
 CREATE SEQUENCE seq_format; INSERT INTO _lock_ids (name, id) SELECT 'seq_format', nextval('_lock_seq');
 CREATE SEQUENCE seq_groupexperimentermap; INSERT INTO _lock_ids (name, id) SELECT 'seq_groupexperimentermap', nextval('_lock_seq');
 CREATE SEQUENCE seq_illumination; INSERT INTO _lock_ids (name, id) SELECT 'seq_illumination', nextval('_lock_seq');
@@ -1061,6 +1058,14 @@ CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
                 SELECT eid, 'ome.model.acquisition.Filter', pid
                 WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Filter' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM folderannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.containers.Folder', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Folder' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM imageannotationlink WHERE child = new.id
@@ -1308,6 +1313,14 @@ CREATE TRIGGER filter_annotation_link_event_trigger_insert
         AFTER INSERT ON filterannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Filter');
+CREATE TRIGGER folder_annotation_link_event_trigger
+        AFTER UPDATE ON folderannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Folder');
+CREATE TRIGGER folder_annotation_link_event_trigger_insert
+        AFTER INSERT ON folderannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Folder');
 CREATE TRIGGER image_annotation_link_event_trigger
         AFTER UPDATE ON imageannotationlink
         FOR EACH ROW
@@ -1508,6 +1521,10 @@ CREATE TRIGGER filter_annotation_link_delete_trigger
         BEFORE DELETE ON filterannotationlink
         FOR EACH ROW
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.acquisition.Filter');
+CREATE TRIGGER folder_annotation_link_delete_trigger
+        BEFORE DELETE ON folderannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.containers.Folder');
 CREATE TRIGGER image_annotation_link_delete_trigger
         BEFORE DELETE ON imageannotationlink
         FOR EACH ROW
@@ -1730,7 +1747,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.2',     0,    'OMERO5.2DEV',   0,             'Initializing');
+             values ('OMERO5.3DEV',  3,    'OMERO5.3DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3029,11 +3046,37 @@ ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN value TYPE TEXT;
 ALTER TABLE uploadjob_versionInfo ALTER COLUMN name TYPE TEXT;
 ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
 
+-- The folder hierarchy should be acyclic.
+
+CREATE FUNCTION preserve_folder_tree() RETURNS "trigger" AS $$
+
+    DECLARE
+        parent_id BIGINT;
+
+    BEGIN
+        parent_id := NEW.parentfolder;
+        WHILE parent_id IS NOT NULL
+        LOOP
+            IF parent_id = NEW.id THEN
+                RAISE EXCEPTION 'folder %% would cause a cycle in the hierarchy', NEW.id;
+            ELSE
+                SELECT parentfolder INTO STRICT parent_id FROM folder WHERE id = parent_id;
+            END IF;
+        END LOOP;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER preserve_folder_tree
+    AFTER INSERT OR UPDATE ON folder
+    FOR EACH ROW EXECUTE PROCEDURE preserve_folder_tree();
+
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO5.2'    and
-        currentPatch = 0 and
-        previousVersion = 'OMERO5.2DEV' and
+  where currentVersion = 'OMERO5.3DEV' and
+        currentPatch = 3 and
+        previousVersion = 'OMERO5.3DEV' and
         previousPatch = 0;
 
 COMMIT;
