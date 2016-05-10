@@ -5,6 +5,8 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
+package ome.util;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
