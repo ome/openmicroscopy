@@ -1916,6 +1916,9 @@ class EditorModel
 		Collection<XMLAnnotationData> xml = data.getXMLAnnotations();
 		if (xml != null && !xml.isEmpty())
 			l.addAll(xml);
+		Collection<TermAnnotationData> term = data.getTerms();
+        if (term != null && !term.isEmpty())
+            l.addAll(term);
 		Collection<AnnotationData> others = data.getOtherAnnotations();
 		if (others != null && !others.isEmpty())
 			l.addAll(others);
@@ -1981,12 +1984,16 @@ class EditorModel
 		i = r.entrySet().iterator();
 
 		Collection<XMLAnnotationData> files;
+		Collection<TermAnnotationData> terms;
 		Collection<AnnotationData> others;
 		List<AnnotationData> results = new ArrayList<AnnotationData>();
 		List<Long> ids = new ArrayList<Long>();
+		List<Long> ids2 = new ArrayList<Long>();
 		Iterator<XMLAnnotationData> j;
+		Iterator<TermAnnotationData> j2;
 		Iterator<AnnotationData> k;
 		XMLAnnotationData file;
+		TermAnnotationData term;
 		AnnotationData other;
 		while (i.hasNext()) {
 			e = i.next();
@@ -2001,6 +2008,17 @@ class EditorModel
 					}
 				}
 			}
+			terms = e.getValue().getTerms();
+            if (terms != null) {
+                j2 = terms.iterator();
+                while (j2.hasNext()) {
+                    term = j2.next();
+                    if (!ids2.contains(term)) {
+                        results.add(term);
+                        ids2.add(term.getId());
+                    }
+                }
+            }
 			others = e.getValue().getOtherAnnotations();
 			if (others != null) {
 				k = others.iterator();
