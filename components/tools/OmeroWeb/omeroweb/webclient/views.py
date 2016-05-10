@@ -43,6 +43,7 @@ import omero.scripts
 from omero.rtypes import wrap, unwrap
 
 from omero.gateway.utils import toBoolean
+from omero.gateway import splitHTMLColor
 
 from django.conf import settings
 from django.template import loader as template_loader
@@ -1180,6 +1181,56 @@ def api_annotations(request, conn=None, **kwargs):
                                           ann_type=ann_type)
 
     return HttpJsonResponse({'annotations': anns, 'experimenters': exps})
+
+
+@login_required()
+def api_rendering_def(request, conn=None, **kwargs):
+
+    r = request.GET or request.POST
+    image_ids = r.getlist('image')
+    dataset_ids = r.getlist('dataset')
+
+    rdef = json.loads(request.body)
+    images = []
+    if len(dataset_ids) > 0:
+        for d in conn.getObjects("Dataset", dataset_ids):
+            images.extend(list(d.listChildren()))
+    if len(image_ids) > 0:
+        images.extend(list(conn.getObjects("Image", image_ids)))
+
+    for image in images:
+        if 'channels' in rdef:
+            sizeC = image.getSizeC()
+            image._prepareRenderingEngine()
+            for idx, c in rdef['channels'].items():
+                idx = int(idx)
+                if idx >= sizeC:
+                    continue
+                # assume we want channel ON, unless explicitly disabled
+                active = True
+                if 'active' in c and not c['active']:
+                    active = False
+                image._re.setActive(idx, active)
+                if 'color' in c:
+                    rgba = splitHTMLColor(c['color'])
+                    if rgba:
+                        image._re.setRGBA(
+                            idx, *(rgba + [conn.SERVICE_OPTS]))
+                if 'windowStart' in c or 'windowEnd' in c:
+                    start = (float(c['windowStart']) if 'windowStart' in c
+                             else image._re.getChannelWindowStart(idx))
+                    end = (float(c['windowEnd']) if 'windowEnd' in c
+                           else image._re.getChannelWindowEnd(idx))
+                    start = min(start, end)
+                    image._re.setChannelWindow(idx, start, end)
+        if 'model' in rdef:
+            if rdef['model'] == 'c':
+                image.setColorRenderingModel()
+            elif rdef['model'] == 'g':
+                image.setGreyscaleRenderingModel()
+        image.saveDefaults()
+
+    return HttpJsonResponse({'OK': 'yes'})
 
 
 @login_required()

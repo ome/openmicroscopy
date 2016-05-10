@@ -952,12 +952,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
         chdiff.active = ch2.active;
       }
       if (OME.rgbToHex(ch1.color) != OME.rgbToHex(ch2.color)) {
-        chdiff.color = ch2.color;
+        chdiff.color = OME.rgbToHex(ch2.color);
       }
-      if (ch1.windowStart != ch2.windowStart) {
+      // If start OR end has changed, return both
+      if (ch1.windowStart != ch2.windowStart || ch1.windowEnd != ch2.windowEnd) {
         chdiff.windowStart = ch2.windowStart;
-      }
-      if (ch1.windowEnd != ch2.windowEnd) {
         chdiff.windowEnd = ch2.windowEnd;
       }
       if (ch1.metalabel != ch2.metalabel) {
@@ -973,8 +972,22 @@ jQuery._WeblitzViewport = function (container, server, options) {
     return diff;
   };
 
-  this.save_last_change = function() {
+  this.save_last_change = function(parentId) {
+    var diff = this.get_last_change();
 
+    // E.g dataset-123
+    if (!parentId) return;
+    parentId = parentId.replace('-', '=');
+
+    $.ajax({
+        url: server + "/api/rendering_def/?" + parentId,
+        type: "POST",
+        data: JSON.stringify(diff),
+        dataType: 'json'
+    })
+    .done(function(data){
+        OME.refreshThumbnails({'ignorePreview': true});
+    });
   };
 
   this.undo_channels = function (redo) {

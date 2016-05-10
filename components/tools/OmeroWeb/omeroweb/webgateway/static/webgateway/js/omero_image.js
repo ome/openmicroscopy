@@ -233,13 +233,10 @@
                     if (diff.channels.hasOwnProperty(ch)){
                         for (var attr in diff.channels[ch]) {
                             btnHtml = "Save Ch-" + (parseInt(ch, 10) + 1) + " " + "<br>to all";
-
                             btnTooltip = "Save Ch-" + (parseInt(ch, 10) + 1) + " ";
-                            if (attr === "windowStart" || attr === "windowEnd"){
-                                btnTooltip += 'slider to all images';
-                            } else {
-                                btnTooltip += attr + " to all images";
-                            }
+                            // windowStart /End -> Slider Start /End
+                            attr = attr.replace('window', 'Slider ');
+                            btnTooltip += attr + " to all images";
                         }
                     }
                 }

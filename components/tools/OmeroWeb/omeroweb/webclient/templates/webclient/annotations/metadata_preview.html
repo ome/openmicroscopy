@@ -98,6 +98,15 @@
 
         $(document).ready(function() {
 
+            {% if manager.well %}
+            // If we're looking at a well we know parent is plate
+              var PARENT_ID = "plate-{{ manager.well.plate.id.val }}";
+            {% else %}
+              // For images in Datasets, we get parent from jsTree, using selected image
+              // E.g. dataset-123
+              var PARENT_ID = OME.getParentId();
+            {% endif %}
+
             // Fix size according to right panel size... NB: this behaviour is also in right_plugin.preview.js
             var vpWidth = $("#right_panel").width() - 50,
               vpHeight = Math.min(vpWidth, $("#preview_tab").height() - 100);
@@ -213,8 +222,8 @@
             });
 
             $("#save-last-change").click(function(){
-              OME.preview_viewport.save_last_change();
-              // syncRDCW(OME.preview_viewport);
+              OME.preview_viewport.save_last_change(PARENT_ID);
+              syncRDCW(OME.preview_viewport);
             });
 
             var rdefs = {{ rdefsJson|safe }};
@@ -289,25 +298,15 @@
 
             {% if manager.image.canAnnotate %}
 
-            {% if manager.well %}
-            // If we're looking at a well we know parent is plate
-              var pid = "plate-{{ manager.well.plate.id.val }}";
-            {% else %}
-              // For images in Datasets, we get parent from jsTree, using selected image
-              // E.g. dataset-123
-              var pid = OME.getParentId();
-            {% endif %}
-
-
-            if (pid) {
+            if (PARENT_ID) {
               $("#rdef-save-all")
-                .attr('title', "Apply and Save settings to all images in " + pid)
+                .attr('title', "Apply and Save settings to all images in " + PARENT_ID)
                 .removeAttr('disabled').removeClass("button-disabled")
                 .click(function(){
                   var $span = $('span', this),
                     spanTxt = $span.text();
                   $span.text("Saving...");
-                  var typeId = pid.split("-");
+                  var typeId = PARENT_ID.split("-");
                   var rdefQry = OME.preview_viewport.getQuery();
                   // need to paste current settings to all images...
                   var url = "{% url 'webgateway.views.copy_image_rdef_json' %}"+ "?" + rdefQry;
