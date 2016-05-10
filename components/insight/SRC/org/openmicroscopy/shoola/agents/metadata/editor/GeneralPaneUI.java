@@ -377,7 +377,6 @@ class GeneralPaneUI extends JPanel
         add(browserTaskPane, c);
         c.gridy++;
         
-        otherTaskPane.setVisible(false);
         add(otherTaskPane, c);
         c.gridy++;
         

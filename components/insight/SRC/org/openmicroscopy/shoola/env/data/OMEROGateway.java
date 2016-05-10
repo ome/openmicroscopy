@@ -1277,9 +1277,9 @@ class OMEROGateway
 		else if (FileAnnotationData.class.equals(pojo))
 			return "ome.model.annotations.FileAnnotation";
 		else if (TermAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.UriAnnotation";
+			return "ome.model.annotations.TermAnnotation";
 		else if (TimeAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.TimeAnnotation";
+			return "ome.model.annotations.TimestampAnnotation";
 		else if (BooleanAnnotationData.class.equals(pojo))
 			return "ome.model.annotations.BooleanAnnotation";
 		else if (DoubleAnnotationData.class.equals(pojo))
@@ -1289,7 +1289,7 @@ class OMEROGateway
 		else if (MapAnnotationData.class.equals(pojo))
             return "ome.model.annotations.MapAnnotation";
 		else if (XMLAnnotationData.class.equals(pojo))
-            return "ome.model.annotations.XMLAnnotation";
+            return "ome.model.annotations.XmlAnnotation";
 		return null;
 	}
 
