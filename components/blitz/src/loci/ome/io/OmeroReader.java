@@ -73,6 +73,7 @@ import omero.model.PointI;
 import omero.model.PolygonI;
 import omero.model.PolylineI;
 import omero.model.RectangleI;
+import omero.model.MaskI;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.Time;
@@ -525,6 +526,9 @@ public class OmeroReader extends FormatReader {
                     //add support for TextROI's
                     storeOmeroLabel(shape,store, roiNum, shapeNum);
                 }
+                else if (shape instanceof Mask){
+                    storeOmeroMask(shape,store, roiNum, shapeNum);
+                }
 
             }
             if (roiID!=null){
@@ -768,6 +772,40 @@ public class OmeroReader extends FormatReader {
             store.setPolylineTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
             store.setPolylineTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
             store.setPolylineTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
+        }
+
+    }
+    /** Converts omero.model.Shape (omero.model.MaskI in this case) to ome.xml.model.* and updates the MetadataStore */
+    private static void storeOmeroMask(omero.model.Shape shape,
+            MetadataStore store, int roiNum, int shapeNum) {
+
+        MaskI shape1 = (MaskI) shape;
+        double x1 = shape1.getX().getValue();
+        double y1 = shape1.getY().getValue();
+        double width = shape1.getWidth().getValue();
+        double height = shape1.getHeight().getValue();
+
+        String maskID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
+        store.setMaskID(maskID, roiNum, shapeNum);
+        store.setMaskX(x1, roiNum, shapeNum);
+        store.setMaskY(y1, roiNum, shapeNum);
+        store.setMaskWidth(width, roiNum, shapeNum);
+        store.setMaskHeight(height, roiNum, shapeNum);
+        store.setMaskTheC(unwrap(shape1.getTheC()), roiNum, shapeNum);
+        store.setMaskTheZ(unwrap(shape1.getTheZ()), roiNum, shapeNum);
+        store.setMaskTheT(unwrap(shape1.getTheT()), roiNum, shapeNum);
+
+        if (shape1.getTextValue() != null){
+            store.setMaskText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeWidth() != null) {
+            store.setMaskStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeColor() != null){
+            store.setMaskStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+        }
+        if (shape1.getFillColor() != null){
+            store.setMaskFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
         }
 
     }
