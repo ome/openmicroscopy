@@ -259,12 +259,7 @@ public class DoAllI extends DoAll implements IRequest {
             Map<String, String> allgroups = new HashMap<String, String>();
             allgroups.put("omero.group", "-1");
             ctx.publishMessage(new ContextMessage.Push(this, allgroups));
-            try {
-                // Process within -1 block.
-                GraphUtil.combineFacadeRequests(this.requests);
-            } finally {
-                ctx.publishMessage(new ContextMessage.Pop(this, allgroups));
-            }
+            ctx.publishMessage(new ContextMessage.Pop(this, allgroups));
 
             for (int i = 0; i < this.requests.size(); i++) {
                 final Request req = requests.get(i);
