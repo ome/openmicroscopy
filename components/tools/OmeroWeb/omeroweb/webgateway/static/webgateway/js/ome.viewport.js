@@ -886,6 +886,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * Undo / Redo support
    */
 
+  var sizeOfObject = function (obj) {
+    var count = 0;
+    for (k in obj) {
+      if (obj.hasOwnProperty(k)) count++;
+    }
+    return count;
+  }
+
   var channels_undo_stack = [];
   var channels_undo_stack_ptr = -1;
   var saved_undo_stack_ptr = 0;   // channels_undo_stack_ptr will start off here
@@ -962,11 +970,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
       if (ch1.metalabel != ch2.metalabel) {
         chdiff.metalabel = ch2.metalabel;
       }
-      if (_.size(chdiff) > 0) {
+      if (sizeOfObject(chdiff) > 0) {
         diffChannels['' + i] = chdiff;
       }
     }
-    if (_.size(diffChannels) > 0) {
+    if (sizeOfObject(diffChannels) > 0) {
       diff.channels = diffChannels;
     }
     return diff;

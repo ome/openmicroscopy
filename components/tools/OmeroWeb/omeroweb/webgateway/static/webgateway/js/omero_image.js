@@ -225,22 +225,24 @@
         var diff = viewport.get_last_change();
         var btnHtml = "Save Change<br>to All";
         var btnTooltip = "Save last change to all images";
+        var chCount = 0;
         if (diff.channels) {
-            if (_.size(diff.channels) > 1) {
-                btnHtml = "Save Changes<br>to all";
-            } else if (_.size(diff.channels) === 1) {
-                for (var ch in diff.channels) {
-                    if (diff.channels.hasOwnProperty(ch)){
-                        for (var attr in diff.channels[ch]) {
-                            btnHtml = "Save Ch-" + (parseInt(ch, 10) + 1) + " " + "<br>to all";
-                            btnTooltip = "Save Ch-" + (parseInt(ch, 10) + 1) + " ";
-                            // windowStart /End -> Slider Start /End
-                            attr = attr.replace('window', 'Slider ');
-                            btnTooltip += attr + " to all images";
-                        }
+            for (var ch in diff.channels) {
+                if (diff.channels.hasOwnProperty(ch)){
+                    chCount++;
+                    for (var attr in diff.channels[ch]) {
+                        btnHtml = "Save Ch-" + (parseInt(ch, 10) + 1) + " " + "<br>to all";
+                        btnTooltip = "Save Ch-" + (parseInt(ch, 10) + 1) + " ";
+                        // windowStart /End -> Slider Start /End
+                        attr = attr.replace('window', 'Slider ');
+                        btnTooltip += attr + " to all images";
                     }
                 }
             }
+        }
+        if (chCount > 1) {
+            btnHtml = "Save Changes<br> to All";
+            btnTooltip = "Save last changes to all images";
         }
         $('#save-last-change').attr('title', btnTooltip);
         $('#save-last-change span').html(btnHtml);
