@@ -29,8 +29,6 @@ import warnings
 from struct import unpack
 
 import omero.clients
-from omero.rtypes import rdouble
-from omero.rtypes import rint
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
 import omero.util.pixelstypetopython as pixelstypetopython
