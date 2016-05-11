@@ -488,7 +488,7 @@ class DocComponent
 		    FileAnnotationData fa = (FileAnnotationData) data;
 		    long size = ((FileAnnotationData) annotation).getFileSize();
 		    tt.addLine("File ID", ""+fa.getFileID(), true);
-		    tt.addLine("Size", UIUtilities.formatFileSize(size)+"kb", true);
+		    tt.addLine("Size", UIUtilities.formatFileSize(size), true);
 			checkAnnotators(tt, annotation);
 		} else if (data instanceof TagAnnotationData || data instanceof
 				XMLAnnotationData || data instanceof TermAnnotationData ||
