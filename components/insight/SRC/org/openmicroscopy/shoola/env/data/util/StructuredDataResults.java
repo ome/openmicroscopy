@@ -23,15 +23,18 @@ package org.openmicroscopy.shoola.env.data.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
+import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.MapAnnotationData;
 import omero.gateway.model.RatingAnnotationData;
@@ -81,7 +84,7 @@ public class StructuredDataResults
 	private DataObject					relatedObject;
 	
 	/** The collection of links  for in-place imports.*/
-	private Collection<AnnotationData> transferlinks;
+	private Collection<AnnotationData> transferlinks = new ArrayList<AnnotationData>();
 
 	/** 
 	 * Collection of parents. 
@@ -91,10 +94,10 @@ public class StructuredDataResults
 	private Collection					parents;
 
 	/** The tags and documents links. */
-	private Map							links;
+	private Map<DataObject, ExperimenterData> links = new HashMap<DataObject, ExperimenterData>();
 	
 	/** The concrete links.*/
-	private Collection<AnnotationLinkData> annotationLinks;
+	private Collection<AnnotationLinkData> annotationLinks = new ArrayList<AnnotationLinkData>();
 	
 	/** Flag indicating if the annotations have been loaded or not.*/
 	private boolean loaded;
@@ -141,6 +144,7 @@ public class StructuredDataResults
             throw new IllegalArgumentException(
                     "Can't merge results for two differente objects!");
 
+        // merge annotations
         Set<String> ownData = new HashSet<String>();
         for (Object o : getAllAnnotations()) {
             AnnotationData a = (AnnotationData) o;
@@ -157,6 +161,42 @@ public class StructuredDataResults
         }
 
         addAnnotations(toAdd);
+
+        // merge links
+        ownData.clear();
+        for (AnnotationLinkData d : annotationLinks) {
+            String s = "" + d.getLink().getId().getValue();
+            ownData.add(s);
+        }
+        for (AnnotationLinkData d : other.annotationLinks) {
+            String s = "" + d.getLink().getId().getValue();
+            if (!ownData.contains(s))
+                annotationLinks.add(d);
+        }
+
+        ownData.clear();
+        for (AnnotationData d : transferlinks) {
+            String s = "" + d.getId();
+            ownData.add(s);
+        }
+        for (AnnotationData d : other.transferlinks) {
+            String s = "" + d.getId();
+            if (!ownData.contains(s))
+                transferlinks.add(d);
+        }
+
+        ownData.clear();
+        for (Entry<DataObject, ExperimenterData> e : links.entrySet()) {
+            String s = e.getKey().getClass().getSimpleName() + "_"
+                    + e.getValue().getId();
+            ownData.add(s);
+        }
+        for (Entry<DataObject, ExperimenterData> e : other.links.entrySet()) {
+            String s = e.getKey().getClass().getSimpleName() + "_"
+                    + e.getValue().getId();
+            if (!ownData.contains(s))
+                links.put(e.getKey(), e.getValue());
+        }
     }
 	
 	/**
@@ -331,14 +371,14 @@ public class StructuredDataResults
 	 * 
 	 * @return See above.
 	 */
-	public Map getLinks() { return links; }
+	public Map<DataObject, ExperimenterData> getLinks() { return links; }
 	
 	/**
 	 * Sets the collection.
 	 * 
 	 * @param links The collection to set.
 	 */
-	public void setLinks(Map links) { this.links = links; }
+	public void setLinks(Map<DataObject, ExperimenterData> links) { this.links = links; }
 	
 	/**
 	 * Returns the collection of links.
