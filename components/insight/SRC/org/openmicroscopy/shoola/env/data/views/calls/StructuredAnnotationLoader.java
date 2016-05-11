@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +50,6 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * @since OME3.0
  */
 public class StructuredAnnotationLoader extends BatchCallTree {
-    /** The types of annotations to load */
-    private EnumSet<AnnotationType> types;
 
     /** The result of the call. */
     private Object result;
