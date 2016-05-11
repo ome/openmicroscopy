@@ -244,6 +244,16 @@ public abstract class DataObject {
     }
 
     /**
+     * Get an unique ID for the object, built from concrete class and id of the
+     * object.
+     * 
+     * @return See above
+     */
+    public String getUniqueId() {
+        return getClass().getSimpleName() + "_" + getId();
+    }
+    
+    /**
      * Sets the database id.
      *
      * @param id

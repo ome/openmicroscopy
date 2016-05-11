@@ -25,11 +25,8 @@ import java.util.Collection;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.AnnotationType;
-
 import omero.gateway.SecurityContext;
-
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import omero.log.LogMessage;
 
 /** 

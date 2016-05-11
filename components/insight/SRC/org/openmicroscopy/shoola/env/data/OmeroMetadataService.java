@@ -47,9 +47,7 @@ import omero.model.Pulse;
 
 import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
-
 import omero.gateway.model.TableResult;
-
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 

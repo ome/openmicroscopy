@@ -256,6 +256,7 @@ class EditorComponent
 	 */
 	public JComponent getUI() { return view; }
 
+	@Override
 	public void layoutUI() {
 	    view.layoutUI();
 	}
@@ -1263,9 +1264,5 @@ class EditorComponent
     @Override
     public void reloadROICount() {
         view.reloadROICount();
-    }
-    
-    public void fireStructuredDataLoading(EnumSet<AnnotationType> types) {
-        
     }
 }
