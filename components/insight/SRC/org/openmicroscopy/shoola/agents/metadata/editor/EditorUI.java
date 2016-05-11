@@ -813,13 +813,6 @@ class EditorUI
 		tabPane.addChangeListener(controller);
 	}
 
-	/**
-	 * Analyzes the data. 
-	 * 
-	 * @param index The index identifying the analysis to perform.
-	 */
-	void analyse(int index) { model.analyse(index); }
-
 	/** Sets the instrument and its components. */
 	void setInstrumentData() { acquisitionPane.setInstrumentData(); }
 

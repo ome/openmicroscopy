@@ -3579,13 +3579,6 @@ class EditorModel
 	}
 	
 	/**
-	 * Analyzes the data. 
-	 * 
-	 * @param index The index identifying the analysis to perform.
-	 */
-	void analyse(int index) { parent.analyse(index); }
-	
-	/**
 	 * Returns <code>true</code> if the renderer has been loaded,
 	 * <code>false</code> otherwise.
 	 * 
