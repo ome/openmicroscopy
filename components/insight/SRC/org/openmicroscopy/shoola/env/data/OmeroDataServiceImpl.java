@@ -866,36 +866,20 @@ class OmeroDataServiceImpl
             DataObject data = delo.getObjectToDelete();
 
             if (!CollectionUtils.isEmpty(delo.getAnnotations())) {
-                opts.add(Requests.option(null,
-                        PojoMapper.getGraphType(AnnotationData.class)));
+                opts.add(Requests.option().excludeType(PojoMapper.getGraphType(AnnotationData.class)).build());
             }
 
             if (!delo.deleteContent()) {
                 if (data instanceof DatasetData) {
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(ImageData.class)));
+                    opts.add(Requests.option().excludeType(PojoMapper.getGraphType(ImageData.class)).build());
                 } else if (data instanceof ProjectData) {
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(DatasetData.class)));
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(ImageData.class)));
+                    opts.add(Requests.option().excludeType(PojoMapper.getGraphType(DatasetData.class)).build());
                 } else if (data instanceof ScreenData) {
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(PlateData.class)));
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(WellData.class)));
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(PlateAcquisitionData.class)));
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(ImageData.class)));
+                    opts.add(Requests.option().excludeType(PojoMapper.getGraphType(PlateData.class)).build());
                 } else if (data instanceof PlateData) {
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(PlateAcquisitionData.class)));
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(ImageData.class)));
+                    opts.add(Requests.option().excludeType(PojoMapper.getGraphType(ImageData.class)).build());
                 } else if (data instanceof PlateAcquisitionData) {
-                    opts.add(Requests.option(null,
-                            PojoMapper.getGraphType(ImageData.class)));
+                    opts.add(Requests.option().excludeType(PojoMapper.getGraphType(ImageData.class)).build());
                 }
 
                 else if (data instanceof TagAnnotationData) {
@@ -919,8 +903,7 @@ class OmeroDataServiceImpl
 
         List<Request> cmds = new ArrayList<Request>();
         for (String type : toDelete.keySet()) {
-            cmds.add(Requests.delete(type, toDelete.get(type),
-                    options.get(type)));
+            cmds.add(Requests.delete().target(type).id(toDelete.get(type)).option(options.get(type)).build());
         }
 
         return gateway.submit(cmds, ctx);

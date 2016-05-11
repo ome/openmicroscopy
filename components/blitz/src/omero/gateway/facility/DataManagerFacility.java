@@ -43,7 +43,6 @@ import omero.api.IUpdatePrx;
 import omero.cmd.CmdCallbackI;
 import omero.api.RawFileStorePrx;
 import omero.cmd.Delete2;
-import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.Gateway;
@@ -56,6 +55,7 @@ import omero.gateway.model.ImageData;
 import omero.gateway.util.PojoMapper;
 import omero.gateway.util.Pojos;
 import omero.gateway.util.Requests;
+import omero.gateway.util.Requests.Delete2Builder;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.DatasetAnnotationLink;
@@ -226,35 +226,11 @@ public class DataManagerFacility extends Facility {
     public CmdCallbackI delete(SecurityContext ctx, List<IObject> objects)
             throws DSOutOfServiceException, DSAccessException {
         try {
-            /*
-             * convert the list of objects to lists of IDs by OMERO model class
-             * name
-             */
-            final Map<String, List<Long>> objectIds = new HashMap<String, List<Long>>();
+            final Delete2Builder request = Requests.delete();
             for (final IObject object : objects) {
-                /* determine actual model class name for this object */
-                Class<? extends IObject> objectClass = object.getClass();
-                while (true) {
-                    final Class<?> superclass = objectClass.getSuperclass();
-                    if (IObject.class == superclass) {
-                        break;
-                    } else {
-                        objectClass = superclass.asSubclass(IObject.class);
-                    }
-                }
-                final String objectClassName = objectClass.getSimpleName();
-                /* then add the object's ID to the list for that class name */
-                final Long objectId = object.getId().getValue();
-                List<Long> idsThisClass = objectIds.get(objectClassName);
-                if (idsThisClass == null) {
-                    idsThisClass = new ArrayList<Long>();
-                    objectIds.put(objectClassName, idsThisClass);
-                }
-                idsThisClass.add(objectId);
+                request.target(object);
             }
-            /* now delete the objects */
-            final Request request = Requests.delete(objectIds);
-            return gateway.submit(ctx, request);
+            return gateway.submit(ctx, request.build());
         } catch (Throwable t) {
             handleException(this, t, "Cannot delete the object.");
         }
@@ -281,35 +257,11 @@ public class DataManagerFacility extends Facility {
     public Response deleteObjects(SecurityContext ctx, List<IObject> objects)
             throws DSOutOfServiceException, DSAccessException {
         try {
-            /*
-             * convert the list of objects to lists of IDs by OMERO model class
-             * name
-             */
-            final Map<String, List<Long>> objectIds = new HashMap<String, List<Long>>();
+            final Delete2Builder request = Requests.delete();
             for (final IObject object : objects) {
-                /* determine actual model class name for this object */
-                Class<? extends IObject> objectClass = object.getClass();
-                while (true) {
-                    final Class<?> superclass = objectClass.getSuperclass();
-                    if (IObject.class == superclass) {
-                        break;
-                    } else {
-                        objectClass = superclass.asSubclass(IObject.class);
-                    }
-                }
-                final String objectClassName = objectClass.getSimpleName();
-                /* then add the object's ID to the list for that class name */
-                final Long objectId = object.getId().getValue();
-                List<Long> idsThisClass = objectIds.get(objectClassName);
-                if (idsThisClass == null) {
-                    idsThisClass = new ArrayList<Long>();
-                    objectIds.put(objectClassName, idsThisClass);
-                }
-                idsThisClass.add(objectId);
+                request.target(object);
             }
-            /* now delete the objects */
-            final Request request = Requests.delete(objectIds);
-            return gateway.submit(ctx, request).loop(50, 250);
+            return gateway.submit(ctx, request.build()).loop(50, 250);
         } catch (Throwable t) {
             handleException(this, t, "Cannot delete the object.");
         }
