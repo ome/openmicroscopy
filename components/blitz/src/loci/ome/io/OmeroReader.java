@@ -526,7 +526,7 @@ public class OmeroReader extends FormatReader {
                     //add support for TextROI's
                     storeOmeroLabel(shape,store, roiNum, shapeNum);
                 }
-                else if (shape instanceof Mask){
+                else if (shape instanceof MaskI){
                     storeOmeroMask(shape,store, roiNum, shapeNum);
                 }
 
