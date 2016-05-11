@@ -947,7 +947,7 @@ public class ExporterTest extends AbstractServerTest {
     public void testExportAsOMEXMLDowngradeImageWithROI(Target target) throws Exception {
         File f = null;
         File transformed = null;
-        boolean results = false;
+        boolean result = false;
         try {
             f = export(OME_XML, IMAGE_ROI);
             //transform
@@ -956,7 +956,7 @@ public class ExporterTest extends AbstractServerTest {
             validate(transformed);
             //import the file
             importFile(transformed, OME_XML);
-            results = true;
+            result = true;
         } catch (Throwable e) {
             throw new Exception("Cannot downgrade image: "+target.getSource(),
                     e);
