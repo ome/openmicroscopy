@@ -214,14 +214,6 @@ module omero {
      **/
     module analysis {
 
-       /** namespaces related to the FLIM analysis. **/
-       module flim {
-         const string NSFLIM = "openmicroscopy.org/omero/analysis/flim";
-
-         //keywords associated to the namespace.
-         const string KEYWORDFLIMCELL = "Cell";
-         const string KEYWORDFLIMBACKGROUND = "Background";
-       };
     };
 
     module jobs {

@@ -82,10 +82,6 @@ public class FileAnnotationData extends AnnotationData {
     public static final String BULK_ANNOTATIONS_NS =
             omero.constants.namespaces.NSBULKANNOTATIONS.value;
 
-    /** Identifies the FLIM namespace. */
-    public static final String FLIM_NS =
-            omero.constants.analysis.flim.NSFLIM.value;
-
     /** The default name for the original metadata file.*/
     public static final String ORIGINAL_METADATA_NAME =
             omero.constants.annotation.file.ORIGINALMETADATA.value;

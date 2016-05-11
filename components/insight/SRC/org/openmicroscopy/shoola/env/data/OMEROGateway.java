@@ -366,12 +366,6 @@ class OMEROGateway
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.IMPORT_PATH+"Populate_ROI.py");
-		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.ANALYSIS_PATH+"FLIM.py");
-		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.ANALYSIS_PATH+"flim-omero.py");
-		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.SETUP_PATH+"FLIM_initialise.py");
 	}
 
 	/**
