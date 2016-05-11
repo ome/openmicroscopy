@@ -926,11 +926,11 @@
 	    {% endif %}-->{% endcomment %}
             <br />
             <label>Rendering Settings</label><br />
-            <button id="rdef-copy-btn" class="btn silver btn_text" title="Copy Rendering Settings">
+            <button id="wblitz-copyRdef" class="btn silver btn_text" title="Copy Rendering Settings">
                 <span>Copy</span>
             </button>
 
-            <button id="rdef-paste-btn" class="btn silver btn_text" title="Paste Rendering Settings">
+            <button id="wblitz-pasteRdef" class="btn silver btn_text" title="Paste Rendering Settings">
                 <span>Paste</span>
             </button>
           </div>
@@ -1183,11 +1183,11 @@
     });
 
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-    $("#rdef-copy-btn").click(function() {
+    $("#rdef-copy-btn, #wblitz-copyRdef").click(function() {
         copyRdefs(viewport);
     });
 
-    $("#rdef-paste-btn").click(function() {
+    $("#rdef-paste-btn, #wblitz-pasteRdef").click(function() {
         pasteRdefs(viewport);
     });
 
