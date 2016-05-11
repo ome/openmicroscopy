@@ -2451,77 +2451,77 @@ public class OmeroMetadata extends DummyMetadata {
     
     @Override
     public String getMaskAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Rectangle.class);
+        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Mask.class);
     }
 
     @Override
     public Color getMaskFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeFillColor(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public FillRule getMaskFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeFillRule(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public FontFamily getMaskFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeFontFamily(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public Length getMaskFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeFontSize(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public FontStyle getMaskFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeFontStyle(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public String getMaskID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeID(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public Boolean getMaskLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeLocked(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public Color getMaskStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeStrokeColor(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public String getMaskStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public Length getMaskStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeStrokeWidth(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public NonNegativeInteger getMaskTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeTheC(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public NonNegativeInteger getMaskTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeTheT(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public NonNegativeInteger getMaskTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeTheZ(ROIIndex, shapeIndex, Mask.class);
     }
 
     @Override
     public AffineTransform getMaskTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Rectangle.class);
+        return getShapeTransform(ROIIndex, shapeIndex, Mask.class);
     }
 
     class OmeroMetadataRoot implements MetadataRoot
