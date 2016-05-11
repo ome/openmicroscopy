@@ -45,7 +45,6 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.cmd.Chmod2;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete2;
 import omero.cmd.Delete2Response;
@@ -58,7 +57,6 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
-import omero.gateway.util.Requests;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.BooleanAnnotation;
@@ -334,21 +332,6 @@ public class AbstractServerTest extends AbstractTest {
         g.getDetails().setPermissions(perms);
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
         return newUserInGroup(g, owner);
-    }
-
-    /**
-     * Changes the permissions of the group.
-     *
-     * @param perms
-     *            The permissions level.
-     * @param groupId
-     *            The identifier of the group to handle.
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    protected void resetGroupPerms(String perms, long groupId) throws Exception {
-        final Chmod2 chmod = Requests.chmod().target("ExperimenterGroup").id(groupId).toPerms(perms).build();
-        doChange(root, root.getSession(), chmod, true);
     }
 
     /**
