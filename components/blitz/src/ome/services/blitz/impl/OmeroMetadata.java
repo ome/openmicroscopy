@@ -78,6 +78,7 @@ import omero.model.Point;
 import omero.model.Polygon;
 import omero.model.Polyline;
 import omero.model.Rectangle;
+import omero.model.Mask;
 import omero.model.XmlAnnotation;
 import omero.model.LongAnnotation;
 import omero.model.BooleanAnnotation;
