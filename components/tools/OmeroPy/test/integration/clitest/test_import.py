@@ -961,10 +961,10 @@ class TestImport(CLITest):
         pixels = self.query.findByQuery(query, None)
         if 'minmax' in skipargs or 'all' in skipargs:
             assert pixels.getChannel(0).getStatsInfo() is None
-            assert pixels.getSha1().val == "Foo"
+            assert pixels.getSha1().val == "Pending..."
         else:
             assert pixels.getChannel(0).getStatsInfo()
-            assert pixels.getSha1() != "Foo"
+            assert pixels.getSha1() != "Pending..."
 
         # Check no thumbnails
         if 'thumbnails' in skipargs or 'all' in skipargs:

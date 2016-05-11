@@ -5642,7 +5642,7 @@ public class OMEROMetadataStoreClient
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
         Pixels p = getSourceObject(Pixels.class, indexes);
-        p.setSha1(rstring("Foo"));
+        p.setSha1(rstring("Pending..."));
         return p;
 
     }
