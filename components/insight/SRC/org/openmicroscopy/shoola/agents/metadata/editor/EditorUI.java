@@ -672,7 +672,7 @@ class EditorUI
 		if (model.isAdministrator() || model.isGroupLeader()) {
 			if (docMenu == null) {
 				docMenu = new PermissionMenu(PermissionMenu.REMOVE,
-						"Attachments");
+						"Files");
 				docMenu.addPropertyChangeListener(new PropertyChangeListener() {
 					
 					public void propertyChange(PropertyChangeEvent evt) {
@@ -689,8 +689,8 @@ class EditorUI
 		}
 		SwingUtilities.convertPointToScreen(location, src);
 		MessageBox box = new MessageBox(model.getRefFrame(),
-				"Remove All Attachments", 
-				"Are you sure you want to remove all Attachments?");
+				"Remove all files", 
+				"Are you sure you want to remove all files?");
 		Dimension d = box.getPreferredSize();
 		Point p = new Point(location.x-d.width/2, location.y);
 		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {

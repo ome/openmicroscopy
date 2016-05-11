@@ -349,7 +349,7 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
                 icons.getIcon(IconManager.MINUS_12));
         UIUtilities.unifiedButtonLookAndFeel(removeButton);
         removeButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        removeButton.setToolTipText("Remove Annotations.");
+        removeButton.setToolTipText("Remove Annotations");
         removeButton.addMouseListener(controller);
         removeButton.setActionCommand(
                 ""+EditorControl.REMOVE_OTHER_ANNOTATIONS);

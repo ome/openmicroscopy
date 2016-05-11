@@ -215,7 +215,7 @@ class GeneralPaneUI extends JPanel
        IconManager icons = IconManager.getInstance();
        annotationsFilter = Filter.SHOW_ALL;
        filterButton = new JButton(annotationsFilter.name);
-       filterButton.setToolTipText("Filter tags and attachments.");
+       filterButton.setToolTipText("Filter annotations by user");
        UIUtilities.unifiedButtonLookAndFeel(filterButton);
        Font font = filterButton.getFont();
        filterButton.setFont(font.deriveFont(font.getStyle(), 

@@ -356,7 +356,7 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
         addDocsButton = new JButton(
                 icons.getIcon(IconManager.PLUS_12));
         addDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        addDocsButton.setToolTipText("Attach a document.");
+        addDocsButton.setToolTipText("Attach a file");
         addDocsButton.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -374,14 +374,14 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
                 icons.getIcon(IconManager.MINUS_12));
         UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
         removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        removeDocsButton.setToolTipText("Remove Attachments.");
+        removeDocsButton.setToolTipText("Remove file");
         removeDocsButton.addMouseListener(controller);
         removeDocsButton.setActionCommand("" + EditorControl.REMOVE_DOCS);
         buttons.add(removeDocsButton);
 
         final JButton selectButton = new JButton(icons.getIcon(IconManager.ANALYSIS));
         selectButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        selectButton.setToolTipText("Select Files for Scripts");
+        selectButton.setToolTipText("Select files for scripts");
         selectButton.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -407,14 +407,14 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
         if (docSelectionMenu != null)
             return docSelectionMenu;
         docSelectionMenu = new JPopupMenu();
-        JMenuItem item = new JMenuItem("Local document...");
-        item.setToolTipText("Import a local document to the server "
+        JMenuItem item = new JMenuItem("Local file...");
+        item.setToolTipText("Import a local file to the server "
                 + "and attach it.");
         item.addActionListener(controller);
         item.setActionCommand("" + EditorControl.ADD_LOCAL_DOCS);
         docSelectionMenu.add(item);
-        item = new JMenuItem("Uploaded document...");
-        item.setToolTipText("Attach a document already uploaded "
+        item = new JMenuItem("Uploaded file...");
+        item.setToolTipText("Attach a file already uploaded "
                 + "to the server.");
         item.addActionListener(controller);
         item.setActionCommand("" + EditorControl.ADD_UPLOADED_DOCS);
