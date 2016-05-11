@@ -153,6 +153,7 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         commentArea.addPropertyChangeListener(controller);
         commentArea.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
         commentArea.setComponentBorder(EDIT_BORDER);
+        commentArea.addDocumentListener(this);
         commentArea.addFocusListener(new FocusListener() {
 
             public void focusLost(FocusEvent arg0) {
@@ -248,6 +249,7 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         if (enabled && model.isMultiSelection()) {
             enabled = !model.isAcrossGroups();
         }
+        
         commentArea.setEnabled(enabled);
 
         buildGUI();
@@ -357,6 +359,7 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
      * @see AnnotationUI#hasDataToSave()
      */
     protected boolean hasDataToSave() {
+        System.out.println("hasDataToSave "+CommonsLangUtils.isNotBlank(commentArea.getText()));
         String text = commentArea.getText();
         return CommonsLangUtils.isNotBlank(text);
     }
@@ -371,9 +374,8 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
             annotationToRemove.clear();
         annotationToDisplay = null;
         setAreaText("");
-        
-        if (addButton != null)
-            addButton.setEnabled(model.canAddAnnotationLink());
+        if (commentArea != null && !model.canAddAnnotationLink())
+            commentArea.setEnabled(false);
     }
 
 
@@ -420,7 +422,6 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     void onRelatedNodesSet() {
-        addButton.setEnabled(model.canAddAnnotationLink());
         refreshUI();
     }
 
