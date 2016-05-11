@@ -2485,11 +2485,6 @@ public class OmeroMetadata extends DummyMetadata {
     }
 
     @Override
-    public LineCap getMaskLineCap(int ROIIndex, int shapeIndex) {
-        return getShapeLineCap(ROIIndex, shapeIndex, Rectangle.class);
-    }
-
-    @Override
     public Boolean getMaskLocked(int ROIIndex, int shapeIndex) {
         return getShapeLocked(ROIIndex, shapeIndex, Rectangle.class);
     }
@@ -2527,11 +2522,6 @@ public class OmeroMetadata extends DummyMetadata {
     @Override
     public AffineTransform getMaskTransform(int ROIIndex, int shapeIndex) {
         return getShapeTransform(ROIIndex, shapeIndex, Rectangle.class);
-    }
-
-    @Override
-    public Boolean getMaskVisible(int ROIIndex, int shapeIndex) {
-        return getShapeVisible(ROIIndex, shapeIndex, Rectangle.class);
     }
 
     class OmeroMetadataRoot implements MetadataRoot
