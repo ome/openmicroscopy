@@ -852,7 +852,6 @@ class MetadataViewerModel
 	 */
 	void setRelatedNodes(List<DataObject> relatedNodes)
 	{ 
-	    System.out.println("setRelatedNodes "+relatedNodes);
 	    this.relatedNodes = relatedNodes;
 	    if (CollectionUtils.isEmpty(relatedNodes)) return;
 	    DataObject ho = relatedNodes.get(0);
@@ -863,14 +862,6 @@ class MetadataViewerModel
 	            l.add(((WellSampleData) i.next()).getImage());
 	        }
 	    } else l.addAll(relatedNodes);
-        //commented out, don't load all annotations by default
-//	    loaderID++;
-//	    ctx = retrieveContext(ho);
-//	    StructuredDataLoader loader = new StructuredDataLoader(component,
-//	            ctx, l, loaderID);
-//	    loaders.put(loaderID, loader);
-//	    loader.load();
-//	    setState(MetadataViewer.LOADING_METADATA);
 	}
 
 	/**

@@ -421,8 +421,6 @@ class MetadataViewerComponent
 		boolean same = model.isSameObject(root);
 		model.setRootObject(root, ctx);
 		if (model.isSingleMode()) {
-			// Commented out, don't load all annotations by default
-		    //model.fireStructuredDataLoading(root);
 			fireStateChange();
 		}
 		view.setRootObject();
@@ -439,10 +437,7 @@ class MetadataViewerComponent
 	 */
 	public void refresh()
 	{
-		if (model.isSingleMode()) {
-		    // Commented out, don't load all annotations by default
-			//model.fireStructuredDataLoading(model.getRefObject());
-		} else {
+		if (!model.isSingleMode()) {
 			model.setRelatedNodes(model.getRelatedNodes());
 		}
 		fireStateChange();

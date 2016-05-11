@@ -578,7 +578,5 @@ public interface Editor
      * Reload the ROI count
      */
     public void reloadROICount();
-
-    public void fireStructuredDataLoading(EnumSet<AnnotationType> types);
     
 }

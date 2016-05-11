@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,10 @@
  */
 
 package org.openmicroscopy.shoola.util;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
@@ -120,4 +124,40 @@ public class PojosUtil {
 
         return false;
     }
+    
+    /**
+     * Generates a Set of unique identifiers of the passed Collection of
+     * {@link DataObject}s, taking the concrete type of the {@link DataObject}s
+     * into account
+     * 
+     * See also {@link DataObject#getUniqueId()}
+     * @param pojos
+     *            The Collection of {@link DataObject}s
+     * @return See above
+     */
+    public static Set<String> getUniqueIdentifiers(
+            Collection<? extends DataObject> pojos) {
+        Set<String> ids = new HashSet<String>();
+        for (DataObject o : pojos) {
+            ids.add(o.getUniqueId());
+        }
+        return ids;
+    }
+
+    /**
+     * Checks if the given {@link DataObject} a is part of the given Collection
+     * b, taking the concrete type and id of the DataObject into account
+     * 
+     * @param a
+     *            The Collection to check
+     * @param b
+     *            The {@link DataObject} to check
+     * @return <code>true</code> if the object is part of the collection,
+     *         <code>false</code> if it is not.
+     */
+    public static boolean contains(Collection<? extends DataObject> a,
+            DataObject b) {
+        return getUniqueIdentifiers(a).contains(b.getUniqueId());
+    }
+    
 }

@@ -249,7 +249,6 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
         if (enabled && model.isMultiSelection()) {
             enabled = !model.isAcrossGroups();
         }
-        
         commentArea.setEnabled(enabled);
 
         buildGUI();
@@ -359,7 +358,6 @@ public class CommentsTaskPaneUI extends AnnotationTaskPaneUI implements
      * @see AnnotationUI#hasDataToSave()
      */
     protected boolean hasDataToSave() {
-        System.out.println("hasDataToSave "+CommonsLangUtils.isNotBlank(commentArea.getText()));
         String text = commentArea.getText();
         return CommonsLangUtils.isNotBlank(text);
     }
