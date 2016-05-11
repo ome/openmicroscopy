@@ -78,7 +78,7 @@ public class AnnotationTaskPane extends JXTaskPane {
      */
     AnnotationTaskPane(AnnotationType type, EditorUI view,
             EditorModel model, EditorControl controller) {
-        setTitle(type.getName());
+        setTitle(type.getDescriptiveName());
         this.type = type;
         this.view = view;
         this.model = model;
@@ -110,7 +110,7 @@ public class AnnotationTaskPane extends JXTaskPane {
      *            The number of annotations available
      */
     void setAnnotationCount(int n) {
-        setTitle(type.getName() + " (" + n + ")");
+        setTitle(type.getDescriptiveName() + " (" + n + ")");
     }
 
     /**

@@ -318,8 +318,6 @@ class MetadataViewerComponent
                 if (object == model.getParentRefObject()
                         || (object instanceof PlateData && node instanceof WellSampleData)) {
                     model.setParentDataResults(data, node, loaderID);
-                    // TODO: Find a workaround, guess this loads the plate metadata for wells
-                   // model.fireStructuredDataLoading(node);
                 } else {
                     model.setStructuredDataResults(results, loaderID);
                     browser.setParents(null, data.getParents());
