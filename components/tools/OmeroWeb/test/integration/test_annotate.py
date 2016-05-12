@@ -79,7 +79,7 @@ class TestTagging(IWebTest):
         }
         _csrf_post_response(django_client, request_url, data)
 
-    def test_annotate_tags(self):
+    def test_annotate_tag(self):
 
         # Create User in a Read-Annotate group
         client1, user1 = self.new_client_and_user(perms='rwrw--')
@@ -110,6 +110,15 @@ class TestTagging(IWebTest):
 
         tagIds = [t['id'] for t in rsp['annotations']]
         assert tag.id.val in tagIds
+        assert tag2.id.val in tagIds
+
+        # We can remove tags by not including them
+        # E.g. move from Right to Left column in the UI
+        self.annotate_dataset(django_client1, ds.id.val, [tag2.id.val])
+
+        rsp = _get_response_json(django_client1, request_url, data)
+        tagIds = [t['id'] for t in rsp['annotations']]
+        assert tag.id.val not in tagIds
         assert tag2.id.val in tagIds
 
 
