@@ -43,6 +43,10 @@ import omero.model.OriginalFile;
  */
 public class FileAnnotationData extends AnnotationData {
 
+    /** Identifies the FLIM namespace. */
+     public static final String FLIM_NS =
+             omero.constants.analysis.flim.NSFLIM.value;
+
     /**  The name space used to identify the experimenter photo. */
     public static final String EXPERIMENTER_PHOTO_NS =
             omero.constants.namespaces.NSEXPERIMENTERPHOTO.value;
