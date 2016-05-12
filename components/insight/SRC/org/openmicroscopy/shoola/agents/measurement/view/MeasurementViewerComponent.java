@@ -151,7 +151,7 @@ class MeasurementViewerComponent
 		String word = "Save ";
 		if (type == FileChooser.LOAD) word = "Load ";
 		String title = word+"the ROI File";
-		String text = word+"the ROI data in the file associate with the image.";
+		String text = word+"the ROI data in the file associated with the image.";
 		
 		List<FileFilter> filters = new ArrayList<FileFilter>();
 		filters.add(new XMLFilter());
