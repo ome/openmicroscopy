@@ -29,7 +29,6 @@ from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _get_response
 
 from django.core.urlresolvers import reverse
-from omero.model import DatasetAnnotationLinkI, DatasetI
 
 # @pytest.fixture(scope='function')
 # def tags_userA_userB(request, userA, userB, groupA):
@@ -47,36 +46,55 @@ from omero.model import DatasetAnnotationLinkI, DatasetI
 #     return tags
 
 
-def annotate_dataset(dataset, ann, client):
-    """
-    Returns userA's Tag linked to userB's dataset
-    by userA and userB
-    """
-    link = DatasetAnnotationLinkI()
-    link.parent = DatasetI(dataset.id.val, False)
-    link.child = ann
-    update = client.sf.getUpdateService()
-    link = update.saveAndReturnObject(link)
-    return link
-
-
 class TestTagging(IWebTest):
     """
     Tests adding and removing Tags with annotate_tags()
     """
 
+    def annotate_dataset(self, dsId, tagId):
+        """
+        Returns userA's Tag linked to userB's dataset
+        by userA and userB
+        """
+        # link = DatasetAnnotationLinkI()
+        # link.parent = DatasetI(dataset.id.val, False)
+        # link.child = ann
+        # update = client.sf.getUpdateService()
+        # link = update.saveAndReturnObject(link)
+        # return link
+
+        request_url = reverse('annotate_tags')
+        data = {
+            'dataset': dsId,
+            'filter_mode': 'any',
+            'filter_owner_mode': 'all',
+            'index': 0,
+            'newtags-0-description': '',
+            'newtags-0-tag': 'foobar',
+            'newtags-0-tagset': '',
+            'newtags-INITIAL_FORMS': 0,
+            'newtags-MAX_NUM_FORMS': 1000,
+            'newtags-TOTAL_FORMS': 1,
+            'tags': tagId
+        }
+        _csrf_post_response(self.django_client, request_url, data)
+
     def test_annotate_tags(self):
+
+        # Add tag
+        ds = self.make_dataset("user1_Dataset")
+        tag = self.make_tag("test_annotate_tag")
+
+        self.annotate_dataset(ds.id.val, tag.id.val)
+
         # conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
-        # print self.client.sf.getAdminService().getEventContext()
         groupId = self.client.sf.getAdminService().getEventContext().groupId
-        ds = self.make_tag("user1_Dataset")
-        tag1 = self.make_tag("user1_Tag")
-
         client2, user2 = self.new_client_and_user(
             group=omero.model.ExperimenterGroupI(groupId, False))
-        # print client2.sf.getAdminService().getEventContext()
-        # tag2 = self.make_tag("user2_Tag", client2)
+
+        tag2 = self.make_tag("user2_tag", client=client2)
+        self.annotate_dataset(ds.id.val, tag2.id.val)
 
         # # Both users add both Tags
         # annotate_dataset(ds1, tag1, self.client)
@@ -84,33 +102,18 @@ class TestTagging(IWebTest):
         # annotate_dataset(ds, tag1, client2)
         # annotate_dataset(ds, tag2, client2)
 
-        # user1 adds a tag
-        request_url = reverse('annotate_tags')
-        data = {
-            "dataset": ds.id.val,
-            "tags": tag1.id.val,
-            "newtags-0-tagset": '',
-            "newtags-0-description": '',
-            "newtags-0-tag": "formset",
-            "newtags-TOTAL_FORMS": '1',
-            "newtags-INITIAL_FORMS": '0',
-            "newtags-MIN_NUM_FORMS": '0',
-            "newtags-MAX_NUM_FORMS": '1000',
-            "filter_mode": "any",
-            "filter_owner_mode": "all"
-        }
-        _csrf_post_response_json(self.django_client, request_url, data)
-
-        # check tag got added
+        # check tags got added
         request_url = reverse('api_annotations')
         data = {
             "dataset": ds.id.val
         }
         rsp = _get_response_json(self.django_client, request_url, data)
+        print 'dataset ID', ds.id.val
         print rsp
 
         tagIds = [t['id'] for t in rsp]
-        assert tag1.id.val in tagIds
+        assert tag.id.val in tagIds
+        assert tag2.id.val in tagIds
 
 
 def _csrf_post_response_json(django_client, request_url, data):
