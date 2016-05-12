@@ -379,7 +379,7 @@ class EllipseData(ShapeData, ROIDrawingI):
     #
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ)
-        ellipse.setTheT(self.coord.theZ)
+        ellipse.setTheT(self.coord.theT)
         ellipse.setX(self.x)
         ellipse.setY(self.y)
         ellipse.setRadiusX(self.radiusX)
@@ -438,7 +438,7 @@ class RectangleData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, rectangle):
         rectangle.setTheZ(self.coord.theZ)
-        rectangle.setTheT(self.coord.theZ)
+        rectangle.setTheT(self.coord.theT)
         rectangle.setX(self.x)
         rectangle.setY(self.y)
         rectangle.setWidth(self.width)
@@ -496,7 +496,7 @@ class LineData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, line):
         line.setTheZ(self.coord.theZ)
-        line.setTheT(self.coord.theZ)
+        line.setTheT(self.coord.theT)
         line.setX1(self.x1)
         line.setY1(self.y1)
         line.setX2(self.x2)
@@ -558,7 +558,7 @@ class MaskData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, mask):
         mask.setTheZ(self.coord.theZ)
-        mask.setTheT(self.coord.theZ)
+        mask.setTheT(self.coord.theT)
         mask.setX(self.x)
         mask.setY(self.y)
         mask.setWidth(self.width)
@@ -616,7 +616,7 @@ class PointData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ)
-        point.setTheT(self.coord.theZ)
+        point.setTheT(self.coord.theT)
         point.setX(self.x)
         point.setY(self.y)
 
@@ -666,7 +666,7 @@ class PolygonData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, polygon):
         polygon.setTheZ(self.coord.theZ)
-        polygon.setTheT(self.coord.theZ)
+        polygon.setTheT(self.coord.theT)
         polygon.setPoints(self.points)
 
     ##
@@ -740,7 +740,7 @@ class PolylineData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ)
-        point.setTheT(self.coord.theZ)
+        point.setTheT(self.coord.theT)
         point.setPoints(self.points)
 
     ##
