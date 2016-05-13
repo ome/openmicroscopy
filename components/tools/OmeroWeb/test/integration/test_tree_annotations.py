@@ -28,8 +28,8 @@ from datetime import datetime
 import omero
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, CommentAnnotationI, \
-    TagAnnotationI, ProjectAnnotationLinkI
-from omero.rtypes import rstring
+    TagAnnotationI, ProjectAnnotationLinkI, LongAnnotationI
+from omero.rtypes import rstring, rlong
 from omeroweb.webclient.tree import marshal_annotations
 
 
@@ -133,6 +133,19 @@ def comments_userA(request, userA, groupA):
 
 
 @pytest.fixture(scope='function')
+def rating_userA(request, userA, groupA):
+    """
+    Returns new OMERO Rating
+    """
+    rating = LongAnnotationI()
+    ctx = {'omero.group': str(groupA.id.val)}
+    rating.longValue = rlong(4)
+    rating.ns = rstring(omero.constants.metadata.NSINSIGHTRATING)
+    rating = get_update_service(userA).saveAndReturnObject(rating, ctx)
+    return rating
+
+
+@pytest.fixture(scope='function')
 def annotate_project(ann, project, user):
     """
     Returns userA's Tag linked to userB's Project
@@ -200,7 +213,7 @@ def expected_annotations(user, links):
         exps[link.details.owner.id.val] = link.details.owner
         exps[ann.details.owner.id.val] = ann.details.owner
 
-        annotations.append({
+        marshalled = {
             'class': ann.__class__.__name__,
             'date': expected_date(creation),
             'link': {
@@ -216,14 +229,20 @@ def expected_annotations(user, links):
                 },
                 'permissions': linkPerms
             },
-            'textValue': ann.textValue.val,
             'owner': {
                 'id': ann.details.owner.id.val
             },
             'ns': unwrap(ann.ns),
             'id': ann.id.val,
             'permissions': annPerms
-        })
+        }
+        for a in ['timeValue', 'termValue', 'longValue',
+                  'doubleValue', 'boolValue', 'textValue']:
+            if hasattr(ann, a):
+                marshalled[a] = unwrap(getattr(ann, a))
+
+        annotations.append(marshalled)
+
     # remove duplicates
     experimenters = [expected_experimenter(e) for e in exps.values()]
     experimenters.sort(key=lambda x: x['id'])
@@ -374,7 +393,7 @@ class TestTreeAnnotations(lib.ITest):
         assert annotations[3] == anns[3]
         assert experimenters == exps
 
-    def test_tags_comments_project(self, userA, project_userA,
+    def test_tags_comments_project(self, userA, project_userA, rating_userA,
                                    tags_userA_userB, comments_userA):
         """
         Test annotate Project with the Tags and Comments
@@ -382,11 +401,14 @@ class TestTreeAnnotations(lib.ITest):
         conn = get_connection(userA)
         tag1, tag2 = tags_userA_userB
         comment1, comment2 = comments_userA
+        rating = rating_userA
+
         project = project_userA
         link1 = annotate_project(tag1, project, userA)
         link2 = annotate_project(comment1, project, userA)
         link3 = annotate_project(tag2, project, userA)
         link4 = annotate_project(comment2, project, userA)
+        link5 = annotate_project(rating, project, userA)
 
         # Get just the tags...
         marshaled = marshal_annotations(conn=conn,
@@ -428,12 +450,13 @@ class TestTreeAnnotations(lib.ITest):
         # Get all annotations
         marshaled = marshal_annotations(conn=conn,
                                         project_ids=[project.id.val])
-        expected = expected_annotations(userA, [link1, link2, link3, link4])
+        expected = expected_annotations(userA, [link1, link2, link3,
+                                                link4, link5])
         annotations, experimenters = marshaled
         experimenters.sort(key=lambda x: x['id'])
         anns, exps = expected
 
-        assert len(annotations) == 4
+        assert len(annotations) == 5
         assert len(experimenters) == 2
         # need to sort since marshal_annotations doesn't sort yet
         annotations.sort(key=lambda x: x['link']['id'])
@@ -442,4 +465,5 @@ class TestTreeAnnotations(lib.ITest):
         assert annotations[1] == anns[1]
         assert annotations[2] == anns[2]
         assert annotations[3] == anns[3]
+        assert annotations[4] == anns[4]
         assert experimenters == exps
