@@ -1222,32 +1222,21 @@ def api_share_list(request, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
-              o3_type=None, o3_id=None, conn=None, **kwargs):
+def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
     """
     This loads data for the center panel, via AJAX calls.
     Used for Datasets, Plates & Orphaned Images.
     """
 
-    # get page
-    page = getIntOrDefault(request, 'page', 1)
-    # limit = get_long_or_default(request, 'limit', settings.PAGE)
-
     # get index of the plate
     index = getIntOrDefault(request, 'index', 0)
 
-    # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L,
-    # 'dataset': 301L}
+    # prepare data. E.g. kw = {}  or  {'plate': 301L}  or
+    # 'acquisition': 301L}
     kw = dict()
     if o1_type is not None:
         if o1_id is not None and o1_id > 0:
             kw[str(o1_type)] = long(o1_id)
-        else:
-            kw[str(o1_type)] = bool(o1_id)
-    if o2_type is not None and o2_id > 0:
-        kw[str(o2_type)] = long(o2_id)
-    if o3_type is not None and o3_id > 0:
-        kw[str(o3_type)] = long(o3_id)
 
     try:
         manager = BaseContainer(conn, **kw)
@@ -1255,7 +1244,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
         return handlerInternalError(request, x)
 
     # prepare forms
-    filter_user_id = request.session.get('user_id')
     form_well_index = None
 
     context = {
@@ -1265,21 +1253,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
 
     # load data & template
     template = None
-    template = "webclient/data/containers_icon.html"
-    if 'orphaned' in kw:
-        # We need to set group context since we don't have a container Id
-        groupId = request.session.get('active_group')
-        if groupId is None:
-            groupId = conn.getEventContext().groupId
-        conn.SERVICE_OPTS.setOmeroGroup(groupId)
-        manager.listOrphanedImages(filter_user_id, page)
-    elif 'dataset' in kw:
-        # we need the sizeX and sizeY for these
-        load_pixels = True
-        filter_user_id = None   # Show images belonging to all users
-        manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
-                                    page, load_pixels=load_pixels)
-    elif 'plate' in kw or 'acquisition' in kw:
+    if 'plate' in kw or 'acquisition' in kw:
         fields = manager.getNumberOfFields()
         if fields is not None:
             form_well_index = WellIndexForm(
@@ -2382,7 +2356,6 @@ def marshal_tagging_form_data(request, conn=None, **kwargs):
     if jsonmode == 'tags':
         # send tag information without descriptions
         r = list((i, t, o, s) for i, d, t, o, s in all_tags)
-        print len(r)
         return r
 
     elif jsonmode == 'desc':

@@ -752,16 +752,10 @@ $(document).ready(function() {
             var show = WEBCLIENT.initially_select.join("|");
 
             switch(nodeType) {
-                // case 'dataset':
-                //     url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
-                //     break;
-                // case 'orphaned':
-                //     url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
-                //     break;
                 case 'plate':
                     // Only load plates if it has a single 'Run' (or none)
                     if (node.children.length < 2) {
-                        url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
+                        url += 'load_plate/' + nodeType + '/' + nodeId + '/?index=' + newField;
                         if (show) {
                             url += "&show=" + show;
                         }
@@ -770,17 +764,11 @@ $(document).ready(function() {
                     }
                     break;
                 case 'acquisition':
-                    url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
+                    url += 'load_plate/' + nodeType + '/' + nodeId + '/?index=' + newField;
                     if (show) {
                         url += "&show=" + show;
                     }
                     break;
-                // case 'tag':
-                //     url += 'load_data_by_tag/?o_id=' + nodeId;
-                //     break;
-                // case 'share':
-                //     url += 'load_public/' + nodeId + '/?view=icon'
-                //     break;
                 default:
                     url = undefined;
             }
