@@ -332,19 +332,6 @@ class BaseContainer(BaseController):
         if self.channel_metadata is None:
             self.channel_metadata = list()
 
-    def loadTags(self, eid=None):
-        if eid is not None:
-            if eid == -1:       # Load data for all users
-                eid = None
-            else:
-                self.experimenter = self.conn.getObject("Experimenter", eid)
-        else:
-            eid = self.conn.getEventContext().userId
-        self.tags = list(self.conn.listTags(eid))
-        self.tags.sort(
-            key=lambda x: x.getTextValue() and x.getTextValue().lower())
-        self.t_size = len(self.tags)
-
     def loadTagsRecursive(self, eid=None, offset=None, limit=1000):
         if eid is not None:
             if eid == -1:       # Load data for all users
