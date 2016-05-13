@@ -25,7 +25,6 @@
 
 import omero
 from omero.rtypes import rstring, rlong, unwrap
-from django.conf import settings
 from django.utils.encoding import smart_str
 import logging
 from omero.cmd import Delete2
@@ -389,27 +388,6 @@ class BaseContainer(BaseController):
             'screens': sc_list,
             'plates': pl_list}
         self.c_size = len(pr_list)+len(ds_list)+len(sc_list)+len(pl_list)
-
-    def listOrphanedImages(self, eid=None, page=None):
-        if eid is not None:
-            if eid == -1:
-                eid = None
-            else:
-                self.experimenter = self.conn.getObject("Experimenter", eid)
-        else:
-            eid = self.conn.getEventContext().userId
-
-        params = omero.sys.ParametersI()
-        if page is not None:
-            params.page((int(page)-1)*settings.PAGE, settings.PAGE)
-        im_list = list(self.conn.listOrphans(
-            "Image", eid=eid, params=params, loadPixels=True))
-        im_list.sort(key=lambda x: (x.getName().lower(), x.getId()))
-        self.containers = {'orphaned': True, 'images': im_list}
-        self.c_size = self.conn.countOrphans("Image", eid=eid)
-
-        if page is not None:
-            self.paging = self.doPaging(page, len(im_list), self.c_size)
 
     def getGroupedRatings(self, rating_annotations=None):
         """
