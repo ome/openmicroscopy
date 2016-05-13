@@ -389,55 +389,6 @@ class BaseContainer(BaseController):
             'plates': pl_list}
         self.c_size = len(pr_list)+len(ds_list)+len(sc_list)+len(pl_list)
 
-    def getGroupedRatings(self, rating_annotations=None):
-        """
-        Groups ratings in preparation for display. Picks out the user's rating
-        and groups the remaining ones by value.
-        NB: This should be called after annotationList() has loaded
-        annotations.
-        """
-        if rating_annotations is None:
-            rating_annotations = self.rating_annotations
-        userId = self.conn.getUserId()
-        myRating = None
-        ratingsByValue = {}
-        for r in range(1, 6):
-            ratingsByValue[r] = []
-        for rating in rating_annotations:
-            if rating.getDetails().getOwner().id == userId:
-                myRating = rating
-            else:
-                rVal = rating.getValue()
-                if rVal in ratingsByValue:
-                    ratingsByValue[rVal].append(rating)
-
-        avgRating = 0
-        if (len(rating_annotations) > 0):
-            sumRating = sum([r.getValue() for r in rating_annotations])
-            avgRating = float(sumRating)/len(rating_annotations)
-            avgRating = int(round(avgRating))
-
-        # Experimental display of ratings as in PR #3322
-        # groupedRatings = []
-        # for r in range(5,0, -1):
-        #     ratings = ratingsByValue[r]
-        #     if len(ratings) > 0:
-        #         groupedRatings.append({
-        #             'value': r,
-        #             'count': len(ratings),
-        #             'owners': ", ".join([
-        #                str(r.getDetails().getOwner().getNameWithInitial())
-        #                for r in ratings])
-        #             })
-
-        myRating = myRating is not None and myRating.getValue() or 0
-        # NB: this should be json serializable as used in
-        # views.annotate_rating
-        return {
-            'myRating': myRating,
-            'average': avgRating,
-            'count': len(rating_annotations)}
-
     def canUseOthersAnns(self):
         """
         Test to see whether other user's Tags, Files etc should be provided
