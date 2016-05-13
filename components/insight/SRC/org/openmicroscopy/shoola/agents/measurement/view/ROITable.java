@@ -77,9 +77,6 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jhotdraw.draw.Figure;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
@@ -135,9 +132,9 @@ public class ROITable
 	/** Column names of the table. */
 	private Vector<String>	columnNames;
     
-    /** References to all ROINodes */
-    private ListMultimap<String, ROINode> nodesMap;
-    
+	/** References to all ROINodes */
+	private ROINodeMap nodesMap;
+	
 	/** The tree model. */
 	private ROITableModel	model;
 	
@@ -269,7 +266,7 @@ public class ROITable
 		ToolTipManager.sharedInstance().registerComponent(this);
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		this.setRowHeight(25);
-		this.nodesMap = ArrayListMultimap.create();
+		this.nodesMap = new ROINodeMap();
 		for (int i = 0 ; i < model.getColumnCount() ; i++)
 			getColumn(i).setResizable(true);
 		
@@ -411,7 +408,7 @@ public class ROITable
 	 */
 	void selectROIShape(ROIShape shape)
 	{
-		Collection<ROINode> nodes = findNodes(shape.getROI());
+		Collection<ROINode> nodes = nodesMap.get(shape.getROI());
 		for(ROINode node : nodes) {
     		expandROIRow(node);
     		ROINode child = node.findChild(shape);
@@ -426,7 +423,7 @@ public class ROITable
 	 */
 	void scrollToROIShape(ROIShape shape)
 	{
-	    Collection<ROINode> nodes = findNodes(shape.getROI());
+	    Collection<ROINode> nodes = nodesMap.get(shape.getROI());
 	    ROINode child = null;
 		for(ROINode node : nodes) {
     		expandROIRow(node);
@@ -607,12 +604,12 @@ public class ROITable
 		{
 		    if(shape.getROI().getFolders().isEmpty()) {
 		        // find the ROI node
-		        Collection<ROINode> nodes = findNodes(shape.getROI());
+		        Collection<ROINode> nodes = nodesMap.get(shape.getROI());
 	            if (nodes.isEmpty())
 	            {
 	                parent = new ROINode(shape.getROI());
 	                parent.setExpanded(true);
-	                this.nodesMap.put(parent.getUUID(), parent);
+	                this.nodesMap.add(parent);
 	                childCount = root.getChildCount();
 	                root.insert(parent, childCount);
 	            }
@@ -624,7 +621,7 @@ public class ROITable
 	            roiShapeNode = parent.findChild(shape.getCoord3D());
 	            newNode = new ROINode(shape);
 	            newNode.setExpanded(true);
-	            this.nodesMap.put(newNode.getUUID(), newNode);
+	            this.nodesMap.add(newNode);
 	            if (roiShapeNode != null)
 	            {
 	                index = parent.getIndex(roiShapeNode);
@@ -639,7 +636,7 @@ public class ROITable
 		    else {
 		        // if the ROI is organized in folders, we have to do the
 		        // same like above but for each folder.
-		        Collection<ROINode> nodes = findNodes(shape.getROI());
+		        Collection<ROINode> nodes = nodesMap.get(shape.getROI());
 		        if (nodes.isEmpty())
                 {
 		            Collection<ROINode> folders = findFolders(shape.getROI());
@@ -647,7 +644,7 @@ public class ROITable
                         parent = new ROINode(shape.getROI());
                         parent.setExpanded(true);
                         nodes.add(parent);
-                        this.nodesMap.put(parent.getUUID(), parent);
+                        this.nodesMap.add(parent);
                         childCount = folder.getChildCount();
                         folder.insert(parent, childCount);
 		            }
@@ -659,7 +656,7 @@ public class ROITable
 		            roiShapeNode = parent.findChild(shape.getCoord3D());
 		            newNode = new ROINode(shape);
 		            newNode.setExpanded(true);
-		            this.nodesMap.put(newNode.getUUID(), newNode);
+		            this.nodesMap.add(newNode);
 		            if (roiShapeNode != null)
 		            {
 		                index = parent.getIndex(roiShapeNode);
@@ -728,7 +725,7 @@ public class ROITable
 	 */
 	private void expandROIRow(ROI roi)
 	{
-		Collection<ROINode> nodes = findNodes(roi);
+		Collection<ROINode> nodes = nodesMap.get(roi);
 		for(ROINode node : nodes)
 		    this.expandROIRow(node);
 	}
@@ -741,7 +738,7 @@ public class ROITable
 	 */
 	void removeROIShape(ROIShape shape)
 	{
-	    Collection<ROINode> nodes = findNodes(shape.getROI());
+	    Collection<ROINode> nodes = nodesMap.get(shape.getROI());
         for(ROINode node : nodes) {
     		ROINode child = node.findChild(shape);
     		if (child != null) {
@@ -753,14 +750,6 @@ public class ROITable
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 	}
 	
-	/**
-	 * Find the nodes representing an ROI
-	 * @param roi The Roi
-	 * @return See above
-	 */
-	private Collection<ROINode> findNodes(ROI roi) {
-	    return nodesMap.get(getUUID(roi));
-	}
 	
     /**
      * Determines if the given Folder should be displayed or not, taking the
@@ -821,10 +810,10 @@ public class ROITable
         
         for (FolderData f : roi.getFolders()) {
             if (displayFolder(f)) {
-                ROINode node = findFolderNode(f);
+                ROINode node = nodesMap.findFolderNode(f);
                 if (node == null) {
                     node = new ROINode(f);
-                    nodesMap.put(node.getUUID(), node);
+                    nodesMap.add(node);
                     handleParentFolderNodes(node);
                 }
                 insertInto.add(node);
@@ -850,10 +839,10 @@ public class ROITable
             return;
         }
 
-        ROINode parent = findFolderNode(parentFolder);
+        ROINode parent = nodesMap.findFolderNode(parentFolder);
         if (parent == null) {
             parent = new ROINode(parentFolder);
-            nodesMap.put(parent.getUUID(), parent);
+            nodesMap.add(parent);
             parent.insert(node, 0);
             handleParentFolderNodes(parent);
         } else if (parent.findChild((FolderData) node.getUserObject()) == null) {
@@ -861,42 +850,7 @@ public class ROITable
                     parent.getInsertionPoint((FolderData) node.getUserObject()));
         }
     }
-    
-    private ROINode findFolderNode(FolderData folder) {
-        Collection<ROINode> tmp = nodesMap.get(getUUID(folder));
-        switch (tmp.size()) {
-        case 0:
-            return null;
-        case 1:
-            return tmp.iterator().next();
-        default:
-            throw new RuntimeException("Multiple ROINodes found for "
-                    + getUUID(folder));
-        }
-    }
 
-    /**
-     * See {@link ROINode#getUUID()}
-     * 
-     * @param roi
-     *            The ROI
-     * @return See above
-     */
-    private String getUUID(ROI roi) {
-        return "ROI_" + roi.getID();
-    }
-
-    /**
-     * See {@link ROINode#getUUID()}
-     * 
-     * @param folder
-     *            The Folder
-     * @return See above
-     */
-    private String getUUID(FolderData folder) {
-        return "FolderData_" + folder.getId();
-    }
-    
     /**
      * Initializes the Folder nodes, independently from the ROIs
      * 
@@ -906,10 +860,10 @@ public class ROITable
     void initFolders(Collection<FolderData> folders) {
         for (FolderData f : folders) {
             if (displayFolder(f)) {
-                ROINode node = findFolderNode(f);
+                ROINode node = nodesMap.findFolderNode(f);
                 if (node == null) {
                     node = new ROINode(f);
-                    nodesMap.put(node.getUUID(), node);
+                    nodesMap.add(node);
                     handleParentFolderNodes(node);
                 }
             }
@@ -1316,7 +1270,7 @@ public class ROITable
             excludeIds.add(f.getId());
             if (f.getParentFolder() != null)
                 excludeIds.add(f.getParentFolder().getId());
-            ROINode fnode = findFolderNode(f);
+            ROINode fnode = nodesMap.findFolderNode(f);
             Collection<ROINode> subNodes = new ArrayList<ROINode>();
             fnode.getAllDecendants(subNodes);
             for (ROINode subNode : subNodes)
@@ -1414,21 +1368,8 @@ public class ROITable
         
         if (SelectionDialog.OBJECT_SELECTION_PROPERTY.equals(name)) {
             // exclude child nodes
-            Set<Long> excludeIds = new HashSet<Long>();
-            for (FolderData f : getSelectedFolders()) {
-                if (excludeIds.contains(f.getId()))
-                    continue;
-
-                ROINode fnode = findFolderNode(f);
-                Collection<ROINode> subNodes = new ArrayList<ROINode>();
-                fnode.getAllDecendants(subNodes);
-                for (ROINode subNode : subNodes)
-                    if (subNode.isFolderNode())
-                        excludeIds.add(((FolderData) subNode.getUserObject())
-                                .getId());
-
-                excludeIds.remove(f.getId());
-            }
+            Collection<Long> excludeIds = nodesMap
+                    .getChildFolderIds(getSelectedFolders());
 
             FolderData target = (FolderData) evt.getNewValue();
             addRecentlyModifiedFolder(target);
@@ -1445,21 +1386,8 @@ public class ROITable
 
         if (SelectionDialog.NONE_SELECTION_PROPERTY.equals(name)) {
             // exclude child nodes
-            Set<Long> excludeIds = new HashSet<Long>();
-            for (FolderData f : getSelectedFolders()) {
-                if (excludeIds.contains(f.getId()))
-                    continue;
-
-                ROINode fnode = findFolderNode(f);
-                Collection<ROINode> subNodes = new ArrayList<ROINode>();
-                fnode.getAllDecendants(subNodes);
-                for (ROINode subNode : subNodes)
-                    if (subNode.isFolderNode())
-                        excludeIds.add(((FolderData) subNode.getUserObject())
-                                .getId());
-
-                excludeIds.remove(f.getId());
-            }
+            Collection<Long> excludeIds = nodesMap
+                    .getChildFolderIds(getSelectedFolders());
 
             Collection<FolderData> toSave = new ArrayList<FolderData>();
             for (FolderData folder : getSelectedFolders()) {
