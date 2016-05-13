@@ -1448,34 +1448,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def load_data_by_tag(request, conn=None, **kwargs):
-    """
-    Loads data for the center panel.
-    Either get the P/D/I etc under tags, or the images etc under a tagged
-    Dataset or Project.
-    @param o_type       'tag' or 'project', 'dataset'.
-    """
-
-    o_id = getIntOrDefault(request, "o_id", None)
-    if o_id is None:
-        return handlerInternalError(
-            request, "Need to specify tag id as ?o_id=id")
-
-    try:
-        manager = BaseContainer(conn, tag=o_id)
-    except AttributeError, x:
-        return handlerInternalError(request, x)
-
-    manager.loadDataByTag()
-    template = "webclient/data/containers_icon.html"
-
-    context = {'manager': manager,
-               'template': template}
-    return context
-
-
-@login_required()
-@render_response()
 def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
                           **kwargs):
     """
@@ -2397,6 +2369,8 @@ def annotate_tags(request, conn=None, **kwargs):
                 obs[0].getDetails().group.id.val)
             break
 
+    # Make a list of all current tags
+    # As would be on right column of tagging dialog...
     taglist, users = tree.marshal_annotations(
         conn,
         project_ids=selected['projects'],
