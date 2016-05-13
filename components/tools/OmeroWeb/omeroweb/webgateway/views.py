@@ -52,7 +52,7 @@ from omero import ApiUsageException
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, \
     HttpJavascriptResponseServerError
-from connector import Server
+from omeroweb.connector import Server
 
 import glob
 
