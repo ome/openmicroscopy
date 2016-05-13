@@ -414,55 +414,6 @@ class BaseContainer(BaseController):
             return True
         return False
 
-    def getTagsByObject(self, parent_type=None, parent_ids=None):
-        eid = ((not self.canUseOthersAnns()) and
-               self.conn.getEventContext().userId or None)
-
-        def sort_tags(tag_gen):
-            tag_anns = list(tag_gen)
-            try:
-                tag_anns.sort(key=lambda x: x.getValue().lower())
-            except:
-                pass
-            return tag_anns
-
-        if self.image is not None:
-            return sort_tags(self.image.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif self.dataset is not None:
-            return sort_tags(self.dataset.listOrphanedAnnotations(
-                eid=eid, anntype='Tag', ns=['any']))
-        elif self.project is not None:
-            return sort_tags(self.project.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif self.well is not None:
-            return sort_tags(
-                self.well.getWellSample().image().listOrphanedAnnotations(
-                    eid=eid, anntype='Tag'))
-        elif self.plate is not None:
-            return sort_tags(self.plate.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif self.screen is not None:
-            return sort_tags(self.screen.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif self.acquisition is not None:
-            return sort_tags(self.acquisition.listOrphanedAnnotations(
-                eid=eid, anntype='Tag'))
-        elif parent_type and parent_ids:
-            parent_type = parent_type.title()
-            if parent_type == "Acquisition":
-                parent_type = "PlateAcquisition"
-            return sort_tags(self.conn.listOrphanedAnnotations(
-                parent_type, parent_ids, eid=eid, anntype='Tag'))
-        else:
-            if eid is not None:
-                params = omero.sys.Parameters()
-                params.theFilter = omero.sys.Filter()
-                params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return sort_tags(
-                    self.conn.getObjects("TagAnnotation", params=params))
-            return sort_tags(self.conn.getObjects("TagAnnotation"))
-
     def getFilesByObject(self, parent_type=None, parent_ids=None):
         eid = ((not self.canUseOthersAnns()) and
                self.conn.getEventContext().userId or None)

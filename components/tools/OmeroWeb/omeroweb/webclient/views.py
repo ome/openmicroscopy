@@ -3860,7 +3860,6 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     elif scriptName == "Thumbnail":
         scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
         template = "webclient/scripts/thumbnail_figure.html"
-        # context['tags'] = BaseContainer(conn).getTagsByObject()  # ALL tags
 
         def loadImageTags(imageIds):
             tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)
