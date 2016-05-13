@@ -70,7 +70,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicTableUI;
-import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 
 
@@ -98,7 +97,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
-import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
@@ -108,6 +106,8 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 import omero.gateway.util.Pojos;
+
+import static org.openmicroscopy.shoola.agents.measurement.util.ROIUtil.*;
 
 /**
  * The ROITable is the class extending the JXTreeTable, this shows the 
@@ -170,13 +170,6 @@ public class ROITable
      * added/removed)
      */
     private Collection<FolderData> recentlyModifiedFolders = new ArrayList<FolderData>();
-	
-	/**
-	 * The type of objects selected
-	 */
-	enum SelectionType {
-	    ROIS, SHAPES, FOLDERS, MIXED
-	}
 	
 	// DnD Scroll
 	
@@ -257,74 +250,7 @@ public class ROITable
         inner.setBounds(visible.x + i.left, visible.y + i.top, visible.width
                 - (i.left + i.right), visible.height - (i.top + i.bottom));
     }
-    
-	/**
-	 * Returns <code>true</code> if all the roishapes in the shapelist 
-	 * have the same id, <code>false</code> otherwise.
-	 *  
-	 * @param shapeList The list to handle.
-	 * @return See above.
-	 */
-	private boolean haveSameID(List<ROIShape> shapeList)
-	{
-		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
-		for (ROIShape shape : shapeList)
-		{
-			if (!shapeMap.containsKey(shape.getID()))
-			{
-				if (shapeMap.size() == 0)
-					shapeMap.put(shape.getID(), shape);
-				else
-					return false;
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * Returns the id that the shapes in the list contain, if they
-	 * do not contain the same id return -1;
-	 * 
-	 * @param shapeList The list to handle.
-	 * @return See above.
-	 */
-	private long getSameID(List<ROIShape> shapeList)
-	{
-		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
-		if (shapeList.size() == 0) return -1;
-		for (ROIShape shape : shapeList)
-		{
-			if (!shapeMap.containsKey(shape.getID()))
-			{
-				if (shapeMap.size() == 0)
-					shapeMap.put(shape.getID(), shape);
-				else
-					return -1;
-			}
-		}
-		return shapeList.get(0).getID();
-	}
 
-	/**
-	 * Are all the roishapes in the shapelist on separate planes. 
-	 * 
-	 * @param shapeList The list to handle.
-	 * @return See above.
-	 */
-	private boolean onSeparatePlanes(List<ROIShape> shapeList)
-	{
-		TreeMap<Coord3D, ROIShape> 
-		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		for (ROIShape shape : shapeList)
-		{
-			if (shapeMap.containsKey(shape.getCoord3D()))
-				return false;
-			else
-				shapeMap.put(shape.getCoord3D(), shape);
-		}
-		return true;
-	}
-	
 	/**
 	 * The constructor for the ROITable, taking the root node and
 	 * column names as parameters.  
@@ -453,43 +379,14 @@ public class ROITable
         prop = (Integer) t.getDesktopProperty("DnD.Autoscroll.initialDelay");
         timer.setInitialDelay(prop == null ? 100 : prop.intValue());
 	}
-	
-    /**
-     * Determines which type of objects are selected
-     * 
-     * @param selection
-     *            The objects
-     * @return The {@link SelectionType}
-     */
-    SelectionType getSelectionType(Collection<Object> selection) {
-        SelectionType result = null;
-        for (Object obj : selection) {
-            SelectionType tmp = null;
-            if (obj instanceof ROI)
-                tmp = SelectionType.ROIS;
-            else if (obj instanceof ROIShape)
-                tmp = SelectionType.SHAPES;
-            else if (obj instanceof FolderData)
-                tmp = SelectionType.FOLDERS;
 
-            if (result == null) {
-                result = tmp;
-            } else {
-                if (result != tmp) {
-                    return SelectionType.MIXED;
-                }
-            }
-        }
-        return result;
-    }
-	
     /**
      * Invoked when the selection has changed
      * 
      * @param selection
      *            The selected Objects.
      */
-    void onSelection(Collection<Object> selection) {
+	void onSelection(Collection<Object> selection) {
         popupMenu.setActionsEnabled(selection);
 
         if (popupMenu.isActionEnabled(CreationActionType.REMOVE_FROM_FOLDER)) {
@@ -545,7 +442,7 @@ public class ROITable
      * @param x The x-coordinate of the mouse click.
      * @param y The y-coordinate of the mouse click.
      */
-    void showROIManagementMenu(Component c, int x, int y)
+	void showROIManagementMenu(Component c, int x, int y)
     {
         popupMenu.setActionsEnabled(getSelectedObjects());
     	JPopupMenu menu = popupMenu.getPopupMenu();
@@ -564,7 +461,7 @@ public class ROITable
      * 
      * @return See above
      */
-    Set<Long> getExpandedFolders() {
+	Set<Long> getExpandedFolders() {
         Set<Long> result = new HashSet<Long>();
         for (ROINode node : nodesMap.values()) {
             if (node.isExpanded() && node.isFolderNode())
@@ -579,7 +476,7 @@ public class ROITable
      * @param ids
      *            The folder IDs
      */
-    void expandFolders(Collection<Long> ids) {
+	void expandFolders(Collection<Long> ids) {
         for (ROINode node : nodesMap.values()) {
             if (node.isFolderNode()
                     && ids.contains(((FolderData) node.getUserObject()).getId()))
@@ -792,7 +689,7 @@ public class ROITable
 	 * 
 	 * @param node The selected node.
 	 */
-	void expandNode(ROINode node)
+	private void expandNode(ROINode node)
 	{
 		if (node.getUserObject() instanceof ROI)
 			expandROIRow((ROI)node.getUserObject());
@@ -814,47 +711,14 @@ public class ROITable
 		return null;
 	}
 	
-	/**
-	 * Returns the ROI at row index.
-	 * 
-	 * @param index see above.
-	 * @return see above.
-	 */
-	ROI getROIAtRow(int index)
-	{
-		TreePath path = this.getPathForRow(index);
-		ROINode node = (ROINode) path.getLastPathComponent();
-		if (node.getUserObject() instanceof ROI)
-			return (ROI)node.getUserObject();
-		return null;
-	}
-	
 	/** 
 	 * Expands the row with node parent.
 	 * 
 	 * @param parent see above.
 	 */
-	void expandROIRow(ROINode parent)
+	private void expandROIRow(ROINode parent)
 	{
 	    expandPath(parent.getPath());
-	}
-	
-	/** 
-	 * Collapses the row with node parent.
-	 * @param parent see above.
-	 */
-	void collapseROIRow(ROINode parent)
-	{
-		int addedNodeIndex = root.getIndex(parent);
-		this.collapseRow(addedNodeIndex);
-		parent.setExpanded(false);
-		ROINode node;
-		for (int i = 0; i < root.getChildCount(); i++)
-		{
-			node = (ROINode) root.getChildAt(i);
-			if (node.isExpanded()) 
-				expandROIRow((ROINode) node);
-		}
 	}
 	
 	/** 
@@ -862,7 +726,7 @@ public class ROITable
 	 * 
 	 * @param roi see above.
 	 */
-	void expandROIRow(ROI roi)
+	private void expandROIRow(ROI roi)
 	{
 		Collection<ROINode> nodes = findNodes(roi);
 		for(ROINode node : nodes)
@@ -888,27 +752,13 @@ public class ROITable
         }
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 	}
-
-	/**
-	 * Removes the ROI from the table.
-	 * 
-	 * @param roi see above.
-	 */
-	void removeROI(ROI roi)
-	{
-	    Collection<ROINode> nodes = findNodes(roi);
-		for(ROINode node: nodes) 
-		    node.getParent().remove(node);
-		
-		this.setTreeTableModel(new ROITableModel(root, columnNames));
-	}
 	
 	/**
 	 * Find the nodes representing an ROI
 	 * @param roi The Roi
 	 * @return See above
 	 */
-	Collection<ROINode> findNodes(ROI roi) {
+	private Collection<ROINode> findNodes(ROI roi) {
 	    return nodesMap.get(getUUID(roi));
 	}
 	
@@ -991,7 +841,7 @@ public class ROITable
      * @param node
      *            The Node
      */
-    void handleParentFolderNodes(ROINode node) {
+    private void handleParentFolderNodes(ROINode node) {
         FolderData parentFolder = ((FolderData) node.getUserObject())
                 .getParentFolder();
         if (parentFolder == null) {
@@ -1053,7 +903,7 @@ public class ROITable
      * @param folders
      *            The folders
      */
-    public void initFolders(Collection<FolderData> folders) {
+    void initFolders(Collection<FolderData> folders) {
         for (FolderData f : folders) {
             if (displayFolder(f)) {
                 ROINode node = findFolderNode(f);
@@ -1067,42 +917,13 @@ public class ROITable
         model = new ROITableModel(root, columnNames);
         this.setTreeTableModel(model);
     }
-    
-	/**
-	 * Invokes when a ROIShape has changed its properties. 
-	 * 
-	 * @param shape the roiShape which has to be updated.
-	 */
-	 void setROIAttributesChanged(ROIShape shape)
-	{
-	     
-		Collection<ROINode> nodes = findNodes(shape.getROI());
-		for(ROINode node : nodes) {
-    		ROINode child = node.findChild(shape);
-    		model.nodeUpdated(child);
-		}
-	}
-	
-	
-	/** 
-	 * Returns <code>true</code> if the column the shapeType column,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param column see above
-	 * @return see above 
-	 */
-	boolean isShapeTypeColumn(int column)
-	{
-		TableColumn col = this.getColumn(column);
-		return (col.getModelIndex() == (ROITableModel.SHAPE_COLUMN+1));
-	}
 	
 	/**
 	 * Create a list of all the roi and roishapes selected in the table.
 	 * This will only list an roi even if the roi and roishapes are selected.
 	 * @return see above.
 	 */
-	Collection<Object> getSelectedObjects()
+    Collection<Object> getSelectedObjects()
 	{
 		int [] selectedRows = this.getSelectedRows();
 		TreeMap<Long, Object> roiMap = new TreeMap<Long, Object>(); 
@@ -1146,73 +967,6 @@ public class ROITable
 		
 		return selectedList;
 	}
-
-	/**
-	 * Build the plane map from the selected object list. This builds a map
-	 * of all the planes that have objects reside on them.
-	 * @param objectList see above.
-	 * @return see above.
-	 */
-	TreeMap<Coord3D, ROIShape> buildPlaneMap(ArrayList objectList)
-	{
-		TreeMap<Coord3D, ROIShape> planeMap = 
-			new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		ROI roi;
-		TreeMap<Coord3D, ROIShape> shapeMap;
-		Iterator i;
-		Coord3D coord;
-		ROIShape shape;
-		Entry entry;
-		for (Object node : objectList)
-		{
-			if (node instanceof ROI)
-			{
-				roi = (ROI) node;
-				shapeMap =  roi.getShapes();
-				i = shapeMap.entrySet().iterator();
-				while (i.hasNext())
-				{
-					entry = (Entry) i.next();
-					coord = (Coord3D) entry.getKey();
-					if (planeMap.containsKey(coord))
-						return null;
-					planeMap.put(coord, (ROIShape) entry.getValue());
-				}
-			} else if (node instanceof ROIShape)
-			{
-				shape = (ROIShape)node;
-				if (planeMap.containsKey(shape.getCoord3D()))
-					return null;
-				else
-					planeMap.put(shape.getCoord3D(), shape);
-			}
-		}
-		return planeMap;
-	}
-	
-	/**
-	 * Returns the id of objects in the selected list. 
-	 * 
-	 * @param selectedObjects
-	 * @return see above.
-	 */
-	List<Long> getIDList(List selectedObjects)
-	{
-		TreeMap<Long,ROI> idMap = new TreeMap<Long, ROI>();
-		List<Long> idList = new ArrayList<Long>();
-		ROI roi;
-		for (Object node : selectedObjects)
-		{
-			if (node instanceof ROI) roi = (ROI) node;
-			else roi = ((ROIShape) node).getROI();
-			if (!idMap.containsKey(roi.getID()))
-			{
-				idMap.put(roi.getID(), roi);
-				idList.add(roi.getID());
-			}
-		}
-		return idList;
-	}
 	
 	/**
 	 * Returns the roishapes of the selected objects, this method will split ROI
@@ -1220,7 +974,7 @@ public class ROITable
 	 * 
 	 * @return see above.
 	 */
-	List<ROIShape> getSelectedROIShapes()
+    private List<ROIShape> getSelectedROIShapes()
 	{
 		int [] selectedRows = this.getSelectedRows();
 		TreeMap<Long, Object> roiMap = new TreeMap<Long, Object>(); 
@@ -1281,7 +1035,7 @@ public class ROITable
      * Get the selected Folders
      * @return see above.
      */
-    List<FolderData> getSelectedFolders()
+    private List<FolderData> getSelectedFolders()
     {
         List<FolderData> result = new ArrayList<FolderData>();
         int [] selectedRows = this.getSelectedRows();
@@ -1303,7 +1057,7 @@ public class ROITable
 	 * Duplicates the ROI
 	 * @see ROIActionController#duplicateROI()
 	 */
-	public void duplicateROI()
+    public void duplicateROI()
 	{
 		manager.showReadyMessage();
 		List<ROIShape> selectedObjects = getSelectedROIShapes();
@@ -1318,7 +1072,7 @@ public class ROITable
 	 * Merges the ROI.
 	 * @see ROIActionController#mergeROI()
 	 */
-	public void mergeROI()
+    public void mergeROI()
 	{
 		manager.showReadyMessage();
 		List<ROIShape> selectedObjects = getSelectedROIShapes();
