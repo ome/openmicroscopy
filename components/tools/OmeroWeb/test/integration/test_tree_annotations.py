@@ -103,13 +103,16 @@ def projects_userA(request, userA, groupA):
 @pytest.fixture(scope='function')
 def tags_userA_userB(request, userA, userB, groupA):
     """
-    Returns new OMERO Tags
+    Returns new OMERO Tags with descriptions
     """
     tags = []
     ctx = {'omero.group': str(groupA.id.val)}
     for name, user in zip(["userAtag", "userBtag"], [userA, userB]):
         tag = TagAnnotationI()
         tag.textValue = rstring(name)
+        # Only add description to first tag
+        if name == "userAtag":
+            tag.description = rstring('tag description')
         tag = get_update_service(user).saveAndReturnObject(tag, ctx)
         tags.append(tag)
     tags.sort(cmp_id)
@@ -233,6 +236,7 @@ def expected_annotations(user, links):
                 'id': ann.details.owner.id.val
             },
             'ns': unwrap(ann.ns),
+            'description': unwrap(ann.description),
             'id': ann.id.val,
             'permissions': annPerms
         }
