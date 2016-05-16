@@ -137,8 +137,9 @@ editor.
     ``"[\\"foo\\", \\"bar\\"]"``) or wrap with ``'`` (e.g. ``'["foo",
     "bar"]'``).
 
-Examples of doing this are on the main :doc:`server installation <unix/server-installation>`
-page, as well as the :doc:`LDAP installation <server-ldap>` page.
+Examples of doing this are on the
+:doc:`server installation page <unix/server-installation>`, as well as the
+:doc:`LDAP installation <server-ldap>` page.
 
 .. _core_configuration:
 
