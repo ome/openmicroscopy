@@ -21,14 +21,13 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.measurement.util;
+package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.Set;
 
 import omero.gateway.model.FolderData;
 
@@ -43,14 +42,26 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class ROIUtil {
-    
+
     /**
      * The type of objects selected
      */
     public enum SelectionType {
-        ROIS, SHAPES, FOLDERS, MIXED
+        /**
+         * ROIs selection
+         */
+        ROIS, /**
+         * Shapes selection
+         */
+        SHAPES, /**
+         * Folders selection
+         */
+        FOLDERS, /**
+         * Mixed selection
+         */
+        MIXED
     }
-    
+
     /**
      * Returns <code>true</code> if all the roishapes in the shapelist have the
      * same id, <code>false</code> otherwise.
@@ -60,14 +71,12 @@ public class ROIUtil {
      * @return See above.
      */
     public static boolean haveSameID(List<ROIShape> shapeList) {
-        TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
-        for (ROIShape shape : shapeList) {
-            if (!shapeMap.containsKey(shape.getID())) {
-                if (shapeMap.size() == 0)
-                    shapeMap.put(shape.getID(), shape);
-                else
-                    return false;
-            }
+        long id = -1;
+        for (ROIShape s : shapeList) {
+            if (id == -1)
+                id = s.getID();
+            else if (id != s.getID())
+                return false;
         }
         return true;
     }
@@ -81,18 +90,14 @@ public class ROIUtil {
      * @return See above.
      */
     public static long getSameID(List<ROIShape> shapeList) {
-        TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
-        if (shapeList.size() == 0)
-            return -1;
-        for (ROIShape shape : shapeList) {
-            if (!shapeMap.containsKey(shape.getID())) {
-                if (shapeMap.size() == 0)
-                    shapeMap.put(shape.getID(), shape);
-                else
-                    return -1;
-            }
+        long id = -1;
+        for (ROIShape s : shapeList) {
+            if (id == -1)
+                id = s.getID();
+            else if (id != s.getID())
+                return -1;
         }
-        return shapeList.get(0).getID();
+        return id;
     }
 
     /**
@@ -103,13 +108,12 @@ public class ROIUtil {
      * @return See above.
      */
     public static boolean onSeparatePlanes(List<ROIShape> shapeList) {
-        TreeMap<Coord3D, ROIShape> shapeMap = new TreeMap<Coord3D, ROIShape>(
-                new Coord3D());
+        Set<Coord3D> set = new HashSet<Coord3D>();
         for (ROIShape shape : shapeList) {
-            if (shapeMap.containsKey(shape.getCoord3D()))
+            if (set.contains(shape.getCoord3D()))
                 return false;
             else
-                shapeMap.put(shape.getCoord3D(), shape);
+                set.add(shape.getCoord3D());
         }
         return true;
     }
@@ -122,62 +126,20 @@ public class ROIUtil {
      * @return see above.
      */
     public static List<Long> getIDList(List selectedObjects) {
-        TreeMap<Long, ROI> idMap = new TreeMap<Long, ROI>();
-        List<Long> idList = new ArrayList<Long>();
+        List<Long> ids = new ArrayList<Long>();
         ROI roi;
         for (Object node : selectedObjects) {
             if (node instanceof ROI)
                 roi = (ROI) node;
             else
                 roi = ((ROIShape) node).getROI();
-            if (!idMap.containsKey(roi.getID())) {
-                idMap.put(roi.getID(), roi);
-                idList.add(roi.getID());
+            if (!ids.contains(roi.getID())) {
+                ids.add(roi.getID());
             }
         }
-        return idList;
+        return ids;
     }
 
-    /**
-     * Build the plane map from the selected object list. This builds a map of
-     * all the planes that have objects reside on them.
-     * 
-     * @param objectList
-     *            see above.
-     * @return see above.
-     */
-    public static TreeMap<Coord3D, ROIShape> buildPlaneMap(ArrayList objectList) {
-        TreeMap<Coord3D, ROIShape> planeMap = new TreeMap<Coord3D, ROIShape>(
-                new Coord3D());
-        ROI roi;
-        TreeMap<Coord3D, ROIShape> shapeMap;
-        Iterator i;
-        Coord3D coord;
-        ROIShape shape;
-        Entry entry;
-        for (Object node : objectList) {
-            if (node instanceof ROI) {
-                roi = (ROI) node;
-                shapeMap = roi.getShapes();
-                i = shapeMap.entrySet().iterator();
-                while (i.hasNext()) {
-                    entry = (Entry) i.next();
-                    coord = (Coord3D) entry.getKey();
-                    if (planeMap.containsKey(coord))
-                        return null;
-                    planeMap.put(coord, (ROIShape) entry.getValue());
-                }
-            } else if (node instanceof ROIShape) {
-                shape = (ROIShape) node;
-                if (planeMap.containsKey(shape.getCoord3D()))
-                    return null;
-                else
-                    planeMap.put(shape.getCoord3D(), shape);
-            }
-        }
-        return planeMap;
-    }
-    
     /**
      * Determines which type of objects are selected
      * 
@@ -205,5 +167,23 @@ public class ROIUtil {
             }
         }
         return result;
+    }
+
+    /**
+     * Provides an unique ID based on the object's type and it's id if it is an
+     * ROI related object ({@link Object#hashCode()} otherwise).
+     * 
+     * @param obj
+     *            The object
+     * @return See above
+     */
+    public static String getUUID(Object obj) {
+        if (obj instanceof ROI)
+            return "ROI_" + ((ROI) obj).getID();
+        if (obj instanceof ROIShape)
+            return "ROIShape_" + ((ROIShape) obj).getID();
+        if (obj instanceof FolderData)
+            return "FolderData_" + ((FolderData) obj).getId();
+        return "" + obj.hashCode();
     }
 }

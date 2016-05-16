@@ -73,6 +73,8 @@ import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.tree.TreePath;
 
 
+
+
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jhotdraw.draw.Figure;
@@ -82,6 +84,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINodeMap;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.TableRowTransferHandler;
@@ -103,8 +106,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 import omero.gateway.util.Pojos;
-
-import static org.openmicroscopy.shoola.agents.measurement.util.ROIUtil.*;
+import static org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIUtil.*;
 
 /**
  * The ROITable is the class extending the JXTreeTable, this shows the 
@@ -590,7 +592,7 @@ public class ROITable
         root.getAllDecendants(tmp);
         for (ROINode n : tmp) {
             if (n.isExpanded()) {
-                expandedNodeIds.add(n.getUUID());
+                expandedNodeIds.add(getUUID(n.getUserObject()));
             }
         }
         
@@ -676,7 +678,7 @@ public class ROITable
         tmp.clear();
         root.getAllDecendants(tmp);
         for (ROINode n : tmp) {
-            if (expandedNodeIds.contains(n.getUUID()))
+            if (expandedNodeIds.contains(getUUID(n)))
                 expandNode(n);
         }
 	}

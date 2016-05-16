@@ -1,4 +1,26 @@
-package org.openmicroscopy.shoola.agents.measurement.view;
+/*
+ * org.openmicroscopy.shoola.agents.measurement.view.ROITable 
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,11 +30,10 @@ import java.util.Set;
 
 import omero.gateway.model.FolderData;
 
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+
+import static org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIUtil.*;
 
 /**
  * Helper class for managing {@link ROINode}s
@@ -46,22 +67,7 @@ public class ROINodeMap {
      *            The node to add
      */
     public void add(ROINode node) {
-        nodesMap.put(node.getUUID(), node);
-    }
-
-    /**
-     * Generates an unique id for the {@link ROI} or {@link FolderData}
-     * 
-     * @param obj
-     *            The ROI or FolderData
-     * @return The unique id
-     */
-    private String getUUID(Object obj) {
-        if (obj instanceof ROI)
-            return "ROI_" + ((ROI) obj).getID();
-        if (obj instanceof FolderData)
-            return "FolderData_" + ((FolderData) obj).getId();
-        return null;
+        nodesMap.put(getUUID(node.getUserObject()), node);
     }
 
     /**
@@ -92,7 +98,7 @@ public class ROINodeMap {
      * 
      * @param folder
      *            The folder
-     * @return
+     * @return See above
      */
     public ROINode findFolderNode(FolderData folder) {
         Collection<ROINode> tmp = get(folder);
