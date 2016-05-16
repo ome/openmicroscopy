@@ -1964,7 +1964,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
 
         if hasattr(settings, 'SHARING_OPENGRAPH'):
             opengraph = settings.SHARING_OPENGRAPH.get(server_name)
-            logger.debug('Open Graph enabled: %s', twitter)
+            logger.debug('Open Graph enabled: %s', opengraph)
 
         if hasattr(settings, 'SHARING_TWITTER'):
             twitter = settings.SHARING_TWITTER.get(server_name)
