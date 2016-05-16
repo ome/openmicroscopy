@@ -37,6 +37,7 @@ import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.FileData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -457,6 +458,9 @@ public abstract class TreeImageDisplay
         else if (obj instanceof PlateAcquisitionData) 
         	return ((PlateAcquisitionData) obj).getLabel();
         else if (obj instanceof String) return (String) obj;
+        else if(obj instanceof FolderData) {
+            return ((FolderData)obj).getFolderPathString();
+        }
         return "";
     }
     

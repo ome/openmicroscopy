@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,17 +51,18 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationLoader;
 import org.openmicroscopy.shoola.agents.measurement.ROIAnnotationSaver;
+import org.openmicroscopy.shoola.agents.measurement.ROIFolderSaver;
 import org.openmicroscopy.shoola.agents.measurement.ROILoader;
 import org.openmicroscopy.shoola.agents.measurement.ROISaver;
 import org.openmicroscopy.shoola.agents.measurement.ServerSideROILoader;
 import org.openmicroscopy.shoola.agents.measurement.TagsLoader;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 
 import omero.gateway.SecurityContext;
 import omero.gateway.model.ROIResult;
@@ -90,6 +93,7 @@ import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
@@ -208,7 +212,13 @@ class MeasurementViewerModel
 
     /** Collection of existing tags if any. */
     private Collection existingTags;
+    
+    /** Collection of existing folders if any. */
+    private Collection<FolderData> folders;
 
+    /** The Collection of ROIS */
+    private Collection<ROIData> rois;
+    
 	/**
 	 * Map figure attributes to ROI and ROIShape annotations where necessary.
 	 * @param attribute see above.
@@ -614,6 +624,48 @@ class MeasurementViewerModel
 	Collection getMeasurementResults() { return measurementResults; }
 
 	/**
+	 * Set the available folders
+	 * @param folders The folders
+	 */
+    void setFolders(Collection<FolderData> folders) {
+        this.folders = folders;
+    }
+
+    /**
+     * Get the available folders
+     * 
+     * @return See above
+     */
+    Collection<FolderData> getFolders() {
+        return folders == null ? Collections.EMPTY_LIST : folders;
+    }
+
+    /**
+     * Get the folders which contain ROIs for the current image
+     * 
+     * @return See above
+     */
+    Collection<FolderData> getUsedFolders() {
+        if (folders == null)
+            return Collections.EMPTY_LIST;
+
+        // using map to avoid duplicate entries
+        Map<Long, FolderData> result = new HashMap<Long, FolderData>();
+        for (ROIData roi : rois) {
+            for (FolderData f : roi.getFolders())
+                addFolderAndParentFolders(f, result);
+        }
+        return result.values();
+    }
+
+    private void addFolderAndParentFolders(FolderData f,
+            Map<Long, FolderData> coll) {
+        coll.put(f.getId(), f);
+        if (f.getParentFolder() != null)
+            addFolderAndParentFolders(f.getParentFolder(), coll);
+    }
+
+	/**
 	 * Sets the server ROIS.
 	 *
 	 * @param rois The collection of Rois.
@@ -626,6 +678,7 @@ class MeasurementViewerModel
 	{
 	    List<DataObject> nodes = new ArrayList<DataObject>();
 		measurementResults = rois;
+		this.rois = new ArrayList<ROIData>();
 		state = MeasurementViewer.READY;
 		List<ROI> roiList = new ArrayList<ROI>();
 		Iterator r = rois.iterator();
@@ -635,8 +688,9 @@ class MeasurementViewerModel
 			result = (ROIResult) r.next();
 			roiList.addAll(roiComponent.loadROI(result.getFileID(),
 					result.getROIs(), userID));
+			this.rois.addAll(result.getROIs());
 		}
-		if (roiList == null) return nodes;
+		if (roiList.isEmpty()) return nodes;
 		Iterator<ROI> i = roiList.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeList;
@@ -1158,8 +1212,8 @@ class MeasurementViewerModel
 			if (async) {
 				currentSaver = new ROISaver(component, getSecurityContext(),
 						getImageID(), exp.getId(), roiList, close);
-				currentSaver.load();
 				state = MeasurementViewer.SAVING_ROI;
+				currentSaver.load();
 				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc =
@@ -1178,6 +1232,124 @@ class MeasurementViewerModel
 		}
 	}
 
+    /**
+     * Add ROIs to Folders
+     * 
+     * @param allROIs
+     *            All ROIs
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    void addROIsToFolder(Collection<ROIData> allROIs,
+            Collection<ROIData> selectedObjects, Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), allROIs, selectedObjects, folders,
+                ROIFolderAction.ADD_TO_FOLDER);
+        setSaveState();
+        currentSaver.load();
+    }
+    
+    /**
+     * Move ROIs to Folders
+     * 
+     * @param allROIs
+     *            All ROIs
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    void moveROIsToFolder(Collection<ROIData> allROIs,
+            Collection<ROIData> selectedObjects, Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), allROIs, selectedObjects, folders,
+                ROIFolderAction.MOVE_TO_FOLDER);
+        setSaveState();
+        currentSaver.load();
+    }
+    
+    /**
+     * Delete Folders
+     * 
+     * @param folders
+     *            The Folders
+     */
+    void deleteFolders(Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), null, folders,
+                ROIFolderAction.DELETE_FOLDER);
+        setSaveState();
+        currentSaver.load();
+    }
+    
+    /**
+     * Add ROIs to Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    void saveROIFolders(Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), null, folders,
+                ROIFolderAction.CREATE_FOLDER);
+        setSaveState();
+        currentSaver.load();
+    }
+
+    /**
+     * Removes ROIs from Folders
+     * 
+     * @param selectedObjects
+     *            The ROIs
+     * @param folders
+     *            The Folders
+     */
+    void removeROIsFromFolder(Collection<ROIData> selectedObjects,
+            Collection<FolderData> folders) {
+        if (getState() != MeasurementViewer.READY)
+            return;
+        
+        ExperimenterData exp = (ExperimenterData) MeasurementAgent
+                .getUserDetails();
+        currentSaver = new ROIFolderSaver(component, getSecurityContext(),
+                getImageID(), exp.getId(), selectedObjects, folders,
+                ROIFolderAction.REMOVE_FROM_FOLDER);
+        setSaveState();
+        currentSaver.load();
+    }
+	
+    /**
+     * Set the {@link MeasurementViewer} to SAVING_ROI state
+     */
+    private void setSaveState() {
+        state = MeasurementViewer.SAVING_ROI;
+        ((MeasurementViewerUI) component.getUI()).setStatus("Saving...");
+    }
+    
 	/**
 	 * Returns the collection of ROI on the image owned by the user currently
 	 * logged in

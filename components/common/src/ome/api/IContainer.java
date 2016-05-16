@@ -1,7 +1,5 @@
 /*
- *   $Id$
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -32,8 +30,8 @@ import ome.parameters.Parameters;
  * The names of the methods correlate to how the function operates:
  * <ul>
  * <li><b>load</b>: start at container objects and work down toward the
- * leaves, returning hierarchy (Proejct-&gt;Dataset-&gt;Image</li>
- * <li><b>find</b>: start at leave objects and work up to containers,
+ * leaves, returning hierarchy (Project-&gt;Dataset-&gt;Image</li>
+ * <li><b>find</b>: start at leaf objects and work up to containers,
  * returning hierarchy</li>
  * <li><b>get</b>: retrieves only leaves in the hierarchy (currently only
  * Images)</li>
@@ -57,7 +55,7 @@ import ome.parameters.Parameters;
  * be all methods. <b>Default: all annotations</b></li>
  * <li><b>leaves</b>(Boolean): if FALSE omits images from the returned
  * hierarchy. May not be used by all methods. <b>Default: true</b></li>
- * <li><b>experimenter</b>(Integer): inables filtering on a per-experimenter
+ * <li><b>experimenter</b>(Integer): enables filtering on a per-experimenter
  * basis. This option has a method-specific (and possibly context-specific)
  * meaning. Please see the individual methods.</li>
  * <li><b>group</b>(Integer): enables filtering on a per-group basis. The

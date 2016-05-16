@@ -49,6 +49,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Fileset;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -93,6 +94,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.FilesetData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
@@ -164,6 +166,8 @@ public class PojoMapper
             return new ProjectData((Project) object);
         else if (object instanceof Dataset) 
             return new DatasetData((Dataset) object);
+        else if (object instanceof Folder) 
+            return new FolderData((Folder) object);
         else if (object instanceof Image) 
             return new ImageData((Image) object);
         else if (object instanceof TermAnnotation)
@@ -496,6 +500,8 @@ public class PojoMapper
                 pojoType = ProjectData.class.getName();
             else if (DatasetData.class.getSimpleName().equals(pojoType))
                 pojoType = DatasetData.class.getName();
+            else if (FolderData.class.getSimpleName().equals(pojoType))
+                pojoType = FolderData.class.getName();
             else if (ImageData.class.getSimpleName().equals(pojoType))
                 pojoType = ImageData.class.getName();
             else if (BooleanAnnotationData.class.getSimpleName().equals(
@@ -541,6 +547,8 @@ public class PojoMapper
                 pojoType = FilesetData.class.getName();
             else if (MapAnnotationData.class.getSimpleName().equals(pojoType))
                 pojoType = MapAnnotationData.class.getName();
+            else if (ROIData.class.getSimpleName().equals(pojoType))
+                pojoType = ROIData.class.getName();
             else if (EllipseData.class.getSimpleName().equals(pojoType))
                 pojoType = EllipseData.class.getName();
             else if (LineData.class.getSimpleName().equals(pojoType))
@@ -583,6 +591,8 @@ public class PojoMapper
             return Project.class;
         else if (DatasetData.class.equals(pojoType))
             return Dataset.class;
+        else if (FolderData.class.equals(pojoType))
+            return Folder.class;
         else if (ImageData.class.equals(pojoType))
             return Image.class;
         else if (BooleanAnnotationData.class.equals(pojoType))
@@ -622,6 +632,8 @@ public class PojoMapper
             return Fileset.class;
         else if (MapAnnotationData.class.equals(pojoType))
             return MapAnnotation.class;
+        else if (ROIData.class.equals(pojoType))
+            return Roi.class;
         else if (EllipseData.class.equals(pojoType))
             return Ellipse.class;
         else if (LineData.class.equals(pojoType))
@@ -664,6 +676,8 @@ public class PojoMapper
             return Plate.class.getSimpleName();
         if (dataType.equals(PlateAcquisitionData.class))
             return PlateAcquisition.class.getSimpleName();
+        if (dataType.equals(FolderData.class))
+            return Folder.class.getSimpleName();
 
         // annotations
         if (dataType.equals(AnnotationData.class))

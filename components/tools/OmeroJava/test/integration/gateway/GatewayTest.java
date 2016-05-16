@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@ import omero.gateway.facility.AdminFacility;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.Facility;
+import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.RawDataFacility;
 import omero.gateway.facility.SearchFacility;
 import omero.gateway.facility.TransferFacility;
@@ -51,6 +52,7 @@ import org.testng.annotations.Test;
 
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -79,7 +81,8 @@ public class GatewayTest {
     SearchFacility searchFacility = null;
     TransferFacility transferFacility = null;
     DataManagerFacility datamanagerFacility = null;
-
+    ROIFacility roiFacility = null;
+    
     @Test
     public void testConnected() throws DSOutOfServiceException {
         String version = gw.getServerVersion();
@@ -119,6 +122,8 @@ public class GatewayTest {
         transferFacility = Facility.getFacility(TransferFacility.class, gw);
         datamanagerFacility = Facility.getFacility(DataManagerFacility.class,
                 gw);
+        roiFacility = Facility.getFacility(ROIFacility.class,
+                gw);
     }
 
     @AfterClass(alwaysRun = true)
@@ -147,6 +152,13 @@ public class GatewayTest {
                 .toString(), "test", groups, false, true);
     }
 
+    FolderData createFolder(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        FolderData folder = new FolderData();
+        folder.setName(UUID.randomUUID().toString());
+        return (FolderData) datamanagerFacility.saveAndReturnObject(ctx, folder);
+    }
+    
     ProjectData createProject(SecurityContext ctx)
             throws DSOutOfServiceException, DSAccessException {
         ProjectData proj = new ProjectData();

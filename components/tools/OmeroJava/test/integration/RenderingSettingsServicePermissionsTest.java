@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import omero.api.IRenderingSettingsPrx;
+import omero.cmd.Chmod2;
+import omero.gateway.util.Requests;
 import omero.model.ChannelBinding;
 import omero.model.IObject;
 import omero.model.Image;
@@ -319,7 +321,8 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         disconnect();
         init(ctx);
 
-        resetGroupPerms(modified, ctx.groupId);
+        final Chmod2 chmod = Requests.chmod().target("ExperimenterGroup").id(ctx.groupId).toPerms(modified).build();
+        doChange(root, root.getSession(), chmod, true);
         // method already tested
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         long pix2 = image2.getPrimaryPixels().getId().getValue();

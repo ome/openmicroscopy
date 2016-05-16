@@ -17,10 +17,11 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2DEV__0 to OMERO5.2__0.
+--- OMERO5 development release upgrade from OMERO5.3DEV__3 to OMERO5.3DEV__4.
 ---
 
 BEGIN;
+
 
 --
 -- check OMERO database version
@@ -42,33 +43,18 @@ BEGIN
 
 END;$$ LANGUAGE plpgsql;
 
-SELECT omero_assert_db_version('OMERO5.2DEV', 0);
+SELECT omero_assert_db_version('OMERO5.3DEV', 3);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
+
+--
+-- Actual upgrade
+--
+
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.2',     0,            'OMERO5.2DEV',   0);
+             VALUES ('OMERO5.3DEV',  4,            'OMERO5.3DEV',   3);
 
--- https://trello.com/c/EwmJfe5u/89-critical-indexing-large-annotation-changes
-
-CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
-
-    DECLARE
-        curs CURSOR FOR SELECT * FROM _updated_annotations ORDER BY event_id LIMIT 100000 FOR UPDATE;
-        row _updated_annotations%rowtype;
-
-    BEGIN
-        FOR row IN curs
-        LOOP
-            DELETE FROM _updated_annotations WHERE CURRENT OF curs;
-
-            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
-                WHERE NOT EXISTS (SELECT 1 FROM eventlog AS el
-                    WHERE el.entityid = row.entity_id AND el.entitytype = row.entity_type AND el.event = row.event_id);
-
-        END LOOP;
-    END;
-$$ LANGUAGE plpgsql;
+UPDATE pixels SET sha1 = 'Pending...' WHERE sha1 = 'Foo';
 
 
 --
@@ -76,11 +62,11 @@ $$ LANGUAGE plpgsql;
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
-    WHERE currentVersion  = 'OMERO5.2'    AND
-          currentPatch    = 0             AND
-          previousVersion = 'OMERO5.2DEV' AND
-          previousPatch   = 0;
+    WHERE currentVersion  = 'OMERO5.3DEV' AND
+          currentPatch    = 4             AND
+          previousVersion = 'OMERO5.3DEV' AND
+          previousPatch   = 3;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.2__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__4'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

@@ -144,7 +144,11 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                 targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, false, true);
-                return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
+                if (!plan.getKey().isEmpty()) {
+                    final Exception e = new IllegalStateException("deletion does not do anything other than delete");
+                    helper.cancel(new ERR(), e, "graph-fail");
+                }
+                return GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue());
             case 1:
                 graphTraversal.assertNoPolicyViolations();
                 return null;
@@ -185,21 +189,16 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         helper.assertResponse(step);
         if (step == 0) {
             /* if the results object were in terms of IObjectList then this would need IceMapper.map */
-            final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
-                    (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
-            if (!result.getKey().isEmpty()) {
-                final Exception e = new IllegalStateException("deletion does not do anything other than delete");
-                helper.cancel(new ERR(), e, "graph-fail");
-            }
+            final SetMultimap<String, Long> result = (SetMultimap<String, Long>) object;
             if (!dryRun) {
                 try {
-                    deletionInstance.deleteFiles(GraphUtil.trimPackageNames(result.getValue()));
+                    deletionInstance.deleteFiles(GraphUtil.trimPackageNames(result));
                 } catch (Exception e) {
                     helper.cancel(new ERR(), e, "file-delete-fail");
                 }
             }
-            final Map<String, List<Long>> deletedObjects = GraphUtil.copyMultimapForResponse(result.getValue());
-            deletedObjectCount += result.getValue().size();
+            final Map<String, List<Long>> deletedObjects = GraphUtil.copyMultimapForResponse(result);
+            deletedObjectCount += result.size();
             final Delete2Response response = new Delete2Response(deletedObjects);
             helper.setResponseIfNull(response);
             helper.info("in " + (dryRun ? "mock " : "") + "delete of " + targetObjectCount +

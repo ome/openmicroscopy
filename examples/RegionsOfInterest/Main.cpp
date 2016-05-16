@@ -8,5 +8,5 @@ using namespace omero::rtypes;
 int main() {
         RoiPtr roi = new RoiI();
         EllipsePtr ellipse = new EllipseI();
-        ellipse->setCx(rdouble(1));
+        ellipse->setX(rdouble(1));
 }

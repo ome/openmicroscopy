@@ -123,10 +123,10 @@ public class PropertiesUI
     private static final String CREATIONDATE_TEXT = "Creation Date: ";
     
     /** Text indicating to edit the description.*/
-    private static final String EDIT_DESC_TEXT = "Edit the description.";
+    private static final String EDIT_DESC_TEXT = "Edit the description";
     
     /**Text indicating to edit the channels.*/
-    private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
+    private static final String EDIT_CHANNEL_TEXT = "Edit channel names";
     
     /** The default height of the description.*/
     private static final int HEIGHT = 120;

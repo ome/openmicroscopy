@@ -432,8 +432,7 @@ public interface SqlAction {
 
     void insertLogs(List<Object[]> batchData);
 
-    List<Map<String, Object>> roiByImageAndNs(final long imageId,
-            final String ns);
+    List<Map<String, Object>> roiByImage(final long imageId);
 
     List<Long> getShapeIds(long roiId);
 

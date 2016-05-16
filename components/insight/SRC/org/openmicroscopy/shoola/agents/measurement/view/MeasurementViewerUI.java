@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.ButtonGroup;
@@ -51,6 +52,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 
@@ -68,6 +70,7 @@ import omero.gateway.model.ChannelData;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -123,7 +126,7 @@ class MeasurementViewerUI
 	static final String DEFAULT_MSG = "";
 	
 	/** The default size of the window. */
-	private static final Dimension DEFAULT_SIZE = new Dimension(400, 300);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
 
 	/** The title for the measurement tool main window. */
 	private static final String WINDOW_TITLE = "";
@@ -838,6 +841,7 @@ class MeasurementViewerUI
     void selectFigure(ROIFigure figure)
     {
     	if (figure == null) {
+    	    model.getDrawingView().clearSelection();
     		model.getDrawingView().setToolTipText("");
     		return;
     	}
@@ -862,7 +866,6 @@ class MeasurementViewerUI
     	dv.addToSelection(figure);
 		List<ROIShape> roiShapeList = new ArrayList<ROIShape>();
 		roiShapeList.add(figure.getROIShape());
-		dv.grabFocus();
 		if (model.isHCSData()) {
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<ROIShape> j = roiShapeList.iterator();
@@ -895,7 +898,7 @@ class MeasurementViewerUI
     void setSelectedFigures(Collection figures)
     {
     	if (model.getState() != MeasurementViewer.READY) return;
-		if (figures == null) return;
+		if (figures == null || figures.isEmpty()) return;
 		Iterator i = figures.iterator();
 		ROIFigure figure;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -1063,6 +1066,12 @@ class MeasurementViewerUI
     void rebuildManagerTable()
     { 
     	if (!model.isHCSData()) roiManager.rebuildTable();
+    }
+    
+    /** Rebuilds the ROI table. */
+    void rebuildManagerTable(Map<FolderData, Collection<ROIData>> result, ROIFolderAction action)
+    { 
+        if (!model.isHCSData()) roiManager.rebuildTable(result, action);
     }
     
     /** Sets the value in the tool bar.*/

@@ -805,8 +805,8 @@ def uploadCecogObjectDetails(updateService, imageId, filePath):
             theT, className, x, y, values, description = shape
 
             point = omero.model.PointI()
-            point.cx = rdouble(x)
-            point.cy = rdouble(y)
+            point.x = rdouble(x)
+            point.y = rdouble(y)
             point.theT = rint(theT)
             point.theZ = rint(0)  # Workaround for shoola:ticket:1596
             if className:
@@ -1226,7 +1226,7 @@ def parseInputs(client, session=None, processFn=IdentityFn):
     return processFn(client.getInputs(unwrap=True))
 
 
-def getROIFromImage(iROIService, imageId, namespace=None):
+def getROIFromImage(iROIService, imageId):
     """
     Get the ROI from the server for the image with the namespace
     @param iROIService The iROIService object
@@ -1235,8 +1235,6 @@ def getROIFromImage(iROIService, imageId, namespace=None):
     @return See above.
     """
     roiOpts = omero.api.RoiOptions()
-    if(namespace is not None):
-        roiOpts.namespace = namespace
     return iROIService.findByImage(imageId, roiOpts)
 
 

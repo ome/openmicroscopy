@@ -6,4 +6,4 @@ from omero.rtypes import rdouble
 
 roi = omero.model.RoiI()
 ellipse = omero.model.EllipseI()
-ellipse.setCx(rdouble(1))
+ellipse.setX(rdouble(1))

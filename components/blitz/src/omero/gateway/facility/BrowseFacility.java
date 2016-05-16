@@ -37,6 +37,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.ExperimenterGroup;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Well;
@@ -45,6 +46,7 @@ import omero.sys.ParametersI;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -216,7 +218,7 @@ public class BrowseFacility extends Facility {
      * @param allGroups
      *            Pass <code>true</code> to take all groups into account,
      *            <code>false</code> to only use ctx's group
-     * @return The last version of the object.
+     * @return The last version of the object (or <code>null</code> it doesn't exist).
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -228,6 +230,8 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         String klassName = PojoMapper.getModelType(klass).getSimpleName();
         IObject obj = findIObject(ctx, klassName, id, allGroups);
+        if (obj == null)
+            return null;
         return (T) PojoMapper.asDataObject(obj);
     }
 
@@ -326,7 +330,7 @@ public class BrowseFacility extends Facility {
      *            The object's id.
      * @param allGroups
      *            Pass <code>true</code> to look for all groups
-     * @return The last version of the object.
+     * @return The last version of the object (or <code>null</code> it doesn't exist).
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
@@ -348,6 +352,8 @@ public class BrowseFacility extends Facility {
 
             IQueryPrx service = gateway.getQueryService(ctx);
             IObject iobj = service.find(klass.getSimpleName(), id, m);
+            if (iobj == null)
+                return null;
             return PojoMapper.asDataObject(iobj);
         } catch (Throwable t) {
             handleException(this, t,
@@ -1279,4 +1285,176 @@ public class BrowseFacility extends Facility {
 
         return Collections.emptyList();
     }
+    
+    /**
+     * Loads the folders for the given Ids. {@link FolderData} objects will be
+     * fully initialized. (See {@link #getFolders(SecurityContext, Collection)} for
+     * a faster but not fully initialized method)
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param ids
+     *            The folder Ids
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> loadFolders(SecurityContext ctx,
+            Collection<Long> ids) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            ParametersI param = new ParametersI();
+            param.addIds(ids);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "left outer join fetch folder.parentFolder as parentFolder "
+                                    + "left outer join fetch folder.childFolders as childFolders "
+                                    + "left outer join fetch folder.roiLinks as roiLinks "
+                                    + "left outer join fetch roiLinks.child as roi "
+                                    + "left outer join fetch roi.shapes as shapes "
+                                    + "left outer join fetch folder.annotationLinks as annotationLinks "
+                                    + "left outer join fetch folder.imageLinks as imageLinks "
+                                    + "left outer join fetch folder.details.owner as owner "
+                                    + "where folder.id in (:ids)",
+                            param);
+            Collection<FolderData> result = new ArrayList<FolderData>();
+            for (IObject l : list) {
+                result.add(new FolderData((Folder) l));
+            }
+            return result;
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+    
+    /**
+     * Get all folders the logged in user has access to. Note:
+     * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
+     * roi, etc. collections will be unloaded!). If you need fully initialized objects
+     * see {@link #loadFolders(SecurityContext, Collection)}.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            List<IObject> list = qs.findAllByQuery(
+                    "select folder from Folder as folder ", null);
+            
+            Collection<FolderData> result = new ArrayList<FolderData>(
+                    list.size());
+            for (IObject obj : list)
+                result.add(new FolderData((Folder) obj));
+
+            return result;
+            
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Get the folders for the given folder ids. Note:
+     * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
+     * roi, etc. collections will be unloaded!). If you need fully initialized objects
+     * see {@link #loadFolders(SecurityContext, Collection)}.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param ids
+     *            The folder ids
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx,
+            Collection<Long> ids) throws DSOutOfServiceException,
+            DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            ParametersI param = new ParametersI();
+            param.addIds(ids);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "where folder.id in (:ids)",
+                            param);
+            
+            Collection<FolderData> result = new ArrayList<FolderData>(
+                    list.size());
+            for (IObject obj : list)
+                result.add(new FolderData((Folder) obj));
+
+            return result;
+            
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+
+    /**
+     * Get the folders which belong to the given user. Note:
+     * {@link FolderData} objects won't be fully initialized (i. e. sub folder,
+     * roi, etc. collections will be unloaded!). If you need fully initialized objects
+     * see {@link #loadFolders(SecurityContext, Collection)}.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param userId
+     *            The user id
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<FolderData> getFolders(SecurityContext ctx, long userId)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            IQueryPrx qs = gateway.getQueryService(ctx);
+            ParametersI param = new ParametersI();
+            param.addLong("userId", userId);
+            List<IObject> list = qs
+                    .findAllByQuery(
+                            "select folder from Folder as folder "
+                                    + "where folder.details.owner.id = :userId",
+                            param);
+
+            Collection<FolderData> result = new ArrayList<FolderData>(
+                    list.size());
+            for (IObject obj : list)
+                result.add(new FolderData((Folder) obj));
+
+            return result;
+            
+        } catch (Throwable e) {
+            handleException(this, e, "Cannot load folders.");
+        }
+
+        return Collections.EMPTY_LIST;
+    }
+    
 }

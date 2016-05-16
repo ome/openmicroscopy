@@ -120,30 +120,6 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
     private final SetMultimap<IObject, IObject> blockedBy = HashMultimap.create();
 
     /**
-     * Given class names provided by the user, find the corresponding set of actual classes.
-     * @param classNames names of model object classes
-     * @return the named classes
-     */
-    private Set<Class<? extends IObject>> getClassesFromNames(Collection<String> classNames) {
-        if (CollectionUtils.isEmpty(classNames)) {
-            return Collections.emptySet();
-        }
-        final Set<Class<? extends IObject>> classes = new HashSet<Class<? extends IObject>>();
-        for (String className : classNames) {
-            final int lastDot = className.lastIndexOf('.');
-            if (lastDot > 0) {
-                className = className.substring(lastDot + 1);
-            }
-            final Class<? extends IObject> actualClass = graphPathBean.getClassForSimpleName(className);
-            if (actualClass == null) {
-                throw new IllegalArgumentException("unknown model object class named: " + className);
-            }
-            classes.add(actualClass);
-        }
-        return classes;
-    }
-
-    /**
      * Construct a new <q>duplicate</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param aclVoter ACL voter for permissions checking
      * @param securityRoles the security roles
@@ -195,9 +171,9 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                     }});
 
         try {
-            classifier.addClass(Inclusion.DUPLICATE, getClassesFromNames(typesToDuplicate));
-            classifier.addClass(Inclusion.REFERENCE, getClassesFromNames(typesToReference));
-            classifier.addClass(Inclusion.IGNORE,    getClassesFromNames(typesToIgnore));
+            classifier.addClass(Inclusion.DUPLICATE, graphHelper.getClassesFromNames(typesToDuplicate));
+            classifier.addClass(Inclusion.REFERENCE, graphHelper.getClassesFromNames(typesToReference));
+            classifier.addClass(Inclusion.IGNORE,    graphHelper.getClassesFromNames(typesToIgnore));
         } catch (IllegalArgumentException e) {
             throw helper.cancel(new ERR(), e, "bad-class");
         }

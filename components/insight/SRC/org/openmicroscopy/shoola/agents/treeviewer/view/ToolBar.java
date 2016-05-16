@@ -38,6 +38,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeListenerProxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -84,6 +85,7 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+import org.openmicroscopy.shoola.util.ui.FancyTextField;
 import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
 import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -800,55 +802,15 @@ class ToolBar
         sorter.setCaseSensitive(true);
         popupMenu = new ScrollablePopupMenu();
         
-        searchField = initSearchField();
-    }
+        searchField = new FancyTextField(SEARCHFIELD_TEXT, SEARCHFIELD_WIDTH);
+        searchField.addPropertyChangeListener(FancyTextField.SUBMIT_PROPERTY, new PropertyChangeListener() {
 
-    /**
-     * Initializes the search field 
-     */
-    private JTextField initSearchField() {
-        final JTextField searchField = new JTextField(SEARCHFIELD_WIDTH);
-        searchField.setText(SEARCHFIELD_TEXT);
-        
-        final Font defaultFont = searchField.getFont();
-        final Font italicFont = searchField.getFont().deriveFont(Font.ITALIC);
-        searchField.setFont(italicFont);
-        searchField.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-        
-        searchField.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_ENTER:
-                        search();
-                }
-            }
-        });
-        
-        searchField.addFocusListener(new FocusListener() {
-            
             @Override
-            public void focusLost(FocusEvent e) {
-                if (searchField.getText().trim().equals("")) {
-                    searchField.setText(SEARCHFIELD_TEXT);
-                    searchField.setFont(italicFont);
-                    searchField.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-                }
+            public void propertyChange(PropertyChangeEvent evt) {
+                search();
             }
             
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (searchField.getText().equals(SEARCHFIELD_TEXT)) {
-                    searchField.setText("");
-                }
-                else {
-                    searchField.selectAll();
-                }
-                searchField.setFont(defaultFont);
-                searchField.setForeground(Color.BLACK);
-            }
         });
-        
-        return searchField;
     }
     
     /**

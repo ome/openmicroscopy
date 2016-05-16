@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.model.ROI 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
+
+import omero.gateway.model.FolderData;
+import omero.gateway.model.ROIData;
 
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -84,6 +88,9 @@ public class ROI
 	private Map<AnnotationKey, Object> 	annotations 
 										= new HashMap<AnnotationKey,Object>();
 	
+	/** The folders the ROI is part of */
+	private Collection<FolderData> folders = new ArrayList<FolderData>();
+	
 	/**
      * Forbidden annotations can't be set by the setAnnotation() operation.
      * They can only be changed by basicSetAnnotations().
@@ -93,6 +100,9 @@ public class ROI
 	/** The identifier of the owner. */
 	private long ownerID;
 
+	/** An UUID (can be used to link an {@link ROI} to an according {@link ROIData} object)*/
+	private String uuid;
+	
 	/** 
 	 * Initializes the ROI with id and construct the TreeMap to contain 
 	 * the ROIShapes of the ROI and there mapping the coord3D they exist on.
@@ -114,12 +124,24 @@ public class ROI
    		this.editable = editable;
 		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
 		attachments = new AttachmentMap();
+		this.uuid = UUID.randomUUID().toString();
 	}
+	
+    /**
+     * Get the UUID (can be used to link an {@link ROI} to an according
+     * {@link ROIData} object)
+     * 
+     * @return See above.
+     */
+    public String getUUID() {
+        return uuid;
+    }
 	
     /**
      * Construct the ROI with id.
      * @param id see above.
-     * @param clientSide
+     * @param clientSide Flag indicating that the ROI has been created 
+     *          on the client side and not stored yet
      * @param editable Flag indicating the figure can/cannot be edited.
 	 * @param deletable Flag indicating the figure can/cannot be deleted.
 	 * @param annotatable Flag indicating the figure can/cannot be annotated.
@@ -134,6 +156,8 @@ public class ROI
 	 * Constructs the ROI with id on coordinate and initial ROIShape shape.
 	 * 
 	 * @param id The ID of the ROI.
+	 * @param clientSide Flag indicating that the ROI has been created 
+     *          on the client side and not stored yet
 	 * @param coord The coordinate of the ROIShape being constructed with the 
 	 * ROI. 
 	 * @param shape The ROIShape being constructed with the ROI.
@@ -625,4 +649,13 @@ public class ROI
 	 * @return See above.
 	 */
 	public boolean canEdit() { return editable; }
+
+	/**
+	 * Get the folders this ROI is part of 
+	 * @return See above.
+	 */
+    public Collection<FolderData> getFolders() {
+        return folders;
+    }
+    
 }

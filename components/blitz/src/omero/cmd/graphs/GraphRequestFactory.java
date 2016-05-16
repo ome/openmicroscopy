@@ -42,6 +42,7 @@ import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphPolicyRule;
 import ome.system.Roles;
 import omero.cmd.GraphModify2;
+import omero.cmd.GraphQuery;
 import omero.cmd.Request;
 import omero.cmd.SkipHead;
 
@@ -127,7 +128,7 @@ public class GraphRequestFactory {
      * @param requestClass a request class
      * @return the legal target object classes for that type of request
      */
-    public <R extends GraphModify2> Set<Class<? extends IObject>> getLegalTargets(Class<R> requestClass) {
+    public <R extends GraphQuery> Set<Class<? extends IObject>> getLegalTargets(Class<R> requestClass) {
         final Set<Class<? extends IObject>> targetClasses = allTargets.get(requestClass);
         if (targetClasses.isEmpty()) {
             throw new IllegalArgumentException("no legal target classes defined for request class " + requestClass);
@@ -140,7 +141,7 @@ public class GraphRequestFactory {
      * @param requestClass a request class
      * @return a new instance of that class
      */
-    public <R extends GraphModify2> R getRequest(Class<R> requestClass) {
+    public <R extends GraphQuery> R getRequest(Class<R> requestClass) {
         final R request;
         try {
             if (SkipHead.class.isAssignableFrom(requestClass)) {
@@ -154,11 +155,17 @@ public class GraphRequestFactory {
                 } else {
                     graphPolicy = graphPolicy.getCleanInstance();
                 }
-                final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
-                        GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class);
-                request =
-                        constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
-                                targetClasses, graphPolicy, unnullable);
+                if (GraphModify2.class.isAssignableFrom(requestClass)) {
+                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
+                            GraphPathBean.class, Deletion.class, Set.class, GraphPolicy.class, SetMultimap.class);
+                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, deletionInstance,
+                            targetClasses, graphPolicy, unnullable);
+                } else {
+                    final Constructor<R> constructor = requestClass.getConstructor(ACLVoter.class, Roles.class, SystemTypes.class,
+                            GraphPathBean.class, Set.class, GraphPolicy.class);
+                    request = constructor.newInstance(aclVoter, securityRoles, systemTypes, graphPathBean, targetClasses,
+                            graphPolicy);
+                }
             }
         } catch (IllegalArgumentException | ReflectiveOperationException | SecurityException e) {
             throw new IllegalArgumentException("cannot instantiate " + requestClass, e);

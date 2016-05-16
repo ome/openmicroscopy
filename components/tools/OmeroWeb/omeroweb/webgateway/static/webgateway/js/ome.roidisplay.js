@@ -108,13 +108,13 @@ $.fn.roi_display = function(options) {
               newShape = paper.image(src, shape['x'], shape['y'], shape['width'], shape['height']);
             }
             if (shape['type'] == 'Ellipse') {
-              newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
+              newShape = paper.ellipse(shape['x'], shape['y'], shape['radiusX'], shape['radiusY']);
             }
             else if (shape['type'] == 'Rectangle') {
               newShape = paper.rect(shape['x'], shape['y'], shape['width'], shape['height']);
             }
             else if (shape['type'] == 'Point') {
-              newShape = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
+              newShape = paper.ellipse( shape['x'], shape['y'], 2, 2);
             }
             else if (shape['type'] == 'Line') {
               // define line as 'path': Move then Line: E.g. "M10 10L90 90"
@@ -164,14 +164,14 @@ $.fn.roi_display = function(options) {
         var get_tool_tip = function(shape) {
             var toolTip = "";
             if (shape['type'] == 'Ellipse') {
-              toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'] +" rx:"+ shape['rx'] + " ry: "+  shape['ry'];
+              toolTip = "x:"+ shape['x'] +" y:"+ shape['y'] +" radiusX:"+ shape['radiusX'] + " radiusY: "+  shape['radiusY'];
             }
             else if (shape['type'] == 'Rectangle') {
               toolTip = "x:"+ shape['x'] +" y:"+ shape['y'] +
                 " width:"+ shape['width'] + " height: "+  shape['height'];
             }
             else if (shape['type'] == 'Point') {
-              toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'];
+              toolTip = "x:"+ shape['x'] +" y:"+ shape['y'];
             }
             else if (shape['type'] == 'Line') {
               toolTip = "x1:"+ shape['x1'] +" y1:"+ shape['y1'] +" x2:"+ shape['x2'] +" y2:"+ shape['y2'];

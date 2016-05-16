@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,9 @@
         <value>DatasetImageLink</value>
         <value>Project</value>
         <value>ProjectDatasetLink</value>
+        <value>Folder</value>
+        <value>FolderImageLink</value>
+        <value>FolderRoiLink</value>
 
         <!-- core -->
         <value>Image</value>
@@ -151,20 +154,11 @@
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].parent = [I];perms=??-???" p:changes="L:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].child = [I];perms=??-???" p:changes="L:[D]"/>
 
-        <!-- Give settings if both holder and underlying object are given. -->
+        <!-- Give settings if underlying object is given. -->
 
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = S:[ED], S.detector = [I]"
-                                       p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = S:[ED], S.lightSource = [I]"
-                                       p:changes="S:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Image[I].objectiveSettings = S:[ED], S.objective = [I]"
-                                       p:changes="S:[I]"/>
-
-        <!-- Delete settings if only the underlying object is given in a private group. -->
-
-        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I];perms=??-???" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I];perms=??-???" p:changes="S:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I];perms=??-???" p:changes="S:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[I]"/>
 
         <!-- Images may be given only if doing so would not remove an imaging environment from any of them. -->
 
@@ -319,6 +313,12 @@
                                        p:changes="D:{r}"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[I], L.child = I:[E]{i}, D =/o I"
                                        p:changes="I:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink.parent = F:[I], L.child = I:[E]{i}, F =/o I"
+                                       p:changes="I:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink.parent = F:[I], L.child = ROI:[E]{i}, F =/o ROI"
+                                       p:changes="ROI:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Folder[I].childFolders = C:[E]{i}, P =/o C"
+                                       p:changes="C:{r}"/>
 
         <!-- In considering giving a container's contents, do not give an object if it is in another container. -->
 
@@ -331,32 +331,53 @@
                                        p:changes="D:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[I];perms=???-??, L.child = I:[E]{r}, D =/!o I"
                                        p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink.parent = F:[I];perms=???-??, L.child = I:[E]{r}, F =/!o I"
+                                       p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink.parent = F:[I];perms=???-??, L.child = ROI:[E]{r}, F =/!o ROI"
+                                       p:changes="ROI:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Folder[I].childFolders = C:[E]{r};perms=???-??, P =/!o C"
+                                       p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = P:[I];perms=???a??, L.child = D:[E]{r}, P =/!o D"
                                        p:changes="D:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = D:[I];perms=???a??, L.child = I:[E]{r}, D =/!o I"
                                        p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink.parent = F:[I];perms=???a??, L.child = I:[E]{r}, F =/!o I"
+                                       p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink.parent = F:[I];perms=???a??, L.child = ROI:[E]{r}, F =/!o ROI"
+                                       p:changes="ROI:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="P:Folder[I].childFolders = C:[E]{r};perms=???a??, P =/!o C"
+                                       p:changes="C:{a}"/>
 
-        <!-- Give orphaned datasets. -->
+        <!-- Give orphaned datasets and folders. -->
 
         <bean parent="graphPolicyRule" p:matches="D:Dataset[E]{o}/o" p:changes="D:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Folder[E]{o}/o" p:changes="F:[I]"/>
 
         <!--
-             If a project, dataset or image is given for both sides of a link then, regardless of permissions, give the link if
-             same owners or not in private group.
+             If a project, dataset, folder, image or ROI is given for both sides of a link then, regardless of permissions, give the
+             link if same owners or not in private group.
           -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[ED].parent = P:[I], L.child = D:[I], P =/o D"
                                        p:changes="L:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[ED].parent = D:[I], L.child = I:[I], D =/o I"
                                        p:changes="L:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[ED].parent = F:[I], L.child = I:[I], F =/o I"
+                                       p:changes="L:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[ED].parent = F:[I], L.child = ROI:[I], F =/o ROI"
+                                       p:changes="L:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I];perms=??r???, L.child = [I]"
                                        p:changes="L:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [I];perms=??r???, L.child = [I]"
                                        p:changes="L:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[ED].parent = [I];perms=??r???, L.child = [I]"
+                                       p:changes="L:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[ED].parent = [I];perms=??r???, L.child = [I]"
+                                       p:changes="L:[I]/n"/>
 
         <!--
-             If a project, dataset or image is given then delete any remaining cross-owner links regardless of permissions
-             outside read-write groups.
+             If a project, dataset, folder, image or ROI is given then delete any remaining cross-owner links regardless of
+             permissions outside read-write groups.
           -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I];perms=???-??, L.child = [E]{ia}"
@@ -367,6 +388,14 @@
                                        p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [E];perms=???-??, L.child = [I]"
                                        p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = [I];perms=???-??, L.child = [E]{ia}"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = [E];perms=???-??, L.child = [I]"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [I];perms=???-??, L.child = [E]{ia}"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [E];perms=???-??, L.child = [I]"
+                                       p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [I];perms=???a??, L.child = [E]{ia}"
                                        p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [E];perms=???a??, L.child = [I]"
@@ -375,11 +404,21 @@
                                        p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [E];perms=???a??, L.child = [I]"
                                        p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = [I];perms=???a??, L.child = [E]{ia}"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = [E];perms=???a??, L.child = [I]"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [I];perms=???a??, L.child = [E]{ia}"
+                                       p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [E];perms=???a??, L.child = [I]"
+                                       p:changes="L:[D]/n"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[!O]" p:changes="L:[-]"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[!O]" p:changes="L:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[!O]" p:changes="L:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[!O]" p:changes="L:[-]"/>
 
         <!-- CORE -->
 
@@ -432,11 +471,6 @@
         <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink.parent = J:[E]{r}, L.child = [E]{a}" p:changes="J:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:PixelsOriginalFileMap.child = P:[E]{r}, L.parent = [E]{a}" p:changes="P:{a}"/>
 
-        <!-- Delete remaining settings if holder object is given but not the settings in a private group. -->
-
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].detectorSettings = DS:[E];perms=??-???" p:changes="DS:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[I].lightSourceSettings = LS:[E];perms=??-???" p:changes="LS:[D]"/>
-
         <!-- Give a stage label only if all the images using it are given. -->
 
         <bean parent="graphPolicyRule" p:matches="Image[E]{r}.stageLabel = SL:[E]{i}" p:changes="SL:{r}"/>
@@ -455,7 +489,17 @@
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[E]" p:changes="P:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].channels = C:[E]" p:changes="C:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].planeInfo = PI:[E]" p:changes="PI:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]" p:changes="LC:[I]"/>
+
+        <!-- Give a logical channel only if all its channels are to be given. -->
+
+        <bean parent="graphPolicyRule" p:matches="Channel[I].logicalChannel = LC:[E]{i}" p:changes="LC:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Channel[E].logicalChannel = LC:[E]{r}" p:changes="LC:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E]{o}" p:changes="LC:[I]"/>
+
+        <!-- Cannot separate channels from logical channels in a private group. -->
+
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel.channels = C1:[I];perms=??-???, LC.channels = C2:[E]"
+                                       p:error="cannot give {C1} while {C2} remains as they share {LC}"/>
 
         <!-- Delete remaining settings if holder object is given but not the settings in a private group. -->
 
@@ -614,11 +658,11 @@
         <bean parent="graphPolicyRule" p:matches="Screen[E]{ia}.reagents = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink.parent = [I], L.child = R:[E]{i}" p:changes="R:{r}"/>
         <bean parent="graphPolicyRule" p:matches="WellReagentLink[I].child = R:[E]{i}" p:changes="R:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="R:Reagent[E]{o}" p:changes="R:[I]"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].child = [I]" p:changes="L:[I]"/>
         <bean parent="graphPolicyRule" p:matches="S:Screen[E].reagents = R:[I]" p:error="may not give {R} without {S}"/>
-        <bean parent="graphPolicyRule" p:matches="WellReagentLink.parent = W:[E];perms=??-???, L.child = R:[I]"
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[!D].parent = W:[E];perms=??-???, L.child = R:[I]"
                                        p:error="may not give {R} without {W}"/>
 
         <!-- Cannot give screen in a private group if it uses a differently owned reagent. -->

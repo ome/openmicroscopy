@@ -112,6 +112,9 @@ class ObjectInspector
          */
         private static final List<AttributeField> attributeFields = new ArrayList<AttributeField>();
         static {
+            attributeFields.add(new AttributeField(AnnotationKeys.FOLDERS,
+                    AnnotationDescription.annotationDescription
+                    .get(AnnotationKeys.FOLDERS), false));
             attributeFields.add(new AttributeField(AnnotationKeys.TAG,
                     AnnotationDescription.annotationDescription
                             .get(AnnotationKeys.TAG), false));
