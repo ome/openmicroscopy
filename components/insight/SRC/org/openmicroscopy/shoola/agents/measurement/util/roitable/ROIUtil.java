@@ -26,11 +26,13 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import omero.gateway.model.FolderData;
 
+import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -185,5 +187,78 @@ public class ROIUtil {
         if (obj instanceof FolderData)
             return "FolderData_" + ((FolderData) obj).getId();
         return "" + obj.hashCode();
+    }
+
+    /**
+     * Gathers all sub nodes of a node and adds them to the provided nodes
+     * collection (the node itself will be added to the collection, too)
+     * 
+     * @param node
+     *            The node for which to gather the sub nodes for
+     * @param nodes
+     *            The collection to put the sub nodes into
+     */
+    public static void gatherNodes(ROINode node, Collection<ROINode> nodes) {
+        nodes.add(node);
+        for (MutableTreeTableNode n : node.getChildList()) {
+            gatherNodes((ROINode) n, nodes);
+        }
+    }
+
+    /**
+     * Get all nodes which represent shapes, descending from the given node
+     * 
+     * @param root
+     *            The root node.
+     * 
+     * @return See above.
+     */
+    public static Collection<ROINode> getShapeNodes(ROINode root) {
+        Collection<ROINode> nodes = new ArrayList<ROINode>();
+        gatherNodes(root, nodes);
+        Iterator<ROINode> it = nodes.iterator();
+        while (it.hasNext()) {
+            ROINode next = it.next();
+            if (!next.isShapeNode())
+                it.remove();
+        }
+        return nodes;
+    }
+
+    /**
+     * Get all subnodes of the given node, which represent the given shape
+     *
+     * @param shapeId
+     *            The id of the shape
+     * @param root
+     *            The root node
+     * @return See above
+     */
+    public static Collection<ROINode> getShapeNodes(long shapeId, ROINode root) {
+        Collection<ROINode> nodes = getShapeNodes(root);
+        Iterator<ROINode> it = nodes.iterator();
+        while (it.hasNext()) {
+            ROINode next = it.next();
+            ROIShape shape = (ROIShape) next.getUserObject();
+            if (shape.getROIShapeID() != shapeId)
+                it.remove();
+        }
+        return nodes;
+    }
+
+    /**
+     * Gathers all sub nodes of the given node and adds them to the provided
+     * nodes collection (the node itself will be added to the collection, too)
+     * 
+     * @param node
+     *            The root node
+     * @param nodes
+     *            The collection to put the sub nodes into
+     */
+    public static void getAllDecendants(ROINode node, Collection<ROINode> nodes) {
+        nodes.add(node);
+        for (MutableTreeTableNode n : node.getChildList()) {
+            gatherNodes((ROINode) n, nodes);
+        }
     }
 }

@@ -589,7 +589,7 @@ public class ROITable
 	    // store the expanded state of the nodes
 	    Set<String> expandedNodeIds = new HashSet<String>();
         Collection<ROINode> tmp = new ArrayList<ROINode>();
-        root.getAllDecendants(tmp);
+        getAllDecendants(root, tmp);
         for (ROINode n : tmp) {
             if (n.isExpanded()) {
                 expandedNodeIds.add(getUUID(n.getUserObject()));
@@ -676,7 +676,7 @@ public class ROITable
 		
 		// restore the expanded state
         tmp.clear();
-        root.getAllDecendants(tmp);
+        getAllDecendants(root, tmp);
         for (ROINode n : tmp) {
             if (expandedNodeIds.contains(getUUID(n)))
                 expandNode(n);
@@ -1274,7 +1274,7 @@ public class ROITable
                 excludeIds.add(f.getParentFolder().getId());
             ROINode fnode = nodesMap.findFolderNode(f);
             Collection<ROINode> subNodes = new ArrayList<ROINode>();
-            fnode.getAllDecendants(subNodes);
+            getAllDecendants(fnode, subNodes);
             for (ROINode subNode : subNodes)
                 if (subNode.isFolderNode())
                     excludeIds.add(((FolderData) subNode.getUserObject())

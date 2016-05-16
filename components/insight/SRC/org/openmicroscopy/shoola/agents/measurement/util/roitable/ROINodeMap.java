@@ -127,7 +127,7 @@ public class ROINodeMap {
 
             ROINode fnode = findFolderNode(f);
             Collection<ROINode> subNodes = new ArrayList<ROINode>();
-            fnode.getAllDecendants(subNodes);
+            getAllDecendants(fnode, subNodes);
             for (ROINode subNode : subNodes)
                 if (subNode.isFolderNode())
                     ids.add(((FolderData) subNode.getUserObject()).getId());
