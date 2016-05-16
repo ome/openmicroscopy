@@ -122,7 +122,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i2);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(ds2).build();
         callback(true, client, dc);
 
         assertDoesNotExist(ds2);
@@ -167,7 +167,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         link.setParent((Image) i.proxy());
         iUpdate.saveAndReturnObject(link);
 
-        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(ds2).build();
         callback(true, client, dc);
         assertDoesNotExist(ds2);
         assertExists(ds1);
@@ -202,7 +202,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        final Delete2 dc = Requests.delete("Dataset", ds2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(ds2).build();
         callback(true, client, dc);
 
         assertDoesNotExist(ds2);
@@ -239,7 +239,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         p2.linkDataset(d);
         p2 = (Project) iUpdate.saveAndReturnObject(p2);
 
-        final Delete2 dc = Requests.delete("Project", p2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(p2).build();
         callback(true, client, dc);
 
         assertDoesNotExist(p2);
@@ -275,7 +275,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         s2.linkPlate(p);
         s2 = (Screen) iUpdate.saveAndReturnObject(s2);
 
-        final Delete2 dc = Requests.delete("Screen", s2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(s2).build();
         callback(true, client, dc);
 
         assertDoesNotExist(s2);
@@ -462,7 +462,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
             /* Delete the run. */
 
-            final Delete2 dc = Requests.delete("PlateAcquisition", runIdToDelete);
+            final Delete2 dc = Requests.delete().target("PlateAcquisition").id(runIdToDelete).build();
             callback(true, client, dc);
             
             /* Verify that exactly the expected entities remain. */
@@ -474,7 +474,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
        }
  
         /* Delete the plate. */
-        final Delete2 dc = Requests.delete("Plate", plateId);
+        final Delete2 dc = Requests.delete().target("Plate").id(plateId).build();
         callback(true, client, dc);
 
         /* Verify that no entities remain. */
@@ -546,7 +546,7 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         /* delete the dataset */
-        final Delete2 delete = Requests.delete("Dataset", dataset.getId().getValue());
+        final Delete2 delete = Requests.delete().target(dataset).build();
         callback(true, client, delete);
 
         /* check what is left afterward */
@@ -604,13 +604,13 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         switch (target) {
         case DATASET:
-            delete = Requests.delete("Dataset", datasetId);
+            delete = Requests.delete().target(dataset).build();
             break;
         case IMAGES:
-            delete = Requests.delete("Image", imageIds);
+            delete = Requests.delete().target("Image").id(imageIds).build();
             break;
         case PLATE:
-            delete = Requests.delete("Plate", plateId);
+            delete = Requests.delete().target(plate).build();
             break;
         default:
             delete = null;
@@ -721,9 +721,9 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         final ChildOption option;
         if (Boolean.TRUE.equals(includeOrphans)) {
-            option = Requests.option(folderOption ? "Folder" : "Roi", null);
+            option = Requests.option().includeType(folderOption ? "Folder" : "Roi").build();
         } else if (Boolean.FALSE.equals(includeOrphans)) {
-            option = Requests.option(null, folderOption ? "Folder" : "Roi");
+            option = Requests.option().excludeType(folderOption ? "Folder" : "Roi").build();
         } else {
             option = null;
         }

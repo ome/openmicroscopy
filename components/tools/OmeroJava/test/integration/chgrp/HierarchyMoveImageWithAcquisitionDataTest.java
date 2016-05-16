@@ -129,8 +129,6 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         ExperimenterGroup targetGroup = createGroupWithMember(userId,
                 targetGroupPermissions);
 
-        long targetGroupId = targetGroup.getId().getValue();
-
         // force a refresh of the user's group membership
         iAdmin.getEventContext();
 
@@ -146,7 +144,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         loginUser(sourceGroup);
 
         // Perform the move operation.
-        final Chgrp2 dc = Requests.chgrp("Image", originalImageId, targetGroupId);
+        final Chgrp2 dc = Requests.chgrp().target(savedImage).toGroup(targetGroup).build();
         callback(true, client, dc);
 
         // check if the image have been moved.

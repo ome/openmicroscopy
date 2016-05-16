@@ -128,7 +128,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
                 logRootIntoGroup(ctx.groupId);
         }
         // Create commands to move and create the link in target
-        final Chgrp2 dc = Requests.chgrp("Dataset", d.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(d).toGroup(g).build();
         callback(true, client, dc);
 
         // Check if the dataset has been removed.

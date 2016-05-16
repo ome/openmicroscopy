@@ -134,15 +134,15 @@ public class DeleteProjectedImageTest extends AbstractServerTest {
         Delete2 dc;
         switch (action) {
         case SOURCE_IMAGE:
-            dc = Requests.delete("Image", id);
+            dc = Requests.delete().target("Image").id(id).build();
             callback(passes, client, dc);
             break;
         case PROJECTED_IMAGE:
-            dc = Requests.delete("Image", projectedID);
+            dc = Requests.delete().target("Image").id(projectedID).build();
             callback(passes, client, dc);
             break;
         case BOTH_IMAGES:
-            dc = Requests.delete("Image", Arrays.asList(id, projectedID));
+            dc = Requests.delete().target("Image").id(id, projectedID).build();
             callback(passes, client, dc);
             break;
         }
