@@ -293,8 +293,8 @@ class InputServerStrategy
 	private MeasurePointFigure createPointFigure(PointData data)
 	{
 		double r = PointFigure.FIGURE_SIZE/2;
-		double x = Math.abs(data.getX()-r);
-		double y = Math.abs(data.getY()-r);
+		double x = data.getX()-r;
+		double y = data.getY()-r;
 		
 		MeasurePointFigure fig = new MeasurePointFigure(data.getText(), x, y, 
 				2*r, 2*r, data.isReadOnly(), data.isClientObject(), 
