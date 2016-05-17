@@ -2385,7 +2385,7 @@ def annotate_tags(request, conn=None, **kwargs):
     for exp in users:
         userMap[exp['id']] = exp
 
-    # For batch annotate, we only include tags that user has added to all objects
+    # For batch annotate, only include tags that user has added to all objects
     if obj_count > 1:
         # count my links
         myLinkCount = {}
@@ -2464,7 +2464,9 @@ def annotate_tags(request, conn=None, **kwargs):
                     "%s-%s" % (dtype, obj.id)
                     for dtype, objs in oids.items()
                     for obj in objs], index, tag_owner_id=self_id)
-            return HttpJsonResponse({'added': tags, 'removed': removed, 'new': new_tags})
+            return HttpJsonResponse({'added': tags,
+                                     'removed': removed,
+                                     'new': new_tags})
         else:
             # TODO: handle invalid form error
             return HttpResponse(str(form_tags.errors))

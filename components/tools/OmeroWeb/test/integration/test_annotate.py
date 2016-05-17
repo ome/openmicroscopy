@@ -56,16 +56,9 @@ class TestTagging(IWebTest):
         Returns userA's Tag linked to userB's dataset
         by userA and userB
         """
-        # link = DatasetAnnotationLinkI()
-        # link.parent = DatasetI(dataset.id.val, False)
-        # link.child = ann
-        # update = client.sf.getUpdateService()
-        # link = update.saveAndReturnObject(link)
-        # return link
-
-            # 'newtags-0-description': '',
-            # 'newtags-0-tag': 'foobar',
-            # 'newtags-0-tagset': '',
+        # 'newtags-0-description': '',
+        # 'newtags-0-tag': 'foobar',
+        # 'newtags-0-tagset': '',
         request_url = reverse('annotate_tags')
         data = {
             'dataset': dsId,
@@ -99,7 +92,8 @@ class TestTagging(IWebTest):
         tag2 = self.make_tag("user2_tag", client=client2)
 
         # User1 adds 2 tags to Dataset
-        self.annotate_dataset(django_client1, ds.id.val, [tag.id.val, tag2.id.val])
+        self.annotate_dataset(django_client1, ds.id.val,
+                              [tag.id.val, tag2.id.val])
 
         # check tags got added
         request_url = reverse('api_annotations')
