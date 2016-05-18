@@ -99,7 +99,7 @@
         <type id="ome.model.roi.Path" discriminator="path" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="d" type="text"/><!-- e.g. "M 100 100 L 300 100 L 200 300 z" -->
-                         <optional name="textValue" type="text"/>
+                        <optional name="textValue" type="text"/>
                </properties>
         </type>
         <type id="ome.model.roi.Polygon" discriminator="polygon" superclass="ome.model.roi.Shape">
