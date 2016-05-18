@@ -58,8 +58,7 @@ class TestChown(CLITest):
         oid = self.create_object("Image")
 
         # create a user in the same group and transfer the object to the user
-        client, user = self.new_client_and_user()
-        self.add_experimenters(self.group, [user])
+        client, user = self.new_client_and_user(group=self.group)
         self.args += ['%s' % (user.omeName.val),
                       '%s:%s' % ("Image", oid)]
         self.cli.invoke(self.args, strict=True)
@@ -78,7 +77,7 @@ class TestChown(CLITest):
                       '%s:%s' % ("Image", oid)]
         self.cli.invoke(self.args, strict=True)
 
-        # check the object has been transferred
+        # check the object still belongs to the original user
         obj = self.query.get("Image", oid, all_grps)
         assert obj.id.val == oid
         assert obj.details.owner.id.val == self.user.id.val
