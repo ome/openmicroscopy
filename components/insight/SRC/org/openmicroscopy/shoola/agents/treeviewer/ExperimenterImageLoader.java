@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -171,7 +172,7 @@ public class ExperimenterImageLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.setLeaves((Set) result, smartFolderNode, expNode); 
+        viewer.setLeaves((Collection) result, smartFolderNode, expNode); 
     }
     
 }
