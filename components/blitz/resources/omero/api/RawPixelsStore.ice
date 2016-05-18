@@ -83,7 +83,7 @@ module omero {
                  * Retrieves the in memory size of a 2D image plane in this
                  * pixel store.
                  * @return 2D image plane size in bytes
-                 *            <code>sizeX*sizeY*ByteWidth</code>.
+                 *            <code>sizeX*sizeY*byteWidth</code>.
                  **/
                 idempotent long getPlaneSize() throws ServerError;
 
@@ -91,7 +91,7 @@ module omero {
                  * Retrieves the in memory size of a row or scanline of pixels
                  * in this pixel store.
                  * @return row or scanline size in bytes
-                 *         <codesizeX*ByteWidth</code>
+                 *         <codesizeX*byteWidth</code>
                  **/
                 idempotent int getRowSize() throws ServerError;
 
@@ -101,7 +101,7 @@ module omero {
                  * at a particular timepoint in this pixel store.
                  *
                  * @return stack size in bytes
-                 *         <code>sizeX*sizeY*ByteWidth</code>.
+                 *         <code>sizeX*sizeY*byteWidth</code>.
                  **/
                 idempotent long getStackSize() throws ServerError;
 
@@ -110,14 +110,14 @@ module omero {
                  * optical sections for <b>all</b> wavelengths or channels at
                  * a particular timepoint in this pixel store.
                  * @return timepoint size in bytes
-                 *         <code>sizeX*sizeY*sizeZ*sizeC*ByteWidth</code>.
+                 *         <code>sizeX*sizeY*sizeZ*sizeC*byteWidth</code>.
                  **/
                 idempotent long getTimepointSize() throws ServerError;
 
                 /**
                  * Retrieves the in memory size of the entire pixel store.
                  * @return total size of the pixel size in bytes
-                 * (sizeX*sizeY*sizeZ*sizeC*sizeT*ByteWidth).
+                 *         <code>sizeX*sizeY*sizeZ*sizeC*sizeT*byteWidth</code>.
                  **/
                 idempotent long getTotalSize() throws ServerError;
 
