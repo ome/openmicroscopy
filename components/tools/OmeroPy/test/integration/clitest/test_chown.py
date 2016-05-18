@@ -21,7 +21,7 @@
 
 # from omero.cli import NonZeroReturnCode
 from omero.plugins.chown import ChownControl
-from test.integration.clitest.cli import CLITest
+from test.integration.clitest.cli import CLITest, RootCLITest
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
@@ -81,3 +81,29 @@ class TestChown(CLITest):
         obj = self.query.get("Image", oid, all_grps)
         assert obj.id.val == oid
         assert obj.details.owner.id.val == self.user.id.val
+
+
+class TestChownRoot(RootCLITest):
+
+    def setup_method(self, method):
+        super(TestChownRoot, self).setup_method(method)
+        self.cli.register("chown", ChownControl, "TEST")
+        self.args += ["chown"]
+
+    def testChownBasicUsageWithId(self):
+        new_image = self.new_image()
+        new_image = self.update.saveAndReturnObject(new_image)
+        iid = new_image.id.val
+
+        # create a new group which the root is not a member of
+        # and a user in the same group and transfer the image to the user
+        group = self.new_group()
+        client, user = self.new_client_and_user(group=group)
+        self.args += ['%s%s' % ("User:", user.id.val),
+                      '%s:%s' % ("Image", new_image.id.val)]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the object has been transferred
+        obj = client.sf.getQueryService().get("Image", iid, all_grps)
+        assert obj.id.val == new_image.id.val
+        assert obj.details.owner.id.val == user.id.val
