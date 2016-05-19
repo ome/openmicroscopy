@@ -20,6 +20,8 @@ import static omero.rtypes.robject;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import com.google.common.collect.LinkedListMultimap;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
@@ -760,16 +762,16 @@ public class IceMapper extends ome.util.ModelMapper implements
         return nvl;
     }
 
-    public static List<NamedValue> convertMapPairs(List<ome.xml.model.MapPair> map) {
+    public static List<NamedValue> convertMapPairs(LinkedListMultimap<String, String> map) {
         if (map == null) {
             return null;
         }
         final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
-        for (final ome.xml.model.MapPair nv : map) {
+        for (final Map.Entry<String, String> nv : map.entries()) {
             if (nv == null) {
                 nvl.add(null);
             } else {
-                final String name = nv.getName();
+                final String name = nv.getKey();
                 final String value = nv.getValue();
                 nvl.add(new NamedValue(name, value));
             }
