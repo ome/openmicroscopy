@@ -5,7 +5,7 @@
 /*global $, setTimeout, clearTimeout, OME, WEBCLIENT */
 /*exported tagging_form */
 //
-// Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+// Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
 // All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
