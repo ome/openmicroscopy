@@ -888,11 +888,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
 
   var sizeOfObject = function (obj) {
     var count = 0;
-    for (k in obj) {
+    for (var k in obj) {
       if (obj.hasOwnProperty(k)) count++;
     }
     return count;
-  }
+  };
 
   var channels_undo_stack = [];
   var channels_undo_stack_ptr = -1;
@@ -936,13 +936,17 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   // get difference between last 2 states in undo queue
-  this.get_last_change = function() {
+  this.get_unsaved_changes = function() {
 
+    console.log('saved_undo_stack_ptr, channels_undo_stack_ptr', saved_undo_stack_ptr, channels_undo_stack_ptr);
     if (channels_undo_stack_ptr === 0) {
       return false;
     }
+    if (saved_undo_stack_ptr === channels_undo_stack_ptr) {
+      return false;
+    }
 
-    var e1 = channels_undo_stack[channels_undo_stack_ptr - 1],
+    var e1 = channels_undo_stack[saved_undo_stack_ptr],
       e2 = channels_undo_stack[channels_undo_stack_ptr];
 
     var diff = {};
@@ -977,11 +981,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (sizeOfObject(diffChannels) > 0) {
       diff.channels = diffChannels;
     }
+    console.log('unsaved changes', diff);
     return diff;
   };
 
-  this.save_last_change = function(parentId) {
-    var diff = this.get_last_change();
+  this.save_unsaved_changes_to_all = function(parentId) {
+    var diff = this.get_unsaved_changes();
 
     // E.g dataset-123
     if (!parentId) return;
@@ -996,6 +1001,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     .done(function(data){
         OME.refreshThumbnails({'ignorePreview': true});
     });
+
+    this.setSaved();
   };
 
   this.undo_channels = function (redo) {

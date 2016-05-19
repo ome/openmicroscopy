@@ -212,38 +212,31 @@
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
             $("#rdef-setdef-btn").attr("disabled", "disabled").addClass("button-disabled");
+            $('#save-last-change').attr("disabled", "disabled").addClass("button-disabled");
         } else {
             $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
+            $('#save-last-change').removeAttr('disabled').removeClass("button-disabled");
         }
 
         // update 'save last change' button according to diff between last changes
-        if (viewport.has_channels_undo()) {
-            $('#save-last-change').removeAttr('disabled').removeClass("button-disabled");
-        } else {
-            $('#save-last-change').attr("disabled", "disabled").addClass("button-disabled");
-        }
-        var diff = viewport.get_last_change();
-        var btnHtml = "Save Change<br>to All";
-        var btnTooltip = "Save last change to all images";
-        var chCount = 0;
-        if (diff.channels) {
-            for (var ch in diff.channels) {
-                if (diff.channels.hasOwnProperty(ch)){
-                    chCount++;
-                    for (var attr in diff.channels[ch]) {
-                        btnHtml = "Save Ch-" + (parseInt(ch, 10) + 1) + " " + "<br>to all";
-                        btnTooltip = "Save Ch-" + (parseInt(ch, 10) + 1) + " ";
-                        // windowStart /End -> Slider Start /End
-                        attr = attr.replace('window', 'Slider ');
-                        btnTooltip += attr + " to all images";
-                    }
-                }
-            }
-        }
-        if (chCount > 1) {
-            btnHtml = "Save Changes<br> to All";
-            btnTooltip = "Save last changes to all images";
-        }
+        var diff = viewport.get_unsaved_changes();
+        var btnHtml = "Save Changes<br>to All";
+        var btnTooltip = "Save unsaved changes to all images";
+        // var chCount = 0;
+        // if (diff.channels) {
+        //     for (var ch in diff.channels) {
+        //         if (diff.channels.hasOwnProperty(ch)){
+        //             chCount++;
+        //             for (var attr in diff.channels[ch]) {
+        //                 btnHtml = "Save Ch-" + (parseInt(ch, 10) + 1) + " " + "<br>to all";
+        //                 btnTooltip = "Save Ch-" + (parseInt(ch, 10) + 1) + " ";
+        //                 // windowStart /End -> Slider Start /End
+        //                 attr = attr.replace('window', 'Slider ');
+        //                 btnTooltip += attr + " to all images";
+        //             }
+        //         }
+        //     }
+        // }
         $('#save-last-change').attr('title', btnTooltip);
         $('#save-last-change span').html(btnHtml);
     };

@@ -222,7 +222,7 @@
             });
 
             $("#save-last-change").click(function(){
-              OME.preview_viewport.save_last_change(PARENT_ID);
+              OME.preview_viewport.save_unsaved_changes_to_all(PARENT_ID);
               syncRDCW(OME.preview_viewport);
             });
 
