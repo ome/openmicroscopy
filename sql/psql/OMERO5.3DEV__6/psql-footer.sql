@@ -304,6 +304,8 @@
 --
 -- Indexes
 --
+  CREATE INDEX i_affinetransform_owner ON affinetransform(owner_id);
+  CREATE INDEX i_affinetransform_group ON affinetransform(group_id);
   CREATE INDEX i_annotation_owner ON annotation(owner_id);
   CREATE INDEX i_annotation_group ON annotation(group_id);
   CREATE INDEX i_annotationannotationlink_owner ON annotationannotationlink(owner_id);
@@ -648,6 +650,7 @@
   CREATE INDEX i_shape_owner ON shape(owner_id);
   CREATE INDEX i_shape_group ON shape(group_id);
   CREATE INDEX i_Shape_roi ON shape(roi);
+  CREATE INDEX i_Shape_transform ON shape(transform);
   CREATE INDEX i_Shape_strokeWidth ON shape(strokeWidth);
   CREATE INDEX i_Shape_fontSize ON shape(fontSize);
   CREATE INDEX i_shapeannotationlink_owner ON shapeannotationlink(owner_id);
@@ -785,6 +788,7 @@ BEGIN
 END;' LANGUAGE plpgsql;
 
 CREATE SEQUENCE seq_acquisitionmode; INSERT INTO _lock_ids (name, id) SELECT 'seq_acquisitionmode', nextval('_lock_seq');
+CREATE SEQUENCE seq_affinetransform; INSERT INTO _lock_ids (name, id) SELECT 'seq_affinetransform', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotation', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotationannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotationannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_arctype; INSERT INTO _lock_ids (name, id) SELECT 'seq_arctype', nextval('_lock_seq');
@@ -1988,7 +1992,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.3DEV',  5,    'OMERO5.3DEV',   0,             'Initializing');
+             values ('OMERO5.3DEV',  6,    'OMERO5.3DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3316,7 +3320,7 @@ CREATE TRIGGER preserve_folder_tree
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.3DEV' and
-        currentPatch = 5 and
+        currentPatch = 6 and
         previousVersion = 'OMERO5.3DEV' and
         previousPatch = 0;
 
