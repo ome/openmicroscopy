@@ -84,6 +84,7 @@
         <value>ExternalInfo</value>
 
         <!-- roi -->
+        <value>AffineTransform</value>
         <value>Roi</value>
         <value>Shape</value>
 
@@ -216,6 +217,7 @@
 
         <bean parent="graphPolicyRule" p:matches="I:Image[E].rois = [I]" p:changes="I:[I]"/>
         <bean parent="graphPolicyRule" p:matches="ROI:Roi[E].shapes = [I]" p:changes="ROI:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:Shape[E].transform = [I]" p:changes="S:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[EI]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="M:Mask[E].pixels = P:[EI], P.image = [I]" p:changes="M:[I]"/>
 

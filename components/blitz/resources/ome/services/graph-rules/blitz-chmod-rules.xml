@@ -207,6 +207,12 @@
 
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
 
+        <!-- Delete orphaned affine transforms. -->
+
+        <bean parent="graphPolicyRule" p:matches="Shape[D].transform = T:[E]{i}" p:changes="T:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[E].transform = T:[E]{r}" p:changes="T:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="T:AffineTransform[E]{o}" p:changes="T:[D]"/>
+
         <!-- SCREEN -->
 
         <!-- Cannot downgrade to a private group if the image has a differently owned field. -->
