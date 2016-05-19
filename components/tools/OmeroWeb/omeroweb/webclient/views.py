@@ -2226,14 +2226,20 @@ def annotate_comment(request, conn=None, **kwargs):
                         reverse("load_template", args=["public"])),
                     int(conn.server_id))
                 textAnn = manager.addComment(host, content)
+                # For shares we need to return html for display...
+                context = {
+                    'tann': textAnn,
+                    'added_by': conn.getUserId(),
+                    'template': "webclient/annotations/comment.html"}
             else:
+                # ...otherwise Comments are re-loaded by AJAX json
+                # so we don't *need* to return anything
                 manager = BaseContainer(conn)
-                textAnn = manager.createCommentAnnotations(
+                annId = manager.createCommentAnnotations(
                     content, oids, well_index=index)
-            context = {
-                'tann': textAnn,
-                'added_by': conn.getUserId(),
-                'template': "webclient/annotations/comment.html"}
+                context = {
+                    'annId': annId,
+                    'added_by': conn.getUserId()}
             return context
     else:
         # TODO: handle invalid form error
