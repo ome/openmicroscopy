@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__5.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__6.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  5,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  6,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1502,6 +1502,10 @@ CREATE TRIGGER roi_delete_trigger
     FOR EACH ROW
     EXECUTE PROCEDURE roi_delete_trigger();
 
+-- ... up to patch 6:
+
+-- TODO
+
 
 --
 -- FINISHED
@@ -1509,10 +1513,10 @@ CREATE TRIGGER roi_delete_trigger
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 5             AND
+          currentPatch    = 6             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__5'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__6'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
