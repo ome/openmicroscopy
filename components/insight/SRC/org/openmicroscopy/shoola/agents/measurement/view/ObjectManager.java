@@ -32,12 +32,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -50,6 +52,9 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
+
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -57,7 +62,7 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jhotdraw.draw.Figure;
-
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
@@ -65,6 +70,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
@@ -74,10 +80,12 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.FancyTextField;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
+import omero.gateway.model.TagAnnotationData;
 import omero.gateway.util.Pojos;
 import omero.log.LogMessage;
 
@@ -253,7 +261,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         filterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("not implemented yet");
+                showFilterDialog();
             }
         });
 
@@ -277,6 +285,105 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         });
     }
 
+    private void showFilterDialog() {
+        Collection<Object> available = new ArrayList<Object>();
+        Collection<Object> selected = new ArrayList<Object>();
+
+        for (FolderData f : getFolders()) {
+            if (objectsTable.getIDFilter().contains(f.getId()))
+                selected.add(f);
+            else
+                available.add(f);
+        }
+
+        IconManager icons = IconManager.getInstance();
+
+        SelectionWizard wizard = new SelectionWizard(MeasurementAgent
+                .getRegistry().getTaskBar().getFrame(), available, selected,
+                FolderData.class, false, MeasurementAgent.getUserDetails());
+        wizard.setTitle("Displayed Folders",
+                "Select the folders which are displayed in the ROI table",
+                icons.getIcon(IconManager.FILTER_MENU));
+        wizard.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(evt
+                        .getPropertyName())) {
+                    Collection<FolderData> folders = Collections.EMPTY_LIST;
+                    Map m = (Map) evt.getNewValue();
+                    if (m == null || m.size() != 1)
+                        return;
+                    Set set = m.entrySet();
+                    Entry entry;
+                    Iterator i = set.iterator();
+                    Class type;
+                    while (i.hasNext()) {
+                        entry = (Entry) i.next();
+                        type = (Class) entry.getKey();
+                        if (FolderData.class.getName().equals(type.getName())) {
+                            folders = (Collection<FolderData>) entry.getValue();
+                            break;
+                        }
+                    }
+                    handleFilterSelection(folders);
+                }
+            }
+        });
+
+        UIUtilities.centerAndShow(wizard);
+    }
+    
+    /**
+     * Adds the folder and their descendants to the ROI tables list of folders
+     * to display
+     * 
+     * @param folders
+     *            The folders to display
+     */
+    private void handleFilterSelection(Collection<FolderData> folders) {
+        objectsTable.getIDFilter().clear();
+        for (FolderData f : folders) {
+            objectsTable.getIDFilter().add(f.getId());
+            objectsTable.getIDFilter().addAll(getAllDescendantIds(f));
+        }
+        System.err.println(objectsTable.getIDFilter());
+        rebuildTable();
+    }
+
+    /**
+     * Get the ids of all descendant folders of Folder f
+     * 
+     * @param f
+     *            The Folder
+     * @return See above
+     */
+    private Collection<Long> getAllDescendantIds(FolderData f) {
+        Collection<Long> ids = new HashSet<Long>();
+        for (FolderData fd : getFolders()) {
+            if (isAncestor(f, fd))
+                ids.add(fd.getId());
+        }
+        return ids;
+    }
+
+    /**
+     * Checks if Folder f1 is an ancestor of Folder f2
+     * 
+     * @param f1
+     *            See above
+     * @param f2
+     *            See above
+     * @return See above
+     */
+    private boolean isAncestor(FolderData f1, FolderData f2) {
+        if (f2.getParentFolder() != null) {
+            if (f2.getParentFolder().getId() == f1.getId())
+                return true;
+            return isAncestor(f1, f2.getParentFolder());
+        }
+        return false;
+    }
+    
     /**
      * Propagate the filter by name text to the table and perform refresh.
      * 
