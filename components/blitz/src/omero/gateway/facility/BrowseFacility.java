@@ -1162,7 +1162,7 @@ public class BrowseFacility extends Facility {
         } catch (Throwable t) {
             logError(this, "Could not load orphaned images", t);
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     /**
