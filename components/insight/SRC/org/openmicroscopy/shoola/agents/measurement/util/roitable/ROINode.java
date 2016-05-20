@@ -46,8 +46,6 @@ import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 
 import omero.gateway.model.FolderData;
 
-import static org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIUtil.*;
-
 /**
  * The ROINode is an extension of the DefaultMutableTreeTableNode
  * to use in the ROITable, this creates the structure for mapping
@@ -529,7 +527,7 @@ public class ROINode
 	 * respect to the folders' visibility state they are part of.
 	 */
     private void updateShapeVisibility() {
-        Collection<ROINode> shapes = getShapeNodes(getRoot());
+        Collection<ROINode> shapes = ROIUtil.getShapeNodes(getRoot());
 
         for (ROINode shape : shapes) {
             ROIShape s = (ROIShape) shape.getUserObject();
@@ -567,7 +565,7 @@ public class ROINode
      */
     private boolean isShapeVisible(ROINode shape) {
         Boolean b = null;
-        Collection<ROINode> shapeNodes = getShapeNodes(((ROIShape) shape
+        Collection<ROINode> shapeNodes = ROIUtil.getShapeNodes(((ROIShape) shape
                 .getUserObject()).getROIShapeID(), getRoot());
         for (ROINode shapeNode : shapeNodes) {
             TreePath path = shapeNode.getPath();

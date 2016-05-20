@@ -87,6 +87,8 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINodeMap;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIUtil;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIUtil.SelectionType;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.TableRowTransferHandler;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -106,7 +108,6 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FolderData;
 import omero.gateway.util.Pojos;
-import static org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIUtil.*;
 
 /**
  * The ROITable is the class extending the JXTreeTable, this shows the 
@@ -295,7 +296,7 @@ public class ROITable
                 if (!active)
                     return;
 
-                if (getSelectionType(getSelectedObjects()) == SelectionType.MIXED
+                if (ROIUtil.getSelectionType(getSelectedObjects()) == SelectionType.MIXED
                         && previousSelectionIndices != null) {
                     active = false;
                     selectionModel.clearSelection();
@@ -589,10 +590,10 @@ public class ROITable
 	    // store the expanded state of the nodes
 	    Set<String> expandedNodeIds = new HashSet<String>();
         Collection<ROINode> tmp = new ArrayList<ROINode>();
-        getAllDecendants(root, tmp);
+        ROIUtil.getAllDecendants(root, tmp);
         for (ROINode n : tmp) {
             if (n.isExpanded()) {
-                expandedNodeIds.add(getUUID(n.getUserObject()));
+                expandedNodeIds.add(ROIUtil.getUUID(n.getUserObject()));
             }
         }
         
@@ -676,9 +677,9 @@ public class ROITable
 		
 		// restore the expanded state
         tmp.clear();
-        getAllDecendants(root, tmp);
+        ROIUtil.getAllDecendants(root, tmp);
         for (ROINode n : tmp) {
-            if (expandedNodeIds.contains(getUUID(n)))
+            if (expandedNodeIds.contains(ROIUtil.getUUID(n)))
                 expandNode(n);
         }
 	}
@@ -1017,8 +1018,8 @@ public class ROITable
 	{
 		manager.showReadyMessage();
 		List<ROIShape> selectedObjects = getSelectedROIShapes();
-		if (onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
-			manager.duplicateROI(getSameID(selectedObjects), selectedObjects );
+		if (ROIUtil.onSeparatePlanes(selectedObjects) && ROIUtil.haveSameID(selectedObjects))
+			manager.duplicateROI(ROIUtil.getSameID(selectedObjects), selectedObjects );
 		else
 			manager.showMessage("Duplicate: ROIs must be from the same ROI " +
 					"and on separate planes.");
@@ -1032,9 +1033,9 @@ public class ROITable
 	{
 		manager.showReadyMessage();
 		List<ROIShape> selectedObjects = getSelectedROIShapes();
-		if (onSeparatePlanes(selectedObjects) && selectedObjects.size() > 1)
+		if (ROIUtil.onSeparatePlanes(selectedObjects) && selectedObjects.size() > 1)
 		{
-			manager.mergeROI(getIDList(selectedObjects), selectedObjects);
+			manager.mergeROI(ROIUtil.getIDList(selectedObjects), selectedObjects);
 		} else
 			manager.showMessage("Merge: ROIs must be on separate " +
 			"planes and must include more than one.");	
@@ -1099,8 +1100,8 @@ public class ROITable
 	{
 		manager.showReadyMessage();
 		List<ROIShape> selectedObjects = getSelectedROIShapes();
-		if (onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
-			manager.splitROI(getSameID(selectedObjects), selectedObjects);
+		if (ROIUtil.onSeparatePlanes(selectedObjects) && ROIUtil.haveSameID(selectedObjects))
+			manager.splitROI(ROIUtil.getSameID(selectedObjects), selectedObjects);
 		else
 			manager.showMessage("Split: ROIs must be from the same ROI and " +
 			"on separate planes.");
@@ -1127,7 +1128,7 @@ public class ROITable
 	{
 		manager.showReadyMessage();
 		List<ROIShape> selectedObjects = getSelectedROIShapes();
-		if (onSeparatePlanes(selectedObjects) && haveSameID(selectedObjects))
+		if (ROIUtil.onSeparatePlanes(selectedObjects) && ROIUtil.haveSameID(selectedObjects))
 			manager.calculateStats(selectedObjects);
 		else
 			manager.showMessage("Calculate: ROIs must be from the same ROI " +
@@ -1274,7 +1275,7 @@ public class ROITable
                 excludeIds.add(f.getParentFolder().getId());
             ROINode fnode = nodesMap.findFolderNode(f);
             Collection<ROINode> subNodes = new ArrayList<ROINode>();
-            getAllDecendants(fnode, subNodes);
+            ROIUtil.getAllDecendants(fnode, subNodes);
             for (ROINode subNode : subNodes)
                 if (subNode.isFolderNode())
                     excludeIds.add(((FolderData) subNode.getUserObject())

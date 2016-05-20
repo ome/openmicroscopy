@@ -33,8 +33,6 @@ import omero.gateway.model.FolderData;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
-import static org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIUtil.*;
-
 /**
  * Helper class for managing {@link ROINode}s
  * 
@@ -67,7 +65,7 @@ public class ROINodeMap {
      *            The node to add
      */
     public void add(ROINode node) {
-        nodesMap.put(getUUID(node.getUserObject()), node);
+        nodesMap.put(ROIUtil.getUUID(node.getUserObject()), node);
     }
 
     /**
@@ -78,7 +76,7 @@ public class ROINodeMap {
      * @return See above
      */
     public Collection<ROINode> get(Object obj) {
-        String key = getUUID(obj);
+        String key = ROIUtil.getUUID(obj);
         if (key != null)
             return nodesMap.get(key);
         return Collections.EMPTY_LIST;
@@ -127,7 +125,7 @@ public class ROINodeMap {
 
             ROINode fnode = findFolderNode(f);
             Collection<ROINode> subNodes = new ArrayList<ROINode>();
-            getAllDecendants(fnode, subNodes);
+            ROIUtil.getAllDecendants(fnode, subNodes);
             for (ROINode subNode : subNodes)
                 if (subNode.isFolderNode())
                     ids.add(((FolderData) subNode.getUserObject()).getId());
