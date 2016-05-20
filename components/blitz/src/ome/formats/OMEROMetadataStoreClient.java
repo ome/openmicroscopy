@@ -86,6 +86,7 @@ import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.AffineTransform;
 import ome.xml.model.MapPair;
+import ome.xml.model.enums.Compression;
 import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
 import ome.xml.model.enums.FontStyle;
@@ -5128,9 +5129,18 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
-        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
-        o.setMapValue(IceMapper.convertMapPairs(value));
+    public void setMaskBinDataBigEndian(Boolean isBigEndian, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataBigEndian", isBigEndian, roiIndex, shapeIndex);
+    }
+
+    @Override
+    public void setMaskBinDataCompression(Compression compression, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataCompression", compression, roiIndex, shapeIndex);
+    }
+
+    @Override
+    public void setMaskBinDataLength(NonNegativeLong length, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataLength", length, roiIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -5666,9 +5676,14 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean,int)
      */
     @Override
-    public void  setPixelsBigEndian(Boolean value,  int index)
+    public void setPixelsBigEndian(Boolean value, int index)
     {
         ignoreUnneeded("setPixelsBigEndian", value, index);
+    }
+
+    @Override
+    public void setPixelsBinData(byte[] binData, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinData", imageIndex, binDataIndex);
     }
 
     /* (non-Javadoc)
@@ -5679,6 +5694,16 @@ public class OMEROMetadataStoreClient
             int binDataIndex)
     {
         ignoreUnneeded("setPixelsBinDataBigEndian", bigEndian, imageIndex);
+    }
+
+    @Override
+    public void setPixelsBinDataCompression(Compression compression, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinDataCompression", compression, imageIndex, binDataIndex);
+    }
+
+    @Override
+    public void setPixelsBinDataLength(NonNegativeLong length, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinDataLength", length, imageIndex, binDataIndex);
     }
 
     /* (non-Javadoc)
@@ -7948,6 +7973,12 @@ public class OMEROMetadataStoreClient
         o.setNs(toRType(namespace));
     }
 
+    @Override
+    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
+        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
+        o.setMapValue(IceMapper.convertMapPairs(value));
+    }
+
     /**
      * Retrieve TagAnnotation object
      * @param tagAnnotationIndex the index of the tag annotation
@@ -8150,6 +8181,26 @@ public class OMEROMetadataStoreClient
     public void setPlateFieldIndex(NonNegativeInteger fieldIndex, int plateIndex)
     {
         ignoreMissing("setPlateFieldIndex", fieldIndex, plateIndex);
+    }
+
+    @Override
+    public void setBinaryFileBinData(byte[] binData, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinData", fileAnnotationIndex);
+    }
+
+    @Override
+    public void setBinaryFileBinDataBigEndian(Boolean isBigEndian, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataBigEndian", isBigEndian, fileAnnotationIndex);
+    }
+
+    @Override
+    public void setBinaryFileBinDataCompression(Compression compression, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataCompression", compression, fileAnnotationIndex);
+    }
+
+    @Override
+    public void setBinaryFileBinDataLength(NonNegativeLong length, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataLength", length, fileAnnotationIndex);
     }
 
     /* (non-Javadoc)

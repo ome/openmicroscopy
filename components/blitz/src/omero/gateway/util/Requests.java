@@ -2210,8 +2210,18 @@ public class Requests {
          * @param user the user to which to give the target objects, does overwrite previous calls
          * @return this builder, for method chaining
          */
-        public Chown2Builder toGroup(Experimenter user) {
+        public Chown2Builder toUser(Experimenter user) {
             return toUser(user.getId());
+        }
+
+        /**
+         * @param user the user to which to give the target objects, does overwrite previous calls
+         * @return this builder, for method chaining
+         * @deprecated use {@link #toUser(Experimenter)}
+         */
+        @Deprecated
+        public Chown2Builder toGroup(Experimenter user) {
+            return toUser(user);
         }
     }
 

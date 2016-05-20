@@ -410,7 +410,7 @@ public interface SqlAction {
     void delCurrentEventLog(String key);
 
     /**
-     * Convert the _updated_annotations table to REINDEX entries in the event log.
+     * Convert the _reindexing_required table to REINDEX entries in the event log.
      */
     void refreshEventLogFromUpdatedAnnotations();
 

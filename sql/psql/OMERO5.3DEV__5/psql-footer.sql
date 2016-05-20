@@ -1,5 +1,5 @@
 --
--- Copyright 2006-2015 University of Dundee. All rights reserved.
+-- Copyright 2006-2016 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -916,7 +916,7 @@ CREATE SEQUENCE seq_wellsample; INSERT INTO _lock_ids (name, id) SELECT 'seq_wel
 
 
 --
--- #1390 : Triggering the addition of an "REINDEX" event on annotation events.
+-- #1390 : Triggering the addition of an "REINDEX" event on annotation and other events.
 --
 
 CREATE OR REPLACE FUNCTION _prepare_session(_event_id int8, _user_id int8, _group_id int8) RETURNS void
@@ -965,19 +965,19 @@ CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
 LANGUAGE plpgsql;
 
 
-CREATE TABLE _updated_annotations (
+CREATE TABLE _reindexing_required (
     event_id BIGINT NOT NULL,
     entity_type TEXT NOT NULL,
     entity_id BIGINT NOT NULL,
-    CONSTRAINT FK_updated_annotations_event_id
+    CONSTRAINT FK_reindexing_required_event_id
         FOREIGN KEY (event_id)
         REFERENCES event);
 
-CREATE INDEX _updated_annotations_event_index
-    ON _updated_annotations (event_id);
+CREATE INDEX _reindexing_required_event_index
+    ON _reindexing_required (event_id);
 
-CREATE INDEX _updated_annotations_row_index
-    ON _updated_annotations (event_id, entity_type, entity_id);
+CREATE INDEX _reindexing_required_row_index
+    ON _reindexing_required (event_id, entity_type, entity_id);
 
 CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
 
@@ -990,225 +990,225 @@ CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
  
         FOR pid IN SELECT DISTINCT parent FROM annotationannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.annotations.Annotation', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.annotations.Annotation' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM channelannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.core.Channel', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.Channel' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM datasetannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.containers.Dataset', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Dataset' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM detectorannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.acquisition.Detector', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Detector' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM dichroicannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.acquisition.Dichroic', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Dichroic' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM experimenterannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.meta.Experimenter', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Experimenter' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM experimentergroupannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.meta.ExperimenterGroup', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.ExperimenterGroup' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM filesetannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.fs.Fileset', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.fs.Fileset' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM filterannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.acquisition.Filter', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Filter' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM folderannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.containers.Folder', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Folder' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM imageannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.core.Image', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.Image' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM instrumentannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.acquisition.Instrument', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Instrument' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM lightpathannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.acquisition.LightPath', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.LightPath' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM lightsourceannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.acquisition.LightSource', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.LightSource' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM namespaceannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.meta.Namespace', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Namespace' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM nodeannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.meta.Node', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Node' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM objectiveannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.acquisition.Objective', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Objective' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM originalfileannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.core.OriginalFile', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.OriginalFile' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM planeinfoannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.core.PlaneInfo', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.PlaneInfo' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM plateannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.screen.Plate', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Plate' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM plateacquisitionannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.screen.PlateAcquisition', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.PlateAcquisition' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM projectannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.containers.Project', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Project' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM reagentannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.screen.Reagent', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Reagent' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM roiannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.roi.Roi', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.roi.Roi' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM screenannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.screen.Screen', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Screen' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM sessionannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.meta.Session', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Session' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM shapeannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.roi.Shape', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.roi.Shape' AND ua.entity_id = pid);
         END LOOP;
 
         FOR pid IN SELECT DISTINCT parent FROM wellannotationlink WHERE child = new.id
         LOOP
-            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
                 SELECT eid, 'ome.model.screen.Well', pid
-                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                     WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Well' AND ua.entity_id = pid);
         END LOOP;
 
@@ -1223,7 +1223,7 @@ CREATE TRIGGER annotation_trigger
 
 -- Note: not adding an annotation insert trigger since that would be handled by any links on insert
 
-CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
+CREATE OR REPLACE FUNCTION annotation_link_update_trigger() RETURNS "trigger"
     AS '
     DECLARE
         eid int8;
@@ -1231,9 +1231,14 @@ CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     BEGIN
         SELECT INTO eid _current_or_new_event();
 
-        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+        INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], old.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = old.parent);
+
+        INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
             SELECT eid, TG_ARGV[0], new.parent
-            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+            WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                 WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = new.parent);
 
         RETURN new;
@@ -1241,230 +1246,248 @@ CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     END;'
 LANGUAGE plpgsql;
 
-CREATE TRIGGER annotation_annotation_link_event_trigger
+CREATE OR REPLACE FUNCTION annotation_link_insert_trigger() RETURNS "trigger"
+    AS '
+    DECLARE
+        eid int8;
+
+    BEGIN
+        SELECT INTO eid _current_or_new_event();
+
+        INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], new.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = new.parent);
+
+        RETURN new;
+
+    END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER annotation_annotation_link_update_trigger
         AFTER UPDATE ON annotationannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.annotations.Annotation');
-CREATE TRIGGER annotation_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.annotations.Annotation');
+CREATE TRIGGER annotation_annotation_link_insert_trigger
         AFTER INSERT ON annotationannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.annotations.Annotation');
-CREATE TRIGGER channel_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.annotations.Annotation');
+CREATE TRIGGER channel_annotation_link_update_trigger
         AFTER UPDATE ON channelannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Channel');
-CREATE TRIGGER channel_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.core.Channel');
+CREATE TRIGGER channel_annotation_link_insert_trigger
         AFTER INSERT ON channelannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Channel');
-CREATE TRIGGER dataset_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.core.Channel');
+CREATE TRIGGER dataset_annotation_link_update_trigger
         AFTER UPDATE ON datasetannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Dataset');
-CREATE TRIGGER dataset_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.containers.Dataset');
+CREATE TRIGGER dataset_annotation_link_insert_trigger
         AFTER INSERT ON datasetannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Dataset');
-CREATE TRIGGER detector_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.containers.Dataset');
+CREATE TRIGGER detector_annotation_link_update_trigger
         AFTER UPDATE ON detectorannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Detector');
-CREATE TRIGGER detector_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.acquisition.Detector');
+CREATE TRIGGER detector_annotation_link_insert_trigger
         AFTER INSERT ON detectorannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Detector');
-CREATE TRIGGER dichroic_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.acquisition.Detector');
+CREATE TRIGGER dichroic_annotation_link_update_trigger
         AFTER UPDATE ON dichroicannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Dichroic');
-CREATE TRIGGER dichroic_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.acquisition.Dichroic');
+CREATE TRIGGER dichroic_annotation_link_insert_trigger
         AFTER INSERT ON dichroicannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Dichroic');
-CREATE TRIGGER experimenter_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.acquisition.Dichroic');
+CREATE TRIGGER experimenter_annotation_link_update_trigger
         AFTER UPDATE ON experimenterannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Experimenter');
-CREATE TRIGGER experimenter_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.meta.Experimenter');
+CREATE TRIGGER experimenter_annotation_link_insert_trigger
         AFTER INSERT ON experimenterannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Experimenter');
-CREATE TRIGGER experimentergroup_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.meta.Experimenter');
+CREATE TRIGGER experimentergroup_annotation_link_update_trigger
         AFTER UPDATE ON experimentergroupannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.ExperimenterGroup');
-CREATE TRIGGER experimentergroup_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.meta.ExperimenterGroup');
+CREATE TRIGGER experimentergroup_annotation_link_insert_trigger
         AFTER INSERT ON experimentergroupannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.ExperimenterGroup');
-CREATE TRIGGER fileset_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.meta.ExperimenterGroup');
+CREATE TRIGGER fileset_annotation_link_update_trigger
         AFTER UPDATE ON filesetannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.fs.Fileset');
-CREATE TRIGGER fileset_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.fs.Fileset');
+CREATE TRIGGER fileset_annotation_link_insert_trigger
         AFTER INSERT ON filesetannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.fs.Fileset');
-CREATE TRIGGER filter_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.fs.Fileset');
+CREATE TRIGGER filter_annotation_link_update_trigger
         AFTER UPDATE ON filterannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Filter');
-CREATE TRIGGER filter_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.acquisition.Filter');
+CREATE TRIGGER filter_annotation_link_insert_trigger
         AFTER INSERT ON filterannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Filter');
-CREATE TRIGGER folder_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.acquisition.Filter');
+CREATE TRIGGER folder_annotation_link_update_trigger
         AFTER UPDATE ON folderannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Folder');
-CREATE TRIGGER folder_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.containers.Folder');
+CREATE TRIGGER folder_annotation_link_insert_trigger
         AFTER INSERT ON folderannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Folder');
-CREATE TRIGGER image_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.containers.Folder');
+CREATE TRIGGER image_annotation_link_update_trigger
         AFTER UPDATE ON imageannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Image');
-CREATE TRIGGER image_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.core.Image');
+CREATE TRIGGER image_annotation_link_insert_trigger
         AFTER INSERT ON imageannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.Image');
-CREATE TRIGGER instrument_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.core.Image');
+CREATE TRIGGER instrument_annotation_link_update_trigger
         AFTER UPDATE ON instrumentannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Instrument');
-CREATE TRIGGER instrument_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.acquisition.Instrument');
+CREATE TRIGGER instrument_annotation_link_insert_trigger
         AFTER INSERT ON instrumentannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Instrument');
-CREATE TRIGGER lightpath_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.acquisition.Instrument');
+CREATE TRIGGER lightpath_annotation_link_update_trigger
         AFTER UPDATE ON lightpathannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightPath');
-CREATE TRIGGER lightpath_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.acquisition.LightPath');
+CREATE TRIGGER lightpath_annotation_link_insert_trigger
         AFTER INSERT ON lightpathannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightPath');
-CREATE TRIGGER lightsource_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.acquisition.LightPath');
+CREATE TRIGGER lightsource_annotation_link_update_trigger
         AFTER UPDATE ON lightsourceannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightSource');
-CREATE TRIGGER lightsource_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.acquisition.LightSource');
+CREATE TRIGGER lightsource_annotation_link_insert_trigger
         AFTER INSERT ON lightsourceannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.LightSource');
-CREATE TRIGGER namespace_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.acquisition.LightSource');
+CREATE TRIGGER namespace_annotation_link_update_trigger
         AFTER UPDATE ON namespaceannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Namespace');
-CREATE TRIGGER namespace_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.meta.Namespace');
+CREATE TRIGGER namespace_annotation_link_insert_trigger
         AFTER INSERT ON namespaceannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Namespace');
-CREATE TRIGGER node_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.meta.Namespace');
+CREATE TRIGGER node_annotation_link_update_trigger
         AFTER UPDATE ON nodeannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Node');
-CREATE TRIGGER node_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.meta.Node');
+CREATE TRIGGER node_annotation_link_insert_trigger
         AFTER INSERT ON nodeannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Node');
-CREATE TRIGGER objective_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.meta.Node');
+CREATE TRIGGER objective_annotation_link_update_trigger
         AFTER UPDATE ON objectiveannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Objective');
-CREATE TRIGGER objective_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.acquisition.Objective');
+CREATE TRIGGER objective_annotation_link_insert_trigger
         AFTER INSERT ON objectiveannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.acquisition.Objective');
-CREATE TRIGGER originalfile_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.acquisition.Objective');
+CREATE TRIGGER originalfile_annotation_link_update_trigger
         AFTER UPDATE ON originalfileannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.OriginalFile');
-CREATE TRIGGER originalfile_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.core.OriginalFile');
+CREATE TRIGGER originalfile_annotation_link_insert_trigger
         AFTER INSERT ON originalfileannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.OriginalFile');
-CREATE TRIGGER planeinfo_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.core.OriginalFile');
+CREATE TRIGGER planeinfo_annotation_link_update_trigger
         AFTER UPDATE ON planeinfoannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.PlaneInfo');
-CREATE TRIGGER planeinfo_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.core.PlaneInfo');
+CREATE TRIGGER planeinfo_annotation_link_insert_trigger
         AFTER INSERT ON planeinfoannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.core.PlaneInfo');
-CREATE TRIGGER plate_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.core.PlaneInfo');
+CREATE TRIGGER plate_annotation_link_update_trigger
         AFTER UPDATE ON plateannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Plate');
-CREATE TRIGGER plate_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.screen.Plate');
+CREATE TRIGGER plate_annotation_link_insert_trigger
         AFTER INSERT ON plateannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Plate');
-CREATE TRIGGER plateacquisition_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.screen.Plate');
+CREATE TRIGGER plateacquisition_annotation_link_update_trigger
         AFTER UPDATE ON plateacquisitionannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.PlateAcquisition');
-CREATE TRIGGER plateacquisition_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.screen.PlateAcquisition');
+CREATE TRIGGER plateacquisition_annotation_link_insert_trigger
         AFTER INSERT ON plateacquisitionannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.PlateAcquisition');
-CREATE TRIGGER project_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.screen.PlateAcquisition');
+CREATE TRIGGER project_annotation_link_update_trigger
         AFTER UPDATE ON projectannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Project');
-CREATE TRIGGER project_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.containers.Project');
+CREATE TRIGGER project_annotation_link_insert_trigger
         AFTER INSERT ON projectannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.containers.Project');
-CREATE TRIGGER reagent_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.containers.Project');
+CREATE TRIGGER reagent_annotation_link_update_trigger
         AFTER UPDATE ON reagentannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Reagent');
-CREATE TRIGGER reagent_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.screen.Reagent');
+CREATE TRIGGER reagent_annotation_link_insert_trigger
         AFTER INSERT ON reagentannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Reagent');
-CREATE TRIGGER roi_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.screen.Reagent');
+CREATE TRIGGER roi_annotation_link_update_trigger
         AFTER UPDATE ON roiannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.Roi');
-CREATE TRIGGER roi_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.roi.Roi');
+CREATE TRIGGER roi_annotation_link_insert_trigger
         AFTER INSERT ON roiannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.Roi');
-CREATE TRIGGER screen_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.roi.Roi');
+CREATE TRIGGER screen_annotation_link_update_trigger
         AFTER UPDATE ON screenannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Screen');
-CREATE TRIGGER screen_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.screen.Screen');
+CREATE TRIGGER screen_annotation_link_insert_trigger
         AFTER INSERT ON screenannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Screen');
-CREATE TRIGGER session_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.screen.Screen');
+CREATE TRIGGER session_annotation_link_update_trigger
         AFTER UPDATE ON sessionannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Session');
-CREATE TRIGGER session_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.meta.Session');
+CREATE TRIGGER session_annotation_link_insert_trigger
         AFTER INSERT ON sessionannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Session');
-CREATE TRIGGER shape_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.meta.Session');
+CREATE TRIGGER shape_annotation_link_update_trigger
         AFTER UPDATE ON shapeannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.Shape');
-CREATE TRIGGER shape_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.roi.Shape');
+CREATE TRIGGER shape_annotation_link_insert_trigger
         AFTER INSERT ON shapeannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.roi.Shape');
-CREATE TRIGGER well_annotation_link_event_trigger
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.roi.Shape');
+CREATE TRIGGER well_annotation_link_update_trigger
         AFTER UPDATE ON wellannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Well');
-CREATE TRIGGER well_annotation_link_event_trigger_insert
+        EXECUTE PROCEDURE annotation_link_update_trigger('ome.model.screen.Well');
+CREATE TRIGGER well_annotation_link_insert_trigger
         AFTER INSERT ON wellannotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.screen.Well');
+        EXECUTE PROCEDURE annotation_link_insert_trigger('ome.model.screen.Well');
 
 -- Delete triggers to go with update triggers (See #9337)
 CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
@@ -1475,9 +1498,9 @@ CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
     BEGIN
         SELECT INTO eid _current_or_new_event();
 
-        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+        INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
             SELECT eid, TG_ARGV[0], old.parent
-            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+            WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS ua
                 WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = old.parent);
 
         RETURN old;
@@ -1599,18 +1622,18 @@ CREATE TRIGGER well_annotation_link_delete_trigger
         EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.screen.Well');
 
 
--- move annotation updates from updated_annotations to eventlog REINDEX entries
+-- move update notes from updated_annotations to eventlog REINDEX entries
 
-CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+CREATE OR REPLACE FUNCTION updated_entities_note_reindex() RETURNS void AS $$
 
     DECLARE
-        curs CURSOR FOR SELECT * FROM _updated_annotations ORDER BY event_id LIMIT 100000 FOR UPDATE;
-        row _updated_annotations%%rowtype;
+        curs CURSOR FOR SELECT * FROM _reindexing_required ORDER BY event_id LIMIT 100000 FOR UPDATE;
+        row _reindexing_required%%rowtype;
 
     BEGIN
         FOR row IN curs
         LOOP
-            DELETE FROM _updated_annotations WHERE CURRENT OF curs;
+            DELETE FROM _reindexing_required WHERE CURRENT OF curs;
 
             INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
                 SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
@@ -1624,6 +1647,224 @@ $$ LANGUAGE plpgsql;
 --
 -- END #1390
 --
+
+--
+-- add reindexing triggers for ROI folders; see FullTextBridge.set_folders
+--
+
+CREATE FUNCTION folder_update_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        FOR iid IN SELECT DISTINCT r.image FROM roi AS r, folderroilink AS l
+            WHERE l.parent = NEW.id AND l.child = r.id AND r.image IS NOT NULL LOOP
+
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END LOOP;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION folder_roi_link_insert_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        FOR iid IN SELECT DISTINCT r.image FROM roi AS r
+            WHERE r.id = NEW.child AND r.image IS NOT NULL LOOP
+
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END LOOP;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION folder_roi_link_update_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        FOR iid IN SELECT DISTINCT r.image FROM roi AS r
+            WHERE r.id IN (OLD.child, NEW.child) AND r.image IS NOT NULL LOOP
+
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END LOOP;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION folder_roi_link_delete_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        FOR iid IN SELECT DISTINCT r.image FROM roi AS r
+            WHERE r.id = OLD.child AND r.image IS NOT NULL LOOP
+
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END LOOP;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION roi_insert_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        iid := NEW.image;
+
+        IF iid IS NOT NULL THEN
+            eid := _current_or_new_event();
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION roi_update_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        IF OLD.image = NEW.image THEN
+            RETURN NEW;
+        END IF;
+
+        iid := OLD.image;
+
+        IF iid IS NOT NULL THEN
+            eid := _current_or_new_event();
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END IF;
+
+        iid := NEW.image;
+
+        IF iid IS NOT NULL THEN
+            IF eid IS NULL THEN
+                eid := _current_or_new_event();
+            END IF;
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION roi_delete_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid BIGINT;
+        iid BIGINT;
+
+    BEGIN
+        iid := OLD.image;
+
+        IF iid IS NOT NULL THEN
+            eid := _current_or_new_event();
+
+            INSERT INTO _reindexing_required (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', iid
+                WHERE NOT EXISTS (SELECT 1 FROM _reindexing_required AS rr
+                    WHERE rr.event_id = eid AND rr.entity_type = 'ome.model.core.Image' AND rr.entity_id = iid);
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER folder_update_trigger
+    AFTER UPDATE ON folder
+    FOR EACH ROW
+    EXECUTE PROCEDURE folder_update_trigger();
+
+CREATE TRIGGER folder_roi_link_insert_trigger
+    AFTER INSERT ON folderroilink
+    FOR EACH ROW
+    EXECUTE PROCEDURE folder_roi_link_insert_trigger();
+
+CREATE TRIGGER folder_roi_link_update_trigger
+    AFTER UPDATE ON folderroilink
+    FOR EACH ROW
+    EXECUTE PROCEDURE folder_roi_link_update_trigger();
+
+CREATE TRIGGER folder_roi_link_delete_trigger
+    AFTER DELETE ON folderroilink
+    FOR EACH ROW
+    EXECUTE PROCEDURE folder_roi_link_delete_trigger();
+
+CREATE TRIGGER roi_insert_trigger
+    AFTER INSERT ON roi
+    FOR EACH ROW
+    EXECUTE PROCEDURE roi_insert_trigger();
+
+CREATE TRIGGER roi_update_trigger
+    AFTER UPDATE ON roi
+    FOR EACH ROW
+    EXECUTE PROCEDURE roi_update_trigger();
+
+CREATE TRIGGER roi_delete_trigger
+    AFTER DELETE ON roi
+    FOR EACH ROW
+    EXECUTE PROCEDURE roi_delete_trigger();
 
 --
 -- #12317 -- delete map property values along with their holders
@@ -1747,7 +1988,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.3DEV',  4,    'OMERO5.3DEV',   0,             'Initializing');
+             values ('OMERO5.3DEV',  5,    'OMERO5.3DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3075,7 +3316,7 @@ CREATE TRIGGER preserve_folder_tree
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.3DEV' and
-        currentPatch = 4 and
+        currentPatch = 5 and
         previousVersion = 'OMERO5.3DEV' and
         previousPatch = 0;
 
