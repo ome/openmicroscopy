@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1145,7 +1145,8 @@ public class SelectionWizardUI
 
     /**
      * Creates a new instance.
-     *
+     * 
+     * @param view Reference to the Dialog
      * @param available The collection of available items.
      * @param selected The collection of selected items.
      * @param type The type of object to handle.
@@ -1169,6 +1170,19 @@ public class SelectionWizardUI
         buildGUI();
     }
 
+    /**
+     * Set the objects which are available for selection
+     * 
+     * @param data
+     *            The data
+     */
+    public void setAvailableItems(Collection<Object> data) {
+        this.availableItems = new ArrayList<TreeImageDisplay>(
+                TreeViewerTranslator.transformHierarchy(data));
+        sortLists();
+        populateTreeItems(availableItemsListbox, availableItems);
+    }
+    
     /** Resets the selection. */
     void reset()
     {

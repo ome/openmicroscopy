@@ -89,6 +89,9 @@ public class SelectionWizard
 
     /** Bound property indicating to cancel the selection. */
     public static final String CANCEL_SELECTION_PROPERTY = "cancelSelection";
+    
+    /** Property indicating that another datasource has been selected */
+    public static final String DATASOURCE_PROPERTY = "datasource";
 
     /** The default text for the tag.*/
     private static final String DEFAULT_TAG_TEXT = "Tag";
@@ -144,6 +147,15 @@ public class SelectionWizard
     /** The label displaying the message indicating what will be added.*/
     private JLabel addLabel;
 
+    /** Different collections of objects the user can choose from */
+    private SelectionWizardDataSource[] dataSources = new SelectionWizardDataSource[0];
+    
+    /** The container panel */
+    private JPanel container;
+    
+    /** Flag for adding the creation panel */
+    private boolean allowCreation;
+    
     /** Sets the controls.*/
     private void setControls()
     {
@@ -192,6 +204,25 @@ public class SelectionWizard
      */
     private JPanel createFilteringControl()
     {
+        JPanel rows = new JPanel();
+        rows.setLayout(new BoxLayout(rows, BoxLayout.Y_AXIS));
+        if (dataSources.length > 1) {
+            JPanel p = new JPanel();
+            p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+            p.add(new JLabel("Source "));
+            JComboBox box = new JComboBox(dataSources);
+            box.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    SelectionWizardDataSource ds = (SelectionWizardDataSource) box.getSelectedItem();
+                    uiDelegate.setAvailableItems(ds.getData());
+                    SelectionWizard.this.firePropertyChange(DATASOURCE_PROPERTY, null, ds);
+                }
+            });
+            p.add(box);
+            rows.add(p);
+        }
+        
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(new JLabel("Filter by"));
@@ -231,10 +262,9 @@ public class SelectionWizard
                 uiDelegate.setFilterAnywhere(src.getSelectedIndex() == 1);
             }
         });
-        JPanel rows = new JPanel();
-        rows.setLayout(new BoxLayout(rows, BoxLayout.Y_AXIS));
         p.add(box);
         rows.add(p);
+        
         if (!ExperimenterData.class.equals(type)) {
           //Filter by owner
             p = new JPanel();
@@ -354,20 +384,16 @@ public class SelectionWizard
 
     /** 
      * Builds and lays out the UI.
-     * 
-     * @param addCreation Pass <code>true</code> to add a component
-     *                    allowing creation of object of the passed type,
-     *                    <code>false</code> otherwise.
      */
-    private void buildUI(boolean addCreation)
+    private void buildUI()
     {
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
-        JPanel container = new JPanel();
+        container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.add(uiDelegate);
         container.add(createFilteringControl());
-        if (addCreation && (TagAnnotationData.class.equals(type) 
+        if (allowCreation && (TagAnnotationData.class.equals(type) 
                 || FolderData.class.equals(type))) {
             container.add(createAdditionPane());
         }
@@ -585,11 +611,41 @@ public class SelectionWizard
     {
         super(owner);
         setModal(true);
+        allowCreation = addCreation;
         uiDelegate = new SelectionWizardUI(this, available, selected, type, user);
         uiDelegate.addPropertyChangeListener(this);
         this.type = type;
         initComponents();
-        buildUI(addCreation);
+        buildUI();
+        setSize(DEFAULT_SIZE);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner The owner of this dialog.
+     * @param dataSources The available data sources.
+     * @param selected The collection of selected items.
+     * @param type The type of object to handle.
+     * @param addCreation Pass <code>true</code> to add a component
+     *                    allowing creation of object of the passed type,
+     *                      <code>false</code> otherwise.
+     * @param user The the current user.
+     */
+    public SelectionWizard(JFrame owner,
+            Collection<Object> selected, Class<?> type,
+            boolean addCreation, ExperimenterData user, SelectionWizardDataSource... dataSources)
+    {
+        super(owner);
+        setModal(true);
+        allowCreation = addCreation;
+        this.dataSources = dataSources;
+        Collection<Object> available = dataSources.length > 0 ? dataSources[0].getData() : null;
+        uiDelegate = new SelectionWizardUI(this, available, selected, type, user);
+        uiDelegate.addPropertyChangeListener(this);
+        this.type = type;
+        initComponents();
+        buildUI();
         setSize(DEFAULT_SIZE);
     }
 

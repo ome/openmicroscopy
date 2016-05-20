@@ -52,9 +52,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
-
-
-
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -62,7 +59,7 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jhotdraw.draw.Figure;
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
@@ -85,7 +82,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
-import omero.gateway.model.TagAnnotationData;
 import omero.gateway.util.Pojos;
 import omero.log.LogMessage;
 
@@ -346,7 +342,6 @@ class ObjectManager extends JPanel implements TabPaneInterface {
             objectsTable.getIDFilter().add(f.getId());
             objectsTable.getIDFilter().addAll(getAllDescendantIds(f));
         }
-        System.err.println(objectsTable.getIDFilter());
         rebuildTable();
     }
 
