@@ -169,15 +169,12 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         long fs1 = f.images.get(1).getFileset().getId().getValue();
         assertEquals(fs0, fs1);
 
-        final Chgrp2 mv = Requests.chgrp("Image", img0, secondGroup.getId().getValue());
+        final Chgrp2 mv = Requests.chgrp().target(f.images.get(0)).toGroup(secondGroup).build();
 
         Response rsp = doChange(client, factory, mv, false); // Don't pass
         // However, it should still be possible to delete the 2 images
         // and have the fileset cleaned up.
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(img0);
-        ids.add(img1);
-        Delete2 dc = Requests.delete("Image", ids);
+        Delete2 dc = Requests.delete().target("Image").id(img0, img1).build();
         callback(true, client, dc);
         assertDoesNotExist(new FilesetI(fs0, false));
     }
@@ -189,9 +186,8 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     public void testMoveFilesetAsRoot() throws Throwable {
     	int imageCount = 2;
     	List<Image> images = importMIF(imageCount);
-        long fs0 = images.get(0).getFileset().getId().getValue();
 
-        final Chgrp2 mv = Requests.chgrp("Fileset", fs0, secondGroup.getId().getValue());
+        final Chgrp2 mv = Requests.chgrp().target(images.get(0).getFileset()).toGroup(secondGroup).build();
 
         Response rsp = doChange(client, factory, mv, true);
         OK err = (OK) rsp;
@@ -234,7 +230,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     		set.addImage(j.next());
 		}
     	set = (Fileset) iUpdate.saveAndReturnObject(set);
-    	final Chgrp2 mv = Requests.chgrp("Fileset", set.getId().getValue(), secondGroup.getId().getValue());
+    	final Chgrp2 mv = Requests.chgrp().target(set).toGroup(secondGroup).build();
     	Response rsp = doChange(client, factory, mv, true);
     	OK err = (OK) rsp;
     	assertNotNull(err);
@@ -418,7 +414,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
 		}
         long filesetID = images.get(0).getFileset().getId().getValue();
         iUpdate.saveAndReturnArray(links);
-        final Chgrp2 dc = Requests.chgrp("Dataset", dataset.getId().getValue(), secondGroup.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(dataset).toGroup(secondGroup).build();
 
     	doAllChanges(client, factory, true, dc);
 

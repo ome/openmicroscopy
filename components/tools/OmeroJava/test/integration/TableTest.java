@@ -106,7 +106,7 @@ public class TableTest extends AbstractServerTest {
     private void deleteTable() throws Exception {
         if (myTable != null) {
             OriginalFile f = myTable.getOriginalFile();
-            final Delete2 dc = Requests.delete("OriginalFile", f.getId().getValue());
+            final Delete2 dc = Requests.delete().target(f).build();
             callback(true, client, dc);
             myTable = null;
         }

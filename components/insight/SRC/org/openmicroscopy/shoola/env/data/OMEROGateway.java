@@ -3642,7 +3642,7 @@ class OMEROGateway
                         case GroupData.PERMISSIONS_PUBLIC_READ:
                             r = "rwrwr-";
                     }
-                    final Chmod2 chmod = Requests.chmod("ExperimenterGroup", group.getId(), r);
+                    final Chmod2 chmod = Requests.chmod().target(group.asGroup()).toPerms(r).build();
                     List<Request> l = new ArrayList<Request>();
                     l.add(chmod);
                     return new RequestCallback(gw.submit(ctx, l, null));
@@ -7247,7 +7247,7 @@ class OMEROGateway
               }
 			}
 			
-			commands.add(Requests.chgrp(objects, target.getGroupID()));
+			commands.add(Requests.chgrp().target(objects).toGroup(target.getGroupID()).build());
 			commands.addAll(saves);
 			
 			return new RequestCallback(gw.submit(ctx, commands, target));

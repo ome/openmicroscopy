@@ -108,7 +108,7 @@ public class PermissionsTest extends AbstractServerTest {
      */
     @AfterClass
     public void deleteTestImages() throws Exception {
-        final Delete2 delete = Requests.delete("Image", testImages);
+        final Delete2 delete = Requests.delete().target("Image").id(testImages).build();
         doChange(root, root.getSession(), delete, true);
         clearTestImages();
     }
@@ -263,7 +263,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(chowner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
@@ -353,7 +353,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(chowner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
@@ -473,7 +473,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
 
         /* check that the objects' ownership is all as expected */
@@ -554,7 +554,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* perform the chown */
 
         init(containerOwner);
-        final Chown2 chown = Requests.chown(isInDataset ? "Dataset" : "Folder", container.getId().getValue(), recipient.userId);
+        final Chown2 chown = Requests.chown().target(container).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
 
         /* check that the objects' ownership is all as expected */
@@ -650,13 +650,13 @@ public class PermissionsTest extends AbstractServerTest {
         /* chmod the group to the required permissions */
 
         logRootIntoGroup(dataGroupId);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, groupPermissions);
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms(groupPermissions).build();
         doChange(client, factory, chmod, true);
 
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
 
         /* check that the objects' ownership is all as expected */
@@ -712,13 +712,13 @@ public class PermissionsTest extends AbstractServerTest {
         /* chmod the group to the required permissions */
 
         logRootIntoGroup(dataGroupId);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, groupPermissions);
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms(groupPermissions).build();
         doChange(client, factory, chmod, true);
 
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
 
         /* check that the objects' ownership is all as expected */
@@ -833,13 +833,13 @@ public class PermissionsTest extends AbstractServerTest {
 
         switch (target) {
         case DATASET:
-            chown = Requests.chown("Dataset", datasetId, recipient.userId);
+            chown = Requests.chown().target(dataset).toUser(recipient.userId).build();
             break;
         case IMAGES:
-            chown = Requests.chown("Image", imageIds, recipient.userId);
+            chown = Requests.chown().target("Image").id(imageIds).toUser(recipient.userId).build();
             break;
         case PLATE:
-            chown = Requests.chown("Plate", plateId, recipient.userId);
+            chown = Requests.chown().target(plate).toUser(recipient.userId).build();
             break;
         default:
             chown = null;

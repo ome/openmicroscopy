@@ -6,6 +6,7 @@
 package ome.services.fulltext;
 
 import java.io.Reader;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ import ome.model.annotations.MapAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TermAnnotation;
+import ome.model.containers.Folder;
+import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.NamedValue;
@@ -26,6 +29,7 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.roi.Roi;
 import ome.util.DetailsFieldBridge;
 import ome.util.Utils;
 
@@ -122,6 +126,7 @@ public class FullTextBridge extends BridgeHelper {
         set_file(name, object, document, opts);
         set_annotations(name, object, document, opts);
         set_details(name, object, document, opts);
+        set_folders(name, object, document, opts);
         set_custom(name, object, document, opts);
 
     }
@@ -286,6 +291,26 @@ public class FullTextBridge extends BridgeHelper {
             }
         }
 
+    }
+
+    /**
+     * Walks the various {@link Folder} instances attached to the object
+     * argument so that it may be found via its immediate parent folder.
+     */
+    public void set_folders(final String name, final IObject object,
+            final Document document, final LuceneOptions opts) {
+        if (object instanceof Image) {
+            final Image image = (Image) object;
+            final Iterator<Roi> roiIterator = image.iterateRois();
+            while (roiIterator.hasNext()) {
+                final Roi roi = roiIterator.next();
+                final Iterator<Folder> folderIterator = roi.linkedFolderIterator();
+                while (folderIterator.hasNext()) {
+                    final Folder folder = folderIterator.next();
+                    add(document, "roi.folder.name", folder.getName(), opts);
+                }
+            }
+        }
     }
 
     /**

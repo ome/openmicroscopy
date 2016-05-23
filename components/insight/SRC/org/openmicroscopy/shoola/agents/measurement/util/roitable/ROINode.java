@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -122,21 +121,6 @@ public class ROINode
 		super(nodeName);
 		initMaps();
 	}
-	
-    /**
-     * Provides an ID based on the user object's type and it's id.
-     * 
-     * @return See above
-     */
-    public String getUUID() {
-        if (getUserObject() instanceof ROI)
-            return "ROI_" + ((ROI) getUserObject()).getID();
-        if (getUserObject() instanceof ROIShape)
-            return "ROIShape_" + ((ROIShape) getUserObject()).getID();
-        if (getUserObject() instanceof FolderData)
-            return "FolderData_" + ((FolderData) getUserObject()).getId();
-        return "" + hashCode();
-    }
 	
 	/**
 	 * Construct ROINode with ROIShape type.
@@ -543,7 +527,7 @@ public class ROINode
 	 * respect to the folders' visibility state they are part of.
 	 */
     private void updateShapeVisibility() {
-        Collection<ROINode> shapes = getShapeNodes();
+        Collection<ROINode> shapes = ROIUtil.getShapeNodes(getRoot());
 
         for (ROINode shape : shapes) {
             ROIShape s = (ROIShape) shape.getUserObject();
@@ -581,8 +565,8 @@ public class ROINode
      */
     private boolean isShapeVisible(ROINode shape) {
         Boolean b = null;
-        Collection<ROINode> shapeNodes = getShapeNodes(((ROIShape) shape
-                .getUserObject()).getROIShapeID());
+        Collection<ROINode> shapeNodes = ROIUtil.getShapeNodes(((ROIShape) shape
+                .getUserObject()).getROIShapeID(), getRoot());
         for (ROINode shapeNode : shapeNodes) {
             TreePath path = shapeNode.getPath();
             if (path.getPathCount() > 2) {
@@ -603,20 +587,6 @@ public class ROINode
             return shape.isVisible();
         else
             return b;
-    }
-
-    /**
-     * Gathers all sub nodes of this node and adds them to the provided nodes
-     * collection (the node itself will be added to the collection, too)
-     * 
-     * @param nodes
-     *            The collection to put the sub nodes into
-     */
-    public void getAllDecendants(Collection<ROINode> nodes) {
-        nodes.add(this);
-        for (MutableTreeTableNode n : this.getChildList()) {
-            gatherNodes((ROINode) n, nodes);
-        }
     }
     
     /**
@@ -668,59 +638,6 @@ public class ROINode
             return ((ROIShape) getUserObject()).getROI().canEdit();
 
         return false;
-    }
-    
-    /**
-     * Gathers all sub nodes of a node and adds them to the provided nodes
-     * collection (the node itself will be added to the collection, too)
-     * 
-     * @param node
-     *            The node for which to gather the sub nodes for
-     * @param nodes
-     *            The collection to put the sub nodes into
-     */
-    private void gatherNodes(ROINode node, Collection<ROINode> nodes) {
-        nodes.add(node);
-        for (MutableTreeTableNode n : node.getChildList()) {
-            gatherNodes((ROINode) n, nodes);
-        }
-    }
-
-    /**
-     * Get all nodes which represent the given shape
-     * 
-     * @param shapeId
-     *            The id of the shape
-     * @return See above
-     */
-    private Collection<ROINode> getShapeNodes(long shapeId) {
-        Collection<ROINode> nodes = getShapeNodes();
-        Iterator<ROINode> it = nodes.iterator();
-        while (it.hasNext()) {
-            ROINode next = it.next();
-            ROIShape shape = (ROIShape) next.getUserObject();
-            if (shape.getROIShapeID() != shapeId)
-                it.remove();
-        }
-        return nodes;
-    }
-
-    /**
-     * Get all nodes which represent shapes
-     * 
-     * @return See above.
-     */
-    private Collection<ROINode> getShapeNodes() {
-        ROINode root = getRoot();
-        Collection<ROINode> nodes = new ArrayList<ROINode>();
-        gatherNodes(root, nodes);
-        Iterator<ROINode> it = nodes.iterator();
-        while (it.hasNext()) {
-            ROINode next = it.next();
-            if (!next.isShapeNode())
-                it.remove();
-        }
-        return nodes;
     }
 
     /**

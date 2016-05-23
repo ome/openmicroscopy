@@ -74,7 +74,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         // Create a new group and make owner of first group an owner.
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
 
         // Now check that the image is no longer in group
@@ -116,7 +116,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
 
         // Now check that the image is no longer in group
@@ -156,7 +156,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
 
         // Now check that the image is no longer in group
@@ -197,7 +197,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
         iAdmin.getEventContext(); // Refresh
 
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
 
         // Now check that the image is no longer in group
@@ -241,7 +241,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 false);
         iAdmin.getEventContext(); // Refresh
 
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -282,7 +282,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser("rwr---", ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -323,7 +323,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser("rw----", ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -364,7 +364,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
         iAdmin.getEventContext(); // Refresh
 
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -405,7 +405,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -445,7 +445,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         // admin logs into first group
         disconnect();
         logRootIntoGroup(ctx);
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -497,7 +497,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // loginUser(ctx);
         // Now try to move the dataset.
-        final Chgrp2 dc = Requests.chgrp("Dataset", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(dataset).toGroup(g).build();
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -564,7 +564,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // loginUser(ctx);
         // Now try to move the dataset.
-        final Chgrp2 dc = Requests.chgrp("Dataset", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(dataset).toGroup(g).build();
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -634,7 +634,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // loginUser(ctx);
         // Now try to move the dataset.
-        final Chgrp2 dc = Requests.chgrp("Dataset", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(dataset).toGroup(g).build();
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -710,7 +710,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // loginUser(ctx);
         // Now try to move the dataset.
-        final Chgrp2 dc = Requests.chgrp("Dataset", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(dataset).toGroup(g).build();
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -775,7 +775,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // user2 tries to move it.
         ctx2 = init(ctx2);
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -840,7 +840,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         /* move the middle folder from the first group to the second */
 
-        doChange(Requests.chgrp("Folder", middleFolder.getId().getValue(), toGroup.getId().getValue()));
+        doChange(Requests.chgrp().target(middleFolder).toGroup(toGroup).build());
 
         /* check that only the top folder remains */
 
@@ -954,9 +954,9 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         final ChildOption option;
         if (Boolean.TRUE.equals(includeOrphans)) {
-            option = Requests.option(folderOption ? "Folder" : "Roi", null);
+            option = Requests.option().includeType(folderOption ? "Folder" : "Roi").build();
         } else if (Boolean.FALSE.equals(includeOrphans)) {
-            option = Requests.option(null, folderOption ? "Folder" : "Roi");
+            option = Requests.option().excludeType(folderOption ? "Folder" : "Roi").build();
         } else {
             option = null;
         }
