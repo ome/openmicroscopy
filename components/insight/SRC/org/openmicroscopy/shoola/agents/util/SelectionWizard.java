@@ -210,7 +210,7 @@ public class SelectionWizard
             JPanel p = new JPanel();
             p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
             p.add(new JLabel("Source "));
-            JComboBox box = new JComboBox(dataSources);
+            final JComboBox box = new JComboBox(dataSources);
             box.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
