@@ -75,6 +75,7 @@ import javax.swing.tree.TreePath;
 
 
 
+
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jhotdraw.draw.Figure;
@@ -1353,25 +1354,15 @@ public class ROITable
         if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 
             List<ROIShape> selectedObjects = getSelectedROIShapes();
-            Collection<FolderData> folders = null;
-
-            Map m = (Map) evt.getNewValue();
+           
+            Collection<FolderData> folders = Collections.EMPTY_LIST;
+            Map<Class<?>, Collection<FolderData>> m = (Map<Class<?>, Collection<FolderData>>) evt
+                    .getNewValue();
             if (m == null || m.size() != 1)
                 return;
-            Set set = m.entrySet();
-            Entry entry;
-            Iterator i = set.iterator();
-            Class type;
-            while (i.hasNext()) {
-                entry = (Entry) i.next();
-                type = (Class) entry.getKey();
-                if (FolderData.class.getName().equals(type.getName())) {
-                    folders = (Collection<FolderData>) entry.getValue();
-                    break;
-                }
-            }
+            folders = m.get(FolderData.class);
 
-            if (folders == null)
+            if (folders.isEmpty())
                 return;
 
             addRecentlyModifiedFolder(folders);

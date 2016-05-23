@@ -306,21 +306,11 @@ class ObjectManager extends JPanel implements TabPaneInterface {
                 if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(evt
                         .getPropertyName())) {
                     Collection<FolderData> folders = Collections.EMPTY_LIST;
-                    Map m = (Map) evt.getNewValue();
+                    Map<Class<?>, Collection<FolderData>> m = (Map<Class<?>, Collection<FolderData>>) evt
+                            .getNewValue();
                     if (m == null || m.size() != 1)
                         return;
-                    Set set = m.entrySet();
-                    Entry entry;
-                    Iterator i = set.iterator();
-                    Class type;
-                    while (i.hasNext()) {
-                        entry = (Entry) i.next();
-                        type = (Class) entry.getKey();
-                        if (FolderData.class.getName().equals(type.getName())) {
-                            folders = (Collection<FolderData>) entry.getValue();
-                            break;
-                        }
-                    }
+                    folders = m.get(FolderData.class);
                     handleFilterSelection(folders);
                 }
             }
