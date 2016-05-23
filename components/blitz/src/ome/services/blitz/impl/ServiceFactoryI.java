@@ -516,11 +516,6 @@ public final class ServiceFactoryI extends omero.cmd.SessionI implements _Servic
         doClose = false;
     }
 
-    @Deprecated
-    public void close(Ice.Current current) {
-        doClose = false;
-    }
-
     public void closeOnDestroy(Ice.Current current) {
         doClose = true;
     }

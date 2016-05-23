@@ -501,19 +501,4 @@ public class ParametersI extends omero.sys.Parameters {
         this.map.put(name, rlongs);
         return this;
     }
-
-    // ~ Deprecated
-    // =========================================================================
-
-    /**
-     * Pre-4.0, pojoOptions.map() was a common idiom for passing the {@link Map
-     * <String, RType} into methods, to keep those uses valid, the
-     * {@link #map()} method is defined.
-     * @deprecated use {@link #map()} instead, to be removed in 5.3
-     */
-    @Deprecated
-    public ParametersI map() {
-        return this;
-    }
-
 }
