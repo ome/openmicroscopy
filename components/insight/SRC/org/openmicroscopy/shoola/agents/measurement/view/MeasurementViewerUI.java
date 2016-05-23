@@ -1422,7 +1422,8 @@ class MeasurementViewerUI
 			Figure f;
 			while (i.hasNext()) {
 				f = i.next();
-				MeasurementAttributes.SHOWMEASUREMENT.set(f, show);
+                if (MeasurementAttributes.SHOWMEASUREMENT.get(f) != show)
+                    MeasurementAttributes.SHOWMEASUREMENT.set(f, show);
 			}
 		}
 		
