@@ -5128,17 +5128,17 @@ public class OMEROMetadataStoreClient
         }
     }
 
-    @Override
+    //@Override
     public void setMaskBinDataBigEndian(Boolean isBigEndian, int roiIndex, int shapeIndex) {
         ignoreMissing("setMaskBinDataBigEndian", isBigEndian, roiIndex, shapeIndex);
     }
 
-    @Override
+    //@Override
     public void setMaskBinDataCompression(Compression compression, int roiIndex, int shapeIndex) {
         ignoreMissing("setMaskBinDataCompression", compression, roiIndex, shapeIndex);
     }
 
-    @Override
+    //@Override
     public void setMaskBinDataLength(NonNegativeLong length, int roiIndex, int shapeIndex) {
         ignoreMissing("setMaskBinDataLength", length, roiIndex, shapeIndex);
     }
@@ -5681,7 +5681,7 @@ public class OMEROMetadataStoreClient
         ignoreUnneeded("setPixelsBigEndian", value, index);
     }
 
-    @Override
+    //@Override
     public void setPixelsBinData(byte[] binData, int imageIndex, int binDataIndex) {
         ignoreMissing("setPixelsBinData", imageIndex, binDataIndex);
     }
@@ -5696,12 +5696,12 @@ public class OMEROMetadataStoreClient
         ignoreUnneeded("setPixelsBinDataBigEndian", bigEndian, imageIndex);
     }
 
-    @Override
+    //@Override
     public void setPixelsBinDataCompression(Compression compression, int imageIndex, int binDataIndex) {
         ignoreMissing("setPixelsBinDataCompression", compression, imageIndex, binDataIndex);
     }
 
-    @Override
+    //@Override
     public void setPixelsBinDataLength(NonNegativeLong length, int imageIndex, int binDataIndex) {
         ignoreMissing("setPixelsBinDataLength", length, imageIndex, binDataIndex);
     }
@@ -8183,22 +8183,22 @@ public class OMEROMetadataStoreClient
         ignoreMissing("setPlateFieldIndex", fieldIndex, plateIndex);
     }
 
-    @Override
+    //@Override
     public void setBinaryFileBinData(byte[] binData, int fileAnnotationIndex) {
         ignoreMissing("setBinaryFileBinData", fileAnnotationIndex);
     }
 
-    @Override
+    //@Override
     public void setBinaryFileBinDataBigEndian(Boolean isBigEndian, int fileAnnotationIndex) {
         ignoreMissing("setBinaryFileBinDataBigEndian", isBigEndian, fileAnnotationIndex);
     }
 
-    @Override
+    //@Override
     public void setBinaryFileBinDataCompression(Compression compression, int fileAnnotationIndex) {
         ignoreMissing("setBinaryFileBinDataCompression", compression, fileAnnotationIndex);
     }
 
-    @Override
+    //@Override
     public void setBinaryFileBinDataLength(NonNegativeLong length, int fileAnnotationIndex) {
         ignoreMissing("setBinaryFileBinDataLength", length, fileAnnotationIndex);
     }
