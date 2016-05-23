@@ -38,9 +38,8 @@ public class FileAnnotationDelete {
             d.linkAnnotation(fa);
             d = (Dataset) s.getUpdateService().saveAndReturnObject(d);
             fa = (FileAnnotation) d.linkedAnnotationList().get(0);
-            long faID = fa.getId().getValue();
 
-            Delete2 deleteCmd = Requests.delete("Annotation", faID);
+            Delete2 deleteCmd = Requests.delete().target(fa).build();
             Map<String, String> callContext = new HashMap<String, String>();
             CmdCallbackI cb = null;
             try {
