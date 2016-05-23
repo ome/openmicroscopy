@@ -72,7 +72,6 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
 
         ExperimenterGroup targetGroup = newGroupAddUser(targetGroupPermissions,
                         userId);
-        long rwGroupId = targetGroup.getId().getValue();
 
         // force a refresh of the user's group membership
         iAdmin.getEventContext();
@@ -94,7 +93,7 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
         loginUser(sourceGroup);
 
         // Perform the move operation.
-        final Chgrp2 dc = Requests.chgrp("Image", originalImageId, rwGroupId);
+        final Chgrp2 dc = Requests.chgrp().target(image).toGroup(targetGroup).build();
         callback(true, client, dc);
 
         // check if the objects have been moved.

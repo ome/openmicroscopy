@@ -900,7 +900,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertNotNull(l);
         long id = l.getId().getValue();
         // annotation and image are linked. Remove the link.
-        final Delete2 dc = Requests.delete("ImageAnnotationLink", l.getId().getValue());
+        final Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
         // now check that the image is no longer linked to the annotation
         String sql = "select link from ImageAnnotationLink as link";

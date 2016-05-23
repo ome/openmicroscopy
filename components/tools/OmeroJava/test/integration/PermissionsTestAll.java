@@ -386,8 +386,7 @@ public class PermissionsTestAll extends AbstractServerTest {
                         if (!isSecuritySystemGroup(targetGroup)
                                 && targetGroup != sourceGroup) {
                             img = images.get(k);
-                            long imageId = img.getId().getValue();
-                            final Chgrp2 dc = Requests.chgrp("Image", imageId, targetGroup);
+                            final Chgrp2 dc = Requests.chgrp().target(img).toGroup(targetGroup).build();
                             testParams.add(new TestParam(dc, testUserNames[i],
                                     PASSWORD, sourceGroup));
                         }

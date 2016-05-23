@@ -6,7 +6,6 @@
 package integration.delete;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import integration.AbstractServerTest;
@@ -71,7 +70,7 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
     	link.setChild((Image) i2.proxy());
     	link.setParent((Dataset) d2.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	Delete2 dc = Requests.delete("Dataset", Arrays.asList(d1.getId().getValue(), d2.getId().getValue()));
+    	Delete2 dc = Requests.delete().target(d1, d2).build();
     	doChange(dc);
     	assertDoesNotExist(d1);
     	assertDoesNotExist(d2);
@@ -116,7 +115,6 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
         fileset.addImage(image1);
         fileset.addImage(image2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        final long filesetId = fileset.getId().getValue();
 
         final IRenderingSettingsPrx renderingSettingsService = factory.getRenderingSettingsService();
         renderingSettingsService.setOriginalSettingsInImage(image1Id);
@@ -127,16 +125,16 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
         final SkipHead skipHead;
         switch (target) {
         case IMAGES_OF_FILESET:
-            skipHead = Requests.skipHead("Fileset", filesetId, dryRun, "Image", new Delete2());
+            skipHead = Requests.skipHead().target(fileset).startFrom("Image").dryRun(dryRun).request(Delete2.class).build();
             break;
         case RENDERING_SETTINGS_OF_FILESET:
-            skipHead = Requests.skipHead("Fileset", filesetId, dryRun, "RenderingDef", new Delete2());
+            skipHead = Requests.skipHead().target(fileset).startFrom("RenderingDef").dryRun(dryRun).request(Delete2.class).build();
             break;
         case RENDERING_SETTINGS_OF_IMAGE:
-            skipHead = Requests.skipHead("Image", image1Id, dryRun, "RenderingDef", new Delete2());
+            skipHead = Requests.skipHead().target(image1).startFrom("RenderingDef").dryRun(dryRun).request(Delete2.class).build();
             break;
         case NONSENSE_OF_IMAGE:
-            skipHead = Requests.skipHead("Image", image1Id, dryRun, "I like penguins", new Delete2());
+            skipHead = Requests.skipHead().target(image1).startFrom("I like snails").dryRun(dryRun).request(Delete2.class).build();
             break;
         default:
             skipHead = null;
@@ -171,7 +169,7 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
             assertHasRenderingDef(image2Id, isImage2SettingsExist);
 
             /* delete the fileset */
-            final Delete2 delete = Requests.delete("Fileset", filesetId);
+            final Delete2 delete = Requests.delete().target(fileset).build();
             doChange(delete);
         }
 

@@ -10,6 +10,7 @@ import static omero.rtypes.rstring;
 import integration.AbstractServerTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +93,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
                 .saveAndReturnObject(new TagAnnotationI());
         IObject link = mmFactory.createAnnotationLink(obj.proxy(), ann);
         link = iUpdate.saveAndReturnObject(link);
-        final Delete2 dc = Requests.delete(command, id.getValue());
+        final Delete2 dc = Requests.delete().target(command).id(id).build();
         callback(true, client, dc);
         assertDoesNotExist(obj);
         assertDoesNotExist(link);
@@ -124,7 +125,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
             fa.setFile(mmFactory.createOriginalFile());
             fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
             file = fa.getFile();
-            final Delete2 dc = Requests.delete("Annotation", fa.getId().getValue());
+            final Delete2 dc = Requests.delete().target(fa).build();
             callback(true, client, dc);
             assertDoesNotExist(fa);
             assertDoesNotExist(file);
@@ -156,7 +157,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        final Delete2 dc = Requests.delete("Image", i1.getId().getValue());
+        final Delete2 dc = Requests.delete().target(i1).build();
         callback(true, client, dc);
         assertDoesNotExist(i1);
         assertDoesNotExist(link);
@@ -296,23 +297,21 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         }
 
         /* delete the first tag set */
-        final Delete2 request;
-        final Long tagset0Id = tagsets.get(0).getId().getValue();
+        final Delete2 request = Requests.delete().target(tagsets.get(0)).build();
         switch (option) {
         case NONE:
-            request = Requests.delete("Annotation", tagset0Id);
             break;
         case INCLUDE:
-            request = Requests.delete("Annotation", tagset0Id, Requests.option("Annotation", null));
+            request.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
             break;
         case EXCLUDE:
-            request = Requests.delete("Annotation", tagset0Id, Requests.option(null, "Annotation"));
+            request.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
             break;
         case BOTH:
-            request = Requests.delete("Annotation", tagset0Id, Requests.option("Annotation", "Annotation"));
+            request.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
+                                                                              .excludeType("Annotation").build());
             break;
         default:
-            request = null;
             Assert.fail("unexpected option for delete");
         }
         doChange(request);
@@ -340,12 +339,12 @@ public class AnnotationDeleteTest extends AbstractServerTest {
             assertExists(tags.get(1));
             assertExists(tags.get(2));
             /* delete the tag that is not in the second tag set */
-            doChange(Requests.delete("Annotation", tags.get(0).getId().getValue()));
+            doChange(Requests.delete().target(tags.get(0)).build());
             break;
         }
 
         /* delete the second tag set */
-        doChange(Requests.delete("Annotation", tagsets.get(1).getId().getValue()));
+        doChange(Requests.delete().target(tagsets.get(1)).build());
 
         /* check that the tag set and the remaining tags are deleted */
         assertNoneExist(tagsets);
