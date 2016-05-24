@@ -192,6 +192,10 @@
         WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' active_user.id %}";
         {% endif %}
 
+        WEBCLIENT.UI = {};
+        WEBCLIENT.UI.TREE = {};
+        WEBCLIENT.UI.TREE.type_order = "{{ui.tree.type_order}}".toLowerCase().split(",").filter(function(e){return e});
+
         {% if page_size %}
             var PAGE_SIZE = {{ page_size }};
         {% endif %}
