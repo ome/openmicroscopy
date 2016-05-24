@@ -66,9 +66,6 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
     /** Flag to indicate if the FileAnnotations should be selectable */
     private boolean selectable;
     
-    /** The collection of annotations to replace. */
-    private List<FileAnnotationData>        toReplace;
-    
     /** Remove attachments button */
     private JButton removeDocsButton;
     
@@ -90,7 +87,6 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
         super(model, view, controller);
 
         filesDocList = new ArrayList<DocComponent>();
-        toReplace = new ArrayList<FileAnnotationData>();
         
         setLayout(new WrapLayout(WrapLayout.LEFT));
         setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -106,39 +102,17 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
     boolean attachFiles(File[] files)
     {
         List<FileAnnotationData> list = getCurrentAttachmentsSelection();
-        DocComponent doc;
         List<File> toAdd = new ArrayList<File>();
-        Object data = null;
-        if (filesDocList.size() > 0) {
-            Iterator<DocComponent> i = filesDocList.iterator();
-            FileAnnotationData fa;
-            while (i.hasNext()) {
-                doc = i.next();
-                data = doc.getData();
-                if (data instanceof FileAnnotationData) {
-                    fa = (FileAnnotationData) data;
-                    for (int j = 0; j < files.length; j++) {
-                        if (fa.getId() >= 0 &&
-                                fa.getFileName().equals(files[j].getName())) {
-                            toReplace.add(fa);
-                        }
-                    }
-                }
-            }
-        }
-        
         for (int i = 0; i < files.length; i++) {
             toAdd.add(files[i]);
         }
         
         if (toAdd.size() > 0) {
-            data = null;
             try {
                 Iterator<File> j = toAdd.iterator();
                 while (j.hasNext()) {
                     list.add(new FileAnnotationData(j.next()));
                 }
-                
             }
             catch (Exception e) {} 
             
@@ -286,10 +260,23 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
             case SHOW_ALL:
                 while (i.hasNext()) {
                     data = (DataObject) i.next();
-                    if (!toReplace.contains(data)) {
-                        doc = new DocComponent(data, model, true, selectable);
-                        doc.addPropertyChangeListener(controller);
-                        filesDocList.add(doc);
+                    doc = new DocComponent(data, model, true, selectable);
+                    doc.addPropertyChangeListener(controller);
+                    filesDocList.add(doc);
+                    add(doc);
+                    v = doc.getPreferredSize().height;
+                    if (h < v)
+                        h = v;
+                    
+                }
+                break;
+            case ADDED_BY_OTHERS:
+                while (i.hasNext()) {
+                    data = (DataObject) i.next();
+                    doc = new DocComponent(data, model, true, selectable);
+                    doc.addPropertyChangeListener(controller);
+                    filesDocList.add(doc);
+                    if (model.isAnnotatedByOther(data)) {
                         add(doc);
                         v = doc.getPreferredSize().height;
                         if (h < v)
@@ -297,35 +284,17 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
                     }
                 }
                 break;
-            case ADDED_BY_OTHERS:
-                while (i.hasNext()) {
-                    data = (DataObject) i.next();
-                    if (!toReplace.contains(data)) {
-                        doc = new DocComponent(data, model, true, selectable);
-                        doc.addPropertyChangeListener(controller);
-                        filesDocList.add(doc);
-                        if (model.isAnnotatedByOther(data)) {
-                            add(doc);
-                            v = doc.getPreferredSize().height;
-                            if (h < v)
-                                h = v;
-                        }
-                    }
-                }
-                break;
             case ADDED_BY_ME:
                 while (i.hasNext()) {
                     data = (DataObject) i.next();
-                    if (!toReplace.contains(data)) {
-                        doc = new DocComponent(data, model, true, selectable);
-                        doc.addPropertyChangeListener(controller);
-                        filesDocList.add(doc);
-                        if (model.isLinkOwner(data)) {
-                            add(doc);
-                            v = doc.getPreferredSize().height;
-                            if (h < v)
-                                h = v;
-                        }
+                    doc = new DocComponent(data, model, true, selectable);
+                    doc.addPropertyChangeListener(controller);
+                    filesDocList.add(doc);
+                    if (model.isLinkOwner(data)) {
+                        add(doc);
+                        v = doc.getPreferredSize().height;
+                        if (h < v)
+                            h = v;
                     }
                 }
             }
