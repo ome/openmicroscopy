@@ -250,6 +250,7 @@ class MeasurementViewerUI
         		controller.getAction(MeasurementViewerControl.LOAD);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getName());
+        item.setVisible(false);
         menu.add(item);
         a = controller.getAction(MeasurementViewerControl.SAVE);
         item = new JMenuItem(a);
