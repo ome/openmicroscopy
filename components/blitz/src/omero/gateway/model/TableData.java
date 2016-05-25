@@ -246,4 +246,41 @@ public class TableData {
         return result;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        if (columnNames != null) {
+            for (int i = 0; i < columnNames.length; i++) {
+                sb.append(columnNames[i]);
+                sb.append('\t');
+            }
+            sb.append('\n');
+        }
+
+        if (types != null) {
+            for (int i = 0; i < types.length; i++) {
+                sb.append(types[i].getSimpleName());
+                sb.append('\t');
+            }
+            sb.append('\n');
+        }
+
+        if (data == null || data.length == 0)
+            return sb.toString();
+
+        int nRows = 0;
+        if (data[0] != null)
+            nRows = data[0].length;
+        for (int r = 0; r < nRows; r++) {
+            for (int c = 0; c < data.length; c++) {
+                sb.append(data[c][r]);
+                sb.append('\t');
+            }
+            sb.append('\n');
+        }
+
+        return sb.toString();
+    }
+
 }

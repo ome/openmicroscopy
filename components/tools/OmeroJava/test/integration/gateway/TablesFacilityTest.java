@@ -65,11 +65,12 @@ public class TablesFacilityTest extends GatewayTest {
         TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getId(), 1, 2, 1, 2);
         
         Object[][] expData = new Object[2][2];
-        expData[0] = new Long[] {1l, 2l};
-        expData[1] = new Double[] {1.0d, 2.0d};
+        expData[0] = new Object[] {1l, 2l};
+        expData[1] = new Object[] {1.0d, 2.0d};
         
         TableData exp = new TableData(new String[] {"column1", "column2"}, null, new Class<?>[] {Long.class, Double.class}, expData);
         exp.setOffset(1);
+        exp.setOriginalFileId(tablesFile.getId());
         Assert.assertEquals(data2, exp,
                 "The tables data retrieved doesn't match the original");
     }
