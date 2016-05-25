@@ -189,7 +189,17 @@ class Cleanser(object):
             (len(self.cleansed), self.bytes_cleansed)
 
 
-def initial_check(config_service):
+def initial_check(admin_service, config_service):
+    if admin_service is None:
+        print("No admin service provided! "
+              "Waiting 10 seconds to allow cancellation")
+        from threading import Event
+        Event().wait(10)
+
+    ctx = admin_service.getEventContext()
+    if not ctx.isAdmin:
+        raise Exception('SecurityViolation: Admins only!')
+
     #
     # Compare server versions. See ticket #3123
     #
@@ -209,11 +219,12 @@ def initial_check(config_service):
 def cleanse(data_dir, client, dry_run=False):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
 
+    admin_service = client.sf.getAdminService()
     query_service = client.sf.getQueryService()
     config_service = client.sf.getConfigService()
     shared_resources = client.sf.sharedResources()
 
-    initial_check(config_service)
+    initial_check(admin_service, config_service)
 
     try:
         cleanser = ""
@@ -293,8 +304,9 @@ def is_empty_dir(repo, directory, may_delete_dir, to_delete):
     return is_empty
 
 
-def fixpyramids(data_dir, query_service, dry_run=False, config_service=None):
-    initial_check(config_service)
+def fixpyramids(data_dir, admin_service, query_service,
+                dry_run=False, config_service=None):
+    initial_check(admin_service, config_service)
 
     # look for any pyramid files with length 0
     # if there is no matching .*.tmp or .*.pyr_lock file, then
