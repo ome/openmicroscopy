@@ -369,20 +369,17 @@ def main():
     try:
         client = omero.client('localhost')
         client.setAgent("OMERO.cleanse")
-        session = None
         if session_key is None:
-            session = client.createSession(username, password)
+            client.createSession(username, password)
         else:
-            session = client.createSession(session_key)
+            client.createSession(session_key)
     except PermissionDeniedException:
         print "%s: Permission denied" % sys.argv[0]
         print "Sorry."
         sys.exit(1)
 
-    query_service = session.getQueryService()
-    config_service = session.getConfigService()
     try:
-        cleanse(data_dir, query_service, dry_run, config_service)
+        cleanse(data_dir, client, dry_run)
     finally:
         if session_key is None:
             client.closeSession()
