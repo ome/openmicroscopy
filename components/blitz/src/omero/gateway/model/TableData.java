@@ -39,6 +39,9 @@ public class TableData {
 
     /** The data types of the columns */
     private Class<?>[] types;
+    
+    /** The offset, if this TableData represents only a subset of the original table */
+    private long offset = 0;
 
     /**
      * Creates a new instance
@@ -96,10 +99,32 @@ public class TableData {
         return types;
     }
 
+    /**
+     * Get the row offset (if this {@link TableData} represents only a subset of
+     * the original table)
+     * 
+     * @return See above
+     */
+    public long getOffset() {
+        return offset;
+    }
+
+    /**
+     * Set the row offset (if this {@link TableData} represents only a subset of
+     * the original table)
+     * 
+     * @param offset
+     *            The row offset
+     */
+    public void setOffset(long offset) {
+        this.offset = offset;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * (int)offset;
         result = prime * result + Arrays.hashCode(columnNames);
         result = prime * result + Arrays.hashCode(types);
         result = prime * result + objectArrayHashCode(data, types);
@@ -116,6 +141,8 @@ public class TableData {
         if (getClass() != obj.getClass())
             return false;
         TableData other = (TableData) obj;
+        if (offset != other.getOffset())
+            return false;
         if (Arrays.hashCode(types) != Arrays.hashCode(other.types))
             return false;
         if (stringArrayHashCode(columnNames) != stringArrayHashCode(other.columnNames))
@@ -190,4 +217,6 @@ public class TableData {
 
         return result;
     }
+    
+    
 }
