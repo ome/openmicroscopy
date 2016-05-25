@@ -53,7 +53,24 @@ public class TablesFacilityTest extends GatewayTest {
         FileData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
                 .iterator().next();
         TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getId());
-        Assert.assertEquals(data, data2,
+        Assert.assertEquals(data2, data,
+                "The tables data retrieved doesn't match the original");
+    }
+    
+    @Test(dependsOnMethods = { "testAddTable" })
+    public void testGetSubsetTable() throws Exception {
+        FileData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
+                .iterator().next();
+        // get row 1 and 2 with column 1 and 2
+        TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getId(), 1, 2, 1, 2);
+        
+        Object[][] expData = new Object[2][2];
+        expData[0] = new Long[] {1l, 2l};
+        expData[1] = new Double[] {1.0d, 2.0d};
+        
+        TableData exp = new TableData(new String[] {"column1", "column2"}, null, new Class<?>[] {Long.class, Double.class}, expData);
+        exp.setOffset(1);
+        Assert.assertEquals(data2, exp,
                 "The tables data retrieved doesn't match the original");
     }
 
@@ -72,7 +89,7 @@ public class TablesFacilityTest extends GatewayTest {
         Object[][] objs = new Object[4][3];
         objs[0] = new Object[] { new String("test0"), new String("test1"),
                 new String("test2") };
-        objs[1] = new Object[] { new Long(0), new Long(1), new Long(1) };
+        objs[1] = new Object[] { new Long(0), new Long(1), new Long(2) };
         objs[2] = new Object[] { new Double(0.0), new Double(1.0),
                 new Double(2.0) };
         objs[3] = new Object[] { new Double[] { 0.0, 1.0, 2.0 },

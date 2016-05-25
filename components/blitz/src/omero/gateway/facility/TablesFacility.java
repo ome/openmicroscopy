@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import omero.ServerError;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -77,7 +78,10 @@ public class TablesFacility extends Facility {
 
     /** The mimetype of an omero tables file */
     public static final String TABLES_MIMETYPE = "OMERO.tables";
-    
+
+    /** Maximum number of rows to fetch */
+    public static final int DEFAULT_MAX_ROWS_TO_FETCH = 1000;
+
     /**
      * Creates a new instance
      * 
@@ -100,10 +104,14 @@ public class TablesFacility extends Facility {
      * @param data
      *            The data
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public void addTable(SecurityContext ctx, DataObject target, String name,
             TableData data) throws DSOutOfServiceException, DSAccessException {
+        TablePrx table = null;
         try {
             if (name == null)
                 name = UUID.randomUUID().toString();
@@ -125,11 +133,12 @@ public class TablesFacility extends Facility {
 
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
             if (!sr.areTablesEnabled()) {
-                throw new Exception("Tables feature is not enabled on this server!");
+                throw new Exception(
+                        "Tables feature is not enabled on this server!");
             }
             long repId = sr.repositories().descriptions.get(0).getId()
                     .getValue();
-            TablePrx table = sr.newTable(repId, name);
+            table = sr.newTable(repId, name);
             table.initialize(columns);
             table.addData(columns);
             table.close();
@@ -151,7 +160,33 @@ public class TablesFacility extends Facility {
             dm.attachAnnotation(ctx, annotation, target);
         } catch (Exception e) {
             handleException(this, e, "Could not add table");
+        } finally {
+            if (table != null)
+                try {
+                    table.close();
+                } catch (ServerError e) {
+                }
         }
+    }
+
+    /**
+     * Load the data from a table (Note: limited to
+     * {@link TablesFacility#DEFAULT_MAX_ROWS_TO_FETCH} number of rows)
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param fileId
+     *            The if of the {@link OriginalFile} which stores the table
+     * @return All data which the table contains
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public TableData getTable(SecurityContext ctx, long fileId)
+            throws DSOutOfServiceException, DSAccessException {
+        return getTable(ctx, fileId, 0, DEFAULT_MAX_ROWS_TO_FETCH);
     }
 
     /**
@@ -161,27 +196,47 @@ public class TablesFacility extends Facility {
      *            The {@link SecurityContext}
      * @param fileId
      *            The if of the {@link OriginalFile} which stores the table
+     * @param rowFrom
+     *            The start row (inclusive)
+     * @param rowTo
+     *            The end row (can be <code>-1</code> in which case
+     *            {@link TablesFacility#DEFAULT_MAX_ROWS_TO_FETCH} rows will be
+     *            fetched) (inclusive)
+     * @param columns
+     *            The columns to take into account (can be left unspecified, in
+     *            which case all columns will used)
      * @return All data which the table contains
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
-    public TableData getTable(SecurityContext ctx, long fileId)
-            throws DSOutOfServiceException, DSAccessException {
+    public TableData getTable(SecurityContext ctx, long fileId, long rowFrom,
+            long rowTo, long... columns) throws DSOutOfServiceException,
+            DSAccessException {
+        TablePrx table = null;
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
-            TablePrx table = sr.openTable(file);
+            table = sr.openTable(file);
 
-            Column[] columns = table.getHeaders();
+            Column[] cols = table.getHeaders();
+
+            if (columns == null || columns.length == 0) {
+                columns = new long[cols.length];
+                for (int i = 0; i < cols.length; i++) {
+                    columns[i] = i;
+                }
+            }
 
             String[] header = new String[columns.length];
             String[] descriptions = new String[columns.length];
             Class<?>[] types = new Class<?>[columns.length];
-            long[] colNumbers = new long[columns.length];
             for (int i = 0; i < columns.length; i++) {
-                header[i] = columns[i].name;
-                descriptions[i] = columns[i].description;
-                colNumbers[i] = i;
+                int columnIndex = (int) columns[i];
+                header[i] = cols[columnIndex].name;
+                descriptions[i] = cols[columnIndex].description;
             }
 
             if (table.getNumberOfRows() == 0) {
@@ -192,9 +247,24 @@ public class TablesFacility extends Facility {
                         new Object[columns.length][0]);
             }
 
-            int nRows = (int) table.getNumberOfRows();
+            if (rowFrom < 0)
+                rowFrom = 0;
+
+            long maxRow = (int) table.getNumberOfRows() - 1;
+
+            if (rowTo < 0)
+                rowTo = rowFrom + DEFAULT_MAX_ROWS_TO_FETCH;
+            if (rowTo > maxRow)
+                rowTo = maxRow;
+
+            if (rowTo - rowFrom + 1 > Integer.MAX_VALUE)
+                throw new Exception("Can't fetch more than "
+                        + (Integer.MAX_VALUE - 1) + " rows at once.");
+
+            int nRows = (int) (rowTo - rowFrom + 1);
+
             Object[][] dataArray = new Object[columns.length][nRows];
-            Data data = table.read(colNumbers, 0, table.getNumberOfRows());
+            Data data = table.read(columns, rowFrom, rowTo + 1);
             for (int i = 0; i < data.columns.length; i++) {
                 Column col = data.columns[i];
                 if (col instanceof BoolColumn) {
@@ -328,9 +398,18 @@ public class TablesFacility extends Facility {
                     types[i] = ROIData.class;
                 }
             }
-            return new TableData(header, descriptions, types, dataArray);
+            TableData result = new TableData(header, descriptions, types,
+                    dataArray);
+            result.setOffset(rowFrom);
+            return result;
         } catch (Exception e) {
             handleException(this, e, "Could not load table data");
+        } finally {
+            if (table != null)
+                try {
+                    table.close();
+                } catch (ServerError e) {
+                }
         }
         return null;
     }
@@ -344,7 +423,10 @@ public class TablesFacility extends Facility {
      *            The {@link DataObject}
      * @return See above
      * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public Collection<FileData> getAvailableTables(SecurityContext ctx,
             DataObject parent) throws DSOutOfServiceException,
@@ -352,7 +434,7 @@ public class TablesFacility extends Facility {
         Collection<FileData> result = new ArrayList<FileData>();
         try {
             MetadataFacility mf = gateway.getFacility(MetadataFacility.class);
-            
+
             List<Class<? extends AnnotationData>> types = new ArrayList<Class<? extends AnnotationData>>(
                     1);
             types.add(FileAnnotationData.class);
@@ -361,7 +443,7 @@ public class TablesFacility extends Facility {
                     null);
             for (AnnotationData anno : annos) {
                 FileAnnotationData fad = (FileAnnotationData) anno;
-                if(fad.getOriginalMimetype().equals(TABLES_MIMETYPE)) {
+                if (fad.getOriginalMimetype().equals(TABLES_MIMETYPE)) {
                     long fileId = ((FileAnnotationData) anno).getFileID();
                     OriginalFile file = new OriginalFileI(fileId, false);
                     result.add(new FileData(file));
