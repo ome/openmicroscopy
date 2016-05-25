@@ -55,7 +55,7 @@ def usage(error):
     """
     cmd = sys.argv[0]
     print """%s
-Usage: %s [-dry-run] [-u username | -k] <omero.data.dir>
+Usage: %s [--dry-run] [-u username | -k] <omero.data.dir>
 Cleanses files in the OMERO data directory that have no reference in the
 OMERO database. NOTE: As this script is designed to be run via cron or in
 a scheduled manner it produces NO output unless a dry run is performed.
