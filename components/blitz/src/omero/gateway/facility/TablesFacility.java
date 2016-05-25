@@ -103,14 +103,16 @@ public class TablesFacility extends Facility {
      *            A name for the table (can be <code>null</code>)
      * @param data
      *            The data
+     * @return The {@link TableData}
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
      * @throws DSAccessException
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public void addTable(SecurityContext ctx, DataObject target, String name,
-            TableData data) throws DSOutOfServiceException, DSAccessException {
+    public TableData addTable(SecurityContext ctx, DataObject target,
+            String name, TableData data) throws DSOutOfServiceException,
+            DSAccessException {
         TablePrx table = null;
         try {
             if (name == null)
@@ -158,6 +160,8 @@ public class TablesFacility extends Facility {
             annotation = (FileAnnotationData) dm.saveAndReturnObject(ctx,
                     annotation);
             dm.attachAnnotation(ctx, annotation, target);
+
+            data.setOriginalFileId(file.getId().getValue());
         } catch (Exception e) {
             handleException(this, e, "Could not add table");
         } finally {
@@ -167,6 +171,7 @@ public class TablesFacility extends Facility {
                 } catch (ServerError e) {
                 }
         }
+        return data;
     }
 
     /**
@@ -219,6 +224,11 @@ public class TablesFacility extends Facility {
         try {
             OriginalFile file = new OriginalFileI(fileId, false);
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
+            if (!sr.areTablesEnabled()) {
+                throw new Exception(
+                        "Tables feature is not enabled on this server!");
+            }
+            
             table = sr.openTable(file);
 
             Column[] cols = table.getHeaders();
@@ -401,6 +411,7 @@ public class TablesFacility extends Facility {
             TableData result = new TableData(header, descriptions, types,
                     dataArray);
             result.setOffset(rowFrom);
+            result.setOriginalFileId(fileId);
             return result;
         } catch (Exception e) {
             handleException(this, e, "Could not load table data");

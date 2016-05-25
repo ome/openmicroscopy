@@ -39,9 +39,15 @@ public class TableData {
 
     /** The data types of the columns */
     private Class<?>[] types;
-    
-    /** The offset, if this TableData represents only a subset of the original table */
+
+    /**
+     * The offset, if this TableData represents only a subset of the original
+     * table
+     */
     private long offset = 0;
+
+    /** The Id of the original file */
+    private long originalFileId = -1;
 
     /**
      * Creates a new instance
@@ -110,6 +116,25 @@ public class TableData {
     }
 
     /**
+     * Get the original file id
+     * 
+     * @return See above
+     */
+    public long getOriginalFileId() {
+        return originalFileId;
+    }
+
+    /**
+     * Set the originalfile id
+     * 
+     * @param originalFileId
+     *            The originalfile id
+     */
+    public void setOriginalFileId(long originalFileId) {
+        this.originalFileId = originalFileId;
+    }
+
+    /**
      * Set the row offset (if this {@link TableData} represents only a subset of
      * the original table)
      * 
@@ -124,7 +149,8 @@ public class TableData {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * (int)offset;
+        result = prime + (int) offset;
+        result = prime * result + (int) originalFileId;
         result = prime * result + Arrays.hashCode(columnNames);
         result = prime * result + Arrays.hashCode(types);
         result = prime * result + objectArrayHashCode(data, types);
@@ -141,6 +167,8 @@ public class TableData {
         if (getClass() != obj.getClass())
             return false;
         TableData other = (TableData) obj;
+        if (originalFileId != other.getOriginalFileId())
+            return false;
         if (offset != other.getOffset())
             return false;
         if (Arrays.hashCode(types) != Arrays.hashCode(other.types))
@@ -217,6 +245,5 @@ public class TableData {
 
         return result;
     }
-    
-    
+
 }
