@@ -37,6 +37,7 @@ import omero.gateway.model.MaskData;
 import omero.gateway.model.PlateData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.TableData;
+import omero.gateway.model.TableDataColumn;
 import omero.gateway.model.WellSampleData;
 import omero.grid.BoolColumn;
 import omero.grid.Column;
@@ -118,19 +119,19 @@ public class TablesFacility extends Facility {
             if (name == null)
                 name = UUID.randomUUID().toString();
 
-            String[] columnNames = data.getColumnNames() != null ? data
-                    .getColumnNames() : new String[0];
+            TableDataColumn[] columns = data.getColumns() != null ? data
+                    .getColumns() : new TableDataColumn[0];
 
             String[] description = data.getDescriptions() != null ? data
                     .getDescriptions() : new String[0];
 
-            Column[] columns = new Column[data.getTypes().length];
-            for (int i = 0; i < data.getTypes().length; i++) {
-                String cname = columnNames.length > i ? columnNames[i] : "";
+            Column[] gridColumns = new Column[data.getColumns().length];
+            for (int i = 0; i < data.getColumns().length; i++) {
+                String cname = columns.length > i ? columns[i].getName() : "";
                 String desc = description.length > i ? description[i] : "";
                 Object[] d = data.getData().length > i ? data.getData()[i]
                         : new Object[0];
-                columns[i] = createColumn(cname, desc, data.getTypes()[i], d);
+                gridColumns[i] = createColumn(cname, desc, data.getColumns()[i].getType(), d);
             }
 
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
@@ -141,8 +142,8 @@ public class TablesFacility extends Facility {
             long repId = sr.repositories().descriptions.get(0).getId()
                     .getValue();
             table = sr.newTable(repId, name);
-            table.initialize(columns);
-            table.addData(columns);
+            table.initialize(gridColumns);
+            table.addData(gridColumns);
             table.close();
 
             DataManagerFacility dm = gateway
@@ -240,23 +241,18 @@ public class TablesFacility extends Facility {
                 }
             }
 
-            String[] header = new String[columns.length];
+            TableDataColumn[] header = new TableDataColumn[columns.length];
             String[] descriptions = new String[columns.length];
-            Class<?>[] types = new Class<?>[columns.length];
             for (int i = 0; i < columns.length; i++) {
                 int columnIndex = (int) columns[i];
-                header[i] = cols[columnIndex].name;
+                header[i] = new TableDataColumn(cols[columnIndex].name, columnIndex,  Object.class);
                 descriptions[i] = cols[columnIndex].description;
             }
 
-            if (table.getNumberOfRows() == 0) {
-                for (int i = 0; i < columns.length; i++) {
-                    types[i] = Object.class;
-                }
-                return new TableData(header, descriptions, types,
+            if (table.getNumberOfRows() == 0) 
+                return new TableData(header, descriptions,
                         new Object[columns.length][0]);
-            }
-
+            
             if (rowFrom < 0)
                 rowFrom = 0;
 
@@ -283,7 +279,7 @@ public class TablesFacility extends Facility {
                     for (int j = 0; j < nRows; j++)
                         rowData[j] = tableData[j];
                     dataArray[i] = rowData;
-                    types[i] = Boolean.class;
+                    header[i].setType(Boolean.class);
                 }
                 if (col instanceof DoubleArrayColumn) {
                     Double[][] rowData = new Double[nRows][];
@@ -296,7 +292,7 @@ public class TablesFacility extends Facility {
                         rowData[j] = tmp;
                     }
                     dataArray[i] = rowData;
-                    types[i] = Double[].class;
+                    header[i].setType(Double[].class);
                 }
                 if (col instanceof DoubleColumn) {
                     Double[] rowData = new Double[nRows];
@@ -304,7 +300,7 @@ public class TablesFacility extends Facility {
                     for (int j = 0; j < nRows; j++)
                         rowData[j] = tableData[j];
                     dataArray[i] = rowData;
-                    types[i] = Double.class;
+                    header[i].setType(Double.class);
                 }
                 if (col instanceof FileColumn) {
                     FileAnnotationData[] rowData = new FileAnnotationData[nRows];
@@ -315,7 +311,7 @@ public class TablesFacility extends Facility {
                         rowData[j] = new FileAnnotationData(f);
                     }
                     dataArray[i] = rowData;
-                    types[i] = FileAnnotationData.class;
+                    header[i].setType(FileAnnotationData.class);
                 }
                 if (col instanceof FloatArrayColumn) {
                     Float[][] rowData = new Float[nRows][];
@@ -328,7 +324,7 @@ public class TablesFacility extends Facility {
                         rowData[j] = tmp;
                     }
                     dataArray[i] = rowData;
-                    types[i] = Float[].class;
+                    header[i].setType(Float[].class);
                 }
                 if (col instanceof ImageColumn) {
                     ImageData[] rowData = new ImageData[nRows];
@@ -338,7 +334,7 @@ public class TablesFacility extends Facility {
                         rowData[j] = new ImageData(im);
                     }
                     dataArray[i] = rowData;
-                    types[i] = ImageData.class;
+                    header[i].setType(ImageData.class);
                 }
                 if (col instanceof LongArrayColumn) {
                     Long[][] rowData = new Long[nRows][];
@@ -351,7 +347,7 @@ public class TablesFacility extends Facility {
                         rowData[j] = tmp;
                     }
                     dataArray[i] = rowData;
-                    types[i] = Long[].class;
+                    header[i].setType(Long[].class);
                 }
                 if (col instanceof LongColumn) {
                     Long[] rowData = new Long[nRows];
@@ -359,7 +355,7 @@ public class TablesFacility extends Facility {
                     for (int j = 0; j < nRows; j++)
                         rowData[j] = tableData[j];
                     dataArray[i] = rowData;
-                    types[i] = Long.class;
+                    header[i].setType(Long.class);
                 }
                 if (col instanceof MaskColumn) {
                     MaskColumn mc = ((MaskColumn) col);
@@ -370,7 +366,7 @@ public class TablesFacility extends Facility {
                         rowData[j] = md;
                     }
                     dataArray[i] = rowData;
-                    types[i] = MaskData.class;
+                    header[i].setType(MaskData.class);
                 }
                 if (col instanceof PlateColumn) {
                     PlateData[] rowData = new PlateData[nRows];
@@ -380,7 +376,7 @@ public class TablesFacility extends Facility {
                         rowData[j] = new PlateData(p);
                     }
                     dataArray[i] = rowData;
-                    types[i] = PlateData.class;
+                    header[i].setType(PlateData.class);
                 }
                 if (col instanceof RoiColumn) {
                     ROIData[] rowData = new ROIData[nRows];
@@ -390,12 +386,12 @@ public class TablesFacility extends Facility {
                         rowData[j] = new ROIData(p);
                     }
                     dataArray[i] = rowData;
-                    types[i] = ROIData.class;
+                    header[i].setType(ROIData.class);
                 }
                 if (col instanceof StringColumn) {
                     String[] rowData = ((StringColumn) col).values;
                     dataArray[i] = rowData;
-                    types[i] = String.class;
+                    header[i].setType(String.class);
                 }
                 if (col instanceof WellColumn) {
                     WellSampleData[] rowData = new WellSampleData[nRows];
@@ -405,10 +401,10 @@ public class TablesFacility extends Facility {
                         rowData[j] = new WellSampleData(p);
                     }
                     dataArray[i] = rowData;
-                    types[i] = ROIData.class;
+                    header[i].setType(ROIData.class);
                 }
             }
-            TableData result = new TableData(header, descriptions, types,
+            TableData result = new TableData(header, descriptions,
                     dataArray);
             result.setOffset(rowFrom);
             result.setOriginalFileId(fileId);

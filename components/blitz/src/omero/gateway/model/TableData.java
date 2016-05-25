@@ -28,17 +28,14 @@ import java.util.Arrays;
  */
 public class TableData {
 
-    /** The table header */
-    private String columnNames[];
+    /** The column definitions */
+    private TableDataColumn columns[];
 
     /** Column descriptions */
     private String descriptions[];
 
     /** The data in form data['column index']['row data'] */
     private Object[][] data;
-
-    /** The data types of the columns */
-    private Class<?>[] types;
 
     /**
      * The offset, if this TableData represents only a subset of the original
@@ -52,21 +49,17 @@ public class TableData {
     /**
      * Creates a new instance
      * 
-     * @param columnNames
+     * @param columns
      *            The headers; can be <code>null</code>
      * @param descriptions
      *            Column descriptions; can be <code>null</code>
-     * @param types
-     *            The data types of the columns
      * @param data
      *            The data in form data['column index']['row data']
      */
-    public TableData(String[] columnNames, String[] descriptions,
-            Class<?>[] types, Object[][] data) {
-        this.columnNames = columnNames;
+    public TableData(TableDataColumn[] columns, String[] descriptions, Object[][] data) {
+        this.columns = columns;
         this.descriptions = descriptions;
         this.data = data;
-        this.types = types;
     }
 
     /**
@@ -74,8 +67,8 @@ public class TableData {
      * 
      * @return See above
      */
-    public String[] getColumnNames() {
-        return columnNames;
+    public TableDataColumn[] getColumns() {
+        return columns;
     }
 
     /**
@@ -94,15 +87,6 @@ public class TableData {
      */
     public Object[][] getData() {
         return data;
-    }
-
-    /**
-     * Get the data types
-     * 
-     * @return See above
-     */
-    public Class<?>[] getTypes() {
-        return types;
     }
 
     /**
@@ -151,9 +135,7 @@ public class TableData {
         int result = 1;
         result = prime + (int) offset;
         result = prime * result + (int) originalFileId;
-        result = prime * result + Arrays.hashCode(columnNames);
-        result = prime * result + Arrays.hashCode(types);
-        result = prime * result + objectArrayHashCode(data, types);
+        result = prime * result + Arrays.hashCode(columns);
         result = prime * result + Arrays.hashCode(descriptions);
         return result;
     }
@@ -171,14 +153,12 @@ public class TableData {
             return false;
         if (offset != other.getOffset())
             return false;
-        if (Arrays.hashCode(types) != Arrays.hashCode(other.types))
-            return false;
-        if (stringArrayHashCode(columnNames) != stringArrayHashCode(other.columnNames))
+        if (Arrays.hashCode(columns) != Arrays.hashCode(other.columns))
             return false;
         if (stringArrayHashCode(descriptions) != stringArrayHashCode(other.descriptions))
             return false;
-        if (objectArrayHashCode(data, types) != objectArrayHashCode(other.data,
-                other.types))
+        if (objectArrayHashCode(data, columns) != objectArrayHashCode(other.data,
+                other.columns))
             return false;
         return true;
     }
@@ -212,7 +192,7 @@ public class TableData {
      *            the same type (<code>types[i]</code>).
      * @return See above
      */
-    private int objectArrayHashCode(Object[][] objects, Class[] types) {
+    private int objectArrayHashCode(Object[][] objects, TableDataColumn[] columns) {
 
         // The reason for this method is, that we can't use Arrays.hashCode()
         // method on Object[][] arrays, because an Object[][] array can be
@@ -234,8 +214,8 @@ public class TableData {
             Object[] col = objects[i];
 
             for (int j = 0; j < col.length; j++) {
-                Object castedObject = types[i].cast(col[j]);
-                if (types[i].isArray())
+                Object castedObject = columns[i].getType().cast(col[j]);
+                if (columns[i].getType().isArray())
                     result = prime * result
                             + Arrays.hashCode((Object[]) castedObject);
                 else
@@ -250,17 +230,9 @@ public class TableData {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        if (columnNames != null) {
-            for (int i = 0; i < columnNames.length; i++) {
-                sb.append(columnNames[i]);
-                sb.append('\t');
-            }
-            sb.append('\n');
-        }
-
-        if (types != null) {
-            for (int i = 0; i < types.length; i++) {
-                sb.append(types[i].getSimpleName());
+        if (columns != null) {
+            for (int i = 0; i < columns.length; i++) {
+                sb.append(columns[i]);
                 sb.append('\t');
             }
             sb.append('\n');
