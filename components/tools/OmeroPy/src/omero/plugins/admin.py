@@ -27,6 +27,7 @@ from path import path
 import omero
 import omero.config
 
+from omero.cli import admin_only
 from omero.cli import CLI
 from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
@@ -962,6 +963,7 @@ present, the user will enter a console""")
         client = self.ctx.conn(args)
         client.getSessionId()
         fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run,
+                    admin_service=client.sf.getAdminService(),
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
 
@@ -1784,6 +1786,7 @@ OMERO Diagnostics %s
             " regenerated. Use the omero.ports.xxx configuration properties"
             " instead.")
 
+    @admin_only
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse
