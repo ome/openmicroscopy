@@ -74,7 +74,7 @@ public class TablesFacilityTest extends GatewayTest {
         expData[0] = new Object[] { 1l, 2l };
         expData[1] = new Object[] { 1.0d, 2.0d };
 
-        TableData exp = new TableData(header, null, expData);
+        TableData exp = new TableData(header, expData);
         exp.setOffset(1);
         exp.setOriginalFileId(tablesFile.getId());
         Assert.assertEquals(data2, exp,
@@ -102,7 +102,7 @@ public class TablesFacilityTest extends GatewayTest {
         objs[3] = new Object[] { new Double[] { 0.0, 1.0, 2.0 },
                 new Double[] { 0.1, 1.1, 2.1 }, new Double[] { 0.2, 1.2, 2.2 } };
 
-        this.data = new TableData(header, null, objs);
+        this.data = new TableData(header, objs);
 
     }
 }

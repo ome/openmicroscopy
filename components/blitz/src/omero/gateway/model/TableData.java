@@ -31,9 +31,6 @@ public class TableData {
     /** The column definitions */
     private TableDataColumn columns[];
 
-    /** Column descriptions */
-    private String descriptions[];
-
     /** The data in form data['column index']['row data'] */
     private Object[][] data;
 
@@ -51,14 +48,11 @@ public class TableData {
      * 
      * @param columns
      *            The headers; can be <code>null</code>
-     * @param descriptions
-     *            Column descriptions; can be <code>null</code>
      * @param data
      *            The data in form data['column index']['row data']
      */
-    public TableData(TableDataColumn[] columns, String[] descriptions, Object[][] data) {
+    public TableData(TableDataColumn[] columns, Object[][] data) {
         this.columns = columns;
-        this.descriptions = descriptions;
         this.data = data;
     }
 
@@ -69,15 +63,6 @@ public class TableData {
      */
     public TableDataColumn[] getColumns() {
         return columns;
-    }
-
-    /**
-     * Get the column descriptions
-     * 
-     * @return See above
-     */
-    public String[] getDescriptions() {
-        return descriptions;
     }
 
     /**
@@ -136,7 +121,6 @@ public class TableData {
         result = prime + (int) offset;
         result = prime * result + (int) originalFileId;
         result = prime * result + Arrays.hashCode(columns);
-        result = prime * result + Arrays.hashCode(descriptions);
         return result;
     }
 
@@ -155,29 +139,10 @@ public class TableData {
             return false;
         if (Arrays.hashCode(columns) != Arrays.hashCode(other.columns))
             return false;
-        if (stringArrayHashCode(descriptions) != stringArrayHashCode(other.descriptions))
-            return false;
         if (objectArrayHashCode(data, columns) != objectArrayHashCode(other.data,
                 other.columns))
             return false;
         return true;
-    }
-
-    /**
-     * Generates a hash code for a String array, ignoring empty and
-     * <code>null</code> Strings
-     * 
-     * @param array
-     *            The String array to generate the hash code for
-     * @return See above.
-     */
-    private int stringArrayHashCode(String[] array) {
-        StringBuilder sb = new StringBuilder();
-        if (array != null) {
-            for (String s : array)
-                sb.append(s);
-        }
-        return sb.toString().hashCode();
     }
 
     /**

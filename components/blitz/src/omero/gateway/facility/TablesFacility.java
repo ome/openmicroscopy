@@ -122,16 +122,15 @@ public class TablesFacility extends Facility {
             TableDataColumn[] columns = data.getColumns() != null ? data
                     .getColumns() : new TableDataColumn[0];
 
-            String[] description = data.getDescriptions() != null ? data
-                    .getDescriptions() : new String[0];
-
             Column[] gridColumns = new Column[data.getColumns().length];
             for (int i = 0; i < data.getColumns().length; i++) {
                 String cname = columns.length > i ? columns[i].getName() : "";
-                String desc = description.length > i ? description[i] : "";
+                String desc = columns.length > i ? columns[i].getDescription()
+                        : "";
                 Object[] d = data.getData().length > i ? data.getData()[i]
                         : new Object[0];
-                gridColumns[i] = createColumn(cname, desc, data.getColumns()[i].getType(), d);
+                gridColumns[i] = createColumn(cname, desc,
+                        data.getColumns()[i].getType(), d);
             }
 
             SharedResourcesPrx sr = gateway.getSharedResources(ctx);
@@ -182,7 +181,7 @@ public class TablesFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
-     *            The if of the {@link OriginalFile} which stores the table
+     *            The id of the {@link OriginalFile} which stores the table
      * @return All data which the table contains
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in
@@ -201,13 +200,13 @@ public class TablesFacility extends Facility {
      * @param ctx
      *            The {@link SecurityContext}
      * @param fileId
-     *            The if of the {@link OriginalFile} which stores the table
+     *            The id of the {@link OriginalFile} which stores the table
      * @param rowFrom
      *            The start row (inclusive)
      * @param rowTo
-     *            The end row (can be <code>-1</code> in which case
+     *            The end row (inclusive) (can be <code>-1</code> in which case
      *            {@link TablesFacility#DEFAULT_MAX_ROWS_TO_FETCH} rows will be
-     *            fetched) (inclusive)
+     *            fetched)
      * @param columns
      *            The columns to take into account (can be left unspecified, in
      *            which case all columns will used)
@@ -229,7 +228,7 @@ public class TablesFacility extends Facility {
                 throw new Exception(
                         "Tables feature is not enabled on this server!");
             }
-            
+
             table = sr.openTable(file);
 
             Column[] cols = table.getHeaders();
@@ -242,17 +241,16 @@ public class TablesFacility extends Facility {
             }
 
             TableDataColumn[] header = new TableDataColumn[columns.length];
-            String[] descriptions = new String[columns.length];
             for (int i = 0; i < columns.length; i++) {
                 int columnIndex = (int) columns[i];
-                header[i] = new TableDataColumn(cols[columnIndex].name, columnIndex,  Object.class);
-                descriptions[i] = cols[columnIndex].description;
+                header[i] = new TableDataColumn(cols[columnIndex].name,
+                        cols[columnIndex].description, columnIndex,
+                        Object.class);
             }
 
-            if (table.getNumberOfRows() == 0) 
-                return new TableData(header, descriptions,
-                        new Object[columns.length][0]);
-            
+            if (table.getNumberOfRows() == 0)
+                return new TableData(header, new Object[columns.length][0]);
+
             if (rowFrom < 0)
                 rowFrom = 0;
 
@@ -404,8 +402,7 @@ public class TablesFacility extends Facility {
                     header[i].setType(ROIData.class);
                 }
             }
-            TableData result = new TableData(header, descriptions,
-                    dataArray);
+            TableData result = new TableData(header, dataArray);
             result.setOffset(rowFrom);
             result.setOriginalFileId(fileId);
             return result;
