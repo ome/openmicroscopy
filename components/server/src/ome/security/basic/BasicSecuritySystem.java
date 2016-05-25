@@ -10,6 +10,7 @@ package ome.security.basic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
@@ -671,6 +672,10 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     public EventContext getEventContext() {
         return getEventContext(false);
+    }
+
+    public Map<String, String> getCallContext() {
+        return cd.getContext();
     }
 
     /**
