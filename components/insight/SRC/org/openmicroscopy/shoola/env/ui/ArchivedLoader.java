@@ -33,8 +33,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import omero.gateway.model.DataObject;
-import omero.gateway.model.ImageData;
-import omero.gateway.model.PlateData;
 
 /** 
  * Loads the image.
@@ -88,7 +86,7 @@ public class ArchivedLoader
      *               Mustn't be <code>null</code>.
      * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
-     * @param objects The images to export.
+     * @param objects The objects to export.
      * @param file The location where to download the image.
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.
