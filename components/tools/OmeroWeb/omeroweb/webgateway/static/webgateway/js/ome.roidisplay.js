@@ -137,7 +137,7 @@ $.fn.roi_display = function(options) {
 
             var arrowPath = "";
             var arrowPoint1x, arrowPoint1y, arrowPoint2x, arrowPoint2y;
-            // if line starts with arrow, line start is within arrow point
+            // if line starts with arrow...
             if (arrowStart) {
                 arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.4) * headSize);
                 arrowPoint1y = y1 - (f * Math.cos(lineAngle - 0.4) * headSize);
@@ -149,10 +149,15 @@ $.fn.roi_display = function(options) {
                 startLeftY = startArrowPointMidy + lineOffsetY;
                 startRightX = startArrowPointMidx + lineOffsetX;
                 startRightY = startArrowPointMidy - lineOffsetY;
-                // Add arrow Start to path...
-                arrowPath += " M" + arrowPoint1x + " " + arrowPoint1y + " L" + arrowPoint2x + " " + arrowPoint2y;
-                arrowPath += " L" + x1 + " " + y1 + " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x1 + " " + y1;
-                arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
+                // start line with Start Arrow head
+                arrowPath += " M" + startRightX + " " + startRightY;
+                arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x1 + " " + y1;
+                arrowPath += " L" + arrowPoint2x + " " + arrowPoint2y;
+                arrowPath += " L" + startLeftX + " " + startLeftY;
+            } else {
+                // ...otherwise, start with plain end of line
+                arrowPath += " M" + startRightX + " " + startRightY;
+                arrowPath += " L" + startLeftX + " " + startLeftY;
             }
 
             // if line ends with arrow, line end is within arrow point
@@ -167,16 +172,19 @@ $.fn.roi_display = function(options) {
                 endLeftY = endArrowPointMidy + lineOffsetY;
                 endRightX = endArrowPointMidx + lineOffsetX;
                 endRightY = endArrowPointMidy - lineOffsetY;
-                // Add arrow End to path...
-                arrowPath += " M" + arrowPoint1x + " " + arrowPoint1y + " L" + arrowPoint2x + " " + arrowPoint2y;
-                arrowPath += " L" + x2 + " " + y2 + " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x2 + " " + y2;
-                arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
+                // End line with End Arrow Head
+                arrowPath += " L" + endLeftX + " " + endLeftY;
+                arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x2 + " " + y2;
+                arrowPath += " L" + arrowPoint2x + " " + arrowPoint2y;
+                arrowPath += " L" + endRightX + " " + endRightY;
+            } else {
+                // ...otherwise simple line end
+                arrowPath += " L" + endLeftX + " " + endLeftY;
+                arrowPath += " L" + endRightX + " " + endRightY;
             }
 
-            // Outline goes around the 'line'
-            arrowPath += " M" + endRightX + " " + endRightY + " L" + endLeftX + " " + endLeftY;
-            arrowPath += " L" + startLeftX + " " + startLeftY + " L" + startRightX + " " + startRightY;
-            arrowPath += " L" + endRightX + " " + endRightY;
+            // ...and back to start point
+            arrowPath += " L" + startRightX + " " + startRightY;
 
             return arrowPath;
         };
