@@ -99,9 +99,100 @@ $.fn.roi_display = function(options) {
                 return lines.join("\n");
             }
             return text_string;
-        }
+        };
+
+        var getArrowPath = function getArrowPath(shape) {
+
+            // We want the arrow tip to be precisely at x2, y2, so we
+            // can't have a fat line at x2, y2. Instead we need to
+            // trace the whole outline of the arrow with a thin line
+
+            // var zf = this._zoomFraction,
+            var x1 = shape['x1'],
+                y1 = shape['y1'],
+                x2 = shape['x2'],
+                y2 = shape['y2'],
+                w = shape['strokeWidth'] || 1;
+            w = w * 0.5;
+
+            var arrowStart = false;
+            var arrowEnd = false;
+
+            var headSize = (w * 5) + 9,
+                dx = x2 - x1,
+                dy = y2 - y1;
+
+            var lineAngle = Math.atan(dx / dy);
+            var f = (dy < 0 ? 1 : -1);
+
+            var lineOffsetX = f * Math.cos(lineAngle) * w,
+                lineOffsetY = f * Math.sin(lineAngle) * w,
+                startLeftX = x1 - lineOffsetX,
+                startLeftY = y1 + lineOffsetY,
+                startRightX = x1 + lineOffsetX,
+                startRightY = y1 - lineOffsetY,
+                endLeftX = x2 - lineOffsetX,
+                endLeftY = y2 + lineOffsetY,
+                endRightX = x2 + lineOffsetX,
+                endRightY = y2 - lineOffsetY;
+
+            // if line starts with arrow...
+            if (arrowStart) {
+                var startArrowPointMidx = x1 - (f * Math.sin(lineAngle) * headSize * 0.5),
+                    startArrowPointMidy = y1 - (f * Math.cos(lineAngle) * headSize * 0.5);
+                startLeftX = startArrowPointMidx - lineOffsetX;
+                startLeftY = startArrowPointMidy + lineOffsetY;
+                startRightX = startArrowPointMidx + lineOffsetX;
+                startRightY = startArrowPointMidy - lineOffsetY;
+            }
+            // if line ends with arrow...
+            if (arrowEnd) {
+                var arrowPointMidx = x2 + (f * Math.sin(lineAngle) * headSize * 0.5),
+                    arrowPointMidy = y2 + (f * Math.cos(lineAngle) * headSize * 0.5);
+                endLeftX = arrowPointMidx - lineOffsetX;
+                endLeftY = arrowPointMidy + lineOffsetY;
+                endRightX = arrowPointMidx + lineOffsetX;
+                endRightY = arrowPointMidy - lineOffsetY;
+            }
+
+            // Outline goes around the 'line'
+            var arrowPath = "M" + endRightX + " " + endRightY + " L" + endLeftX + " " + endLeftY;
+            arrowPath += " L" + startLeftX + " " + startLeftY + " L" + startRightX + " " + startRightY;
+            arrowPath += " L" + endRightX + " " + endRightY;
+
+
+            var arrowPoint1x, arrowPoint1y, arrowPoint2x, arrowPoint2y;
+            // Then goes around the arrow head enough to fill it all in!
+            if (arrowEnd) {
+                // Angle of arrow head is 0.8 radians (0.4 either side of lineAngle)
+                arrowPoint1x = x2 + (f * Math.sin(lineAngle - 0.4) * headSize);
+                arrowPoint1y = y2 + (f * Math.cos(lineAngle - 0.4) * headSize);
+                arrowPoint2x = x2 + (f * Math.sin(lineAngle + 0.4) * headSize);
+                arrowPoint2y = y2 + (f * Math.cos(lineAngle + 0.4) * headSize);
+                arrowPath += " M" + arrowPoint1x + " " + arrowPoint1y + " L" + arrowPoint2x + " " + arrowPoint2y;
+                arrowPath += " L" + x2 + " " + y2 + " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x2 + " " + y2;
+                arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
+            }
+
+            // if line starts with arrow...
+            if (arrowStart) {
+                // Angle of arrow head is 0.8 radians (0.4 either side of lineAngle)
+                arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.4) * headSize),
+                arrowPoint1y = y1 - (f * Math.cos(lineAngle - 0.4) * headSize),
+                arrowPoint2x = x1 - (f * Math.sin(lineAngle + 0.4) * headSize),
+                arrowPoint2y = y1 - (f * Math.cos(lineAngle + 0.4) * headSize),
+                arrowPath += " M" + arrowPoint1x + " " + arrowPoint1y + " L" + arrowPoint2x + " " + arrowPoint2y;
+                arrowPath += " L" + x1 + " " + y1 + " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x1 + " " + y1;
+                arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
+            }
+
+            console.log('arrowPath', arrowPath);
+            return arrowPath;
+        };
+
 
         var draw_shape = function(shape) {
+            console.log(shape['type']);
             var newShape = null;
             if (shape['type'] == 'Mask') {
               var src = webgateway_index + 'render_shape_mask/' + shape['id'] + '/';
@@ -118,7 +209,25 @@ $.fn.roi_display = function(options) {
             }
             else if (shape['type'] == 'Line') {
               // define line as 'path': Move then Line: E.g. "M10 10L90 90"
-              newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
+
+              var arrowPath = getArrowPath(shape);
+
+              newShape = paper.path(arrowPath);
+              newShape.attr({'stroke-width': 1});
+              // We don't want to apply strokeWidth later
+              shape['strokeWidth'] = 0;
+              shape['fillColor'] = shape['strokeColor'];
+              shape['fillAlpha'] = 0.5;
+
+              // var arrow2 = paper.path(arrowPath);
+
+              // newShape = paper.set();
+
+              // newShape.push(arrow);
+              // newShape.push(arrow2);
+              // newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
+
+
             }
             else if (shape['type'] == 'PolyLine') {
               newShape = paper.path( shape['points'] );
