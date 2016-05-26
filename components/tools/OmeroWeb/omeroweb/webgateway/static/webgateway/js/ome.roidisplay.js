@@ -135,54 +135,48 @@ $.fn.roi_display = function(options) {
                 endRightX = x2 + lineOffsetX,
                 endRightY = y2 - lineOffsetY;
 
+            var arrowPath = "";
+            var arrowPoint1x, arrowPoint1y, arrowPoint2x, arrowPoint2y;
             // if line starts with arrow, line start is within arrow point
             if (arrowStart) {
-                var startArrowPointMidx = x1 - (f * Math.sin(lineAngle) * headSize * 0.5),
-                    startArrowPointMidy = y1 - (f * Math.cos(lineAngle) * headSize * 0.5);
+                arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.4) * headSize);
+                arrowPoint1y = y1 - (f * Math.cos(lineAngle - 0.4) * headSize);
+                arrowPoint2x = x1 - (f * Math.sin(lineAngle + 0.4) * headSize);
+                arrowPoint2y = y1 - (f * Math.cos(lineAngle + 0.4) * headSize);
+                var startArrowPointMidx = (arrowPoint1x + arrowPoint2x) / 2,
+                    startArrowPointMidy = (arrowPoint1y + arrowPoint2y) / 2;
                 startLeftX = startArrowPointMidx - lineOffsetX;
                 startLeftY = startArrowPointMidy + lineOffsetY;
                 startRightX = startArrowPointMidx + lineOffsetX;
                 startRightY = startArrowPointMidy - lineOffsetY;
+                // Add arrow Start to path...
+                arrowPath += " M" + arrowPoint1x + " " + arrowPoint1y + " L" + arrowPoint2x + " " + arrowPoint2y;
+                arrowPath += " L" + x1 + " " + y1 + " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x1 + " " + y1;
+                arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
             }
+
             // if line ends with arrow, line end is within arrow point
             if (arrowEnd) {
-                var endArrowPointMidx = x2 + (f * Math.sin(lineAngle) * headSize * 0.5),
-                    endArrowPointMidy = y2 + (f * Math.cos(lineAngle) * headSize * 0.5);
-                endLeftX = endArrowPointMidx - lineOffsetX;
-                endLeftY = endArrowPointMidy + lineOffsetY;
-                endRightX = endArrowPointMidx + lineOffsetX;
-                endRightY = endArrowPointMidy - lineOffsetY;
-            }
-
-            // Outline goes around the 'line'
-            var arrowPath = "M" + endRightX + " " + endRightY + " L" + endLeftX + " " + endLeftY;
-            arrowPath += " L" + startLeftX + " " + startLeftY + " L" + startRightX + " " + startRightY;
-            arrowPath += " L" + endRightX + " " + endRightY;
-
-            // If line ends with arrow, we add arrow head to path
-            var arrowPoint1x, arrowPoint1y, arrowPoint2x, arrowPoint2y;
-            if (arrowEnd) {
-                // Angle of arrow head is 0.8 radians (0.4 either side of lineAngle)
                 arrowPoint1x = x2 + (f * Math.sin(lineAngle - 0.4) * headSize);
                 arrowPoint1y = y2 + (f * Math.cos(lineAngle - 0.4) * headSize);
                 arrowPoint2x = x2 + (f * Math.sin(lineAngle + 0.4) * headSize);
                 arrowPoint2y = y2 + (f * Math.cos(lineAngle + 0.4) * headSize);
+                var endArrowPointMidx = (arrowPoint1x + arrowPoint2x) / 2,
+                    endArrowPointMidy = (arrowPoint1y + arrowPoint2y) / 2;
+                endLeftX = endArrowPointMidx - lineOffsetX;
+                endLeftY = endArrowPointMidy + lineOffsetY;
+                endRightX = endArrowPointMidx + lineOffsetX;
+                endRightY = endArrowPointMidy - lineOffsetY;
+                // Add arrow End to path...
                 arrowPath += " M" + arrowPoint1x + " " + arrowPoint1y + " L" + arrowPoint2x + " " + arrowPoint2y;
                 arrowPath += " L" + x2 + " " + y2 + " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x2 + " " + y2;
                 arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
             }
 
-            // if line starts with arrow, we add arrow head to path
-            if (arrowStart) {
-                // Angle of arrow head is 0.8 radians (0.4 either side of lineAngle)
-                arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.4) * headSize),
-                arrowPoint1y = y1 - (f * Math.cos(lineAngle - 0.4) * headSize),
-                arrowPoint2x = x1 - (f * Math.sin(lineAngle + 0.4) * headSize),
-                arrowPoint2y = y1 - (f * Math.cos(lineAngle + 0.4) * headSize),
-                arrowPath += " M" + arrowPoint1x + " " + arrowPoint1y + " L" + arrowPoint2x + " " + arrowPoint2y;
-                arrowPath += " L" + x1 + " " + y1 + " L" + arrowPoint1x + " " + arrowPoint1y + " L" + x1 + " " + y1;
-                arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
-            }
+            // Outline goes around the 'line'
+            arrowPath += " M" + endRightX + " " + endRightY + " L" + endLeftX + " " + endLeftY;
+            arrowPath += " L" + startLeftX + " " + startLeftY + " L" + startRightX + " " + startRightY;
+            arrowPath += " L" + endRightX + " " + endRightY;
 
             return arrowPath;
         };
