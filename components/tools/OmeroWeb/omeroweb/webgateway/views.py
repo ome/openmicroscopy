@@ -291,8 +291,6 @@ def render_birds_eye_view(request, iid, size=None,
                         bird's eye view.
     @return:            http response containing jpeg
     """
-    if size is None:
-        size = 96       # Use cached thumbnail
     return render_thumbnail(request, iid, w=size, **kwargs)
 
 
@@ -305,14 +303,14 @@ def render_thumbnail(request, iid, w=None, h=None, conn=None, _defcb=None,
 
     @param request:     http request
     @param iid:         Image ID
-    @param w:           Thumbnail max width. 64 by default
+    @param w:           Thumbnail max width. 96 by default
     @param h:           Thumbnail max height
     @return:            http response containing jpeg
     """
     server_id = request.session['connector'].server_id
     direct = True
     if w is None:
-        size = (64,)
+        size = (96,)
     else:
         if h is None:
             size = (int(w),)
