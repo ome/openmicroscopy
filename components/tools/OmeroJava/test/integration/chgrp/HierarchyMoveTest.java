@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2015 University of Dundee. All rights reserved.
+ * Copyright 2006-2016 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -17,9 +17,12 @@ import java.util.UUID;
 import omero.cmd.Chgrp2;
 import omero.cmd.Chgrp2Response;
 import omero.gateway.util.Requests;
+import omero.gateway.util.Requests.Chgrp2Builder;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
+import omero.model.AffineTransform;
+import omero.model.AffineTransformI;
 import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
@@ -42,6 +45,8 @@ import omero.model.PlateAcquisition;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
+import omero.model.Point;
+import omero.model.PointI;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -64,6 +69,8 @@ import omero.sys.ParametersI;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
 
 import static org.testng.AssertJUnit.*;
 import omero.gateway.model.FileAnnotationData;
@@ -1114,5 +1121,78 @@ public class HierarchyMoveTest extends AbstractServerTest {
         /* check what was moved to the destination group */
         assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
         assertNotNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
+    }
+
+    /**
+     * Check that a shared ROI transform cannot be split by moving.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testMoveTransformedRoi() throws Exception {
+        /* prepare a pair of groups for the user */
+        newUserAndGroup("rwr---");
+        final EventContext ctx = iAdmin.getEventContext();
+        final ExperimenterGroup source = iAdmin.getGroup(ctx.groupId);
+        final ExperimenterGroup destination = newGroupAddUser("rwr---", ctx.userId);
+
+        /* start in the source group */
+        loginUser(source);
+
+        /* create ROIs whose shapes share a transform */
+
+        AffineTransform transformation = new AffineTransformI();
+        transformation.setA00(omero.rtypes.rdouble(0));
+        transformation.setA10(omero.rtypes.rdouble(1));
+        transformation.setA01(omero.rtypes.rdouble(1));
+        transformation.setA11(omero.rtypes.rdouble(0));
+        transformation.setA02(omero.rtypes.rdouble(0));
+        transformation.setA12(omero.rtypes.rdouble(0));
+        transformation = (AffineTransform) iUpdate.saveAndReturnObject(transformation).proxy();
+
+        Point point1 = new PointI();
+        point1.setX(omero.rtypes.rdouble(2));
+        point1.setY(omero.rtypes.rdouble(3));
+        point1.setTransform(transformation);
+        Roi roi1 = new RoiI();
+        roi1.addShape(point1);
+        roi1 = (Roi) iUpdate.saveAndReturnObject(roi1);
+        point1 = (Point) roi1.getShape(0);
+
+        Point point2 = new PointI();
+        point2.setX(omero.rtypes.rdouble(4));
+        point2.setY(omero.rtypes.rdouble(5));
+        point2.setTransform(transformation);
+        Roi roi2 = new RoiI();
+        roi2.addShape(point2);
+        roi2 = (Roi) iUpdate.saveAndReturnObject(roi2);
+        point2 = (Point) roi2.getShape(0);
+
+        /* note IDs of created objects */
+        final List<Long> roiIds = ImmutableList.of(roi1.getId().getValue(), roi2.getId().getValue());
+        final List<Long> pointIds = ImmutableList.of(point1.getId().getValue(), point2.getId().getValue());
+        final Long transformationId = transformation.getId().getValue();
+
+        /* move of only one ROI fails */
+        final Chgrp2Builder move = Requests.chgrp().toGroup(destination).target(roi1);
+        doChange(client, factory, move.build(), false);
+
+        /* move of both ROIs succeeds */
+        move.target(roi2);
+        doChange(move.build());
+
+        /* check what remains in the source group */
+        assertNull(iQuery.findByQuery("FROM Roi WHERE id IN (:ids)", new ParametersI().addIds(roiIds)));
+        assertNull(iQuery.findByQuery("FROM Point WHERE id IN (:ids)", new ParametersI().addIds(pointIds)));
+        assertNull(iQuery.findByQuery("FROM AffineTransform WHERE id = :id", new ParametersI().addId(transformationId)));
+
+        /* switch to the destination group */
+        loginUser(destination);
+
+        /* check what was moved to the destination group */
+        assertExists(roi1);
+        assertExists(roi2);
+        assertExists(point1);
+        assertExists(point2);
+        assertExists(transformation);
     }
 }
