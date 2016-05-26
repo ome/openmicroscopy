@@ -764,6 +764,7 @@ public class PixelsService extends AbstractFileSystemService
      * @param filePath Non-null.
      * @param series series to use
      * @param store Min/max store to use with the min/max calculator.
+     * @param raise an exception if no cache file is available
      */
     protected BfPixelBuffer createMinMaxBfPixelBuffer(final String filePath,
                                                       final int series,
@@ -799,6 +800,8 @@ public class PixelsService extends AbstractFileSystemService
      * Short-cut in the FS case where we know that we are dealing with a FS-lite
      * file, and want to retrieve the actual file as opposed to a pyramid or anything
      * else. This may be used to access the original metadata.
+     * @param model object which should be read
+     * @param raise an exception if no cache file is available
      * @throws FormatException
      * @throws IOException
      */
