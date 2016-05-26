@@ -106,8 +106,6 @@ $.fn.roi_display = function(options) {
             // We want the arrow tip to be precisely at x2, y2, so we
             // can't have a fat line at x2, y2. Instead we need to
             // trace the whole outline of the arrow with a thin line
-
-            // var zf = this._zoomFraction,
             var x1 = shape['x1'],
                 y1 = shape['y1'],
                 x2 = shape['x2'],
@@ -115,8 +113,8 @@ $.fn.roi_display = function(options) {
                 w = shape['strokeWidth'] || 1;
             w = w * 0.5;
 
-            var arrowStart = false;
-            var arrowEnd = false;
+            var arrowStart = shape.markerStart === "Arrow";
+            var arrowEnd = shape.markerEnd === "Arrow";
 
             var headSize = (w * 5) + 9,
                 dx = x2 - x1,
@@ -125,6 +123,7 @@ $.fn.roi_display = function(options) {
             var lineAngle = Math.atan(dx / dy);
             var f = (dy < 0 ? 1 : -1);
 
+            // We calculate the 4 corners of the Line (without arrow heads)
             var lineOffsetX = f * Math.cos(lineAngle) * w,
                 lineOffsetY = f * Math.sin(lineAngle) * w,
                 startLeftX = x1 - lineOffsetX,
@@ -136,7 +135,7 @@ $.fn.roi_display = function(options) {
                 endRightX = x2 + lineOffsetX,
                 endRightY = y2 - lineOffsetY;
 
-            // if line starts with arrow...
+            // if line starts with arrow, line start is within arrow point
             if (arrowStart) {
                 var startArrowPointMidx = x1 - (f * Math.sin(lineAngle) * headSize * 0.5),
                     startArrowPointMidy = y1 - (f * Math.cos(lineAngle) * headSize * 0.5);
@@ -145,14 +144,14 @@ $.fn.roi_display = function(options) {
                 startRightX = startArrowPointMidx + lineOffsetX;
                 startRightY = startArrowPointMidy - lineOffsetY;
             }
-            // if line ends with arrow...
+            // if line ends with arrow, line end is within arrow point
             if (arrowEnd) {
-                var arrowPointMidx = x2 + (f * Math.sin(lineAngle) * headSize * 0.5),
-                    arrowPointMidy = y2 + (f * Math.cos(lineAngle) * headSize * 0.5);
-                endLeftX = arrowPointMidx - lineOffsetX;
-                endLeftY = arrowPointMidy + lineOffsetY;
-                endRightX = arrowPointMidx + lineOffsetX;
-                endRightY = arrowPointMidy - lineOffsetY;
+                var endArrowPointMidx = x2 + (f * Math.sin(lineAngle) * headSize * 0.5),
+                    endArrowPointMidy = y2 + (f * Math.cos(lineAngle) * headSize * 0.5);
+                endLeftX = endArrowPointMidx - lineOffsetX;
+                endLeftY = endArrowPointMidy + lineOffsetY;
+                endRightX = endArrowPointMidx + lineOffsetX;
+                endRightY = endArrowPointMidy - lineOffsetY;
             }
 
             // Outline goes around the 'line'
@@ -160,9 +159,8 @@ $.fn.roi_display = function(options) {
             arrowPath += " L" + startLeftX + " " + startLeftY + " L" + startRightX + " " + startRightY;
             arrowPath += " L" + endRightX + " " + endRightY;
 
-
+            // If line ends with arrow, we add arrow head to path
             var arrowPoint1x, arrowPoint1y, arrowPoint2x, arrowPoint2y;
-            // Then goes around the arrow head enough to fill it all in!
             if (arrowEnd) {
                 // Angle of arrow head is 0.8 radians (0.4 either side of lineAngle)
                 arrowPoint1x = x2 + (f * Math.sin(lineAngle - 0.4) * headSize);
@@ -174,7 +172,7 @@ $.fn.roi_display = function(options) {
                 arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
             }
 
-            // if line starts with arrow...
+            // if line starts with arrow, we add arrow head to path
             if (arrowStart) {
                 // Angle of arrow head is 0.8 radians (0.4 either side of lineAngle)
                 arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.4) * headSize),
@@ -186,7 +184,6 @@ $.fn.roi_display = function(options) {
                 arrowPath += " L" + arrowPoint1x + " " + arrowPoint1y;
             }
 
-            console.log('arrowPath', arrowPath);
             return arrowPath;
         };
 
@@ -213,11 +210,11 @@ $.fn.roi_display = function(options) {
               var arrowPath = getArrowPath(shape);
 
               newShape = paper.path(arrowPath);
-              newShape.attr({'stroke-width': 1});
+              newShape.attr({'stroke-width': 0});
               // We don't want to apply strokeWidth later
               shape['strokeWidth'] = 0;
               shape['fillColor'] = shape['strokeColor'];
-              shape['fillAlpha'] = 0.5;
+              shape['fillAlpha'] = shape['strokeAlpha'];
 
               // var arrow2 = paper.path(arrowPath);
 
