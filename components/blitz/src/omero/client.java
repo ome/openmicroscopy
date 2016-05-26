@@ -582,16 +582,6 @@ public class client {
     }
 
     /**
-     * @see #getSession()
-     * @return the current active session
-     * @deprecated use {@link #getSession()} instead, to be removed in 5.3
-     */
-    @Deprecated
-    public ServiceFactoryPrx getServiceFactory() {
-        return getSession();
-    }
-
-    /**
      * Returns the {@link Ice.ImplicitContext} which defines what properties
      * will be sent on every method invocation.
      * @return the {@link Ice.ImplicitContext}

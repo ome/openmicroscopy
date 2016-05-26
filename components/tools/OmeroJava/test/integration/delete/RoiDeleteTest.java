@@ -72,7 +72,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        final Delete2 dc = Requests.delete("Image", i1.getId().getValue());
+        final Delete2 dc = Requests.delete().target(i1).build();
         callback(true, client, dc);
 
         assertDoesNotExist(i1);
@@ -145,7 +145,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         // Now delete the rois.
-        final Delete2 dc = Requests.delete("Roi", roiID);
+        final Delete2 dc = Requests.delete().target(roi).build();
         callback(true, client, dc);
         assertDoesNotExist(roi);
         l = svc.getRoiMeasurements(image.getId().getValue(), options);
@@ -218,7 +218,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         // Now delete the plate
-        final Delete2 dc = Requests.delete("Plate", p.getId().getValue());
+        final Delete2 dc = Requests.delete().target(p).build();
         callback(true, client, dc);
         assertDoesNotExist(p);
         assertDoesNotExist(roi);

@@ -104,7 +104,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
         }
         iAdmin.getEventContext();
         // Perform the move operation as original user
-        final Chgrp2 dc = Requests.chgrp("Image", originalImageId, targetGroup.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(image).toGroup(targetGroup).build();
         callback(true, client, dc);
 
         // check the roi has been moved to target group

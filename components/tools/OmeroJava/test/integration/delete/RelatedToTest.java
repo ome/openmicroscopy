@@ -40,7 +40,7 @@ public class RelatedToTest extends AbstractServerTest {
         p2 = (Pixels) iUpdate.saveAndReturnObject(p2);
         assertEquals(p1.getId(), p2.getRelatedTo().getId());
 
-        final Delete2 dc = Requests.delete("Image", i1.getId().getValue());
+        final Delete2 dc = Requests.delete().target(i1).build();
         callback(true, client, dc);
 
         assertDoesNotExist(i1);
@@ -71,7 +71,7 @@ public class RelatedToTest extends AbstractServerTest {
         assertNotNull(pixels);
         assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
 
-        final Delete2 dc = Requests.delete("Image", img2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(img2).build();
         callback(true, client, dc);
 
         String sql = "select i from Image i where i.id = :id";
@@ -111,7 +111,7 @@ public class RelatedToTest extends AbstractServerTest {
         assertNotNull(pixels);
         assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
 
-        final Delete2 dc = Requests.delete("Image", img2.getId().getValue());
+        final Delete2 dc = Requests.delete().target(img2).build();
         callback(true, client, dc);
 
         String sql = "select i from Image i where i.id = :id";

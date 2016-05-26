@@ -250,6 +250,7 @@ class MeasurementViewerUI
         		controller.getAction(MeasurementViewerControl.LOAD);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getName());
+        item.setVisible(false);
         menu.add(item);
         a = controller.getAction(MeasurementViewerControl.SAVE);
         item = new JMenuItem(a);
@@ -1422,7 +1423,8 @@ class MeasurementViewerUI
 			Figure f;
 			while (i.hasNext()) {
 				f = i.next();
-				MeasurementAttributes.SHOWMEASUREMENT.set(f, show);
+                if (MeasurementAttributes.SHOWMEASUREMENT.get(f) != show)
+                    MeasurementAttributes.SHOWMEASUREMENT.set(f, show);
 			}
 		}
 		

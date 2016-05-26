@@ -297,7 +297,7 @@ class InputServerStrategy
 		double y = data.getY()-r;
 		
 		MeasurePointFigure fig = new MeasurePointFigure(data.getText(), x, y, 
-				2*r, 2*r, data.isReadOnly(), data.isClientObject(), 
+		        PointFigure.FIGURE_SIZE, PointFigure.FIGURE_SIZE, data.isReadOnly(), data.isClientObject(), 
 				data.canEdit(), data.canDelete(), data.canAnnotate());
 		addShapeSettings(fig, data.getShapeSettings());
 		TRANSFORM.set(fig, toTransform(data.getTransform()));
