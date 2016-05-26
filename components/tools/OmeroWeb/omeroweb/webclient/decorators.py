@@ -31,7 +31,9 @@ from omero import constants
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.http import Http404
 
+from omeroweb.decorators import parse_url
 from omeroweb.webclient.forms import GlobalSearchForm
 
 logger = logging.getLogger('omeroweb.webclient.decorators')
@@ -186,8 +188,24 @@ class render_response(omeroweb.decorators.render_response):
                 "label": label, "include": include, "plugin_id": plugin_id})
         context['ome']['right_plugins'] = r_plugins
 
+        left_plugins = settings.LEFT_PLUGINS
+        l_plugins = []
+        label = plugin_id = url = ""
+        for lt in left_plugins:
+            label = lt[0]
+            plugin_id = lt[1]
+            url = None
+            try:
+                url = parse_url(lt[2])
+            except Http404:
+                logger.error('Cannot parse url %s' % url)
+            l_plugins.append({
+                "label": label, "plugin_id": plugin_id, "url": url})
+        context['ome']['left_plugins'] = l_plugins
+
         center_plugins = settings.CENTER_PLUGINS
         c_plugins = []
+        label = include = plugin_id = ""
         for cp in center_plugins:
             label = cp[0]
             include = cp[1]
