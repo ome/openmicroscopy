@@ -209,23 +209,18 @@ $.fn.roi_display = function(options) {
             else if (shape['type'] == 'Line') {
               // define line as 'path': Move then Line: E.g. "M10 10L90 90"
 
-              var arrowPath = getArrowPath(shape);
+              if (shape.markerStart || shape.markerEnd) {
+                var arrowPath = getArrowPath(shape);
 
-              newShape = paper.path(arrowPath);
-              newShape.attr({'stroke-width': 0});
-              // We don't want to apply strokeWidth later
-              shape['strokeWidth'] = 0;
-              shape['fillColor'] = shape['strokeColor'];
-              shape['fillAlpha'] = shape['strokeAlpha'];
-
-              // var arrow2 = paper.path(arrowPath);
-
-              // newShape = paper.set();
-
-              // newShape.push(arrow);
-              // newShape.push(arrow2);
-              // newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
-
+                newShape = paper.path(arrowPath);
+                newShape.attr({'stroke-width': 0});
+                // We don't want to apply strokeWidth later
+                shape['strokeWidth'] = 0;
+                shape['fillColor'] = shape['strokeColor'];
+                shape['fillAlpha'] = shape['strokeAlpha'];
+              } else {
+                newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
+              }
 
             }
             else if (shape['type'] == 'PolyLine') {
