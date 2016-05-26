@@ -70,7 +70,7 @@ class LoginForm(NonASCIIForm):
         ' secure." alt="SSL"/>' % settings.STATIC_URL)
 
     def clean_username(self):
-        if (self.cleaned_data['username'] in ('guest')):
+        if (self.cleaned_data['username'] == 'guest'):
             raise forms.ValidationError("Guest account is not supported.")
         return self.cleaned_data['username']
 
