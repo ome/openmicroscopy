@@ -174,7 +174,7 @@ def handler500(request):
     context = {'form': form}
     t = template_loader.get_template('500.html')
     c = RequestContext(request, context)
-    return HttpResponse(t.render(c))
+    return HttpResponseServerError(t.render(c))
 
 
 def handler404(request):
