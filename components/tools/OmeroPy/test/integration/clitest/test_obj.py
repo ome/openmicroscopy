@@ -147,6 +147,13 @@ class TestObj(CLITest):
         state = self.go()
         assert state.get_row(0) == desc
 
+    def test_fail_leading_numbers_argument(self):
+        for argument in ("123name", "123"):
+            self.args = self.login_args() + [
+                "obj", "new", "Project", "%s=foo" % argument]
+            with pytest.raises(Exception):
+                self.go()
+
     def test_new_and_get_obj(self):
         pname = "foo"
         dname = "bar"
