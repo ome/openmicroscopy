@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2014 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -15,11 +14,13 @@ import static org.testng.AssertJUnit.fail;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 import ome.xml.model.OME;
 import ome.xml.model.primitives.Color;
+import omero.api.IAdminPrx;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -42,7 +44,9 @@ import omero.model.DetectorSettings;
 import omero.model.Dichroic;
 import omero.model.Ellipse;
 import omero.model.Experiment;
+import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterI;
 import omero.model.Filament;
 import omero.model.Filter;
 import omero.model.IObject;
@@ -697,6 +701,45 @@ public class ImporterTest extends AbstractServerTest {
             }
         }
         assertEquals(found, size);
+    }
+
+    /**
+     * Checks if import can still occur when the literal username cannot be written as a directory name in the managed repository.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testImportSimpleImageOddlyNamedUser() throws Exception {
+        /* conceive a new user with an awkward name */
+        final String username = "a / strange \\ name";
+        final String password = UUID.randomUUID().toString();
+        Experimenter user = new ExperimenterI();
+        user.setOmeName(omero.rtypes.rstring(username));
+        user.setFirstName(omero.rtypes.rstring("integration"));
+        user.setLastName(omero.rtypes.rstring("tester"));
+        user.setLdap(omero.rtypes.rbool(false));
+
+        /* actually create the user */
+        final IAdminPrx rootAdmin = root.getSession().getAdminService();
+        final EventContext ec = client.getSession().getAdminService().getEventContext();
+        final ExperimenterGroup group = rootAdmin.getGroup(ec.groupId);
+        final long userId = newUserInGroupWithPassword(user, group, password);
+
+        /* add user to current group */
+        user = rootAdmin.getExperimenter(userId);
+        rootAdmin.addGroups(user, Arrays.asList(group));
+
+        /* switch to being the new user */
+        final omero.client client = newOmeroClient();
+        client.createSession(username, password);
+        init(client);
+
+        try {
+            /* see if import works */
+            testImportSimpleImage();
+        } finally {
+            /* switch back to being the previous user */
+            loginUser(ec);
+        }
     }
 
     /**
