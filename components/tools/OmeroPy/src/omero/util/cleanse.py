@@ -55,7 +55,7 @@ def usage(error):
     """
     cmd = sys.argv[0]
     print """%s
-Usage: %s [-dry-run] [-u username | -k] <omero.data.dir>
+Usage: %s [--dry-run] [-u username | -k] <omero.data.dir>
 Cleanses files in the OMERO data directory that have no reference in the
 OMERO database. NOTE: As this script is designed to be run via cron or in
 a scheduled manner it produces NO output unless a dry run is performed.
@@ -189,7 +189,14 @@ class Cleanser(object):
             (len(self.cleansed), self.bytes_cleansed)
 
 
-def initial_check(config_service):
+def initial_check(config_service, admin_service=None):
+    if admin_service is None:
+        raise Exception("No admin service provided!")
+
+    ctx = admin_service.getEventContext()
+    if not ctx.isAdmin:
+        raise Exception('SecurityViolation: Admins only!')
+
     #
     # Compare server versions. See ticket #3123
     #
@@ -209,11 +216,12 @@ def initial_check(config_service):
 def cleanse(data_dir, client, dry_run=False):
     client.getImplicitContext().put(omero.constants.GROUP, '-1')
 
+    admin_service = client.sf.getAdminService()
     query_service = client.sf.getQueryService()
     config_service = client.sf.getConfigService()
     shared_resources = client.sf.sharedResources()
 
-    initial_check(config_service)
+    initial_check(config_service, admin_service)
 
     try:
         cleanser = ""
@@ -293,8 +301,9 @@ def is_empty_dir(repo, directory, may_delete_dir, to_delete):
     return is_empty
 
 
-def fixpyramids(data_dir, query_service, dry_run=False, config_service=None):
-    initial_check(config_service)
+def fixpyramids(data_dir, query_service,
+                dry_run=False, config_service=None, admin_service=None):
+    initial_check(config_service, admin_service)
 
     # look for any pyramid files with length 0
     # if there is no matching .*.tmp or .*.pyr_lock file, then
@@ -357,20 +366,17 @@ def main():
     try:
         client = omero.client('localhost')
         client.setAgent("OMERO.cleanse")
-        session = None
         if session_key is None:
-            session = client.createSession(username, password)
+            client.createSession(username, password)
         else:
-            session = client.createSession(session_key)
+            client.createSession(session_key)
     except PermissionDeniedException:
         print "%s: Permission denied" % sys.argv[0]
         print "Sorry."
         sys.exit(1)
 
-    query_service = session.getQueryService()
-    config_service = session.getConfigService()
     try:
-        cleanse(data_dir, query_service, dry_run, config_service)
+        cleanse(data_dir, client, dry_run)
     finally:
         if session_key is None:
             client.closeSession()
