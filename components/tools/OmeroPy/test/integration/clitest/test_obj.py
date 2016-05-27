@@ -21,6 +21,7 @@
 
 
 import pytest
+import omero
 
 from test.integration.clitest.cli import CLITest
 from omero_model_NamespaceI import NamespaceI
@@ -44,6 +45,13 @@ class TestObj(CLITest):
     def go(self):
         self.cli.invoke(self.args, strict=True)
         return self.cli.get("tx.state")
+
+    def create_line(self):
+        roi = omero.model.RoiI()
+        line = omero.model.LineI()
+        roi.addShape(line)
+        line = self.update.saveAndReturnObject(line)
+        return line.id.val
 
     def create_script(self):
         path = create_path()
@@ -163,6 +171,16 @@ class TestObj(CLITest):
         AffineTransform = state.get_row(0)
         aid = AffineTransform.split(":")[1]
         assert AffineTransform == "AffineTransform:%s" % aid
+        y2 = 40
+        lid = self.create_line()
+        self.args = self.login_args() + [
+            "obj", "update", "Line:%s" % lid,
+            "x1=10", "x2=20", "y1=30", "y2=%s" % y2]
+        state = self.go()
+        self.args = self.login_args() + [
+            "obj", "get", "Line:%s" % lid]
+        state = self.go()
+        assert "y2=%s" % y2 in state.get_row(0)
 
     def test_new_and_get_obj(self):
         pname = "foo"
