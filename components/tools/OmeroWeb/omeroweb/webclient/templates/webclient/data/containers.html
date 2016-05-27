@@ -751,7 +751,7 @@
 			
 			<!-- Remember to update this in public/public.html as well. We should change this, but for the meantime, you need to manually update the menu there too -->
             {% for lt in ome.left_plugins %}
-                <li id="{{ lt.plugin_id }}_tab" class="ui-state-default{% ifequal menu lt.plugin_id %} ui-tabs-active{% endifequal %}">
+                <li class="ui-state-default{% ifequal menu lt.menu %} ui-tabs-active{% endifequal %}">
                     <a href="{{ lt.url }}" class="ui-tabs-anchor" title="{{ lt.label }}">{{ lt.label }}</a>
                 </li>
             {% endfor %}

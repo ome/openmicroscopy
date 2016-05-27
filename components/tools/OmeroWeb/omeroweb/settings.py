@@ -646,20 +646,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Add plugins to the right-hand panel. "
           "Plugins are ``['Label', 'include.js', 'div_id']``. "
           "The javascript loads data into ``$('#div_id')``.")],
-    "omero.web.ui.left_plugins":
-        ["LEFT_PLUGINS",
-         ('[["Explore",'
-          ' "userdata",'
-          ' {"viewname": "load_template", "args":["userdata"]}],'
-          ' ["Tags",'
-          ' "usertags",'
-          ' {"viewname": "load_template", "args":["usertags"]}],'
-          ' ["Shares",'
-          ' "public",'
-          ' {"viewname": "load_template", "args":["public"]}]]'),
-         json.loads,
-         ("Add plugins to the left-hand panel. "
-          "Plugins are ``['label', 'id', 'url']``. ")],
     "omero.web.ui.center_plugins":
         ["CENTER_PLUGINS",
          ('['
@@ -784,6 +770,13 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
          ("(SYNC WORKERS only) The number of worker threads for handling "
           "requests. Check Gunicorn Documentation "
           "http://docs.gunicorn.org/en/stable/settings.html#threads")],
+    "omero.web.ui.left_plugins":
+        ["LEFT_PLUGINS",
+         ('[{"label": "Explore", "menu": "userdata"},'
+          ' {"label": "Tags", "menu": "usertags"},'
+          ' {"label": "Shares", "menu": "public"}]'),
+         json.loads,
+         ("Manage plugins in the left-hand panel.")],
 }
 
 
