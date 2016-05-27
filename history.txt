@@ -1,6 +1,19 @@
 OMERO version history
 =====================
 
+5.2.4 (May 2016)
+----------------
+
+This is a security release to fix the cleanse.py script used by the "bin/omero
+admin cleanse" command, which was not properly respecting user permissions and
+may lead to data loss.
+
+See :secvuln:`2016-SV1-cleanse` for details. The script and command have now
+been made admin-only.
+
+It is highly suggested that you upgrade your server or apply the patch
+available from the security page.
+
 5.2.3 (May 2016)
 ----------------
 
