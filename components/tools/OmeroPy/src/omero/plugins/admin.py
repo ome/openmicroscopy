@@ -160,7 +160,8 @@ already be running. This may automatically restart some server components.""")
             "ice", "Drop user into icegridadmin console or execute arguments")
 
         fixpyramids = Action(
-            "fixpyramids", "Remove empty pyramid pixels files").parser
+            "fixpyramids",
+            "Remove empty pyramid pixels files (admins only)").parser
         # See cleanse options below
 
         diagnostics = Action(
@@ -362,7 +363,7 @@ dt_socket,address=8787,suspend=y" \\
             "sessionlist", "List currently running sessions").parser
         sessionlist.add_login_arguments()
 
-        cleanse = Action("cleanse", """Remove binary data files from OMERO
+        cleanse = Action("cleanse", """Remove binary data files from OMERO  (admins only)
 
 Deleting an object from OMERO currently may not remove all the binary data.
 Use this command either manually or in a cron job periodically to remove
@@ -956,6 +957,7 @@ present, the user will enter a console""")
         else:
             self.ctx.call(command)
 
+    @admin_only
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
