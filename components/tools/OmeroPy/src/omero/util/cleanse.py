@@ -301,7 +301,7 @@ def is_empty_dir(repo, directory, may_delete_dir, to_delete):
     return is_empty
 
 
-def fixpyramids(data_dir,query_service,
+def fixpyramids(data_dir, query_service,
                 dry_run=False, config_service=None, admin_service=None):
     initial_check(config_service, admin_service)
 
