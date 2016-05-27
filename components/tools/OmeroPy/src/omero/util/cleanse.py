@@ -189,7 +189,7 @@ class Cleanser(object):
             (len(self.cleansed), self.bytes_cleansed)
 
 
-def initial_check(config_service, admin_service):
+def initial_check(config_service, admin_service=None):
     if admin_service is None:
         raise Exception("No admin service provided!")
 
@@ -301,8 +301,8 @@ def is_empty_dir(repo, directory, may_delete_dir, to_delete):
     return is_empty
 
 
-def fixpyramids(data_dir, admin_service, query_service,
-                dry_run=False, config_service=None):
+def fixpyramids(data_dir,query_service,
+                dry_run=False, config_service=None, admin_service=None):
     initial_check(config_service, admin_service)
 
     # look for any pyramid files with length 0
