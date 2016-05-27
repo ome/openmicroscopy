@@ -154,6 +154,16 @@ class TestObj(CLITest):
             with pytest.raises(Exception):
                 self.go()
 
+    def test_argument_with_letters_and_numbers(self):
+        self.args = self.login_args() + ["obj", "new", "AffineTransform"]
+        for matrix_pos in ["00", "10", "01", "11", "02", "12"]:
+            argument = "a%s=1" % matrix_pos
+            self.args.append(argument)
+        state = self.go()
+        AffineTransform = state.get_row(0)
+        aid = AffineTransform.split(":")[1]
+        assert AffineTransform == "AffineTransform:%s" % aid
+
     def test_new_and_get_obj(self):
         pname = "foo"
         dname = "bar"
