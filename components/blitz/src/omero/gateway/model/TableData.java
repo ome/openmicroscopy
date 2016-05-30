@@ -19,6 +19,7 @@
 package omero.gateway.model;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A simple data 'container' for an OMERO.table
@@ -47,7 +48,28 @@ public class TableData {
      * Creates a new instance
      * 
      * @param columns
-     *            The headers; can be <code>null</code>
+     *            The column definitions
+     * @param data
+     *            The data in form of List of columns
+     */
+    public TableData(List<TableDataColumn> columns, List<List<Object>> data) {
+        this.columns = new TableDataColumn[columns.size()];
+        this.columns = columns.toArray(this.columns);
+
+        int nRows = !data.isEmpty() ? data.get(0).size() : 0;
+        this.data = new Object[data.size()][nRows];
+        for (int i = 0; i < data.size(); i++) {
+            List<Object> columnData = data.get(i);
+            for (int j = 0; j < columnData.size(); j++)
+                this.data[i][j] = columnData.get(j);
+        }
+    }
+    
+    /**
+     * Creates a new instance
+     * 
+     * @param columns
+     *            The column definitions
      * @param data
      *            The data in form data['column index']['row data']
      */
