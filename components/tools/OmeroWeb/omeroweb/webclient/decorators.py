@@ -31,7 +31,7 @@ from omero import constants
 
 from django.http import HttpResponse
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 
 from omeroweb.webclient.forms import GlobalSearchForm
 
@@ -197,10 +197,18 @@ class render_response(omeroweb.decorators.render_response):
         viewers = []
         openwith_scripts = []
         for ow in open_with:
+            if len(ow) < 2:
+                continue
             viewer = {}
+            viewer['label'] = ow[0]
+            try:
+                viewer['url'] = reverse(ow[1])
+            except NoReverseMatch:
+                viewer['url'] = ow[1]
+            # try non-essential parameters...
+            # By default, we support single image, opening in new window
             viewer['objects'] = ['image']
             viewer['open'] = 'window'
-            # try non-essential parameters...
             try:
                 if len(ow) > 2:
                     if 'objects' in ow[2]:
@@ -212,14 +220,7 @@ class render_response(omeroweb.decorators.render_response):
             except:
                 # ignore invalid params
                 pass
-            # try essential parameters...
-            try:
-                viewer['label'] = ow[0]
-                viewer['url'] = reverse(ow[1])
-                # Only add if we have label and url
-                viewers.append(viewer)
-            except:
-                pass
+            viewers.append(viewer)
         viewers = json.dumps(viewers)
         context['ome']['open_with'] = viewers
         context['ome']['open_with_scripts'] = openwith_scripts

@@ -987,10 +987,12 @@ $(function() {
                                         return s.type + (sel.length > 1 ? "s" : "");
                                     }, "undefined"),
                                     enabled;
+                                // If plugin has provided a function 'isEnabled'...
                                 if (typeof v.isEnabled === "function") {
                                     enabled = v.isEnabled(sel);
                                     return !enabled;
                                 }
+                                // ...Otherwise use the supported objects list
                                 // v.objects is ['image'] or ['dataset', 'images']
                                 enabled = v.objects.reduce(function(prev, o){
                                     return prev || o.indexOf(selType) > -1;
