@@ -539,7 +539,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["OPEN_WITH",
          ('[["Test", "api_paths_to_object"],'
           '["OMERO.figure", "new_figure", '
-          '{"objects":["images", "dataset"],"open":"tab"}]]'),
+            '{"objects": ["images", "dataset"], "target": "tab", "script": "figure/openwith.js"}]]'),
          json.loads,
          ("A list of viewers that can be used to display selected Images "
           "or other objects. Each viewer is defined as "

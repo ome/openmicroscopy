@@ -972,7 +972,7 @@ $(function() {
                                     }),
                                     query = sel.join("&"),
                                     url = v.url + "?" + query;
-                                if (v.open && v.open === 'tab') {
+                                if (v.target && v.target === 'tab') {
                                     // tries to open in a new tab (not reliable)
                                     // see http://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window-using-javascript
                                     window.open(url,'_blank');
@@ -985,9 +985,14 @@ $(function() {
                                     // selType = 'image' or 'images' or 'dataset'
                                     selType = sel.reduce(function(prev, s){
                                         return s.type + (sel.length > 1 ? "s" : "");
-                                    }, "undefined");
+                                    }, "undefined"),
+                                    enabled;
+                                if (typeof v.isEnabled === "function") {
+                                    enabled = v.isEnabled(sel);
+                                    return !enabled;
+                                }
                                 // v.objects is ['image'] or ['dataset', 'images']
-                                var enabled = v.objects.reduce(function(prev, o){
+                                enabled = v.objects.reduce(function(prev, o){
                                     return prev || o.indexOf(selType) > -1;
                                 }, false);
                                 return !enabled;

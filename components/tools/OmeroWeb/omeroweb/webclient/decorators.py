@@ -195,6 +195,7 @@ class render_response(omeroweb.decorators.render_response):
 
         open_with = settings.OPEN_WITH
         viewers = []
+        openwith_scripts = []
         for ow in open_with:
             viewer = {}
             viewer['objects'] = ['image']
@@ -204,8 +205,10 @@ class render_response(omeroweb.decorators.render_response):
                 if len(ow) > 2:
                     if 'objects' in ow[2]:
                         viewer['objects'] = ow[2]['objects']
-                    if 'open' in ow[2]:
-                        viewer['open'] = ow[2]['open']
+                    if 'target' in ow[2]:
+                        viewer['target'] = ow[2]['target']
+                    if 'script' in ow[2]:
+                        openwith_scripts.append(ow[2]['script'])
             except:
                 # ignore invalid params
                 pass
@@ -219,3 +222,4 @@ class render_response(omeroweb.decorators.render_response):
                 pass
         viewers = json.dumps(viewers)
         context['ome']['open_with'] = viewers
+        context['ome']['open_with_scripts'] = openwith_scripts
