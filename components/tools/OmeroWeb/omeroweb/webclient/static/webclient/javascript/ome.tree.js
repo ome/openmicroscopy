@@ -967,12 +967,17 @@ $(function() {
                             "label": v.label,
                             "action": function() {
                                 var inst = $.jstree.reference('#dataTree'),
-                                    sel = inst.get_selected(true).map(function(s){
+                                    sel = inst.get_selected(true),
+                                    dtypes = sel.map(function(s){
                                         return s.type + "=" + s.data.id;
                                     }),
-                                    query = sel.join("&"),
+                                    query = dtypes.join("&"),
                                     url = v.url + "?" + query;
-                                if (v.target && v.target === 'tab') {
+                                // if plugin has provided an action handler...
+                                if (v.action) {
+                                    v.action(sel, v.url);
+                                }
+                                else if (v.target && v.target === 'tab') {
                                     // tries to open in a new tab (not reliable)
                                     // see http://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window-using-javascript
                                     window.open(url,'_blank');
