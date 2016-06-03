@@ -3158,26 +3158,6 @@ def download_placeholder(request, conn=None, **kwargs):
     return context
 
 
-@login_required()
-@render_response()
-def load_public(request, share_id=None, conn=None, **kwargs):
-    """ Loads data for the center panel in the 'public' main page. """
-
-    # SUBTREE TODO:
-    if share_id is None:
-        share_id = (request.GET.get("o_id") is not None and
-                    long(request.GET.get("o_id")) or None)
-
-    template = "webclient/data/containers_icon.html"
-    controller = BaseShare(conn, share_id)
-    controller.loadShareContent()
-
-    context = {'share': controller, 'manager': controller}
-    context['isLeader'] = conn.isLeader()
-    context['template'] = template
-    return context
-
-
 @login_required(setGroupContext=True)
 @render_response()
 def load_calendar(request, year=None, month=None, conn=None, **kwargs):

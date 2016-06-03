@@ -95,10 +95,6 @@ urlpatterns = patterns(
     url(r'^load_searching/(?:(?P<form>((?i)form))/)?$', views.load_searching,
         name="load_searching"),
 
-    # load public
-    url(r'^load_public/(?:(?P<share_id>[0-9]+)/)?$', views.load_public,
-        name="load_public"),
-
     # metadata
     url(r'^metadata_details/(?:(?P<c_type>[a-zA-Z]+)/'
         r'(?P<c_id>[0-9]+)/)?(?:(?P<share_id>[0-9]+)/)?$',
