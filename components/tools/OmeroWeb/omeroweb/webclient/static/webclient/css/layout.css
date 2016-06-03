@@ -1414,27 +1414,29 @@
         position: relative;
     }
 
+    #dataIcons .ratingFilter_hidden {
+        display: none;
+    }
 
-            #dataIcons .ui-selecting {  
-                background-color:hsl(0,0%,90%);
-            }
-    
-            #dataIcons .fs-selected {
-                background-color:#cddcfc;
-                border:solid 1px #cddcfc;
-            }
+    #dataIcons .ui-selecting {
+        background-color:hsl(0,0%,90%);
+    }
 
-            #dataIcons .ui-selected { 
-                color: white;
-                background-color:#3875d7;
-                border:solid 1px #3875d7;
-                -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2); 
-				
-				-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
-				   -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
-				        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
-				
-            }
+    #dataIcons .fs-selected {
+        background-color:#cddcfc;
+        border:solid 1px #cddcfc;
+    }
+
+    #dataIcons .ui-selected {
+        color: white;
+        background-color:#3875d7;
+        border:solid 1px #3875d7;
+        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2);
+
+        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Saf3.0+, Chrome */
+           -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* FF3.5+ */
+                box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Opera 10.5, IE 9.0 */
+    }
 
     #thumb_size_slider {
         border: 1px solid #aaa;
