@@ -1082,6 +1082,7 @@ $(function() {
             function sortingStrategy(node1, node2) {
                 // sorting strategy
 
+                // If the nodes are experimenters and one of them is the current user.
                 if(node1.type === 'experimenter') {
                     if (node1.data.obj.id === WEBCLIENT.USER.id) {
                         return -1;
@@ -1105,7 +1106,6 @@ $(function() {
             }
             // If the nodes are the same type then just compare lexicographically
             if (node1.type === node2.type && node1.text && node2.text) {
-                // Unless they are experimenters and one of them is the current user.
                 return sortingStrategy(node1, node2);
             // Otherwise explicitly order the type that might be siblings
             } else {
