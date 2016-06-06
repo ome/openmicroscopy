@@ -1111,13 +1111,16 @@ if MAIL_ENABLED:  # noqa
 
 # error2slack notification
 if SLACK_ENABLED:  # noqa
+    MIDDLEWARE_CLASSES += \
+        ('custom_middleware.BrokenLinkSlackMiddleware',)
+
     INSTALLED_APPS += ('django_slack',)
 
     LOGGING['handlers']['slack_admins'] = \
         {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django_slack.log.SlackExceptionHandler'
+            'class': 'log.OmeroSlackExceptionHandler'
         }
     if 'slack_admins' not in LOGGING['loggers']['django.request']['handlers']:
         LOGGING['loggers']['django.request']['handlers'].append('slack_admins')
