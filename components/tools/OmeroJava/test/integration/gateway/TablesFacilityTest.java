@@ -53,7 +53,8 @@ public class TablesFacilityTest extends GatewayTest {
     public void testGetTable() throws Exception {
         FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
                 .iterator().next();
-        TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getId());
+        this.data.setOriginalFileId(tablesFile.getFileID());
+        TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getFileID());
         Assert.assertEquals(data2, data,
                 "The tables data retrieved doesn't match the original");
     }
@@ -62,8 +63,9 @@ public class TablesFacilityTest extends GatewayTest {
     public void testGetSubsetTable() throws Exception {
         FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
                 .iterator().next();
+        this.data.setOriginalFileId(tablesFile.getFileID());
         // get row 1 and 2 with column 1 and 2
-        TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getId(),
+        TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getFileID(),
                 1, 2, 1, 2);
 
         TableDataColumn[] header = new TableDataColumn[2];
@@ -76,7 +78,8 @@ public class TablesFacilityTest extends GatewayTest {
 
         TableData exp = new TableData(header, expData);
         exp.setOffset(1);
-        exp.setOriginalFileId(tablesFile.getId());
+        exp.setOriginalFileId(tablesFile.getFileID());
+        exp.setCompleted(false);
         Assert.assertEquals(data2, exp,
                 "The tables data retrieved doesn't match the original");
     }
@@ -93,14 +96,14 @@ public class TablesFacilityTest extends GatewayTest {
                 new TableDataColumn("column2", 2, Double.class),
                 new TableDataColumn("column3", 3, Double[].class) };
 
-        Object[][] objs = new Object[4][3];
+        Object[][] objs = new Object[4][4];
         objs[0] = new Object[] { new String("test0"), new String("test1"),
-                new String("test2") };
-        objs[1] = new Object[] { new Long(0), new Long(1), new Long(2) };
+                new String("test2") , new String("test4")};
+        objs[1] = new Object[] { new Long(0), new Long(1), new Long(2), new Long(3) };
         objs[2] = new Object[] { new Double(0.0), new Double(1.0),
-                new Double(2.0) };
+                new Double(2.0), new Double(3.0) };
         objs[3] = new Object[] { new Double[] { 0.0, 1.0, 2.0 },
-                new Double[] { 0.1, 1.1, 2.1 }, new Double[] { 0.2, 1.2, 2.2 } };
+                new Double[] { 0.1, 1.1, 2.1 }, new Double[] { 0.2, 1.2, 2.2 }, new Double[] { 0.3, 1.3, 2.3 } };
 
         this.data = new TableData(header, objs);
 

@@ -253,7 +253,7 @@ public class TablesFacility extends Facility {
             if (rowFrom < 0)
                 rowFrom = 0;
 
-            long maxRow = (int) table.getNumberOfRows() - 1;
+            long maxRow = table.getNumberOfRows() - 1;
 
             if (rowTo < 0)
                 rowTo = rowFrom + DEFAULT_MAX_ROWS_TO_FETCH;
@@ -404,6 +404,7 @@ public class TablesFacility extends Facility {
             TableData result = new TableData(header, dataArray);
             result.setOffset(rowFrom);
             result.setOriginalFileId(fileId);
+            result.setCompleted(rowTo == maxRow);
             return result;
         } catch (Exception e) {
             handleException(this, e, "Could not load table data");
