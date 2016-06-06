@@ -134,15 +134,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
     },
     'loggers': {
         'django.request': {  # Stop SQL debug from logging to main logger
-            'handlers': ['default', 'request_handler', 'mail_admins'],
+            'handlers': ['default', 'request_handler'],
             'level': 'DEBUG',
             'propagate': False
         },
@@ -288,6 +283,11 @@ INTERNAL_SETTINGS_MAPPING = {
 
     # Internal email notification for omero.web.admins,
     # loaded from config.xml directly
+    "omero.mail.config":
+        ["MAIL_ENABLED",
+         "false",
+         parse_boolean,
+         "Enable and disable the OMERO.web email error notification."],
     "omero.mail.from":
         ["SERVER_EMAIL",
          None,
@@ -326,6 +326,42 @@ INTERNAL_SETTINGS_MAPPING = {
          parse_boolean,
          ("Whether to use a TLS (secure) connection when talking to the SMTP"
           " server.")],
+    "omero.slack.enabled":
+        ["SLACK_ENABLED",
+         "false",
+         parse_boolean,
+         "Enable and disable the OMERO.web slack error notification."],
+    "omero.slack.token":
+        ["SLACK_TOKEN",
+         None,
+         leave_none_unset,
+         ("Your Slack authentication token. You can generate a tokens on:"
+          "https://api.slack.com/web#authentication")],
+    "omero.slack.channel":
+        ["SLACK_CHANNEL",
+         "#general",
+         str,
+         ("Set a default channel of the room the message should appear in.")],
+    "omero.slack.username":
+        ["SLACK_USERNAME",
+         "webbot",
+         str,
+         ("Set a default name the message will appear be sent from.")],
+    "omero.slack.fail_silently":
+        ["SLACK_FAIL_SILENTLY",
+         True,
+         bool,
+         ("Whether errors should be silenced or raised to the user. As Slack "
+          "messages are often for administrators of a site and not the "
+          "users, masking temporary errors with the Slack API may be "
+          "desired.")],
+    "omero.slack.backend":
+        ["SLACK_BACKEND",
+         "django_slack.backends.UrllibBackend",
+         str,
+         ("A string pointing to the eventual backend class that will "
+          "actually send the message to the Slack API. The default backend "
+          "will send the message using the Python urllib library.")],
 }
 
 CUSTOM_SETTINGS_MAPPINGS = {
@@ -931,13 +967,11 @@ USE_I18N = True
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
 # See https://docs.djangoproject.com/en/1.6/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
-
 
 # ROOT_URLCONF: A string representing the full Python import path to your root
 # URLconf.
@@ -1032,6 +1066,7 @@ INSTALLED_APPS = (
     'pipeline',
 )
 
+
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to
 # modify settings.
 # We're also processing any CUSTOM_SETTINGS_MAPPINGS defined there.
@@ -1057,6 +1092,35 @@ for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
         logger.debug("Couldn't import settings from app: %s" % app)
 
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
+
+
+# admins error2email notification
+if MAIL_ENABLED:  # noqa
+    MIDDLEWARE_CLASSES += \
+        ('django.middleware.common.BrokenLinkEmailsMiddleware',)
+
+    LOGGING['handlers']['mail_admins'] = \
+        {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    if 'mail_admins' not in LOGGING['loggers']['django.request']['handlers']:
+        LOGGING['loggers']['django.request']['handlers'].append('mail_admins')
+
+
+# error2slack notification
+if SLACK_ENABLED:  # noqa
+    INSTALLED_APPS += ('django_slack',)
+
+    LOGGING['handlers']['slack_admins'] = \
+        {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django_slack.log.SlackExceptionHandler'
+        }
+    if 'slack_admins' not in LOGGING['loggers']['django.request']['handlers']:
+        LOGGING['loggers']['django.request']['handlers'].append('slack_admins')
 
 
 PIPELINE_CSS = {
