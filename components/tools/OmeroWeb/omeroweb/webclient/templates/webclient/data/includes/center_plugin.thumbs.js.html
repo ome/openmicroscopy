@@ -376,25 +376,18 @@ $(document).ready(function() {
             }
         });
         // filter by rating
-        var imageRatings;  // cache for ratings data
         var getImageRatings = function(imageIds) {
             var deferredLink = jQuery.Deferred();
-
-            if (imageRatings) {
-                deferredLink.resolve(imageRatings);
-            } else {
-                // Do the call, and resolve the deferred when done
-                var query = "image=" + imageIds.join("&image=");
-                $.ajax({
-                    url: "{% url 'api_annotations' %}?type=rating&" + query,
-                    type: "POST",
-                    dataType: 'json'
-                })
-                .done(function(data){
-                    imageRatings = data;
-                    deferredLink.resolve(data);
-                });
-            }
+            // Do the call, and resolve the deferred when done
+            var query = "image=" + imageIds.join("&image=");
+            $.ajax({
+                url: "{% url 'api_annotations' %}?type=rating&" + query,
+                type: "POST",
+                dataType: 'json'
+            })
+            .done(function(data){
+                deferredLink.resolve(data);
+            });
             return deferredLink.promise();
         }
         $("#filterrating").change(function() {
