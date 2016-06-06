@@ -267,7 +267,9 @@
 
         <!-- If an original file is moved then any corresponding file annotation must also be moved. -->
 
-        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[E].file = OF:[I]" p:error="may not move {OF} while used by {A}"/>
+        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[I].file = OF:[E]" p:error="may not move {A} without {OF}"/>
+        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[ED].file = OF:[I]"
+                                       p:error="may not move {OF} while used by {A}"/>
 
         <!-- If both parent and child are moved then move the annotation link regardless of permissions. -->
 
