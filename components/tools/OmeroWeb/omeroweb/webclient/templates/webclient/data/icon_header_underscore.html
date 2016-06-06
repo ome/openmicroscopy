@@ -3,21 +3,22 @@
     <div id="layout_chooser">
         <button id="icon_layout" title="View as Thumbnails" class="<% if (layout === 'icon') print('checked') %>" /><button id="table_layout" title="View as List" class="<% if (layout === 'table') print('checked') %>" />
     </div>
-    <form class="search filtersearch" id="filtersearch" action="#" style="top:4px">
-        <div>
+    <form class="search filtersearch" id="filtersearch" action="#" style="top:4px; width:600px">
+        <div style="float:left; font-size: 16px">Filter:</div>
+         <img title="Click to add rating" style="float:left" src="/static/webclient/image/rating0.png">
+
+         <div style="position: relative; float: left; width: 170px; height:30px">
             <label for="id_search"> Filter Images </label>
             <input id="id_search" type="text" size="25">
         </div>
         <span class="loading" style="display: none;"></span>
 
-        <select id="filterrating" style="position: absolute; left: 190px; margin-top: 2px;">
-            <option value="0">Filter Rating</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="5anyuser">5 (any user)</option>
+        <select id="choosefilter" style="margin-top: 2px;">
+            <option value="0">Add filter</option>
+            <option value="rating">Rating</option>
+            <option value="2">Name</option>
+            <option value="3">Tag</option>
+            <option value="4">Comment</option>
         </select>
     </form>
 </div>
