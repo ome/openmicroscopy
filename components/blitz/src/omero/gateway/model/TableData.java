@@ -45,6 +45,12 @@ public class TableData {
     private long originalFileId = -1;
 
     /**
+     * Flag to indicate if this TableData object contains that last available
+     * row
+     */
+    private boolean completed = true;
+
+    /**
      * Creates a new instance
      * 
      * @param columns
@@ -64,7 +70,7 @@ public class TableData {
                 this.data[i][j] = columnData.get(j);
         }
     }
-    
+
     /**
      * Creates a new instance
      * 
@@ -136,11 +142,32 @@ public class TableData {
         this.offset = offset;
     }
 
+    /**
+     * @return <code>true</code> if the last available row is contained,
+     *         <code>false</code> if there's more data available in the original
+     *         table
+     */
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    /**
+     * Set to <code>true</code> if the last available row is contained,
+     * <code>false</code> if there's more data available in the original table
+     * 
+     * @param completed
+     *            See above
+     */
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime + (int) offset;
+        result = prime * result + (completed ? 1231 : 1237);
         result = prime * result + (int) originalFileId;
         result = prime * result + Arrays.hashCode(columns);
         return result;
@@ -159,10 +186,12 @@ public class TableData {
             return false;
         if (offset != other.getOffset())
             return false;
+        if (completed != other.completed)
+            return false;
         if (Arrays.hashCode(columns) != Arrays.hashCode(other.columns))
             return false;
-        if (objectArrayHashCode(data, columns) != objectArrayHashCode(other.data,
-                other.columns))
+        if (objectArrayHashCode(data, columns) != objectArrayHashCode(
+                other.data, other.columns))
             return false;
         return true;
     }
@@ -179,7 +208,8 @@ public class TableData {
      *            the same type (<code>types[i]</code>).
      * @return See above
      */
-    private int objectArrayHashCode(Object[][] objects, TableDataColumn[] columns) {
+    private int objectArrayHashCode(Object[][] objects,
+            TableDataColumn[] columns) {
 
         // The reason for this method is, that we can't use Arrays.hashCode()
         // method on Object[][] arrays, because an Object[][] array can be
