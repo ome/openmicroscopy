@@ -31,7 +31,6 @@ import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.AnnotationData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.FileAnnotationData;
-import omero.gateway.model.FileData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.MaskData;
 import omero.gateway.model.PlateData;
@@ -432,10 +431,10 @@ public class TablesFacility extends Facility {
      *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
-    public Collection<FileData> getAvailableTables(SecurityContext ctx,
-            DataObject parent) throws DSOutOfServiceException,
-            DSAccessException {
-        Collection<FileData> result = new ArrayList<FileData>();
+    public Collection<FileAnnotationData> getAvailableTables(
+            SecurityContext ctx, DataObject parent)
+            throws DSOutOfServiceException, DSAccessException {
+        Collection<FileAnnotationData> result = new ArrayList<FileAnnotationData>();
         try {
             MetadataFacility mf = gateway.getFacility(MetadataFacility.class);
 
@@ -448,9 +447,7 @@ public class TablesFacility extends Facility {
             for (AnnotationData anno : annos) {
                 FileAnnotationData fad = (FileAnnotationData) anno;
                 if (fad.getOriginalMimetype().equals(TABLES_MIMETYPE)) {
-                    long fileId = ((FileAnnotationData) anno).getFileID();
-                    OriginalFile file = new OriginalFileI(fileId, false);
-                    result.add(new FileData(file));
+                    result.add(fad);
                 }
             }
 

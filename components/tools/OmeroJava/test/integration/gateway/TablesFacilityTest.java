@@ -21,7 +21,7 @@ package integration.gateway;
 import java.util.UUID;
 
 import omero.gateway.model.DatasetData;
-import omero.gateway.model.FileData;
+import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.TableData;
 import omero.gateway.model.TableDataColumn;
 
@@ -51,7 +51,7 @@ public class TablesFacilityTest extends GatewayTest {
 
     @Test(dependsOnMethods = { "testAddTable" })
     public void testGetTable() throws Exception {
-        FileData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
+        FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
                 .iterator().next();
         TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getId());
         Assert.assertEquals(data2, data,
@@ -60,7 +60,7 @@ public class TablesFacilityTest extends GatewayTest {
 
     @Test(dependsOnMethods = { "testAddTable" })
     public void testGetSubsetTable() throws Exception {
-        FileData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
+        FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
                 .iterator().next();
         // get row 1 and 2 with column 1 and 2
         TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getId(),
