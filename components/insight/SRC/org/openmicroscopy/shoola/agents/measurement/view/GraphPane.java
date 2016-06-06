@@ -413,20 +413,22 @@ public class GraphPane
 				if (UIUtilities.isSameColors(c, Color.white, false))
 					c = DEFAULT_COLOR;
 				channelColour.add(c);
-				values = data.get(channel).getValues();
-				if (values != null && values.length != 0) {
-					channelData.add(values);
-					
-					if (lineProfileFigure(shape)) {
-						dataXY = new double[2][values.length];
-						for (int i = 0 ; i < values.length ; i++)
-						{
-							dataXY[0][i] = i;
-							dataXY[1][i] = values[i];
-						}
-						channelXYData.add(dataXY);
-					}
-				}
+                ROIShapeStatsSimple stats = data.get(channel);
+                if (stats != null) {
+                    values = stats.getValues();
+                    if (values != null && values.length != 0) {
+                        channelData.add(values);
+
+                        if (lineProfileFigure(shape)) {
+                            dataXY = new double[2][values.length];
+                            for (int i = 0; i < values.length; i++) {
+                                dataXY[0][i] = i;
+                                dataXY[1][i] = values[i];
+                            }
+                            channelXYData.add(dataXY);
+                        }
+                    }
+                }
 			}
 		}
 		mainPanel.removeAll();
