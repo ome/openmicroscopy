@@ -385,12 +385,12 @@ def omero_marshal_datasets(conn, project_id=None, childCount=False,
     if childCount:
         withChildCount = """, (select count(id) from DatasetImageLink dil
                  where dil.parent=dataset.id)"""
-    query = """
-            select dataset %s from Dataset dataset""" % withChildCount
+    query = "select dataset %s from Dataset dataset" % withChildCount
 
     if project_id:
         params.add('pid', rlong(project_id))
-        query += ' join dataset.projectLinks plink where plink.parent.id = :pid'
+        query += """ join dataset.projectLinks plink
+                    where plink.parent.id = :pid"""
 
     query += " order by lower(dataset.name), dataset.id"
 
