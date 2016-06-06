@@ -372,7 +372,7 @@ def _marshal_dataset(conn, row):
     return dataset
 
 
-def omero_marshal_datasets(conn, childCount=False,
+def omero_marshal_datasets(conn, project_id=None, childCount=False,
                            page=1, limit=settings.PAGE):
 
     qs = conn.getQueryService()
@@ -386,8 +386,13 @@ def omero_marshal_datasets(conn, childCount=False,
         withChildCount = """, (select count(id) from DatasetImageLink dil
                  where dil.parent=dataset.id)"""
     query = """
-            select dataset %s from Dataset dataset
-            order by lower(dataset.name), dataset.id""" % withChildCount
+            select dataset %s from Dataset dataset""" % withChildCount
+
+    if project_id:
+        params.add('pid', rlong(project_id))
+        query += ' join dataset.projectLinks plink where plink.parent.id = :pid'
+
+    query += " order by lower(dataset.name), dataset.id"
 
     datasets = []
     if childCount:

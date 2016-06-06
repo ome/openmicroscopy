@@ -1468,6 +1468,7 @@ def api_dataset_list(request, conn=None, **kwargs):
 
         n = time.time()
         datasets = omero_marshal_datasets(conn,
+                                          project_id=project_id,
                                           childCount=True,
                                           page=page,
                                           limit=limit)
@@ -1475,6 +1476,7 @@ def api_dataset_list(request, conn=None, **kwargs):
 
         n = time.time()
         datasets = omero_marshal_datasets(conn,
+                                          project_id=project_id,
                                           page=page,
                                           limit=limit)
         print time.time() - n, 'omero-marshal', len(datasets)
