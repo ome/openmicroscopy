@@ -47,7 +47,8 @@ from api_marshal import marshal_projects, marshal_datasets, \
     marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, \
     marshal_shares, marshal_discussions, \
-    marshal_experimenters, marshal_experimenter, marshal_groups
+    marshal_experimenters, marshal_experimenter, marshal_groups, \
+    omero_marshal_images
 
 try:
     from hashlib import md5
@@ -1536,6 +1537,10 @@ def api_image_list(request, conn=None, **kwargs):
                                 date=date,
                                 thumb_version=thumb_version,
                                 limit=limit)
+        images = omero_marshal_images(conn=conn,
+                                      dataset_id=dataset_id,
+                                      page=page,
+                                      limit=limit)
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:

@@ -511,6 +511,32 @@ def _marshal_date(time):
     return d.isoformat() + 'Z'
 
 
+def omero_marshal_images(conn, page=1, dataset_id=None, limit=settings.PAGE):
+
+    qs = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    if page:
+        params.page((page-1) * limit, limit)
+    ctx = {'omero.group': '-1'}
+
+    query = """select image from Image image
+               left outer join fetch image.pixels """
+
+    if dataset_id:
+        params.add('did', rlong(dataset_id))
+        query += ' join image.datasetLinks link where link.parent.id = :did'
+
+    query += " order by lower(image.name), image.id"
+
+    images = []
+    result = qs.findAllByQuery(query, params, ctx)
+    encoder = get_encoder(result[0].__class__)
+    for d in result:
+        images.append(encoder.encode(d))
+
+    return images
+
+
 def _marshal_image(conn, row, row_pixels=None, share_id=None,
                    date=None, acqDate=None, thumbVersion=None):
     ''' Given an Image row (list) marshals it into a dictionary.  Order
