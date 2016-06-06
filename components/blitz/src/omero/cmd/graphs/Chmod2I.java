@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@ package omero.cmd.graphs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -72,6 +71,8 @@ import omero.cmd.Response;
  */
 public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Chmod2I.class);
+
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.CHMOD);
@@ -88,6 +89,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     private long perm1;
     private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
+    private GraphHelper graphHelper;
     private GraphTraversal graphTraversal;
     private Set<Long> acceptableGroups;
 
@@ -129,8 +131,18 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("permissions", permissions);
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         try {
             perm1 = (Long) Utils.internalForm(Permissions.parseString(permissions));
@@ -149,32 +161,12 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
             acceptableGroups = ImmutableSet.copyOf(iAdmin.getLeaderOfGroupIds(new Experimenter(userId, false)));
         }
 
-        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
+        graphPolicy.registerPredicate(new GroupPredicate(securityRoles));
 
-        if (childOptions != null) {
-            for (final ChildOptionI childOption : childOptions) {
-                childOption.init();
-            }
-        }
+        graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
+                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
-        GraphPolicy graphPolicyWithOptions = graphPolicy;
-
-        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, childOptions, REQUIRED_ABILITIES);
-
-        for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
-            graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
-        }
         graphPolicyAdjusters = null;
-
-        graphPolicyWithOptions.registerPredicate(new GroupPredicate(securityRoles));
-
-        GraphTraversal.Processor processor = new InternalProcessor();
-        if (dryRun) {
-            processor = GraphUtil.disableProcessor(processor);
-        }
-
-        graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -183,29 +175,9 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
         try {
             switch (step) {
             case 0:
-                /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
-                final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
-                    /* determine actual class from given target object class name */
-                    String targetObjectClassName = oneClassToTarget.getKey();
-                    final int lastDot = targetObjectClassName.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        targetObjectClassName = targetObjectClassName.substring(lastDot + 1);
-                    }
-                    final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
-                    /* check that it is legal to target the given class */
-                    final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
-                    do {
-                        if (!legalTargetsIterator.hasNext()) {
-                            final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
-                            throw helper.cancel(new ERR(), e, "bad-target");
-                        }
-                    } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
-                    /* note IDs to target for the class */
-                    final Collection<Long> ids = oneClassToTarget.getValue();
-                    targetMultimap.putAll(targetObjectClass.getName(), ids);
-                    targetObjectCount += ids.size();
-                }
+                /* determine the target objects specified */
+                final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
+                targetObjectCount += targetMultimap.size();
                 /* only downgrade to private requires the graph policy rules to be applied */
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan;
                 final Permissions newPermissions = Utils.toPermissions(perm1);
@@ -288,24 +260,21 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
                     helper.cancel(new ERR(), e, "file-delete-fail");
                 }
             }
-            final Map<String, List<Long>> changedObjects = new HashMap<String, List<Long>>();
-            final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
-            for (final Entry<String, Collection<Long>> oneChangedClass : result.getKey().asMap().entrySet()) {
-                final String className = oneChangedClass.getKey();
-                final Collection<Long> ids = oneChangedClass.getValue();
-                changedObjects.put(className, new ArrayList<Long>(ids));
-                changedObjectCount += ids.size();
-            }
-            for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
-                final String className = oneDeletedClass.getKey();
-                final Collection<Long> ids = oneDeletedClass.getValue();
-                deletedObjects.put(className, new ArrayList<Long>(ids));
-                deletedObjectCount += ids.size();
-            }
+            final Map<String, List<Long>> changedObjects = GraphUtil.copyMultimapForResponse(result.getKey());
+            final Map<String, List<Long>> deletedObjects = GraphUtil.copyMultimapForResponse(result.getValue());
+            changedObjectCount += result.getKey().size();
+            deletedObjectCount += result.getValue().size();
             final Chmod2Response response = new Chmod2Response(changedObjects, deletedObjects);
             helper.setResponseIfNull(response);
             helper.info("in " + (dryRun ? "mock " : "") + "chmod to " + permissions + " of " + targetObjectCount +
                     ", changed " + changedObjectCount + " and deleted " + deletedObjectCount + " in total");
+
+            if (LOGGER.isDebugEnabled()) {
+                final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+                arguments.addParameter("includedObjects", response.includedObjects);
+                arguments.addParameter("deletedObjects", response.deletedObjects);
+                LOGGER.debug("response: " + arguments);
+            }
         }
     }
 

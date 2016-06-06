@@ -10,24 +10,6 @@ Library           Collections
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
 Suite Teardown      Close all browsers
 
-*** Test Cases ***
-
-Test Open Viewer
-    [Documentation]     Tests double-click to open image viewer
-
-    Tree Should Be Visible
-    ${imageId}=                         Select And Expand Image
-    ${nodeId}=                          Wait For Image Node         ${imageId}
-    ${imageName}=                       Wait For General Panel And Return Name      Image
-    # Open Image Viewer 3 different ways and check
-    Click Element                       xpath=//button[@title='Open full image viewer in new window']
-    Check Image Viewer                  ${imageName}
-    Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
-    Check Image Viewer                  ${imageName}
-    Double Click Element                css=#${nodeId}>a
-    Check Image Viewer                  ${imageName}
-
-
 *** Keywords ***
 
 Check Image Viewer
@@ -46,3 +28,42 @@ Check Image Viewer
     Close Window
     # Select parent window
     Select Window
+
+*** Test Cases ***
+
+Test Open Viewer
+    [Documentation]     Tests double-click to open image viewer
+
+    Tree Should Be Visible
+    ${imageId}=                         Select And Expand Image
+    ${nodeId}=                          Wait For Image Node         ${imageId}
+    ${imageName}=                       Wait For General Panel And Return Name      Image
+    # Open Image Viewer 3 different ways and check
+    Click Element                       xpath=//a[@title='Open full image viewer in new window']
+    Check Image Viewer                  ${imageName}
+    Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
+    Check Image Viewer                  ${imageName}
+    Double Click Element                css=#${nodeId}>a
+    Check Image Viewer                  ${imageName}
+
+
+Test Prev Next Buttons
+
+    ${imageId}=                         Select And Expand Image
+    ${nodeId}=                          Wait For Image Node         ${imageId}
+    ${imageName}=                       Wait For General Panel And Return Name      Image
+    # Check we have a 'Next' image, but no 'Previous' image
+    Page Should Contain Element         xpath=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]/following-sibling::li[contains(@class, 'row')]
+    Page Should Not Contain Element     xpath=//ul[@id='dataIcons']/li[contains(@class, 'ui-selected')]/preceding-sibling::li[contains(@class, 'row')]
+
+    # Open image viewer
+    Double Click Element                css=#${nodeId}>a
+    Wait Until Keyword Succeeds  ${TIMEOUT}     ${INTERVAL}     Select Window   title=${imageName}
+
+    # Prev button should be disabled, Next button enabled
+    Element Should Be Disabled          id=prevImage
+    Element Should Be Enabled           id=nextImage
+
+    # Clicking Next button will enable Prev button
+    Click Element                       id=nextImage
+    Wait Until Page Contains Element    xpath=//button[@id='prevImage' and not (@disabled='disabled')]

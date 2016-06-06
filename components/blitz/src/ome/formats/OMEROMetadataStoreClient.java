@@ -2,7 +2,7 @@
  * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -86,11 +86,11 @@ import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.AffineTransform;
 import ome.xml.model.MapPair;
+import ome.xml.model.enums.Compression;
 import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
 import ome.xml.model.enums.FontStyle;
 import ome.xml.model.enums.IlluminationType;
-import ome.xml.model.enums.LineCap;
 import ome.xml.model.enums.Marker;
 import ome.xml.model.enums.NamingConvention;
 import ome.xml.model.enums.PixelType;
@@ -154,6 +154,7 @@ import omero.model.FilesetJobLink;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.FilterType;
+import omero.model.Folder;
 import omero.model.Format;
 import omero.model.GenericExcitationSource;
 import omero.model.IObject;
@@ -263,6 +264,8 @@ public class OMEROMetadataStoreClient
      */
     private Map<String, String[]> referenceStringCache;
 
+    private LSID screenKey;
+
     /** Our model processors. Will be called on saveToDB(). */
     private List<ModelProcessor> modelProcessors;
 
@@ -322,7 +325,7 @@ public class OMEROMetadataStoreClient
     /** Executor that will run our keep alive task. */
     private ScheduledThreadPoolExecutor executor;
 
-    /** Emission filter LSID suffix. 
+    /** Emission filter LSID suffix.
      * See {@link #setFilterSetEmissionFilterRef(String, int, int, int)}
      * for an explanation of its usage.
      */
@@ -1370,6 +1373,10 @@ public class OMEROMetadataStoreClient
     @Override
     public void setUserSpecifiedTarget(IObject target)
     {
+        if (target instanceof Screen && null != screenKey) {
+          log.info("deleting screen ref in favor of user-specified one");
+          referenceCache.remove(screenKey);
+        }
         this.userSpecifiedTarget = target;
     }
 
@@ -1592,7 +1599,9 @@ public class OMEROMetadataStoreClient
         catch (Exception e)
         {
             log.error("Server error setting extended properties for Pixels:" +
-                      pixelsId + " Target file:" + file);
+                      pixelsId + " Target file:" + file, e);
+            throw e instanceof RuntimeException ?
+                (RuntimeException) e : new RuntimeException(e);
         }
     }
 
@@ -1923,8 +1932,8 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param projectId the ID of the project
-     * @return the project
+     * @param projectId
+     * @return project with given id
      */
     public Project getProject(long projectId)
     {
@@ -2167,7 +2176,7 @@ public class OMEROMetadataStoreClient
      * The call to close on the RawPixelsStorePrx may throw, in which case
      * the current import should be considered failed, since the saving of
      * the pixels server-side will have not completed successfully.
-     * 
+     *
      * @throws ServerError if the pixel store could not be finalized or a new one created
      * @see <a href="http://trac.openmicroscopy.org/ome/ticket/5594">Trac ticket #5594</a>
      */
@@ -3458,7 +3467,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseRadiusX(Double radiusX, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setRx(toRType(radiusX));
+        o.setRadiusX(toRType(radiusX));
     }
 
     /* (non-Javadoc)
@@ -3468,7 +3477,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseRadiusY(Double radiusY, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setRy(toRType(radiusY));
+        o.setRadiusY(toRType(radiusY));
     }
 
     /* (non-Javadoc)
@@ -3551,7 +3560,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseX(Double x, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setCx(toRType(x));
+        o.setX(toRType(x));
     }
 
     /* (non-Javadoc)
@@ -3561,7 +3570,7 @@ public class OMEROMetadataStoreClient
     public void setEllipseY(Double y, int ROIIndex, int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setCy(toRType(y));
+        o.setY(toRType(y));
     }
 
     ////////Experiment/////////
@@ -4052,6 +4061,114 @@ public class OMEROMetadataStoreClient
         return getSourceObject(GenericExcitationSource.class, indexes);
     }
 
+    /**
+     * @param folderIndex the index of a folder
+     * @return the corresponding folder
+     */
+    private Folder getFolder(int folderIndex) {
+        final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.FOLDER_INDEX, folderIndex);
+        return getSourceObject(Folder.class, indexes);
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the AnnotationRef property of Folder.
+     *
+     * @param annotation AnnotationRef to set.
+     * @param folderIndex the Folder index.
+     * @param annotationRefIndex AnnotationRef index (unused).
+     */
+    @Override
+    public void setFolderAnnotationRef(String annotation, int folderIndex, int annotationRefIndex) {
+        final LSID key = new LSID(Folder.class, folderIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the Description property of Folder.
+     *
+     * @param description Description to set.
+     * @param folderIndex the Folder index.
+     */
+    @Override
+    public void setFolderDescription(String description, int folderIndex) {
+        final Folder folder = getFolder(folderIndex);
+        folder.setDescription(toRType(description));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the FolderRef property of Folder.
+     *
+     * @param folder FolderRef to set.
+     * @param folderIndex the Folder index.
+     * @param folderRefIndex FolderRef index (unused).
+     */
+    @Override
+    public void setFolderFolderRef(String folder, int folderIndex, int folderRefIndex) {
+        final LSID key = new LSID(Folder.class, folderIndex);
+        addReference(key, new LSID(folder));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the ID property of Folder.
+     *
+     * @param id ID to set.
+     * @param folderIndex the Folder index.
+     */
+    @Override
+    public void setFolderID(String id, int folderIndex) {
+        checkDuplicateLSID(Folder.class, id);
+        final LinkedHashMap<Index, Integer> indexes = new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.FOLDER_INDEX, folderIndex);
+        final IObjectContainer newFolder = getIObjectContainer(Folder.class, indexes);
+        newFolder.LSID = id;
+        addAuthoritativeContainer(Folder.class, id, newFolder);
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the ImageRef property of Folder.
+     *
+     * @param roi ImageRef to set.
+     * @param folderIndex the Folder index.
+     * @param imageRefIndex ImageRef index (unused).
+     */
+    @Override
+    public void setFolderImageRef(String image, int folderIndex, int imageRefIndex) {
+        final LSID key = new LSID(Folder.class, folderIndex);
+        addReference(key, new LSID(image));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the Name property of Folder.
+     *
+     * @param name Name to set.
+     * @param folderIndex the Folder index.
+     */
+    @Override
+    public void setFolderName(String name, int folderIndex) {
+        final Folder folder = getFolder(folderIndex);
+        folder.setName(toRType(name));
+    }
+
+    /* Documentation copied from ome.xml.meta.MetadataStore:
+     *
+     * Set the ROIRef property of Folder.
+     *
+     * @param roi ROIRef to set.
+     * @param folderIndex the Folder index.
+     * @param ROIRefIndex ROIRef index (unused).
+     */
+    @Override
+    public void setFolderROIRef(String roi, int folderIndex, int ROIRefIndex) {
+        final LSID key = new LSID(Folder.class, folderIndex);
+        addReference(key, new LSID(roi));
+    }
 
     // ID accessor from parent LightSource
     // @Override
@@ -5012,9 +5129,18 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
-        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
-        o.setMapValue(IceMapper.convertMapPairs(value));
+    public void setMaskBinDataBigEndian(Boolean isBigEndian, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataBigEndian", isBigEndian, roiIndex, shapeIndex);
+    }
+
+    @Override
+    public void setMaskBinDataCompression(Compression compression, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataCompression", compression, roiIndex, shapeIndex);
+    }
+
+    @Override
+    public void setMaskBinDataLength(NonNegativeLong length, int roiIndex, int shapeIndex) {
+        ignoreMissing("setMaskBinDataLength", length, roiIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -5526,7 +5652,7 @@ public class OMEROMetadataStoreClient
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.IMAGE_INDEX, imageIndex);
         Pixels p = getSourceObject(Pixels.class, indexes);
-        p.setSha1(rstring("Foo"));
+        p.setSha1(rstring("Pending..."));
         return p;
 
     }
@@ -5550,9 +5676,14 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean,int)
      */
     @Override
-    public void  setPixelsBigEndian(Boolean value,  int index)
+    public void setPixelsBigEndian(Boolean value, int index)
     {
         ignoreUnneeded("setPixelsBigEndian", value, index);
+    }
+
+    @Override
+    public void setPixelsBinData(byte[] binData, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinData", imageIndex, binDataIndex);
     }
 
     /* (non-Javadoc)
@@ -5563,6 +5694,16 @@ public class OMEROMetadataStoreClient
             int binDataIndex)
     {
         ignoreUnneeded("setPixelsBinDataBigEndian", bigEndian, imageIndex);
+    }
+
+    @Override
+    public void setPixelsBinDataCompression(Compression compression, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinDataCompression", compression, imageIndex, binDataIndex);
+    }
+
+    @Override
+    public void setPixelsBinDataLength(NonNegativeLong length, int imageIndex, int binDataIndex) {
+        ignoreMissing("setPixelsBinDataLength", length, imageIndex, binDataIndex);
     }
 
     /* (non-Javadoc)
@@ -6205,7 +6346,7 @@ public class OMEROMetadataStoreClient
     public void setPointX(Double x, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setCx(toRType(x));
+        o.setX(toRType(x));
     }
 
     /* (non-Javadoc)
@@ -6215,7 +6356,7 @@ public class OMEROMetadataStoreClient
     public void setPointY(Double y, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setCy(toRType(y));
+        o.setY(toRType(y));
     }
 
     //////// Polyline /////////
@@ -6470,16 +6611,6 @@ public class OMEROMetadataStoreClient
     public void setROIName(String name, int ROIIndex)
     {
         ignoreMissing("setROIName", name, ROIIndex);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setROINamespace(java.lang.String, int)
-     */
-    @Override
-    public void setROINamespace(String namespace, int ROIIndex)
-    {
-        Roi o = getROI(ROIIndex);
-        o.setNamespaces(new String[]{namespace});
     }
 
     //////// Reagent /////////
@@ -6814,8 +6945,8 @@ public class OMEROMetadataStoreClient
     public void setScreenPlateRef(String plate, int screenIndex,
             int plateRefIndex)
     {
-        LSID key = new LSID(Screen.class, screenIndex);
-        addReference(key, new LSID(plate));
+        screenKey = new LSID(Screen.class, screenIndex);
+        addReference(screenKey, new LSID(plate));
     }
 
     /* (non-Javadoc)
@@ -7842,6 +7973,12 @@ public class OMEROMetadataStoreClient
         o.setNs(toRType(namespace));
     }
 
+    @Override
+    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
+        final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
+        o.setMapValue(IceMapper.convertMapPairs(value));
+    }
+
     /**
      * Retrieve TagAnnotation object
      * @param tagAnnotationIndex the index of the tag annotation
@@ -8046,6 +8183,26 @@ public class OMEROMetadataStoreClient
         ignoreMissing("setPlateFieldIndex", fieldIndex, plateIndex);
     }
 
+    @Override
+    public void setBinaryFileBinData(byte[] binData, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinData", fileAnnotationIndex);
+    }
+
+    @Override
+    public void setBinaryFileBinDataBigEndian(Boolean isBigEndian, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataBigEndian", isBigEndian, fileAnnotationIndex);
+    }
+
+    @Override
+    public void setBinaryFileBinDataCompression(Compression compression, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataCompression", compression, fileAnnotationIndex);
+    }
+
+    @Override
+    public void setBinaryFileBinDataLength(NonNegativeLong length, int fileAnnotationIndex) {
+        ignoreMissing("setBinaryFileBinDataLength", length, fileAnnotationIndex);
+    }
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setBinaryFileFileName(java.lang.String, int)
      */
@@ -8118,15 +8275,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setEllipseLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setEllipseLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8134,16 +8282,6 @@ public class OMEROMetadataStoreClient
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setEllipseVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setEllipseVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     /* (non-Javadoc)
@@ -8201,15 +8339,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLabelLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setLabelLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setLabelLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLabelLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8217,16 +8346,6 @@ public class OMEROMetadataStoreClient
     {
         Label o = getLabel(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLabelVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setLabelVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Label o = getLabel(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     /* (non-Javadoc)
@@ -8262,15 +8381,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setLineLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setLineLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8281,22 +8391,13 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setLineVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setLineVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Line o = getLine(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLineMarkerEnd(ome.xml.model.enums.Marker, int, int)
      */
     @Override
     public void setLineMarkerEnd(Marker markerEnd, int ROIIndex, int shapeIndex)
     {
-        ignoreMissing("setLineMarkerEnd", markerEnd, ROIIndex, shapeIndex);
+        final Line line = getLine(ROIIndex, shapeIndex);
+        line.setMarkerEnd(toRType(markerEnd.getValue()));
     }
 
     /* (non-Javadoc)
@@ -8306,7 +8407,8 @@ public class OMEROMetadataStoreClient
     public void setLineMarkerStart(Marker markerStart, int ROIIndex,
             int shapeIndex)
     {
-        ignoreMissing("setLineMarkerStart", markerStart, ROIIndex, shapeIndex);
+        final Line line = getLine(ROIIndex, shapeIndex);
+        line.setMarkerStart(toRType(markerStart.getValue()));
     }
 
     /* (non-Javadoc)
@@ -8342,15 +8444,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setMaskLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setMaskLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMaskLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8358,16 +8451,6 @@ public class OMEROMetadataStoreClient
     {
         Mask o = getMask(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setMaskVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setMaskVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Mask o = getMask(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     /* (non-Javadoc)
@@ -8403,15 +8486,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setPointLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setPointLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPointLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8419,16 +8493,6 @@ public class OMEROMetadataStoreClient
     {
         Point o = getPoint(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPointVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setPointVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Point o = getPoint(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     //////// Polygon /////////
@@ -8511,15 +8575,6 @@ public class OMEROMetadataStoreClient
         IObjectContainer o = getIObjectContainer(Polygon.class, indexes);
         o.LSID = id;
         addAuthoritativeContainer(Polygon.class, id, o);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setPolygonLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setPolygonLineCap", lineCap, ROIIndex, shapeIndex);
     }
 
     /* (non-Javadoc)
@@ -8620,16 +8675,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolygonVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setPolygonVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Polygon o = getPolygon(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolygonPoints(java.lang.String, int, int)
      */
     @Override
@@ -8673,15 +8718,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylineLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setPolylineLineCap(LineCap lineCap, int ROIIndex, int shapeIndex)
-    {
-        ignoreMissing("setPolylineLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolylineLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8692,23 +8728,14 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setPolylineVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setPolylineVisible(Boolean visible, int ROIIndex, int shapeIndex)
-    {
-        Polyline o = getPolyline(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPolylineMarkerEnd(ome.xml.model.enums.Marker, int, int)
      */
     @Override
     public void setPolylineMarkerEnd(Marker markerEnd, int ROIIndex,
             int shapeIndex)
     {
-        ignoreMissing("setPolylineMarkerEnd", markerEnd, ROIIndex, shapeIndex);
+        final Polyline polyline = getPolyline(ROIIndex, shapeIndex);
+        polyline.setMarkerEnd(toRType(markerEnd.getValue()));
     }
 
     /* (non-Javadoc)
@@ -8718,7 +8745,8 @@ public class OMEROMetadataStoreClient
     public void setPolylineMarkerStart(Marker markerStart, int ROIIndex,
             int shapeIndex)
     {
-        ignoreMissing("setPolylineMarkerStart", markerStart, ROIIndex, shapeIndex);
+        final Polyline polyline = getPolyline(ROIIndex, shapeIndex);
+        polyline.setMarkerStart(toRType(markerStart.getValue()));
     }
 
     /* (non-Javadoc)
@@ -8766,16 +8794,6 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectangleLineCap(ome.xml.model.enums.LineCap, int, int)
-     */
-    @Override
-    public void setRectangleLineCap(LineCap lineCap, int ROIIndex,
-            int shapeIndex)
-    {
-        ignoreMissing("setRectangleLineCap", lineCap, ROIIndex, shapeIndex);
-    }
-
-    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setRectangleLocked(java.lang.Boolean, int, int)
      */
     @Override
@@ -8783,17 +8801,6 @@ public class OMEROMetadataStoreClient
     {
         Rectangle o = getRectangle(ROIIndex, shapeIndex);
         o.setLocked(toRType(locked));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRectangleVisible(java.lang.Boolean, int, int)
-     */
-    @Override
-    public void setRectangleVisible(Boolean visible, int ROIIndex,
-            int shapeIndex)
-    {
-        Rectangle o = getRectangle(ROIIndex, shapeIndex);
-        o.setVisibility(toRType(visible));
     }
 
     /* (non-Javadoc)

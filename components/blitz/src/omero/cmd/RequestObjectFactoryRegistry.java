@@ -31,16 +31,15 @@ import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.fs.UsedFilesRequestI;
 import omero.cmd.graphs.Chgrp2I;
-import omero.cmd.graphs.ChgrpFacadeI;
 import omero.cmd.graphs.ChildOptionI;
 import omero.cmd.graphs.Chmod2I;
-import omero.cmd.graphs.ChmodFacadeI;
 import omero.cmd.graphs.Chown2I;
-import omero.cmd.graphs.ChownFacadeI;
 import omero.cmd.graphs.Delete2I;
-import omero.cmd.graphs.DeleteFacadeI;
+import omero.cmd.graphs.DiskUsage2I;
 import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.DuplicateI;
+import omero.cmd.graphs.FindChildrenI;
+import omero.cmd.graphs.FindParentsI;
 import omero.cmd.graphs.GraphRequestFactory;
 import omero.cmd.graphs.LegalGraphTargetsI;
 import omero.cmd.graphs.SkipHeadI;
@@ -132,27 +131,11 @@ public class RequestObjectFactoryRegistry extends
             }
 
         });
-        factories.put(Chgrp.ice_staticId(),
-                new ObjectFactory(Chgrp.ice_staticId()) {
-                    @Override
-                    public Ice.Object create(String name) {
-                        return new ChgrpFacadeI(graphRequestFactory);
-                    }
-
-                });
         factories.put(Chgrp2I.ice_staticId(),
                 new ObjectFactory(Chgrp2I.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
                         return graphRequestFactory.getRequest(Chgrp2I.class);
-                    }
-
-                });
-        factories.put(Chmod.ice_staticId(),
-                new ObjectFactory(Chmod.ice_staticId()) {
-                    @Override
-                    public Ice.Object create(String name) {
-                        return new ChmodFacadeI(graphRequestFactory);
                     }
 
                 });
@@ -164,27 +147,11 @@ public class RequestObjectFactoryRegistry extends
                     }
 
                 });
-        factories.put(Chown.ice_staticId(),
-                new ObjectFactory(Chown.ice_staticId()) {
-                    @Override
-                    public Ice.Object create(String name) {
-                        return new ChownFacadeI(graphRequestFactory);
-                    }
-
-                });
         factories.put(Chown2I.ice_staticId(),
                 new ObjectFactory(Chown2I.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
                         return graphRequestFactory.getRequest(Chown2I.class);
-                    }
-
-                });
-        factories.put(Delete.ice_staticId(),
-                new ObjectFactory(Delete.ice_staticId()) {
-                    @Override
-                    public Ice.Object create(String name) {
-                        return new DeleteFacadeI(graphRequestFactory);
                     }
 
                 });
@@ -239,6 +206,16 @@ public class RequestObjectFactoryRegistry extends
                         return new DiskUsageI(pixelsService, thumbnailService, graphRequestFactory.getGraphPathBean());
                     }
                 });
+        factories.put(DiskUsage2I.ice_staticId(),
+                new ObjectFactory(DiskUsage2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        final DiskUsage2I request = graphRequestFactory.getRequest(DiskUsage2I.class);
+                        request.setPixelsService(pixelsService);
+                        request.setThumbnailService(thumbnailService);
+                        return request;
+                    }
+                });
         factories.put(DuplicateI.ice_staticId(),
                 new ObjectFactory(DuplicateI.ice_staticId()) {
                     @Override
@@ -258,6 +235,20 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                     	return new ResetPasswordRequestI(mailUtil, passwordUtil, sec, passwordProvider);
+                    }
+                });
+        factories.put(FindParentsI.ice_staticId(),
+                new ObjectFactory(FindParentsI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(FindParentsI.class);
+                    }
+                });
+        factories.put(FindChildrenI.ice_staticId(),
+                new ObjectFactory(FindChildrenI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(FindChildrenI.class);
                     }
                 });
         /* request parameters */

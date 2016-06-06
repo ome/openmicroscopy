@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -199,7 +199,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private static final String TEXT_TAGS_SELECTION = "Tags Selection";
 
 	/** Text for add tags button */
-	private static final String TOOLTIP_ADD_TAGS = "Add Tags.";
+	private static final String TOOLTIP_ADD_TAGS = "Add tags.";
 
 	/** File naming checkbox text */
 	private static final String TEXT_OVERRIDE_FILE_NAMING =
@@ -624,6 +624,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		locationDialog = new LocationDialog(owner, selectedContainer, type,
 				objects, model, groupId, true);
 		locationDialog.addPropertyChangeListener(this);
+		addPropertyChangeListener(locationDialog);
 		
 		int plugin = ImporterAgent.runAsPlugin();
         
@@ -1079,7 +1080,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	private boolean isFastConnection() {
 		int value = (Integer) ImporterAgent.getRegistry().lookup(
-				LookupNames.CONNECTION_SPEED);
+				LookupNames.IMAGE_QUALITY_LEVEL);
 		return value == RenderingControl.UNCOMPRESSED;
 	}
 

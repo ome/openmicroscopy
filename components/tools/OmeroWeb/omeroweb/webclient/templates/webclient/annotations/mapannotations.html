@@ -144,7 +144,7 @@
                     $td.prev().text("");
                 }
             }
-            $input = $("<input value='" + value + "' />");
+            $input = $("<input />").attr('value', value);
             $td.empty().append($input);
             $input.focus();
             $input.get(0).select();
@@ -248,8 +248,10 @@
 
         var enableToolbarButtons = function enableToolbarButtons() {
 
-            var $selRows = $('.keyValueTable tr.ui-selected'),
-                enabled = {"Insert rows": false,
+            var canEdit = {% if manager.canAnnotate %}true{% else %}false{% endif %},
+                visible = $(".editableKeyValueTable:visible").length > 0,
+                $selRows = $('.keyValueTable tr.ui-selected'),
+                enabled = {"Insert row": false,
                             "Copy rows": false,
                             "Paste rows": false,
                             "Delete rows": false},
@@ -258,15 +260,14 @@
 
             // Nothing selected - actions will apply to user's own table
             if ($selRows.length == 0) {
-                var canEdit = $('.editableKeyValueTable').length > 0;
-                enabled["Insert rows"] = canEdit;
+                enabled["Insert row"] = canEdit && visible;
                 enabled["Copy rows"] = false;
                 enabled["Paste rows"] = (canPaste && canEdit);
                 enabled["Delete rows"] = false;
             } else {
-                var $table = $selRows.parent().parent(),
-                    canEdit = $table.hasClass('editableKeyValueTable');
-                enabled["Insert rows"] = canEdit;
+                var $table = $selRows.parent().parent();
+                canEdit = $table.hasClass('editableKeyValueTable');
+                enabled["Insert row"] = canEdit;
                 enabled["Copy rows"] = true;
                 enabled["Paste rows"] = (canPaste && canEdit);
                 enabled["Delete rows"] = canEdit;
@@ -334,13 +335,13 @@
                 case "Paste rows":
                     pasteSelectedRows();
                     break;
-                case "Insert rows":
+                case "Insert row":
                     insertRow();
             }
         });
 
         // Select (and Start editing?) when you click a td
-        $( ".keyValueTable tbody" ).on( "click", "td", function(event) {
+        $("#mapAnnContainer").on( "click", ".keyValueTable tbody td", function(event) {
             var $td = $(event.target);
             // ignore clicks on other elements, e.g. <input>
             if ($td[0].tagName.toLowerCase() != "td") return;
@@ -357,7 +358,7 @@
 
         // Handle keys when editing
         // Start editing when you click a td
-        $( ".editableKeyValueTable tbody" ).on( "keydown", "input", function(event) {
+        $("#mapAnnContainer").on( "keydown", ".editableKeyValueTable tbody input", function(event) {
             var $td = $(event.target).parent();
 
             switch (event.which) {
@@ -387,7 +388,7 @@
             if (event.which == 9) return false
         });
 
-        $( ".keyValueTable tbody" ).on( "blur", "input", function(event) {
+        $("#mapAnnContainer").on( "blur", ".keyValueTable tbody input", function(event) {
             saveEdit();
         });
 
@@ -412,7 +413,7 @@
               src="{% static "webgateway/img/spinner.gif" %}" title="Saving to server..." /></li>
         <li><input class="button button-disabled" type="image"
             src="{% static "webclient/image/icon_toolbar_add.png" %}"
-            alt="Insert rows" title="Insert rows" /></li>
+            alt="Insert row" title="Insert row" /></li>
         <li><input class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
             alt="Copy rows" title="Copy rows" /></li>
         <li><input class="button button-disabled" type="image"
@@ -425,42 +426,4 @@
     </ul>
 </div>
 
-<div class="mapAnnContainer">
-
-{% if manager.my_client_map_annotations %}
-    {% for ma in manager.my_client_map_annotations %}
-        {% with canEdit=ma.canEdit showTableHead=True %}
-            {% include "webclient/annotations/mapannotation.html" %}
-        {% endwith %}
-    {% endfor %}
-{% elif manager.canAnnotate %}
-    <!-- Add an empty placeholder -->
-    {% with canEdit=True %}
-        {% include "webclient/annotations/mapannotation.html" %}
-    {% endwith %}
-{% endif %}
-
-{% if manager.client_map_annotations %}
-
-{% if manager.canAnnotate %}
-    <!-- only need this <hr> if there is something already above -->
-    <hr>
-{% endif %}
-
-{% for ma in manager.client_map_annotations %}
-    {% with canEdit=ma.canEdit %}
-        {% include "webclient/annotations/mapannotation.html" %}
-    {% endwith %}
-{% endfor %}
-{% endif %}
-
-{% if manager.map_annotations %}
-<hr>
-{% for ma in manager.map_annotations %}
-    {% with canEdit=False showNs=True %}
-        {% include "webclient/annotations/mapannotation.html" %}
-    {% endwith %}    
-{% endfor %}
-{% endif %}
-
-</div>
+<div id="mapAnnContainer" class="mapAnnContainer"></div>

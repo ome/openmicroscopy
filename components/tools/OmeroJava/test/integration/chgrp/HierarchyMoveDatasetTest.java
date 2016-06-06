@@ -105,9 +105,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
 
-        // log out
-        disconnect();
-
         // Create a new group, the user is now a member of the new group.
         ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
 
@@ -117,9 +114,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         // Create project in the new group.
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asIObject());
-
-        // log out
-        disconnect();
 
         // Step 2: log into source group to perform the move // No. See below.
         switch (memberLevel) {
@@ -151,7 +145,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Create commands to move and create the link in target
         List<Request> list = new ArrayList<Request>();
-        final Chgrp2 dc = Requests.chgrp("Dataset", d.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(d).toGroup(g).build();
         list.add(dc);
 
         ProjectDatasetLink link = null;
@@ -193,9 +187,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         param.addId(d.getId().getValue());
         String sql = "select i from Dataset as i where i.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
-
-        // log out from source group
-        disconnect();
 
         // Step 3:
 
@@ -268,7 +259,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        final Chgrp2 dc = Requests.chgrp("Dataset", s1.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(s1).toGroup(g).build();
         callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.lens.DisplayAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -116,6 +116,13 @@ class DisplayAction
 		lens.setDisplayInPixels(index == PIXEL_OPTION);
     }
     
+	/**
+	 * Get the type of this action
+	 * @return See above
+	 */
+	int getIndex() {
+	    return index;
+	}
 }
 
 

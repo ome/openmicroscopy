@@ -44,7 +44,7 @@ module omero {
          *   // Exporter instances.
          *
          *   long read = 0
-         *   byte[] buf;
+         *   byte\[] buf;
          *   while (true) {
          *      buf = e.read(read, 1000000);
          *      // Store to file locally here
@@ -82,7 +82,7 @@ module omero {
             long generateTiff() throws ServerError;
 
             /**
-             * Returns "length" bytes from the output file. The file can
+             * Returns ""length"" bytes from the output file. The file can
              * be safely read until reset() is called.
              **/
             idempotent Ice::ByteSeq read(long position, int length) throws ServerError;

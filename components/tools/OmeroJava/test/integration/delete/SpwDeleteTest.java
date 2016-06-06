@@ -71,7 +71,7 @@ public class SpwDeleteTest extends AbstractServerTest {
         // see XMLMockObjects.createScreen()
         scalingFactor *= 1*2*2*2*2;
 
-        final Delete2 dc = Requests.delete("Screen", screen.getId().getValue());
+        final Delete2 dc = Requests.delete().target(screen).build();
         callback(true, client, dc);
 
         assertDoesNotExist(screen);
@@ -97,10 +97,9 @@ public class SpwDeleteTest extends AbstractServerTest {
         WellSample ws = getWellSample(p);
         Plate plate = ws.getWell().getPlate();
         Screen screen = plate.copyScreenLinks().get(0).getParent();
-        long sid = screen.getId().getValue();
 
-        final ChildOption option = Requests.option(null, "Plate");
-        final Delete2 dc = Requests.delete("Screen", sid, option);
+        final ChildOption option = Requests.option().excludeType("Plate").build();
+        final Delete2 dc = Requests.delete().target(screen).option(option).build();
         callback(true, client, dc);
 
         assertDoesNotExist(screen);

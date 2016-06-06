@@ -107,16 +107,11 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(user1Ctx);
 
         List<Request> commands = new ArrayList<Request>();
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
-        commands.add(dc);
-        dc = Requests.delete("Dataset", d.getId().getValue());
-        commands.add(dc);
-        dc = Requests.delete("Project", p.getId().getValue());
-        commands.add(dc);
-        dc = Requests.delete("Screen", s.getId().getValue());
-        commands.add(dc);
-        dc = Requests.delete("Plate", plate.getId().getValue());
-        commands.add(dc);
+        commands.add(Requests.delete().target(img).build());
+        commands.add(Requests.delete().target(d).build());
+        commands.add(Requests.delete().target(p).build());
+        commands.add(Requests.delete().target(s).build());
+        commands.add(Requests.delete().target(plate).build());
 
         DoAll all = new DoAll();
         all.requests = commands;
@@ -149,11 +144,10 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // create an owner who then creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
-        long imageID = img.getId().getValue();
 
         // create another user and try to delete the image
         newUserInGroup();
-        Delete2 dc = Requests.delete("Image", imageID);
+        Delete2 dc = Requests.delete().target(img).build();
         callback(false, client, dc);
 
         // check the image exists as the owner
@@ -178,7 +172,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // Log the admin into that users group
         logRootIntoGroup();
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -215,7 +209,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         Permissions perms = img.getDetails().getPermissions();
         assertTrue(perms.canDelete());
 
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -241,7 +235,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ownerEc);
         makeGroupOwner();
 
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
         assertDoesNotExist(img); // Deletion permitted in 4.4
@@ -266,7 +260,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // admin deletes the object.
         logRootIntoGroup();
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
         assertDoesNotExist(img);
     }
@@ -304,8 +298,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // owner deletes image
         loginUser(ec);
-        long id = image.getId().getValue();
-        Delete2 dc = Requests.delete("Image", id);
+        Delete2 dc = Requests.delete().target(image).build();
         callback(true, client, dc);
 
         // image and annotations are all gone
@@ -355,7 +348,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // owner deletes their image
         loginUser(ec);
         long id = imageOwner.getId().getValue();
-        Delete2 dc = Requests.delete("Image", id);
+        Delete2 dc = Requests.delete().target(imageOwner).build();
         callback(true, client, dc);
 
         // image is gone but other image and annotations remain
@@ -395,8 +388,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // owner tries to delete image.
         loginUser(ec);
-        long id = img.getId().getValue();
-        Delete2 dc = Requests.delete("Image", id);
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -419,18 +411,16 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // owner creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
-
         omero.client owner = disconnect();
 
         // tagger creates tag
-        newUserInGroup(ec);
+        EventContext tagger = newUserInGroup(ec);
 
         TagAnnotation c = new TagAnnotationI();
         c.setTextValue(omero.rtypes.rstring("tag"));
         c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
-        omero.client tagger = disconnect();
-        init(owner);
-
+        disconnect();
+        init(ec);
         // Image's owner tags the image.
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.setParent(img);
@@ -439,7 +429,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // Tag's owner now deletes the tag.
         init(tagger);
-        Delete2 dc = Requests.delete("Annotation", c.getId().getValue());
+        Delete2 dc = Requests.delete().target(c).build();
         callback(false, client, dc);
         assertExists(c);
         assertExists(link);
@@ -466,19 +456,19 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         Image img = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
 
-        omero.client owner = disconnect();
+        disconnect();
 
         // tagger creates tag
-        ec = newUserInGroup(ec);
+        EventContext tagger = newUserInGroup(ec);
         // make the tagger the group owner.
         makeGroupOwner();
 
         TagAnnotation c = new TagAnnotationI();
         c.setTextValue(omero.rtypes.rstring("tag"));
         c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
-        omero.client tagger = disconnect();
+        disconnect();
 
-        init(owner);
+        init(ec);
 
         // Image's owner tags the image with another group's owner tag.
         ImageAnnotationLink link = new ImageAnnotationLinkI();
@@ -489,7 +479,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         // Tag's owner now deletes the tag.
         init(tagger);
-        Delete2 dc = Requests.delete("Annotation", c.getId().getValue());
+        Delete2 dc = Requests.delete().target(c).build();
         callback(true, client, dc);
 
         assertNoneExist(c, link);
@@ -532,7 +522,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // Delete the image.
         loginUser(ownerCtx);
-        Delete2 dc = Requests.delete("Image", imageID);
+        Delete2 dc = Requests.delete().target(image).build();
         callback(true, client, dc);
         assertNoneExist(image, ownerDef, otherDef);
     }
@@ -565,7 +555,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ctx);
         makeGroupOwner();
         // Now try to delete the project.
-        Delete2 dc = Requests.delete("Project", project.getId().getValue());
+        Delete2 dc = Requests.delete().target(project).build();
         callback(true, client, dc);
         assertDoesNotExist(project);
         assertDoesNotExist(dataset);
@@ -597,7 +587,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         link.setParent((Project) project.proxy());
         link = (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
         // Now try to delete the dataset.
-        Delete2 dc = Requests.delete("Dataset", dataset.getId().getValue());
+        Delete2 dc = Requests.delete().target(dataset).build();
         callback(true, client, dc);
         assertDoesNotExist(dataset);
         assertExists(project);
@@ -634,7 +624,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         loginUser(user2Ctx);
         // Now try to delete the dataset.
-        Delete2 dc = Requests.delete("Dataset", dataset.getId().getValue());
+        Delete2 dc = Requests.delete().target(dataset).build();
         callback(true, client, dc);
         assertDoesNotExist(dataset);
         assertExists(project);
@@ -674,7 +664,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         // now try to delete the dataset
         loginUser(ctx);
-        Delete2 dc = Requests.delete("Dataset", dataset.getId().getValue());
+        Delete2 dc = Requests.delete().target(dataset).build();
         callback(true, client, dc);
         assertDoesNotExist(dataset);
         assertDoesNotExist(image1);
@@ -705,7 +695,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         link.setParent((Dataset) dataset.proxy());
         iUpdate.saveAndReturnObject(link);
         // Now try to delete the image
-        Delete2 dc = Requests.delete("Image", image.getId().getValue());
+        Delete2 dc = Requests.delete().target(image).build();
         callback(true, client, dc);
 
         assertDoesNotExist(image);
@@ -742,7 +732,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // now try to delete the image
         loginUser(user2Ctx);
 
-        Delete2 dc = Requests.delete("Image", image.getId().getValue());
+        Delete2 dc = Requests.delete().target(image).build();
         callback(true, client, dc);
 
         assertDoesNotExist(image);
@@ -776,7 +766,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ctx);
 
         // Now try to delete the screen
-        Delete2 dc = Requests.delete("Screen", screen.getId().getValue());
+        Delete2 dc = Requests.delete().target(screen).build();
         callback(false, client, dc);
 
         assertExists(screen);
@@ -811,7 +801,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         newUserInGroup(ctx);
         makeGroupOwner();
         // Now try to delete the screen
-        Delete2 dc = Requests.delete("Screen", screen.getId().getValue());
+        Delete2 dc = Requests.delete().target(screen).build();
         callback(true, client, dc);
 
         assertDoesNotExist(screen);
@@ -843,7 +833,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         link.setParent((Screen) screen.proxy());
         link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
         // Now try to delete the plate
-        Delete2 dc = Requests.delete("Plate", plate.getId().getValue());
+        Delete2 dc = Requests.delete().target(plate).build();
         callback(true, client, dc);
 
         assertDoesNotExist(plate);
@@ -881,7 +871,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         loginUser(user2Ctx);
         // Now try to delete the plate
-        Delete2 dc = Requests.delete("Plate", plate.getId().getValue());
+        Delete2 dc = Requests.delete().target(plate).build();
         callback(true, client, dc);
 
         assertDoesNotExist(plate);
@@ -921,7 +911,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         disconnect();
         loginUser(ctx);
         // Now try to delete the dataset
-        Delete2 dc = Requests.delete("Dataset", dataset.getId().getValue());
+        Delete2 dc = Requests.delete().target(dataset).build();
         callback(true, client, dc);
 
         assertDoesNotExist(dataset);
@@ -948,7 +938,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // admin deletes the object.
         logRootIntoGroup();
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -973,7 +963,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         // admin deletes the object.
         logRootIntoGroup();
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
         assertDoesNotExist(img);
@@ -1008,7 +998,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
 
         Permissions perms = img.getDetails().getPermissions();
         assertTrue(perms.canDelete());
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
         // Image should be deleted.
@@ -1032,7 +1022,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // group owner deletes it
         disconnect();
         newUserInGroup(ownerEc);
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(false, client, dc);
 
         assertExists(img);
@@ -1055,7 +1045,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         // group owner deletes it
         disconnect();
         newUserInGroup(ownerEc);
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(false, client, dc);
 
         assertExists(img);
@@ -1090,7 +1080,7 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         Permissions perms = img.getDetails().getPermissions();
         assertTrue(perms.canDelete());
 
-        Delete2 dc = Requests.delete("Image", img.getId().getValue());
+        Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
         assertDoesNotExist(img);

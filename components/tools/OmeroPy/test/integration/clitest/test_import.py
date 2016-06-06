@@ -120,12 +120,25 @@ class TestImport(CLITest):
         self.cli.register("import", plugin.ImportControl, "TEST")
         self.args += ["import"]
         self.add_client_dir()
+        self.keepRootAlive()
 
     def set_conn_args(self):
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
         self.args = ["import", "-s", host, "-p",  port]
         self.add_client_dir()
+
+    def do_import(self, capfd):
+        try:
+            self.cli.invoke(self.args, strict=True)
+        except NonZeroReturnCode:
+            o, e = capfd.readouterr()
+            print "O" * 40
+            print o
+            print "E" * 40
+            print e
+            raise
+        return capfd.readouterr()
 
     def add_client_dir(self):
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
@@ -143,6 +156,20 @@ class TestImport(CLITest):
                 break
         return query.get(obj_type, int(match.group('id')),
                          {"omero.group": "-1"})
+
+    def get_objects(self, err, obj_type, query=None):
+        if not query:
+            query = self.query
+        """Retrieve the created objects by parsing the stderr output"""
+        pattern = re.compile('^%s:(?P<id>\d+)$' % obj_type)
+        objs = []
+        for line in reversed(err.split('\n')):
+            match = re.match(pattern, line)
+            if match:
+                objs.append(
+                    query.get(obj_type, int(match.group('id')),
+                              {"omero.group": "-1"}))
+        return objs
 
     def get_linked_annotations(self, oid):
         """Retrieve the comment annotation linked to the image"""
@@ -165,6 +192,25 @@ class TestImport(CLITest):
         query += " select l from DatasetImageLink as l"
         query += " where l.child.id=:id and l.parent=d.id) "
         return self.query.findByQuery(query, params)
+
+    def get_screen(self, pid):
+        """Retrieve the single screen linked to the plate"""
+
+        params = omero.sys.ParametersI()
+        params.addId(pid)
+        query = "select d from Screen as d"
+        query += " where exists ("
+        query += " select l from ScreenPlateLink as l"
+        query += " where l.child.id=:id and l.parent=d.id) "
+        return self.query.findByQuery(query, params)
+
+    def get_container(self, pid, spw=False):
+        """Retrieve the single container linked to an image or plate"""
+
+        if spw:
+            return self.get_screen(pid)
+        else:
+            return self.get_dataset(pid)
 
     def get_screens(self, pid):
         """Retrieve the screens linked to the plate"""
@@ -214,27 +260,38 @@ class TestImport(CLITest):
 
         self.args += [str(fakefile)]
         self.args += ['--', '--auto_close']
-        self.cli.invoke(self.args, strict=True)
+        self.do_import(capfd)
 
         # Check that there are no servants leftover
         stateful = []
-        for x in range(10):
+        for x in range(1000):
             stateful = self.client.getStatefulServices()
             if stateful:
                 import time
-                time.sleep(0.5)  # Give the backend some time to close
+                time.sleep(0.1)  # Give the backend some time to close
             else:
                 break
 
         assert len(stateful) == 0
 
-    @pytest.mark.parametrize("arg", [
-        '--checksum-algorithm', '--checksum_algorithm'])
-    @pytest.mark.parametrize("algorithm", [
-        'Adler-32', 'CRC-32', 'File-Size-64', 'MD5-128', 'Murmur3-32',
-        'Murmur3-128', 'SHA1-160'])
-    def testChecksumAlgorithm(self, tmpdir, capfd, arg, algorithm):
+    CA_TESTS = [
+        (False, 'Adler-32'),  # one underscore only
+        (True, 'Adler-32'),
+        (True, 'CRC-32'),
+        (True, 'File-Size-64'),
+        (True, 'MD5-128'),
+        (True, 'Murmur3-32'),
+        (True, 'Murmur3-128'),
+        (True, 'SHA1-160')]
+    CA_NAMES = ["%s-%s" % (x[1], x[0] and "underscore" or "legacy")
+                for x in CA_TESTS]
+
+    @pytest.mark.parametrize("args", CA_TESTS, ids=CA_NAMES)
+    def testChecksumAlgorithm(self, tmpdir, capfd, args):
         """Test checksum algorithm argument"""
+
+        dash, algorithm = args
+        arg = dash and '--checksum-algorithm' or '--checksum_algorithm'
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
@@ -242,8 +299,8 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
         self.args += ['--', arg, algorithm]
 
-        # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
+        # Invoke CLI import command
+        self.do_import(capfd)
 
     @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
     def testAnnotationText(self, tmpdir, capfd, fixture):
@@ -261,8 +318,7 @@ class TestImport(CLITest):
             self.args += [fixture.annotation_text_arg, text[i]]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
@@ -291,58 +347,444 @@ class TestImport(CLITest):
             self.args += [fixture.annotation_link_arg, '%s' % comment_ids[i]]
         print self.args
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
         assert len(annotations) == fixture.n
         assert set([x.id.val for x in annotations]) == set(comment_ids)
 
-    def testDatasetArgument(self, tmpdir, capfd):
-        """Test argument linking imported image to a dataset"""
+    class TargetSource(object):
 
-        fakefile = tmpdir.join("test.fake")
+        def get_prefixes(self):
+            return ()
+
+        def get_arg(self, client, spw=False):
+            raise NotImplemented()
+
+        def verify_containers(self, found1, found2):
+            raise NotImplemented()
+
+    class ClassTargetSource(TargetSource):
+
+        def get_arg(self, client, spw=False):
+            pass
+
+    class AbstractIdTargetSource(TargetSource):
+
+        def create_container(self, client, spw=False):
+            update = client.sf.getUpdateService()
+            if spw:
+                self.kls = "Screen"
+                self.obj = omero.model.ScreenI()
+            else:
+                self.kls = "Dataset"
+                self.obj = omero.model.DatasetI()
+            self.obj.name = rstring(self.__class__.__name__+"-Test")
+            self.obj = update.saveAndReturnObject(self.obj)
+            self.oid = self.obj.id.val
+
+        def verify_containers(self, found1, found2):
+            assert self.oid == found1
+            assert self.oid == found2
+
+    class ImplicitIdModelTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, spw=spw)
+            return ("-T", "%s:%s" % (self.kls, self.oid))
+
+    class IdModelTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, spw=spw)
+            return ("-T", "%s:id:%s" % (self.kls, self.oid))
+
+    class LegacyIdModelTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, spw=spw)
+            if spw:
+                flag = "-r"
+            else:
+                flag = "-d"
+            return (flag, "%s:%s" % (self.kls, self.oid))
+
+    class LegacyIdOnlyTargetSource(AbstractIdTargetSource):
+
+        def get_arg(self, client, spw=False):
+            self.create_container(client, spw=spw)
+            if spw:
+                flag = "-r"
+            else:
+                flag = "-d"
+            return (flag, "%s" % self.oid)
+
+    class NameModelTargetSource(TargetSource):
+
+        def get_arg(self, client, qualifier, spw=False):
+            # For later
+            self.query = client.sf.getQueryService()
+            self.qualifier = qualifier
+            if spw:
+                self.kls = "Screen"
+            else:
+                self.kls = "Dataset"
+            self.name = "NameModelTargetSource-Test"
+            return ("-T", "%s:%sname:%s" % (self.kls, qualifier, self.name))
+
+        def verify_containers(self, found1, found2):
+            for attempt in (found1, found2):
+                assert self.name == self.query.get(self.kls, attempt).name.val
+            if self.qualifier == "@":
+                assert found1 != found2
+            else:
+                assert found1 == found2
+
+    class NameTemplateTargetSource(TargetSource):
+
+        def get_arg(self, client, qualifier, spw=False):
+            # For later
+            self.query = client.sf.getQueryService()
+            self.qualifier = qualifier
+            if spw:
+                self.kls = "Screen"
+            else:
+                self.kls = "Dataset"
+            return ("-T", "regex:%sname:(?<Container1>.*)"
+                    % (qualifier))
+
+        def verify_containers(self, found1, found2):
+            assert found1
+            assert found2
+            if self.qualifier == "@":
+                assert found1 != found2
+            else:
+                assert found1 == found2
+
+    class TemplateTargetSource(TargetSource):
+
+        def __init__(self, template):
+            self.template = template
+
+        def get_prefixes(self):
+            return ("a", "b")
+
+        def get_arg(self, client, spw=False):
+            self.spw = spw
+            return ("-T", self.template)
+
+        def verify_containers(self, found1, found2):
+            assert found1
+            assert found2
+            assert found1 == found2
+
+    SOURCES = (
+        LegacyIdOnlyTargetSource(),
+        LegacyIdModelTargetSource(),
+        ImplicitIdModelTargetSource(),
+        IdModelTargetSource(),
+        TemplateTargetSource("regex:(?<Container1>.*)"),
+        TemplateTargetSource(":(?<Container1>.*)"),
+        # ClassTargetSource(),
+    )
+
+    def parse_container(self, spw, capfd):
+        o, e = self.do_import(capfd)
+        if spw:
+            obj = self.get_object(e, 'Plate')
+            container = self.get_screen(obj.id.val)
+        else:
+            obj = self.get_object(e, 'Image')
+            container = self.get_dataset(obj.id.val)
+
+        assert container
+        found = container.id.val
+        return found
+
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("source", SOURCES)
+    def testTargetArgument(self, spw, source, tmpdir, capfd):
+
+        subdir = tmpdir
+        for x in source.get_prefixes():
+            subdir = subdir.join(x)
+            subdir.mkdir()
+
+        if spw:
+            fakefile = subdir.join(
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake")
+        else:
+            fakefile = subdir.join("test.fake")
         fakefile.write('')
 
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring('dataset')
-        dataset = self.update.saveAndReturnObject(dataset)
+        self.args += source.get_arg(self.client, spw)
+        self.args += [str(tmpdir)]
 
-        self.args += [str(fakefile)]
-        self.args += ['-d', '%s' % dataset.id.val]
+        # Now, run the import twice and check that the
+        # pre and post container IDs match the sources'
+        # assumptions
+        found1 = self.parse_container(spw, capfd)
+        found2 = self.parse_container(spw, capfd)
+        source.verify_containers(found1, found2)
 
-        # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, 'Image')
-        d = self.get_dataset(obj.id.val)
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("qualifier", ("", "+", "-", "%", "@"))
+    def testQualifiedNameModelTargetArgument(
+            self, spw, qualifier, tmpdir, capfd):
 
-        assert d
-        assert d.id.val == dataset.id.val
+        source = self.NameModelTargetSource()
 
-    def testScreenArgument(self, tmpdir, capfd):
-        """Test argument linking imported plate to a screen"""
-
-        fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
-                               "fields=1&plateAcqs=1.fake")
+        subdir = tmpdir
+        if spw:
+            fakefile = subdir.join(
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake")
+        else:
+            fakefile = subdir.join("test.fake")
         fakefile.write('')
 
-        screen = omero.model.ScreenI()
-        screen.name = rstring('screen')
-        screen = self.update.saveAndReturnObject(screen)
+        self.args += source.get_arg(self.client, qualifier, spw)
+        self.args += [str(tmpdir)]
 
-        self.args += [str(fakefile)]
-        self.args += ['-r', '%s' % screen.id.val]
+        # Now, run the import twice and check that the
+        # pre and post container IDs match the sources'
+        # assumptions
+        found1 = self.parse_container(spw, capfd)
+        found2 = self.parse_container(spw, capfd)
+        source.verify_containers(found1, found2)
 
-        # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, 'Plate')
-        screens = self.get_screens(obj.id.val)
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("qualifier", ("", "+", "-", "%", "@"))
+    def testQualifiedNameTemplateTargetArgument(
+            self, spw, qualifier, tmpdir, capfd):
 
-        assert screens
-        assert screen.id.val in [s.id.val for s in screens]
+        source = self.NameTemplateTargetSource()
+
+        subdir = tmpdir
+        if spw:
+            fakefile = subdir.join(
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake")
+        else:
+            fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += source.get_arg(self.client, qualifier, spw)
+        self.args += [str(tmpdir)]
+
+        # Now, run the import twice and check that the
+        # pre and post container IDs match the sources'
+        # assumptions
+        found1 = self.parse_container(spw, capfd)
+        found2 = self.parse_container(spw, capfd)
+        source.verify_containers(found1, found2)
+
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("qualifier", ("", "+", "-"))
+    def testMultipleNameModelTargets(self, spw, qualifier, tmpdir, capfd):
+        """ Test importing into a named target when Multiple targets exist """
+
+        name = "MultipleNameModelTargetSource-Test-" + self.uuid()
+        oids = []
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            oid = self.create_object(kls, name=name)
+            oids.append(oid)
+
+        subdir = tmpdir
+        if spw:
+            fakefile = subdir.join((
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake"))
+        else:
+            fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        target = "%s:%sname:%s" % (kls, qualifier, name)
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        # Run the import and get the container id
+        found = self.parse_container(spw, capfd)
+        if qualifier == "-":
+            assert found == min(oids)
+        else:
+            assert found == max(oids)
+
+    @pytest.mark.parametrize("spw", (True, False))
+    def testUniqueMultipleNameModelTargets(self, spw, tmpdir, capfd):
+        """ Test importing into a named target when Multiple targets exist """
+
+        name = "UniqueMultipleNameModelTargetSource-Test-" + self.uuid()
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            self.create_object(kls, name=name)
+
+        subdir = tmpdir
+        if spw:
+            fakefile = subdir.join((
+                "SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                "fields=1&plateAcqs=1.fake"))
+        else:
+            fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        target = "%s:%%name:%s" % (kls, name)
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.do_import(capfd)
+
+    @pytest.mark.parametrize("spw", (True, False))
+    def testNestedNameTemplateTargetArgument(
+            self, spw, tmpdir, capfd):
+
+        outer = "NestedNameTemplateTargetArgument-Test-" + self.uuid()
+        inner1 = "NestedNameTemplateTargetArgument-Test-" + self.uuid()
+        inner2 = "NestedNameTemplateTargetArgument-Test-" + self.uuid()
+        subdir = tmpdir.mkdir(outer)
+        if spw:
+            importType = "Plate"
+            fake = ("SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                    "fields=1&plateAcqs=1.fake")
+        else:
+            importType = "Image"
+            fake = "test.fake"
+        subdir.mkdir(inner1).join(fake).write('')
+        subdir.mkdir(inner2).join(fake).write('')
+
+        self.args += ("-T", "regex:name:^.*%s/(?<Container1>.*)" % outer)
+        self.args += [str(tmpdir)]
+
+        # Now, run the import and check that two distinct
+        # containers are created and used.
+        o, e = self.do_import(capfd)
+
+        objs = self.get_objects(e, importType)
+        assert len(objs) == 2
+        container1 = self.get_container(objs[0].id.val, spw=spw)
+        container2 = self.get_container(objs[1].id.val, spw=spw)
+        assert container1.id.val != container2.id.val
+        if container1.name.val == inner1:
+            assert container2.name.val == inner2
+        else:
+            assert container1.name.val == inner2
+            assert container2.name.val == inner1
+
+    @pytest.mark.parametrize("spw", (True, False))
+    @pytest.mark.parametrize("qualifier", ("", "+", "-", "@"))
+    def testMultipleNameTemplateTargetArgument(
+            self, spw, qualifier, tmpdir, capfd):
+
+        outer = "MultipleNameTemplateTargetArgument-Test-" + self.uuid()
+        inner = "MultipleNameTemplateTargetArgument-Test-" + self.uuid()
+        oids = []
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            oid = self.create_object(kls, name=inner)
+            oids.append(oid)
+
+        subdir = tmpdir.mkdir(outer)
+        if spw:
+            fake = ("SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                    "fields=1&plateAcqs=1.fake")
+        else:
+            fake = "test.fake"
+        subdir.mkdir(inner).join(fake).write('')
+
+        self.args += ("-T",
+                      ("regex:%sname:^.*%s/(?<Container1>.*)"
+                       % (qualifier, outer)))
+        self.args += [str(tmpdir)]
+
+        # Now, run the import and check that the correct
+        # container is used or created and used.
+        found = self.parse_container(spw, capfd)
+        if qualifier == "-":
+            assert found == min(oids)
+        elif qualifier == "@":
+            assert found not in oids
+        else:
+            assert found == max(oids)
+
+    @pytest.mark.parametrize("spw", (True, False))
+    def testUniqueMultipleNameTemplateTargetArgument(
+            self, spw, tmpdir, capfd):
+
+        outer = "UniqueMultipleNameTemplateTargetArgument-Test-" + self.uuid()
+        inner = "UniqueMultipleNameTemplateTargetArgument-Test-" + self.uuid()
+        oids = []
+        for i in range(2):
+            if spw:
+                kls = "Screen"
+            else:
+                kls = "Dataset"
+            oid = self.create_object(kls, name=inner)
+            oids.append(oid)
+
+        subdir = tmpdir.mkdir(outer)
+        if spw:
+            importType = "Plate"
+            fake = ("SPW&screens=0&plates=1&plateRows=1&plateCols=1&"
+                    "fields=1&plateAcqs=1.fake")
+        else:
+            importType = "Image"
+            fake = "test.fake"
+        subdir.mkdir(inner).join(fake).write('')
+
+        self.args += ("-T", "regex:%%name:^.*%s/(?<Container1>.*)" % outer)
+        self.args += [str(tmpdir)]
+
+        # Now, run the import and check that the imported object
+        # is not in a container.
+        o, e = self.do_import(capfd)
+        obj = self.get_object(e, importType)
+        container = self.get_container(obj.id.val, spw=spw)
+        assert container is None
+
+    @pytest.mark.parametrize("kls", ("Project", "Plate", "Image"))
+    def testBadTargetArgument(self, kls, tmpdir, capfd):
+
+        subdir = tmpdir
+        fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        name = "BadNameModelTargetSource-Test"
+        target = "%s:name:%s" % (kls, name)
+
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.do_import(capfd)
+
+    @pytest.mark.parametrize("kls", ("Dataset", "Screen"))
+    def testBadModelTargetDiscriminator(self, kls, tmpdir, capfd):
+
+        subdir = tmpdir
+        fakefile = subdir.join("test.fake")
+        fakefile.write('')
+
+        name = "BadNameModelTargetSource-Test"
+        target = "%s:notaname:%s" % (kls, name)
+
+        self.args += ['-T', target]
+        self.args += [str(tmpdir)]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.do_import(capfd)
 
     @pytest.mark.parametrize("level", debug_levels)
     @pytest.mark.parametrize("prefix", [None, '--'])
@@ -357,8 +799,7 @@ class TestImport(CLITest):
             self.args += [prefix]
         self.args += ['--debug=%s' % level]
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        out, err = capfd.readouterr()
+        out, err = self.do_import(capfd)
         levels, loggers = self.parse_debug_levels(out)
         expected_levels = debug_levels[debug_levels.index(level):]
         assert set(levels) <= set(expected_levels), out
@@ -369,8 +810,7 @@ class TestImport(CLITest):
         fakefile.write('')
 
         self.args += [str(fakefile)]
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         summary = self.parse_summary(e)
         assert summary
         assert len(summary) == 5
@@ -383,8 +823,7 @@ class TestImport(CLITest):
         fakefile.write('')
 
         self.args += [str(fakefile)]
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         summary = self.parse_summary(e)
         assert summary
         assert len(summary) == 6
@@ -406,8 +845,7 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
 
@@ -429,8 +867,7 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
@@ -453,8 +890,7 @@ class TestImport(CLITest):
         self.args += [str(fakefile)]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
@@ -476,8 +912,7 @@ class TestImport(CLITest):
             self.args += [fixture.description_arg, 'description']
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, fixture.obj_type)
 
         if fixture.name_arg:
@@ -496,8 +931,7 @@ class TestImport(CLITest):
         self.args += ['--', arg]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        out, err = capfd.readouterr()
+        out, err = self.do_import(capfd)
         image = self.get_object(err, 'Image')
 
         # Check no thumbnails
@@ -516,8 +950,7 @@ class TestImport(CLITest):
             self.args += ['--skip', skiparg]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        out, err = capfd.readouterr()
+        out, err = self.do_import(capfd)
         image = self.get_object(err, 'Image')
 
         # Check min/max calculation
@@ -528,10 +961,10 @@ class TestImport(CLITest):
         pixels = self.query.findByQuery(query, None)
         if 'minmax' in skipargs or 'all' in skipargs:
             assert pixels.getChannel(0).getStatsInfo() is None
-            assert pixels.getSha1().val == "Foo"
+            assert pixels.getSha1().val == "Pending..."
         else:
             assert pixels.getChannel(0).getStatsInfo()
-            assert pixels.getSha1() != "Foo"
+            assert pixels.getSha1() != "Pending..."
 
         # Check no thumbnails
         if 'thumbnails' in skipargs or 'all' in skipargs:
@@ -555,8 +988,7 @@ class TestImport(CLITest):
         self.args += ['--', '--transfer', 'ln_s']
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
+        o, e = self.do_import(capfd)
         obj = self.get_object(e, 'Image')
 
         assert obj
@@ -567,15 +999,10 @@ class TestImport(CLITest):
          "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake",
          "-r")]
 
+    @pytest.mark.broken(reason="needs omero.group setting")
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
     def testTargetInDifferentGroup(self, container, filename, arg,
                                    tmpdir, capfd):
-        """
-        The workflow this test exercises is currently broken. Until
-        it is investigated and fixed the error is trapped early and
-        an exception is raised. The test is modified to test for this
-        fail case. See ticket 12781 (and 11539).
-        """
         new_group = self.new_group(experimenters=[self.user])
         self.sf.getAdminService().getEventContext()  # Refresh
         target = eval("omero.model."+container+"I")()
@@ -590,16 +1017,12 @@ class TestImport(CLITest):
         self.args += [arg, '%s' % target.id.val]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
-
-        # o, e = capfd.readouterr()
-        # obj = self.get_object(e, 'Image')
-
-        # assert obj.details.id.val == new_group.id.val
+        o, e = self.do_import(capfd)
+        obj = self.get_object(e, 'Image')
+        assert obj.details.group.id.val == new_group.id.val
 
     @pytest.mark.parametrize("container,filename,arg", target_fixtures)
-    def testUnknownTarget(self, container, filename, arg, tmpdir):
+    def testUnknownTarget(self, container, filename, arg, tmpdir, capfd):
         target = eval("omero.model."+container+"I")()
         target.name = rstring('testUnknownTarget')
         target = self.update.saveAndReturnObject(target)
@@ -619,4 +1042,4 @@ class TestImport(CLITest):
         self.args += [arg, '%s' % unknown]
 
         with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke(self.args, strict=True)
+            self.do_import(capfd)

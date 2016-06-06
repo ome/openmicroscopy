@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -28,119 +28,127 @@ import java.util.Properties;
 
 
 /**
- *
- *
+ * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
 public class Setup {
 
+    /** The default port.*/
+    public static final int DEFAULT_PORT = 4064;
 
-	/** The name of the configuration file in the configuration directory. */
-	private static final String CONFIG_FILE = "training.config";
-	
-	/** 
-	 * Points to the configuration directory.
-	 * The path is relative to the installation directory.
-	 */
-	public static final String CONFIG_DIR = "config";
-	
-	/** Absolute path to the installation directory. */
-	private String homeDir;
-	
+    /** The name space used during the training.*/
+    public static final String TRAINING_NS = "omero.training.demo";
+
+    /** The name of the configuration file in the configuration directory. */
+    private static final String CONFIG_FILE = "training.config";
+
+    /** 
+     * Points to the configuration directory.
+     * The path is relative to the installation directory.
+     */
+    public static final String CONFIG_DIR = "config";
+
+    /** Absolute path to the installation directory. */
+    private String homeDir;
+
     /**
-	 * Reads in the specified file as a property object.
-	 * 
-	 * @param file	Absolute pathname to the file.
-	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occurred.
-	 */
-	private Properties loadConfig(String file)
-	{
-		Properties config = new Properties();
-		InputStream fis = null;
-		try {
-			fis = new FileInputStream(file);
-			config.load(fis);
-		} catch (Exception e) {
-			return null;
-		} finally {
-			try {
-				if (fis != null) fis.close();
-			} catch (Exception ex) {}
-		}
-		return config;
-	}
-	
-	/**
-	 * Resolves <code>fileName</code> against the configuration directory.
-	 * 
-	 * @param fileName The name of a configuration file.
-	 * @param directory The directory of reference.
-	 * @return	Returns the absolute path to the specified file.
-	 */
-	private String resolveFilePath(String fileName, String directory)
-	{
-		//if (fileName == null)	throw new NullPointerException();
+     * Reads in the specified file as a property object.
+     * 
+     * @param file	Absolute pathname to the file.
+     * @return	The content of the file as a property object or
+     * 			<code>null</code> if an error occurred.
+     */
+    private Properties loadConfig(String file)
+    {
+        Properties config = new Properties();
+        InputStream fis = null;
+        try {
+            fis = new FileInputStream(file);
+            config.load(fis);
+        } catch (Exception e) {
+            return null;
+        } finally {
+            try {
+                if (fis != null) fis.close();
+            } catch (Exception ex) {}
+        }
+        return config;
+    }
+
+    /**
+     * Resolves <code>fileName</code> against the configuration directory.
+     * 
+     * @param fileName The name of a configuration file.
+     * @param directory The directory of reference.
+     * @return	Returns the absolute path to the specified file.
+     */
+    private String resolveFilePath(String fileName, String directory)
+    {
+        //if (fileName == null)	throw new NullPointerException();
         StringBuffer relPath = new StringBuffer(directory);
         relPath.append(File.separatorChar);
         relPath.append(fileName);
-		File f = new File(homeDir, relPath.toString());
-		return f.getAbsolutePath();
-	}
-	
-	/**
-	 * Creates a new instance.
-	 */
-	Setup()
-	{
-	    String ice_config = System.getenv().get("ICE_CONFIG");
-	    Properties p;
-	    if (ice_config == null || ice_config.isEmpty()) {
-	        //fall back to training.config
-	        p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
-	    } else {
-	        p = loadConfig(new File(ice_config).getAbsolutePath());
-	    }
-		ConfigurationInfo info = null;
-		try {
-			info = new ConfigurationInfo();
-			info.setHostName(p.getProperty("omero.host"));
-			info.setPassword(p.getProperty("omero.pass"));
-			info.setUserName(p.getProperty("omero.user"));
-			info.setGroup(p.getProperty("omero.group"));
-			info.setPort(Integer.parseInt(p.getProperty("omero.port")));
-			info.setImageId(Long.parseLong(p.getProperty("omero.imageid")));
-			info.setDatasetId(Long.parseLong(p.getProperty("omero.datasetid")));
-			info.setProjectId(Long.parseLong(p.getProperty("omero.projectid")));
-			info.setScreenId(Long.parseLong(p.getProperty("omero.screenid")));
-			info.setPlateId(Long.parseLong(p.getProperty("omero.plateid")));
-		} catch (Exception e) {
-			e.printStackTrace();
-			//wrong configuration
-			info = null;
-		}
-		new CreateImage(info);
-		new DeleteData(info);
-		new HowToUseTables(info);
-		new LoadMetadataAdvanced(info);
-		new RawDataAccess(info);
-		new ReadData(info);
-		new ReadDataAdvanced(info);
-		new RenderImages(info);
-		new ROIs(info);
-		new WriteData(info);
-	}
-	
-	/**
-	 * Entry point. Runs all the examples.
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-		new Setup();
-		System.exit(0);
-	}
+        File f = new File(homeDir, relPath.toString());
+        return f.getAbsolutePath();
+    }
+
+    /**
+     * Creates a new instance.
+     */
+    Setup(String[] args)
+    {
+        long imageId = 1;
+        long datasetId = 1;
+        long projectId = 1;
+        long plateId = 1;
+
+        Properties p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
+        if (p != null) {
+            imageId = Long.parseLong(p.getProperty("omero.imageid", "1"));
+            datasetId = Long.parseLong(p.getProperty("omero.datasetid", "1"));
+            projectId = Long.parseLong(p.getProperty("omero.projectid", "1"));
+            plateId = Long.parseLong(p.getProperty("omero.plateid", "1"));
+        }
+
+        if (args == null || args.length == 0) {
+            String ice_config = System.getenv().get("ICE_CONFIG");
+            if (ice_config != null && !ice_config.isEmpty()) {
+                p = loadConfig(new File(ice_config).getAbsolutePath());
+                if (p != null)
+                    args = new String[] {
+                        "--omero.host=" + p.getProperty("omero.host"),
+                        "--omero.pass=" + p.getProperty("omero.pass"),
+                        "--omero.user=" + p.getProperty("omero.user"),
+                        "--omero.port=" + p.getProperty("omero.port") };
+            }
+
+            if (args == null || args.length == 0)
+                throw new RuntimeException(
+                        "Login credentials missing, neither arguments nor valid ICE_CONFIG provided.");
+        }
+
+        new CreateImage(args, imageId, datasetId);
+        new DeleteData(args);
+        new HowToUseTables(args);
+        new LoadMetadataAdvanced(args, imageId);
+        new RawDataAccess(args, imageId);
+        new ReadData(args, datasetId, plateId, imageId);
+        new ReadDataAdvanced(args);
+        new RenderImages(args, imageId);
+        new ROIs(args, imageId);
+        new WriteData(args, imageId, projectId);
+    }
+
+    /**
+     * Entry point. Runs all the examples.
+     * @param args
+     */
+    public static void main(String[] args)
+    {
+        new Setup(args);
+        System.exit(0);
+    }
 
 }

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -49,6 +49,9 @@ import org.openmicroscopy.shoola.env.data.views.calls.OverlaysRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
+import org.openmicroscopy.shoola.env.data.views.calls.ROICountLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ResultsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.SaveAsLoader;
@@ -67,6 +70,7 @@ import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import omero.gateway.model.DataObject;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.ROIData;
 
@@ -348,7 +352,7 @@ class ImageDataViewImpl
 	
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#saveROI(long, Long, long, AgentEventListener)
+     * @see ImageDataView#saveROI(long, Long, long, List, AgentEventListener)
      */
 	public CallHandle saveROI(SecurityContext ctx, long imageID, long userID,
 			List<ROIData> roiList, AgentEventListener observer)
@@ -356,6 +360,22 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new ROISaver(ctx, imageID, userID, roiList);
 		return cmd.exec(observer);
 	}
+	
+    /**
+     * Implemented as specified by the view interface.
+     * 
+     * @see ImageDataView#saveROIFolders(SecurityContext, long, long, Collection, Collection,
+     *      Collection, ROIFolderAction, AgentEventListener)
+     */
+    public CallHandle saveROIFolders(SecurityContext ctx, long imageID,
+            long userID, Collection<ROIData> allROIs, Collection<ROIData> roiList,
+            Collection<FolderData> folders, ROIFolderAction action,
+            AgentEventListener observer) {
+        BatchCallTree cmd = new ROIFolderSaver(ctx, imageID, userID, allROIs, roiList,
+                folders, action);
+        return cmd.exec(observer);
+    }
+    
 	/**
      * Implemented as specified by the view interface.
      * @see ImageDataView#exportImageAsOMETiff(SecurityContext, long, File, Target,
@@ -371,7 +391,7 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#loadROIFromServer(long, Long, AgentEventListener)
+     * @see ImageDataView#loadROIFromServer(SecurityContext, long, long, AgentEventListener)
      */
 	public CallHandle loadROIFromServer(SecurityContext ctx, long imageID,
 			long userID, AgentEventListener observer)
@@ -379,6 +399,16 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new ServerSideROILoader(ctx, imageID, userID);
 		return cmd.exec(observer);
 	}
+	
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#getROICount(SecurityContext, long, AgentEventListener)
+     */
+    public CallHandle getROICount(SecurityContext ctx, long imageID, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ROICountLoader(ctx, imageID);
+        return cmd.exec(observer);
+    }
 
 	/**
      * Implemented as specified by the view interface.

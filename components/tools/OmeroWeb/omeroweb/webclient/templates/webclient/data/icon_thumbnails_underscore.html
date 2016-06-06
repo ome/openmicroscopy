@@ -19,13 +19,17 @@
             data-type="image"
             data-id="<%= img.id %>"
             data-perms="<%= img.data.obj.permsCss %>"
+            tabindex="0"
             <% if(img.shareId) { %> data-share="<%= img.shareId %>" <% }%>
             data-owned="">
 
             <div class="image">
-                <img alt="image"
-                    src="<%= webindex %>render_thumbnail/size/96/<%= img.id %>/<% if(img.shareId) {print( img.shareId + '/')} %><% if (img.thumbVersion) { print ('?version=' + img.thumbVersion)}%>"
-                        title="<%= img.name %>"/>
+                <!-- we wrap img with <a> so you can right-click -> open link in new tab -->
+                <a href="<%= webindex %><% if(img.shareId) {print( img.shareId + '/')} %>img_detail/<%= img.id %>/">
+                    <img alt="image"
+                         src="<%= webindex %>render_thumbnail/size/96/<%= img.id %>/<% if(img.shareId) {print( img.shareId + '/')} %><% if (img.thumbVersion) { print ('?version=' + img.thumbVersion)}%>"
+                         title="<%= img.name %>"/>
+                </a>
             </div>
             <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->
             <div class="desc" valign="middle">

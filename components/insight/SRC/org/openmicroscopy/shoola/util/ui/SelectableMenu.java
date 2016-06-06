@@ -32,9 +32,10 @@ import javax.swing.JMenu;
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @param <T> Optional parameterization 
  * @since 5.0
  */
-public class SelectableMenu
+public class SelectableMenu<T>
     extends JMenu
 {
 
@@ -63,6 +64,12 @@ public class SelectableMenu
     /** Flag indicating if the object is selectable or not.*/
     private boolean selectable;
 
+    /**
+     * Reference to the object which is represented by this
+     * {@link SelectableMenu}
+     */
+    private T object;
+    
     /**
      * Creates a new instance.
      *
@@ -149,6 +156,25 @@ public class SelectableMenu
                 }
             });
         }
+    }
+
+    /**
+     * Get the object which is represented by this {@link SelectableMenu}
+     * 
+     * @return See above
+     */
+    public T getObject() {
+        return object;
+    }
+
+    /**
+     * Set the object which is represented by this {@link SelectableMenu}
+     * 
+     * @param object
+     *            The object
+     */
+    public void setObject(T object) {
+        this.object = object;
     }
 
     /**

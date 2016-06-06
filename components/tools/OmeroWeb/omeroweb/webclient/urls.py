@@ -23,6 +23,7 @@
 # Version: 1.0
 #
 
+from django.conf import settings
 from django.conf.urls import url, patterns
 
 from omeroweb.webclient import views
@@ -30,7 +31,7 @@ from omeroweb.webgateway import views as webgateway
 from omeroweb.webclient.webclient_gateway import defaultThumbnail
 
 urlpatterns = patterns(
-    'django.views.generic.simple',
+    '',
 
     # Home page is the main 'Data' page
     url(r'^$', views.load_template, {'menu': 'userdata'}, name="webindex"),
@@ -153,7 +154,7 @@ urlpatterns = patterns(
         {'download': True},
         name="web_render_image_download"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?img_detail/(?P<iid>[0-9]+)/$',
-        views.image_viewer,
+        settings.VIEWER_VIEW,
         name="web_image_viewer"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?imgData/(?P<iid>[0-9]+)/$',
         webgateway.imageData_json,
@@ -205,6 +206,8 @@ urlpatterns = patterns(
         name="manage_action_containers"),
     url(r'^batch_annotate/$', views.batch_annotate, name="batch_annotate"),
     url(r'^annotate_tags/$', views.annotate_tags, name="annotate_tags"),
+    url(r'^marshal_tagging_form_data/$', views.marshal_tagging_form_data,
+        name="marshal_tagging_form_data"),
     url(r'^annotate_rating/$',
         views.annotate_rating,
         name="annotate_rating"),
@@ -227,33 +230,6 @@ urlpatterns = patterns(
     url(r'^load_data_by_tag/',
         views.load_data_by_tag,
         name="load_data_by_tag"),
-
-    # Open Astex Viewer will try to show file as volume, e.g. mrc.map file.
-    url(r'^open_astex_viewer/(?P<obj_type>((?i)image|image_8bit|file))/'
-        r'(?P<obj_id>[0-9]+)/$',
-        views.open_astex_viewer,
-        name='open_astex_viewer'),  # 'data_url' to load in REQUEST
-    url(r'^file/(?P<annId>[0-9]+)\.map$',
-        views.download_annotation,
-        name='open_astex_map'),  # download file
-    url(r'^file/(?P<annId>[0-9]+)\.bit$',
-        views.download_annotation,
-        name='open_astex_bit'),  # download file
-    url(r'^image_as_map/(?P<imageId>[0-9]+)\.map$',
-        views.image_as_map,
-        name='webclient_image_as_map'),  # convert image to map (full size)
-    url(r'^image_as_map/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$',
-        views.image_as_map,
-        name='webclient_image_as_map'),  # image to map of max Size (side
-                                         # length)
-    url(r'^image_as_map/8bit/(?P<imageId>[0-9]+)\.map$',
-        views.image_as_map,
-        {'8bit': True},
-        name='webclient_image_as_map_8bit'),  # convert image to map
-    url(r'^image_as_map/8bit/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$',
-        views.image_as_map,
-        {'8bit': True},
-        name='webclient_image_as_map_8bit'),  # image to map
 
     url(r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
 
@@ -340,6 +316,9 @@ urlpatterns = patterns(
 
     url(r'^api/tags/$', views.api_tags_and_tagged_list,
         name='api_tags_and_tagged'),
+
+    url(r'^api/annotations/$', views.api_annotations,
+        name='api_annotations'),
 
     url(r'^api/shares/$', views.api_share_list, name='api_shares'),
 

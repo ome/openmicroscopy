@@ -20,7 +20,7 @@ module omero {
     /**
      * Embedded component of every OMERO.blitz type. Since this is
      * not an IObject subclass, no attempt is made to hide the state
-     * of this object, since it cannot be "unloaded".
+     * of this object, since it cannot be ""unloaded"".
      **/
     ["protected"] class Details
     {
@@ -70,7 +70,7 @@ module omero {
 
       /**
        * Context which would have been returned by a
-       * simultaneous call to [omero::api::IAdmin::getEventContext]
+       * simultaneous call to {@link omero.api.IAdmin#getEventContext}
        * while this object was being loaded.
        **/
       omero::sys::EventContext event;

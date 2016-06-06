@@ -2,7 +2,7 @@
 
 <!--
 #
-# Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -55,6 +55,9 @@
         <value>DatasetImageLink</value>
         <value>Project</value>
         <value>ProjectDatasetLink</value>
+        <value>Folder</value>
+        <value>FolderImageLink</value>
+        <value>FolderRoiLink</value>
 
         <!-- core -->
         <value>Channel</value>
@@ -188,10 +191,8 @@
 
         <!-- If a basic or comment annotation is unlinked then consider it for deletion regardless of permissions. -->
 
-        <!-- omitted at present because it causes errors in the web client
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:BasicAnnotation[E]{i}" p:changes="A:{r}"/>
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:CommentAnnotation[E]{i}" p:changes="A:{r}"/>
-          -->
 
         <!--
              If an annotated object is deleted then consider its basic or comment annotations for deletion regardless of
@@ -215,11 +216,9 @@
 
         <!-- If a list, map, or XML annotation is unlinked then consider it for deletion. -->
 
-        <!-- omitted at present because it causes errors in the web client
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:ListAnnotation[E]{i}/d" p:changes="A:{r}"/>
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:MapAnnotation[E]{i}/d" p:changes="A:{r}"/>
         <bean parent="graphPolicyRule" p:matches="IAnnotationLink[D].child = A:XmlAnnotation[E]{i}/d"  p:changes="A:{r}"/>
-          -->
 
         <!-- If an annotated object is deleted then consider its list, map, or XML annotations for deletion. -->
 
@@ -237,9 +236,9 @@
 
         <!-- Delete orphaned annotations, ignoring permissions for BasicAnnotation and CommentAnnotation. -->
 
+        <bean parent="graphPolicyRule" p:matches="A:Annotation[E]{o}/d" p:changes="A:[D]"/>
         <bean parent="graphPolicyRule" p:matches="A:BasicAnnotation[E]{o}" p:changes="A:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="A:CommentAnnotation[E]{o}" p:changes="A:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="A:Annotation[E]{o}/d" p:changes="A:[D]"/>
 
         <!-- If an original file is deleted then also delete the corresponding file annotation regardless of permissions. -->
 
@@ -257,9 +256,7 @@
 
         <!-- One may not delete a tag on data that one may not delete. -->
 
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = [E]/!d, L.child = A:TagAnnotation[D]"
-                                       p:changes="A:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = X:[E]/!d, L.child = A:TagAnnotation[O]"
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].parent = X:[E]/!d, L.child = A:TagAnnotation[D]"
                                        p:error="may not delete {A} while {X} remains"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
@@ -272,27 +269,39 @@
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink.parent = [D], L.child = D:[E]{i}/d" p:changes="D:{r}"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink.parent = [D], L.child = I:[E]{i}/d" p:changes="I:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink.parent = [D], L.child = I:[E]{i}/d" p:changes="I:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink.parent = [D], L.child = ROI:[E]{i}/d" p:changes="ROI:{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Folder[D].childFolders = C:[E]{i}/d" p:changes="C:{r}"/>
 
         <!-- In considering deleting a container's contents, do not delete an object if it is in another container. -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [E]{ia}, L.child = D:[E]{r}" p:changes="D:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [E]{ia}, L.child = I:[E]{r}" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = [E]{ia}, L.child = I:[E]{r}" p:changes="I:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [E]{ia}, L.child = ROI:[E]{r}" p:changes="ROI:{a}"/>
 
-        <!-- Delete orphaned datasets. -->
+        <!-- Delete orphaned containers. -->
 
         <bean parent="graphPolicyRule" p:matches="D:Dataset[E]{o}/d" p:changes="D:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Folder[E]{o}/d" p:changes="F:[D]"/>
 
-        <!-- If a project, dataset or image is deleted then delete their links regardless of permissions. -->
+        <!-- If a project, dataset, folder, image or ROI is deleted then delete their links regardless of permissions. -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].parent = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].child = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].parent = [D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].child = [D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].parent = [D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].child = [D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].parent = [D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].child = [D]" p:changes="L:[D]/n"/>
 
         <!-- Ensure that rules with multiple matches may apply for links. -->
 
         <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[!O]" p:changes="L:[-]"/>
         <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[!O]" p:changes="L:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[!O]" p:changes="L:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[!O]" p:changes="L:[-]"/>
 
         <!-- CORE -->
 
@@ -327,15 +336,12 @@
 
         <!-- Do not delete an original file if it is used in a fileset entry. -->
 
-        <bean parent="graphPolicyRule" p:matches="FilesetEntry[E].originalFile = OF:[D]" p:changes="OF:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E].originalFile = OF:[O]"
+        <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E].originalFile = OF:[D]"
                                        p:error="may not delete {OF} while {FE} remains"/>
 
         <!-- If a logical channel is deleted then delete the subgraph below it. -->
 
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].channels = C:[E]" p:changes="C:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].detectorSettings = DS:[E]" p:changes="DS:[D]"/>
-        <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].lightSourceSettings = LS:[E]" p:changes="LS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="LogicalChannel[D].lightPath = LP:[E]{i}" p:changes="LP:{r}"/>
 
         <!-- Delete a logical channel if its last associated channel is deleted. -->
@@ -355,7 +361,6 @@
              Delete its rendering settings and thumbnails regardless of permissions.
           -->
 
-        <bean parent="graphPolicyRule" p:matches="Image[D].objectiveSettings = OS:[E]" p:changes="OS:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Image[D].pixels = P:[E]" p:changes="P:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[D].channels = C:[E]" p:changes="C:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[D].planeInfo = PI:[E]" p:changes="PI:[D]"/>
@@ -430,9 +435,20 @@
 
         <!-- ROI -->
 
-        <!-- Delete contained objects: ROIs of deleted images, shapes of deleted ROIs, pixels of deleted masks if possible. -->
+        <!-- If an image is deleted then consider its ROIs for deletion. -->
 
-        <bean parent="graphPolicyRule" p:matches="Image[D].rois = ROI:[E]" p:changes="ROI:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="Image[D].rois = ROI:[E]{i}/d" p:changes="ROI:[E]{r}"/>
+
+        <!-- Do not delete ROIs whose image is not to be deleted. -->
+
+        <bean parent="graphPolicyRule" p:matches="Image[E]{ia}.rois = ROI:[E]{r}" p:changes="ROI:[E]{a}"/>
+
+        <!-- Delete orphaned ROIs. -->
+
+        <bean parent="graphPolicyRule" p:matches="ROI:[E]{o}/d" p:changes="ROI:[D]"/>
+
+        <!-- Delete contained objects: shapes of deleted ROIs, pixels of deleted masks if possible. -->
+
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[D].pixels = P:[E], P.image = I:[E]{i}/d" p:changes="I:{r}"/>
@@ -449,8 +465,7 @@
 
         <!-- Image deletion cannot be used to cause well sample deletion. -->
 
-        <bean parent="graphPolicyRule" p:matches="Image[D].wellSamples = WS:[E]" p:changes="WS:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="I:Image[D].wellSamples = WS:[O]" p:error="may not delete {I} while {WS} remains"/>
+        <bean parent="graphPolicyRule" p:matches="I:Image[D].wellSamples = WS:[E]" p:error="may not delete {I} while {WS} remains"/>
 
         <!-- Delete a reagent if it is no longer used by a screen or well. -->
 
@@ -458,7 +473,7 @@
         <bean parent="graphPolicyRule" p:matches="Screen[E]{ia}.reagents = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:WellReagentLink.parent = [D], L.child = R:[E]{i}/d" p:changes="R:{r}"/>
         <bean parent="graphPolicyRule" p:matches="WellReagentLink[D].child = R:[E]{i}/d" p:changes="R:{r}"/>
-        <bean parent="graphPolicyRule" p:matches="WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].parent = [E]{ia}, L.child = R:[E]{r}" p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="R:Reagent[E]{o}/d" p:changes="R:[D]"/>
 
         <!-- Delete well-reagent links if either the well or reagent is deleted regardless of permissions. -->

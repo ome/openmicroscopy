@@ -137,7 +137,7 @@
    * Zoom input box change event handler.
    */
   function zoomCheck (i) {
-    var percent = parseFloat($(i).attr('value').replace(/%/, ''));
+    var percent = parseFloat($(i).val());
     if (isNaN(percent)) {
       percent = 100;
     }
@@ -362,6 +362,7 @@
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }},
                      'height':{{ image.getSizeY }},
+                     'webgateway_index':'{% url "webgateway" %}',
                      'json_url':'{% url 'webgateway_get_rois_json' image.id %}'};
           if (viewport.loadedImg.tiles) {
               options['tiles'] = true;
@@ -450,7 +451,8 @@
       $roi_table.append($(roi_html));
 
       get_shape_icon_src = function(type, klass) {
-          var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png', 'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png',
+          var shape_icons = {'Line':'line16.png', 'Ellipse':'ellipse16.png',
+            'Polygon':'polygon16.png', 'Rectangle':'rectangle16.png', 'Mask': 'mask16.png',
             'Point':'point16.png', 'Label':'text16.png', 'PolyLine':'line16.png'}
           if (type in shape_icons) {
               return "<img class='"+ klass +"' src='{% static 'webgateway/img/' %}" + shape_icons[type] + "' />";
@@ -767,8 +769,8 @@
 
       <h3 class="can-collapse" id="bulk-annotations" style="display: none;">Bulk Annotations</h3>
       <div style="display: none;">
-		<table cellspacing="0">
-		</table>
+        <table cellspacing="0">
+        </table>
       </div>
 
       <!--<h3 class="can-collapse defclose"> Legend </h3>
@@ -974,10 +976,10 @@
           </div>
 {% endblock roi_buttons %}
           <div class="odd row">
-             <button class="btn prev_next_image prev" title="Previous Image" disabled="disabled">
+             <button id="prevImage" class="btn prev_next_image" title="Previous Image" disabled="disabled">
                 <span>< Prev</span>
             </button>
-            <button class="btn prev_next_image next" title="Next Image" disabled="disabled">
+            <button id="nextImage" class="btn prev_next_image" title="Next Image" disabled="disabled">
                 <span>Next ></span>
             </button>
           </div>
@@ -1014,13 +1016,14 @@
 
     viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}{'mediaroot': '{{ STATIC_URL }}' }{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
+    viewport.bind('imageLoad', _load_metadata);
 
     /* Prepare the Zoom spin button */
     $("INPUT.spin-button").SpinButton({min:0});
 
     /* Bind zoom changes to the zoom button */
     viewport.bind('zoom', function(e, percent) {
-      $("#wblitz-zoom").attr('value', ''+percent /*+'%'*/);
+      $("#wblitz-zoom").val(''+percent);
       $(".popped").removeClass('popped');
     });
 
@@ -1378,8 +1381,10 @@
           prevImgId, nextImgId;
       if ($currentImg.length === 1) {
         // Main thumbnails window
-        var prevImgId = $currentImg.prevAll(":visible").first().find("img").attr('id');
-        var nextImgId = $currentImg.nextAll(":visible").first().find("img").attr('id');
+        prevImgId = $currentImg.prevAll(":visible").first().attr('id');
+        if (prevImgId) {prevImgId = prevImgId.split('image_icon-')[1]}
+        nextImgId = $currentImg.nextAll(":visible").first().attr('id');
+        if (nextImgId) {nextImgId = nextImgId.split('image_icon-')[1]}
       } else if ($currentImg.length === 0) {
         // if not found, try "Search" results page layout
         $currentImg = window.opener.$("#image-{{ image.id }}");
@@ -1392,35 +1397,26 @@
           nextImgId = nextImgId.split('image-')[1];
         }
       }
-
       // Enable Prev / Next buttons if available (disabled by default)
       if (prevImgId) {
-        $(".btn.prev_next_image.prev").removeAttr('disabled');
+        $("#prevImage").removeAttr('disabled').prop('disabled', false);
       }
       if (nextImgId) {
-        $(".btn.prev_next_image.next").removeAttr('disabled');
+        $("#nextImage").removeAttr('disabled').prop('disabled', false);
       }
 
-    // Enable Prev / Next buttons if available (disabled by default)
-    if (prevImgId) {
-      $(".btn.prev_next_image.prev").prop('disabled', false);
-    }
-    if (nextImgId) {
-      $(".btn.prev_next_image.next").prop('disabled', false);
-    }
-
-    // Handle Prev / Next button clicks or keys
-    function nextPrevImage(direction) {
-      var id;
-      if( direction == -1 ) {
-        id = prevImgId;
-      } else {
-        id = nextImgId
+      // Handle Prev / Next button clicks or keys
+      function nextPrevImage(direction) {
+        var id;
+        if( direction == -1 ) {
+          id = prevImgId;
+        } else {
+          id = nextImgId
+        }
+        if( id ) {
+          window.location.href = "{{ viewport_server }}/img_detail/" + id
+        }
       }
-      if( id ) {
-        window.location.href = "{{ viewport_server }}/img_detail/" + id
-      }
-    }
 
       // Prev / Next keys
       $(document).keydown(function(e) {
@@ -1442,12 +1438,11 @@
           e.preventDefault();
       });
 
-      $(".btn.prev_next_image").click(function(){
-          if ( $(this).hasClass('prev') ){
-              nextPrevImage(-1);
-          } else {
-              nextPrevImage(1);
-          }
+      $("#prevImage").click(function(){
+        nextPrevImage(-1);
+      });
+      $("#nextImage").click(function(){
+        nextPrevImage(1);
       });
     }
     

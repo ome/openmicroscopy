@@ -263,6 +263,7 @@ def leave_none_unset_int(s):
         return int(s)
 
 CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
+CUSTOM_HOST = CUSTOM_SETTINGS.get("omero.master.host", CUSTOM_HOST)
 # DO NOT EDIT!
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback":
@@ -390,6 +391,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " or ``'http://static.example.com/'``. Used as the base path for"
           " asset  definitions (the Media class) and the staticfiles app. It"
           " must end in a slash if set to a non-empty value.")],
+    "omero.web.static_root":
+        ["STATIC_ROOT",
+         os.path.join(os.path.dirname(__file__), 'static').replace('\\', '/'),
+         os.path.normpath,
+         ("The absolute path to the directory where collectstatic will"
+          " collect static files for deployment. If the staticfiles contrib"
+          " app is enabled (default) the collectstatic management command"
+          " will collect static files into this directory.")],
     "omero.web.session_engine":
         ["SESSION_ENGINE",
          DEFAULT_SESSION_ENGINE,
@@ -441,6 +450,28 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "``'[\"HTTP_X_FORWARDED_PROTO_OMERO_WEB\", \"https\"]'``. "
           "For more details see :djangodoc:`secure proxy ssl header <ref/"
           "settings/#secure-proxy-ssl-header>`.")],
+    "omero.web.wsgi_args":
+        ["WSGI_ARGS",
+         None,
+         leave_none_unset,
+         ("A string representing Gunicorn additional arguments. "
+          "Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/latest/settings.html")],
+    "omero.web.wsgi_workers":
+        ["WSGI_WORKERS",
+         5,
+         int,
+         ("The number of worker processes for handling requests. "
+          "Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/stable/settings.html#workers")],
+    "omero.web.wsgi_timeout":
+        ["WSGI_TIMEOUT",
+         60,
+         int,
+         ("Workers silent for more than this many seconds are killed "
+          "and restarted. Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/stable/settings.html#timeout")],
+
 
     # Public user
     "omero.web.public.enabled":
@@ -482,19 +513,25 @@ CUSTOM_SETTINGS_MAPPINGS = {
          json.loads,
          "A list of servers the Web client can connect to."],
     "omero.web.ping_interval":
-        ["PING_INTERVAL", 60000, int, "description"],
+        ["PING_INTERVAL",
+         60000,
+         int,
+         "Timeout interval between ping invocations in seconds"],
+    "omero.web.chunk_size":
+        ["CHUNK_SIZE",
+         1048576,
+         int,
+         "Size, in bytes, of the “chunk”"],
     "omero.web.webgateway_cache":
         ["WEBGATEWAY_CACHE", None, leave_none_unset, None],
 
     # VIEWER
-    # the following parameters configure when to show/hide the 'Volume viewer'
-    # icon in the Image metadata panel
-    "omero.web.open_astex_max_side":
-        ["OPEN_ASTEX_MAX_SIDE", 400, int, None],
-    "omero.web.open_astex_min_side":
-        ["OPEN_ASTEX_MIN_SIDE", 20, int, None],
-    "omero.web.open_astex_max_voxels":
-        ["OPEN_ASTEX_MAX_VOXELS", 27000000, int, None],  # 300 x 300 x 300
+    "omero.web.viewer.view":
+        ["VIEWER_VIEW",
+         'omeroweb.webclient.views.image_viewer',
+         str,
+         ("Django view which handles display of, or redirection to, the "
+          "desired full image viewer.")],
 
     # PIPELINE 1.3.20
 
@@ -688,10 +725,52 @@ DEPRECATED_SETTINGS_MAPPINGS = {
 
 del CUSTOM_HOST
 
+
+def check_worker_class(c):
+    if c == "gevent":
+        try:
+            import gevent  # NOQA
+        except ImportError:
+            raise ImportError("You are using async workers based "
+                              "on Greenlets via Gevent. Install gevent")
+    return str(c)
+
+
+def check_threading(t):
+    if t > 1:
+        try:
+            import concurrent.futures  # NOQA
+        except ImportError:
+            raise ImportError("You are using sync workers with "
+                              "multiple threads. Install futures")
+    return int(t)
+
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
 # a ticket that needs to be resolved before a release either by moving the
 # setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
-DEVELOPMENT_SETTINGS_MAPPINGS = {}
+DEVELOPMENT_SETTINGS_MAPPINGS = {
+    "omero.web.wsgi_worker_class":
+        ["WSGI_WORKER_CLASS",
+         "sync",
+         check_worker_class,
+         ("The default OMERO.web uses sync workers to handle most “normal” "
+          "types of workloads. Check Gunicorn Design Documentation "
+          "http://docs.gunicorn.org/en/stable/design.html")],
+    "omero.web.wsgi_worker_connections":
+        ["WSGI_WORKER_CONNECTIONS",
+         1000,
+         int,
+         ("(ASYNC WORKERS only) The maximum number of simultaneous clients. "
+          "Check Gunicorn Documentation http://docs.gunicorn.org"
+          "/en/stable/settings.html#worker-connections")],
+    "omero.web.wsgi_threads":
+        ["WSGI_THREADS",
+         1,
+         check_threading,
+         ("(SYNC WORKERS only) The number of worker threads for handling "
+          "requests. Check Gunicorn Documentation "
+          "http://docs.gunicorn.org/en/stable/settings.html#threads")],
+}
 
 
 def map_deprecated_settings(settings):
@@ -748,10 +827,14 @@ def process_custom_settings(
                         '%s and its deprecated key %s are both set, using %s',
                         key, dep_key, key)
             setattr(module, global_name, mapping(global_value))
-        except ValueError:
+        except ValueError, e:
             raise ValueError(
-                "Invalid %s (%s = %r) %s" % (global_name, key, global_value,
-                                             description))
+                "Invalid %s (%s = %r). %s. %s" %
+                (global_name, key, global_value, e.message, description))
+        except ImportError, e:
+            raise ImportError(
+                "ImportError: %s. %s (%s = %r).\n%s" %
+                (e.message, global_name, key, global_value, description))
         except LeaveUnset:
             pass
 
@@ -872,20 +955,6 @@ STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
-
-# STATIC_URL: URL to use when referring to static files located in
-# STATIC_ROOT.
-# Example: "/site_media/static/" or "http://static.example.com/".
-# If not None, this will be used as the base path for media definitions and
-# the staticfiles app. It must end in a slash if set to a non-empty value.
-# This var is configurable by omero.web.static_url STATIC_URL = '/static/'
-
-# STATIC_ROOT: The absolute path to the directory where collectstatic will
-# collect static files for deployment. If the staticfiles contrib app is
-# enabled (default) the collectstatic management command will collect static
-# files into this directory.
-STATIC_ROOT = os.path.join(os.path.dirname(__file__),
-                           'static').replace('\\', '/')
 
 # STATICFILES_DIRS: This setting defines the additional locations the
 # staticfiles app will traverse if the FileSystemFinder finder is enabled,

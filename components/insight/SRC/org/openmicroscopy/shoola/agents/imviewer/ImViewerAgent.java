@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.events.measurement.ROIEvent;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
@@ -130,7 +131,7 @@ public class ImViewerAgent
      */
     public static boolean isFastConnection()
     {
-        int value = (Integer) registry.lookup(LookupNames.CONNECTION_SPEED);
+        int value = (Integer) registry.lookup(LookupNames.IMAGE_QUALITY_LEVEL);
         return value == ImViewer.UNCOMPRESSED;
     }
 
@@ -619,6 +620,7 @@ public class ImViewerAgent
         bus.register(this, DisplayModeEvent.class);
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, RndSettingsChanged.class);
+        bus.register(this, ROIEvent.class);
     }
 
     /**
@@ -689,8 +691,16 @@ public class ImViewerAgent
             handleDisplayModeEvent((DisplayModeEvent) e);
         else if (e instanceof RndSettingsCopied)
             handleRndSettingsCopied((RndSettingsCopied) e);
-        else if (e instanceof RndSettingsChanged) {
+        else if (e instanceof RndSettingsChanged) 
             handleRndSettingsChangedEvent((RndSettingsChanged) e);
+        else if (e instanceof ROIEvent) 
+            handleROIEvent((ROIEvent) e);
+    }
+
+    private void handleROIEvent(ROIEvent e) {
+        ImViewer viewer = ImViewerFactory.getImageViewerFromImage(null, e.getImageId());
+        if (viewer != null) {
+            viewer.reloadROICount();
         }
     }
 

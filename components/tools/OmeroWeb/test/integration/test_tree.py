@@ -168,8 +168,6 @@ def expected_datasets(user, datasets):
     return expected
 
 
-# TODO Is there a way to test load_pixels when these fake images don't
-# actually have any pixels?
 def expected_images(user, images, extraValues=None):
     expected = []
     for image in images:
@@ -1053,6 +1051,54 @@ def tags(request, tags_groupA, tags_groupB):
     tags = tags_groupA + tags_groupB
     tags.sort(cmp_id)
     return tags
+
+
+@pytest.fixture(scope='function')
+def tag_project_twice(request, userA, userB,
+                      projects_userB_groupA):
+    """
+    Returns userA's Tag linked to userB's Project
+    by userA and userB
+    """
+    project = projects_userB_groupA[0]
+
+    # Create Tag belonging to userA
+    tagA = TagAnnotationI()
+    tagA.textValue = rstring('TagA')
+    conn = get_connection(userA)
+    tagA = conn.getUpdateService().saveAndReturnObject(tagA)
+
+    # User A links Tag to Project
+    project_link = ProjectAnnotationLinkI()
+    project_link.parent = project
+    project_link.child = tagA
+    conn.getUpdateService().saveAndReturnObject(project_link)
+
+    # User B links Tag to Project
+    project_link = ProjectAnnotationLinkI()
+    project_link.parent = ProjectI(project.id.val, False)
+    project_link.child = TagAnnotationI(tagA.id.val, False)
+    get_connection(userB).getUpdateService().saveAndReturnObject(project_link)
+    return tagA, project
+
+
+@pytest.fixture(scope='function')
+def tag_image_pixels(request, userA, image_pixels_userA):
+    """
+    Returns a tag linked to image (with pixels)
+    """
+    # Create Tag belonging to userA
+    tagA = TagAnnotationI()
+    tagA.textValue = rstring('TagA')
+    conn = get_connection(userA)
+    tagA = conn.getUpdateService().saveAndReturnObject(tagA)
+
+    image = image_pixels_userA
+    link = ImageAnnotationLinkI()
+    link.parent = image
+    link.child = tagA
+    conn.getUpdateService().saveAndReturnObject(link)
+    return tagA, image
 
 
 @pytest.fixture(scope='function')
@@ -2235,6 +2281,39 @@ class TestTree(lib.ITest):
                                    experimenter_id=userA[1].id.val,
                                    tag_id=tag.id.val)
         assert marshaled == expected
+
+    def test_marshal_tagged_perms(self, userA, tag_project_twice):
+        """
+        Test that tagged queries have correct permissions on
+        tagged data and that results are distinct when linked
+        to tag by 2 users
+        """
+        conn = get_connection(userA)
+        tag = tag_project_twice[0]
+        project = tag_project_twice[1]
+        marshaled = marshal_tagged(conn=conn,
+                                   tag_id=tag.id.val)
+        expected = expected_tagged(userA, [project], [], [],
+                                   [], [], [])
+        assert marshaled == expected
+
+    def test_marshal_tagged_image_pixels(self, userA,
+                                         tag_image_pixels):
+        """
+        Test that tagged images queries support loading
+        of pixels to get sizeX, sizeY, sizeZ
+        """
+        tag = tag_image_pixels[0]
+        image = tag_image_pixels[1]
+        conn = get_connection(userA)
+        expected = expected_images(userA, [image])
+        expected[0]['sizeX'] = 50
+        expected[0]['sizeY'] = 50
+        expected[0]['sizeZ'] = 5
+        marshaled = marshal_tagged(conn=conn,
+                                   tag_id=tag.id.val,
+                                   load_pixels=True)
+        assert marshaled['images'] == expected
 
     # Share
     def test_marshal_shares_user(self, userA, shares):

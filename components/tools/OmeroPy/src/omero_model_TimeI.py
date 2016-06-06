@@ -45,13 +45,7 @@ from omero.conversions import Sym  # nopep8
 
 class TimeI(_omero_model.Time, UnitBase):
 
-    try:
-        UNIT_VALUES = sorted(UnitsTime._enumerators.values())
-    except:
-        # TODO: this occurs on Ice 3.4 and can be removed
-        # once it has been dropped.
-        UNIT_VALUES = [x for x in sorted(UnitsTime._names)]
-        UNIT_VALUES = [getattr(UnitsTime, x) for x in UNIT_VALUES]
+    UNIT_VALUES = sorted(UnitsTime._enumerators.values())
     CONVERSIONS = dict()
     for val in UNIT_VALUES:
         CONVERSIONS[val] = dict()
@@ -1159,6 +1153,7 @@ class TimeI(_omero_model.Time, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettas"))  # nopep8
     CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Pow(10, 42), Sym("zettas"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ATTOSECOND"] = "as"

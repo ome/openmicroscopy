@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -40,7 +40,7 @@ import omero.model.OriginalFileI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.gateway.model.ExperimenterData;
 
-/** 
+/**
  * Sample code showing how to delete data.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -52,22 +52,25 @@ public class DeleteData
 
     //The value used if the configuration file is not used.*/
     /** The server address.*/
-    private String hostName = "serverName";
+    private static String hostName = "serverName";
 
     /** The username.*/
-    private String userName = "userName";
+    private static String userName = "userName";
 
     /** The password.*/
-    private String password = "password";
+    private static String password = "password";
     //end edit
 
     private Gateway gateway;
-    
+
     private SecurityContext ctx;
 
     /**
+     * start-code
+     */
+
+    /**
      * Creates an original file.
-     *
      * @return See above.
      * @throws Exception
      */
@@ -83,30 +86,32 @@ public class DeleteData
         oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
         return oFile;
     }
-    
+
+// Delete Image
+// ============
+
     /** 
      * Delete Image.
-     *
      * In the following example, we create an image and delete it.
      */
     private void deleteImage()
             throws Exception
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-        
         //First create an image.
         Image img = new ImageI();
         img.setName(omero.rtypes.rstring("image1"));
         img.setDescription(omero.rtypes.rstring("descriptionImage1"));
         img = (Image) dm.saveAndReturnObject(ctx, img);
-
         Response rsp = dm.deleteObject(ctx, img);
         System.err.println(rsp);
     }
 
+// Delete Annotation
+// =================
+
     /** 
      * Delete File annotation.
-     *
      * In the following example, we create a file annotation, link it to a
      * dataset and delete the annotation.
      */
@@ -114,7 +119,6 @@ public class DeleteData
             throws Exception
     {
         DataManagerFacility dm = gateway.getFacility(DataManagerFacility.class);
-        
         Dataset d = new DatasetI();
         d.setName(omero.rtypes.rstring("FileAnnotationDelete"));
         FileAnnotation fa = new FileAnnotationI();
@@ -122,37 +126,29 @@ public class DeleteData
         d.linkAnnotation(fa);
         d = (Dataset) dm.saveAndReturnObject(ctx, d);
         fa = (FileAnnotation) d.linkedAnnotationList().get(0);
-
-
         Response rsp = dm.deleteObject(ctx, fa);
         System.err.println(rsp);
     }
 
     /**
-     * Connects and invokes the various methods.
-     * 
-     * @param info The configuration information.
+     * end-code
      */
-    DeleteData(ConfigurationInfo info)
+
+    /**
+     * Connects and invokes the various methods.
+     *
+     * @param args The login credentials.
+     */
+    DeleteData(String[] args)
     {
-        if (info == null) {
-            info = new ConfigurationInfo();
-            info.setHostName(hostName);
-            info.setPassword(password);
-            info.setUserName(userName);
-        }
-        LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+        LoginCredentials cred = new LoginCredentials(args);
 
         gateway = new Gateway(new SimpleLogger());
-        
+
         try {
             ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            
+
             deleteImage();
             deleteFileAnnotation();
         } catch (Exception e) {
@@ -169,11 +165,15 @@ public class DeleteData
     /**
      * Runs the script without configuration options.
      * 
-     * @param args
+     * @param args The login credentials.
      */
     public static void main(String[] args)
     {
-        new DeleteData(null);
+        if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
+        new DeleteData(args);
         System.exit(0);
     }
 

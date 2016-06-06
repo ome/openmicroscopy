@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
@@ -43,10 +42,12 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
+
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PlateData;
@@ -213,10 +214,17 @@ public class TreeViewerTranslator
             if (!CollectionUtils.isEmpty(tags)) {
                 tag.setChildrenLoaded(Boolean.valueOf(true));
                 Iterator<TagAnnotationData> i = tags.iterator();
+                TagAnnotationData t;
+                int count = 0;
                 while (i.hasNext()) {
-                    tag.addChildDisplay(transformTag(i.next()));
+                    t = i.next();
+                    if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals
+                            (t.getNameSpace())) {
+                        tag.addChildDisplay(transformTag(t));
+                        count++;
+                    }
                 }
-                tag.setNumberItems(tags.size());
+                tag.setNumberItems(count);
                 return tag;
             }
             tag.setChildrenLoaded(Boolean.valueOf(true));
@@ -281,6 +289,22 @@ public class TreeViewerTranslator
         return node;
     }
 
+    /**
+     * Transforms a {@link FolderData} into a visualization object i.e.
+     * a {@link TreeImageNode}.
+     *
+     * @param data The {@link FolderData} to transform.
+     *             Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    private static TreeImageDisplay transformFolder(FolderData data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        TreeImageNode node = new TreeImageNode(data);
+        return node;
+    }
+    
     /**
      * Transforms a {@link ProjectData} into a visualization object i.e.
      * a {@link TreeImageSet}. The {@link DatasetData datasets} are also
@@ -408,6 +432,9 @@ public class TreeViewerTranslator
                     results.add(transformWell((WellData) ho));
                 } else if (ho instanceof FileAnnotationData) {
                     child = transformFile((FileAnnotationData) ho);
+                    results.add(child);
+                } else if (ho instanceof FolderData) {
+                    child = transformFolder((FolderData) ho);
                     results.add(child);
                 }
             } else {
@@ -561,6 +588,8 @@ public class TreeViewerTranslator
             return transformPlate((PlateData) object, null);
         else if (object instanceof TagAnnotationData)
             return transformTag((TagAnnotationData) object);
+        else if (object instanceof FolderData)
+            return transformFolder((FolderData) object);
         throw new IllegalArgumentException("Data Type not supported.");
     }
 

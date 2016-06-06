@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -54,42 +54,46 @@ public class ReadData {
 
     // The value used if the configuration file is not used. To edit*/
     /** The server address. */
-    private String hostName = "serverName";
+    private static String hostName = "serverName";
 
     /** The username. */
-    private String userName = "userName";
+    private static String userName = "userName";
 
     /** The password. */
-    private String password = "password";
+    private static String password = "password";
 
     /** The id of a dataset. */
-    private long datasetId = 1;
+    private static long datasetId = 1;
 
     /** The id of an image. */
-    private long imageId = 1;
+    private static long imageId = 1;
 
     /** The id of a plate. */
-    private long plateId = 1;
+    private static long plateId = 1;
 
     // end edit
 
     private Gateway gateway;
 
     private ExperimenterData user;
-    
+
     private SecurityContext ctx;
-    
+
+    /**
+     * start-code
+     */
+
+// Projects
+// ========
+
     /**
      * Retrieve the projects owned by the user currently logged in.
-     * 
      * If a project contains datasets, the datasets will automatically be
      * loaded.
      */
-    private void loadProjects(ConfigurationInfo info) throws Exception {
-        
+    private void loadProjects() throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<ProjectData> projects = browse.getProjects(ctx);
-
         Iterator<ProjectData> i = projects.iterator();
         ProjectData project;
         Set<DatasetData> datasets;
@@ -112,15 +116,16 @@ public class ReadData {
         }
     }
 
+// Datasets
+// ========
+
     /**
      * Retrieve the datasets owned by the user currently logged in.
      */
     @SuppressWarnings("unchecked")
-    private void loadDatasets(ConfigurationInfo info) throws Exception {
-        
+    private void loadDatasets() throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<DatasetData> datasets = browse.getDatasets(ctx);
-        
         Iterator<DatasetData> i = datasets.iterator();
         DatasetData dataset;
         Set<ImageData> images;
@@ -138,54 +143,48 @@ public class ReadData {
         }
     }
 
+// Images
+// ======
+
     /**
      * Retrieve the images contained in a dataset.
-     * 
      * In that case, we specify the dataset's id.
-     * 
-     * @param info
-     *            The configuration information.
+     * @param datasetId The dataset's id.
      */
     @SuppressWarnings("unchecked")
-    private void loadImagesInDataset(ConfigurationInfo info) throws Exception {
-        
+    private void loadImagesInDataset(long datasetId) throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        Collection<ImageData> images = browse.getImagesForDatasets(ctx, Arrays.asList(info.getDatasetId()));
-
+        Collection<ImageData> images = browse.getImagesForDatasets(ctx, Arrays.asList(datasetId));
         Iterator<ImageData> j = images.iterator();
         ImageData image;
         while (j.hasNext()) {
             image = j.next();
             System.err
-                    .println("image:" + image.getId() + " " + image.getName());
-            // Do something
+            .println("image:" + image.getId() + " " + image.getName());
         }
     }
 
     /**
      * Retrieve an image if the identifier is known.
+     * @param imageId The image's id.
      */
-    private void loadImage(ConfigurationInfo info) throws Exception {
-        
+    private void loadImage(long imageId) throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        ImageData image = browse.getImage(ctx, info.getImageId());
-       
+        ImageData image = browse.getImage(ctx, imageId);
         PixelsData pixels = image.getDefaultPixels();
         System.err.println(pixels.getSizeZ()); // The number of z-sections.
         System.err.println(pixels.getSizeT()); // The number of timepoints.
         System.err.println(pixels.getSizeC()); // The number of channels.
         System.err.println(pixels.getSizeX()); // The number of pixels along the
-                                               // X-axis.
+        // X-axis.
         System.err.println(pixels.getSizeY()); // The number of pixels along the
-                                               // Y-axis.
-
+        // Y-axis.
         // Get Pixel Size for the above Image
         Length sizeX = pixels.getPixelSizeX(null);
         if (sizeX != null) {
             System.err.println("Pixel Size X:" + sizeX.getValue()
                     + sizeX.getSymbol());
         }
-
         // To get the size the size with different units, E.g. Angstroms
         Length sizeXang = pixels.getPixelSizeX(UnitsLength.ANGSTROM);
         if (sizeXang != null) {
@@ -194,17 +193,17 @@ public class ReadData {
         }
     }
 
+// Screens
+// =======
+
     /**
      * Retrieve Screening data owned by the user currently logged in.
-     * 
      * To learn about the model go to ScreenPlateWell. Note that the wells are
      * not loaded.
      */
-    private void loadScreens(ConfigurationInfo info) throws Exception {
-        
+    private void loadScreens() throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<ScreenData> screens = browse.getScreens(ctx);
-
         Iterator<ScreenData> i = screens.iterator();
         ScreenData screen;
         Set<PlateData> plates;
@@ -224,17 +223,17 @@ public class ReadData {
         }
     }
 
+// Wells
+// =====
+
     /**
      * Retrieve Screening data owned by the user currently logged in.
-     * 
-     * To learn about the model go to ScreenPlateWell. Note that the wells are
-     * not loaded.
+     * To learn about the model go to ScreenPlateWell.
+     * @param plateId The plate's id.
      */
-    private void loadWells(ConfigurationInfo info) throws Exception {
-        
+    private void loadWells(long plateId) throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
-        Collection<WellData> wells = browse.getWells(ctx, info.getPlateId());
-
+        Collection<WellData> wells = browse.getWells(ctx, plateId);
         Iterator<WellData> i = wells.iterator();
         WellData well;
         while (i.hasNext()) {
@@ -243,13 +242,15 @@ public class ReadData {
         }
     }
 
+// Plates
+// ======
+
     /**
      * Retrieve Screening data owned by the user currently logged in.
-     * 
      * To learn about the model go to ScreenPlateWell. Note that the wells are
      * not loaded.
      */
-    private void loadPlate(ConfigurationInfo info) throws Exception {
+    private void loadPlate() throws Exception {
         BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
         Collection<PlateData> plates = browse.getPlates(ctx);
         Iterator<PlateData> i = plates.iterator();
@@ -261,41 +262,32 @@ public class ReadData {
     }
 
     /**
-     * Connects and invokes the various methods.
-     * 
-     * @param info
-     *            The configuration information.
+     * end-code
      */
-    ReadData(ConfigurationInfo info) {
-        if (info == null) {
-            info = new ConfigurationInfo();
-            info.setHostName(hostName);
-            info.setPassword(password);
-            info.setUserName(userName);
-            info.setImageId(imageId);
-            info.setDatasetId(datasetId);
-            info.setPlateId(plateId);
-        }
 
-        LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+    /**
+     * Connects and invokes the various methods.
+     * @param args The login credentials.
+     * @param datasetId The dataset's id.
+     * @param plateId The plate's id.
+     * @param imageId The image's id.
+     */
+    ReadData(String[] args, long datasetId, long plateId, long imageId) {
 
+        LoginCredentials cred = new LoginCredentials(args);
         gateway = new Gateway(new SimpleLogger());
 
         try {
             user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-            
-            loadProjects(info);
-            loadDatasets(info);
-            loadImagesInDataset(info);
-            loadImage(info);
-            loadScreens(info);
-            loadWells(info);
-            loadPlate(info);
+
+            loadProjects();
+            loadDatasets();
+            loadImagesInDataset(datasetId);
+            loadImage(imageId);
+            loadScreens();
+            loadWells(plateId);
+            loadPlate();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -307,11 +299,15 @@ public class ReadData {
 
     /**
      * Runs the script without configuration options.
-     * 
-     * @param args
+     *
+     * @param args The login credentials.
      */
     public static void main(String[] args) {
-        new ReadData(null);
+        if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
+        new ReadData(args, datasetId, plateId, imageId);
         System.exit(0);
     }
 

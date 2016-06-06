@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -31,7 +31,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import omero.RType;
+import omero.ServerError;
 import omero.api.IAdminPrx;
+import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -46,6 +48,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.Fileset;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImagingEnvironment;
@@ -73,6 +76,8 @@ import omero.sys.ParametersI;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.google.common.math.IntMath;
 
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ImageData;
@@ -2053,7 +2058,128 @@ public class PojosServiceTest extends AbstractServerTest {
             }
         }
     }
-    
+
+    /**
+     * Test that split filesets are accurately detected when images are referenced via folders.
+     * @throws ServerError unexpected
+     */
+    @Test
+    public void testGetImagesBySplitFilesetsViaFolders() throws ServerError {
+        final List<Image> images = new ArrayList<Image>();
+        final List<Folder> folders = new ArrayList<Folder>();
+
+        /* create four images */
+
+        for (int i = 0; i < 4; i++) {
+            images.add((Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage()));
+        }
+
+        /* make a fileset from each pair of images */
+
+        for (int i = 0; i < images.size();) {
+            final Fileset fileset = newFileset();
+            fileset.addImage((Image) images.get(i++));
+            fileset.addImage((Image) images.get(i++));
+            iUpdate.saveObject(fileset);
+        }
+
+        /* make 2^n folders for each of the n images; the bits of the folder index correspond to specific images */
+
+        for (int f = IntMath.checkedPow(2, images.size()); f > 0; f--) {
+            if (Integer.bitCount(f) > 1) {
+                while (folders.size() <= f) {
+                    folders.add(null);
+                }
+                folders.set(f, saveAndReturnFolder(mmFactory.simpleFolder()));
+            }
+        }
+
+        /* folders whose index has two bits set get two images added directly, one for each bit */
+
+        for (int f = 0; f < folders.size(); f++) {
+            if (Integer.bitCount(f) == 2) {
+                folders.set(f, returnFolder(folders.get(f)));
+                for (int i = 0, b = 1; i < images.size(); i++, b <<= 1) {
+                    if ((f & b) == b) {
+                        folders.get(f).linkImage((Image) images.get(i).proxy());
+                        folders.set(f, saveAndReturnFolder(folders.get(f)));
+                    }
+                }
+            }
+        }
+
+        /* folders whose index has more than two bits set get folders and images added */
+
+        for (int f = 0; f < folders.size(); f++) {
+            if (Integer.bitCount(f) > 2) {
+                int needed = f;
+                /* add image folders to cover multiple images still needing to be covered */
+                for (int j = 0; Integer.bitCount(needed) > 1 && j < folders.size(); j++) {
+                    if (Integer.bitCount(j) == 2 && (j & needed) != 0 && (~f & j) == 0 &&
+                            folders.get(j).getParentFolder() == null) {
+                        folders.get(f).addChildFolders((Folder) folders.get(j));
+                        needed &= ~j;
+                    }
+                }
+                /* add images if folders did not suffice */
+                while (needed != 0) {
+                    final int i = Integer.numberOfTrailingZeros(needed);
+                    folders.get(f).linkImage((Image) images.get(i).proxy());
+                    needed &= ~(1 << i);
+                }
+                folders.set(f, saveAndReturnFolder(folders.get(f)));
+            }
+        }
+
+        /* start tests */
+
+        final IContainerPrx iContainer = factory.getContainerService();
+        final Map<String, List<Long>> args = new HashMap<String, List<Long>>();
+        final Parameters params = new Parameters();
+
+        /* check for split filesets within folders that cover multiple images */
+
+        for (int f = 0; f < folders.size(); f++) {
+            if (Integer.bitCount(f) > 1) {
+
+                /* calculate the expected splits */
+
+                final Set<Long> expectedIncluded = new HashSet<Long>();
+                final Set<Long> expectedExcluded = new HashSet<Long>();
+                for (int i = 0; i < images.size(); i += 2) {
+                    int b1 = 1 << i;
+                    int b2 = b1 << 1;
+                    if ((f & b1) != 0) {
+                        if ((f & b2) == 0) {
+                            expectedIncluded.add(images.get(i).getId().getValue());
+                            expectedExcluded.add(images.get(i+1).getId().getValue());
+                        }
+                    } else {
+                        if ((f & b2) != 0) {
+                            expectedExcluded.add(images.get(i).getId().getValue());
+                            expectedIncluded.add(images.get(i+1).getId().getValue());
+                        }
+                    }
+                }
+
+                /* determine the reported splits */
+
+                args.put("Folder", Collections.singletonList(folders.get(f).getId().getValue()));
+                final Set<Long> actualIncluded = new HashSet<Long>();
+                final Set<Long> actualExcluded = new HashSet<Long>();
+                for (final Map<Boolean, List<Long>> filesetImages : iContainer.getImagesBySplitFilesets(args, params).values()) {
+                    actualIncluded.addAll(filesetImages.get(true));
+                    actualExcluded.addAll(filesetImages.get(false));
+                }
+
+                /* ensure that the two agree */
+
+                Assert.assertEquals(actualIncluded, expectedIncluded);
+                Assert.assertEquals(actualExcluded, expectedExcluded);
+            }
+        }
+    }
+
 	/**
 	 * Checks if the creation date is loaded for all container {@link IObject}s
 	 * 

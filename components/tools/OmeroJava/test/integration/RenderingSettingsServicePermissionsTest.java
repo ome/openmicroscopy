@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import omero.api.IRenderingSettingsPrx;
+import omero.cmd.Chmod2;
+import omero.gateway.util.Requests;
 import omero.model.ChannelBinding;
 import omero.model.IObject;
 import omero.model.Image;
@@ -60,8 +62,8 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
             case GROUP_OWNER:
                 makeGroupOwner();
         }
-        factory.getRenderingSettingsService();
-        prx.setOriginalSettingsInSet(Image.class.getName(),
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
         List<Long> ids = new ArrayList<Long>();
         ids.add(image.getId().getValue());
@@ -169,14 +171,16 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         ids.clear();
         ids.add(image2.getId().getValue());
         // Change the settings of image 2
-        prx.applySettingsToSet(id, Image.class.getName(), ids);
+        factory.getRenderingSettingsService().applySettingsToSet(id,
+                Image.class.getName(), ids);
         RenderingDef def2 = factory.getPixelsService()
                 .retrieveRndSettings(pix2);
 
         cb = def2.getChannelBinding(0);
         assertEquals(cb.getActive().getValue(), !b);
         ids.add(image.getId().getValue());
-        prx.applySettingsToSet(id, Image.class.getName(), ids);
+        factory.getRenderingSettingsService().applySettingsToSet(id,
+                Image.class.getName(), ids);
     }
 
     /**
@@ -229,7 +233,8 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         ids.clear();
         ids.add(image2.getId().getValue());
         // Change the settings of image 2
-        prx.applySettingsToSet(id, Image.class.getName(), ids);
+        factory.getRenderingSettingsService().applySettingsToSet(id,
+                Image.class.getName(), ids);
         RenderingDef def2 = factory.getPixelsService()
                 .retrieveRndSettings(pix2);
 
@@ -311,11 +316,13 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
 
         disconnect();
         EventContext ctx2 = newUserInGroup(ctx);
+        prx = factory.getRenderingSettingsService();
         prx.setOriginalSettingsInSet(Image.class.getName(), Arrays.asList(id));
         disconnect();
         init(ctx);
 
-        resetGroupPerms(modified, ctx.groupId);
+        final Chmod2 chmod = Requests.chmod().target("ExperimenterGroup").id(ctx.groupId).toPerms(modified).build();
+        doChange(root, root.getSession(), chmod, true);
         // method already tested
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         long pix2 = image2.getPrimaryPixels().getId().getValue();
@@ -327,7 +334,8 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         ids.clear();
         ids.add(image2.getId().getValue());
         // apply the settings of image1 to image2 and 3
-        prx.applySettingsToSet(id, Image.class.getName(), ids);
+        factory.getRenderingSettingsService().applySettingsToSet(id,
+                Image.class.getName(), ids);
         RenderingDef def2 = factory.getPixelsService()
                 .retrieveRndSettings(pix2);
         cb = def2.getChannelBinding(0);

@@ -35,18 +35,6 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
-
-                jQuery.fn.hide_if_empty = function() {
-                    if ($(this).children().length == 0) {
-                        $(this).hide();
-                    } else {
-                        $(this).show();
-                    }
-                    return this;
-                };
-                
-                $("#share_comments_container").hide_if_empty();
-                
                 var acquisition_load = false;
                 var preview_load = false;
                 
@@ -95,9 +83,7 @@
                                             alert(r.errs);
                                         } else {
                                             // simply remove the item (parent class div)
-                                            //console.log("Success function");
                                             $parent.remove();
-                                            $annContainer.hide_if_empty();
                                         }
                                     }
                                 });

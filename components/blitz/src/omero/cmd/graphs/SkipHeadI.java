@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,9 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 
@@ -34,7 +36,6 @@ import ome.model.IObject;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
-import ome.system.Login;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;
 import omero.cmd.Helper;
@@ -53,7 +54,7 @@ import omero.cmd.Status;
  */
 public class SkipHeadI extends SkipHead implements IRequest {
 
-    private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
+    private static final Logger LOGGER = LoggerFactory.getLogger(SkipHeadI.class);
 
     private static final ImmutableSet<State> REQUEST_FAILURE_FLAGS = ImmutableSet.of(State.CANCELLED, State.FAILURE);
 
@@ -73,7 +74,6 @@ public class SkipHeadI extends SkipHead implements IRequest {
      * Construct a new <q>skip-head</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
      * @param graphPathBean the graph path bean to use
      * @param graphRequestFactory a means of instantiating the sub-request
-     * @throws GraphException if the request was not of an appropriate type
      */
     public SkipHeadI(GraphPathBean graphPathBean, GraphRequestFactory graphRequestFactory) {
         this.graphPathBean = graphPathBean;
@@ -82,11 +82,23 @@ public class SkipHeadI extends SkipHead implements IRequest {
 
     @Override
     public Map<String, String> getCallContext() {
-        return new HashMap<String, String>(ALL_GROUPS_CONTEXT);
+        return ((IRequest) request).getCallContext();
     }
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("startFrom", startFrom);
+            if (request != null) {
+                arguments.addParameter("request", request.getClass().getName());
+            }
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
 
         final GraphPolicy.Action startAction;

@@ -5,11 +5,18 @@ import os
 import re
 import argparse
 
-etc_dir = os.path.join(os.path.dirname(__file__), "..", "..", "etc")
+toplevel_dir = os.path.join(os.path.dirname(__file__), "..", "..")
+etc_dir = os.path.join(toplevel_dir, "etc")
+build_file = os.path.join(toplevel_dir, "build.xml")
 properties_file = os.path.join(etc_dir, "omero.properties")
+localproperties_file = os.path.join(etc_dir, "build.properties")
+
+
+javadoc_pattern = re.compile(
+    r"(?P<base>http://downloads\.openmicroscopy\.org/"
+    "bio-formats/)(\d+.\d+.\d+)")
 properties_pattern = re.compile(
     r"(?P<base>versions.bioformats=)(\d+.\d+.\d+.*)")
-localproperties_file = os.path.join(etc_dir, "build.properties")
 resolver_pattern = re.compile(r"(?P<base>ome\.resolver=)([a-z\-]+)")
 
 
@@ -39,7 +46,8 @@ def bump_bf_version(version):
     else:
         resolver = 'ome-resolver'
     replace_file(localproperties_file, resolver_pattern, resolver)
-
+    if not version.endswith('SNAPSHOT'):
+        replace_file(build_file, javadoc_pattern, version)
 
 if __name__ == "__main__":
     # Input check

@@ -1,0 +1,221 @@
+*** Settings ***
+Documentation     Tests submission of forms.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Variables ***
+${commentText}          Robot test adding this comment
+${commentTextTwo}       A second comment added by Robot test
+${commentTextThree}     This will be added to Two Datasets
+${commentTextFour}      I (Robot) just love adding comments!
+${fileName}             robot_file_annotation.txt
+${fileNameTwo}          bulk_annotations
+${SEARCH URL}           ${WELCOME URL}search/
+
+
+*** Keywords ***
+
+Check For Comment
+    [Arguments]                                 ${text}
+    Wait Until Page Contains Element            xpath=//div[@class='commentText'][contains(text(), '${text}')]
+
+Check Comment Gone
+    [Arguments]                                 ${text}
+    Page Should Not Contain Element             xpath=//div[@class='commentText'][contains(text(), '${text}')]
+
+Add Comment
+    [Arguments]                                 ${text}
+    Wait Until Element Is Visible               id=id_comment
+    Input Text                                  comment            ${text}
+    Submit Form                                 add_comment_form
+    Check For Comment                           ${text}
+
+Remove Comment
+    [Arguments]                                 ${text}
+    Click Element                               xpath=//div[contains(@class, 'ann_comment_text')][descendant::div[contains(text(), '${text}')]]/img[@class='removeComment']
+    Click Dialog Button                         OK
+    Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check Comment Gone  ${text}
+
+
+Add File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+    Wait Until Element Is Visible               id=choose_file_anns
+    Click Element                               id=choose_file_anns
+    Wait Until Page Contains Element            id=id_files
+    # Click Element                          xpath=//select[@id='id_files']/option[contains(text(), ${fileName})]
+    Select From List By Label                   id=id_files     ${fileAnnotationName}    
+    Click Dialog Button                         Accept
+    Check For File Annotation                   ${fileAnnotationName}
+
+Check For File Annotation
+    [Arguments]                                 ${fileAnnotationName} 
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//a[@class='deleteFile action']
+    Wait Until Element Is Visible               xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//span
+    # Mouse Over                                  //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')]
+    # Wait Until Element Is Visible               //ul[@id="fileanns_container"]//a[contains(@class, 'tooltip')][contains(@aria-describedby, 'ui-tooltip')]     
+
+Remove File Annotation
+    [Arguments]                                 ${fileAnnotationName}
+
+    Wait Until Element Is Visible               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::a[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+    Click Element                               xpath=//li[contains(@class, 'file_ann_wrapper')][descendant::*[contains(text(), '${fileAnnotationName}')]]//*[@class='removeFile action']
+
+    Click Dialog Button                         OK
+    Wait Until Keyword Succeeds                 ${TIMEOUT}   ${INTERVAL}    Check File Annotation Gone  ${fileAnnotationName}
+
+Check File Annotation Gone
+    [Arguments]                                 ${fileAnnotationName}
+    Page Should Not Contain Element             xpath=//ul[@id="fileanns_container"]//a[contains(text(), '${fileAnnotationName}')]
+
+
+*** Test Cases ***
+
+Test Comments
+
+    Select Experimenter
+    ${dsId_One}=                                Create Dataset      robot test comments_1
+    ${dsId_Two}=                                Create Dataset      robot test comments_2
+
+    # Comment a single Dataset
+    Click Element                               xpath=//h1[@data-name='comments']
+    Add Comment                                 ${commentText}
+
+    # Refresh (select other Dataset and re-select)
+    ${nodeId}=                                  Select Dataset By Id        ${dsId_One}
+    Wait Until Right Panel Loads                Dataset                     ${dsId_One}
+    Select Dataset By Id                        ${dsId_Two}
+    # Check and add another Comment
+    Check For Comment                           ${commentText}
+    Add Comment                                 ${commentTextTwo}
+    # Remove first comment
+    Remove Comment                              ${commentText}
+
+    # Now select both Datasets...
+    Meta Click Node                             ${nodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    # Previously added Comment will show up
+    Check For Comment                           ${commentTextTwo}
+    Page Should Not Contain Element             xpath=//div[@class='commentText'][contains(text(), '${commentText}')]
+    # Add Comments to Both Datasets
+    Add Comment                                 ${commentTextThree}
+    Add Comment                                 ${commentTextFour}
+
+    # Select each single Dataset to check for Comment(s)
+    Select Dataset By Id                        ${dsId_One}
+    Check Comment Gone                          ${commentTextTwo}
+    Check For Comment                           ${commentTextThree}
+    Select Dataset By Id                        ${dsId_Two}
+    Check For Comment                           ${commentTextTwo}
+    Check For Comment                           ${commentTextThree}
+
+    # Select both Datasets and Remove Comments
+    Meta Click Node                             ${nodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    Remove Comment                              ${commentTextTwo}
+    Remove Comment                              ${commentTextThree}
+
+    # Select each single Dataset again to check for Comment(s)
+    Select Dataset By Id                        ${dsId_One}
+    Check For Comment                           ${commentTextFour}
+    Check Comment Gone                          ${commentTextTwo}
+    Check Comment Gone                          ${commentTextThree}
+    Select Dataset By Id                        ${dsId_Two}
+    Check For Comment                           ${commentTextFour}
+    Check Comment Gone                          ${commentTextTwo}
+    Check Comment Gone                          ${commentTextThree}
+
+    Select Dataset By Id                        ${dsId_One}
+    Delete Container
+
+    Select Dataset By Id                        ${dsId_Two}
+    Delete Container
+
+
+Test File Annotations
+
+    Select Experimenter
+    ${sId_One}=                                 Create Screen       robot file annotations_1
+    ${sId_Two}=                                 Create Screen       robot file annotations_2
+
+    # Annotate single Screen
+    Click Element                               xpath=//h1[@data-name='attachments']
+    Add File Annotation                         ${fileName}
+
+    # Refresh (select other Screen and re-select)
+    ${nodeId}=                                  Select Screen By Id         ${sId_One}
+    Wait Until Right Panel Loads                Screen                      ${sId_One}
+    Select Screen By Id                         ${sId_Two}
+    # Check and add another File Annotation
+    Check For File Annotation                   ${fileName}
+    Add File Annotation                         ${fileNameTwo}
+    # Remove first File Annotation
+    Remove File Annotation                      ${fileName}
+
+    # Now select both Screens...
+    Meta Click Node                             ${nodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    # Previously added File Annotation will show up
+    Check For File Annotation                   ${fileNameTwo}
+    Check File Annotation Gone                  ${fileName}
+    # Add File Annotation to Both Screens
+    Add File Annotation                         ${fileName}
+    Select Screen By Id                         ${sId_One}
+    Check For File Annotation                   ${fileName}
+    Select Screen By Id                         ${sId_Two}
+    Check For File Annotation                   ${fileName}
+
+    # Now select both Screens...
+    Meta Click Node                             ${nodeId}
+    Wait Until Page Contains Element            id=batch_ann_title
+    # Remove first File Annotation
+    Remove File Annotation                      ${fileName}
+    Select Screen By Id                         ${sId_One}
+    Check File Annotation Gone                  ${fileName}
+    Select Screen By Id                         ${sId_Two}
+    Check File Annotation Gone                  ${fileName}
+
+    Delete Container
+    Select Screen By Id                         ${sId_One}
+    Delete Container                        
+
+# Test Rating
+
+Test Search Results File Annotations
+
+    Select Experimenter
+    ${sId_One}=                                 Create Screen       robot file annotations_1
+
+    # Annotate single Screen
+    Add File Annotation                         ${fileNameTwo}
+    
+    Input Text  id=id_search_query              ${fileNameTwo}
+    Submit Form
+    Location Should Be                          ${SEARCH URL}
+
+    Wait Until Page Contains Element            xpath=//img[contains(@alt, 'plate')]
+    Click Element                               xpath=//img[contains(@alt, 'plate')]
+    Wait Until Page Contains Element            //*[@id="general_tab"]//th[contains(text(), 'Plate ID:')]
+
+    #Minimal checking to check if you can add Annotations on the search result page
+    Click Element                               xpath=//h1[@data-name='attachments']
+    Check For File Annotation                   ${fileNameTwo}
+    Remove File Annotation                      ${fileNameTwo}
+    Add File Annotation                         ${fileNameTwo}
+    Click Element                               xpath=//h1[@data-name='comments']
+    Add Comment                                 ${commentText}
+
+    Go To                                       ${WELCOME URL}
+    Select Experimenter
+    Select Screen By Id                         ${sId_One}
+    Delete Container
+
+
+
+    

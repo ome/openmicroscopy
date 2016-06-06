@@ -676,6 +676,19 @@ class BrowserModel
 	    accept(finder, ImageDisplayVisitor.IMAGE_SET_ONLY);
 	    return new ArrayList<ImageNode>(finder.getVisibleImageNodes());
 	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getVisibleNodes()
+     */
+    public List<ImageNode> getVisibleNodes()
+    {
+        //Note: avoid caching b/c we don't know yet what we are going
+        //to do with updates
+        ImageFinder finder = new ImageFinder();
+        accept(finder, ImageDisplayVisitor.ALL_NODES);
+        return new ArrayList<ImageNode>(finder.getVisibleImageNodes());
+    }
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.

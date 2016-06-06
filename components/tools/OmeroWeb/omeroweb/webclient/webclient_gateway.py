@@ -27,6 +27,7 @@
 import cStringIO
 import traceback
 import logging
+import warnings
 
 from StringIO import StringIO
 
@@ -53,6 +54,7 @@ from django.utils.encoding import smart_str
 from django.conf import settings
 
 from omero.gateway.utils import toBoolean
+from webgateway.templatetags.common_filters import lengthunit, lengthformat
 
 try:
     import hashlib
@@ -178,6 +180,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             return False
 
     def getOrphanedContainerSettings(self):
+        """
+        ** Deprecated ** Use :meth:`BlitzGateway.getClientSettings`.
+        """
+        warnings.warn(
+            "Deprecated. Use BlitzGateway.getClientSettings()",
+            DeprecationWarning)
         name = (self.getConfigService().getConfigValue(
                 "omero.client.ui.tree.orphans.name") or "Orphaned image")
         description = (self.getConfigService().getConfigValue(
@@ -186,6 +194,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         return name, description
 
     def getDropdownMenuSettings(self):
+        """
+        ** Deprecated ** Use :meth:`BlitzGateway.getClientSettings`.
+        """
+        warnings.warn(
+            "Deprecated. Use BlitzGateway.getClientSettings()",
+            DeprecationWarning)
         dropdown_menu = dict()
         if toBoolean(self.getConfigService().getConfigValue(
                      "omero.client.ui.menu.dropdown.leaders.enabled")):
@@ -623,6 +637,25 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         if description is not None and description != "":
             sc.description = rstring(str(description))
         return self.saveAndReturnId(sc)
+
+    def createTag(self, name, description=None):
+        """ Creates new Tag and returns ID """
+
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(str(name))
+        if description is not None and description != "":
+            tag.description = rstring(str(description))
+        return self.saveAndReturnId(tag)
+
+    def createTagset(self, name, description=None):
+        """ Creates new Tag Set and returns ID """
+
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(str(name))
+        tag.ns = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        if description is not None and description != "":
+            tag.description = rstring(str(description))
+        return self.saveAndReturnId(tag)
 
     def createContainer(self, dtype, name, description=None):
         """ Creates new Project, Dataset or Screen and returns ID """
@@ -2131,7 +2164,7 @@ class OmeroWebObjectWrapper (object):
                     ratingAnn.save()
                 else:
                     self._conn.deleteObject(ratingLink._obj)
-                    self._conn.deleteObject(ratingAnn._obj)
+                    # ratingAnn was automatically deleted if orphaned
             # otherwise, unlink and create a new rating
             else:
                 self._conn.deleteObject(ratingLink._obj)
@@ -2324,7 +2357,6 @@ class ImageWrapper (OmeroWebObjectWrapper,
         However, if unit can't be converted, then we just return the
         current unit's symbol.
         """
-        from webgateway.templatetags.common_filters import lengthunit
         try:
             size = self.getPixelSizeX(units="MICROMETER")
         except:
@@ -2372,6 +2404,51 @@ class ImageWrapper (OmeroWebObjectWrapper,
         if size is None:
             return 0
         return size.getValue()
+
+    def getPixelSizeXWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeX(True)
+        return self.formatPixelSizeWithUnits(size)
+
+    def getPixelSizeYWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeY(True)
+        return self.formatPixelSizeWithUnits(size)
+
+    def getPixelSizeZWithUnits(self):
+        """
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        size = self.getPixelSizeZ(True)
+        return self.formatPixelSizeWithUnits(size)
+
+    def formatPixelSizeWithUnits(self, size):
+        """
+        Formats the response for methods above.
+        Returns [value, unitSymbol]
+        If the unit is MICROMETER in database (default), we
+        convert to more appropriate units & value
+        """
+        if size is None:
+            return (0, "µm")
+        length = size.getValue()
+        unit = size.getUnit()
+        if unit == "MICROMETER":
+            unit = lengthunit(length)
+            length = lengthformat(length)
+        else:
+            unit = size.getSymbol()
+        return (length, unit)
 
     def getChannels(self, *args, **kwargs):
         """

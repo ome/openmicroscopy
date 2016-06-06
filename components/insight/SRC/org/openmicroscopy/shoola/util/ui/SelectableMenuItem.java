@@ -33,8 +33,9 @@ import javax.swing.JMenuItem;
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @param <T> Optional parameterization 
  */
-public class SelectableMenuItem extends JMenuItem {
+public class SelectableMenuItem<T> extends JMenuItem {
 
     /** Bound property indicating that menuitem is selected. */
     public static final String SELECTION_PROPERTY;
@@ -62,6 +63,12 @@ public class SelectableMenuItem extends JMenuItem {
     private boolean checkable;
     
     private boolean fireProperty = true;
+    
+    /**
+     * Reference to the object which is represented by this
+     * {@link SelectableMenuItem}
+     */
+    private T object;
     
     /**
      * Creates a new instance.
@@ -132,15 +139,33 @@ public class SelectableMenuItem extends JMenuItem {
         this(DEFAULT_SELECTED, DEFAULT_DESELECTED, selected, text, selectable);
     }
 
+    /**
+     * Get the object which is represented by this {@link SelectableMenuItem}
+     * 
+     * @return See above
+     */
+    public T getObject() {
+        return object;
+    }
+
+    /**
+     * Set the object which is represented by this {@link SelectableMenuItem}
+     * 
+     * @param object
+     *            The object
+     */
+    public void setObject(T object) {
+        this.object = object;
+    }
+
     @Override
     protected void processMouseEvent(MouseEvent e) {
         // All MouseEvents have to be caught, because the JMenuItem's
-        // MouseListeners shall not be triggered (i. e. makes sure the popup
+        // MouseListeners shall not be triggered (i.e. makes sure the popup
         // menu stays open)!
-        if (e.getButton() == MouseEvent.BUTTON1 && checkable) {
+        if (e.getID() == MouseEvent.MOUSE_CLICKED && checkable) {
             setChecked(!isChecked());
             repaint();
-            
             // but the ActionListeners have to triggered
             for(ActionListener l : getActionListeners()) {
                 l.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, ""));
@@ -174,12 +199,23 @@ public class SelectableMenuItem extends JMenuItem {
         fireProperty = true;
         this.checkable = checkable;
     }
-    
+
     public boolean isChecked() {
         return getIcon() == checkedIcon;
     }
 
     public void setChecked(boolean b) {
+        if (b)
+            setIcon(checkedIcon);
+        else
+            setIcon(uncheckedIcon);
+
+        if (fireProperty) {
+            firePropertyChange(SELECTION_PROPERTY, !b, b);
+        }
+    }
+    
+    public void setChecked(boolean b, boolean fireProperty) {
         if (b)
             setIcon(checkedIcon);
         else

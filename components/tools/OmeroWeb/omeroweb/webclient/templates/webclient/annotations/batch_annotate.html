@@ -43,9 +43,26 @@
                     });
                 }
 
-                $("#comments_container").hide_if_empty();
-                $("#fileanns_container").hide_if_empty();
-                $("#tags_container").hide_if_empty();
+
+                // Make list of ['image-123', 'image-456'] for use in Annotation Tabs...
+                // If we have iids (possibly when Wells selected) just use these:
+                {% if iids|length > 0 %}
+                var selectedObjs = [{% for id in iids %}{% if forloop.counter > 1 %},{% endif %}"image-{{ id }}"{% endfor %}];
+                {% else %}
+                // ...otherwise use the obj_labels
+                var selectedObjs = [{% for o in obj_labels %}{% if forloop.counter > 1 %},{% endif %}"{{ o.type|lower }}-{{ o.id}}"{% endfor %}];
+                {% endif %}
+
+                var annPaneData = {
+                    'selected': selectedObjs,
+                    'canAnnotate': {% if annotationBlocked %}false{% else %}true{% endif %},
+                }
+
+                var tagPane = new TagPane($("#tagsPane"), annPaneData);
+                var fileannsPane = new FileAnnsPane($("#fileannsPane"), annPaneData);
+                var commentsPane = new CommentsPane($("#commentsPane"), annPaneData);
+                var ratingsPane = new RatingsPane($("#ratingsPane"), annPaneData);
+                var customAnnsPane = new CustomAnnsPane($("#customAnnotationsPane"), annPaneData);
 
 
                 // show a link to the current objects
@@ -59,33 +76,6 @@
                     $("#link_info_popup").hide();
                 });
 
-                // handle submit of Add Comment form
-                $("#add_comment_form").ajaxForm({
-                    beforeSubmit: function(data) {
-                        var textArea = $('#add_comment_form textarea');
-                        if ($.trim(textArea.val()).length == 0) {
-                            show_batch_msg("Comment field was empty");
-                            return false;
-                        }
-                        $("#comment_spinner").show();
-                    },
-                    success: function(html) {
-                        $("#comment_spinner").hide();
-                        var $comment = $(html)
-                        $('#comments_container').prepend( $comment ).show();
-                        $(".removeComment", $comment).hide();
-                        var textArea = $('#add_comment_form textarea');
-                        textArea.val('');
-                        show_batch_msg("Comment added to Objects");
-                        OME.filterAnnotationsAddedBy();
-                    },
-                    error: function(html) {
-                        show_batch_msg(html);
-                        $("#comment_spinner").hide();
-                    }
-                });
-
-
 
                 $(".dropdown_menu .menu_launch").click(function(e){
                     $(this).parent().find('ul').css('visibility', 'visible');
@@ -98,128 +88,6 @@
                 }).hide();
 
 
-                // Choose to add tags...
-                if ($("#add_tags_form").length === 0) {
-                    $("<form id='add_tags_form' title='Tags Selection' action='{% url 'annotate_tags' %}' method='post'>{% csrf_token %}")
-                        .hide().appendTo('body');
-                }
-                $("#launch_tags_form").click(function(event) {
-                    $("#add_tags_form").dialog("open");
-                    // load form via AJAX...
-                    var load_url = $(this).attr('href');
-                    $("#add_tags_form").load(load_url);
-                    return false;
-                });
-                // set-up the tags form to use dialog
-                $("#add_tags_form").dialog({
-                    autoOpen: false,
-                    resizable: false,
-                    height: 520,
-                    width: 780,
-                    modal: true,
-                    buttons: {
-                        "Save": function() {
-                            // simply submit the form (AJAX handling set-up above)
-                            $("#add_tags_form").trigger('prepare-submit').submit();
-                            $( this ).dialog( "close" );
-                        },
-                        "Cancel": function() {
-                            $( this ).dialog( "close" );
-                        },
-                        "Reset": function() {
-                            // discard all changes and reload the form
-                            $("#add_tags_form").html('').load($("#launch_tags_form").attr('href'));
-                        }
-                    }
-                });
-                $('#add_tags_form').ajaxForm({
-                    beforeSubmit: function(data) {
-                        $("#tagann_spinner").show();
-                        $("#add_tags_form").dialog( "close" );
-                    },
-                    success: function(data) {
-                        $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
-                        // update the list of tags
-                        var $tag = $(data);
-                        $tag.filter(".tag_annotation_wrapper").each(function(){
-                            $("#"+$(this).attr("id")).remove();     // if this Tag already exists, remove it
-                            $("#tags_container").prepend( this ).show();
-                        });
-                        show_batch_msg("Tags added to Objects");
-                        $(".tooltip", $tag).tooltip_init();
-                        OME.filterAnnotationsAddedBy();
-                    },
-                    error: function(data) {
-                        $("#tagann_spinner").hide();
-                    }
-                });
-
-
-                // set-up the attachment selection form to use AJAX. (requires jquery.form.js plugin)
-                if ($("#choose_attachments_form").length === 0) {
-                    $("<form id='choose_attachments_form' title='Choose attachments' action='{% url 'annotate_file' %}' method='post'>{% csrf_token %}")
-                        .hide().appendTo('body');
-                }
-                $('#choose_attachments_form').ajaxForm({
-                    beforeSubmit: function(data) {
-                        $("#choose_attachments_form").dialog( "close" );
-                        $("#fileann_spinner").show();
-                    },
-                    success: function(data) {
-                        $("#fileann_spinner").hide();
-                        // update the list of file annotations and hide actions
-                        var $fileanns = $(data);
-                        $fileanns.filter(".file_ann_wrapper").each(function(){
-                            $("#"+$(this).attr("id")).remove();     // if this File already exists, remove it
-                            $("#fileanns_container").prepend( this ).show();
-                        });
-                        $fileanns.tooltip({
-                            items: '.file_ann_wrapper',
-                            content: function() {
-                                return $("span.tooltip_html", $(this)).html();
-                            },
-                            track: true,
-                            show: false,
-                            hide: false
-                        });
-                        show_batch_msg("File Annotation(s) added to Objects");
-                        OME.filterAnnotationsAddedBy();
-                        OME.fileAnnotationCheckboxDynamicallyAdded();
-                    },
-                    error: function(data){
-                        $("#fileann_spinner").hide();
-                        alert("Upload failed [" + data.status + " " + data.statusText + "]");
-                    }
-                });
-                // prepare dialog for choosing file to attach...
-                $("#choose_attachments_form").dialog({
-                    autoOpen: false,
-                    resizable: true,
-                    height: 400,
-                    width:420,
-                    modal: true,
-                    buttons: {
-                        "Accept": function() {
-                            // simply submit the form (AJAX handling set-up above)
-                            $("#choose_attachments_form").submit();
-                            $( this ).dialog( "close" );
-                        },
-                        "Cancel": function() {
-                            $( this ).dialog( "close" );
-                        }
-                    }
-                });
-                // show dialog for choosing file to attach...
-                $("#choose_file_anns").click(function() {
-                    // show dialog first, then do the AJAX call to load files...
-                    var attach_form = $( "#choose_attachments_form" );
-                    attach_form.dialog( "open" );
-                    // load form via AJAX...
-                    var load_url = $(this).attr('href');
-                    attach_form.load(load_url);
-                    return false;
-                });
-
                 $(".tooltip_title").tooltip({
                     items: '.tooltip_title',
                     content: function() {
@@ -231,91 +99,10 @@
                 });
                 $(".tooltip").tooltip_init();
 
-                // bind 'remove' action to various annotations
-                $("#tags_container").on("click", ".removeTag", function(event){
-                    var url = $(this).attr('url'),
-                        parents = '{{ link_string }}';  // E.g image-123|image-456
-                    OME.removeItem(event, ".tag", url, parents, {{ index }});
-                    return false;
-                });
-                $("#fileanns_container").on("click", ".removeFile", function(event) {
-                    var url = $(this).attr('href'),
-                        parents = '{{ link_string }}';  // E.g image-123|image-456
-                    OME.removeItem(event, ".file_ann_wrapper", url, parents, {{ index }});
-                    return false;
-                });
-
-                // delete action (files)
-                $("#fileanns_container").on("click", ".deleteFile", function(event) {
-                    var url = $(this).attr('href');
-                    OME.deleteItem(event, "file_ann_wrapper", url);
-                });
-
                 // Filtering annotations added by 'me' or 'others' or 'all'
                 $("#annotationFilter").change(function(){
                     OME.filterAnnotationsAddedBy();
                 });
-
-                // Rating
-                // NB: similar functionality on metadata_general.html
-                $("#add_rating").click(function(){
-                    $(".myRating").toggle();
-                });
-
-                $("#rating_annotations").on("click", ".myRating img", function(event){
-                    var $rating = $(this),
-                        clickX = event.pageX - $rating.offset().left;
-                    var r = (clickX/ $rating.width()) * 5;
-                    r = parseInt(Math.ceil(r));
-                    setRating(r, $rating);
-                });
-                // $(".addRating img").click(function(event){
-                //     var $rating = $(this),
-                //         $ratingli = $rating.parent().parent(),
-                //         clickX = event.pageX - $rating.offset().left;
-                //     var r = (clickX/ $rating.width()) * 5;
-                //     r = parseInt(Math.ceil(r));
-                //     var $newR = $ratingli.clone().prependTo("#rating_annotations");
-                //     $newR.removeClass('addRating').addClass('myRating');
-                //     $ratingli.hide();
-
-                //     setRating(r, $newR.find('img'));
-                // });
-                $("#rating_annotations").on("click", ".removeRating", function(event){
-                    event.preventDefault();
-                    var $liMyRating = $(this).parent(),
-                        $ratingimg = $liMyRating.find('img');
-                    $liMyRating.hide();
-                    setRating(0, $ratingimg);
-                });
-
-                var setRating = function(rating, $rating) {
-                    // update rating
-                    if ($rating) {
-                        var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", rating+".png");
-                        $rating.attr('src', rating_src);
-                    }
-                    $(".ratingCount").text("{{ obj_labels|length }}");
-                    // hide the [+] button if we have set a rating
-                    if (rating > 0) {
-                        $("#add_rating").hide()
-                    } else {
-                        $("#add_rating").show()
-                    }
-                    // update rating annotation
-                    var rating_url = "{% url 'annotate_rating' %}?{{ obj_string }}&index={{ index }}"
-                    rating_url += "&rating=" + rating;
-                    $.post(rating_url, function(data) {
-                        // update summary
-                        $("#ratingsAverage").text(data.average);
-                        $("#ratingsCount").text(data.count);
-                        if (data.count > 0) {
-                            $("#ratingsSummary").show();
-                        } else {
-                            $("#ratingsSummary").hide();
-                        }
-                    });
-                }
 
                 OME.initToolbarDropdowns();
             });
@@ -384,162 +171,105 @@
     {% endif %}
 
 
-    <!-- RATING -->
-
-    <div class="annotations_section">
-
-        <h2>{% trans "Rating" %}</h2>
-
-        {% if not annotationBlocked %}
-        <a id="add_rating"
-            {% if userRatingAvg > 0 %}style="display:none"{% endif %} class="btn silver btn_add"><span></span></a>
-        {% endif %}
-
-
-        <ul id="rating_annotations" class="lnfiles">
-
-            <li class="rating {% if not annotationBlocked %}myRating{% endif %}" style="position: relative {% ifequal userRatingAvg 0 %}; display:none{% endifequal %}">
-                <a><img
-                {% ifequal userRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                {% ifequal userRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
-                />
-                <span class="ratingOwner">
-                    (avg of <span class="ratingCount">{{ batchAnns.UserRatings|length }}</span>)
-                </span>
+    <!-- TAGS -->
+    <div id="tagsPane">
+        <h1 class="can-collapse closed" data-name="tags">
+            Tags
+        </h1>
+        <div class="annotations_section" style="display:none">
+            
+            {% if not annotationBlocked %}
+                <a id="launch_tags_form"
+                    href="{% url 'annotate_tags' %}?{{ obj_string }}&index={{ index }}"
+                    class="btn silver btn_add">
+                    <span></span>
                 </a>
-                {% if not annotationBlocked %}
-                <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
-                {% endif %}
-            </li>
-        </ul>
-        <div id="ratingsSummary" {% if not ratings.average %}style="display:none"{% endif %}>
-            (avg:
-            <span id="ratingsAverage">{{ ratings.average }}</span>
-            / <span id="ratingsCount">{{ ratings.count }}</span>
-            votes)
+            {% endif %}
+
+            <!-- display existing Tags -->
+            <div id="tags_container" class="lntags"></div>
+
         </div>
     </div>
-
-    <hr/>
-
-    <!-- TAGS -->               
-    <div class="annotations_section">
-                
-		<h2>{% trans "Tags" %}</h2>
-
-        {% if not annotationBlocked %}
-        <a id="launch_tags_form" href="{% url 'annotate_tags' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add"><span></span></a>
-        {% endif %}
-				
-        <div id="tags_container" class="lntags">
-            {% include "webclient/annotations/tags.html" %}
-        </div>
- 
-    </div>
-	
-
-	<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
 
 
     <!-- FILES -->
-    <div class="annotations_section">
-        <h2>{% trans "Attach" %}:</h2>
+    <div id="fileannsPane">
+        <h1 class="can-collapse closed" data-name='attachments'>
+            Attachments
+        </h1>
+        <div class="annotations_section" style="display:none">
 
-           
-			
-        {% if not annotationBlocked %}
-            <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
-                <span></span>
-            </a>
-            <div class="toolbar">
-                <input type="button" title="Select Files for Scripts"
-                    class="btn silver btn_script_dark">
-                <!-- Class "scriptButton" also on <span> as that
-                     is actually what we're clicking on.
-                -->
-                <span class="scriptButton"></span>
-            </div>
-            <script type="text/javascript">
-                $(".annotations_section .scriptButton").click(
-                    {webindex: "{% url 'webindex' %}"},
-                    OME.showScriptList
-                );
-            </script>
-        {% endif %}
-			
-			
-            <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
-
-        <!-- display existing file annotations -->
-
-            <ul id="fileanns_container" class="lnfiles">
-                {% include "webclient/annotations/fileanns.html" %}
-            </ul>
-            <script type="text/javascript">
-                $(".annotations_section .toolbar input[type=button]").click(
-                    OME.toggleFileAnnotationCheckboxes
-                );
-                $("#fileanns_container").on(
-                    "change", "li input[type=checkbox]",
-                    OME.fileAnnotationCheckboxChanged
-                );
-            </script>
-	</div>
-	
-
-
-	<hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
-
-
-
-
-
-
-
-
-   
-                
-		<!-- COMMENTS -->
-        {% if not annotationBlocked %}
-        <div class="annotations_section">
-			
-			<h2>{% trans "Comment:" %}</h2>
-			
-                <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
-                <table>
-                    <tr class="hiddenField"><td>{{ form_comment.image }}</td></tr>
-                    <tr class="hiddenField"><td>{{ form_comment.dataset }}</td></tr>
-                    <tr class="hiddenField"><td>{{ form_comment.project }}</td></tr>
-                    <tr class="hiddenField"><td>{{ form_comment.screen }}</td></tr>
-                    <tr class="hiddenField"><td>{{ form_comment.plate }}</td></tr>
-                    <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
-                    <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
-                    <tr>
-                        <td>{{ form_comment.comment }}</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="submit" value="{% trans 'Add Comment' %}" />
-                            <img id='comment_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
-                        </td>
-                    </tr>
-                </table>
-                </form>
-                
-				<div id="comments_container" class="lncomments">
-                    {% for tann in manager.text_annotations %}
-                        {% include "webclient/annotations/comment.html" %}
-                    {% endfor %}
+            {% if not annotationBlocked %}
+                <a id="choose_file_anns" href="{% url 'annotate_file' %}?{{ obj_string }}&index={{ index }}" class="btn silver btn_add">
+                    <span></span>
+                </a>
+                <div class="toolbar">
+                    <input type="button" title="Select files for scripts"
+                        class="btn silver btn_script_dark">
                 </div>
-           
-        		<div class="clear"></div>
-             
-		</div>
-        {% endif %}
-		
+            {% endif %}
+                <img id='fileann_spinner' src="{% static "webgateway/img/spinner.gif" %}" style="display:none"/>
+
+            <div style="clear:both"></div>
+                <!-- file annotations loaded by FileAnnsPane -->
+                <ul id="fileanns_container" class="lnfiles"></ul>
+        </div>
+    </div>
+
+
+    <!-- RATING -->
+    <div id="ratingsPane">
+        <h1 class="can-collapse closed" data-name="ratings">
+            Ratings
+        </h1>
+        <div class="annotations_section"
+                style="display: none">
+            <div id="rating_annotations" {% if not annotationBlocked %}class="canAnnotate"{% endif %}></div>
+         </div>
+     </div>
+
+
+    <!-- COMMENTS -->
+    <div id="commentsPane">
+        <h1 class="can-collapse closed" data-name="comments">
+            Comments
+        </h1>
+        <div class="annotations_section" style="display: none" data-name='comments'>
+
+            {% if not annotationBlocked %}
+            <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
+            <table>
+                <tr>
+                    <td>
+                        <div id="add_comment_wrapper" style="position: relative">
+                            <label class="inline_label" for="id_comment">Add Comment:</label>
+                            <textarea cols="39" id="id_comment" name="comment" rows="2"></textarea>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="submit" value="{% trans 'Add Comment' %}" style="display:none" /></td>
+                </tr>
+            </table>
+            </form>
+            {% endif %}
+
+            <div id="comments_container" class="lncomments"></div>
+        </div>
+    </div>
+
+
+    <!-- 'OTHER' ANNOTATIONS -->
+    <div id="customAnnotationsPane">
+        <h1 class="can-collapse closed" data-name="others">
+            Others
+        </h1>
+        <div class="annotations_section" style="display: none">
+            <table id="custom_annotations"></table>
+        </div>
+    </div>
+
+
 </div>
 {% endblock %}

@@ -91,7 +91,7 @@ def getLongs(request, name):
     return vals
 
 
-def zip_archived_files(images, temp, zipName):
+def zip_archived_files(images, temp, zipName, buf=2621440):
     """
     Util function to download original files from a list of images
     and arrange them within a temp file, such that there are no
@@ -168,7 +168,7 @@ def zip_archived_files(images, temp, zipName):
 
                 f = open(str(temp_f), "wb")
                 try:
-                    for chunk in a.getFileInChunks():
+                    for chunk in a.getFileInChunks(buf=buf):
                         f.write(chunk)
                 finally:
                     f.close()

@@ -30,8 +30,8 @@ module omero {
          * Requests the file metadata to be loaded for a given
          * image. This should handle both the pre-FS metadata
          * in file annotations as well as loading the metadata
-         * directly from the FS files. A [OriginalMetadataResponse]
-         * will be returned under normal conditions, otherwise a [ERR]
+         * directly from the FS files. A {@link OriginalMetadataResponse}
+         * will be returned under normal conditions, otherwise a {@link ERR}
          * will be returned.
          **/
         class OriginalMetadataRequest extends Request {
@@ -39,36 +39,39 @@ module omero {
         };
 
         /**
-         * Successful response for [OriginalMetadataRequest]. Contains
+         * Successful response for {@link OriginalMetadataRequest}. Contains
          * both the global and the series metadata as maps. Only one
-         * of [filesetId] or [filesetAnnotationId] will be set. Pre-FS
-         * images will have [filesetAnnotationId] set; otherwise
-         * [filesetId] will be set.
+         * of {@link #filesetId} or {@link #filesetAnnotationId} will be set.
+         * Pre-FS images will have {@link #filesetAnnotationId} set; otherwise
+         * {@link #filesetId} will be set.
          **/
         class OriginalMetadataResponse extends Response {
 
             /**
-             * Set to the id of the [omero::model::Fileset] that this
-             * [omero::model::Image] contained in if one exists.
+             * Set to the id of the {@link omero.model.Fileset} that this
+             * {@link omero.model.Image} contained in if one exists.
              **/
             omero::RLong filesetId;
 
             /**
-             * Set to the id of the [omero::model::FilesetAnnotation] linked to
-             * this [omero::model::Image] if one exists.
+             * Set to the id of the {@link omero.model.FilesetAnnotation}
+             * linked to this {@link omero.model.Image} if one exists.
              **/
             omero::RLong fileAnnotationId;
 
             /**
-             * Metadata which applies to the entire [omero::model::Fileset]
+             * Metadata which applies to the entire
+             * {@link omero.model.Fileset}
              **/
             omero::RTypeDict globalMetadata;
 
             /**
-             * Metadata specific to the series id of this [omero::model::Image].
-             * In the [omero::model::Fileset] that this [omero::model::Image] is
-             * contained in, there may be a large number of other images, but the
-             * series metadata applies only to this specific one.
+             * Metadata specific to the series id of this
+             * {@link omero.model.Image}.
+             * In the {@link omero.model.Fileset} that this
+             * {@link omero.model.Image] is contained in, there may be a large
+             * number of other images, but the series metadata applies only to
+             * this specific one.
              **/
             omero::RTypeDict seriesMetadata;
         };
@@ -140,14 +143,15 @@ module omero {
 
         /**
          * Queries and modifies the various binary artifacts
-         * which may be linked to an [omero::model::Image].
+         * which may be linked to an {@link omero.model.Image}.
          *
          * This can be useful, e.g., after converting pre-OMERO-5
-         * archived original files into [omero::model::Fileset].
+         * archived original files into {@link omero.model.Fileset}.
          *
          * The command works in several stages:
          *
-         *   1. loads an [omero::model::Image] by id, failing if none present.
+         *   1. loads an {@link omero.model.Image} by id, failing if none
+         *      present.
          *   2. renames Pixels file to '*_bak'
          *   3. deletes existing Pyramidfiles if present;
          *
@@ -163,7 +167,7 @@ module omero {
         };
 
         /**
-         * [Response] from a [ManageImageBinaries] [Request].
+         * {@link Response} from a {@link ManageImageBinaries} {@link Request}.
          * If no action is requested, then the fields of this
          * instance can be examined to see what would be done
          * if requested.
@@ -189,9 +193,10 @@ module omero {
          *
          * Permissible classes include:
          *   ExperimenterGroup, Experimenter, Project, Dataset,
-         *   Screen, Plate, Well, WellSample,
+         *   Folder, Screen, Plate, Well, WellSample,
          *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
          **/
+        ["deprecated:use omero::cmd::DiskUsage2 instead"]
         class DiskUsage extends Request {
             omero::api::StringSet classes;
             omero::api::StringLongListMap objects;
@@ -209,6 +214,7 @@ module omero {
          *   Thumbnail for the image thumbnails
          * The above map values are broken down by owner-group keys.
          **/
+        ["deprecated:use omero::cmd::DiskUsage2Response instead"]
         class DiskUsageResponse extends Response {
             omero::api::LongPairToStringIntMap fileCountByReferer;
             omero::api::LongPairToStringLongMap bytesUsedByReferer;

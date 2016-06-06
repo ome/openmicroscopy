@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,8 +28,8 @@ import java.util.List;
 import ome.model.units.BigResult;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.measurement.ROIEvent;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -44,11 +44,14 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
@@ -157,7 +160,7 @@ public class MetadataViewerAgent
 	 */
 	public static boolean isFastConnection()
 	{
-		int value = (Integer) registry.lookup(LookupNames.CONNECTION_SPEED);
+		int value = (Integer) registry.lookup(LookupNames.IMAGE_QUALITY_LEVEL);
 		return value == RenderingControl.UNCOMPRESSED;
 	}
 	
@@ -383,6 +386,7 @@ public class MetadataViewerAgent
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, CopyRndSettings.class);
         bus.register(this, RndSettingsPasted.class);
+        bus.register(this, ROIEvent.class);
     }
 
     /**
@@ -431,6 +435,17 @@ public class MetadataViewerAgent
                    	 handleCopyRndSettings((CopyRndSettings) e);
 		else if (e instanceof RndSettingsPasted) 
                     	handleRndSettingsPasted((RndSettingsPasted) e);
+        else if (e instanceof ROIEvent)
+            handleROIEvent((ROIEvent) e);
 	}
+
+    private void handleROIEvent(ROIEvent e) {
+        MetadataViewer viewer = MetadataViewerFactory.getViewerFromId(
+                ImageData.class.getName(), e.getImageId());
+        if (viewer != null) {
+            viewer.reloadROICount();
+        }
+        
+    }
 
 }

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014-2015 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2014-2016 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,10 @@
 fs plugin for querying repositories, filesets, and the like.
 """
 
+import platform
 import sys
 
+from collections import defaultdict
 from collections import namedtuple
 
 from omero import client as Client
@@ -34,6 +36,7 @@ from omero.cli import admin_only
 from omero.cli import CmdControl
 from omero.cli import CLI
 from omero.cli import ProxyStringType
+from omero.gateway import BlitzGateway
 
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
@@ -42,8 +45,13 @@ from omero.util.temp_files import create_path
 from omero.util.text import filesizeformat
 from omero.fs import TRANSFERS
 
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 HELP = """Filesystem utilities"""
+
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 Entry = namedtuple("Entry", ("level", "id", "path", "mimetype"))
 
@@ -259,6 +267,11 @@ class FsControl(CmdControl):
             "--check", action="store_true",
             help="checks each fileset for validity (admins only)")
 
+        ls = parser.add(sub, self.ls)
+        ls.add_argument(
+            "fileset",
+            type=ProxyStringType("Fileset"))
+
         usage = parser.add(sub, self.usage)
         usage.set_args_unsorted()
         usage.add_login_arguments()
@@ -419,6 +432,7 @@ Examples:
             tb.row(idx, *tuple(values))
         self.ctx.out(str(tb.build()))
 
+    @windows_warning
     @admin_only
     def rename(self, args):
         """Moves an existing fileset to a new location (admin-only)
@@ -428,6 +442,7 @@ it may be useful to rename an existing fileset to match the new
 template. By default the original files and import log are also
 moved.
 """
+
         fid = args.fileset.id.val
         client = self.ctx.conn(args)
         uid = self.ctx.get_event_context().userId
@@ -676,6 +691,17 @@ Examples:
             tb.row(idx, *tuple(obj))
         self.ctx.out(str(tb.build()))
 
+    def ls(self, args):
+        """List all the original files contained in a fileset"""
+        client = self.ctx.conn(args)
+        gateway = BlitzGateway(client_obj=client)
+        gateway.SERVICE_OPTS.setOmeroGroup("-1")
+        fileset = gateway.getObject("Fileset", args.fileset.id.val)
+
+        defaultdict(list)
+        for ofile in fileset.listFiles():
+            print ofile.path + ofile.name
+
     @admin_only
     def set_repo(self, args):
         """Change configuration properties for single repositories
@@ -701,8 +727,8 @@ Examples:
         """Shows the disk usage for various objects.
 
 This command shows the total disk usage of various objects including:
-ExperimenterGroup, Experimenter, Project, Dataset, Screen, Plate, Well,
-WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+ExperimenterGroup, Experimenter, Project, Dataset, Folder, Screen, Plate,
+Well, WellSample, Image, Pixels, Annotation, Job, Fileset, OriginalFile.
 The total size returned will comprise the disk usage by all related files. Thus
 an image's size would typically include the files uploaded to a fileset,
 import log (Job), thumbnails, and, possibly, associated pixels or original
@@ -725,10 +751,10 @@ Examples:
     # then the size returned would be identical to:
     bin/omero fs usage Project:1,2 --units M
         """
-        from omero.cmd import DiskUsage
+        from omero.cmd import DiskUsage2
 
         client = self.ctx.conn(args)
-        req = DiskUsage()
+        req = DiskUsage2()
         if not args.obj:
             admin = client.sf.getAdminService()
             uid = admin.getEventContext().userId
@@ -741,7 +767,7 @@ Examples:
                 args.obj.append(
                     "ExperimenterGroup:%s" % ",".join(map(str, gids)))
 
-        req.objects, req.classes = self._usage_obj(args.obj)
+        req.targetObjects, req.targetClasses = self._usage_obj(args.obj)
         cb = None
         try:
             rsp, status, cb = self.response(client, req, wait=args.wait)

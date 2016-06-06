@@ -36,7 +36,8 @@ image = conn.getObject('Image', imageId)
 # =================================================================
 def getEllipses(conn, imageId):
     """
-    Returns the a dict of tIndex: {'cx':cx, 'cy':cy, 'rx':rx, 'ry':ry, 'z':z}
+    Returns the a dict of tIndex:
+    {'x':x, 'y':y, 'radiusX':radiusX, 'radiusY':radiusY, 'z':z}
     NB: Assume only 1 ellipse per time point
 
     @param conn:    BlitzGateway connection
@@ -50,36 +51,38 @@ def getEllipses(conn, imageId):
     for roi in result.rois:
         for shape in roi.copyShapes():
             if type(shape) == omero.model.EllipseI:
-                cx = int(shape.getCx().getValue())
-                cy = int(shape.getCy().getValue())
-                rx = int(shape.getRx().getValue())
-                ry = int(shape.getRy().getValue())
+                x = int(shape.getX().getValue())
+                y = int(shape.getY().getValue())
+                radiusX = int(shape.getRadiusX().getValue())
+                radiusY = int(shape.getRadiusY().getValue())
                 z = int(shape.getTheZ().getValue())
                 t = int(shape.getTheT().getValue())
-                ellipses[t] = {'cx': cx, 'cy': cy, 'rx': rx, 'ry': ry, 'z': z}
+                ellipses[t] = {'x': x, 'y': y, 'radiusX': radiusX,
+                               'radiusY': radiusY, 'z': z}
     return ellipses
 
 
 def getEllipseData(image, ellipses):
     """ Returns a dict of t:averageIntensity for all ellipses.
 
-    @param ellipse:     The ellipse defined as a tuple (cx, cy, rx, ry, z, t)
+    @param ellipse:     The ellipse defined as a tuple
+                        (x, y, radiusX, radiusY, z, t)
     @returns:           A list of (x,y) points for the ellipse
     """
     data = {}
     for t, e in ellipses.items():
-        cx = e['cx']
-        cy = e['cy']
-        rx = e['rx']
-        ry = e['ry']
+        x = e['x']
+        y = e['y']
+        radiusX = e['radiusX']
+        radiusY = e['radiusY']
 
         # find bounding box of ellipse
-        xStart = cx - rx
-        xEnd = cx + rx
-        yStart = cy - ry
-        yEnd = cy + ry
-        width = rx * 2
-        height = ry * 2
+        xStart = x - radiusX
+        xEnd = x + radiusX
+        yStart = y - radiusY
+        yEnd = y + radiusY
+        width = radiusX * 2
+        height = radiusY * 2
 
         # get pixel data for the 'tile'
         tileData = image.getPrimaryPixels().getTile(
@@ -87,11 +90,12 @@ def getEllipseData(image, ellipses):
 
         # find the pixels within the ellipse
         pixelValues = []
-        for x in range(xStart, xEnd):
-            for y in range(yStart, yEnd):
-                dx = x - e['cx']
-                dy = y - e['cy']
-                r = float(dx*dx)/float(rx*rx) + float(dy*dy)/float(ry*ry)
+        for x0 in range(xStart, xEnd):
+            for y0 in range(yStart, yEnd):
+                dx = x0 - e['x']
+                dy = y0 - e['y']
+                r = (float(dx*dx)/float(radiusX*radiusX) +
+                     float(dy*dy)/float(radiusY*radiusY))
                 if r <= 1:
                     pixelValues.append(tileData[dx][dy])
         # get the average intensity

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -28,6 +28,7 @@ import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.facility.MetadataFacility;
 import omero.log.SimpleLogger;
+import omero.model.ImageI;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.ImageAcquisitionData;
@@ -42,101 +43,91 @@ import omero.gateway.model.ImageAcquisitionData;
 public class LoadMetadataAdvanced 
 {
 
-	//The value used if the configuration file is not used. To edit*/
-	/** The server address.*/
-	private String hostName = "serverName";
+    //The value used if the configuration file is not used. To edit*/
+    /** The server address.*/
+    private static String hostName = "serverName";
 
-	/** The username.*/
-	private String userName = "userName";
-	
-	/** The password.*/
-	private String password = "password";
-	
-	private long imageId = 1;
-	//end edit
-	
-	private Gateway gateway;
-    
+    /** The username.*/
+    private static String userName = "userName";
+
+    /** The password.*/
+    private static String password = "password";
+
+    private static long imageId = 1;
+    //end edit
+
+    private Gateway gateway;
+
     private SecurityContext ctx;
-	
-	/**
-	 * Load the image acquisition data.
-	 * 
-	 * @param info The configuration information.
-	 */
-	private void loadAcquisitionData(ConfigurationInfo info)
-		throws Exception
-	{
-	    MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
-	    ImageAcquisitionData image = mdf.getImageAcquisitionData(ctx, info.getImageId());
-		System.err.println(image.getHumidity());
-	}
-	
-	/**
-	 * Load the channel data.
-	 * 
-	 * @param info The configuration information.
-	 */
-	private void loadChannelData(ConfigurationInfo info)
-		throws Exception
-	{
-	    MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
-	    
-	    List<ChannelData> data = mdf.getChannelData(ctx, info.getImageId());
-	    for(ChannelData c : data) {
-	        System.out.println(c.getIndex());
-	    }
-	}
 
-	/**
-	 * Connects and invokes the various methods.
-	 * 
-	 * @param info The configuration information.
-	 */
-	LoadMetadataAdvanced(ConfigurationInfo info)
-	{
-		if (info == null) {
-			info = new ConfigurationInfo();
-			info.setHostName(hostName);
-			info.setPassword(password);
-			info.setUserName(userName);
-			info.setImageId(imageId);
-		}
-		
-		LoginCredentials cred = new LoginCredentials();
-        cred.getServer().setHostname(info.getHostName());
-        cred.getServer().setPort(info.getPort());
-        cred.getUser().setUsername(info.getUserName());
-        cred.getUser().setPassword(info.getPassword());
+    /**
+     * Load the image acquisition data.
+     *
+     * @param imageId The image's id.
+     */
+    private void loadAcquisitionData(long imageId)
+            throws Exception
+    {
+        MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
+        ImageAcquisitionData image = mdf.getImageAcquisitionData(ctx, imageId);
+        System.err.println(image.getHumidity());
+    }
 
+    /**
+     * Load the channel data.
+     *
+     * @param imageId The image's id.
+     */
+    private void loadChannelData(long imageId)
+            throws Exception
+    {
+        MetadataFacility mdf = gateway.getFacility(MetadataFacility.class);
+
+        List<ChannelData> data = mdf.getChannelData(ctx, imageId);
+        for(ChannelData c : data) {
+            System.out.println(c.getIndex());
+        }
+    }
+
+    /**
+     * Connects and invokes the various methods.
+     *
+     * @param args The login credentials.
+     * @param imageId The image id.
+     */
+    LoadMetadataAdvanced(String[] args, long imageId)
+    {
+        LoginCredentials cred = new LoginCredentials(args);
         gateway = new Gateway(new SimpleLogger());
-        
-		try {
-		    //First connect.
-		    ExperimenterData user = gateway.connect(cred);
+        try {
+            //First connect.
+            ExperimenterData user = gateway.connect(cred);
             ctx = new SecurityContext(user.getGroupId());
-           
-			loadAcquisitionData(info);
-			loadChannelData(info);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-			    gateway.disconnect(); // Be sure to disconnect
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
+            loadAcquisitionData(imageId);
+            loadChannelData(imageId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                gateway.disconnect(); // Be sure to disconnect
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
-	/**
-	 * Runs the script without configuration options.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-		new LoadMetadataAdvanced(null);
-		System.exit(0);
-	}
+    /**
+     * Runs the script without configuration options.
+     *
+     * @param args The login credentials.
+     */
+    public static void main(String[] args)
+    {
+        if (args == null || args.length == 0)
+            args = new String[] { "--omero.host=" + hostName,
+                "--omero.user=" + userName, "--omero.pass=" + password };
+
+        new LoadMetadataAdvanced(args, imageId);
+        System.exit(0);
+    }
 }

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -83,9 +83,9 @@ public class SearchFacility extends Facility {
      *            search will be the group set in the security context)
      * @return The found objects.
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
+     *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
     public SearchResultCollection search(SecurityContext ctx, SearchParameters context)

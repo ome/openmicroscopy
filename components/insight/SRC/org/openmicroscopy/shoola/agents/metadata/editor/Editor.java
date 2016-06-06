@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -563,5 +563,10 @@ public interface Editor
      * @return See above
      */
     public Collection<FileAnnotationData> getSelectedFileAnnotations();
+
+    /**
+     * Reload the ROI count
+     */
+    public void reloadROICount();
     
 }

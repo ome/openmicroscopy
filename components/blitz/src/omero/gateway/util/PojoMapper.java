@@ -49,6 +49,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Fileset;
+import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
@@ -93,6 +94,7 @@ import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.FilesetData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.GroupData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.LineData;
@@ -164,6 +166,8 @@ public class PojoMapper
             return new ProjectData((Project) object);
         else if (object instanceof Dataset) 
             return new DatasetData((Dataset) object);
+        else if (object instanceof Folder) 
+            return new FolderData((Folder) object);
         else if (object instanceof Image) 
             return new ImageData((Image) object);
         else if (object instanceof TermAnnotation)
@@ -477,13 +481,106 @@ public class PojoMapper
     }
 
     /**
-     * Converts the specified POJO into the corresponding model.
+     * Converts the specified POJO into the corresponding model class
+     *
+     * @param pojoType
+     *            The POJO class (Either the simple or the full
+     *            class name, e. g. omero.gateway.model.DatasetData or
+     *            DatasetData)
+     * @return The corresponding {@link IObject} class.
+     */
+    public static Class<? extends IObject> getModelType(String pojoType) {
+        Class pojoClass;
+        try {
+            
+            // make sure it works with full and simple class names
+            if (FileData.class.getSimpleName().equals(pojoType))
+                pojoType = FileData.class.getName();
+            else if (ProjectData.class.getSimpleName().equals(pojoType))
+                pojoType = ProjectData.class.getName();
+            else if (DatasetData.class.getSimpleName().equals(pojoType))
+                pojoType = DatasetData.class.getName();
+            else if (FolderData.class.getSimpleName().equals(pojoType))
+                pojoType = FolderData.class.getName();
+            else if (ImageData.class.getSimpleName().equals(pojoType))
+                pojoType = ImageData.class.getName();
+            else if (BooleanAnnotationData.class.getSimpleName().equals(
+                    pojoType))
+                pojoType = BooleanAnnotationData.class.getName();
+            else if (RatingAnnotationData.class.getSimpleName()
+                    .equals(pojoType)
+                    || LongAnnotationData.class.getSimpleName()
+                            .equals(pojoType))
+                pojoType = LongAnnotationData.class.getName();
+            else if (TagAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = TagAnnotationData.class.getName();
+            else if (TextualAnnotationData.class.getSimpleName().equals(
+                    pojoType))
+                pojoType = TextualAnnotationData.class.getName();
+            else if (FileAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = FileAnnotationData.class.getName();
+            else if (TermAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = TermAnnotationData.class.getName();
+            else if (ScreenData.class.getSimpleName().equals(pojoType))
+                pojoType = ScreenData.class.getName();
+            else if (PlateData.class.getSimpleName().equals(pojoType))
+                pojoType = PlateData.class.getName();
+            else if (WellData.class.getSimpleName().equals(pojoType))
+                pojoType = WellData.class.getName();
+            else if (WellSampleData.class.getSimpleName().equals(pojoType))
+                pojoType = WellSampleData.class.getName();
+            else if (PlateAcquisitionData.class.getSimpleName()
+                    .equals(pojoType))
+                pojoType = PlateAcquisitionData.class.getName();
+            else if (FileData.class.getSimpleName().equals(pojoType))
+                pojoType = FileData.class.getName();
+            else if (GroupData.class.getSimpleName().equals(pojoType))
+                pojoType = GroupData.class.getName();
+            else if (ExperimenterData.class.getSimpleName().equals(pojoType))
+                pojoType = ExperimenterData.class.getName();
+            else if (DoubleAnnotationData.class.getSimpleName()
+                    .equals(pojoType))
+                pojoType = DoubleAnnotationData.class.getName();
+            else if (XMLAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = XMLAnnotationData.class.getName();
+            else if (FilesetData.class.getSimpleName().equals(pojoType))
+                pojoType = FilesetData.class.getName();
+            else if (MapAnnotationData.class.getSimpleName().equals(pojoType))
+                pojoType = MapAnnotationData.class.getName();
+            else if (ROIData.class.getSimpleName().equals(pojoType))
+                pojoType = ROIData.class.getName();
+            else if (EllipseData.class.getSimpleName().equals(pojoType))
+                pojoType = EllipseData.class.getName();
+            else if (LineData.class.getSimpleName().equals(pojoType))
+                pojoType = LineData.class.getName();
+            else if (MaskData.class.getSimpleName().equals(pojoType))
+                pojoType = MaskData.class.getName();
+            else if (PointData.class.getSimpleName().equals(pojoType))
+                pojoType = PointData.class.getName();
+            else if (PolygonData.class.getSimpleName().equals(pojoType))
+                pojoType = PolygonData.class.getName();
+            else if (PolylineData.class.getSimpleName().equals(pojoType))
+                pojoType = PolylineData.class.getName();
+            else if (RectangleData.class.getSimpleName().equals(pojoType))
+                pojoType = RectangleData.class.getName();
+            else if (TextData.class.getSimpleName().equals(pojoType))
+                pojoType = TextData.class.getName();
+
+            pojoClass = Class.forName(pojoType);
+            return getModelType(pojoClass);
+        } catch (ClassNotFoundException e) {
+            new IllegalArgumentException(pojoType + " not found");
+        }
+        return null;
+    }
+    
+    /**
+     * Converts the specified POJO into the corresponding model class.
      *
      * @param pojoType
      *            The POJO class.
-     * @return The corresponding class.
+     * @return The corresponding {@link IObject} class.
      */
-    @SuppressWarnings("rawtypes")
     public static Class<? extends IObject> getModelType(Class pojoType) {
         if (!DataObject.class.isAssignableFrom(pojoType))
             throw new IllegalArgumentException(pojoType.getSimpleName()+" is not a DataObject");
@@ -494,6 +591,8 @@ public class PojoMapper
             return Project.class;
         else if (DatasetData.class.equals(pojoType))
             return Dataset.class;
+        else if (FolderData.class.equals(pojoType))
+            return Folder.class;
         else if (ImageData.class.equals(pojoType))
             return Image.class;
         else if (BooleanAnnotationData.class.equals(pojoType))
@@ -533,6 +632,8 @@ public class PojoMapper
             return Fileset.class;
         else if (MapAnnotationData.class.equals(pojoType))
             return MapAnnotation.class;
+        else if (ROIData.class.equals(pojoType))
+            return Roi.class;
         else if (EllipseData.class.equals(pojoType))
             return Ellipse.class;
         else if (LineData.class.equals(pojoType))
@@ -575,6 +676,8 @@ public class PojoMapper
             return Plate.class.getSimpleName();
         if (dataType.equals(PlateAcquisitionData.class))
             return PlateAcquisition.class.getSimpleName();
+        if (dataType.equals(FolderData.class))
+            return Folder.class.getSimpleName();
 
         // annotations
         if (dataType.equals(AnnotationData.class))

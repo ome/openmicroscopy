@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,10 +18,12 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package omero.gateway.model;
 
-
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import static omero.rtypes.rstring;
 import omero.RString;
@@ -346,6 +348,14 @@ public class FileAnnotationData extends AnnotationData {
                 format.equals(MS_POWER_POINT_SHOW) ||
                 format.equals(MS_POWER_POINT_X)) {
             return SERVER_MS_POWERPOINT;
+        }
+        try {
+            final String guessedMimeType = Files.probeContentType(attachedFile.toPath());
+            if (guessedMimeType != null) {
+                return guessedMimeType;
+            }
+        } catch (IOException | SecurityException e) {
+            /* can't guess */
         }
         return SERVER_OCTET_STREAM;
     }

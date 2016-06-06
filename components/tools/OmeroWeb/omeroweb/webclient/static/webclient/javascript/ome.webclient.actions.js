@@ -60,13 +60,15 @@ OME.getURLParameter = function(key) {
     return false;
 };
 
-jQuery.fn.hide_if_empty = function() {
-    if ($(this).children().length === 0) {
-        $(this).hide();
-    } else {
-        $(this).show();
-    }
-  return this;
+var linkify = function(input) {
+    var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
+    return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
+};
+OME.linkify_element = function(elements) {
+    elements.each(function() {
+        var $this = $(this);
+        $this.html(linkify($this.html()));
+    });
 };
 
 // called from OME.tree_selection_changed() below
@@ -231,7 +233,7 @@ OME.well_selection_changed = function($selected, well_index, plate_class) {
 
 // handle deleting of Tag, File, Comment
 // on successful delete via AJAX, the parent .domClass is hidden
-OME.removeItem = function(event, domClass, url, parentId, index) {
+OME.removeItem = function(event, domClass, url, parentId) {
     var removeId = $(event.target).attr('id');
     var dType = removeId.split("-")[1]; // E.g. 461-comment
     // /webclient/action/remove/comment/461/?parent=image-257
@@ -245,16 +247,14 @@ OME.removeItem = function(event, domClass, url, parentId, index) {
                 $.ajax({
                     type: "POST",
                     url: url,
-                    data: {'parent':parentId, 'index':index},
+                    data: {'parent':parentId},
                     dataType: 'json',
                     success: function(r){
                         if(eval(r.bad)) {
                             OME.alert_dialog(r.errs);
                         } else {
                             // simply remove the item (parent class div)
-                            //console.log("Success function");
                             $parent.remove();
-                            $annContainer.hide_if_empty();
                         }
                     }
                 });
@@ -283,7 +283,6 @@ OME.deleteItem = function(event, domClass, url) {
                         } else {
                             // simply remove the item (parent class div)
                             $parent.remove();
-                            $annContainer.hide_if_empty();
                             window.parent.OME.refreshActivities();
                         }
                     }
@@ -454,12 +453,12 @@ OME.truncateNames = (function(){
     return truncateNames;
 }());
 
-// Handle deletion of selected objects in jsTree in container_tags.html and containers.html
+// Handle deletion of selected objects in jsTree in containers.html
 OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     var datatree = $.jstree.reference($('#dataTree'));
     var selected = datatree.get_selected(true);
 
-    var del_form = $( "#delete-dialog-form" );
+    var del_form = $("#delete-dialog-form");
     del_form.dialog( "open" )
         .removeData("clicked_button");
     // clear previous stuff from form
@@ -492,8 +491,6 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     }
     var notOwned = false;
     $.each(selected, function(index, node) {
-        // Add the nodes that are to be deleted
-        ajax_data.push(node.type + '=' + node.data.obj.id);
         // What types are being deleted and how many (for pluralization)
         var dtype = node.type;
         if (dtype in dtypes) {
@@ -501,6 +498,8 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
         } else {
             dtypes[dtype] = 1;
         }
+        // Add the nodes that are to be deleted
+        ajax_data.push(dtype.replace('tagset', 'tag') + '=' + node.data.obj.id);
         // If the node type is not 'image' then ask about deleting contents
         if (!askDeleteContents && node.type != 'image') {
             askDeleteContents = true;
@@ -550,6 +549,20 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                 type: "POST",
                 success: function(r){
 
+                    // If we've deleted Tagset, child Tags should appear as orphans in tree
+                    // Before deleting, copy data from each child, to add back below...
+                    var child_tags = [];
+                    if (dtypes["tagset"]) {
+                        selected.forEach(function(node){
+                            node.children.forEach(function(ch) {
+                                ch = datatree.get_node(ch);
+                                // _get_node_data is provided by the omecut_plugin
+                                var d = datatree._get_node_data(ch);
+                                child_tags.push(d);
+                            });
+                        });
+                    }
+
                     datatree.delete_node(selected);
 
                     // Update the central panel with new selection
@@ -558,11 +571,30 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
                     if (firstParent.type !== "plate") {
                         datatree.select_node(firstParent);
                     }
-                    $.each(disabledNodes, function(index, node) {
-                        //TODO Make use of server calculated update like chgrp?
-                        updateParentRemoveNode(datatree, node, firstParent);
-                        removeDuplicateNodes(datatree, node);
-                    });
+
+                    // Here we try to handle children of the deleted object.
+                    // In case we deleted a "tagset", child tags should be kept as orphans under experimenter
+                    // (unless they are found under other tag sets).
+                    // For other objects we remove any duplicates of the object
+                    // (E.g if "dataset" is deleted and appears in tree multiple times)
+                    // In both cases we can only work with loaded data - Don't know if 'tag' or 'dataset'
+                    // is under unloaded 'tagset' or 'project'.
+                    // Would need to get this info from server as we do with 'Cut'
+                    if (dtypes["tagset"]) {
+                        // Re-create child tags under experimenter parent
+                        child_tags.forEach(function(d){
+                            var nodeId = d.type + '-' + d.data.obj.id;
+                            if (!datatree.locate_node(nodeId, firstParent)) {
+                                datatree.create_node(firstParent, d);
+                            }
+                        });
+                    } else {
+                        // Remove duplicates of the deleted object
+                        $.each(disabledNodes, function(index, node) {
+                            updateParentRemoveNode(datatree, node, firstParent);
+                            removeDuplicateNodes(datatree, node);
+                        });
+                    }
 
                     // Update the central panel in case delete has removed an icon
                     $.each(selected, function(index, node) {
@@ -591,7 +623,8 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
     // Check if delete will attempt to partially delete a Fileset.
     var $deleteYesBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(1)'),
         $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
-    $.get(filesetCheckUrl + OME.get_tree_selection(), function(html){
+    $.get(filesetCheckUrl + "?" + OME.get_tree_selection(), function(html){
+        html = $.trim(html);
         if($('div.split_fileset', html).length > 0) {
             var $del_form_content = del_form.children().hide();
             del_form.append(html);
@@ -606,6 +639,21 @@ OME.handleDelete = function(deleteUrl, filesetCheckUrl, userId) {
             });
         }
     });
+};
+
+// Format a date like "2015-06-15 12:08:01"
+OME.formatDate = function formatDate(date) {
+    function padZero(number) {
+        var n = "" + number;
+        if (n.length < 2) {
+            n = "0" + n;
+        }
+        return n;
+    }
+    var d = new Date(date),
+        dt = [d.getFullYear(), padZero(d.getMonth()+1), (d.getDate())].join("-"),
+        tm = [padZero(d.getHours()), padZero(d.getMinutes()), padZero(d.getSeconds())].join(":");
+    return dt + " " + tm;
 };
 
 OME.nodeHasPermission = function(node, permission) {
@@ -911,6 +959,94 @@ OME.fileAnnotationCheckboxDynamicallyAdded = function() {
     if (checkboxesAreVisible) {
         $("#fileanns_container input[type=checkbox]:not(:visible)").toggle();
     }
+};
+
+// Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
+OME.copyRenderingSettings = function(rdef_url, selected) {
+    if (selected.length == 1) {
+        var imageId = selected[0].data.obj.id;
+        $.getJSON(rdef_url + "?fromid=" + imageId);
+    }
+};
+
+OME.applyOwnerRenderingSettings = function(rdef_url, selected) {
+    OME.pasteRenderingSettings(rdef_url, selected);
+};
+
+OME.resetRenderingSettings = function(rdef_url, selected) {
+    OME.applyRenderingSettings(rdef_url, selected);
+};
+
+// Paste settings from 'session' to selected Objects
+OME.pasteRenderingSettings = function(rdef_url, selected) {
+    OME.applyRenderingSettings(rdef_url, selected);
+};
+
+OME.applyRenderingSettings = function(rdef_url, selected) {
+
+    var ids = [];
+
+    // Get the type of object having rendering settings applied
+    var type = selected[0].type;
+
+    // Get list of ids to be updated
+    $.each(selected, function(index, node) {
+         ids.push(node.data.obj.id);
+    });
+
+    var data = {'toids': ids};
+    if (type === 'dataset' || type === 'plate' || type === 'acquisition') {
+        data.to_type = type;
+    }
+
+    var confirmMsg = "This will save new rendering settings to " +
+        selected.length + " " + type +
+        (selected.length > 1 ? "s" : "") + ".<br> This cannot be undone.";
+
+    var rdef_confirm_dialog = OME.confirm_dialog(
+        confirmMsg,
+        function() {
+            var clicked_button_text = rdef_confirm_dialog.data("clicked_button");
+            if (clicked_button_text === "OK") {
+                $.ajax({
+                    type: "POST",
+                    dataType: 'text',
+                    traditional: true,
+                    url: rdef_url,
+                    data: data,
+                    success: function(data){
+                        // update thumbnails
+                        OME.refreshThumbnails();
+                    }
+                });
+            }
+        },
+        "Change Rendering Settings?",
+        ["OK", "Cancel"],
+        350,
+        175
+    );
+};
+
+// pair of methods used by right panel tab panes
+// to store expanded state between right-panel reloads
+OME.setPaneExpanded = function setPaneExpanded(name, expanded) {
+    var open_panes = $("#metadata_general").data('open_panes') || [];
+    if (expanded && open_panes.indexOf(name) === -1) {
+        open_panes.push(name);
+    }
+    if (!expanded && open_panes.indexOf(name) > -1) {
+        open_panes = open_panes.reduce(function(l, item){
+            if (item !== name) l.push(item);
+            return l;
+        }, []);
+    }
+    $("#metadata_general").data('open_panes', open_panes);
+};
+
+OME.getPaneExpanded = function getPaneExpanded(name) {
+    var open_panes = $("#metadata_general").data('open_panes') || ["details"];
+    return open_panes.indexOf(name) > -1;
 };
 
 jQuery.fn.tooltip_init = function() {

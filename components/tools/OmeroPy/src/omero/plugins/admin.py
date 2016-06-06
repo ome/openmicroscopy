@@ -8,7 +8,7 @@
  This is a python wrapper around icegridregistry/icegridnode for master
  and various other tools needed for administration.
 
- Copyright 2008-14 Glencoe Software, Inc.  All Rights Reserved.
+ Copyright 2008-2016 Glencoe Software, Inc.  All Rights Reserved.
  Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -19,6 +19,7 @@ import sys
 import stat
 import platform
 import datetime
+import Ice
 
 from glob import glob
 from path import path
@@ -26,6 +27,7 @@ from path import path
 import omero
 import omero.config
 
+from omero.cli import admin_only
 from omero.cli import CLI
 from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
@@ -34,8 +36,7 @@ from omero.cli import UserGroupControl
 
 from omero.plugins.prefs import \
     WriteableConfigControl, with_config, with_rw_config
-
-from omero.util.upgrade_check import UpgradeCheck
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
@@ -70,6 +71,10 @@ Configuration properties:
  omero.web.server_list
 
 """ + "\n" + "="*50 + "\n"
+
+
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
 
 
 class AdminControl(WriteableConfigControl, UserGroupControl):
@@ -155,7 +160,8 @@ already be running. This may automatically restart some server components.""")
             "ice", "Drop user into icegridadmin console or execute arguments")
 
         fixpyramids = Action(
-            "fixpyramids", "Remove empty pyramid pixels files").parser
+            "fixpyramids",
+            "Remove empty pyramid pixels files (admins only)").parser
         # See cleanse options below
 
         diagnostics = Action(
@@ -357,7 +363,7 @@ dt_socket,address=8787,suspend=y" \\
             "sessionlist", "List currently running sessions").parser
         sessionlist.add_login_arguments()
 
-        cleanse = Action("cleanse", """Remove binary data files from OMERO
+        cleanse = Action("cleanse", """Remove binary data files from OMERO  (admins only)
 
 Deleting an object from OMERO currently may not remove all the binary data.
 Use this command either manually or in a cron job periodically to remove
@@ -710,10 +716,10 @@ present, the user will enter a console""")
         self.checkice()
         self.check_node(args)
 
-        if args.force_rewrite:
+        if not self.check_internal_cfg() or args.force_rewrite:
             self.rewrite(args, config, force=True)
 
-        if 0 == self.status(args, node_only=True):
+        if 0 == self.status(args, node_only=True, can_force_rewrite=True):
             self.ctx.die(876, "Server already running")
 
         if not args.force_rewrite:
@@ -782,8 +788,20 @@ present, the user will enter a console""")
                             args.targets)]
         self.ctx.call(command)
 
-    def status(self, args, node_only=False):
+    def check_internal_cfg(self):
+        internal_cfg = self._cfglist()[0]
+        return os.path.exists(internal_cfg)
+
+    @windows_warning
+    def status(self, args, node_only=False, can_force_rewrite=False):
         self.check_node(args)
+        if not self.check_internal_cfg():
+            error_msg = 'Missing internal configuration.'
+            if can_force_rewrite:
+                error_msg += ' Pass --force-rewrite to the command.'
+            else:
+                error_msg += ' Run bin/omero admin rewrite.'
+            self.ctx.die(574, error_msg)
         command = self._cmd("-e", "node ping %s" % self._node())
         self.ctx.rv = self.ctx.popen(command).wait()  # popen
 
@@ -902,7 +920,7 @@ present, the user will enter a console""")
         self.check_node(args)
         if args.force_rewrite:
             self.rewrite(args, config, force=True)
-        if 0 != self.status(args, node_only=True):
+        if 0 != self.status(args, node_only=True, can_force_rewrite=True):
             self.ctx.err("Server not running")
             return True
         elif self._isWindows():
@@ -939,6 +957,7 @@ present, the user will enter a console""")
         else:
             self.ctx.call(command)
 
+    @admin_only
     @with_config
     def fixpyramids(self, args, config):
         self.check_access()
@@ -946,6 +965,7 @@ present, the user will enter a console""")
         client = self.ctx.conn(args)
         client.getSessionId()
         fixpyramids(data_dir=args.data_dir, dry_run=args.dry_run,
+                    admin_service=client.sf.getAdminService(),
                     query_service=client.sf.getQueryService(),
                     config_service=client.sf.getConfigService())
 
@@ -983,7 +1003,7 @@ present, the user will enter a console""")
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
 
-        if not force:
+        if self.check_internal_cfg() and not force:
             if 0 == self.status(args, node_only=True):
                 self.ctx.die(
                     100, "Can't regenerate templates the server is running!")
@@ -991,7 +1011,14 @@ present, the user will enter a console""")
             self.ctx.rv = 0
 
         # JVM configuration regeneration
-        templates = self._get_templates_dir() / "grid" / "templates.xml"
+        # Check ice version
+        if Ice.intVersion() >= 30600:
+            if sys.platform == "darwin":
+                templates = self._get_templates_dir()/"grid"/"osxtemplates.xml"
+            else:
+                templates = self._get_templates_dir()/"grid"/"templates.xml"
+        else:
+            templates = self._get_templates_dir()/"grid"/"templates.xml"
         generated = self._get_grid_dir() / "templates.xml"
         if generated.exists():
             generated.remove()
@@ -1024,7 +1051,8 @@ present, the user will enter a console""")
             '@omero.ports.tcp@': config.get('omero.ports.tcp', '4063'),
             '@omero.ports.registry@': config.get(
                 'omero.ports.registry', '4061'),
-            '@Ice.Default.Host@': config.get('Ice.Default.Host', '127.0.0.1')
+            '@omero.master.host@': config.get('omero.master.host', config.get(
+                'Ice.Default.Host', '127.0.0.1'))
             }
 
         def copy_template(input_file, output_dir):
@@ -1047,12 +1075,13 @@ present, the user will enter a console""")
                 self._get_templates_dir() / "grid" / "*default.xml"):
             copy_template(xml_file, self._get_etc_dir() / "grid")
         ice_config = self._get_templates_dir() / "ice.config"
-        substitutions['@Ice.Default.Host@'] = config.get(
-            'Ice.Default.Host', 'localhost')
+        substitutions['@omero.master.host@'] = config.get(
+            'omero.master.host', config.get('Ice.Default.Host', 'localhost'))
         copy_template(ice_config, self._get_etc_dir())
 
         return rv
 
+    @windows_warning
     @with_config
     def diagnostics(self, args, config):
 
@@ -1169,9 +1198,7 @@ OMERO Diagnostics %s
 
         import logging
         logging.basicConfig()
-        from omero.util.upgrade_check import UpgradeCheck
-        check = UpgradeCheck("diagnostics")
-        check.run()
+        check = self.run_upgrade_check(config, "diagnostics")
         if check.isUpgradeNeeded():
             self.ctx.out("")
 
@@ -1566,7 +1593,7 @@ OMERO Diagnostics %s
 
     def checkice(self, args=None):
         """
-        Checks for Ice version 3.4
+        Checks for Ice version compatibility.
 
         See ticket:2514, ticket:1260
         """
@@ -1761,6 +1788,7 @@ OMERO Diagnostics %s
             " regenerated. Use the omero.ports.xxx configuration properties"
             " instead.")
 
+    @admin_only
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse
@@ -1845,13 +1873,7 @@ OMERO Diagnostics %s
         2: an error occurred whilst checking
         """
 
-        config = config.as_map()
-        upgrade_url = config.get("omero.upgrades.url", None)
-        if upgrade_url:
-            uc = UpgradeCheck(CHECKUPGRADE_USERAGENT, url=upgrade_url)
-        else:
-            uc = UpgradeCheck(CHECKUPGRADE_USERAGENT)
-        uc.run()
+        uc = self.run_upgrade_check(config, CHECKUPGRADE_USERAGENT)
         if uc.isUpgradeNeeded():
             self.ctx.die(1, uc.getUpgradeUrl())
         if uc.isExceptionThrown():

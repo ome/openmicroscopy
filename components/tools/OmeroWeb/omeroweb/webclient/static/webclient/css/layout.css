@@ -430,7 +430,7 @@
     }
     
     /* Rating */
-    #rating_annotations {
+    #rating_annotations ul {
         border-color: transparent;
     }
     .rating {
@@ -442,7 +442,7 @@
         border-bottom: solid 1px hsl(210,20%,85%) !important;
     }
     .lnfiles:empty {
-        display: none;
+        opacity: 0.1;
     }
     .myRating img, .addRating img{
         cursor: pointer;
@@ -485,7 +485,7 @@
             white-space: nowrap;
         }
     
-        #right_panel th{
+        #right_panel th, #right_panel td.title{
             color:hsl(210,10%,30%);
             vertical-align:top;
             text-align:left;
@@ -980,7 +980,10 @@
 	
 	
 	
-		
+	/* Bulk Annotations */
+	.bulk_annotations_table td {
+		white-space: normal !important;
+	}
 	
 
 	
@@ -2170,7 +2173,16 @@ div.paging input.button_pagination {
 #spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 #spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 
-
+#spw .well .wellLabel {
+    display: none;
+    position: absolute;
+    background: #eee;
+    padding: 2px;
+    color: black;
+}
+#spw .well:hover .wellLabel {
+    display: block;
+}
 
 
 /** Annotation Styles **/

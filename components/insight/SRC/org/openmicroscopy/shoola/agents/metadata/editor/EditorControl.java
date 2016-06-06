@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -58,9 +58,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.util.ui.DowngradeChooser;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
-import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -538,11 +536,7 @@ class EditorControl
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (SAVE_PROPERTY.equals(name) || 
-				DataComponent.DATA_MODIFIED_PROPERTY.equals(name) ||
-				PreviewPanel.PREVIEW_EDITED_PROPERTY.equals(name)) {
-			view.setDataToSave(view.hasDataToSave());
-		} else if (MetadataViewer.SAVE_DATA_PROPERTY.equals(name)) {
+		if (MetadataViewer.SAVE_DATA_PROPERTY.equals(name)) {
 			Boolean b = (Boolean) evt.getNewValue();
 			view.saveData(b.booleanValue());
 		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name) ||
@@ -875,4 +869,10 @@ class EditorControl
 	 */
 	public void mousePressed(MouseEvent e) {}
 
+	/**
+	 * Reload the ROI count
+	 */
+	public void reloadROICount() {
+	    
+	}
 }

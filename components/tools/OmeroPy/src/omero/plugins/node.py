@@ -7,7 +7,7 @@
 
  This is a python wrapper around icegridnode.
 
- Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
+ Copyright 2008, 2016 Glencoe Software, Inc.  All Rights Reserved.
  Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -17,7 +17,10 @@ from omero.util import tail_lines
 import os
 import sys
 import signal
+import platform
 from path import path
+
+from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
 
 HELP = """Control icegridnode.
 
@@ -33,6 +36,9 @@ return until stopped.
         node-name cannot be "start", "stop", "restart", "status", or "sync".
 """
 
+if platform.system() == 'Windows':
+    HELP += ("\n\n%s" % WINDOWS_WARNING)
+
 
 class NodeControl(BaseControl):
 
@@ -46,6 +52,9 @@ class NodeControl(BaseControl):
         parser.add_argument(
             "command", nargs="+",
             choices=("start", "stop", "status", "restart"))
+        parser.add_argument(
+            "--foreground", action="store_true",
+            help="Start in foreground mode (no daemon/service)")
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
@@ -68,19 +77,27 @@ class NodeControl(BaseControl):
             print "from %s:" % str(myoutput)
             print tail_lines(str(myoutput), 2)
 
+    @windows_warning
     def start(self, args):
 
+        self.ctx.invoke(["admin", "rewrite"])
         self._initDir()
 
         try:
             command = ["icegridnode", self._icecfg()]
             if self._isWindows():
+                self.ctx.die(128, "Not implemented")
+                # The following code clearly hasn't been tested.
+                # TODO: Fix this or remove it completely
                 command = command + ["--install", "OMERO."+args.node]
                 self.ctx.call(command)
                 self.ctx.call(["icegridnode", "--start", "OMERO."+args.node])
             else:
-                command = command + ["--daemon", "--pidfile",
-                                     str(self._pid()), "--nochdir"]
+                if args.foreground:
+                    command = command + ["--nochdir"]
+                else:
+                    command = command + ["--daemon", "--pidfile",
+                                         str(self._pid()), "--nochdir"]
                 self.ctx.call(command)
         except OSError, o:
                 msg = """%s\nPossibly an error finding "icegridnode". Try \
@@ -92,6 +109,7 @@ class NodeControl(BaseControl):
     def status(self, args):
         self.ctx.invoke(["admin", "status", args.name])
 
+    @windows_warning
     def stop(self, args):
         if self._isWindows():
             try:
@@ -108,6 +126,7 @@ class NodeControl(BaseControl):
                 # shutdown %s" % args.name]
                 # self.ctx.call(command)
 
+    @windows_warning
     def kill(self, args):
         pid = open(self._pid(), "r").readline()
         os.kill(int(pid), signal.SIGKILL)

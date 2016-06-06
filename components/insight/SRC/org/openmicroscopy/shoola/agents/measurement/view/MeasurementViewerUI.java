@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -34,14 +33,11 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -56,24 +52,25 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-
+import omero.gateway.model.FolderData;
+import omero.gateway.model.ROIData;
 import omero.gateway.model.ROIResult;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
 import omero.gateway.model.ChannelData;
 
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -129,7 +126,7 @@ class MeasurementViewerUI
 	static final String DEFAULT_MSG = "";
 	
 	/** The default size of the window. */
-	private static final Dimension DEFAULT_SIZE = new Dimension(400, 300);
+	private static final Dimension DEFAULT_SIZE = new Dimension(500, 300);
 
 	/** The title for the measurement tool main window. */
 	private static final String WINDOW_TITLE = "";
@@ -253,6 +250,7 @@ class MeasurementViewerUI
         		controller.getAction(MeasurementViewerControl.LOAD);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getName());
+        item.setVisible(false);
         menu.add(item);
         a = controller.getAction(MeasurementViewerControl.SAVE);
         item = new JMenuItem(a);
@@ -625,13 +623,21 @@ class MeasurementViewerUI
 		{
 			ROIFigure roi;
 			ROI r;
-			boolean b = false;
+			List<DeletableObject> deobs = new ArrayList<DeletableObject>();
 			for (ROIShape shape : shapeList)
 			{
 				roi = shape.getFigure();
+				
 				if (roi.canDelete()) {
 					r = roi.getROI();
-					if (!r.isClientSide()) b = true;
+                    if (r.getID() >= 0 && !r.isClientSide()) {
+                        ROIData rd = new ROIData();
+                        rd.setId(r.getID());
+                        rd.setImage(model.getImage().asImage());
+                        DeletableObject d = new DeletableObject(rd);
+                        d.setSecurityContext(model.getSecurityContext());
+                        deobs.add(d);
+                    }
 					if (getDrawing().contains(roi)) {
 						shape.getFigure().removeFigureListener(controller);
 						getDrawing().removeDrawingListener(controller);
@@ -639,10 +645,21 @@ class MeasurementViewerUI
 						getDrawing().addDrawingListener(controller);
 					}
 					model.deleteShape(shape.getID(), shape.getCoord3D());
-					model.markROIForDelete(shape.getID(), r, false);
 				}
 			}
-			model.notifyDataChanged(b);
+			model.deleteAllROIs(deobs);
+			
+            TreeMap<Long, ROI> rois = model.getROIComponent().getROIMap();
+            boolean allsaved = true;
+            for (ROI tmp : rois.values()) {
+                if (tmp.isClientSide()) {
+                    allsaved = false;
+                    break;
+                }
+            }
+            if (allsaved) {
+                model.notifyDataChanged(false);
+            }
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}
@@ -825,6 +842,7 @@ class MeasurementViewerUI
     void selectFigure(ROIFigure figure)
     {
     	if (figure == null) {
+    	    model.getDrawingView().clearSelection();
     		model.getDrawingView().setToolTipText("");
     		return;
     	}
@@ -849,7 +867,6 @@ class MeasurementViewerUI
     	dv.addToSelection(figure);
 		List<ROIShape> roiShapeList = new ArrayList<ROIShape>();
 		roiShapeList.add(figure.getROIShape());
-		dv.grabFocus();
 		if (model.isHCSData()) {
 			List<Long> ids = new ArrayList<Long>();
 			Iterator<ROIShape> j = roiShapeList.iterator();
@@ -882,7 +899,7 @@ class MeasurementViewerUI
     void setSelectedFigures(Collection figures)
     {
     	if (model.getState() != MeasurementViewer.READY) return;
-		if (figures == null) return;
+		if (figures == null || figures.isEmpty()) return;
 		Iterator i = figures.iterator();
 		ROIFigure figure;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -1050,6 +1067,12 @@ class MeasurementViewerUI
     void rebuildManagerTable()
     { 
     	if (!model.isHCSData()) roiManager.rebuildTable();
+    }
+    
+    /** Rebuilds the ROI table. */
+    void rebuildManagerTable(Map<FolderData, Collection<ROIData>> result, ROIFolderAction action)
+    { 
+        if (!model.isHCSData()) roiManager.rebuildTable(result, action);
     }
     
     /** Sets the value in the tool bar.*/
@@ -1400,7 +1423,8 @@ class MeasurementViewerUI
 			Figure f;
 			while (i.hasNext()) {
 				f = i.next();
-				MeasurementAttributes.SHOWMEASUREMENT.set(f, show);
+                if (MeasurementAttributes.SHOWMEASUREMENT.get(f) != show)
+                    MeasurementAttributes.SHOWMEASUREMENT.set(f, show);
 			}
 		}
 		

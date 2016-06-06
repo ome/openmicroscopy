@@ -90,17 +90,14 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
         iAdmin.getEventContext(); // Refresh
 
-        disconnect();
         loginUser(ctx);
         //login is as root
         if (moveMemberRole == AbstractServerTest.ADMIN) {
             logRootIntoGroup(ctx);
         }
 
-        //move the image(s)
-        long id = img.getId().getValue();
         // Move the image
-        final Chgrp2 mv = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 mv = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, mv);
 
         //Check if the settings have been deleted.
@@ -108,15 +105,14 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         settings = svc.retrieveAllRndSettings(pixelsID, -1);
         assertEquals(settings.size(), 0);
 
-        disconnect();
         // Log in to other group
         if (moveMemberRole == AbstractServerTest.ADMIN) {
             loginUser(ctx); //require if log as root.
-            disconnect();
         }
         loginUser(g);
 
         //Check that image has been moved.
+        long id = img.getId().getValue();
         assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
 
         //Load the settings.

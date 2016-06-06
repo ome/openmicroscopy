@@ -694,7 +694,7 @@ def marshal_images(conn, dataset_id=None, orphaned=False, share_id=None,
 
     # Load thumbnails separately
     # We want version of most recent thumbnail (max thumbId) owned by user
-    if thumb_version:
+    if thumb_version and len(images) > 0:
         userId = conn.getUserId()
         iids = [i['id'] for i in images]
         params = omero.sys.ParametersI()
@@ -1300,10 +1300,7 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     qs = conn.getQueryService()
 
-    common_clause = '''
-                    join obj.annotationLinks alink
-                    where alink.child.id=:tid
-                    '''
+    common_clause = ""
     if experimenter_id is not None and experimenter_id != -1:
         params.addId(experimenter_id)
         common_clause += '''
@@ -1318,37 +1315,53 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
 
     # Projects
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               (select count(id) from ProjectDatasetLink pdl
-                where pdl.parent = obj.id),
-               lower(obj.name)
-        from Project obj
+        select distinct new map(obj.id as id,
+            obj.name as name,
+            lower(obj.name) as lowername,
+            obj.details.owner.id as ownerId,
+            obj as project_details_permissions,
+            (select count(id) from ProjectDatasetLink dil
+                where dil.parent=obj.id) as childCount)
+            from Project obj
+            join obj.annotationLinks alink
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
     projects = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["project_details_permissions"],
+             e[0]["childCount"]]
         projects.append(_marshal_project(conn, e[0:5]))
     tagged['projects'] = projects
 
     # Datasets
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               (select count(id) from DatasetImageLink dil
-                 where dil.parent=obj.id),
-               lower(obj.name)
-        from Dataset obj
+        select distinct new map(obj.id as id,
+            obj.name as name,
+            lower(obj.name) as lowername,
+            obj.details.owner.id as ownerId,
+            obj as dataset_details_permissions,
+            (select count(id) from DatasetImageLink dil
+                where dil.parent=obj.id) as childCount)
+            from Dataset obj
+            join obj.annotationLinks alink
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
     datasets = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["dataset_details_permissions"],
+             e[0]["childCount"]]
         datasets.append(_marshal_dataset(conn, e[0:5]))
     tagged['datasets'] = datasets
 
@@ -1358,91 +1371,124 @@ def marshal_tagged(conn, tag_id, group_id=-1, experimenter_id=-1, page=1,
     if load_pixels:
         extraValues = """
              ,
-             pix.sizeX,
-             pix.sizeY,
-             pix.sizeZ
+             pix.sizeX as sizeX,
+             pix.sizeY as sizeY,
+             pix.sizeZ as sizeZ
              """
         extraObjs = " left outer join obj.pixels pix"
     if date:
         extraValues += """,
-            obj.details.creationEvent.time,
-            obj.acquisitionDate
+            obj.details.creationEvent.time as date,
+            obj.acquisitionDate as acqDate
             """
-    q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               obj.fileset.id,
-               lower(obj.name)%s
-        from Image obj %s
+
+    q = """
+        select distinct new map(obj.id as id,
+               obj.name as name,
+               lower(obj.name) as lowername,
+               obj.details.owner.id as ownerId,
+               obj as image_details_permissions,
+               obj.fileset.id as filesetId %s)
+            from Image obj %s
+            join obj.annotationLinks alink
+            where alink.child.id=:tid
         %s
-        ''' % (extraValues, extraObjs, common_clause)
+        """ % (extraValues, extraObjs, common_clause)
 
     images = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        row = [e[0]["id"],
+               e[0]["name"],
+               e[0]["ownerId"],
+               e[0]["image_details_permissions"],
+               e[0]["filesetId"]]
         kwargs = {}
-        nextVal = 6
         if load_pixels:
-            kwargs['row_pixels'] = (e[6], e[7], e[8])
-            nextVal = 9
+            d = [e[0]["sizeX"], e[0]["sizeY"], e[0]["sizeZ"]]
+            kwargs['row_pixels'] = d
         if date:
-            kwargs['date'] = e[nextVal]
-            kwargs['acqDate'] = e[nextVal + 1]
-        images.append(_marshal_image(conn, e[0:5], **kwargs))
+            kwargs['acqDate'] = e[0]['acqDate']
+            kwargs['date'] = e[0]['date']
+        images.append(_marshal_image(conn, row, **kwargs))
     tagged['images'] = images
 
     # Screens
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               (select count(spl.id) from ScreenPlateLink spl
-                where spl.parent=obj.id),
-               lower(obj.name)
-        from Screen obj
+        select distinct new map(obj.id as id,
+            obj.name as name,
+            lower(obj.name) as lowername,
+            obj.details.owner.id as ownerId,
+            obj as screen_details_permissions,
+            (select count(id) from ScreenPlateLink spl
+                where spl.parent=obj.id) as childCount)
+            from Screen obj
+            join obj.annotationLinks alink
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
     screens = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["screen_details_permissions"],
+             e[0]["childCount"]]
         screens.append(_marshal_screen(conn, e[0:5]))
     tagged['screens'] = screens
 
     # Plate
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               (select count(pa.id) from PlateAcquisition pa
-                where pa.plate.id=obj.id),
-               lower(obj.name)
-        from Plate obj
+        select distinct new map(obj.id as id,
+            obj.name as name,
+            lower(obj.name) as lowername,
+            obj.details.owner.id as ownerId,
+            obj as plate_details_permissions,
+            (select count(id) from PlateAcquisition pa
+                where pa.plate.id=obj.id) as childCount)
+            from Plate obj
+            join obj.annotationLinks alink
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
     plates = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["plate_details_permissions"],
+             e[0]["childCount"]]
         plates.append(_marshal_plate(conn, e[0:5]))
     tagged['plates'] = plates
 
     # Plate Acquisitions
     q = '''
-        select distinct obj.id,
-               obj.name,
-               obj.details.owner.id,
-               obj.details.permissions,
-               obj.startTime,
-               obj.endTime,
-               lower(obj.name)
+        select distinct new map(obj.id as id,
+            obj.name as name,
+            lower(obj.name) as lowername,
+            obj.details.owner.id as ownerId,
+            obj as plateacquisition_details_permissions,
+            obj.startTime as startTime,
+            obj.endTime as endTime)
         from PlateAcquisition obj
+            join obj.annotationLinks alink
+            where alink.child.id=:tid
         %s
         ''' % common_clause
 
     plate_acquisitions = []
     for e in qs.projection(q, params, service_opts):
+        e = unwrap(e)
+        e = [e[0]["id"],
+             e[0]["name"],
+             e[0]["ownerId"],
+             e[0]["plateacquisition_details_permissions"],
+             e[0]["startTime"],
+             e[0]["endTime"]]
         plate_acquisitions.append(_marshal_plate_acquisition(conn, e[0:6]))
     tagged['acquisitions'] = plate_acquisitions
 
@@ -1605,3 +1651,155 @@ def marshal_discussions(conn, member_id=-1, owner_id=-1,
     for e in qs.projection(q, params, service_opts):
         discussions.append(_marshal_discussion(conn, e[0:4]))
     return discussions
+
+
+def _marshal_annotation(conn, annotation, link=None):
+    ''' Given an OMERO annotation, marshals it into a dictionary.
+        @param conn OMERO gateway.
+        @type conn L{omero.gateway.BlitzGateway}
+        @param row The Dataset row to marshal
+        @type row L{list}
+    '''
+    ann = {}
+    ownerId = annotation.details.owner.id.val
+    ann['id'] = annotation.id.val
+    ann['ns'] = unwrap(annotation.ns)
+    ann['owner'] = {'id': ownerId}
+    creation = annotation.details.creationEvent._time
+    ann['date'] = _marshal_date(unwrap(creation))
+    perms = annotation.details.permissions
+    ann['permissions'] = {'canDelete': perms.canDelete(),
+                          'canAnnotate': perms.canAnnotate(),
+                          'canLink': perms.canLink(),
+                          'canEdit': perms.canEdit()}
+
+    if link is not None:
+        ann['link'] = {}
+        ann['link']['id'] = link.id.val
+        ann['link']['owner'] = {'id': link.details.owner.id.val}
+        # Parent (Acquisition has no Name)
+        ann['link']['parent'] = {'id': link.parent.id.val,
+                                 'name': unwrap(link.parent.name),
+                                 'class': link.parent.__class__.__name__}
+        linkCreation = link.details.creationEvent._time
+        ann['link']['date'] = _marshal_date(unwrap(linkCreation))
+        p = link.details.permissions
+        ann['link']['permissions'] = {'canDelete': p.canDelete(),
+                                      'canAnnotate': p.canAnnotate(),
+                                      'canLink': p.canLink(),
+                                      'canEdit': p.canEdit()}
+
+    annClass = annotation.__class__.__name__
+    ann['class'] = annClass
+    if annClass == 'MapAnnotationI':
+        kvs = [[kv.name, kv.value] for kv in annotation.getMapValue()]
+        ann['values'] = kvs
+    elif annClass == 'FileAnnotationI' and annotation.file:
+        ann['file'] = {}
+        ann['file']['id'] = annotation.file.id.val
+        ann['file']['name'] = unwrap(annotation.file.name)
+        ann['file']['size'] = unwrap(annotation.file.size)
+        ann['file']['path'] = unwrap(annotation.file.path)
+        ann['permissions']['canDownload'] = not perms.isRestricted(
+            omero.constants.permissions.BINARYACCESS)
+
+    else:
+        for a in ['timeValue', 'termValue', 'longValue',
+                  'doubleValue', 'boolValue', 'textValue']:
+            if hasattr(annotation, a):
+                ann[a] = unwrap(getattr(annotation, a))
+    return ann
+
+
+def init_params(group_id, page, limit):
+    params = omero.sys.ParametersI()
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+    return params
+
+
+def _marshal_exp_obj(experimenter):
+    exp = {}
+    exp['id'] = experimenter.id.val
+    exp['omeName'] = experimenter.omeName.val
+    exp['firstName'] = unwrap(experimenter.firstName)
+    exp['lastName'] = unwrap(experimenter.lastName)
+    return exp
+
+
+def marshal_annotations(conn, project_ids=None, dataset_ids=None,
+                        image_ids=None, screen_ids=None, plate_ids=None,
+                        run_ids=None, ann_type=None,
+                        group_id=-1, page=1, limit=settings.PAGE):
+
+    annotations = []
+    qs = conn.getQueryService()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context
+    if group_id is None:
+        group_id = -1
+    service_opts.setOmeroGroup(group_id)
+
+    where_clause = ['pa.id in (:ids)']
+    # if experimenter_id is not None and experimenter_id != -1:
+    #     params.addId('eid', rlong(experimenter_id))
+    #     where_clause.append('dataset.details.owner.id = :eid')
+    if ann_type == 'tag':
+        where_clause.append('ch.class=TagAnnotation')
+    elif ann_type == 'file':
+        where_clause.append('ch.class=FileAnnotation')
+    elif ann_type == 'comment':
+        where_clause.append('ch.class=CommentAnnotation')
+    elif ann_type == 'rating':
+        where_clause.append('ch.class=LongAnnotation')
+        where_clause.append("ch.ns='openmicroscopy.org/omero/insight/rating'")
+    elif ann_type == 'map':
+        where_clause.append('ch.class=MapAnnotation')
+    elif ann_type == 'custom':
+        where_clause.append('ch.class!=MapAnnotation')
+        where_clause.append('ch.class!=TagAnnotation')
+        where_clause.append('ch.class!=FileAnnotation')
+        where_clause.append('ch.class!=CommentAnnotation')
+        where_clause.append("""(ch.ns=null or
+            ch.ns!='openmicroscopy.org/omero/insight/rating')""")
+
+    dtypes = ["Project", "Dataset", "Image",
+              "Screen", "Plate", "PlateAcquisition"]
+    obj_ids = [project_ids, dataset_ids, image_ids,
+               screen_ids, plate_ids, run_ids]
+
+    experimenters = {}
+
+    for dtype, ids in zip(dtypes, obj_ids):
+        if ids is None or len(ids) == 0:
+            continue
+        params = init_params(group_id, page, limit)
+        params.addIds(ids)
+        q = """
+            select oal from %sAnnotationLink as oal
+            join fetch oal.details.creationEvent
+            join fetch oal.details.owner
+            left outer join fetch oal.child as ch
+            left outer join fetch oal.parent as pa
+            join fetch ch.details.creationEvent
+            join fetch ch.details.owner
+            left outer join fetch ch.file as file
+            where %s
+            """ % (dtype, ' and '.join(where_clause))
+
+        for link in qs.findAllByQuery(q, params, service_opts):
+            ann = link.child
+            d = _marshal_annotation(conn, ann, link)
+            annotations.append(d)
+            exp = _marshal_exp_obj(link.details.owner)
+            experimenters[exp['id']] = exp
+            exp = _marshal_exp_obj(ann.details.owner)
+            experimenters[exp['id']] = exp
+
+    experimenters = experimenters.values()
+    # sort by id mostly for testing
+    experimenters.sort(key=lambda x: x['id'])
+
+    return annotations, experimenters

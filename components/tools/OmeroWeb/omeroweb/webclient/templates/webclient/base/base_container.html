@@ -53,12 +53,30 @@
 
     <!-- Centre panel templating -->
     <script type="text/javascript" src="{% static '3rdparty/underscore/underscore-1.8.3-min.js' %}"></script>
-    <!-- Include the underscore html template -->
+    <!-- Include the underscore html templates -->
     <script id="icon_thumbnails_template" type="text/template">
         {% include "webclient/data/icon_thumbnails_underscore.html" %}
     </script>
     <script id="icon_header_template" type="text/template">
         {% include "webclient/data/icon_header_underscore.html" %}
+    </script>
+    <script id="tags_template" type="text/template">
+        {% include "webclient/annotations/tags_underscore.html" %}
+    </script>
+    <script id="fileanns_template" type="text/template">
+        {% include "webclient/annotations/fileanns_underscore.html" %}
+    </script>
+    <script id="comments_template" type="text/template">
+        {% include "webclient/annotations/comments_underscore.html" %}
+    </script>
+    <script id="mapanns_template" type="text/template">
+        {% include "webclient/annotations/mapanns_underscore.html" %}
+    </script>
+    <script id="ratings_template" type="text/template">
+        {% include "webclient/annotations/ratings_underscore.html" %}
+    </script>
+    <script id="customanns_template" type="text/template">
+        {% include "webclient/annotations/customanns_underscore.html" %}
     </script>
 
     <!-- Toolbar -->
@@ -69,6 +87,12 @@
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.editinplace-0.1.2.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form-3.51.js" %}"></script>
     <script type="text/javascript" src="{% static "webclient/javascript/ome.tagging_form.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_tags_pane.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_fileanns_pane.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_comments_pane.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_customanns_pane.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_ratings_pane.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.right_panel_mapanns_pane.js" %}"></script>
 
     <!-- preview viewer... -->
     <script type="text/javascript" src="{% static "3rdparty/jquery.blockUI-2.66.0.js" %}"></script>
@@ -114,7 +138,63 @@
 
     <script>
 
-        var PAGE_SIZE = {{ page_size }};
+        // OMERO constants
+        if (OMERO === undefined) {var OMERO = {};}
+        OMERO['constants'] = {
+            'namespaces': {
+                'NSCOMPANIONFILE': "{{ omero.constants.NSCOMPANIONFILE }}"
+            },
+            'annotation': {
+                'file': {'ORIGINALMETADATA': "{{ omero.constants.ORIGINALMETADATA }}"}
+            },
+            'metadata': {
+                'NSCLIENTMAPANNOTATION': "{{ omero.constants.NSCLIENTMAPANNOTATION }}"
+            }
+        };
+
+        // Variables used by static files, particularly ome.tree.js for jstree setup
+        // Also used by right panel annotation tabs
+        var WEBCLIENT = {};
+
+        WEBCLIENT.active_group_id = {{ active_group.id }};
+        WEBCLIENT.USER = {'id': {{ ome.user.id }} };
+        WEBCLIENT.active_user_id = {{ ome.user_id }};
+
+        WEBCLIENT.URLS = {};
+        WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";
+        WEBCLIENT.URLS.api_paths_to_object = "{% url 'api_paths_to_object' %}";
+        WEBCLIENT.URLS.api_containers = "{% url 'api_containers' %}";
+        WEBCLIENT.URLS.api_datasets = "{% url 'api_datasets' %}";
+        WEBCLIENT.URLS.api_images = "{% url 'api_images' %}";
+        WEBCLIENT.URLS.api_plates = "{% url 'api_plates' %}";
+        WEBCLIENT.URLS.api_plate_acquisitions = "{% url 'api_plate_acquisitions' %}";
+        WEBCLIENT.URLS.static_webclient = "{% static 'webclient' %}/";
+        WEBCLIENT.URLS.static_webgateway = "{% static 'webgateway' %}/";
+        WEBCLIENT.URLS.api_tags_and_tagged = "{% url 'api_tags_and_tagged' %}";
+        WEBCLIENT.URLS.fileset_check = "{% url 'fileset_check' 'delete' %}";
+        WEBCLIENT.URLS.deletemany = "{% url 'manage_action_containers' 'deletemany' %}";
+        WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'webgateway.views.copy_image_rdef_json' %}";
+        WEBCLIENT.URLS.reset_owners_rdef_json = "{% url 'reset_owners_rdef_json' %}";
+        WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
+        // jsTree code in ome.tree.js and center panel code in center_plugin.thumbs.js.html uses initially_select
+        // instead of browser URL since URL may be /webclient/?path=plate.name-barcode|well.name-A1
+        WEBCLIENT.initially_select = [{% for o in initially_select %}"{{ o }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+
+        {% ifequal menu 'usertags' %}
+            WEBCLIENT.TAG_TREE = true;
+            WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
+        {% else %}
+            WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_containers;
+        {% endifequal %}
+
+        {% if active_user %}
+        WEBCLIENT.active_user = {'id': {{ active_user.id }} };
+        WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' active_user.id %}";
+        {% endif %}
+
+        {% if page_size %}
+            var PAGE_SIZE = {{ page_size }};
+        {% endif %}
         $(document).ready(function(){
             // initially hidden
             $("#user_dropdown ul").css('visibility', 'hidden');

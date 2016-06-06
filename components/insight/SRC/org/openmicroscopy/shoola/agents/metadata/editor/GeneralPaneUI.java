@@ -215,7 +215,7 @@ class GeneralPaneUI extends JPanel
        IconManager icons = IconManager.getInstance();
        annotationsFilter = Filter.SHOW_ALL;
        filterButton = new JButton(annotationsFilter.name);
-       filterButton.setToolTipText("Filter tags and attachments.");
+       filterButton.setToolTipText("Filter annotations by user");
        UIUtilities.unifiedButtonLookAndFeel(filterButton);
        Font font = filterButton.getFont();
        filterButton.setFont(font.deriveFont(font.getStyle(), 
@@ -448,17 +448,31 @@ class GeneralPaneUI extends JPanel
             }
             
             propertiesUI.buildUI();
-            
-            tagsTaskPane.refreshUI();
-            roiTaskPane.refreshUI();
-            mapTaskPane.refreshUI();
-            attachmentTaskPane.refreshUI(); 
-            ratingTaskPane.refreshUI();
-            commentTaskPane.refreshUI();  
-            
-            otherTaskPane.setVisible(!model.getAllOtherAnnotations().isEmpty());
-            otherTaskPane.refreshUI();
-            
+            boolean visible = true;
+            Object ho = model.getRefObject();
+            if ((ho instanceof TagAnnotationData) ||
+                    (ho instanceof FileAnnotationData)) {
+                visible = false;
+                tagsTaskPane.setVisible(false);
+                roiTaskPane.setVisible(false);
+                mapTaskPane.setVisible(false);
+                attachmentTaskPane.setVisible(false);
+                ratingTaskPane.setVisible(false);
+                commentTaskPane.setVisible(false);
+                otherTaskPane.setVisible(false);
+            } else {
+                tagsTaskPane.refreshUI();
+                roiTaskPane.refreshUI();
+                mapTaskPane.refreshUI();
+                attachmentTaskPane.refreshUI();
+                ratingTaskPane.refreshUI();
+                commentTaskPane.refreshUI();
+
+                otherTaskPane.setVisible(
+                        !model.getAllOtherAnnotations().isEmpty());
+                otherTaskPane.refreshUI();
+            }
+
             propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
            
             boolean showBrowser = false;
@@ -492,8 +506,9 @@ class GeneralPaneUI extends JPanel
             namePane.setVisible(!multi);
             idLabel.setVisible(!multi);
             propertiesTaskPane.setVisible(!multi);
-      
-   
+            if (visible) {
+                mapTaskPane.setVisible(!multi);
+            }
             revalidate();
         }
 	

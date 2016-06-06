@@ -15,10 +15,12 @@ import java.util.List;
 import java.util.UUID;
 
 import omero.cmd.Chgrp2;
+import omero.cmd.Chgrp2Response;
 import omero.gateway.util.Requests;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
+import omero.model.Arc;
 import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -30,6 +32,8 @@ import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Instrument;
+import omero.model.LightSettings;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
@@ -58,6 +62,7 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
@@ -88,7 +93,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
         long id = img.getId().getValue();
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
@@ -146,7 +151,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         }
 
         // Move the image
-        final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(img).toGroup(g).build();
         callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -277,7 +282,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             shapeIds.add(shape.getId().getValue());
         }
         // Move the image.
-        final Chgrp2 dc = Requests.chgrp("Image", image.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(image).toGroup(g).build();
         callback(true, client, dc);
 
         // check if the objects have been delete.
@@ -362,7 +367,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
             }
         }
         // Move the plate.
-        final Chgrp2 dc = Requests.chgrp("Plate", p.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(p).toGroup(g).build();
         callback(true, client, dc);
 
         // check the well
@@ -484,7 +489,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         }
 
         // Move the plate.
-        final Chgrp2 dc = Requests.chgrp("Plate", p.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(p).toGroup(g).build();
         callback(true, client, dc);
 
         // check the well
@@ -574,7 +579,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        final Chgrp2 dc = Requests.chgrp("Screen", screen.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(screen).toGroup(g).build();
         callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();
@@ -646,7 +651,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         p = link.getChild();
         long plateID = p.getId().getValue();
 
-        final Chgrp2 dc = Requests.chgrp("Screen", screenId, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(s).toGroup(g).build();
         callback(true, client, dc);
 
         sql = "select r from Screen as r ";
@@ -727,7 +732,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
         p = link.getChild();
         long plateID = p.getId().getValue();
-        final Chgrp2 dc = Requests.chgrp("Plate", plateID, g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(p).toGroup(g).build();
         callback(true, client, dc);
         sql = "select r from Screen as r ";
         sql += "where r.id = :id";
@@ -827,7 +832,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         links.add(il);
         iUpdate.saveAndReturnArray(links);
 
-        final Chgrp2 dc = Requests.chgrp("Plate", p.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(p).toGroup(g).build();
         callback(true, client, dc);
  
         // Shouldn't have measurements
@@ -884,7 +889,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         ids.add(image1.getId().getValue());
         ids.add(image2.getId().getValue());
 
-        final Chgrp2 dc = Requests.chgrp("Project", p.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(p).toGroup(g).build();
         callback(true, client, dc);
 
         // Check if objects have been deleted
@@ -959,7 +964,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        final Chgrp2 dc = Requests.chgrp("Screen", s1.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(s1).toGroup(g).build();
         callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();
@@ -1046,7 +1051,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         }
 
         /* move the dataset */
-        final Chgrp2 chgrp = Requests.chgrp("Dataset", dataset.getId().getValue(), destination.getId().getValue());
+        final Chgrp2 chgrp = Requests.chgrp().target(dataset).toGroup(destination).build();
         callback(true, client, chgrp);
 
         /* check what remains in the source group */
@@ -1063,5 +1068,51 @@ public class HierarchyMoveTest extends AbstractServerTest {
         assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(original.getId())));
         assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(projection.getId())));
         assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(other.getId())));
+    }
+
+    /**
+     * Test to move an image whose light source settings are not referenced by a logical channel.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13128")
+    public void testMoveLightSourceSettings() throws Exception {
+        /* prepare a pair of groups for the user */
+        newUserAndGroup("rwr---");
+        final EventContext ctx = iAdmin.getEventContext();
+        final ExperimenterGroup source = iAdmin.getGroup(ctx.groupId);
+        final ExperimenterGroup destination = newGroupAddUser("rwr---", ctx.userId);
+
+        /* start in the source group */
+        loginUser(source);
+
+        /* create an image with a light source */
+        Image image = mmFactory.createImage();
+        image.setInstrument(mmFactory.createInstrument(Arc.class.getName()));
+        image = (Image) iUpdate.saveAndReturnObject(image).proxy();
+
+        /* add settings to the image's light source */
+        LightSource lightSource = (LightSource) iQuery.findByQuery(
+                "SELECT image.instrument.lightSource FROM Image image WHERE image.id = :id",
+                new ParametersI().addId(image.getId())).proxy();
+        LightSettings lightSettings = mmFactory.createLightSettings(lightSource);
+        lightSettings = (LightSettings) iUpdate.saveAndReturnObject(lightSettings).proxy();
+
+        /* move the image */
+        final Chgrp2Response rsp = (Chgrp2Response) doChange(Requests.chgrp().target(image).toGroup(destination).build());
+
+        /* check that the move reported that light source settings moved and nothing was deleted */
+        Assert.assertTrue(rsp.includedObjects.containsKey(ome.model.acquisition.Arc.class.getName()));
+        Assert.assertTrue(rsp.deletedObjects.isEmpty());
+
+        /* check what remains in the source group */
+        assertNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
+        assertNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
+
+        /* switch to the destination group */
+        loginUser(destination);
+
+        /* check what was moved to the destination group */
+        assertNotNull(iQuery.findByQuery("FROM Image WHERE id = :id", new ParametersI().addId(image.getId())));
+        assertNotNull(iQuery.findByQuery("FROM LightSettings WHERE id = :id", new ParametersI().addId(lightSettings.getId())));
     }
 }

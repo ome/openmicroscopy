@@ -41,7 +41,7 @@ module omero {
         /**
          * Specifies that a file is located at the given location
          * that is not otherwise known by the repository. A
-         * subsequent call to [Repository::register] will create
+         * subsequent call to {@link Repository.register} will create
          * the given file. The mimetype field of the file may or
          * may not be set. If it is set, clients are suggested to
          * either omit the mimetype argument to the register method
@@ -87,9 +87,9 @@ module omero {
             /**
              * Returns an array of abstract pathname objects denoting the
              * files in the directory denoted by an abstract pathname.  It
-             * is expected that at a minimum the "name", "path", "size" and
-             * "mtime" attributes will be present for each
-             * [omero::model::OriginalFile] instance.
+             * is expected that at a minimum the ""name"", ""path"", ""size"" and
+             * ""mtime"" attributes will be present for each
+             * {@link omero.model.OriginalFile} instance.
              **/
             omero::api::OriginalFileList listFiles(string path)
                     throws ServerError;
@@ -103,8 +103,8 @@ module omero {
 
             /**
              * Returns a special RawFileStore which permits only the operations
-             * set out in the options string "wb", "a+", etc.
-             * FIXME: Initially only "r" and "rw" are supported as these are
+             * set out in the options string ""wb"", ""a+"", etc.
+             * FIXME: Initially only ""r"" and ""rw"" are supported as these are
              * handled directly by RandomAccessFile and so don't break the current
              * implementation.
              * Any call to that tries to break the options will throw an
@@ -119,8 +119,8 @@ module omero {
 
             /**
              * Returns true if the file or path exists within the repository.
-             * In other words, if a call on `dirname path` to [listFiles] would
-             * return an object for this path.
+             * In other words, if a call on `dirname path` to
+             * {@link #listFiles} would return an object for this path.
              **/
             bool fileExists(string path) throws ServerError;
 
@@ -134,12 +134,12 @@ module omero {
             void makeDir(string path, bool parents) throws ServerError;
 
             /**
-             * Similar to [list] but recursive and returns only primitive
-             * values for the file at each location. Guaranteed for each
-             * path is only the values id and mimetype.
+             * Similar to {@link #list} but recursive and returns only
+             * primitive values for the file at each location. Guaranteed for
+             * each path is only the values id and mimetype.
              *
-             * After a call to unwrap, the returned [omero::RMap] for a call
-             * to treeList("/user_1/dir0") might look something like:
+             * After a call to unwrap, the returned {@link omero.RMap} for a
+             * call to treeList("/user_1/dir0") might look something like:
              *
              * <pre>
              *  {
@@ -173,22 +173,22 @@ module omero {
 
             /**
              * Delete several individual paths. Internally, this converts
-             * all of the paths into a single [omero::cmd::Delete2] command
+             * all of the paths into a single {@link omero.cmd.Delete2} command
              * and submits it.
              *
-             * If a "recursively" is true, then directories will be searched
+             * If a ""recursively"" is true, then directories will be searched
              * and all of their contained files will be placed before them in
              * the delete order. When the directory is removed from the database,
              * it will removed from the filesystem if and only if it is empty.
              *
-             * If "recursively" is false, then the delete will produce an error
-             * according to the "force" flag.
+             * If ""recursively"" is false, then the delete will produce an error
+             * according to the ""force"" flag.
              *
-             * If "force" is false, this method attempts the delete of all given
+             * If ""force"" is false, this method attempts the delete of all given
              * paths in a single transaction, and any failure will cause the
              * entire transaction to fail.
              *
-             * If "force" is true, however, then all the other deletes will succeed.
+             * If ""force"" is true, however, then all the other deletes will succeed.
              * which could possibly leave dangling files within no longer extant
              * directories.
              *
@@ -200,7 +200,7 @@ module omero {
         };
 
         /**
-         * Returned by [ManagedRepository::importFileset] with
+         * Returned by {@link ManagedRepository#importFileset} with
          * the information needed to proceed with an FS import.
          * For the examples that follow, assume that the used
          * files passed to importFileset were:
@@ -231,7 +231,7 @@ module omero {
              * Parsed string names which should be used by the
              * clients during upload. This array will be of the
              * same length as the argument passed to
-             * [ManagedRepository::importFileset] but will have
+             * {@link ManagedRepository#importFileset} but will have
              * shortened paths.
              *
              * <pre>
@@ -296,9 +296,10 @@ module omero {
              omero::model::ChecksumAlgorithm checksumAlgorithm;
 
              /**
-              * If set, the [ImportProcess*] and the [Handle*] associated with
-              * the import will be closed as soon as complete. This will prevent
-              * clients from finding out the status of the import itself.
+              * If set, the {@link ImportProcess*} and the {@link Handle*}
+              * associated with the import will be closed as soon as complete.
+              * This will prevent clients from finding out the status of the
+              * import itself.
               **/
 
              /*
@@ -321,20 +322,23 @@ module omero {
             /**
              * Step 1: Returns a RawFileStore that can be used to upload one of
              * the used files. The index is the same as the used file listed in
-             * [ImportLocation]. [omero::api::RawFileStore::close] should be
-             * called once all data has been transferred. If the file must be
-             * re-written, call [getUploader] with the same index again. Once
-             * all uploads have been completed, [verifyUpload] should be called
-             * to initiate background processing
+             * {@link ImportLocation}. {@link omero.api.RawFileStore#close}
+             * should be called once all data has been transferred. If the
+             * file must be re-written, call {@link #getUploader} with the
+             * same index again. Once all uploads have been completed,
+             * {@link verifyUpload} should be called to initiate background
+             * processing
              **/
              omero::api::RawFileStore* getUploader(int i) throws ServerError;
 
             /**
-             * Step 2: Passes a set of client-side calculated hashes to the server
-             * for verifying that all of the files were correctly uploaded. If this
-             * passes then a [omero::cmd::Handle] proxy is returned, which completes
-             * all the necessary import steps. A successful import will return an
-             * [ImportResponse]. Otherwise, some [omero::cmd::ERR] will be returned.
+             * Step 2: Passes a set of client-side calculated hashes to the
+             * server for verifying that all of the files were correctly
+             * uploaded. If this passes then a {@link omero.cmd.Handle}
+             * proxy is returned, which completes all the necessary import
+             * steps. A successful import will return an
+             * {@link ImportResponse}. Otherwise, some {@link omero.cmd.ERR}
+             * will be returned.
              **/
              omero::cmd::Handle* verifyUpload(omero::api::StringSet hash) throws ServerError;
 
@@ -350,10 +354,10 @@ module omero {
 
             /**
              * Reacquire the handle which was returned by
-             * [verifyUpload]. This is useful in case a new
+             * {@link #verifyUpload}. This is useful in case a new
              * client is re-attaching to a running import.
-             * From the [omero::cmd::Handle] instance, the
-             * original [ImportRequest] can also be found.
+             * From the {@link omero.cmd.Handle} instance, the
+             * original {@link ImportRequest} can also be found.
              **/
              omero::cmd::Handle* getHandle() throws ServerError;
 
@@ -366,8 +370,8 @@ module omero {
 
         /**
          * Command object which will be used to create
-         * the [omero::cmd::Handle] instances passed
-         * back by the [ImportProcess].
+         * the {@link omero.cmd.Handle} instances passed
+         * back by the {@link ImportProcess}.
          **/
         class ImportRequest extends omero::cmd::Request {
 
@@ -395,25 +399,26 @@ module omero {
             /**
              * Activity that this will be filling
              * out in the database. This always points to a
-             * [omero::model::MetadataImportJob] which is the
-             * first server-side phase after the [omero::model::UploadJob].
+             * {@link omero.model.MetadataImportJob} which is the
+             * first server-side phase after the
+             * {@link omero.model.UploadJob}.
              **/
             omero::model::FilesetJobLink activity;
 
             /**
-             * [ImportSettings] which are provided by the
-             * client on the call to [ManagedRepository::importFileset].
+             * {@link ImportSettings} which are provided by the
+             * client on the call to {@link ManagedRepository#importFileset}.
              **/
              ImportSettings settings;
 
             /**
-             * [ImportLocation] which is calculated during
-             * the call to [ManagedRepository::importFileset].
+             * {@link ImportLocation} which is calculated during
+             * the call to {@link ManagedRepository#importFileset}.
              **/
              ImportLocation location;
 
             /**
-             * [OriginalFile] object representing the import log file.
+             * {@link OriginalFile} object representing the import log file.
              **/
              omero::model::OriginalFile logFile;
 
@@ -422,7 +427,7 @@ module omero {
 
         /**
          * Successful response returned from execution
-         * of [ImportRequest]. This is the simplest way
+         * of {@link ImportRequest}. This is the simplest way
          * to return the results, but is likely not the
          * overall best strategy.
          **/
@@ -447,33 +452,33 @@ module omero {
         ["ami"] interface ManagedRepository extends Repository {
 
             /**
-             * Returns an [ImportProcess] which can be used to upload files.
-             * On [ImportProcess::verifyUpload], an [omero::cmd::Handle] will be
+             * Returns an {@link ImportProcess} which can be used to upload files.
+             * On {@link ImportProcess#verifyUpload}, an {@link omero.cmd.Handle} will be
              * returned which can be watched for knowing when the server-side import
              * is complete.
              *
              * Client paths set in the fileset entries must /-separate their components.
              *
-             * Once the upload is complete, the [ImportProcess] must be closed.
-             * Once [omero::cmd::Handle::getResponse] returns a non-null value, the
+             * Once the upload is complete, the {@link ImportProcess} must be closed.
+             * Once {@link omero.cmd.Handle#getResponse} returns a non-null value, the
              * handle instance can and must be closed.
              **/
             ImportProcess* importFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
 
             /**
              * For clients without access to Bio-Formats, the simplified
-             * [importPaths] method allows passing solely the absolute
+             * {@link #importPaths} method allows passing solely the absolute
              * path of the files to be uploaded (no directories) and all
              * configuration happens server-side. Much of the functionality
-             * provided via [omero::model::Fileset] and [omero::grid::ImportSettings]
-             * is of course lost.
+             * provided via {@link omero.model.Fileset} and
+             * {@link omero.grid.ImportSettings} is of course lost.
              **/
             ImportProcess* importPaths(omero::api::StringSet filePaths) throws ServerError;
 
             /**
              * List imports that are currently running in this importer.
              * These will be limited based on user/group membership for
-             * the [omero::model::Fileset] object which is being created
+             * the {@link omero.model.Fileset} object which is being created
              * by the import. If the user has write permissions for the
              * fileset, then the import will be included.
              **/
@@ -482,19 +487,19 @@ module omero {
             /**
              * Return the list of checksum algorithms supported by this repository
              * for verifying the integrity of uploaded files.
-             * They are named as "algorithm-integer",
+             * They are named as ""algorithm-integer"",
              * integer being the bit width of the resulting hash code.
              * It is possible for the same algorithm to be offered with
              * different bit widths.
              * They are listed in descending order of preference,
              * as set by the server administrator, and any of them may
-             * be specified for [ImportSettings::checksumAlgorithm].
+             * be specified for {@link ImportSettings#checksumAlgorithm}.
              */
             omero::api::ChecksumAlgorithmList listChecksumAlgorithms();
 
             /**
              * Suggest a checksum algorithm to use for
-             * [ImportSettings::checksumAlgorithm] according to the
+             * {@link ImportSettings#checksumAlgorithm} according to the
              * preferences set by the server administrator. Provide a
              * list of the algorithms supported by the client, and the
              * server will report which of them is most preferred by
@@ -529,7 +534,7 @@ module omero {
 
         /**
          * Command object which will be parsed by the internal
-         * repository given by "repo". This command will *only*
+         * repository given by ""repo"". This command will *only*
          * be processed if the user has sufficient rights (e.g.
          * is a member of "system") and is largely intended for
          * testing and diagnosis rather than actual client
@@ -575,7 +580,7 @@ module omero {
             sequence<Repository*> RepositoryProxyList;
 
         /**
-         * Return value for [omero::grid::SharedResources].acquireRepositories()
+         * Return value for {@link omero.grid.SharedResources#repositories}
          * The descriptions and proxies arrays will have the same size and each
          * index in descriptions (non-null) will match a possibly null proxy, if
          * the given repository is not currently accessible.

@@ -10,6 +10,7 @@ import integration.AbstractServerTest;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import ome.testing.ObjectFactory;
 
@@ -24,6 +25,8 @@ import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.ExternalInfo;
+import omero.model.ExternalInfoI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -78,7 +81,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         Assert.assertFalse(ids.isEmpty());
 
         // Perform delete
-        final SkipHead dc = Requests.skipHead("Image", imageId, "Channel", new Delete2());
+        final SkipHead dc = Requests.skipHead().target("Image").id(imageId).startFrom("Channel")
+                .request(Delete2.class).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -109,7 +113,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         Assert.assertFalse(ids.isEmpty());
 
         // Perform delete
-        final SkipHead dc = Requests.skipHead("Image", imageId, "RenderingDef", new Delete2());
+        final SkipHead dc = Requests.skipHead().target("Image").id(imageId).startFrom("RenderingDef")
+                .request(Delete2.class).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -134,7 +139,21 @@ public class AdditionalDeleteTest extends AbstractServerTest {
      */
     public void testImage() throws Exception {
         final long imageId = iUpdate.saveAndReturnObject(mmFactory.createImage()).getId().getValue();
-        final Delete2 dc = Requests.delete("Image", imageId);
+        final Delete2 dc = Requests.delete().target("Image").id(imageId).build();
+        callback(true, client, dc);
+
+        // Check that data is gone
+        List<?> l = iQuery.projection("select i.id from Image i where i.id = "
+                + imageId, null);
+        Assert.assertTrue(l.isEmpty());
+    }
+
+    /**
+     * Deletes the whole image using the subclass name {@link ImageI}.
+     */
+    public void testImageI() throws Exception {
+        final long imageId = iUpdate.saveAndReturnObject(mmFactory.createImage()).getId().getValue();
+        final Delete2 dc = Requests.delete().target("ImageI").id(imageId).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -158,7 +177,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long annId = link.getChild().getId().getValue();
 
         // Perform delete
-        final Delete2 dc = Requests.delete("Image", imageId);
+        final Delete2 dc = Requests.delete().target("Image").id(imageId).build();
         callback(true, client, dc);
 
         // Check that the annotation is gone
@@ -194,7 +213,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         link2 = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link2);
 
         // Perform delete
-        final Delete2 dc = Requests.delete("Image", imageId1);
+        final Delete2 dc = Requests.delete().target("Image").id(imageId1).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -228,7 +247,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long id = p.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Project", id);
+        final Delete2 dc = Requests.delete().target("Project").id(id).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -262,7 +281,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long did = d.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Project", pid);
+        final Delete2 dc = Requests.delete().target("Project").id(pid).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -299,7 +318,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long wsid = ws.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Plate", pid);
+        final Delete2 dc = Requests.delete().target("Plate").id(pid).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -335,7 +354,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long aid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Image", iid);
+        final Delete2 dc = Requests.delete().target("Image").id(iid).build();
         callback(true, client, dc);
 
         // Check that data is gone
@@ -367,7 +386,7 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("Annotation", cid);
+        final Delete2 dc = Requests.delete().target("Annotation").id(cid).build();
         callback(true, client, dc);
 
         // Make sure the parent annotation still exists, but both the annotation
@@ -400,8 +419,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final ChildOption option = Requests.option(null, "TagAnnotation");
-        final Delete2 dc = Requests.delete("Image", pid, option);
+        final ChildOption option = Requests.option().excludeType("TagAnnotation").build();
+        final Delete2 dc = Requests.delete().target("Image").id(pid).option(option).build();
         callback(true, client, dc);
 
         // Make sure the image is deleted but the annotation remains.
@@ -438,8 +457,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         final long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final ChildOption option = Requests.option(null, "FileAnnotation");
-        final Delete2 dc = Requests.delete("Image", pid, option);
+        final ChildOption option = Requests.option().excludeType("FileAnnotation").build();
+        final Delete2 dc = Requests.delete().target("Image").id(pid).option(option).build();
         callback(true, client, dc);
 
         // Make sure the image and annotation are deleted.
@@ -475,8 +494,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         long cid = link.getChild().getId().getValue();
 
         // Do Delete
-        final ChildOption option = Requests.option(null, "FileAnnotation", null, "keepme");
-        final Delete2 dc = Requests.delete("Image", pid, option);
+        final ChildOption option = Requests.option().excludeType("FileAnnotation").excludeNs("keepme").build();
+        final Delete2 dc = Requests.delete().target("Image").id(pid).option(option).build();
         callback(true, client, dc);
 
         // Make sure the image and annotation are deleted.
@@ -509,8 +528,8 @@ public class AdditionalDeleteTest extends AbstractServerTest {
         List<Long> annotationIds = createNonSharableAnnotation(obj, null);
         List<Long> annotationIdsNS = createNonSharableAnnotation(obj, "TEST");
 
-        final ChildOption option = Requests.option(null, "Annotation", null, "TEST");
-        final Delete2 dc = Requests.delete(type, id, option);
+        final ChildOption option = Requests.option().excludeType("Annotation").excludeNs("TEST").build();
+        final Delete2 dc = Requests.delete().target(type).id(id).option(option).build();
         callback(true, client, dc);
 
         ParametersI param = new ParametersI();
@@ -549,10 +568,9 @@ public class AdditionalDeleteTest extends AbstractServerTest {
     public void testOriginalFileAnnotation() throws Exception {
         final FileAnnotationI ann = mockAnnotation();
         final OriginalFile file = ann.getFile();
-        final long id = file.getId().getValue();
 
         // Do Delete
-        final Delete2 dc = Requests.delete("OriginalFile", id);
+        final Delete2 dc = Requests.delete().target(file).build();
         callback(true, client, dc);
 
         assertGone(file);
@@ -567,16 +585,37 @@ public class AdditionalDeleteTest extends AbstractServerTest {
     public void testOriginalFileAnnotationWithKeep() throws Exception {
         final FileAnnotationI ann = mockAnnotation();
         final OriginalFile file = ann.getFile();
-        final long id = file.getId().getValue();
 
         // Do Delete
-        final ChildOption option = Requests.option(null, "Annotation");
-        final Delete2 dc = Requests.delete("OriginalFile", id, option);
+        final ChildOption option = Requests.option().excludeType("Annotation").build();
+        final Delete2 dc = Requests.delete().target(file).option(option).build();
         callback(true, client, dc);
 
         assertGone(ann);
         assertGone(file);
 
+    }
+
+    /**
+     * Test that deleting an project also deletes its external information.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:13176")
+    public void testDeleteExternalInfoWithProject() throws Exception {
+        ExternalInfo info = new ExternalInfoI();
+        info.setEntityType(omero.rtypes.rstring("ExternalEntity"));
+        info.setEntityId(omero.rtypes.rlong(0));
+        info.setUuid(omero.rtypes.rstring(UUID.randomUUID().toString()));
+        info = (ExternalInfo) iUpdate.saveAndReturnObject(info).proxy();
+
+        IObject object = mmFactory.simpleProject();
+        object.getDetails().setExternalInfo(info);
+        object = iUpdate.saveAndReturnObject(object).proxy();
+
+        doChange(Requests.delete().target(object).build());
+
+        assertGone(object);
+        assertGone(info);
     }
 
     private FileAnnotationI mockAnnotation()

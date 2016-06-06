@@ -43,10 +43,12 @@ module omero {
     const int GLACIER2PORT = 4064;
 
     /**
-     * Default Ice.MessageSizeMax (65536kb). Not strictly necessary, but helps to
+     * Default Ice.MessageSizeMax (250mb). Not strictly necessary, but helps to
      * curb memory issues. Must be set before communicator initialization.
+     *
+     * Temporarily set to 250MB
      **/
-    const int MESSAGESIZEMAX = 65536;
+    const int MESSAGESIZEMAX = 250000;
 
     /**
      * Determines the batch size for sending
@@ -79,6 +81,19 @@ module omero {
      * be replaced by the properties with those names from the context.
      **/
     const string DEFAULTROUTER = "OMERO.Glacier2/router:ssl -p @omero.port@ -h @omero.host@";
+
+    /**
+     * Introduce in Ice 3.6. Default Ice.ACM.Client.Heartbeat (2).
+     * Send a heartbeat at regular intervals when the connection is idle.
+     * To have any effect, ACMCLIENTTIMEOUT must be set to a non-zero value.
+     **/
+    const int ACMCLIENTHEARTBEAT = 2;
+
+    /**
+     * Introduce in Ice 3.6. Default Ice.ACM.Client.Timeout (60000).
+     * Timeout in seconds for Active Connection Management.
+     **/
+    const int ACMCLIENTTIMEOUT = 60000;
 
     /**
      * Server-side names used for each of the services
@@ -140,7 +155,7 @@ module omero {
 
     /**
      * Constants used for field defaults and similar
-     * in the [omero::model::] classes.
+     * in the {@link omero.model} classes.
      **/
     module data {
 
@@ -152,7 +167,7 @@ module omero {
     };
 
     /**
-     * Namespaces for the [omero::api::IMetadata] interface.
+     * Namespaces for the {@link omero.api.IMetadata} interface.
      **/
     module metadata {
         const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
@@ -168,6 +183,7 @@ module omero {
         const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
         const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
         const string NSAUTOCLOSE = "openmicroscopy.org/omero/import/autoClose";
+        const string NSTARGETTEMPLATE = "openmicroscopy.org/omero/import/targetTemplate";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSLOGFILE = "openmicroscopy.org/omero/import/logFile";
         const string NSFILETRANSFER = "openmicroscopy.org/omero/import/fileTransfer";
@@ -228,29 +244,29 @@ module omero {
     module permissions {
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the link restriction has been applied to the current object.
        **/
       const int LINKRESTRICTION = 0;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the edit restriction has been applied to the current object.
        **/
       const int EDITRESTRICTION = 1;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the delete restriction has been applied to the current object.
        **/
       const int DELETERESTRICTION = 2;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
+       * Index into the {@link omero.model.Permissions#restrictions}
+       * {@link omero.api.BoolArray} field to test whether or not
        * the annotate restriction has been applied to the current object.
        **/
       const int ANNOTATERESTRICTION = 3;

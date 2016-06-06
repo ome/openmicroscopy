@@ -16,7 +16,7 @@
 module omero {
 
   /**
-   * Simple base ["protected"] class. Essentially abstract.
+   * Simple base ""protected"" class. Essentially abstract.
    **/
   ["protected"] class RType
   {
@@ -97,8 +97,8 @@ module omero {
   /**
    * Extends RString and simply provides runtime
    * information to the server that this string
-   * is intended as a ["protected"] class parameter. Used especially
-   * by omero::system::ParamMap (omero/System.ice)
+   * is intended as a ""protected"" class parameter. Used especially
+   * by {@link omero.system.ParamMap} (omero/System.ice)
    * 
    * Usage:
    * <pre>
@@ -123,10 +123,10 @@ module omero {
   // Collections
 
   /**
-   * Simple sequence of [RType] instances. Note: when passing
-   * an RTypeSeq over the wire, null sequence is maintained and
+   * Simple sequence of {@link RType} instances. Note: when passing
+   * an {@link RTypeSeq} over the wire, null sequence is maintained and
    * will be turned into an empty sequence. If nullability is
-   * required, see the [RCollection] types.
+   * required, see the {@link RCollection} types.
    *
    * @see RCollection
    * @see RTypeDict
@@ -141,14 +141,14 @@ module omero {
   sequence<RTypeSeq> RTypeSeqSeq;
 
   /**
-   * The collection ["protected"] classes permit the passing of sequences of all
-   * other RTypes (including other collections) and it is itself
-   * nullable. The allows for similar arguments to collections in
-   * languages with a unified inheritance hierarchy (e.g., Java in
-   * which all ["protected"] classes extend from java.lang.Object).
+   * The collection ""protected"" classes permit the passing of sequences of all
+   * other RTypes (including other collections) and it is itself nullable. The
+   * allows for similar arguments to collections in languages with a unified
+   * inheritance hierarchy (e.g., Java in which all ""protected"" classes extend
+   * from java.lang.Object).
    *
    * Unlike the other rtypes which are used internally within the
-   * omero.model classes, these types are mutable since they solely
+   * {@link omero.model} classes, these types are mutable since they solely
    * pass through the
    *
    * This flexible mechanism is not used in all API calls because
@@ -165,40 +165,40 @@ module omero {
   };
 
   /**
-   * [RCollection] mapped to an array on the server of a type given
+   * {@link RCollection} mapped to an array on the server of a type given
    * by a random member of the RTypeSeq. Only pass consistent arrays!
-   * homogenous lists.
+   * homogeneous lists.
    **/
   ["protected"] class RArray extends RCollection
   {
   };
 
   /**
-   * [RCollection] mapped to a java.util.List on the server
+   * {@link RCollection} mapped to a java.util.List on the server
    **/
   ["protected"] class RList extends RCollection
   {
   };
 
   /**
-   * [RCollection] mapped to a java.util.HashSet on the server
+   * {@link RCollection} mapped to a java.util.HashSet on the server
    **/
   ["protected"] class RSet extends RCollection
   {
   };
 
   /**
-   * Simple dictionary of [RType] instances. Note: when passing
+   * Simple dictionary of {@link RType} instances. Note: when passing
    * an RTypeDict over the wire, a null map will not be maintained and
    * will be turned into an empty map. If nullability is
-   * required, see the [RMap] type.
+   * required, see the {@link RMap} type.
    **/
   ["java:type:java.util.HashMap<String,omero.RType>"]
   dictionary<string,omero::RType> RTypeDict;
 
   /**
-   * Similar to [RCollection], the [RMap] class permits the passing
-   * of a possible null [RTypeDict] where any other [RType] is
+   * Similar to {@link RCollection}, the {@link RMap} class permits the passing
+   * of a possible null {@link RTypeDict} where any other {@link RType} is
    * expected.
    *
    * @see RTypeDict

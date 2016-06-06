@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,9 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Folder;
+import omero.model.FolderImageLink;
+import omero.model.FolderImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -108,7 +111,7 @@ public class PermissionsTest extends AbstractServerTest {
      */
     @AfterClass
     public void deleteTestImages() throws Exception {
-        final Delete2 delete = Requests.delete("Image", testImages);
+        final Delete2 delete = Requests.delete().target("Image").id(testImages).build();
         doChange(root, root.getSession(), delete, true);
         clearTestImages();
     }
@@ -208,7 +211,6 @@ public class PermissionsTest extends AbstractServerTest {
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
         ownerAnnotations = annotateImage(imageId);
-        disconnect();
 
         /* perhaps have another user annotate the image */
 
@@ -217,15 +219,13 @@ public class PermissionsTest extends AbstractServerTest {
         } else {
             init(annotator);
             otherAnnotations = annotateImage(image.getId().getValue());
-            disconnect();
         }
 
         /* perform the chmod */
 
         init(chmodder);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms(toPerms).build();
         doChange(client, factory, chmod, isExpectSuccess);
-        disconnect();
 
         if (!isExpectSuccess) {
             return;
@@ -269,7 +269,6 @@ public class PermissionsTest extends AbstractServerTest {
         } else {
             assertAllExist(otherAnnotations);
         }
-        disconnect();
     }
 
     /**
@@ -330,39 +329,41 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Test a specific case of using {@link Chmod2} on an image that is in a dataset.
-     * @param isImageOwner if the user who owns the dataset also owns the image
-     * @param isLinkOwner if the user who owns the dataset also linked the image to the dataset
+     * Test a specific case of using {@link Chmod2} on an image that is in a dataset or folder.
+     * @param isImageOwner if the user who owns the container also owns the image
+     * @param isLinkOwner if the user who owns the container also linked the image to the container
+     * @param isInDataset if the image is in a dataset, otherwise a folder
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chmod container test cases")
-    public void testChmodContainerReadWriteToPrivate(boolean isImageOwner, boolean isLinkOwner) throws Exception {
+    public void testChmodContainerReadWriteToPrivate(boolean isImageOwner, boolean isLinkOwner, boolean isInDataset)
+            throws Exception {
 
         /* set up the users and group for this test case */
 
-        final EventContext datasetOwner, imageOwner, linkOwner, chmodder;
+        final EventContext containerOwner, imageOwner, linkOwner, chmodder;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup("rwrw--");
+        containerOwner = newUserAndGroup("rwrw--");
 
-        final long dataGroupId = datasetOwner.groupId;
+        final long dataGroupId = containerOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
 
         if (isImageOwner) {
-            imageOwner = datasetOwner;
-            linkOwner = isLinkOwner ? datasetOwner : newUserInGroup(dataGroup, false);
+            imageOwner = containerOwner;
+            linkOwner = isLinkOwner ? containerOwner : newUserInGroup(dataGroup, false);
         } else {
             imageOwner = newUserInGroup(dataGroup, false);
-            linkOwner = isLinkOwner ? datasetOwner : imageOwner;
+            linkOwner = isLinkOwner ? containerOwner : imageOwner;
         }
 
         chmodder = newUserInGroup(dataGroup, true);
 
-        /* create a dataset */
+        /* create a container */
 
-        init(datasetOwner);
-        final Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset()).proxy();
-        disconnect();
+        init(containerOwner);
+        IObject container = isInDataset ? mmFactory.simpleDataset() : mmFactory.simpleFolder();
+        container = iUpdate.saveAndReturnObject(container).proxy();
 
         /* create an image */
 
@@ -370,35 +371,39 @@ public class PermissionsTest extends AbstractServerTest {
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        disconnect();
 
-        /* move the image into the dataset */
+        /* move the image into the container */
 
         init(linkOwner);
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setParent(dataset);
-        link.setChild(image);
-        link = (DatasetImageLink) iUpdate.saveAndReturnObject(link);
-        disconnect();
+        final IObject link;
+        if (isInDataset) {
+            final DatasetImageLink linkDI = new DatasetImageLinkI();
+            linkDI.setParent((Dataset) container);
+            linkDI.setChild(image);
+            link = iUpdate.saveAndReturnObject(linkDI);
+        } else {
+            final FolderImageLink linkFI = new FolderImageLinkI();
+            linkFI.setParent((Folder) container);
+            linkFI.setChild(image);
+            link = iUpdate.saveAndReturnObject(linkFI);
+        }
 
         /* perform the chmod */
 
         init(chmodder);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, "rw----");
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms("rw----").build();
         doChange(client, factory, chmod, true);
-        disconnect();
 
         /* check that exactly the expected object deletions have occurred */
 
         logRootIntoGroup(dataGroupId);
-        assertExists(dataset);
+        assertExists(container);
         assertExists(image);
-        if (datasetOwner == imageOwner) {
+        if (containerOwner == imageOwner) {
             assertExists(link);
         } else {
             assertDoesNotExist(link);
         }
-        disconnect();
     }
 
     /**
@@ -409,6 +414,7 @@ public class PermissionsTest extends AbstractServerTest {
         int index = 0;
         final int IS_IMAGE_OWNER = index++;
         final int IS_LINK_OWNER = index++;
+        final int IS_IN_DATASET = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
 
@@ -416,15 +422,71 @@ public class PermissionsTest extends AbstractServerTest {
 
         for (final boolean isImageOwner : booleanCases) {
             for (final boolean isLinkOwner : booleanCases) {
-                final Object[] testCase = new Object[index];
-                testCase[IS_IMAGE_OWNER] = isImageOwner;
-                testCase[IS_LINK_OWNER] = isLinkOwner;
-                // DEBUG: if (isImageOwner == true && isLinkOwner == true)
-                testCases.add(testCase);
+                for (final boolean isInDataset : booleanCases) {
+                    final Object[] testCase = new Object[index];
+                    testCase[IS_IMAGE_OWNER] = isImageOwner;
+                    testCase[IS_LINK_OWNER] = isLinkOwner;
+                    testCase[IS_IN_DATASET] = isInDataset;
+                    // DEBUG: if (isImageOwner == true && isLinkOwner == true && isInDataset = false)
+                    testCases.add(testCase);
+                }
             }
         }
 
         return testCases.toArray(new Object[testCases.size()][]);
+    }
+
+    /**
+     * Test that a mixed-owner folder hierarchy is unlinked on group downgrade from read-write to private.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "broken")
+    public void testDeleteMixedFolderHierarchy() throws Exception {
+
+        /* set up the users and group for this test case */
+
+        final EventContext alice, bob;
+        final ExperimenterGroup dataGroup;
+
+        alice = newUserAndGroup("rwrw--", true);
+
+        final long dataGroupId = alice.groupId;
+        dataGroup = new ExperimenterGroupI(dataGroupId, false);
+
+        bob = newUserInGroup(dataGroup, false);
+
+        /* set up the folders */
+
+        init(alice);
+        Folder topFolder = mmFactory.simpleFolder();
+        topFolder = (Folder) iUpdate.saveAndReturnObject(topFolder).proxy();
+
+        init(bob);
+        Folder bottomFolder = mmFactory.simpleFolder();
+        bottomFolder.setParentFolder(topFolder);
+        bottomFolder = (Folder) iUpdate.saveAndReturnObject(bottomFolder).proxy();
+
+        /* check that the hierarchy is correctly constructed */
+
+        init(alice);
+        Folder aliceFolder = (Folder) iQuery.get("Folder", topFolder.getId().getValue());
+        Folder bobFolder = (Folder) iQuery.get("Folder", bottomFolder.getId().getValue());
+        Assert.assertEquals(aliceFolder.getDetails().getOwner().getId().getValue(), alice.userId);
+        Assert.assertEquals(bobFolder.getDetails().getOwner().getId().getValue(), bob.userId);
+        Assert.assertEquals(bobFolder.getParentFolder().getId().getValue(), aliceFolder.getId().getValue());
+
+        /* perform the chmod */
+
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms("rw----").build();
+        doChange(chmod);
+
+        /* check that the folders are intact but now unlinked */
+
+        aliceFolder = (Folder) iQuery.get("Folder", topFolder.getId().getValue());
+        bobFolder = (Folder) iQuery.get("Folder", bottomFolder.getId().getValue());
+        Assert.assertEquals(aliceFolder.getDetails().getOwner().getId().getValue(), alice.userId);
+        Assert.assertEquals(bobFolder.getDetails().getOwner().getId().getValue(), bob.userId);
+        Assert.assertNull(bobFolder.getParentFolder());  /* currently fails to unlink */
     }
 
     /**
@@ -458,7 +520,6 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(imageId);
         final Instrument instrument = (Instrument) image.getInstrument().proxy();
         image = (Image) image.proxy();
-        disconnect();
 
         /* another user projects the image */
 
@@ -469,16 +530,14 @@ public class PermissionsTest extends AbstractServerTest {
         final long projectionId = projection.getId().getValue();
         testImages.add(projectionId);
         projection = (Image) projection.proxy();
-        disconnect();
 
         /* perform the chmod */
 
         final boolean isExpectSuccess = !"rw----".equals(toPerms);
 
         init(chmodder);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms(toPerms).build();
         doChange(client, factory, chmod, isExpectSuccess);
-        disconnect();
 
         if (!isExpectSuccess) {
             return;
@@ -490,7 +549,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertExists(image);
         assertExists(projection);
         assertExists(instrument);
-        disconnect();
     }
 
 
@@ -525,7 +583,6 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(imageId);
         final Experiment experiment = (Experiment) image.getExperiment().proxy();
         image = (Image) image.proxy();
-        disconnect();
 
         /* another user's image is part of the same experiment */
 
@@ -536,16 +593,14 @@ public class PermissionsTest extends AbstractServerTest {
         final long otherImageId = otherImage.getId().getValue();
         testImages.add(otherImageId);
         otherImage = (Image) otherImage.proxy();
-        disconnect();
 
         /* perform the chmod */
 
         final boolean isExpectSuccess = !"rw----".equals(toPerms);
 
         init(chmodder);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms(toPerms).build();
         doChange(client, factory, chmod, isExpectSuccess);
-        disconnect();
 
         if (!isExpectSuccess) {
             return;
@@ -557,7 +612,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertExists(image);
         assertExists(otherImage);
         assertExists(experiment);
-        disconnect();
     }
 
     /**
@@ -597,7 +651,6 @@ public class PermissionsTest extends AbstractServerTest {
             final Long imageId = ((RLong) result.get(0)).getValue();
             imageIds.add(imageId);
         }
-        disconnect();
 
         /* the images should be owned by the dataset owner */
 
@@ -609,7 +662,6 @@ public class PermissionsTest extends AbstractServerTest {
             image.getDetails().setOwner(datasetOwnerActual);
         }
         iUpdate.saveCollection(images);
-        disconnect();
 
         /* create the dataset and link the images to it */
 
@@ -624,16 +676,14 @@ public class PermissionsTest extends AbstractServerTest {
             link.setChild((Image) image.proxy());
             links.add((DatasetImageLink) iUpdate.saveAndReturnObject(link).proxy());
         }
-        disconnect();
 
         /* perform the chmod */
 
         final boolean isExpectSuccess = !"rw----".equals(toPerms);
 
         init(chmodder);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, toPerms);
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms(toPerms).build();
         doChange(client, factory, chmod, isExpectSuccess);
-        disconnect();
 
         logRootIntoGroup(dataGroupId);
 
@@ -654,7 +704,6 @@ public class PermissionsTest extends AbstractServerTest {
                 "Dataset", Collections.singletonList(datasetId),
                 "Plate", Collections.singletonList(plateId));
         doChange(client, factory, delete, true);
-        disconnect();
     }
 
     /**

@@ -31,7 +31,6 @@ module omero {
                 omero::RInt        offset;
                 omero::RLong       userId;
                 omero::RLong       groupId;
-                omero::RString     namespace;
             };
 
         /**
@@ -44,16 +43,12 @@ module omero {
          *
          *   ShapeList shapes = byZ.get(1);
          *
-         * Shapes which are found on all z, t, or do not belong to a group can be found
-         * with:
+         * Shapes which are found on all z or t can be found with:
          *
          *   byZ.get(-1);
          *   byT.get(-1);
-         *   byG.get("");
          *
-         * respectively. The groups string-string map provides the hierarchy of the group
-         * strings using unix-style filesystem paths. That is, if a returned shape is in
-         * the group "/a/b", then there will be an entry in the groups map: ...TBD...
+         * respectively.
          *
          **/
         class RoiResult
@@ -65,8 +60,6 @@ module omero {
 
                 IntShapeListMap    byZ;
                 IntShapeListMap    byT;
-                StringShapeListMap byG;
-                StringStringMap    groups;
             };
 
         /**
@@ -189,19 +182,23 @@ module omero {
                 //
 
                 /**
-                 * Returns a list of [omero::model::FileAnnotation] instances with the namespace
-                 * "openmicroscopy.org/measurements" which are attached to the [omero::model::Plate]
-                 * containing the given image AND which are attached to at least one [omero::model::Roi]
+                 * Returns a list of {@link omero.model.FileAnnotation}
+                 * instances with the namespace
+                 * "openmicroscopy.org/measurements" which are attached to the
+                 * {@link omero.model.Plate} containing the given image AND
+                 * which are attached to at least one
+                 * {@link omero.model.Roi}
                  *
-                 * @param opts, userId and groupId are respected based on the ownership of the annotation.
+                 * @param opts, userId and groupId are respected based on the
+                 *        ownership of the annotation.
                  **/
                 ["deprecated:IROI is deprecated."]
                 idempotent
                 AnnotationList getRoiMeasurements(long imageId, RoiOptions opts) throws omero::ServerError;
 
                 /**
-                 * Loads the ROIs which are linked to by the given [omero::model::FileAnnotation] id for
-                 * the given image.
+                 * Loads the ROIs which are linked to by the given
+                 * {@link omero.model.FileAnnotation} id for the given image.
                  *
                  * @param annotationId if -1, logic is identical to findByImage(imageId, opts)
                  **/
@@ -210,7 +207,8 @@ module omero {
                 RoiResult getMeasuredRois(long imageId, long annotationId, RoiOptions opts) throws omero::ServerError;
 
                 /**
-                 * Returns a map from [omero::model::FileAnnotation] ids to [RoiResult] instances.
+                 * Returns a map from {@link omero.model.FileAnnotation} ids
+                 * to {@link RoiResult} instances.
                  * Logic is identical to getMeasuredRois, but Roi data will not be duplicated. (i.e.
                  * the objects are referentially identical)
                  **/
@@ -219,8 +217,9 @@ module omero {
                 LongRoiResultMap getMeasuredRoisMap(long imageId, LongList annotationIds, RoiOptions opts) throws omero::ServerError;
 
                 /**
-                 * Returns the OMERO.tables service via the [omero::model::FileAnnotation] id returned
-                 * by getImageMeasurements.
+                 * Returns the OMERO.tables service via the
+                 * {@link omero.model.FileAnnotation} id returned
+                 * by {@link #getImageMeasurements}.
                  **/
                 ["deprecated:IROI is deprecated."]
                 idempotent

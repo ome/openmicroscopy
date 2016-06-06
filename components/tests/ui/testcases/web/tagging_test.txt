@@ -24,19 +24,20 @@ Test Tag
     Click Element                               xpath=//h1[@data-name='tags']
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
-    Sleep                                       5                   # allow tags to load
+    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
     Input Text                                  id_tag     robotTagTest${pid}TagOne
     Click Element                               id_add_new_tag
-    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Click Dialog Button                         Save
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
-    # Refresh, check and add another Tag, remove first one
-    Go To                                       ${WELCOME URL}?show=project-${pId}
-    Wait Until Page Contains Element            xpath=//h1[@data-name='tags']
-    Click Element                               xpath=//h1[@data-name='tags']
+    # Refresh (select other Project and re-select)
+    ${nodeId}=                                  Select Project By Id                        ${projectId}
+    Wait Until Right Panel Loads                Project                  ${projectId}
+    Select Project By Id                        ${pId}
+    # Check and add another Tag, remove first one
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
-    Sleep                                       5                   # allow tags to load
+    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
     # Create a second Tag
     Input Text                                  id_tag     robotTagTest${pid}TagTwo
     Click Element                               id_add_new_tag
@@ -45,18 +46,20 @@ Test Tag
     Click Element                               id=id_tag_deselect_button
     Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     # Save - check Tag added and Tag removed
-    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Click Dialog Button                         Save
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]  10
     Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
 
 
     # Now select both Projects...
-    Go To                                       ${WELCOME URL}?show=project-${projectId}|project-${pId}
+    Meta Click Node                             ${nodeId}
     Wait Until Page Contains Element            id=batch_ann_title
-
+    # Previously added Tag will show up
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
+    Wait Until Element Is Visible               launch_tags_form
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
-    Sleep                                       5                   # allow tags to load
+    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
 
     # Tags created above should be available to add to second Project
     Wait Until Page Contains Element            xpath=//div[@id='id_all_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
@@ -71,7 +74,7 @@ Test Tag
     Page Should Contain Element                 xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagTwo')]
     # Save - check Tag added and Tag removed
-    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Click Dialog Button                         Save
     # Right panel Tag tooltip should indicate one tag is on BOTH Projects 'Can remove Tag from <b>2 objects</b>'
     Wait Until Page Contains Element            xpath=//span[@class='tooltip_html']/b[contains(text(),'2 objects')]
     # Other tag is still on one Project
@@ -82,7 +85,7 @@ Test Tag
     # Open Tag dialog again...
     Click Element                               launch_tags_form
     Wait Until Page Contains Element            id_tag
-    Sleep                                       5                   # allow tags to load
+    Wait Until Page Contains Element            xpath=//div[contains(@class,'ui-progressbar')][@aria-valuenow='100']    ${WAIT}
     # Same tag as before should be on right
     Wait Until Page Contains Element            xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
     Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagTwo')]
@@ -92,10 +95,12 @@ Test Tag
     # Create a third Tag
     Input Text                                  id_tag     robotTagTest${pid}TagThree
     Click Element                               id_add_new_tag
-    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Click Dialog Button                         Save
     # After Save, Tags Two and Three should be added, Tag One removed
     # Seems we need a proper refresh here to be sure that TagOne is removed.
     Go To                                       ${WELCOME URL}?show=project-${projectId}|project-${pId}
+    Wait Until Element Is Visible               xpath=//h1[@data-name='tags']
+    Click Element                               xpath=//h1[@data-name='tags']
     Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagThree')]  10
     Page Should Contain Element                 xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
     Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]

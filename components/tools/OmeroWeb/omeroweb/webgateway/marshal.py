@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2012-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2012-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -149,8 +149,11 @@ def imageMarshal(image, key=None, request=None):
         and image.getObjectiveSettings().getObjective().getNominalMagnification() \
         or None
 
-    server_settings = request.session.get('server_settings',
-                                          {}) if request else {}
+    try:
+        server_settings = request.session.get('server_settings', {}) \
+                                         .get('viewer', {})
+    except:
+        server_settings = {}
     init_zoom = server_settings.get('initial_zoom_level', 0)
     if init_zoom < 0:
         init_zoom = levels + init_zoom
@@ -158,6 +161,17 @@ def imageMarshal(image, key=None, request=None):
     interpolate = server_settings.get('interpolate_pixels', True)
 
     try:
+        def pixel_size_in_microns(method):
+            try:
+                size = method('MICROMETER')
+                return size.getValue() if size else None
+            except:
+                logger.debug(
+                    'Unable to convert physical pixel size to microns',
+                    exc_info=True
+                )
+                return None
+
         rv.update({
             'interpolate': interpolate,
             'size': {'width': image.getSizeX(),
@@ -165,9 +179,9 @@ def imageMarshal(image, key=None, request=None):
                      'z': image.getSizeZ(),
                      't': image.getSizeT(),
                      'c': image.getSizeC()},
-            'pixel_size': {'x': image.getPixelSizeX(),
-                           'y': image.getPixelSizeY(),
-                           'z': image.getPixelSizeZ()},
+            'pixel_size': {'x': pixel_size_in_microns(image.getPixelSizeX),
+                           'y': pixel_size_in_microns(image.getPixelSizeY),
+                           'z': pixel_size_in_microns(image.getPixelSizeZ)},
             })
         if init_zoom is not None:
             rv['init_zoom'] = init_zoom
@@ -244,10 +258,10 @@ def shapeMarshal(shape):
         # TODO: support for mask
     elif shape_type == omero.model.EllipseI:
         rv['type'] = 'Ellipse'
-        rv['cx'] = shape.getCx().getValue()
-        rv['cy'] = shape.getCy().getValue()
-        rv['rx'] = shape.getRx().getValue()
-        rv['ry'] = shape.getRy().getValue()
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
+        rv['radiusX'] = shape.getRadiusX().getValue()
+        rv['radiusY'] = shape.getRadiusY().getValue()
     elif shape_type == omero.model.PolylineI:
         rv['type'] = 'PolyLine'
         rv['points'] = stringToSvg(shape.getPoints().getValue())
@@ -259,8 +273,8 @@ def shapeMarshal(shape):
         rv['y2'] = shape.getY2().getValue()
     elif shape_type == omero.model.PointI:
         rv['type'] = 'Point'
-        rv['cx'] = shape.getCx().getValue()
-        rv['cy'] = shape.getCy().getValue()
+        rv['x'] = shape.getX().getValue()
+        rv['y'] = shape.getY().getValue()
     elif shape_type == omero.model.PolygonI:
         rv['type'] = 'Polygon'
         # z = closed line
@@ -318,12 +332,24 @@ def stringToSvg(string):
 
 def rgb_int2css(rgbint):
     """
-    converts a bin int number into css colour, E.g. -1006567680 to '#00ff00'
+    converts a bin int number into css colour and alpha fraction.
+    E.g. -1006567680 to '#00ff00', 0.5
     """
     alpha = rgbint // 256 // 256 // 256 % 256
     alpha = float(alpha) / 256
     r, g, b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
     return "#%02x%02x%02x" % (r, g, b), alpha
+
+
+def rgb_int2rgba(rgbint):
+    """
+    converts a bin int number into (r, g, b, alpha) tuple.
+    E.g. 1694433280 to (255, 0, 0, 0.390625)
+    """
+    alpha = rgbint // 256 // 256 // 256 % 256
+    alpha = float(alpha) / 256
+    r, g, b = (rgbint // 256 // 256 % 256, rgbint // 256 % 256, rgbint % 256)
+    return (r, g, b, alpha)
 
 
 def chgrpMarshal(conn, rsp):

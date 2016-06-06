@@ -29,7 +29,7 @@ module omero {
 
       /**
        * Unit of Frequency which is used through the model. This is not
-       * an [omero::model::IObject] implementation and as such does
+       * an {@link omero.model.IObject} implementation and as such does
        * not have an ID value. Instead, the entire object is embedded
        * into the containing class, so that the value and unit rows
        * can be found on the table itself (e.g. detectorSettings.readOutRate
@@ -47,15 +47,16 @@ module omero {
 
       /**
        * Actual value for this unit-based field. The interpretation of
-       * the value is only possible along with the [omero::model::enums::UnitsFrequency]
-       * enum.
+       * the value is only possible along with the
+       * {@link omero.model.enums.UnitsFrequency} enum.
        **/
       double getValue();
 
       void setValue(double value);
 
       /**
-       * [omero::model::enums::UnitsFrequency] instance which is an [omero::model::IObject]
+       * {@link omero.model.enums.UnitsFrequency} instance which is an
+       * {@link omero.model.IObject}
        * meaning that its ID is sufficient for identifying equality.
        **/
       omero::model::enums::UnitsFrequency getUnit();
@@ -63,7 +64,7 @@ module omero {
       void setUnit(omero::model::enums::UnitsFrequency unit);
 
       /**
-       * Returns the possibly unicode representation of the "unit"
+       * Returns the possibly unicode representation of the ""unit""
        * value for display.
        **/
       string getSymbol();

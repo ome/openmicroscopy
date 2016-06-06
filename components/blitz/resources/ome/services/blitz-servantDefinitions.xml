@@ -367,7 +367,10 @@
           <entry key="omero.cmd.graphs.Chmod2I" value-ref="chmodTargets"/>
           <entry key="omero.cmd.graphs.Chown2I" value-ref="chownTargets"/>
           <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteTargets"/>
+          <entry key="omero.cmd.graphs.DiskUsage2I" value-ref="diskUsageTargets"/>
           <entry key="omero.cmd.graphs.DuplicateI" value-ref="duplicateTargets"/>
+          <entry key="omero.cmd.graphs.FindParentsI" value-ref="containerTargets"/>
+          <entry key="omero.cmd.graphs.FindChildrenI" value-ref="containedTargets"/>
         </map>
       </constructor-arg>
       <constructor-arg>
@@ -376,7 +379,10 @@
           <entry key="omero.cmd.graphs.Chmod2I" value-ref="chmodRules"/>
           <entry key="omero.cmd.graphs.Chown2I" value-ref="chownRules"/>
           <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteRules"/>
+          <entry key="omero.cmd.graphs.DiskUsage2I" value-ref="diskUsageRules"/>
           <entry key="omero.cmd.graphs.DuplicateI" value-ref="duplicateRules"/>
+          <entry key="omero.cmd.graphs.FindParentsI" value-ref="containerRules"/>
+          <entry key="omero.cmd.graphs.FindChildrenI" value-ref="containedRules"/>
         </map>
       </constructor-arg>
       <constructor-arg>
@@ -405,6 +411,7 @@
      <constructor-arg ref="ring"/>
      <constructor-arg ref="/OMERO/Pixels"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
+     <constructor-arg ref="resources"/>
   </bean>
 
   <!-- "Self"-factories -->
@@ -437,6 +444,15 @@
     <constructor-arg index="1" ref="roles"/>
     <constructor-arg index="2" ref="executor"/>
     <constructor-arg index="3" ref="statefulExecutor"/>
+  </bean>
+
+  <bean id="scheduledExecutorService" class="java.util.concurrent.ScheduledThreadPoolExecutor">
+      <constructor-arg value="16"/><!-- at most 16 pings at once -->
+  </bean>
+
+  <bean id="resources" class="omero.util.Resources">
+      <constructor-arg value="60"/><!-- ping every 60 seconds -->
+      <constructor-arg ref="scheduledExecutorService"/>
   </bean>
 
 </beans>

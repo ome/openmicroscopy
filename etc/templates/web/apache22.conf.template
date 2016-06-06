@@ -54,15 +54,13 @@
 
 <VirtualHost _default_:%(HTTPPORT)d>
 
-  DocumentRoot %(OMEROWEBROOT)s
+  WSGIDaemonProcess omeroweb%(PREFIX_NAME)s processes=%(PROCESSES)s threads=%(THREADS)s maximum-requests=%(MAX_REQUESTS)s display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROFALLBACKROOT)s:%(OMEROWEBROOT)s
 
-  WSGIDaemonProcess omeroweb%(PREFIX_NAME)s processes=5 threads=1 display-name=%%{GROUP} user=%(OMEROUSER)s python-path=%(ICEPYTHONROOT)s:%(OMEROPYTHONROOT)s:%(OMEROFALLBACKROOT)s:%(OMEROWEBROOT)s
-  
-  WSGIProcessGroup omeroweb%(PREFIX_NAME)s
-
-  WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py
+  WSGIScriptAlias %(WEB_PREFIX)s %(OMEROWEBROOT)s/wsgi.py process-group=omeroweb%(PREFIX_NAME)s
 
   <Directory "%(OMEROWEBROOT)s">
+    WSGIProcessGroup omeroweb%(PREFIX_NAME)s
+    WSGIApplicationGroup %%{GLOBAL}
     Order allow,deny
     Allow from all
   </Directory>
@@ -78,6 +76,5 @@
 
 # see https://code.google.com/p/modwsgi/wiki/ConfigurationIssues
 WSGISocketPrefix run/wsgi
+# Use this on Ubuntu/Debian/MacOSX systems:
 # WSGISocketPrefix /var/run/wsgi
-
-

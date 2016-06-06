@@ -28,7 +28,6 @@ from omero.rtypes import rstring, rlong, unwrap
 from django.conf import settings
 from django.utils.encoding import smart_str
 import logging
-from omero.cmd import Delete2
 
 from webclient.controller import BaseController
 
@@ -117,6 +116,8 @@ class BaseContainer(BaseController):
         if tagset is not None:
             self.obj_type = "tagset"
             self.tag = self.conn.getObject("Annotation", tagset)
+            # We need to check if tagset via hasattr(manager, o_type)
+            self.tagset = self.tag
             self.assertNotNone(self.tag, tagset, "Tag")
             self.assertNotNone(self.tag._obj, tagset, "Tag")
         if comment is not None:
@@ -212,7 +213,7 @@ class BaseContainer(BaseController):
         can = True
         try:
             limit = request.session['server_settings'][
-                'download_as_max_size']
+                'download_as']['max_size']
         except:
             limit = 144000000
         if self.image:
@@ -240,7 +241,7 @@ class BaseContainer(BaseController):
         # As used in metadata_general panel
         else:
             return self.image.canDownload() or \
-                self.well.canDownload() or self.plate.canDonwload()
+                self.well.canDownload() or self.plate.canDownload()
 
     def listFigureScripts(self, objDict=None):
         """
@@ -293,45 +294,6 @@ class BaseContainer(BaseController):
         figureScripts.append(thumbnailFig)
         figureScripts.append(makeMovie)
         return figureScripts
-
-    def openAstexViewerCompatible(self):
-        """
-        Is the image suitable to be viewed with the Volume viewer 'Open Astex
-        Viewer' applet?
-        Image must be a 'volume' of suitable dimensions and not too big.
-        """
-        MAX_SIDE = settings.OPEN_ASTEX_MAX_SIDE     # default is 400
-        MIN_SIDE = settings.OPEN_ASTEX_MIN_SIDE     # default is 20
-        # default is 15625000 (250 * 250 * 250)
-        MAX_VOXELS = settings.OPEN_ASTEX_MAX_VOXELS
-
-        if self.image is None:
-            return False
-        sizeZ = self.image.getSizeZ()
-        if self.image.getSizeC() > 1:
-            return False
-        sizeX = self.image.getSizeX()
-        sizeY = self.image.getSizeY()
-        if sizeZ < MIN_SIDE or sizeX < MIN_SIDE or sizeY < MIN_SIDE:
-            return False
-        if sizeX > MAX_SIDE or sizeY > MAX_SIDE or sizeZ > MAX_SIDE:
-            return False
-        voxelCount = (sizeX * sizeY * sizeZ)
-        if voxelCount > MAX_VOXELS:
-            return False
-
-        try:
-            # if scipy ndimage is not available for interpolation, can only
-            # handle smaller images
-            import scipy.ndimage  # noqa
-        except ImportError:
-            logger.debug("Failed to import scipy.ndimage - Open Astex Viewer"
-                         " limited to display of smaller images.")
-            MAX_VOXELS = (160 * 160 * 160)
-            if voxelCount > MAX_VOXELS:
-                return False
-
-        return True
 
     def formatMetadataLine(self, l):
         if len(l) < 1:
@@ -848,6 +810,19 @@ class BaseContainer(BaseController):
     def createScreen(self, name, description=None):
         return self.conn.createScreen(name, description)
 
+    def createTag(self, name, description=None):
+        tId = self.conn.createTag(name, description)
+        if (self.tag and
+                self.tag.getNs() == omero.constants.metadata.NSINSIGHTTAGSET):
+            link = omero.model.AnnotationAnnotationLinkI()
+            link.setParent(omero.model.TagAnnotationI(self.tag.getId(), False))
+            link.setChild(omero.model.TagAnnotationI(tId, False))
+            self.conn.saveObject(link)
+        return tId
+
+    def createTagset(self, name, description=None):
+        return self.conn.createTagset(name, description)
+
     def checkMimetype(self, file_type):
         if file_type is None or len(file_type) == 0:
             file_type = "application/octet-stream"
@@ -1242,14 +1217,14 @@ class BaseContainer(BaseController):
             else:
                 return 'Destination not supported.'
         else:
-            return 'No data was choosen.'
+            return 'No data was chosen.'
         return
 
     def remove(self, parents, index, tag_owner_id=None):
         """
         Removes the current object (file, tag, comment, dataset, plate, image)
-        from its parents by manually deleting the link.
-        For Comments, we check whether it becomes an orphan & delete if true
+        from its parents by manually deleting the link. Orphaned comments will
+        be deleted server side.
         If self.tag and owner_id is specified, only remove the tag if it is
         owned by that owner
 
@@ -1277,29 +1252,10 @@ class BaseContainer(BaseController):
                         self.conn.deleteObject(al._obj)
             elif self.comment:
                 # remove the comment from specified parent
+                # the comment is automatically deleted when orphaned
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObject(al._obj)
-                # if comment is orphan, delete it directly
-                orphan = True
-
-                # Use delete Dry Run...
-                cid = self.comment.getId()
-                command = Delete2(targetObjects={"CommentAnnotation": [cid]},
-                                  dryRun=True)
-                cb = self.conn.c.submit(command)
-                # ...to check for any remaining links
-                rsp = cb.getResponse()
-                cb.close(True)
-                for parentType in ["Project", "Dataset", "Image", "Screen",
-                                   "Plate", "PlateAcquisition", "Well"]:
-                    key = 'ome.model.annotations.%sAnnotationLink' % parentType
-                    if key in rsp.deletedObjects:
-                        orphan = False
-                        break
-                if orphan:
-                    self.conn.deleteObject(self.comment._obj)
-
             elif self.dataset is not None:
                 if dtype == 'project':
                     for pdl in self.dataset.getParentLinks([parentId]):
@@ -1401,7 +1357,7 @@ class BaseContainer(BaseController):
             else:
                 return 'Destination not supported.'
         else:
-            return 'No data was choosen.'
+            return 'No data was chosen.'
 
     def copyImageToDataset(self, source, destination=None):
         if destination is None:

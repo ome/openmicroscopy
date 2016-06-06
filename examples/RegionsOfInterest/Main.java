@@ -55,18 +55,18 @@ public class Main {
 
         // A real ellipse
         Ellipse ellipse = new EllipseI();
-        ellipse.setCx(rdouble(1));
-        ellipse.setCy(rdouble(1));
-        ellipse.setRx(rdouble(1));
-        ellipse.setRy(rdouble(2));
+        ellipse.setX(rdouble(1));
+        ellipse.setY(rdouble(1));
+        ellipse.setRadiusX(rdouble(1));
+        ellipse.setRadiusY(rdouble(2));
         roi.addShape(ellipse);
 
         // A circle as an ellipse
         Ellipse circle = new EllipseI();
-        circle.setCx(rdouble(5));
-        circle.setCy(rdouble(8));
-        circle.setRx(rdouble(1));
-        circle.setRy(rdouble(1)); // Same radius
+        circle.setX(rdouble(5));
+        circle.setY(rdouble(8));
+        circle.setRadiusX(rdouble(1));
+        circle.setRadiusY(rdouble(1)); // Same radius
         roi.addShape(circle);
 
         // Making a grouping of lines
@@ -111,7 +111,6 @@ public class Main {
         rect.setY(rdouble(1.5));
         rect.setWidth(rdouble(10));
         rect.setHeight(rdouble(10));
-        rect.setTransform(null);
         roi.addShape(rect);
 
         Line line = new LineI();
@@ -119,7 +118,6 @@ public class Main {
         line.setX2(rdouble(200));
         line.setY1(rdouble(300));
         line.setY2(rdouble(400));
-        line.setTransform(rstring("100 0 0 200 0 0"));
         roi.addShape(line);
 
         Mask mask = new MaskI();
@@ -131,10 +129,9 @@ public class Main {
         mask.setPixels(new PixelsI(0, false));
 
         Point point = new PointI();
-        point.setCx(rdouble(75.0));
-        point.setCy(rdouble(75.0));
+        point.setX(rdouble(75.0));
+        point.setY(rdouble(75.0));
         // Point.r should be removed
-        point.setTransform(null);
         roi.addShape(point);
 
         // For the following three, the format for the string value is unclear:
@@ -145,26 +142,22 @@ public class Main {
         //
         Path path = new PathI();
         path.setD(rstring("M 100 100 L 300 100 L 200 300 z"));
-        path.setTransform(null);
         roi.addShape(path);
 
         Polygon polygon = new PolygonI();
         polygon.setPoints(rstring("100.0,200.0 553.9,593.5 92.3,59.9"));
-        polygon.setTransform(null);
         roi.addShape(polygon);
 
         Polyline polyline = new PolylineI();
         polyline.setPoints(rstring("100.0,200.0 553.9,593.5 92.3,59.9"));
-        polyline.setTransform(null);
         roi.addShape(polyline);
 
         // Display fields which could quickly
         // be parsed from known formats
         Label text = new LabelI();
         text.setTextValue(rstring("This is a polyline"));
-        text.setFontFamily(rstring("Verdana"));
+        text.setFontFamily(rstring("sans-serif"));
         text.setFontSize(rint(40));
-        text.setFontWeight(rstring("bold"));
         text.setFillColor(GREY);
         text.setStrokeColor(GREY);
         text.setStrokeWidth(rint(25));
@@ -173,25 +166,12 @@ public class Main {
         roi.addShape(text);
 
         // Other options which may come with time
-        text.setVectorEffect(rstring("non-scaling-stroke"));
-        text.setFontStretch(rstring("wider"));
         text.setFontStyle(rstring("italic"));
-        text.setFontVariant(rstring("small-caps"));
         text.setFillColor(GREY);
         text.setFillRule(rstring("even-odd"));
         text.setStrokeColor(GREY);
         text.setStrokeDashArray(rstring("10 20 30 10"));
-        text.setStrokeDashOffset(rint(1));
-        text.setStrokeLineCap(rstring("butt"));
-        text.setStrokeLineJoin(rstring("bevel"));
-        text.setStrokeMiterLimit(rint(1));
         text.setStrokeWidth(rint(10));
-        text.setAnchor(rstring("middle"));
-        text.setDecoration(rstring("underline"));
-        text.setBaselineShift(rstring("70%"));
-        text.setGlyphOrientationVertical(rint(90));
-        text.setDirection(rstring("rtl"));
-        text.setWritingMode(rstring("tb-rl"));
 
         Rectangle singlePlane = new RectangleI();
         singlePlane.setX(rdouble(2.4));

@@ -23,12 +23,14 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -36,11 +38,14 @@ import javax.swing.JPanel;
 
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import ome.formats.model.UnitsFactory;
+import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.PressureI;
 import omero.model.TemperatureI;
@@ -178,12 +183,25 @@ class ImageAcquisitionComponent
             label.setBackground(UIUtilities.BACKGROUND_COLOR);
             if (value instanceof String) {
             	area = UIUtilities.createComponent(OMETextArea.class, null);
-                if (value == null || value.equals("")) {
+                if (CommonsLangUtils.isBlank((String)value)) {
                 	value = AnnotationUI.DEFAULT_TEXT;
                 	set = false;
                 }
                 ((OMETextArea) area).setText((String) value);
            	 	((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
+            } else if (value instanceof Length) {
+                Length l = (Length) value;
+                area = UIUtilities.createComponent(OMETextArea.class, null);
+                if (value == null) {
+                    value = AnnotationUI.DEFAULT_TEXT;
+                    set = false;
+                    ((OMETextArea) area).setText((String) value);
+                }
+                else {
+                    DecimalFormat df = new DecimalFormat("0.##");
+                    ((OMETextArea) area).setText(df.format(l.getValue())+" "+l.getSymbol());
+                }
+                ((OMETextArea) area).setEditedColor(UIUtilities.EDITED_COLOR);
             } else {
             	area = UIUtilities.createComponent(NumericalTextField.class, 
             			null);

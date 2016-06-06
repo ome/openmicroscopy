@@ -12,7 +12,6 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -107,44 +106,20 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                boolean ns = false;
-                if (opts != null) {
-                    if(opts.namespace != null) {
-                        ns = true;
-                    }
-                }
-
-                if (ns)
-                {
-		    final List<Map<String, Object>> mapList = sql.roiByImageAndNs(imageId,
-		            opts.namespace.getValue());
-                    final List<Long> idList = new ArrayList<Long>();
-
-                    for(Map<String, Object> idMap : mapList) {
-                        idList.add((Long)idMap.get("id"));
-                    }
-
-                    if (idList.size() == 0) return new ArrayList();
-
-                    final RoiQueryBuilder qb = new RoiQueryBuilder(idList, opts);
-                    return qb.query(session).list();
-                }
-
-                else
-                {
-                    final Filter f = filter(opts);
-                    final QueryBuilder qb = new QueryBuilder();
-                    qb.select("distinct r").from("Roi", "r");
-                    qb.join("r.image", "i", false, false);
-                    qb.join("r.shapes", "shapes", false, true); // fetch
-                    qb.where();
-                    qb.and("i.id = :id");
-                    qb.filter("r", f);
-                    qb.filterNow();
-                    qb.order("r.id", true); // ascending
-                    qb.param("id", imageId);
-                    return qb.queryWithoutFilter(session).list();
-                }
+                final Filter f = filter(opts);
+                final QueryBuilder qb = new QueryBuilder();
+                qb.select("distinct r").from("Roi", "r");
+                qb.join("r.image", "i", false, false);
+                qb.join("r.shapes", "shapes", false, true); // fetch
+                qb.join("r.folderLinks", "folderLinks", true, true); // fetch
+                qb.join("folderLinks.parent", "folder", true, true); // fetch
+                qb.where();
+                qb.and("i.id = :id");
+                qb.filter("r", f);
+                qb.filterNow();
+                qb.order("r.id", true); // ascending
+                qb.param("id", imageId);
+                return qb.queryWithoutFilter(session).list();
             }
         }));
 
@@ -184,6 +159,8 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 final QueryBuilder qb = new QueryBuilder();
                 qb.select("distinct r").from("Roi", "r");
                 qb.join("r.shapes", "s", false, true); // fetch
+                qb.join("r.folderLinks", "folderLinks", true, true); // fetch
+                qb.join("folderLinks.parent", "folder", true, true); // fetch
                 qb.join("r.image", "i", false, false);
                 qb.where();
                 qb.and("i.id = :id");
@@ -656,8 +633,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 result.rois = Collections.emptyList();
                 result.byZ = Collections.emptyMap();
                 result.byT = Collections.emptyMap();
-                result.byG = Collections.emptyMap();
-                result.groups = Collections.emptyMap();
                 return result; // EARLY EXIT
             }
 
@@ -666,7 +641,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             result.rois = rois;
             MultiMap byZ = new MultiValueMap();
             MultiMap byT = new MultiValueMap();
-            MultiMap byG = new MultiValueMap();
             for (Roi roi : rois) {
                 omero.model.RoiI roii = (omero.model.RoiI) roi;
                 Iterator<Shape> it = roii.iterateShapes();
@@ -685,13 +659,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                     } else {
                         byZ.put(-1, shape);
                     }
-                    if (shape.getG() != null) {
-                        byG.put(shape.getG().getValue(), shape);
-                    } else {
-                        byG.put("", shape);
-                    }
                 }
-                result.byG = byG;
                 result.byZ = byZ;
                 result.byT = byT;
             }

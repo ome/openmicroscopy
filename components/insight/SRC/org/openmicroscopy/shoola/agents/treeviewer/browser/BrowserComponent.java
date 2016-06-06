@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,6 @@ import javax.swing.tree.TreePath;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
@@ -87,6 +86,7 @@ import omero.gateway.model.PlateData;
 import omero.gateway.model.ProjectData;
 import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
+import omero.gateway.model.WellSampleData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -1111,7 +1111,7 @@ class BrowserComponent
 	public void loadExperimenterData(TreeImageDisplay exp, TreeImageDisplay n)
 	{
 		if (exp == null)
-			throw new IllegalArgumentException("Node not valid.");
+			return;
 		Object uo = exp.getUserObject();
 		if (!(uo instanceof ExperimenterData || uo instanceof GroupData))
 			throw new IllegalArgumentException("Node not valid.");
@@ -1800,6 +1800,31 @@ class BrowserComponent
 		model.getParentModel().browse(node, data, withThumbnails);
 	}
 
+    /**
+     * Check if the given object is a {@link WellSampleData} object or a List of
+     * {@link WellSampleData} objects
+     * 
+     * @param selected
+     *            The object to check
+     * @return See above.
+     */
+    private boolean isWellSampleDataSelection(Object selected) {
+        if (selected == null)
+            return false;
+
+        if (selected instanceof WellSampleData)
+            return true;
+
+        if (selected instanceof List) {
+            List l = (List) selected;
+            if (!l.isEmpty())
+                if (l.iterator().next() instanceof WellSampleData)
+                    return true;
+        }
+
+        return false;
+    }
+	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#onSelectedNode(Object, Object, Boolean)
@@ -1807,8 +1832,12 @@ class BrowserComponent
 	public void onSelectedNode(Object parent, Object selected, 
 					Boolean multiSelection)
 	{
-		TreeImageDisplay foundNode;
-		if (selected instanceof DataObject) {
+        TreeImageDisplay foundNode;
+        if (isWellSampleDataSelection(selected)) {
+            // ignore, there are no wellsample nodes in the tree
+            return;
+        }
+        else if (selected instanceof DataObject) {
 			NodeSelectionVisitor visitor = new NodeSelectionVisitor(parent, 
 													(DataObject) selected);
 			accept(visitor);

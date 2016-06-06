@@ -38,6 +38,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeListenerProxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -69,7 +70,6 @@ import javax.swing.border.BevelBorder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.JXBusyLabel;
-
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
@@ -85,6 +85,7 @@ import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+import org.openmicroscopy.shoola.util.ui.FancyTextField;
 import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
 import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -368,7 +369,6 @@ class ToolBar
         ExperimenterData exp;
 
         DataMenuItem item, allUser;
-        
         boolean view = true;
         if (group != null) {
             int level = group.getPermissions().getPermissionsLevel();
@@ -379,18 +379,38 @@ class ToolBar
         
         List<DataMenuItem> list = new ArrayList<DataMenuItem>();
 
-        allUser = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
+        String v = (String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_ALL_MEMBERS_NAME);
+        if (v == null || v.trim().length() == 0) {
+            v = DataMenuItem.ALL_USERS_TEXT;
+        }
+        Boolean enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_ALL_MEMBERS_ENABLED));
+        boolean b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        allUser = new DataMenuItem(v, b);
+        allUser.setRefString(DataMenuItem.ALL_USERS_TEXT);
+        allUser.addPropertyChangeListener(groupItem);
         items.add(allUser);
         if (view) p.add(allUser);
         int count = 0;
         int total = 0;
-        if (CollectionUtils.isNotEmpty(l)) {
+        enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_LEADERS_ENABLED));
+        b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        if (CollectionUtils.isNotEmpty(l) && b) {
             total += l.size();
             i = l.iterator();
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
-                    item = new DataMenuItem(exp, true);
+                    if (exp.getId() == loggedUserID) b = true;
+                    item = new DataMenuItem(exp, b);
                     item.setChecked(users.contains(exp.getId()));
                     if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
@@ -399,7 +419,12 @@ class ToolBar
                 }
             }
             if (list.size() > 0) {
-                p.add(formatHeader("Group owners"));
+                v = (String) TreeViewerAgent.getRegistry().lookup(
+                        LookupNames.GROUP_LEADERS_NAME);
+                if (v == null || v.trim().length() == 0) {
+                    v = "Group owners";
+                }
+                p.add(formatHeader(v));
                 for(DataMenuItem dmi : list)
                     p.add(dmi);
                 list.clear();
@@ -407,13 +432,20 @@ class ToolBar
         }
 
         if (group != null) l = sorter.sort(group.getMembersOnly());
-        if (CollectionUtils.isNotEmpty(l)) {
+        enabled = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+                LookupNames.GROUP_MEMBERS_ENABLED));
+        b = false;
+        if (enabled != null) {
+            b = enabled.booleanValue();
+        }
+        if (CollectionUtils.isNotEmpty(l) && b) {
             total += l.size();
             i = l.iterator();
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
-                    item = new DataMenuItem(exp, true);
+                    if (exp.getId() == loggedUserID) b = true;
+                    item = new DataMenuItem(exp, b);
                     item.setChecked(users.contains(exp.getId()));
                     if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
@@ -422,7 +454,12 @@ class ToolBar
                 }
             }
             if (list.size() > 0) {
-                p.add(formatHeader("Members"));
+                v = (String) TreeViewerAgent.getRegistry().lookup(
+                        LookupNames.GROUP_MEMBERS_NAME);
+                if (v == null || v.trim().length() == 0) {
+                    v = "Members";
+                }
+                p.add(formatHeader(v));
                 for(DataMenuItem dmi : list)
                     p.add(dmi);
             }
@@ -765,55 +802,15 @@ class ToolBar
         sorter.setCaseSensitive(true);
         popupMenu = new ScrollablePopupMenu();
         
-        searchField = initSearchField();
-    }
+        searchField = new FancyTextField(SEARCHFIELD_TEXT, SEARCHFIELD_WIDTH);
+        searchField.addPropertyChangeListener(FancyTextField.SUBMIT_PROPERTY, new PropertyChangeListener() {
 
-    /**
-     * Initializes the search field 
-     */
-    private JTextField initSearchField() {
-        final JTextField searchField = new JTextField(SEARCHFIELD_WIDTH);
-        searchField.setText(SEARCHFIELD_TEXT);
-        
-        final Font defaultFont = searchField.getFont();
-        final Font italicFont = searchField.getFont().deriveFont(Font.ITALIC);
-        searchField.setFont(italicFont);
-        searchField.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-        
-        searchField.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_ENTER:
-                        search();
-                }
-            }
-        });
-        
-        searchField.addFocusListener(new FocusListener() {
-            
             @Override
-            public void focusLost(FocusEvent e) {
-                if (searchField.getText().trim().equals("")) {
-                    searchField.setText(SEARCHFIELD_TEXT);
-                    searchField.setFont(italicFont);
-                    searchField.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-                }
+            public void propertyChange(PropertyChangeEvent evt) {
+                search();
             }
             
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (searchField.getText().equals(SEARCHFIELD_TEXT)) {
-                    searchField.setText("");
-                }
-                else {
-                    searchField.selectAll();
-                }
-                searchField.setFont(defaultFont);
-                searchField.setForeground(Color.BLACK);
-            }
         });
-        
-        return searchField;
     }
     
     /**

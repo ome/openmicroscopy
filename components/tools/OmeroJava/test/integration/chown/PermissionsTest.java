@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,9 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.Folder;
+import omero.model.FolderImageLink;
+import omero.model.FolderImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -105,7 +108,7 @@ public class PermissionsTest extends AbstractServerTest {
      */
     @AfterClass
     public void deleteTestImages() throws Exception {
-        final Delete2 delete = Requests.delete("Image", testImages);
+        final Delete2 delete = Requests.delete().target("Image").id(testImages).build();
         doChange(root, root.getSession(), delete, true);
         clearTestImages();
     }
@@ -256,14 +259,12 @@ public class PermissionsTest extends AbstractServerTest {
                 tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             }
         }
-        disconnect();
 
         /* perform the chown */
 
         init(chowner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
-        disconnect();
 
         if (!isExpectSuccess) {
             return;
@@ -293,7 +294,6 @@ public class PermissionsTest extends AbstractServerTest {
         final List<List<RType>> results = iQuery.projection(query, params);
         final long remainingLinkCount = ((RLong) results.get(0).get(0)).getValue();
         Assert.assertEquals(remainingLinkCount, imageLinkIds.size() - tagLinksOnOtherImage.size());
-        disconnect();
     }
 
     /**
@@ -344,20 +344,17 @@ public class PermissionsTest extends AbstractServerTest {
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
         ownerAnnotations = annotateImage(image);
-        disconnect();
 
         /* have another user annotate the image */
 
         init(annotator);
         otherAnnotations = annotateImage(image);
-        disconnect();
 
         /* perform the chown */
 
         init(chowner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
-        disconnect();
 
         if (!isExpectSuccess) {
             return;
@@ -369,7 +366,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(image, recipient);
         assertOwnedBy(ownerAnnotations, importer);
         assertOwnedBy(otherAnnotations, annotator);
-        disconnect();
     }
 
     /**
@@ -414,40 +410,42 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Test a specific case of using {@link Chown2} on an image that is in a dataset.
-     * @param isImageOwner if the user who owns the dataset also owns the image
-     * @param isLinkOwner if the user who owns the dataset also linked the image to the dataset
+     * Test a specific case of using {@link Chown2} on an image that is in a dataset or a folder.
+     * @param isImageOwner if the user who owns the container also owns the image
+     * @param isLinkOwner if the user who owns the container also linked the image to the container
      * @param groupPermissions the permissions on the group in which the data exists
+     * @param isInDataset if the image is in a dataset, otherwise a folder
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown container test cases")
-    public void testChownImageInDataset(boolean isImageOwner, boolean isLinkOwner, String groupPermissions) throws Exception {
+    public void testChownImageInContainer(boolean isImageOwner, boolean isLinkOwner, String groupPermissions, boolean isInDataset)
+            throws Exception {
 
         /* set up the users and group for this test case */
 
-        final EventContext datasetOwner, imageOwner, linkOwner, recipient;
+        final EventContext containerOwner, imageOwner, linkOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup(groupPermissions, true);
+        containerOwner = newUserAndGroup(groupPermissions, true);
 
-        final long dataGroupId = datasetOwner.groupId;
+        final long dataGroupId = containerOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
 
         recipient = newUserInGroup(dataGroup, false);
 
         if (isImageOwner) {
-            imageOwner = datasetOwner;
-            linkOwner = isLinkOwner ? datasetOwner : newUserInGroup(dataGroup, false);
+            imageOwner = containerOwner;
+            linkOwner = isLinkOwner ? containerOwner : newUserInGroup(dataGroup, false);
         } else {
             imageOwner = newUserInGroup(dataGroup, true);
-            linkOwner = isLinkOwner ? datasetOwner : imageOwner;
+            linkOwner = isLinkOwner ? containerOwner : imageOwner;
         }
 
-        /* create a dataset */
+        /* create a container */
 
-        init(datasetOwner);
-        final Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset()).proxy();
-        disconnect();
+        init(containerOwner);
+        IObject container = isInDataset ? mmFactory.simpleDataset() : mmFactory.simpleFolder();
+        container = iUpdate.saveAndReturnObject(container).proxy();
 
         /* create an image */
 
@@ -455,28 +453,33 @@ public class PermissionsTest extends AbstractServerTest {
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        disconnect();
 
-        /* move the image into the dataset */
+        /* move the image into the container */
 
         init(linkOwner);
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setParent(dataset);
-        link.setChild(image);
-        link = (DatasetImageLink) iUpdate.saveAndReturnObject(link);
-        disconnect();
+        final IObject link;
+        if (isInDataset) {
+            final DatasetImageLink linkDI = new DatasetImageLinkI();
+            linkDI.setParent((Dataset) container);
+            linkDI.setChild(image);
+            link = iUpdate.saveAndReturnObject(linkDI);
+        } else {
+            final FolderImageLink linkFI = new FolderImageLinkI();
+            linkFI.setParent((Folder) container);
+            linkFI.setChild(image);
+            link = iUpdate.saveAndReturnObject(linkFI);
+        }
 
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
-        disconnect();
 
         /* check that the objects' ownership is all as expected */
 
         logRootIntoGroup(dataGroupId);
-        assertOwnedBy(dataset, datasetOwner);
+        assertOwnedBy(container, containerOwner);
         assertOwnedBy(image, recipient);
         final boolean isExpectLink = "rwrw--".equals(groupPermissions);
         if (isExpectLink) {
@@ -485,45 +488,45 @@ public class PermissionsTest extends AbstractServerTest {
         } else {
             assertDoesNotExist(link);
         }
-        disconnect();
     }
 
     /**
-     * Test a specific case of using {@link Chown2} on a dataset that contains an image.
-     * @param isImageOwner if the user who owns the dataset also owns the image
-     * @param isLinkOwner if the user who owns the dataset also linked the image to the dataset
+     * Test a specific case of using {@link Chown2} on a dataset or a folder that contains an image.
+     * @param isImageOwner if the user who owns the container also owns the image
+     * @param isLinkOwner if the user who owns the container also linked the image to the container
      * @param groupPermissions the permissions on the group in which the data exists
+     * @param isInDataset if the image is in a dataset, otherwise a folder
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown container test cases")
-    public void testChownDatasetWithImage(boolean isImageOwner, boolean isLinkOwner, String groupPermissions) throws Exception {
+    public void testChownContainerWithImage(boolean isImageOwner, boolean isLinkOwner, String groupPermissions, boolean isInDataset)
+            throws Exception {
 
         /* set up the users and group for this test case */
 
-        final EventContext datasetOwner, imageOwner, linkOwner, recipient;
+        final EventContext containerOwner, imageOwner, linkOwner, recipient;
         final ExperimenterGroup dataGroup;
 
-        datasetOwner = newUserAndGroup(groupPermissions, true);
+        containerOwner = newUserAndGroup(groupPermissions, true);
 
-        final long dataGroupId = datasetOwner.groupId;
+        final long dataGroupId = containerOwner.groupId;
         dataGroup = new ExperimenterGroupI(dataGroupId, false);
 
         recipient = newUserInGroup(dataGroup, false);
 
         if (isImageOwner) {
-            imageOwner = datasetOwner;
-            linkOwner = isLinkOwner ? datasetOwner : newUserInGroup(dataGroup, false);
+            imageOwner = containerOwner;
+            linkOwner = isLinkOwner ? containerOwner : newUserInGroup(dataGroup, false);
         } else {
             imageOwner = newUserInGroup(dataGroup, true);
-            linkOwner = isLinkOwner ? datasetOwner : imageOwner;
+            linkOwner = isLinkOwner ? containerOwner : imageOwner;
         }
 
-        /* create a dataset */
+        /* create a container */
 
-        init(datasetOwner);
-        final Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(mmFactory.simpleDataset()).proxy();
-        final long datasetId = dataset.getId().getValue();
-        disconnect();
+        init(containerOwner);
+        IObject container = isInDataset ? mmFactory.simpleDataset() : mmFactory.simpleFolder();
+        container = iUpdate.saveAndReturnObject(container).proxy();
 
         /* create an image */
 
@@ -531,31 +534,35 @@ public class PermissionsTest extends AbstractServerTest {
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        disconnect();
 
-        /* move the image into the dataset */
+        /* move the image into the container */
 
         init(linkOwner);
-        DatasetImageLink link = new DatasetImageLinkI();
-        link.setParent(dataset);
-        link.setChild(image);
-        link = (DatasetImageLink) iUpdate.saveAndReturnObject(link);
-        disconnect();
+        final IObject link;
+        if (isInDataset) {
+            final DatasetImageLink linkDI = new DatasetImageLinkI();
+            linkDI.setParent((Dataset) container);
+            linkDI.setChild(image);
+            link = iUpdate.saveAndReturnObject(linkDI);
+        } else {
+            final FolderImageLink linkFI = new FolderImageLinkI();
+            linkFI.setParent((Folder) container);
+            linkFI.setChild(image);
+            link = iUpdate.saveAndReturnObject(linkFI);
+        }
 
         /* perform the chown */
 
-        init(datasetOwner);
-        final Chown2 chown = Requests.chown("Dataset", datasetId, recipient.userId);
+        init(containerOwner);
+        final Chown2 chown = Requests.chown().target(container).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
-        disconnect();
 
         /* check that the objects' ownership is all as expected */
 
         logRootIntoGroup(dataGroupId);
-        assertOwnedBy(dataset, recipient);
+        assertOwnedBy(container, recipient);
         assertOwnedBy(image, isImageOwner ? recipient : imageOwner);
         assertOwnedBy(link, isImageOwner ? recipient : linkOwner);
-        disconnect();
     }
 
     /**
@@ -567,6 +574,7 @@ public class PermissionsTest extends AbstractServerTest {
         final int IS_IMAGE_OWNER = index++;
         final int IS_LINK_OWNER = index++;
         final int GROUP_PERMS = index++;
+        final int IS_IN_DATASET = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
         final String[] permsCases = new String[]{"rw----", "rwr---", "rwra--", "rwrw--"};
@@ -576,16 +584,20 @@ public class PermissionsTest extends AbstractServerTest {
         for (final boolean isImageOwner : booleanCases) {
             for (final boolean isLinkOwner : booleanCases) {
                 for (final String groupPerms : permsCases) {
-                    if (!(isImageOwner && isLinkOwner || "rwrw--".equals(groupPerms))) {
-                        /* test case does not make sense */
-                        continue;
+                    for (final boolean isInDataset : booleanCases) {
+                        if (!(isImageOwner && isLinkOwner || "rwrw--".equals(groupPerms))) {
+                            /* test case does not make sense */
+                            continue;
+                        }
+                        final Object[] testCase = new Object[index];
+                        testCase[IS_IMAGE_OWNER] = isImageOwner;
+                        testCase[IS_LINK_OWNER] = isLinkOwner;
+                        testCase[GROUP_PERMS] = groupPerms;
+                        testCase[IS_IN_DATASET] = isInDataset;
+                        // DEBUG: if (isImageOwner == true && isLinkOwner == true && "rwr---".equals(groupPerms)
+                        //        && isInDataset = false)
+                        testCases.add(testCase);
                     }
-                    final Object[] testCase = new Object[index];
-                    testCase[IS_IMAGE_OWNER] = isImageOwner;
-                    testCase[IS_LINK_OWNER] = isLinkOwner;
-                    testCase[GROUP_PERMS] = groupPerms;
-                    // DEBUG: if (isImageOwner == true && isLinkOwner == true && "rwr---".equals(groupPerms))
-                    testCases.add(testCase);
                 }
             }
         }
@@ -624,7 +636,6 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(imageId);
         final Instrument instrument = (Instrument) image.getInstrument().proxy();
         image = (Image) image.proxy();
-        disconnect();
 
         /* another user projects the image */
 
@@ -635,21 +646,18 @@ public class PermissionsTest extends AbstractServerTest {
         final long projectionId = projection.getId().getValue();
         testImages.add(projectionId);
         projection = (Image) projection.proxy();
-        disconnect();
 
         /* chmod the group to the required permissions */
 
         logRootIntoGroup(dataGroupId);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, groupPermissions);
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms(groupPermissions).build();
         doChange(client, factory, chmod, true);
-        disconnect();
 
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
-        disconnect();
 
         /* check that the objects' ownership is all as expected */
 
@@ -657,7 +665,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(image, recipient);
         assertOwnedBy(projection, projectionOwner);
         assertOwnedBy(instrument, imageOwner);
-        disconnect();
     }
 
     /**
@@ -691,7 +698,6 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(imageId);
         final Experiment experiment = (Experiment) image.getExperiment().proxy();
         image = (Image) image.proxy();
-        disconnect();
 
         /* another user's image is part of the same experiment */
 
@@ -702,21 +708,18 @@ public class PermissionsTest extends AbstractServerTest {
         final long otherImageId = otherImage.getId().getValue();
         testImages.add(otherImageId);
         otherImage = (Image) otherImage.proxy();
-        disconnect();
 
         /* chmod the group to the required permissions */
 
         logRootIntoGroup(dataGroupId);
-        final Chmod2 chmod = Requests.chmod("ExperimenterGroup", dataGroupId, groupPermissions);
+        final Chmod2 chmod = Requests.chmod().target(dataGroup).toPerms(groupPermissions).build();
         doChange(client, factory, chmod, true);
-        disconnect();
 
         /* perform the chown */
 
         init(imageOwner);
-        final Chown2 chown = Requests.chown("Image", imageId, recipient.userId);
+        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, true);
-        disconnect();
 
         /* check that the objects' ownership is all as expected */
 
@@ -724,7 +727,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(image, recipient);
         assertOwnedBy(otherImage, otherImageOwner);
         assertOwnedBy(experiment, imageOwner);
-        disconnect();
     }
 
     /**
@@ -790,7 +792,6 @@ public class PermissionsTest extends AbstractServerTest {
             final Long imageId = ((RLong) result.get(0)).getValue();
             imageIds.add(imageId);
         }
-        disconnect();
 
         /* the images should be owned by the dataset owner */
 
@@ -802,7 +803,6 @@ public class PermissionsTest extends AbstractServerTest {
             image.getDetails().setOwner(datasetOwnerActual);
         }
         iUpdate.saveCollection(images);
-        disconnect();
 
         /* create the dataset and link the images to it */
 
@@ -817,7 +817,6 @@ public class PermissionsTest extends AbstractServerTest {
             link.setChild((Image) image.proxy());
             links.add((DatasetImageLink) iUpdate.saveAndReturnObject(link).proxy());
         }
-        disconnect();
 
         /* check that the objects' ownership is all as expected */
 
@@ -826,7 +825,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(images, datasetOwner);
         assertOwnedBy(links, datasetOwner);
         assertOwnedBy(plate, plateOwner);
-        disconnect();
 
         /* perform the chown */
 
@@ -835,13 +833,13 @@ public class PermissionsTest extends AbstractServerTest {
 
         switch (target) {
         case DATASET:
-            chown = Requests.chown("Dataset", datasetId, recipient.userId);
+            chown = Requests.chown().target(dataset).toUser(recipient.userId).build();
             break;
         case IMAGES:
-            chown = Requests.chown("Image", imageIds, recipient.userId);
+            chown = Requests.chown().target("Image").id(imageIds).toUser(recipient.userId).build();
             break;
         case PLATE:
-            chown = Requests.chown("Plate", plateId, recipient.userId);
+            chown = Requests.chown().target(plate).toUser(recipient.userId).build();
             break;
         default:
             chown = null;
@@ -849,7 +847,6 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         doChange(client, factory, chown, true);
-        disconnect();
 
         logRootIntoGroup(dataGroupId);
 
@@ -883,8 +880,6 @@ public class PermissionsTest extends AbstractServerTest {
                 "Dataset", Collections.singletonList(datasetId),
                 "Plate", Collections.singletonList(plateId));
         doChange(client, factory, delete, true);
-
-        disconnect();
 }
 
     /**

@@ -61,7 +61,7 @@ public class FullTextThread extends ExecutionThread {
         @Transactional(readOnly = false)
         @Override
         public Object doWork(Session session, ServiceFactory sf) {
-            // Re-index entries noted in the _updated_annotations table.
+            // Re-index entries noted in the _reindexing_required table.
             getSqlAction().refreshEventLogFromUpdatedAnnotations();
             return null;
         }

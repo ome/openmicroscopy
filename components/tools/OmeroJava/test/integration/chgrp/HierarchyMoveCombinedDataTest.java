@@ -79,7 +79,6 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .createImage());
         long user1 = img1.getDetails().getOwner().getId().getValue();
-        disconnect();
 
         // Step 2
         // create a new user and add it to the group
@@ -111,14 +110,11 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
 
         long user2 = d.getDetails().getOwner().getId().getValue();
         assertTrue(user1 != user2);
-        disconnect();
-
+        
         // Step 3
         // Create a new group, the user is now a member of the new group.
         ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
         loginUser(g);
-
-        disconnect();
 
         // Step 4
         // reconnect to the source group.
@@ -132,7 +128,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
                 logRootIntoGroup(ctx.groupId);
         }
         // Create commands to move and create the link in target
-        final Chgrp2 dc = Requests.chgrp("Dataset", d.getId().getValue(), g.getId().getValue());
+        final Chgrp2 dc = Requests.chgrp().target(d).toGroup(g).build();
         callback(true, client, dc);
 
         // Check if the dataset has been removed.
@@ -150,9 +146,6 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         sql = "select i from Image as i where i.id in (:ids)";
         List<IObject> results = iQuery.findAllByQuery(sql, param);
         assertEquals(results.size(), 0);
-
-        // log out from source group
-        disconnect();
 
         // Step 5
         // log into source group to perform the move

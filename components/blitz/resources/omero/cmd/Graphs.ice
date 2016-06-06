@@ -14,134 +14,8 @@ module omero {
     module cmd {
 
         /**
-         *
-         **/
-        ["deprecated:use omero::cmd::GraphModify2 instead"]
-        class GraphModify extends Request {
-            string type;
-            long id;
-            StringMap options;
-        };
-
-        /**
-         * Returned when specifically a ome.services.graphs.GraphConstraintException
-         * is thrown. The contents of that internal exception are passed in
-         * this instance.
-         **/
-        ["deprecated:use omero::cmd::ERR instead"]
-        class GraphConstraintERR extends ERR {
-
-            /**
-             * A container mapping from class names to collections of
-             * longs (ids) for each object which prevented the current
-             * operation from succeeding.
-             **/
-             omero::api::IdListMap constraints;
-
-        };
-
-        ["deprecated:omero::cmd::GraphModify is deprecated",
-         "java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
-        sequence<GraphModify> GraphModifyList;
-
-        ["deprecated:use omero::cmd::Chgrp2 instead"]
-        class Chgrp extends GraphModify {
-            long grp;
-        };
-
-        ["deprecated:use omero::cmd::Chgrp2Response instead"]
-        class ChgrpRsp extends Response {
-        };
-
-        /**
-         * Modifies the permissions settings for the given object.
-         * Most permission modifications will be quite fast and will
-         * specify this as returning a small number of steps in the
-         * status object. When lowering a READ setting, however, all
-         * existing data will need to be checked and there will be a
-         * minimum of one step per table in the database.
-         *
-         * At the moment, the only supported type is "/ExperimenterGroup".
-         *
-         **/
-        ["deprecated:use omero::cmd::Chmod2 instead"]
-        class Chmod extends GraphModify {
-
-            /**
-             * String representation of the permissions
-             * which should be set on the object.
-             **/
-            string permissions;
-        };
-
-        ["deprecated:use omero::cmd::Chmod2Response instead"]
-        class ChmodRsp extends Response {
-        };
-
-        ["deprecated:use omero::cmd::Chown2 instead"]
-        class Chown extends GraphModify {
-            long user;
-        };
-
-        ["deprecated:use omero::cmd::Chown2Response instead"]
-        class ChownRsp extends Response {
-        };
-
-        /**
-         * Delete requests will return a [omero::cmd::DeleteRsp]
-         * unless an error has occurred in which case a standard
-         * [omero::cmd::ERR] may be returned.
-         **/
-        ["deprecated:use omero::cmd::Delete2 instead"]
-        class Delete extends GraphModify {
-        };
-
-        /**
-         * Mirrors and replaces DeleteReport. There is no "error" field
-         * because if there was an error than an ERR object will be
-         * returned.
-         **/
-        ["deprecated:use omero::cmd::Delete2Response instead"]
-        class DeleteRsp extends OK {
-
-            /**
-             * Extra feedback mechanism. Typically will only be non-empty
-             * if the error is empty. This implies that some situation was
-             * encountered that the user may need to be informed of (e.g.
-             * some annotation wasn't deleted), but which was non-critical.
-             **/
-            string warning;
-
-            /**
-             * Map from type name ("Thumbnail", "Pixels", "OriginalFile") to
-             * a list of ids for any binary files which did not get deleted.
-             *
-             * Some action may be desired by the user to guarantee that this
-             * server-space is eventually
-             **/
-            omero::api::IdListMap undeletedFiles;
-
-            /**
-             * Number of steps that this [DeleteCommand] requires.
-             **/
-            int steps;
-
-            /**
-             * Number of objects that this [DeleteCommand] will attempt
-             * to delete.
-             **/
-            long scheduledDeletes;
-
-            /**
-             * Number of actual deletes which took place.
-             **/
-            long actualDeletes;
-
-        };
-
-        /**
          * Options that modify GraphModify2 request execution.
-         * By default, a user's related "orphaned" objects are typically
+         * By default, a user's related ""orphaned"" objects are typically
          * included in a request's operation. These options override that
          * behavior, allowing the client to specify whether to always or
          * never include given kinds of child object regardless of if they
@@ -197,16 +71,21 @@ module omero {
         };
 
         /**
-         * Base class for new requests for operating upon the model object
-         * graph.
+         * Base class for new requests for reading the model object graph.
          **/
-        class GraphModify2 extends Request {
+        class GraphQuery extends Request {
 
             /**
              * The model objects upon which to operate.
              * Related model objects may also be targeted.
              **/
             omero::api::StringLongListMap targetObjects;
+        };
+
+        /**
+         * Base class for new requests for modifying the model object graph.
+         **/
+        class GraphModify2 extends GraphQuery {
 
             /**
              * If the request should operate on specific kinds of children.
@@ -362,6 +241,40 @@ module omero {
         };
 
         /**
+         * Request to determine the disk usage of the given objects
+         * and their contents. File-system paths used by multiple objects
+         * are de-duplicated in the total count. Specifying a class is
+         * equivalent to specifying all its instances as objects.
+         *
+         * Permissible classes include:
+         *   ExperimenterGroup, Experimenter, Project, Dataset,
+         *   Folder, Screen, Plate, Well, WellSample,
+         *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
+         **/
+        class DiskUsage2 extends GraphQuery {
+            omero::api::StringSet targetClasses;
+        };
+
+        /**
+         * Disk usage report: bytes used and non-empty file counts on the
+         * repository file-system for specific objects. The counts from the
+         * maps may sum to more than the total if different types of object
+         * refer to the same file. Common referers include:
+         *   Annotation for file annotations
+         *   FilesetEntry for OMERO 5 image files (OMERO.fs)
+         *   Job for import logs
+         *   Pixels for pyramids and OMERO 4 images and archived files
+         *   Thumbnail for the image thumbnails
+         * The above map values are broken down by owner-group keys.
+         **/
+        class DiskUsage2Response extends Response {
+            omero::api::LongPairToStringIntMap fileCountByReferer;
+            omero::api::LongPairToStringLongMap bytesUsedByReferer;
+            omero::api::LongPairIntMap totalFileCount;
+            omero::api::LongPairLongMap totalBytesUsed;
+        };
+
+        /**
          * Duplicate model objects with some selection of their subgraph.
          * All target model objects must be in the current group context.
          * The extra three data members allow adjustment of the related
@@ -400,6 +313,68 @@ module omero {
              * objects that would have been duplicated.
              **/
             omero::api::StringLongListMap duplicates;
+        };
+
+        /**
+         * Identify the parents or containers of model objects.
+         * Traverses the model graph to identify indirect relationships.
+         **/
+        class FindParents extends GraphQuery {
+
+            /**
+             * The types of parents being sought.
+             **/
+            omero::api::StringSet typesOfParents;
+
+            /**
+             * Classes of model objects to exclude from the recursive
+             * search. Search does not include or pass such objects.
+             * For efficiency the server automatically excludes various
+             * classes depending on the other arguments of the request.
+             **/
+            omero::api::StringSet stopBefore;
+        };
+
+        /**
+         * Result of identifying the parents or containers of model objects.
+         **/
+        class FoundParents extends OK {
+
+            /**
+             * The parents that were identified.
+             **/
+            omero::api::StringLongListMap parents;
+        };
+
+        /**
+         * Identify the children or contents of model objects.
+         * Traverses the model graph to identify indirect relationships.
+         **/
+        class FindChildren extends GraphQuery {
+
+            /**
+             * The types of children being sought.
+             **/
+            omero::api::StringSet typesOfChildren;
+
+            /**
+             * Classes of model objects to exclude from the recursive
+             * search. Search does not include or pass such objects.
+             * For efficiency the server automatically excludes various
+             * classes depending on the other arguments of the request.
+             **/
+            omero::api::StringSet stopBefore;
+        };
+
+        /**
+         * Result of identifying the children or contents of model objects.
+         **/
+        class FoundChildren extends OK {
+
+            /**
+             * The children that were identified.
+             **/
+            omero::api::StringLongListMap children;
         };
 
         /**

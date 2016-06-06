@@ -26,6 +26,7 @@ Decorators for use with the webclient application.
 import logging
 
 import omeroweb.decorators
+from omero import constants
 
 from django.http import HttpResponse
 from django.conf import settings
@@ -115,6 +116,13 @@ class render_response(omeroweb.decorators.render_response):
             return
         conn = kwargs['conn']
 
+        # omero constants
+        context['omero'] = {'constants': {
+            'NSCOMPANIONFILE': constants.namespaces.NSCOMPANIONFILE,
+            'ORIGINALMETADATA': constants.annotation.file.ORIGINALMETADATA,
+            'NSCLIENTMAPANNOTATION': constants.metadata.NSCLIENTMAPANNOTATION
+        }}
+
         context.setdefault('ome', {})   # don't overwrite existing ome
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
@@ -129,12 +137,12 @@ class render_response(omeroweb.decorators.render_response):
                 'server_settings').get('email', False)
             if request.session.get('server_settings').get('ui'):
                 context.setdefault('ui', {})  # don't overwrite existing ui
-                context['ui']['orphans_name'] = request.session.get(
-                    'server_settings').get('ui').get('orphans_name')
-                context['ui']['orphans_desc'] = request.session.get(
-                    'server_settings').get('ui').get('orphans_desc')
-                context['ui']['dropdown_menu'] = request.session.get(
-                    'server_settings').get('ui').get('dropdown_menu')
+                context['ui']['orphans'] = \
+                    request.session.get('server_settings').get('ui', {}) \
+                    .get('tree', {}).get('orphans')
+                context['ui']['dropdown_menu'] = \
+                    request.session.get('server_settings').get('ui', {}) \
+                    .get('menu', {}).get('dropdown')
 
         self.load_settings(request, context, conn)
 

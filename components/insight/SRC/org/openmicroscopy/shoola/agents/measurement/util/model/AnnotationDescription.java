@@ -99,6 +99,7 @@ public class AnnotationDescription
 		annotationDescription.put(MeasurementAttributes.SCALE_PROPORTIONALLY,
 				"Scale Proportionally");
 		annotationDescription.put(AnnotationKeys.TAG, "Tag");
+		annotationDescription.put(AnnotationKeys.FOLDERS, "Folders");
 		}
 }
 

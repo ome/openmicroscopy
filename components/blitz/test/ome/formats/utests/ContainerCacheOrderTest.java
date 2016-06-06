@@ -142,7 +142,7 @@ public class ContainerCacheOrderTest extends TestCase
 	}
 
 	@Test
-	public void testPlateLSIDEquivilence()
+	public void testPlateLSIDEquivalence()
 	{
 		LSID a = new LSID(Plate.class, 0);
 		LSID b = new LSID("omero.model.Plate:0");

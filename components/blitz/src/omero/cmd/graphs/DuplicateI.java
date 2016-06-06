@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,10 +19,10 @@
 
 package omero.cmd.graphs;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,8 +33,8 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.NestedNullException;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.proxy.HibernateProxy;
@@ -42,11 +42,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 
 import ome.model.IObject;
@@ -57,7 +61,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
-import ome.system.EventContext;
+import ome.services.graphs.PermissionsPredicate;
 import ome.system.Roles;
 import omero.cmd.Duplicate;
 import omero.cmd.DuplicateResponse;
@@ -102,36 +106,18 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
     private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
+    private GraphHelper graphHelper;
     private GraphTraversal graphTraversal;
 
-    private FlushMode flushMode;
     private GraphTraversal.PlanExecutor processor;
 
     private int targetObjectCount = 0;
     private int duplicatedObjectCount = 0;
 
     private final Map<IObject, IObject> originalsToDuplicates = new HashMap<IObject, IObject>();
-
-    /**
-     * Given class names provided by the user, find the corresponding set of actual classes.
-     * @param classNames names of model object classes
-     * @return the named classes
-     */
-    private Set<Class<? extends IObject>> getClassesFromNames(Collection<String> classNames) {
-        final Set<Class<? extends IObject>> classes = new HashSet<Class<? extends IObject>>();
-        for (String className : classNames) {
-            final int lastDot = className.lastIndexOf('.');
-            if (lastDot > 0) {
-                className = className.substring(lastDot + 1);
-            }
-            final Class<? extends IObject> actualClass = graphPathBean.getClassForSimpleName(className);
-            if (actualClass == null) {
-                throw new IllegalArgumentException("unknown model object class named: " + className);
-            }
-            classes.add(actualClass);
-        }
-        return classes;
-    }
+    private final Map<Entry<String, Long>, IObject> originalClassIdToDuplicates = new HashMap<Entry<String, Long>, IObject>();
+    private final Multimap<IObject, PropertyUpdate> propertiesToUpdate = ArrayListMultimap.create();
+    private final SetMultimap<IObject, IObject> blockedBy = HashMultimap.create();
 
     /**
      * Construct a new <q>duplicate</q> request; called from {@link GraphRequestFactory#getRequest(Class)}.
@@ -162,18 +148,20 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
     @Override
     public void init(Helper helper) {
-        this.helper = helper;
-        helper.setSteps(dryRun ? 3 : 6);
-
-        final EventContext eventContext = helper.getEventContext();
-
-        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
-
-        if (childOptions != null) {
-            for (final ChildOptionI childOption : childOptions) {
-                childOption.init();
-            }
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("typesToDuplicate", typesToDuplicate);
+            arguments.addParameter("typesToReference", typesToReference);
+            arguments.addParameter("typesToIgnore", typesToIgnore);
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
         }
+
+        this.helper = helper;
+        helper.setSteps(dryRun ? 3 : 8);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         classifier = new SpecificityClassifier<Class<? extends IObject>, Inclusion>(
                 new SpecificityClassifier.ContainmentTester<Class<? extends IObject>>() {
@@ -183,57 +171,191 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                     }});
 
         try {
-            classifier.addClass(Inclusion.DUPLICATE, getClassesFromNames(typesToDuplicate));
-            classifier.addClass(Inclusion.REFERENCE, getClassesFromNames(typesToReference));
-            classifier.addClass(Inclusion.IGNORE,    getClassesFromNames(typesToIgnore));
+            classifier.addClass(Inclusion.DUPLICATE, graphHelper.getClassesFromNames(typesToDuplicate));
+            classifier.addClass(Inclusion.REFERENCE, graphHelper.getClassesFromNames(typesToReference));
+            classifier.addClass(Inclusion.IGNORE,    graphHelper.getClassesFromNames(typesToIgnore));
         } catch (IllegalArgumentException e) {
             throw helper.cancel(new ERR(), e, "bad-class");
         }
 
-        GraphPolicy graphPolicyWithOptions = graphPolicy;
-
-        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, childOptions, REQUIRED_ABILITIES);
-
-        graphPolicyWithOptions = SkipTailPolicy.getSkipTailPolicy(graphPolicyWithOptions,
-                new Predicate<Class<? extends IObject>>() {
+        graphPolicyAdjusters.add(0, new Function<GraphPolicy, GraphPolicy>() {
             @Override
-            public boolean apply(Class<? extends IObject> modelObject) {
-                final Inclusion classification = classifier.getClass(modelObject);
-                return classification == Inclusion.REFERENCE || classification == Inclusion.IGNORE;
+            public GraphPolicy apply(GraphPolicy graphPolicy) {
+                return SkipTailPolicy.getSkipTailPolicy(graphPolicy,
+                        new Predicate<Class<? extends IObject>>() {
+                    @Override
+                    public boolean apply(Class<? extends IObject> modelObject) {
+                        final Inclusion classification = classifier.getClass(modelObject);
+                        return classification == Inclusion.REFERENCE || classification == Inclusion.IGNORE;
+                    }});
             }});
 
-        for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
-            graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
-        }
+        graphPolicy.registerPredicate(new PermissionsPredicate());
+
+        graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
+                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
+
         graphPolicyAdjusters = null;
-
-        GraphTraversal.Processor processor = new InternalProcessor();
-        if (dryRun) {
-            processor = GraphUtil.disableProcessor(processor);
-        }
-
-        graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, processor);
     }
 
     /**
-     * Duplicate model object properties, linking them as appropriate with each other and with other model objects.
+     * Note how to update a specific model object property.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.2.3
+     */
+    private static abstract class PropertyUpdate {
+        protected final IObject duplicate;
+        protected final String property;
+
+        /**
+         * Create a note regarding how to update a specific model object property.
+         * @param duplicate the duplicate object holding the property
+         * @param property the name of the property
+         */
+        PropertyUpdate(IObject duplicate, String property) {
+            this.duplicate = duplicate;
+            this.property = property;
+        }
+
+        /**
+         * Update the model object property to which this instance corresponds.
+         * @param mapping the mapping from the original object's links to other objects to those objects' corresponding duplicates,
+         * returns {@code null} if no such duplicate exists so as to avoid stealing links from the original objects
+         * @throws GraphException if the property value could not be updated
+         */
+        abstract void execute(Function<Object, IObject> mapping) throws GraphException;
+    }
+
+    /**
+     * Note how to update a specific model object property that is directly accessible.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.2.3
+     */
+    private static class PropertyUpdateAccessible extends PropertyUpdate {
+        protected final Object value;
+
+        /**
+         * Create a note regarding how to update a specific model object property.
+         * @param duplicate the duplicate object holding the property
+         * @param property the name of the property
+         * @param value the property value from the original object
+         */
+        PropertyUpdateAccessible(IObject duplicate, String property, Object value) {
+            super(duplicate, property);
+            this.value = value;
+        }
+
+        @Override
+        void execute(Function<Object, IObject> mapping) throws GraphException {
+            final Object duplicateValue = GraphUtil.copyComplexValue(mapping, value);
+            if (duplicateValue != null) {
+                try {
+                    PropertyUtils.setNestedProperty(duplicate, property, duplicateValue);
+                } catch (NestedNullException | ReflectiveOperationException e) {
+                    throw new GraphException(
+                            "cannot set property " + property + " on duplicate " + duplicate.getClass().getName());
+                }
+            }
+        }
+    }
+
+    /**
+     * Note how to update a specific model object property that is accessible only via {@code iterate} and {@code add} methods.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.2.3
+     */
+    private static class PropertyUpdateInaccessible extends PropertyUpdate {
+        protected final IObject original;
+        protected final Method reader, writer;
+        protected final boolean isOrdered;
+
+        private Set<IObject> written = new HashSet<IObject>();
+
+        /**
+         * Create a note regarding how to update a specific model object property.
+         * @param original the original object holding the property
+         * @param duplicate the duplicate object holding the property
+         * @param property the name of the property
+         * @param reader the {@code iterate} method for the property
+         * @param writer the {@code add} method for the property
+         * @param isOrdered if the property value is a collection whose order must be preserved on duplication
+         */
+        PropertyUpdateInaccessible(IObject original, IObject duplicate, String property, Method reader, Method writer,
+                boolean isOrdered) {
+            super(duplicate, property);
+            this.original = original;
+            this.reader = reader;
+            this.writer = writer;
+            this.isOrdered = isOrdered;
+        }
+
+        @Override
+        void execute(Function<Object, IObject> mapping) throws GraphException {
+            try {
+                @SuppressWarnings("unchecked")
+                final Iterator<IObject> linkedTos = (Iterator<IObject>) reader.invoke(original);
+                boolean stillWriting = true;
+                while (linkedTos.hasNext()) {
+                    final IObject linkedTo = linkedTos.next();
+                    final IObject duplicateOfLinkedTo = mapping.apply(linkedTo);
+                    if (stillWriting && duplicateOfLinkedTo != null) {
+                        if (written.add(duplicateOfLinkedTo)) {
+                            writer.invoke(duplicate, duplicateOfLinkedTo);
+                        }
+                    } else if (isOrdered) {
+                        /* cannot easily update other than by appending so skip the rest for now */
+                        stillWriting = false;
+                    }
+                }
+            } catch (NestedNullException | ReflectiveOperationException e) {
+                throw new GraphException(
+                        "cannot set property " + property + " on duplicate " + duplicate.getClass().getName());
+            }
+        }
+    }
+
+    /**
+     * Copy simple property values to the duplicate model object.
      * @throws GraphException if duplication failed
      */
-    private void setDuplicatePropertyValues() throws GraphException {
-        /* organize duplicate index by class name and ID */
-        final Map<Entry<String, Long>, IObject> duplicatesByOriginalClassAndId = new HashMap<Entry<String, Long>, IObject>();
+    private void copySimpleProperties() throws GraphException {
         for (final Entry<IObject, IObject> originalAndDuplicate : originalsToDuplicates.entrySet()) {
             final IObject original = originalAndDuplicate.getKey();
-            final String originalClass = Hibernate.getClass(original).getName();
-            final Long originalId = original.getId();
             final IObject duplicate = originalAndDuplicate.getValue();
-            duplicatesByOriginalClassAndId.put(Maps.immutableEntry(originalClass, originalId), duplicate);
+            final String originalClass = Hibernate.getClass(original).getName();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("copying properties from " + originalClass + ":" + original.getId());
+            }
+            try {
+                /* process property values for a given object that is duplicated */
+                for (final String superclassName : graphPathBean.getSuperclassesOfReflexive(originalClass)) {
+                    /* process property values that do not relate to edges in the model object graph */
+                    for (final String property : graphPathBean.getSimpleProperties(superclassName)) {
+                        /* ignore inaccessible properties */
+                        if (!graphPathBean.isPropertyAccessible(superclassName, property)) {
+                            continue;
+                        }
+                        /* copy original property value to duplicate, creating new instances of collections */
+                        final Object value = PropertyUtils.getProperty(original, property);
+                        final Object duplicateValue = GraphUtil.copyComplexValue(Functions.constant(null), value);
+                        PropertyUtils.setProperty(duplicate, property, duplicateValue);
+                    }
+                }
+            } catch (NestedNullException | ReflectiveOperationException e) {
+                throw new GraphException("failed to duplicate " + originalClass + ':' + original.getId());
+            }
         }
+    }
+
+    /**
+     * Note in which order to persist the duplicate model objects and how to copy their properties.
+     * @throws GraphException if duplication failed
+     */
+    private void noteNewPropertyValuesForDuplicates() throws GraphException {
         /* allow lookup regardless of if original is actually a Hibernate proxy object */
-        final Function<Object, Object> duplicateLookup = new Function<Object, Object>() {
+        final Function<Object, IObject> duplicateLookup = new Function<Object, IObject>() {
             @Override
-            public Object apply(Object original) {
+            public IObject apply(Object original) {
                 if (original instanceof IObject) {
                     final String originalClass;
                     if (original instanceof HibernateProxy) {
@@ -242,20 +364,19 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                         originalClass = original.getClass().getName();
                     }
                     final Long originalId = ((IObject) original).getId();
-                    return duplicatesByOriginalClassAndId.get(Maps.immutableEntry(originalClass, originalId));
+                    return originalClassIdToDuplicates.get(Maps.immutableEntry(originalClass, originalId));
                 } else {
                     return null;
                 }
             }
         };
-        /* copy property values into duplicates and link with other model objects */
-        final Session session = helper.getSession();
+        /* note how to copy property values into duplicates and link with other model objects */
         for (final Entry<IObject, IObject> originalAndDuplicate : originalsToDuplicates.entrySet()) {
             final IObject original = originalAndDuplicate.getKey();
             final IObject duplicate = originalAndDuplicate.getValue();
             final String originalClass = Hibernate.getClass(original).getName();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("copying properties from " + originalClass + ":" + original.getId());
+                LOGGER.debug("noting how to copy properties from " + originalClass + ":" + original.getId());
             }
             try {
                 /* process property values for a given object that is duplicated */
@@ -272,7 +393,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                         /* note which of the objects to which the original links should be ignored */
                         final Set<Long> linkedToIdsToIgnore = new HashSet<Long>();
                         for (final Entry<String, Collection<Long>> linkedToClassIds :
-                            graphTraversal.getLinkeds(linkedClassName, property, original.getId()).asMap().entrySet()) {
+                            graphTraversal.getLinkeds(superclassName, property, original.getId()).asMap().entrySet()) {
                             final String linkedToClass = linkedToClassIds.getKey();
                             final Collection<Long> linkedToIds = linkedToClassIds.getValue();
                             if (classifier.getClass(Class.forName(linkedToClass).asSubclass(IObject.class)) == Inclusion.IGNORE) {
@@ -280,9 +401,9 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                             }
                         }
                         /* check for another accessor for inaccessible properties */
+                        Object value;
                         if (graphPathBean.isPropertyAccessible(superclassName, property)) {
                             /* copy the linking from the original's property over to the duplicate's */
-                            Object value;
                             try {
                                 value = PropertyUtils.getNestedProperty(original, property);
                             } catch (NestedNullException e) {
@@ -311,13 +432,9 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                                     value = null;
                                 }
                             }
-                            /* copy the property value, replacing originals with corresponding duplicates */
-                            final Object duplicateValue = GraphUtil.copyComplexValue(duplicateLookup, value);
-                            try {
-                                PropertyUtils.setNestedProperty(duplicate, property, duplicateValue);
-                            } catch (NestedNullException e) {
-                                throw new GraphException(
-                                        "cannot set property " + superclassName + '.' + property + " on duplicate");
+                            /* note how to copy the property value, replacing originals with corresponding duplicates */
+                            if (value != null) {
+                                propertiesToUpdate.put(duplicate, new PropertyUpdateAccessible(duplicate, property, value));
                             }
                         } else {
                             /* this could be a one-to-many property with direct accessors protected */
@@ -331,18 +448,162 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                                 /* no luck, so ignore this property */
                                 continue;
                             }
-                            /* copy the linking from the original's property over to the duplicate's */
-                            final Iterator<IObject> linkedTos = (Iterator<IObject>) reader.invoke(original);
-                            while (linkedTos.hasNext()) {
-                                final IObject linkedTo = linkedTos.next();
-                                /* copy only links to other duplicates, as otherwise we may steal objects from the original */
-                                final IObject duplicateOfLinkedTo = (IObject) duplicateLookup.apply(linkedTo);
-                                if (duplicateOfLinkedTo != null) {
-                                    writer.invoke(duplicate, duplicateOfLinkedTo);
+                            boolean isOrdered;
+                            try {
+                                linkerClass.getMethod("getPrimary" + linkedClass.getSimpleName());
+                                isOrdered = true;
+                            } catch (NoSuchMethodException | SecurityException e) {
+                                isOrdered = false;
+                            }
+                            value = reader.invoke(original);
+                            /* note how to copy the linking from the original's property over to the duplicate's */
+                            propertiesToUpdate.put(duplicate,
+                                    new PropertyUpdateInaccessible(original, duplicate, property, reader, writer, isOrdered));
+                            if (isOrdered) {
+                                /* ensure that the values are written in order */
+                                IObject previousDuplicate = null;
+                                final Iterator<IObject> valueIterator = (Iterator<IObject>) reader.invoke(original);
+                                while (valueIterator.hasNext()) {
+                                    final IObject nextDuplicate = originalsToDuplicates.get(valueIterator.next());
+                                    if (nextDuplicate != null) {
+                                        if (previousDuplicate != null) {
+                                            blockedBy.put(nextDuplicate, previousDuplicate);
+                                        }
+                                        previousDuplicate = nextDuplicate;
+                                    }
                                 }
                             }
                         }
+                        /* persist the property values before persisting the holder */
+                        final Set<IObject> duplicatesInValue = GraphUtil.filterComplexValue(duplicateLookup, value);
+                        blockedBy.putAll(duplicate, duplicatesInValue);
                     }
+                }
+            } catch (NestedNullException | ReflectiveOperationException e) {
+                throw new GraphException("failed to duplicate " + originalClass + ':' + original.getId());
+            }
+        }
+    }
+
+    /**
+     * Duplicate model object properties, linking them as appropriate with each other and with other model objects.
+     * @throws GraphException if duplication failed
+     */
+    private void persistDuplicatesWithNewPropertyValues() throws GraphException {
+        /* copy property values into duplicates and link with other model objects */
+        final Session session = helper.getSession();
+        final ListMultimap<IObject, IObject> propertyUpdateTriggers = ArrayListMultimap.create();
+        final Set<IObject> persisted = new HashSet<IObject>();
+        final Set<IObject> remainingTransient = new HashSet<IObject>(originalsToDuplicates.values());
+        while (!remainingTransient.isEmpty()) {
+            boolean isProgress = false;
+            final Iterator<IObject> remainingTransientIterator = remainingTransient.iterator();
+            while (remainingTransientIterator.hasNext()) {
+                final IObject duplicate = remainingTransientIterator.next();
+                final Set<IObject> blockers = blockedBy.get(duplicate);
+                blockers.retainAll(remainingTransient);  /* changes to the view affect the underlying map */
+                if (blockers.isEmpty()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("duplicating an instance of " + duplicate.getClass().getName());
+                    }
+                    /* before persisting an object, fill in its links to other objects */
+                    for (final PropertyUpdate update : propertiesToUpdate.get(duplicate)) {
+                        final Function<Object, IObject> duplicateProxyLookup = new Function<Object, IObject>() {
+                            @Override
+                            public IObject apply(Object original) {
+                                if (original instanceof IObject) {
+                                    final String originalClass;
+                                    if (original instanceof HibernateProxy) {
+                                        originalClass = Hibernate.getClass(original).getName();
+                                    } else {
+                                        originalClass = original.getClass().getName();
+                                    }
+                                    final Long originalId = ((IObject) original).getId();
+                                    final IObject duplicate =
+                                            originalClassIdToDuplicates.get(Maps.immutableEntry(originalClass, originalId));
+                                    if (duplicate == null) {
+                                        return null;
+                                    }
+                                    if (persisted.contains(duplicate)) {
+                                        return duplicate;
+                                    } else {
+                                        /* this value is omitted from the object's property value when it is persisted so we note
+                                         * to update this property when the value is persisted */
+                                        propertyUpdateTriggers.put(duplicate, update.duplicate);
+                                    }
+                                }
+                                return null;
+                            }
+                        };
+                        update.execute(duplicateProxyLookup);
+                    }
+                    /* fill in other objects' links to the object to be persisted, such as back-references */
+                    persisted.add(duplicate);
+                    final Function<Object, IObject> duplicateProxyLookup = new Function<Object, IObject>() {
+                        @Override
+                        public IObject apply(Object original) {
+                            if (original instanceof IObject) {
+                                final String originalClass;
+                                if (original instanceof HibernateProxy) {
+                                    originalClass = Hibernate.getClass(original).getName();
+                                } else {
+                                    originalClass = original.getClass().getName();
+                                }
+                                final Long originalId = ((IObject) original).getId();
+                                final IObject duplicate =
+                                        originalClassIdToDuplicates.get(Maps.immutableEntry(originalClass, originalId));
+                                if (duplicate == null) {
+                                    return null;
+                                }
+                                if (persisted.contains(duplicate)) {
+                                    return duplicate;
+                                }
+                            }
+                            return null;
+                        }
+                    };
+                    for (final IObject objectToUpdate : propertyUpdateTriggers.get(duplicate)) {
+                        for (final PropertyUpdate update : propertiesToUpdate.get(objectToUpdate)) {
+                            update.execute(duplicateProxyLookup);
+                        }
+                    }
+                    propertyUpdateTriggers.removeAll(duplicate);
+                    final Collection<PropertyUpdate> propertiesToUpdateForDuplicate =
+                            new ArrayList<PropertyUpdate>(propertiesToUpdate.get(duplicate));
+                    /* when an object is persisted its hash changes, so move key in persisted and in propertiesToUpdate */
+                    propertiesToUpdate.removeAll(duplicate);
+                    persisted.remove(duplicate);
+                    session.persist(duplicate);
+                    propertiesToUpdate.putAll(duplicate, propertiesToUpdateForDuplicate);
+                    persisted.add(duplicate);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("persisted " + duplicate.getClass().getName() + ":" + duplicate.getId());
+                    }
+                    remainingTransientIterator.remove();
+                    isProgress = true;
+                }
+            }
+            if (!isProgress) {
+                throw new GraphException("internal duplication error: cyclic model graph");
+            }
+        }
+    }
+
+    /**
+     * Link other model objects to the duplicates.
+     * @throws GraphException if duplication failed
+     */
+    private void linkToNewDuplicates() throws GraphException {
+        /* copy property values into duplicates and link with other model objects */
+        final Session session = helper.getSession();
+        for (final IObject original : originalsToDuplicates.keySet()) {
+            final String originalClass = Hibernate.getClass(original).getName();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("adjusting properties of " + originalClass + ":" + original.getId());
+            }
+            try {
+                /* process property values for a given object that is duplicated */
+                for (final String superclassName : graphPathBean.getSuperclassesOfReflexive(originalClass)) {
                     /* process property values that link to the duplicate from other model objects */
                     for (final Entry<String, String> backwardLink : graphPathBean.getLinkedBy(superclassName)) {
                         /* next backward link */
@@ -367,22 +628,22 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                                         session.createQuery(rootQuery).setParameterList("ids", idsBatch).list();
                                 for (final IObject linker : linkers) {
                                     if (originalsToDuplicates.containsKey(linker)) {
-                                        /* ignore linkers that are to be duplicated, those are handled as forward links */
+                                        /* ignore linkers that are to be duplicated, those have already been handled */
                                         continue;
                                     }
                                     /* copy the linking from the original's property over to the duplicate's */
-                                    Object value;
+                                    final Object value;
                                     try {
                                         value = PropertyUtils.getNestedProperty(linker, property);
                                     } catch (NestedNullException e) {
                                         continue;
                                     }
-                                    /* for linkers only adjust collection properties */
+                                    /* for linkers adjust only the collection properties */
                                     if (value instanceof Collection) {
                                         final Collection<IObject> valueCollection = (Collection<IObject>) value;
                                         final Collection<IObject> newDuplicates = new ArrayList<IObject>();
                                         for (final IObject originalLinker : valueCollection) {
-                                            final IObject duplicateOfValue = originalsToDuplicates.get(originalLinker);
+                                            IObject duplicateOfValue = originalsToDuplicates.get(originalLinker);
                                             if (duplicateOfValue != null) {
                                                 /* previous had just original, now include duplicate too */
                                                 newDuplicates.add(duplicateOfValue);
@@ -394,19 +655,9 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                             }
                         }
                     }
-                    /* process property values that do not relate to edges in the model object graph */
-                    for (final String property : graphPathBean.getSimpleProperties(superclassName)) {
-                        /* ignore inaccessible properties */
-                        if (!graphPathBean.isPropertyAccessible(superclassName, property)) {
-                            continue;
-                        }
-                        /* copy original property value to duplicate */
-                        final Object value = PropertyUtils.getProperty(original, property);
-                        PropertyUtils.setProperty(duplicate, property, GraphUtil.copyComplexValue(duplicateLookup, value));
-                    }
                 }
-            } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                throw new GraphException("failed to duplicate " + originalClass + ':' + original.getId());
+            } catch (NestedNullException | ReflectiveOperationException e) {
+                throw new GraphException("failed to adjust " + originalClass + ':' + original.getId());
             }
         }
     }
@@ -414,35 +665,13 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
     @Override
     public Object step(int step) throws Cancel {
         helper.assertStep(step);
-        final Session session = helper.getSession();
         try {
             switch (step) {
             case 0:
-                /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
-                final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
-                    /* determine actual class from given target object class name */
-                    String targetObjectClassName = oneClassToTarget.getKey();
-                    final int lastDot = targetObjectClassName.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        targetObjectClassName = targetObjectClassName.substring(lastDot + 1);
-                    }
-                    final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
-                    /* check that it is legal to target the given class */
-                    final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
-                    do {
-                        if (!legalTargetsIterator.hasNext()) {
-                            final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
-                            throw helper.cancel(new ERR(), e, "bad-target");
-                        }
-                    } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
-                    /* note IDs to target for the class */
-                    final Collection<Long> ids = oneClassToTarget.getValue();
-                    targetMultimap.putAll(targetObjectClass.getName(), ids);
-                    targetObjectCount += ids.size();
-                }
+                final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
+                targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
-                        graphTraversal.planOperation(session, targetMultimap, true, true);
+                        graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 if (plan.getValue().isEmpty()) {
                     graphTraversal.assertNoUnlinking();
                 } else {
@@ -460,17 +689,16 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                 processor.execute();
                 return null;
             case 4:
-                /* prevent premature flush triggered by duplication queries */
-                flushMode = session.getFlushMode();
-                session.setFlushMode(FlushMode.COMMIT);
-                setDuplicatePropertyValues();
+                copySimpleProperties();
                 return null;
             case 5:
-                for (final IObject duplicate : originalsToDuplicates.values()) {
-                    session.persist(duplicate);
-                }
-                session.flush();
-                session.setFlushMode(flushMode);
+                noteNewPropertyValuesForDuplicates();
+                return null;
+            case 6:
+                persistDuplicatesWithNewPropertyValues();
+                return null;
+            case 7:
+                linkToNewDuplicates();
                 return null;
             default:
                 final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
@@ -497,17 +725,12 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
         /* if the results object were in terms of IObjectList then this would need IceMapper.map */
         if (dryRun && step == 0) {
             final SetMultimap<String, Long> result = (SetMultimap<String, Long>) object;
-            final Map<String, List<Long>> duplicatedObjects = new HashMap<String, List<Long>>();
-            for (final Entry<String, Collection<Long>> oneDuplicatedClass : result.asMap().entrySet()) {
-                final String className = oneDuplicatedClass.getKey();
-                final Collection<Long> ids = oneDuplicatedClass.getValue();
-                duplicatedObjects.put(className, new ArrayList<Long>(ids));
-                duplicatedObjectCount += ids.size();
-            }
+            final Map<String, List<Long>> duplicatedObjects = GraphUtil.copyMultimapForResponse(result);
+            duplicatedObjectCount += result.size();
             final DuplicateResponse response = new DuplicateResponse(duplicatedObjects);
             helper.setResponseIfNull(response);
             helper.info("in mock duplication of " + targetObjectCount + ", duplicated " + duplicatedObjectCount + " in total");
-        } else if (!dryRun && step == 5) {
+        } else if (!dryRun && step == 6) {
             final Map<String, List<Long>> duplicatedObjects = new HashMap<String, List<Long>>();
             for (final IObject duplicate : originalsToDuplicates.values()) {
                 final String className = duplicate.getClass().getName();
@@ -522,6 +745,12 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
             final DuplicateResponse response = new DuplicateResponse(duplicatedObjects);
             helper.setResponseIfNull(response);
             helper.info("in duplication of " + targetObjectCount + ", duplicated " + duplicatedObjectCount + " in total");
+
+            if (LOGGER.isDebugEnabled()) {
+                final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+                arguments.addParameter("duplicates", response.duplicates);
+                LOGGER.debug("response: " + arguments);
+            }
         }
     }
 
@@ -549,7 +778,7 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
 
     @Override
     public int getStepProvidingCompleteResponse() {
-        return dryRun ? 0 : 5;
+        return dryRun ? 0 : 6;
     }
 
     @Override
@@ -587,6 +816,9 @@ public class DuplicateI extends Duplicate implements IRequest, WrappableRequest<
                     } catch (InstantiationException | IllegalAccessException e) {
                         throw new GraphException("cannot create a duplicate of " + original);
                     }
+                    final String originalClass = Hibernate.getClass(original).getName();
+                    final Long originalId = original.getId();
+                    originalClassIdToDuplicates.put(Maps.immutableEntry(originalClass, originalId), duplicate);
                     originalsToDuplicates.put(original, duplicate);
                 }
             }

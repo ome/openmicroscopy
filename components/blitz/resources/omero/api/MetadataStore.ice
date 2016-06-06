@@ -29,7 +29,8 @@ module omero {
     module metadatastore {
 
         /**
-         * Container-class used by the import mechanism. Passed to [omero::api::MetadataStore]
+         * Container-class used by the import mechanism. Passed to
+         * {@link omero.api.MetadataStore}
          **/
         class IObjectContainer {
             string LSID;

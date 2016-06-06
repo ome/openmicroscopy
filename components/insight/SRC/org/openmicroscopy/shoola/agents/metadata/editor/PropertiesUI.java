@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -55,7 +55,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -63,7 +62,6 @@ import javax.swing.event.DocumentListener;
 
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXTaskPane;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
@@ -86,7 +84,6 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
-import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
@@ -126,10 +123,10 @@ public class PropertiesUI
     private static final String CREATIONDATE_TEXT = "Creation Date: ";
     
     /** Text indicating to edit the description.*/
-    private static final String EDIT_DESC_TEXT = "Edit the description.";
+    private static final String EDIT_DESC_TEXT = "Edit the description";
     
     /**Text indicating to edit the channels.*/
-    private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
+    private static final String EDIT_CHANNEL_TEXT = "Edit channel names";
     
     /** The default height of the description.*/
     private static final int HEIGHT = 120;
@@ -1025,7 +1022,7 @@ public class PropertiesUI
 		k = well.getColumn()+1;
 		String columnText = "";
 		if (columnIndex == PlateData.ASCENDING_LETTER)
-			columnText = UIUtilities.LETTERS.get(k+1);
+			columnText = UIUtilities.LETTERS.get(k);
 		else if (columnIndex == PlateData.ASCENDING_NUMBER)
 			columnText = ""+k;
 		String value = rowText+"-"+columnText;
@@ -1413,8 +1410,7 @@ public class PropertiesUI
          * Starts an asyc. call to load the number of ROIs
          */
         void loadROICount(ImageData image) {
-            ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-            ROICountLoader l = new ROICountLoader(new SecurityContext(image.getGroupId()), this, image.getId(), exp.getId());
+            ROICountLoader l = new ROICountLoader(new SecurityContext(image.getGroupId()), this, image.getId());
             l.load();
         }
         

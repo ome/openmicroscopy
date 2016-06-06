@@ -52,12 +52,13 @@
             $.ajax({
                 type: "GET",
                 url: form_url,
-                success: function(html) {                
+                success: function(html) {
+                    html = $.trim(html);
                     $( self ).parent().fadeOut('fast', function(){                    
                         
                         $( self ).parent().hide();
                         $("#"+field_id).append($(html)).fadeIn();
-                        $("#"+field_id).find("form").attr('id', "form-"+field_id)
+                        $("#"+field_id).find("form").attr('id', "form-"+field_id);
                                                 
                         $('<input id="save-'+field_id+'" type="submit" value="Save" />')
                         /*.bind( "click", function( e ) {
@@ -87,7 +88,7 @@
                                         if (field_id.indexOf("name") > -1) {
                                             var $this = $("#id_name");
                                             if ($this.attr('name')!=null && $this.attr('name')!=""){
-                                                var new_name = $this.attr('value');
+                                                var new_name = $this.val();
                                                 $("#"+field_id+"-"+$this.attr('name')).text(new_name);
                                                 if (data.o_type != "well") {
                                                     // Check we have a jsTree (not in Search or History page etc)

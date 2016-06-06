@@ -3,7 +3,7 @@
 #
 #
 # ------------------------------------------------------------------------------
-#  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+#  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
 #
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -132,10 +132,6 @@ class ShapeSettingsData:
         self.strokeWidth.setValue(1)
         self.strokeWidth.setUnit(UnitsLength.POINT)
         self.strokeDashArray = rstring('')
-        self.strokeDashOffset = rint(0)
-        self.strokeLineCap = rstring('')
-        self.strokeLineJoin = rstring('')
-        self.strokeMiterLimit = rint(0)
         self.fillColour = rint(self.GREY)
         self.fillRule = rstring('')
 
@@ -148,10 +144,6 @@ class ShapeSettingsData:
         shape.setStrokeColor(self.strokeColour)
         shape.setStrokeWidth(self.strokeWidth)
         shape.setStrokeDashArray(self.strokeDashArray)
-        shape.setStrokeDashOffset(self.strokeDashOffset)
-        shape.setStrokeLineCap(self.strokeLineCap)
-        shape.setStrokeLineJoin(self.strokeLineJoin)
-        shape.setStrokeMiterLimit(self.strokeMiterLimit)
         shape.setFillColor(self.fillColour)
         shape.setFillRule(self.fillRule)
 
@@ -201,10 +193,6 @@ class ShapeSettingsData:
         self.strokeColour = roi.getStrokeColor()
         self.strokeWidth = roi.getStrokeWidth()
         self.strokeDashArray = roi.getStrokeDashArray()
-        self.strokeDashOffset = roi.getStrokeDashOffset()
-        self.strokeLineCap = roi.getStrokeLineCap()
-        self.strokeLineJoin = roi.getStrokeLineJoin()
-        self.strokeMiterLimit = roi.getStrokeMiterLimit()
         self.fillColour = roi.getFillColor()
         self.fillRule = roi.getFillRule()
 
@@ -372,17 +360,18 @@ class EllipseData(ShapeData, ROIDrawingI):
     ##
     # Constructor for EllipseData object.
     # @param roicoord The ROICoordinate of the object (default: 0,0)
-    # @param cx The centre x coordinate of the ellipse.
-    # @param cy The centre y coordinate of the ellipse.
-    # @param rx The major axis of the ellipse.
-    # @param ry The minor axis of the ellipse.
+    # @param x The centre x coordinate of the ellipse.
+    # @param y The centre y coordinate of the ellipse.
+    # @param radiusX The major axis of the ellipse.
+    # @param radiusY The minor axis of the ellipse.
 
-    def __init__(self, roicoord=ROICoordinate(), cx=0, cy=0, rx=0, ry=0):
+    def __init__(self, roicoord=ROICoordinate(), x=0, y=0, radiusX=0,
+                 radiusY=0):
         ShapeData.__init__(self)
-        self.cx = rdouble(cx)
-        self.cy = rdouble(cy)
-        self.rx = rdouble(rx)
-        self.ry = rdouble(ry)
+        self.x = rdouble(x)
+        self.y = rdouble(y)
+        self.radiusX = rdouble(radiusX)
+        self.radiusY = rdouble(radiusY)
         self.setCoord(roicoord)
 
     ##
@@ -390,20 +379,20 @@ class EllipseData(ShapeData, ROIDrawingI):
     #
     def setROIGeometry(self, ellipse):
         ellipse.setTheZ(self.coord.theZ)
-        ellipse.setTheT(self.coord.theZ)
-        ellipse.setCx(self.cx)
-        ellipse.setCy(self.cy)
-        ellipse.setRx(self.rx)
-        ellipse.setRy(self.ry)
+        ellipse.setTheT(self.coord.theT)
+        ellipse.setX(self.x)
+        ellipse.setY(self.y)
+        ellipse.setRadiusX(self.radiusX)
+        ellipse.setRadiusY(self.radiusY)
 
     ##
     # overridden, @See ShapeData#getGeometryFromROI
     #
     def getGeometryFromROI(self, roi):
-        self.cx = roi.getCx()
-        self.cy = roi.getCy()
-        self.rx = roi.getRx()
-        self.ry = roi.getRy()
+        self.x = roi.getX()
+        self.y = roi.getY()
+        self.radiusX = roi.getRadiusX()
+        self.radiusY = roi.getRadiusY()
 
     ##
     # overridden, @See ShapeData#createBaseType
@@ -416,8 +405,8 @@ class EllipseData(ShapeData, ROIDrawingI):
     #
     def acceptVisitor(self, visitor):
         visitor.drawEllipse(
-            self.cx.getValue(), self.cy.getValue(), self.rx.getValue(),
-            self.ry.getValue(), self.shapeSettings.getSettings())
+            self.x.getValue(), self.y.getValue(), self.radiusX.getValue(),
+            self.radiusY.getValue(), self.shapeSettings.getSettings())
 
 ##
 # The RectangleData class contains all the manipulation and creation of
@@ -449,7 +438,7 @@ class RectangleData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, rectangle):
         rectangle.setTheZ(self.coord.theZ)
-        rectangle.setTheT(self.coord.theZ)
+        rectangle.setTheT(self.coord.theT)
         rectangle.setX(self.x)
         rectangle.setY(self.y)
         rectangle.setWidth(self.width)
@@ -507,7 +496,7 @@ class LineData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, line):
         line.setTheZ(self.coord.theZ)
-        line.setTheT(self.coord.theZ)
+        line.setTheT(self.coord.theT)
         line.setX1(self.x1)
         line.setY1(self.y1)
         line.setX2(self.x2)
@@ -569,7 +558,7 @@ class MaskData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, mask):
         mask.setTheZ(self.coord.theZ)
-        mask.setTheT(self.coord.theZ)
+        mask.setTheT(self.coord.theT)
         mask.setX(self.x)
         mask.setY(self.y)
         mask.setWidth(self.width)
@@ -627,7 +616,7 @@ class PointData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ)
-        point.setTheT(self.coord.theZ)
+        point.setTheT(self.coord.theT)
         point.setX(self.x)
         point.setY(self.y)
 
@@ -677,7 +666,7 @@ class PolygonData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, polygon):
         polygon.setTheZ(self.coord.theZ)
-        polygon.setTheT(self.coord.theZ)
+        polygon.setTheT(self.coord.theT)
         polygon.setPoints(self.points)
 
     ##
@@ -751,7 +740,7 @@ class PolylineData(ShapeData, ROIDrawingI):
     #
     def setGeometry(self, point):
         point.setTheZ(self.coord.theZ)
-        point.setTheT(self.coord.theZ)
+        point.setTheT(self.coord.theT)
         point.setPoints(self.points)
 
     ##

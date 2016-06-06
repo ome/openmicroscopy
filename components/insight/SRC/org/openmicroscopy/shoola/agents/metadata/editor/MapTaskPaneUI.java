@@ -251,7 +251,7 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         addButton = new JButton(icons.getIcon(IconManager.PLUS));
         UIUtilities.unifiedButtonLookAndFeel(addButton);
         addButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        addButton.setToolTipText("Insert Row");
+        addButton.setToolTipText("Insert row");
         addButton.addMouseListener(ml);
         addButton.setEnabled(false);
         addButton.setFocusable(false);
@@ -260,7 +260,7 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         copyButton = new JButton(icons.getIcon(IconManager.COPY));
         UIUtilities.unifiedButtonLookAndFeel(copyButton);
         copyButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        copyButton.setToolTipText("Copy Rows");
+        copyButton.setToolTipText("Copy rows");
         copyButton.addMouseListener(ml);
         copyButton.setEnabled(false);
         copyButton.setFocusable(false);
@@ -269,7 +269,7 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
         UIUtilities.unifiedButtonLookAndFeel(pasteButton);
         pasteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        pasteButton.setToolTipText("Paste Rows");
+        pasteButton.setToolTipText("Paste rows");
         pasteButton.addMouseListener(ml);
         pasteButton.setEnabled(false);
         pasteButton.setFocusable(false);
@@ -278,7 +278,7 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
         deleteButton = new JButton(icons.getIcon(IconManager.DELETE_12));
         UIUtilities.unifiedButtonLookAndFeel(deleteButton);
         deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-        deleteButton.setToolTipText("Delete Rows");
+        deleteButton.setToolTipText("Delete rows");
         deleteButton.addMouseListener(ml);
         deleteButton.setEnabled(false);
         deleteButton.setFocusable(false);
@@ -489,8 +489,6 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
             public void tableChanged(TableModelEvent e) {
                 refreshButtonStates();
                 MapTableModel m = (MapTableModel) t.getModel();
-                if (m.isDirty())
-                    view.setDataToSave(true);
                 if (m.isEmpty() && m.getMap().getId() >= 0) {
                     view.deleteAnnotation(m.getMap());
                     view.saveData(true);

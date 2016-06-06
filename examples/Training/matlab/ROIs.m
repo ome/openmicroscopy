@@ -19,6 +19,10 @@
 % To learn about the model see  http://www.ome-xml.org/wiki/ROI/2010-04.
 % Note that annotation can be linked to ROI.
 try
+%%
+% start-code
+%%
+
     % Initialize a client and a session using the ice.config file
     % See ConnectToOMERO for alternative ways to initialize a session
     [client, session] = loadOmero();
@@ -36,7 +40,9 @@ try
     image = getImages(session, imageId);
     assert(~isempty(image), 'OMERO:ROIs', 'Image id not valid');
     
-    %% Shapes creation
+% Create shapes
+% =============
+
     % Create a rectangle
     disp('Create rectangular shape');
     rectangle = createRectangle(0, 0, 10, 20);
@@ -113,25 +119,25 @@ try
             y = shape.getY().getValue();
             width = shape.getWidth().getValue();
             height = shape.getHeight().getValue();
-            fprintf(1, '  Rectangle x: %g, y: %g, width: %g, height: %g\n',...
+            fprintf(1, '  Rectangle X: %g, Y: %g, Width: %g, Height: %g\n',...
                 x, y, width, height);      
         elseif (isa(shape, 'omero.model.Ellipse'))
-            cx = shape.getCx().getValue();
-            cy = shape.getCy().getValue();
-            rx = shape.getRx().getValue();
-            ry = shape.getRy().getValue();
-            fprintf(1, '  Ellipse x: %g, y: %g, rx: %g, ry: %g\n',...
-                cx, cy, rx, ry);
+            x = shape.getX().getValue();
+            y = shape.getY().getValue();
+            radiusx = shape.getRadiusX().getValue();
+            radiusy = shape.getRadiusY().getValue();
+            fprintf(1, '  Ellipse X: %g, Y: %g, RadiusX: %g, RadiusY: %g\n',...
+                x, y, radiusx, radiusy);
         elseif (isa(shape, 'omero.model.Point'))
-            cx = shape.getCx().getValue();
-            cy = shape.getCy().getValue();
-            fprintf(1, '  Point x: %g, y: %g\n', cx, cy);
+            x = shape.getX().getValue();
+            y = shape.getY().getValue();
+            fprintf(1, '  Point X: %g, Y: %g\n', x, y);
         elseif (isa(shape, 'omero.model.Line'))
             x1 = shape.getX1().getValue();
             x2 = shape.getX2().getValue();
             y1 = shape.getY1().getValue();
             y2 = shape.getY2().getValue();
-            fprintf(1, '  Line (x1, y1): (%g, %g), (x2, y2): (%g, %g)\n',...
+            fprintf(1, '  Line (X1, Y1): (%g, %g), (X2, Y2): (%g, %g)\n',...
                 x1, y1, x2, y2);
         elseif isa(shape, 'omero.model.Polyline')
             points = shape.getPoints().getValue();
@@ -166,7 +172,11 @@ try
     roi.setImage(omero.model.ImageI(imageId, false));
     roi = session.getUpdateService().saveAndReturnObject(roi);
     fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
-    
+
+%%
+% end-code
+%%
+
 catch err
     client.closeSession();
     throw(err);

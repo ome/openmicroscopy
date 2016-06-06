@@ -171,7 +171,7 @@ public class LookupNames
     public static final String USER_ADMINISTRATOR = "/users/administrator";
 
     /** Field to indicate if the connection is fast or not. */
-    public static final String CONNECTION_SPEED = "/connection/speed";
+    public static final String IMAGE_QUALITY_LEVEL = "/connection/speed";
 
     /** Field to indicate the default size of a plane. */
     public static final String PLANE_SIZE = "/services/RE/planeSize";
@@ -364,5 +364,28 @@ public class LookupNames
     
     /** Lookup name for maximum exportable image size */
     public static final String MAX_EXPORT_SIZE = "omero.client.download_as.max_size";
-    
+
+    /** Lookup name of the orphaned images folder */
+    public static final String ORPHANED_IMAGE_ENABLED = "omero.client.ui.tree.orphans.enabled";
+
+    /** Lookup name of the group leader properties */
+    public static final String GROUP_LEADERS_NAME = "omero.client.ui.menu.dropdown.leaders.label";
+
+    /** Lookup name of the group member properties */
+    public static final String GROUP_MEMBERS_NAME = "omero.client.ui.menu.dropdown.colleagues.label";
+
+    /** Lookup name of all group member properties */
+    public static final String GROUP_ALL_MEMBERS_NAME = "omero.client.ui.menu.dropdown.everyone.label";
+
+    /** Lookup name of the group leader properties */
+    public static final String GROUP_LEADERS_ENABLED = "omero.client.ui.menu.dropdown.leaders.enabled";
+
+    /** Lookup name of the group member properties */
+    public static final String GROUP_MEMBERS_ENABLED = "omero.client.ui.menu.dropdown.colleagues.enabled";
+
+    /** Lookup name of all group member properties */
+    public static final String GROUP_ALL_MEMBERS_ENABLED = "omero.client.ui.menu.dropdown.everyone.enabled";
+
+    /** Lookup name of the orphaned images folder */
+    public static final String ORPHANED_IMAGE_DESCRIPTION = "omero.client.ui.tree.orphans.description";
 }

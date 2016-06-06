@@ -210,4 +210,40 @@ public class PermissionData {
         p.setWorldWrite(worldWrite);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        if (isUserRead())
+            sb.append('r');
+        else
+            sb.append('-');
+
+        if (isUserWrite())
+            sb.append('w');
+        else
+            sb.append('-');
+
+        if (isGroupRead())
+            sb.append('r');
+        else
+            sb.append('-');
+
+        if (isGroupWrite())
+            sb.append('w');
+        else
+            sb.append('-');
+
+        if (isWorldRead())
+            sb.append('r');
+        else
+            sb.append('-');
+
+        if (isWorldWrite())
+            sb.append('w');
+        else
+            sb.append('-');
+
+        return sb.toString();
+    }
 }

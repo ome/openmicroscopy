@@ -92,7 +92,7 @@ $(function () {
             if ($metadata_general.is(":visible") && $metadata_general.is(":empty")) {
                 // orphaned
                 if (oid.indexOf("orphaned")>=0) {
-                    $metadata_general.html('<div class="right_tab_inner"><p class="description">{{ ui.orphans_desc }}</p></div>');
+                    $metadata_general.html('<div class="right_tab_inner"><p class="description">{{ ui.orphans.description }}</p></div>');
                     //return;
                 // experimenter
                 } else if (oid.indexOf("experimenter")>=0) {
@@ -134,8 +134,6 @@ $(function () {
     // update tabs when tabs switch
     $("#annotation_tabs").on( "tabsactivate", function(event, ui){
         // we get a "tabsactivate" event, but need to check if 'this' tab was chosen...
-        console.log('indexTab: ' + ui.newTab.index());
-        console.log('general_tab_index: ' + general_tab_index);
         if (ui.newTab.index() == general_tab_index) {
             // sometimes this doesn't get shown until too late, so the :visible check above failed
             $metadata_general.show();

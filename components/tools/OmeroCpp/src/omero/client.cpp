@@ -63,29 +63,48 @@ namespace omero {
 
         // Strictly necessary for this class to work
         optionallySetProperty(id, "Ice.ImplicitContext", "Shared");
+#if ICE_INT_VERSION / 100 >= 306
+        stringstream sstimeoutInt;
+        sstimeoutInt << omero::constants::ACMCLIENTTIMEOUT;
+        optionallySetProperty(id, "Ice.ACM.Client.Timeout", sstimeoutInt.str());
+        stringstream ssheartbeatInt;
+        ssheartbeatInt << omero::constants::ACMCLIENTHEARTBEAT;
+        optionallySetProperty(id, "Ice.ACM.Client.Heartbeat", ssheartbeatInt.str());
+#else
         optionallySetProperty(id, "Ice.ACM.Client", "0");
+#endif
         optionallySetProperty(id, "Ice.CacheMessageBuffers", "0");
         optionallySetProperty(id, "Ice.RetryIntervals", "-1");
         optionallySetProperty(id, "Ice.Default.EndpointSelection", "Ordered");
         optionallySetProperty(id, "Ice.Default.PreferSecure", "1");
         optionallySetProperty(id, "Ice.Plugin.IceSSL" , "IceSSL:createIceSSL");
+#if ICE_INT_VERSION / 100 >= 306
+    #if defined (__APPLE__)
+        optionallySetProperty(id, "IceSSL.Ciphers" , "NONE (DH_anon.*AES)");
+    #else
         optionallySetProperty(id, "IceSSL.Ciphers" , "ADH");
+    #endif
+#else
+        optionallySetProperty(id, "IceSSL.Ciphers" , "ADH");
+#endif
+
         optionallySetProperty(id, "IceSSL.Protocols" , "tls1");
         optionallySetProperty(id, "IceSSL.VerifyPeer" , "0");
 
         // Set the default encoding if this is Ice 3.5 or later
         // and none is set.
-#if ICE_INT_VERSION / 100 >= 305
         optionallySetProperty(id, "Ice.Default.EncodingVersion", "1.0");
-#endif
 
         // C++ only
+#if ICE_INT_VERSION / 100 <= 305
         std::string gcInterval = id.properties->getProperty("Ice.GC.Interval");
         if ( gcInterval.length() == 0 ) {
             stringstream ssgcInt;
             ssgcInt << omero::constants::GCINTERVAL;
             id.properties->setProperty("Ice.GC.Interval", ssgcInt.str());
         }
+#endif
+        
 
         // Setting block size
         std::string blockSize = id.properties->getProperty("omero.block_size");

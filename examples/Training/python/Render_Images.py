@@ -19,15 +19,18 @@ except ImportError:
     import Image
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT, imageId
 
+"""
+start-code
+"""
 
 # Create a connection
-# =================================================================
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
 # Get thumbnail
-# =================================================================
+# =============
 # Thumbnail is created using the current rendering settings on the image
 print imageId
 image = conn.getObject("Image", imageId)
@@ -38,7 +41,7 @@ renderedThumb.save("thumbnail.jpg")
 
 
 # Get current settings
-# =================================================================
+# ====================
 print "Channel rendering settings:"
 for ch in image.getChannels():
     # if no name, get emission wavelength or index
@@ -52,7 +55,7 @@ print "    Z = %s, T = %s" % (image.getDefaultZ(), image.getDefaultT())
 
 
 # Show the saved rendering settings on this image
-# =================================================================
+# ===============================================
 print "Rendering Defs on Image:"
 for rdef in image.getAllRenderingDefs():
     img_data = image.getThumbnail(rdefId=rdef['id'])
@@ -61,7 +64,7 @@ for rdef in image.getAllRenderingDefs():
 
 
 # Render each channel as a separate greyscale image
-# =================================================================
+# =================================================
 image.setGreyscaleRenderingModel()
 sizeC = image.getSizeC()
 z = image.getSizeZ() / 2
@@ -74,11 +77,11 @@ for c in range(1, sizeC + 1):       # Channel index starts at 1
     renderedImage.save("channel%s.jpg" % c)     # save in the current folder
 
 
-# Turn 3 channels on, setting their colours
-# =================================================================
+# Turn 3 channels on, setting their colors
+# ========================================
 image.setColorRenderingModel()
 channels = [1, 2, 3]
-colorList = ['F00', None, 'FFFF00']  # do not change colour of 2nd channel
+colorList = ['F00', None, 'FFFF00']  # do not change color of 2nd channel
 image.setActiveChannels(channels, colors=colorList)
 # max intensity projection 'intmean' for mean-intensity
 image.setProjection('intmax')
@@ -89,11 +92,11 @@ image.setProjection('normal')               # turn off projection
 
 
 # Turn 2 channels on, setting levels of the first one
-# =================================================================
+# ===================================================
 channels = [1, 2]
 rangeList = [[100.0, 120.2], [None, None]]
 image.setActiveChannels(channels, windows=rangeList)
-# Set default Z & T. These will be used as defaults for further rendering
+# Set default Z and T. These will be used as defaults for further rendering
 image.setDefaultZ(0)
 image.setDefaultT(0)
 # default compression is 0.9
@@ -102,17 +105,17 @@ renderedImage.show()
 renderedImage.save("two_channels.jpg")
 
 
-# Save the current rendering settings & default Z/T
-# =================================================================
+# Save the current rendering settings and default Z/T
+# ===================================================
 image.saveDefaults()
 
 
 # Reset to settings at import time, and optionally save
-# =================================================================
+# =====================================================
 image.resetDefaults(save=True)
 
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()

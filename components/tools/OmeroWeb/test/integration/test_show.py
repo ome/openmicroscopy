@@ -20,7 +20,8 @@ from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
 from omero.model import ProjectI, DatasetI, TagAnnotationI, ScreenI, PlateI, \
     WellI, WellSampleI, PlateAcquisitionI
 from omero.rtypes import rstring, rint
-from omeroweb.webclient.show import Show, IncorrectMenuError, paths_to_object
+from omeroweb.webclient.show import Show, IncorrectMenuError, \
+    paths_to_object, get_image_ids
 from django.test.client import RequestFactory
 
 
@@ -159,6 +160,17 @@ class TestShow(IWebTest):
         """
         image = self.new_image(name=self.uuid())
         return self.update.saveAndReturnObject(image)
+
+    @pytest.fixture
+    def images(self):
+        """
+        Returns a list of new OMERO Images populated by an
+        L{test.integration.library.ITest} instance.
+        """
+        images = []
+        for name in ['a', 'b', 'c', 'd', 'e']:
+            images.append(self.new_image(name=name))
+        return self.update.saveAndReturnArray(images)
 
     @pytest.fixture
     def screen(self):
@@ -329,6 +341,22 @@ class TestShow(IWebTest):
         }
 
     @pytest.fixture
+    def tagset_show_request(self, tag):
+        """
+        Returns a simple GET request object with the 'show' query string
+        variable set in the ("tagset-id") form.
+        """
+        as_string = 'tagset-%d' % tag.id.val
+        initially_select = ['tagset-%d' % tag.id.val]
+        initially_open = ['tagset-%d' % tag.id.val]
+        return {
+            'request': self.request_factory.get(
+                self.path, data={'show': as_string}),
+            'initially_select': initially_select,
+            'initially_open': initially_open
+        }
+
+    @pytest.fixture
     def tagset_tag_path_request(self, tagset_tag):
         """
         Returns a simple GET request object with the 'path' query string
@@ -338,7 +366,27 @@ class TestShow(IWebTest):
         as_string = 'tag=%d|tag=%d' % (tagset_tag.id.val, tag.id.val)
         initially_select = ['tag-%d' % tag.id.val]
         initially_open = [
-            'tag-%d' % tagset_tag.id.val,
+            'tagset-%d' % tagset_tag.id.val,
+            'tag-%d' % tag.id.val
+        ]
+        return {
+            'request': self.request_factory.get(
+                self.path, data={'path': as_string}),
+            'initially_select': initially_select,
+            'initially_open': initially_open
+        }
+
+    @pytest.fixture
+    def tagset_tag_show_request(self, tagset_tag):
+        """
+        Returns a simple GET request object with the 'show' query string
+        variable of 'tag-id' as the child tag of a tagset.
+        """
+        tag, = tagset_tag.linkedAnnotationList()
+        as_string = 'tag-%s' % (tag.id.val)
+        initially_select = ['tag-%d' % tag.id.val]
+        initially_open = [
+            'tagset-%d' % tagset_tag.id.val,
             'tag-%d' % tag.id.val
         ]
         return {
@@ -551,8 +599,8 @@ class TestShow(IWebTest):
         plate_acquisition = ws_a.plateAcquisition
         as_string = 'well-%d|well-%d' % (well_a.id.val, well_b.id.val)
         initially_select = [
-            'acquisition-%d' % plate_acquisition.id.val,
-            'well-%d' % well_a.id.val
+            'well-%d' % well_a.id.val,
+            'well-%d' % well_b.id.val
         ]
         initially_open = [
             'screen-%d' % screen_plate_run_well.id.val,
@@ -738,6 +786,14 @@ class TestShow(IWebTest):
             show.first_selected
         assert excinfo.value.uri is not None
 
+    def test_tagset_redirect(self, tagset_show_request):
+        show = Show(self.conn, tagset_show_request['request'], None)
+        self.assert_instantiation(show)
+
+        with pytest.raises(IncorrectMenuError) as excinfo:
+            show.first_selected
+        assert excinfo.value.uri is not None
+
     def test_tag_legacy_path(self, tag_path_request, tag):
         show = Show(self.conn, tag_path_request['request'], 'usertags')
         self.assert_instantiation(show)
@@ -785,6 +841,8 @@ class TestShow(IWebTest):
             image.details.owner.id.val
         assert show._first_selected == first_selected
         assert show.initially_select == image_path_request['initially_select']
+        # Delete orphaned image so it doesn't affect orphaned tests below
+        self.conn.deleteObject(image)
 
     def test_screen_legacy_path(self, screen_path_request, screen):
         show = Show(self.conn, screen_path_request['request'], None)
@@ -932,6 +990,24 @@ class TestShow(IWebTest):
         assert len(show.initially_select) == \
             len(tag_by_textvalue_path_request['initially_select'])
 
+    def test_tagset_tag_by_id(
+            self, tagset_tag_path_request, tagset_tag):
+        show = Show(self.conn, tagset_tag_path_request['request'], 'usertags')
+        self.assert_instantiation(show)
+
+        tag, = tagset_tag.linkedAnnotationList()
+        first_selected = show.first_selected
+        assert first_selected is not None
+        assert isinstance(first_selected, TagAnnotationWrapper)
+        assert first_selected.getId() == tag.id.val
+        assert show.initially_open == \
+            tagset_tag_path_request['initially_open']
+        assert show.initially_open_owner == \
+            tag.details.owner.id.val
+        assert show._first_selected == first_selected
+        assert show.initially_select == \
+            tagset_tag_path_request['initially_select']
+
     def test_multiple_well_by_id(
             self, wells_by_id_show_request, screen_plate_run_well):
         show = Show(
@@ -1063,6 +1139,23 @@ class TestShow(IWebTest):
         return [project1, project2, dataset1, dataset2, dataset3, image1]
 
     @pytest.fixture
+    def project_dataset_images(self):
+        """
+        Returns a new OMERO Project, linked Dataset and 5 linked Images
+        populated by an L{test.integration.library.ITest} instance with
+        required fields set.
+        """
+        project = ProjectI()
+        project.name = rstring(self.uuid())
+        dataset = DatasetI()
+        dataset.name = rstring(self.uuid())
+        for name in ['a', 'b', 'c', 'd', 'e']:
+            image = self.new_image(name=name)
+            dataset.linkImage(image)
+        project.linkDataset(dataset)
+        return self.update.saveAndReturnObject(project)
+
+    @pytest.fixture
     def screen_plate_run_well_multi(self):
         """
         Returns a new OMERO Screen, linked Plate, linked Well, linked
@@ -1176,6 +1269,60 @@ class TestShow(IWebTest):
              {'type': 'image', 'id': image.id.val}]]
 
         assert paths == expected
+
+    def test_project_dataset_images_pagination(self, project_dataset_images):
+        project = project_dataset_images
+        dataset, = project.linkedDatasetList()
+        images = dataset.linkedImageList()
+        images.sort(key=lambda x: x.getName().val)
+        iids = [i.id.val for i in images]
+        imgIndex = len(iids) - 1
+        iid = iids[imgIndex]
+
+        page_size = 3
+        paths = paths_to_object(self.conn, image_id=iid, page_size=page_size)
+
+        expected = [
+            [{'type': 'experimenter', 'id': project.details.owner.id.val},
+             {'type': 'project', 'id': project.id.val},
+             {'type': 'dataset', 'childIndex': imgIndex,
+              'id': dataset.id.val, 'childPage': (imgIndex/page_size) + 1,
+              'childCount': len(iids)},
+             {'type': 'image', 'id': iid}]]
+        assert paths == expected
+
+    def test_orphaned_pagination(self, images):
+        images.sort(key=lambda x: x.getName().val)
+        iids = [i.id.val for i in images]
+        imgIndex = len(iids) - 1
+        iid = iids[imgIndex]
+        image = images[imgIndex]
+
+        page_size = 4
+        paths = paths_to_object(self.conn, image_id=iid, page_size=page_size)
+
+        ownerId = image.details.owner.id.val
+        groupId = image.details.group.id.val
+        expected = [
+            [{'type': 'experimenter', 'id': ownerId},
+             {'type': 'orphaned', 'id': ownerId,
+              'childIndex': imgIndex,
+              'childPage': (imgIndex/page_size) + 1,
+              'childCount': len(iids)},
+             {'type': 'image', 'id': iid}]]
+        assert paths == expected
+
+        image_ids = get_image_ids(self.conn, groupId=groupId, ownerId=ownerId)
+        assert iids == image_ids
+
+    def test_get_image_ids_dataset(self, project_dataset_images):
+        project = project_dataset_images
+        dataset, = project.linkedDatasetList()
+        images = dataset.linkedImageList()
+        images.sort(key=lambda x: x.getName().val)
+        expected_ids = [i.id.val for i in images]
+        iids = get_image_ids(self.conn, dataset.id.val)
+        assert iids == expected_ids
 
     def test_image(self, project_dataset_image):
         """
@@ -1533,7 +1680,6 @@ class TestShow(IWebTest):
 
         ws_a1, ws_b1, ws_a2, ws_b2 = well_a.copyWellSamples()
 
-        ws_c1, = well_c.copyWellSamples()
         plate_acquisition1 = ws_a1.plateAcquisition
         plate_acquisition2 = ws_a2.plateAcquisition
 
@@ -1565,6 +1711,13 @@ class TestShow(IWebTest):
                 assert False, 'Did not find in results: %s' % str(e)
 
         assert len(paths) == 0, 'More results than expected found\n %s' % paths
+
+        # Path to image in well...
+        paths = paths_to_object(self.conn, None, None, None,
+                                ws_a1.image.id.val, None, None, None, None)
+        # Image is only in ONE acquisition
+        assert len(paths) == 1
+        assert paths[0] == expected[0]
 
     def test_well_restrict_acquisition_multi(self,
                                              screen_plate_run_well_multi):

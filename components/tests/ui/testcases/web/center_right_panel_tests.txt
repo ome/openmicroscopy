@@ -1,0 +1,106 @@
+*** Settings ***
+Documentation     Tests ajax 'POST' updates.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Keywords ***
+
+Get Id From Selected Item In Tree
+	# Wait Until Element Is Visible	xpath=//li::a[contains(@class, 'jstree-clicked')]
+	${dataId}=                      Get Element Attribute    xpath=//li[contains(@class,'jstree-leaf')][descendant::a[contains(@class, 'jstree-clicked')]]@data-id
+	[return]						${dataId}
+
+Get Id From Selected Thumbnail
+	${dataId}=						Get Element Attribute    xpath=//li[contains(@class,'ui-selected')]@data-id
+	[return]						${dataId}
+
+Get Id From Right Panel
+	${dataId}= 						Get Text                css=tr.data_heading_id strong
+	[return]						${dataId}
+
+Wait Until Right Panel Loads For MultiSelection
+	[arguments]						${numOfObjects}
+
+	Wait Until Element Is Visible	xpath=//*[@id="batch_ann_title"]/span[contains(text(), '${numOfObjects} objects:')]
+	Wait Until Element Is Visible	xpath=//*[@id="batch_ann_title"]/span/span[contains(@class, 'btn_info')]
+
+	Wait Until Element Is Visible     xpath=//*[@id="metadata_general"]//div/button[contains(@title, 'Publishing Options')]
+	Wait Until Element Is Visible     xpath=//*[@id="show_image_hierarchy"]
+	Wait Until Element Is Visible     xpath=//*[@id="metadata_general"]//div/button[contains(@title, 'Download Image as...')]
+	Wait Until Element Is Visible	  xpath=//*[@id="show_link_btn"]/span
+
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="annotationFilter"]
+
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Ratings')]
+	Click Element 					  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Ratings')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="rating_annotations"]
+
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Tags')]
+	Click Element 					  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Tags')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="launch_tags_form"]/span
+
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
+	Click Element 					  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Attachments')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/input[contains(@title, 'Select files for scripts')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="choose_file_anns"]/span
+
+	Wait Until Element Is Visible 	  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Comments')]
+	Click Element 					  xpath=//*[@id="metadata_general"]//div/h1[contains(text(), 'Comments')]
+	Wait Until Element Is Visible 	  xpath=//*[@id="id_comment"]
+
+	Element Should Not Be Visible 	  xpath=//*[@id="general_tab"]
+
+Get Number Of Selected Objects From Tree
+	${numOfObjects}=				Get Matching Xpath Count 		xpath=//li[contains(@role, 'treeitem')]//a[contains(@class, 'jstree-clicked')]
+	[return]						${numOfObjects}
+
+Get Number Of Selected Objects From Center Panel
+	${numOfObjects}= 				Get Matching Xpath Count 		xpath=//div[@id="icon_table"]//li[contains(@class, 'ui-selected')]
+	[return]						${numOfObjects}
+
+*** Test Cases ***
+
+Select First Dataset
+    ${datasetId}=                   Select Node By Icon      ${datasetIcon}
+    Wait Until Right Panel Loads Everything    	Dataset                  ${datasetId}
+    Wait Until Center Panel Loads 				Dataset
+
+Check Center and Right Panel Sync For Image
+	${imageId}=						Select First Image
+	Wait Until Right Panel Loads Everything		Image 					 ${imageId}
+	
+	${imageId1}=					Get Id From Selected Item In Tree
+	${imageId2}						Get Id From Selected Thumbnail
+	${imageId3}						Get Id From Right Panel
+
+	Should Be Equal 				${imageId1}		${imageId}
+	Should Be Equal					${imageId2}		${imageId}
+	Should Be Equal 				${imageId3}		${imageId}
+
+	Click Next Thumbnail
+	${imageId1}						Get Id From Selected Item In Tree
+	${imageId2}						Get Id From Selected Thumbnail
+	${imageId3}						Get Id From Right Panel
+
+	Should Be Equal 				${imageId1}		${imageId2}
+	Should Be Equal					${imageId2}		${imageId3}
+	Should Be Equal 				${imageId3}		${imageId1}
+
+Check Multi Selections
+	
+	${imageId}						Select First Orphaned Image
+	Click Next Thumbnail
+	${imageId1}						Get Id From Selected Thumbnail
+	Meta Click Thumbnail 			${imageId}
+
+	${numOfObjects}					Get Number Of Selected Objects From Tree
+	${numOfObjects1}				Get Number Of Selected Objects From Center Panel
+
+	Should Be Equal 				${numOfObjects}		${numOfObjects1}
+	Wait Until Right Panel Loads For MultiSelection 	${numOfObjects}

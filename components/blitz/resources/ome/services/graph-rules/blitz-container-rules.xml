@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+#
+# Copyright (C) 2015-2016 University of Dundee & Open Microscopy Environment.
+# All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+    <util:list id="containerTargets" value-type="java.lang.String">
+
+        <!-- acquisition -->
+        <value>Instrument</value>
+
+        <!-- annotations -->
+        <value>Annotation</value>
+        <value>IAnnotationLink</value>
+
+        <!-- containers -->
+        <value>Dataset</value>
+        <value>DatasetImageLink</value>
+        <value>Project</value>
+        <value>ProjectDatasetLink</value>
+        <value>Folder</value>
+        <value>FolderImageLink</value>
+        <value>FolderRoiLink</value>
+
+        <!-- core -->
+        <value>Channel</value>
+        <value>Image</value>
+        <value>LogicalChannel</value>
+        <value>OriginalFile</value>
+        <value>Pixels</value>
+        <value>PixelsOriginalFileMap</value>
+        <value>PlaneInfo</value>
+
+        <!-- display -->
+        <value>ChannelBinding</value>
+        <value>CodomainMapContext</value>
+        <value>QuantumDef</value>
+        <value>RenderingDef</value>
+        <value>Thumbnail</value>
+
+        <!-- experiment -->
+        <value>Experiment</value>
+        <value>MicrobeamManipulation</value>
+
+        <!-- fs -->
+        <value>Fileset</value>
+        <value>FilesetEntry</value>
+        <value>FilesetJobLink</value>
+
+        <!-- internal -->
+        <value>Link</value>
+
+        <!-- jobs -->
+        <value>Job</value>
+        <value>JobOriginalFileLink</value>
+
+        <!-- meta -->
+        <value>ExternalInfo</value>
+
+        <!-- roi -->
+        <value>Roi</value>
+        <value>Shape</value>
+
+        <!-- screen -->
+        <value>Plate</value>
+        <value>PlateAcquisition</value>
+        <value>Reagent</value>
+        <value>Screen</value>
+        <value>ScreenPlateLink</value>
+        <value>Well</value>
+        <value>WellReagentLink</value>
+        <value>WellSample</value>
+
+        <!-- stats -->
+        <value>StatsInfo</value>
+
+    </util:list>
+
+    <util:list id="containerRules" value-type="ome.services.graphs.GraphPolicyRule">
+
+        <!-- see blitz-graph-rules.xml for rule syntax -->
+
+        <!-- ACQUISITION -->
+
+        <bean parent="graphPolicyRule" p:matches="I:Instrument[E].detector = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Instrument[E].dichroic = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Instrument[E].filter = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Instrument[E].filterSet = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Instrument[E].lightSource = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Instrument[E].microscope = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Instrument[E].objective = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Instrument[E].otf = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Filter[E].transmittanceRange = [I]" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FS:FilterSet[E].dichroic = [I]" p:changes="FS:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:Laser[E].pump = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E].detectorSettings = [I]" p:changes="LC:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E].lightSourceSettings = [I]" p:changes="LC:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].objectiveSettings = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:LightSettings[E].lightSource = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:DetectorSettings[E].detector = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="S:ObjectiveSettings[E].objective = [I]" p:changes="S:[I]"/>
+
+        <bean parent="graphPolicyRule" p:matches="Instrument[I].detector = D:[E]" p:changes="D:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Instrument[I].lightSource = LS:[E]" p:changes="LS:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Instrument[I].objective = O:[E]" p:changes="O:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="OTF[E].filterSet = [I]" p:changes="OTF:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="OTF[E].objective = [I]" p:changes="OTF:[I]"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[E].parent = [I], L.child = [I]"
+                                       p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FilterSetExcitationFilterLink[E].parent = [I], L.child = [I]"
+                                       p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:LightPathEmissionFilterLink[E].parent = [I], L.child = [I]"
+                                       p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[E].parent = [I], L.child = [I]"
+                                       p:changes="L:[I]"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:FilterSetEmissionFilterLink[!O]" p:changes="L:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FilterSetExcitationFilterLink[!O]" p:changes="L:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="L:LightPathEmissionFilterLink[!O]" p:changes="L:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="L:LightPathExcitationFilterLink[!O]" p:changes="L:[-]"/>
+
+        <!-- ANNOTATIONS -->
+
+        <bean parent="graphPolicyRule" p:matches="IAnnotationLink[I].parent = X:[E]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:IAnnotationLink[E].child = [I]" p:changes="L:[I]"/>
+
+        <!-- CONTAINERS -->
+
+        <bean parent="graphPolicyRule" p:matches="F:Folder[E].childFolders = [I]" p:changes="F:[I]"/>
+
+        <bean parent="graphPolicyRule" p:matches="L:ProjectDatasetLink[E].child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:DatasetImageLink[E].child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderImageLink[E].child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FolderRoiLink[E].child = [I]" p:changes="L:[I]"/>
+
+        <bean parent="graphPolicyRule" p:matches="ProjectDatasetLink[I].parent = P:[E]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="DatasetImageLink[I].parent = D:[E]" p:changes="D:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FolderImageLink[I].parent = F:[E]" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FolderRoiLink[I].parent = F:[E]" p:changes="F:[I]"/>
+
+        <!-- CORE -->
+
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].imagingEnvironment = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].instrument = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].pixels = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].stageLabel = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E].channels = [I]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E].pixelsFileMaps = [I]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E].planeInfo = [I]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E].settings = [I]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E].thumbnails = [I]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E].channels = [I]" p:changes="LC:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="LC:LogicalChannel[E].lightPath = [I]" p:changes="LC:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="C:Channel[E].logicalChannel = [I]" p:changes="C:[I]"/>
+
+        <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E].file = [I]" p:changes="FA:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="FE:FilesetEntry[E].originalFile = [I]" p:changes="FE:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap[E].parent = [I]" p:changes="POFM:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="ROI:Roi[E].source = [I]" p:changes="ROI:[I]"/>
+
+        <!-- DISPLAY -->
+
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].quantization = [I]" p:changes="RD:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].spatialDomainEnhancement = [I]" p:changes="RD:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].waveRendering = [I]" p:changes="RD:[I]"/>
+
+        <!-- EXPERIMENT -->
+
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].experiment = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="E:Experiment[E].microbeamManipulation = [I]" p:changes="E:[I]"/>
+
+        <!-- FS -->
+
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[E].images = [I]" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[E].usedFiles = [I]" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="F:Fileset[E].jobLinks = [I]" p:changes="F:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:FilesetJobLink[E].child = [I]" p:changes="L:[I]"/>
+
+        <!-- JOB -->
+
+        <bean parent="graphPolicyRule" p:matches="JobOriginalFileLink[I].parent = J:[E]" p:changes="J:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:JobOriginalFileLink[E].child = [I]" p:changes="L:[I]"/>
+
+        <!-- META -->
+
+        <bean parent="graphPolicyRule" p:matches="X:[E].details.externalInfo = [I]" p:changes="X:[I]"/>
+
+        <!-- ROI -->
+
+        <bean parent="graphPolicyRule" p:matches="I:Image[E].rois = [I]" p:changes="I:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="ROI:Roi[E].shapes = [I]" p:changes="ROI:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[EI]" p:changes="P:[-]"/>
+        <bean parent="graphPolicyRule" p:matches="M:Mask[E].pixels = P:[EI], P.image = [I]" p:changes="M:[I]"/>
+
+        <!-- SCREEN -->
+
+        <bean parent="graphPolicyRule" p:matches="S:Screen[E].reagents = [I]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="WellReagentLink[I].parent = W:[E]" p:changes="W:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:WellReagentLink[E].child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="ScreenPlateLink[I].parent = S:[E]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ScreenPlateLink[E].child = [I]" p:changes="L:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Plate[E].wells = [I]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Plate[E].plateAcquisitions = [I]" p:changes="P:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="PA:PlateAcquisition[E].wellSample = [I]" p:changes="PA:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="W:Well[E].wellSamples = [I]" p:changes="W:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="WS:WellSample[E].image = [I]" p:changes="WS:[I]"/>
+
+        <!-- STATS -->
+
+        <bean parent="graphPolicyRule" p:matches="C:Channel[E].statsInfo = [I]" p:changes="C:[I]"/>
+
+    </util:list>
+
+</beans>

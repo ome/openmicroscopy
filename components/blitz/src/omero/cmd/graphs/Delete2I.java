@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,19 +22,19 @@ package omero.cmd.graphs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
 
 import ome.model.IObject;
 import ome.security.ACLVoter;
@@ -44,7 +44,6 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphPathBean;
 import ome.services.graphs.GraphPolicy;
 import ome.services.graphs.GraphTraversal;
-import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Roles;
 import omero.cmd.Delete2;
@@ -62,6 +61,8 @@ import omero.cmd.Response;
  */
 public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Delete2> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Delete2I.class);
+
     private static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT = ImmutableMap.of(Login.OMERO_GROUP, "-1");
 
     private static final Set<GraphPolicy.Ability> REQUIRED_ABILITIES = ImmutableSet.of(GraphPolicy.Ability.DELETE);
@@ -76,6 +77,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
     private List<Function<GraphPolicy, GraphPolicy>> graphPolicyAdjusters = new ArrayList<Function<GraphPolicy, GraphPolicy>>();
     private Helper helper;
+    private GraphHelper graphHelper;
     private GraphTraversal graphTraversal;
 
     private GraphTraversal.PlanExecutor unlinker;
@@ -114,35 +116,22 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
     @Override
     public void init(Helper helper) {
+        if (LOGGER.isDebugEnabled()) {
+            final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+            arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("childOptions", childOptions);
+            arguments.addParameter("dryRun", dryRun);
+            LOGGER.debug("request: " + arguments);
+        }
+
         this.helper = helper;
         helper.setSteps(dryRun ? 4 : 6);
+        this.graphHelper = new GraphHelper(helper, graphPathBean);
 
-        final EventContext eventContext = helper.getEventContext();
+        graphTraversal = graphHelper.prepareGraphTraversal(childOptions, REQUIRED_ABILITIES, graphPolicy, graphPolicyAdjusters,
+                aclVoter, systemTypes, graphPathBean, unnullable, new InternalProcessor(), dryRun);
 
-        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
-
-        if (childOptions != null) {
-            for (final ChildOptionI childOption : childOptions) {
-                childOption.init();
-            }
-        }
-
-        GraphPolicy graphPolicyWithOptions = graphPolicy;
-
-        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, childOptions, REQUIRED_ABILITIES);
-
-        for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
-            graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
-        }
         graphPolicyAdjusters = null;
-
-        GraphTraversal.Processor processor = new InternalProcessor();
-        if (dryRun) {
-            processor = GraphUtil.disableProcessor(processor);
-        }
-
-        graphTraversal = new GraphTraversal(helper.getSession(), eventContext, aclVoter, systemTypes, graphPathBean, unnullable,
-                graphPolicyWithOptions, processor);
     }
 
     @Override
@@ -151,32 +140,15 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         try {
             switch (step) {
             case 0:
-                /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
-                final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
-                    /* determine actual class from given target object class name */
-                    String targetObjectClassName = oneClassToTarget.getKey();
-                    final int lastDot = targetObjectClassName.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        targetObjectClassName = targetObjectClassName.substring(lastDot + 1);
-                    }
-                    final Class<? extends IObject> targetObjectClass = graphPathBean.getClassForSimpleName(targetObjectClassName);
-                    /* check that it is legal to target the given class */
-                    final Iterator<Class<? extends IObject>> legalTargetsIterator = targetClasses.iterator();
-                    do {
-                        if (!legalTargetsIterator.hasNext()) {
-                            final Exception e = new IllegalArgumentException("cannot target " + targetObjectClassName);
-                            throw helper.cancel(new ERR(), e, "bad-target");
-                        }
-                    } while (!legalTargetsIterator.next().isAssignableFrom(targetObjectClass));
-                    /* note IDs to target for the class */
-                    final Collection<Long> ids = oneClassToTarget.getValue();
-                    targetMultimap.putAll(targetObjectClass.getName(), ids);
-                    targetObjectCount += ids.size();
-                }
+                final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
+                targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, false, true);
-                return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
+                if (!plan.getKey().isEmpty()) {
+                    final Exception e = new IllegalStateException("deletion does not do anything other than delete");
+                    helper.cancel(new ERR(), e, "graph-fail");
+                }
+                return GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue());
             case 1:
                 graphTraversal.assertNoPolicyViolations();
                 return null;
@@ -217,27 +189,26 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
         helper.assertResponse(step);
         if (step == 0) {
             /* if the results object were in terms of IObjectList then this would need IceMapper.map */
-            final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
-                    (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
-            final SetMultimap<String, Long> resultProcessed = result.getKey();
-            final SetMultimap<String, Long> resultDeleted = result.getValue();
+            final SetMultimap<String, Long> result = (SetMultimap<String, Long>) object;
             if (!dryRun) {
                 try {
-                    deletionInstance.deleteFiles(GraphUtil.trimPackageNames(resultDeleted));
+                    deletionInstance.deleteFiles(GraphUtil.trimPackageNames(result));
                 } catch (Exception e) {
                     helper.cancel(new ERR(), e, "file-delete-fail");
                 }
             }
-            final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
-            for (final String className : Sets.union(resultProcessed.keySet(), resultDeleted.keySet())) {
-                final Set<Long> ids = Sets.union(resultProcessed.get(className), resultDeleted.get(className));
-                deletedObjects.put(className, new ArrayList<Long>(ids));
-                deletedObjectCount += ids.size();
-            }
+            final Map<String, List<Long>> deletedObjects = GraphUtil.copyMultimapForResponse(result);
+            deletedObjectCount += result.size();
             final Delete2Response response = new Delete2Response(deletedObjects);
             helper.setResponseIfNull(response);
             helper.info("in " + (dryRun ? "mock " : "") + "delete of " + targetObjectCount +
                     ", deleted " + deletedObjectCount + " in total");
+
+            if (LOGGER.isDebugEnabled()) {
+                final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
+                arguments.addParameter("deletedObjects", response.deletedObjects);
+                LOGGER.debug("response: " + arguments);
+            }
         }
     }
 

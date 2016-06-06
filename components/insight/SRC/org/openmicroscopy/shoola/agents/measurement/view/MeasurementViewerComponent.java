@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -39,11 +39,11 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.events.measurement.ROIEvent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -55,6 +55,7 @@ import omero.gateway.SecurityContext;
 import omero.gateway.model.ROIResult;
 
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
 import omero.log.LogMessage;
@@ -83,6 +84,7 @@ import omero.gateway.model.ChannelData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
+import omero.gateway.model.FolderData;
 import omero.gateway.model.ROIData;
 import omero.gateway.model.ShapeData;
 import omero.gateway.model.TagAnnotationData;
@@ -149,7 +151,7 @@ class MeasurementViewerComponent
 		String word = "Save ";
 		if (type == FileChooser.LOAD) word = "Load ";
 		String title = word+"the ROI File";
-		String text = word+"the ROI data in the file associate with the image.";
+		String text = word+"the ROI data in the file associated with the image.";
 		
 		List<FileFilter> filters = new ArrayList<FileFilter>();
 		filters.add(new XMLFilter());
@@ -894,8 +896,8 @@ class MeasurementViewerComponent
 				if (i.hasNext())
 				{
 					roiResult = i.next();
-					if (CollectionUtils.isNotEmpty(roiResult.getROIs()))
-						hasResult = true;
+					model.setFolders(roiResult.getFolders());
+					hasResult = true;
 				}
 			}
 			
@@ -929,6 +931,29 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setUpdateROIComponent(Map, ROIFolderAction)
+     */
+    public void setUpdateROIComponent(Map<FolderData, Collection<ROIData>> result, ROIFolderAction action) 
+    {
+        Registry reg = MeasurementAgent.getRegistry();
+        UserNotifier un = reg.getUserNotifier();
+        try {
+            model.removeAllROI();
+            view.rebuildManagerTable(result, action);
+            view.clearInspector();
+            view.refreshResultsTable();
+            view.updateDrawingArea();
+        } catch (NoSuchROIException e) {
+            reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
+            un.notifyInfo("Save ROI", "Cannot save ROI " +
+                                        "for "+model.getImageID());
+        }
+        model.fireLoadROIServerOrClient(false);
+        reg.getEventBus().post(new ROIEvent(model.getImageID()));
+    }
+    
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#setUpdateROIComponent(Collection)
      */
 	public void setUpdateROIComponent(Collection result) 
@@ -947,8 +972,14 @@ class MeasurementViewerComponent
 										"for "+model.getImageID());
 		}
 		model.fireLoadROIServerOrClient(false);
+		reg.getEventBus().post(new ROIEvent(model.getImageID()));
 	}
 
+    @Override
+    public long getImageID() {
+        return model.getImageID();
+    }
+	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#canAnnotate()
@@ -1100,6 +1131,7 @@ class MeasurementViewerComponent
             shape = f.getROIShape().getData();
             if (shape != null) {
                 f.setAttribute(AnnotationKeys.TAG, r.get(shape.getId()));
+                f.setAttribute(AnnotationKeys.FOLDERS, f.getROIShape().getROI().getFolders());
             }
         }
 	    

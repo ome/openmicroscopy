@@ -45,13 +45,7 @@ from omero.conversions import Sym  # nopep8
 
 class FrequencyI(_omero_model.Frequency, UnitBase):
 
-    try:
-        UNIT_VALUES = sorted(UnitsFrequency._enumerators.values())
-    except:
-        # TODO: this occurs on Ice 3.4 and can be removed
-        # once it has been dropped.
-        UNIT_VALUES = [x for x in sorted(UnitsFrequency._names)]
-        UNIT_VALUES = [getattr(UnitsFrequency, x) for x in UNIT_VALUES]
+    UNIT_VALUES = sorted(UnitsFrequency._enumerators.values())
     CONVERSIONS = dict()
     for val in UNIT_VALUES:
         CONVERSIONS[val] = dict()
@@ -895,6 +889,7 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("zettahz"))  # nopep8
     CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Pow(10, 42), Sym("zettahz"))  # nopep8
+    del val
 
     SYMBOLS = dict()
     SYMBOLS["ATTOHERTZ"] = "aHz"

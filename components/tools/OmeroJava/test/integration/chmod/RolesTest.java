@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 import static omero.rtypes.rstring;
 import omero.cmd.Delete2;
+import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -56,6 +57,8 @@ import integration.AbstractServerTest;
  * @since Beta4.4
  */
 public class RolesTest extends AbstractServerTest {
+
+    private static final ChildOption KEEP_ANN = Requests.option().excludeType("Annotation").build();
 
     /**
      * Since we are creating a new client on each invocation, we should also
@@ -117,7 +120,7 @@ public class RolesTest extends AbstractServerTest {
         // Create a link canLink
         // Try to delete the link i.e. canDelete
         try {
-            Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+            Delete2 dc = Requests.delete().target(l).build();
             callback(false, client, dc);
         } catch (Exception e) {
 
@@ -126,7 +129,7 @@ public class RolesTest extends AbstractServerTest {
         }
 
         try {
-            Delete2 dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+            Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete "
@@ -135,7 +138,7 @@ public class RolesTest extends AbstractServerTest {
 
         // Try to delete the annotation i.e. canDelete
         try {
-            Delete2 dc = Requests.delete("Annotation", ann.getId().getValue());
+            Delete2 dc = Requests.delete().target(ann).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete the annotation.");
@@ -227,15 +230,15 @@ public class RolesTest extends AbstractServerTest {
 
         // Create a link canLink
         // Try to delete the link i.e. canDelete
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
 
         // Try to link an image i.e. canLink
@@ -321,15 +324,15 @@ public class RolesTest extends AbstractServerTest {
 
         // Create a link canLink
         // Try to delete the link i.e. canDelete
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
 
         // Try to link an image i.e. canLink
@@ -426,7 +429,7 @@ public class RolesTest extends AbstractServerTest {
         // Create a link canLink
         // Try to delete the link i.e. canDelete
         try {
-            Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+            Delete2 dc = Requests.delete().target(l).build();
             callback(false, client, dc);
         } catch (Exception e) {
 
@@ -435,7 +438,7 @@ public class RolesTest extends AbstractServerTest {
         }
 
         try {
-            Delete2 dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+            Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete "
@@ -444,7 +447,7 @@ public class RolesTest extends AbstractServerTest {
 
         // Try to delete the annotation i.e. canDelete
         try {
-            Delete2 dc = Requests.delete("Annotation", ann.getId().getValue());
+            Delete2 dc = Requests.delete().target(ann).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete " + "the annotation.");
@@ -537,15 +540,15 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
 
         // Try to link an image i.e. canLink
@@ -622,15 +625,15 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
 
         // Try to link an image i.e. canLink
@@ -713,7 +716,7 @@ public class RolesTest extends AbstractServerTest {
         // Create a link canLink
         // Try to delete the link i.e. canDelete
         try {
-            Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+            Delete2 dc = Requests.delete().target(l).build();
             callback(false, client, dc);
         } catch (Exception e) {
 
@@ -722,7 +725,7 @@ public class RolesTest extends AbstractServerTest {
         }
 
         try {
-            Delete2 dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+            Delete2 dc = Requests.delete().target(dl).option(KEEP_ANN).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete "
@@ -731,7 +734,7 @@ public class RolesTest extends AbstractServerTest {
 
         // Try to delete the annotation i.e. canDelete
         try {
-            Delete2 dc = Requests.delete("Annotation", ann.getId().getValue());
+            Delete2 dc = Requests.delete().target(ann).build();
             callback(false, client, dc);
         } catch (Exception e) {
             fail("Member should not be allowed to delete " + "the annotation.");
@@ -820,15 +823,15 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
 
         // Try to link an image i.e. canLink
@@ -905,15 +908,15 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
 
         // Try to link an image i.e. canLink
@@ -989,15 +992,15 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
         // Try to delete the dataset i.e. canDelete
 
@@ -1018,7 +1021,7 @@ public class RolesTest extends AbstractServerTest {
         // Try to edit i.e. canEdit
         d.setName(rstring("newName"));
         iUpdate.saveAndReturnObject(d);
-        dc = Requests.delete("Dataset", id);
+        dc = Requests.delete().target(d).build();
         callback(true, client, dc);
     }
 
@@ -1078,15 +1081,15 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
 
         // Try to link an image i.e. canLink
@@ -1162,15 +1165,15 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        Delete2 dc = Requests.delete("DatasetImageLink", l.getId().getValue());
+        Delete2 dc = Requests.delete().target(l).build();
         callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        dc = Requests.delete("DatasetAnnotationLink", dl.getId().getValue());
+        dc = Requests.delete().target(dl).option(KEEP_ANN).build();
         callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        dc = Requests.delete("Annotation", ann.getId().getValue());
+        dc = Requests.delete().target(ann).build();
         callback(true, client, dc);
 
         // Try to link an image i.e. canLink

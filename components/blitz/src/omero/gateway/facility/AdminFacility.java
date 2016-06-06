@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -71,9 +71,11 @@ public class AdminFacility extends Facility {
      * @param owner The owner of the group.
      * @param permissions The group's permissions.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in.
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
      */
     public GroupData createGroup(SecurityContext ctx, GroupData groupData,
             ExperimenterData owner, int permissions)
@@ -118,9 +120,11 @@ public class AdminFacility extends Facility {
      * @param isGroupOwner Pass <code>true</code> if the user is a group owner,
      *                <code>false</code> otherwise.
      * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in.
-     * @throws DSAccessException If an error occurred while trying to
-     * retrieve data from OMERO service.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service. 
      */
     public ExperimenterData createExperimenter(SecurityContext ctx,
             ExperimenterData exp, String username, String password,
@@ -186,9 +190,9 @@ public class AdminFacility extends Facility {
      *            The name of the group.
      * @return See above
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
+     *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
     public GroupData lookupGroup(SecurityContext ctx, String name)
@@ -216,9 +220,9 @@ public class AdminFacility extends Facility {
      *            The name of the experimenter.
      * @return See above
      * @throws DSOutOfServiceException
-     *             If the connection is broken, or logged in.
+     *             If the connection is broken, or not logged in
      * @throws DSAccessException
-     *             If an error occurred while trying to retrieve data from OMEDS
+     *             If an error occurred while trying to retrieve data from OMERO
      *             service.
      */
     public ExperimenterData lookupExperimenter(SecurityContext ctx, String name)
@@ -241,7 +245,7 @@ public class AdminFacility extends Facility {
      *
      * @param level
      *            The level to handle.
-     * @return
+     * @return The {@link Permissions}
      */
     private Permissions createPermissions(int level) {
         String perms = "rw----"; // private group
