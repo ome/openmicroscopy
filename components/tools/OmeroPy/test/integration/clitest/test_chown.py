@@ -107,3 +107,28 @@ class TestChownRoot(RootCLITest):
         obj = client.sf.getQueryService().get("Image", iid, all_grps)
         assert obj.id.val == new_image.id.val
         assert obj.details.owner.id.val == user.id.val
+
+
+class TestChownNonGroupOwner(CLITest):
+
+    def setup_method(self, method):
+        super(TestChownNonGroupOwner, self).setup_method(method)
+        self.cli.register("chown", ChownControl, "TEST")
+        self.args += ["chown"]
+
+    def testChownBasicUsageWithId(self):
+        new_dataset = self.new_dataset()
+        new_dataset = self.update.saveAndReturnObject(new_dataset)
+        iid = new_dataset.id.val
+
+        # create a user in the same group and
+        # attempt to transfer image to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s%s' % ("User:", user.id.val),
+                      '%s:%s' % ("Dataset", new_dataset.id.val)]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the object still belongs to the original user
+        obj = self.query.get("Dataset", iid, all_grps)
+        assert obj.id.val == iid
+        assert obj.details.owner.id.val == self.user.id.val
