@@ -92,11 +92,9 @@ class TestChown(CLITest):
         fileset = self.query.get('Fileset', filesetId)
         assert fileset is not None
 
-        # create user and try to transfer the object to the user
+        # create user and transfer the object to the user
         client, user = self.new_client_and_user(group=self.group)
         self.args += ['%s' % user.id.val]
-
-        # Delete the fileset
         if arguments == 'fileset':
             self.args += ['%s:%s' % ('Fileset', filesetId)]
         else:
