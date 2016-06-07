@@ -904,7 +904,19 @@ $(function() {
                 
                 config["share"] = {
                     "label" : "Create share",
-                    "_disabled": true,
+                    "_disabled": function(){
+                        console.log("disabled", arguments);
+                        var selected = $.jstree.reference('#dataTree').get_selected(true);
+                        var enabled = true;
+                        $.each(selected, function(index, node) {
+                            if (node.type != 'image' || !OME.nodeHasPermission(node, 'canLink')) {
+                                enabled = false;
+                                // Break out of $.each
+                                return false;
+                            }
+                        });
+                        return !enabled;
+                    },
                     "icon"  : WEBCLIENT.URLS.static_webclient + 'image/icon_toolbar_share2.png',
                     "action": function(){
                         // We get_selected() within createShare()
