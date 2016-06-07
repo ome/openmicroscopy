@@ -339,7 +339,7 @@ INTERNAL_SETTINGS_MAPPING = {
           "https://api.slack.com/web#authentication")],
     "omero.slack.channel":
         ["SLACK_CHANNEL",
-         "#general",
+         "#logs",
          str,
          ("Set a default channel of the room the message should appear in.")],
     "omero.slack.username":
