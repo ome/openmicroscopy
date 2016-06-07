@@ -82,6 +82,37 @@ class TestChown(CLITest):
         assert obj.id.val == oid
         assert obj.details.owner.id.val == self.user.id.val
 
+    @pytest.mark.parametrize('nimages', [1, 2])
+    @pytest.mark.parametrize('arguments', ['image', 'fileset'])
+    def testFileset(self, nimages, arguments):
+        # 2 images sharing a fileset
+        images = self.importMIF(nimages)
+        img = self.query.get('Image', images[0].id.val)
+        filesetId = img.fileset.id.val
+        fileset = self.query.get('Fileset', filesetId)
+        assert fileset is not None
+
+        # create user and try to transfer the object to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+
+        # Delete the fileset
+        if arguments == 'fileset':
+            self.args += ['%s:%s' % ('Fileset', filesetId)]
+        else:
+            ids = [str(i.id.val) for i in images]
+            self.args += ['Image:' + ",".join(ids)]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check the fileset and images have been chowned
+        obj = self.query.get("Fileset", filesetId, all_grps)
+        assert obj.id.val == filesetId
+        assert obj.details.owner.id.val == user.id.val
+        for i in images:
+            obj = self.query.get('Image', i.id.val, all_grps)
+            assert obj.id.val == i.id.val
+            assert obj.details.owner.id.val == user.id.val
+
 
 class TestChownRoot(RootCLITest):
 
