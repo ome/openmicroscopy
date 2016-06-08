@@ -29,6 +29,7 @@ import pytest
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
 user_prefixes = ["", "User:", "Experimenter:"]
 all_grps = {'omero.group': '-1'}
+ordered = [True, False]
 
 
 class TestChown(CLITest):
@@ -154,6 +155,30 @@ class TestChown(CLITest):
         for i in images:
             obj = self.query.get('Image', image.id.val, all_grps)
             assert obj.id.val == image.id.val
+            assert obj.details.owner.id.val == user.id.val
+
+    # These tests try to exercise the various grouping possibilities
+    # when passing multiple objects on the command line. In all of these
+    # cases using the --ordered flag should make no difference
+
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testMultipleSimpleObjectsSameClass(self, number, ordered):
+        dsets = [self.make_dataset() for i in range(number)]
+
+        # Create user and transfer the objects to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        for d in dsets:
+            self.args += ['Dataset:%s' % d.id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check the objects have been transferred
+        for d in dsets:
+            obj = self.query.get('Dataset', d.id.val, all_grps)
+            assert obj.id.val == d.id.val
             assert obj.details.owner.id.val == user.id.val
 
 
