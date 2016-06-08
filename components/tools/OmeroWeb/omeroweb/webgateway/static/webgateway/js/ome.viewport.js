@@ -279,6 +279,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.refresh(true);
     
     // Here we set up PanoJs Big image viewer...
+    _this.viewportimg.get(0).destroyTiles();
     if (_this.loadedImg.tiles) {
         // This is called for every tile, each time they move
         var hrefProvider = function() {

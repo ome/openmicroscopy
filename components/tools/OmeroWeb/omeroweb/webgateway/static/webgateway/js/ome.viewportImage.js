@@ -658,8 +658,11 @@ jQuery.fn.viewportImage = function(options) {
     };
     
     this.destroyTiles = function () {
-        jQuery(viewerBeanId).remove();
-        viewerBean = null;
+        if (viewerBean) {
+            viewerBean.clear()
+            viewerBean.viewer.remove()
+            viewerBean = null;
+        }
     };
 
     this.refresh = function () {
