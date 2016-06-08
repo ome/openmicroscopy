@@ -31,6 +31,7 @@ import json
 from getpass import getpass
 from getopt import getopt, GetoptError
 from itertools import izip
+from collections import defaultdict
 
 import omero.clients
 from omero.callbacks import CmdCallbackI
@@ -38,10 +39,12 @@ from omero.rtypes import rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
 from omero.model import PlateAcquisitionI, WellI, WellSampleI, ImageI
+from omero.model import ProjectAnnotationLinkI, ProjectI
 from omero.model import ScreenAnnotationLinkI
 from omero.model import MapAnnotationI, NamedValue
-from omero.grid import ImageColumn, LongColumn, PlateColumn
-from omero.grid import StringColumn, WellColumn
+from omero.grid import ImageColumn, LongColumn, PlateColumn, RoiColumn
+from omero.grid import StringColumn, WellColumn, DoubleColumn, BoolColumn
+from omero.grid import DatasetColumn
 from omero.util.metadata_utils import KeyValueListPassThrough
 from omero.util.metadata_utils import KeyValueListTransformer
 from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
@@ -67,17 +70,21 @@ Usage: %s [options] <target_object> <file>
 Runs metadata population code for a given object.
 
 Options:
-  -s    OMERO hostname to use [defaults to "localhost"]
-  -p    OMERO port to use [defaults to 4064]
-  -u    OMERO username to use
-  -w    OMERO password
-  -k    OMERO session key to use
-  -i    Dump measurement information and exit (no population)
-  -d    Print debug statements
-  -c    Use an alternative context (for expert users only)
+  -s            OMERO hostname to use [defaults to "localhost"]
+  -p            OMERO port to use [defaults to 4064]
+  -u            OMERO username to use
+  -w            OMERO password
+  -k            OMERO session key to use
+  --columns     Column configuration, Specify as comma separated list.
+                Supported types: plate, well, image, roi,
+                                 d (double), l (long), s (string), b (boolean)
+                Supported Boolean True Values: "yes", "true", "t", "1".
+  -i            Dump measurement information and exit (no population)
+  -d            Print debug statements
+  -c            Use an alternative context (for expert users only)
 
 Examples:
-  %s -s localhost -p 14064 -u bob Plate:6 metadata.csv
+  %s -s localhost -p 14064 -u bob --columns l,image,d,l Plate:6 metadata.csv
 
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
@@ -86,9 +93,20 @@ Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
 thread_pool = None
 
 # Special column names we may add depending on the data type
+BOOLEAN_TRUE = ["yes", "true", "t", "1"]
+
 PLATE_NAME_COLUMN = 'Plate Name'
 WELL_NAME_COLUMN = 'Well Name'
+DATASET_NAME_COLUMN = 'Dataset Name'
 IMAGE_NAME_COLUMN = 'Image Name'
+
+COLUMN_TYPES = {
+    'plate': PlateColumn, 'well': WellColumn, 'image': ImageColumn,
+    'roi': RoiColumn, 'd': DoubleColumn, 'l': LongColumn, 's': StringColumn,
+    'b': BoolColumn
+}
+
+REGEX_HEADER_SPECIFIER = r'# header '
 
 
 class Skip(object):
@@ -112,23 +130,52 @@ class HeaderResolver(object):
 
     DEFAULT_COLUMN_SIZE = 1
 
-    plate_keys = {
+    dataset_keys = {
+        'image': ImageColumn,
+        'image_name': StringColumn,
+    }
+
+    project_keys = {
+        'dataset': DatasetColumn,
+        'dataset_name': StringColumn,
+        'image': ImageColumn,
+        'image_name': StringColumn,
+    }
+
+    plate_keys = dict({
         'well': WellColumn,
         'field': ImageColumn,
         'row': LongColumn,
         'column': LongColumn,
         'wellsample': ImageColumn,
-        'image': ImageColumn
-    }
+    })
 
     screen_keys = dict({
         'plate': PlateColumn,
     }, **plate_keys)
 
-    def __init__(self, target_object, headers):
+    def __init__(self, target_object, headers, column_types=None):
         self.target_object = target_object
         self.headers = headers
         self.headers_as_lower = [v.lower() for v in self.headers]
+        self.types = column_types
+
+    @staticmethod
+    def is_row_column_types(row):
+        if "# header" in row[0]:
+            return True
+        return False
+
+    @staticmethod
+    def get_column_types(row):
+        if "# header" not in row[0]:
+            return None
+        get_first_type = re.compile(REGEX_HEADER_SPECIFIER)
+        column_types = [get_first_type.sub('', row[0])]
+        for column in row[1:]:
+            column_types.append(column)
+        column_types = parse_column_types(column_types)
+        return column_types
 
     def create_columns(self):
         target_class = self.target_object.__class__
@@ -136,12 +183,15 @@ class HeaderResolver(object):
         if ScreenI is target_class:
             log.debug('Creating columns for Screen:%d' % target_id)
             return self.create_columns_screen()
-        if PlateI is target_class:
+        elif PlateI is target_class:
             log.debug('Creating columns for Plate:%d' % target_id)
             return self.create_columns_plate()
-        if DatasetI is target_class:
+        elif DatasetI is target_class:
             log.debug('Creating columns for Dataset:%d' % target_id)
             return self.create_columns_dataset()
+        elif ProjectI is target_class:
+            log.debug('Creating columns for Project:%d' % target_id)
+            return self.create_columns_project()
         raise MetadataError(
             'Unsupported target object class: %s' % target_class)
 
@@ -155,41 +205,21 @@ class HeaderResolver(object):
         log.debug('Sanity check passed')
 
     def create_columns_screen(self):
-        columns = list()
-        for i, header_as_lower in enumerate(self.headers_as_lower):
-            name = self.headers[i]
-            description = ""
-            if "%%" in name:
-                name, description = name.split("%%", 1)
-                name = name.strip()
-                # description is key=value. Convert to json
-                if "=" in description:
-                    k, v = description.split("=", 1)
-                    k = k.strip()
-                    description = json.dumps({k: v.strip()})
-            # HDF5 does not allow / in column names
-            name = name.replace('/', '\\')
-            try:
-                column = self.screen_keys[header_as_lower](name, description,
-                                                           list())
-            except KeyError:
-                column = StringColumn(name, description,
-                                      self.DEFAULT_COLUMN_SIZE, list())
-            columns.append(column)
-        for column in columns:
-            if column.__class__ is PlateColumn:
-                columns.append(StringColumn(PLATE_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
-            if column.__class__ is WellColumn:
-                columns.append(StringColumn(WELL_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
-            if column.__class__ is ImageColumn:
-                columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
-        self.columns_sanity_check(columns)
-        return columns
+        return self._create_columns("screen")
 
     def create_columns_plate(self):
+        return self._create_columns("plate")
+
+    def create_columns_dataset(self):
+        return self._create_columns("dataset")
+
+    def create_columns_project(self):
+        return self._create_columns("project")
+
+    def _create_columns(self, klass):
+        if self.types is not None and len(self.types) != len(self.headers):
+            message = "Number of columns and column types not equal."
+            raise MetadataError(message)
         columns = list()
         for i, header_as_lower in enumerate(self.headers_as_lower):
             name = self.headers[i]
@@ -204,28 +234,38 @@ class HeaderResolver(object):
                     description = json.dumps({k: v.strip()})
             # HDF5 does not allow / in column names
             name = name.replace('/', '\\')
-            try:
-                column = self.plate_keys[header_as_lower](name, description,
-                                                          list())
-            except KeyError:
-                column = StringColumn(name, description,
-                                      self.DEFAULT_COLUMN_SIZE, list())
+            if self.types is not None and \
+                    COLUMN_TYPES[self.types[i]] is StringColumn:
+                column = COLUMN_TYPES[self.types[i]](
+                    name, description, self.DEFAULT_COLUMN_SIZE, list())
+            elif self.types is not None:
+                column = COLUMN_TYPES[self.types[i]](name, description, list())
+            else:
+                try:
+                    keys = getattr(self, "%s_keys" % klass)
+                    column = keys[header_as_lower](
+                        name, description, list())
+                except KeyError:
+                    column = StringColumn(
+                        name, description, self.DEFAULT_COLUMN_SIZE, list())
             columns.append(column)
+        append = []
         for column in columns:
             if column.__class__ is PlateColumn:
-                columns.append(StringColumn(PLATE_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
+                append.append(StringColumn(PLATE_NAME_COLUMN, '',
+                              self.DEFAULT_COLUMN_SIZE, list()))
             if column.__class__ is WellColumn:
-                columns.append(StringColumn(WELL_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
+                append.append(StringColumn(WELL_NAME_COLUMN, '',
+                              self.DEFAULT_COLUMN_SIZE, list()))
             if column.__class__ is ImageColumn:
-                columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
-                               self.DEFAULT_COLUMN_SIZE, list()))
+                append.append(StringColumn(IMAGE_NAME_COLUMN, '',
+                              self.DEFAULT_COLUMN_SIZE, list()))
+            # Currently hard-coded, but "if image name, then add image id"
+            if column.name == IMAGE_NAME_COLUMN:
+                append.append(ImageColumn("image", '', list()))
+        columns.extend(append)
         self.columns_sanity_check(columns)
         return columns
-
-    def create_columns_dataset(self):
-        raise Exception('To be implemented!')
 
 
 class ValueResolver(object):
@@ -241,16 +281,192 @@ class ValueResolver(object):
         self.client = client
         self.target_object = target_object
         self.target_class = self.target_object.__class__
+        self.target_type = self.target_object.ice_staticId().split('::')[-1]
+        self.target_id = self.target_object.id.val
+        q = "select x.details.group.id from %s x where x.id = %d " % (
+            self.target_type, self.target_id
+        )
+        self.target_group = unwrap(
+            self.client.sf.getQueryService().projection(q, None))
+        # The goal is to make this the only instance of
+        # a if/elif/else block on the target_class. All
+        # logic should be placed in a the concrete wrapper
+        # implementation
         if PlateI is self.target_class:
-            return self.load_plate()
-        if DatasetI is self.target_class:
-            return self.load_dataset()
-        if ScreenI is self.target_class:
-            return self.load_screen()
-        raise MetadataError(
-            'Unsupported target object class: %s' % self.target_class)
+            self.wrapper = PlateWrapper(self)
+        elif DatasetI is self.target_class:
+            self.wrapper = DatasetWrapper(self)
+        elif ScreenI is self.target_class:
+            self.wrapper = ScreenWrapper(self)
+        elif ProjectI is self.target_class:
+            self.wrapper = ProjectWrapper(self)
+        else:
+            raise MetadataError(
+                'Unsupported target object class: %s' % self.target_class)
 
-    def load_screen(self):
+    def get_plate_name_by_id(self, plate):
+        return self.wrapper.get_plate_name_by_id(plate)
+
+    def get_well_name(self, well_id, plate=None):
+        well = self.wrapper.get_well_by_id(well_id, plate)
+        row = well.row.val
+        col = well.column.val
+        row = self.AS_ALPHA[row]
+        return '%s%d' % (row, col + 1)
+
+    def get_image_id_by_name(self, iname, dname=None):
+        return self.wrapper.get_image_id_by_name(iname, dname)
+
+    def subselect(self, valuerows, names):
+        return self.wrapper.subselect(valuerows, names)
+
+    def resolve(self, column, value, row):
+        column_class = column.__class__
+        column_as_lower = column.name.lower()
+        if ImageColumn is column_class:
+            if len(self.images_by_id) == 1:
+                images_by_id = self.images_by_id.values()[0]
+            else:
+                for column, plate in row:
+                    if column.__class__ is PlateColumn:
+                        images_by_id = self.images_by_id[
+                            self.plates_by_name[plate].id.val
+                        ]
+                        log.debug(
+                            "Got plate %i", self.plates_by_name[plate].id.val
+                        )
+                    break
+            if images_by_id is None:
+                raise MetadataError(
+                    'Unable to locate Plate column in Row: %r' % row
+                )
+            try:
+                return images_by_id[long(value)].id.val
+            except KeyError:
+                log.debug('Image Id: %i not found!' % (value))
+                return -1L
+            return
+        if WellColumn is column_class:
+            return self.wrapper.resolve_well(column, row, value)
+        if PlateColumn is column_class:
+            return self.wrapper.resolve_plate(column, row, value)
+        if column_as_lower in ('row', 'column') \
+           and column_class is LongColumn:
+            try:
+                # The value is not 0 offsetted
+                return long(value) - 1
+            except ValueError:
+                return long(self.AS_ALPHA.index(value.lower()))
+        if StringColumn is column_class:
+            return value
+        if LongColumn is column_class:
+            return long(value)
+        if DoubleColumn is column_class:
+            return float(value)
+        if BoolColumn is column_class:
+            return value.lower() in BOOLEAN_TRUE
+        raise MetadataError('Unsupported column class: %s' % column_class)
+
+
+class ValueWrapper(object):
+
+    def __init__(self, value_resolver):
+        self.resolver = value_resolver
+        self.client = value_resolver.client
+        self.target_object = value_resolver.target_object
+        self.target_class = value_resolver.target_class
+
+    def subselect(self, rows, names):
+        return rows
+
+
+class SPWWrapper(ValueWrapper):
+
+    def __init__(self, value_resolver):
+        super(SPWWrapper, self).__init__(value_resolver)
+        self.AS_ALPHA = value_resolver.AS_ALPHA
+        self.WELL_REGEX = value_resolver.WELL_REGEX
+
+    def get_well_by_id(self, well_id, plate=None):
+        raise Exception("to be implemented by subclasses")
+
+    def parse_plate(self, plate, wells_by_location, wells_by_id, images_by_id):
+        # TODO: This should use the PlateNamingConvention. We're assuming rows
+        # as alpha and columns as numeric.
+        for well in plate.copyWells():
+            wells_by_id[well.id.val] = well
+            row = well.row.val
+            # 0 offsetted is not what people use in reality
+            column = str(well.column.val + 1)
+            try:
+                columns = wells_by_location[self.AS_ALPHA[row]]
+            except KeyError:
+                wells_by_location[self.AS_ALPHA[row]] = columns = dict()
+            columns[column] = well
+
+            for well_sample in well.copyWellSamples():
+                image = well_sample.getImage()
+                images_by_id[image.id.val] = image
+        log.debug('Completed parsing plate: %s' % plate.name.val)
+        for row in wells_by_location:
+            log.debug('%s: %r' % (row, wells_by_location[row].keys()))
+
+    def resolve_well(self, column, row, value):
+            m = self.WELL_REGEX.match(value)
+            if m is None or len(m.groups()) != 2:
+                msg = 'Cannot parse well identifier "%s" from row: %r'
+                msg = msg % (value, [o[1] for o in row])
+                raise MetadataError(msg)
+            plate_row = m.group(1).lower()
+            plate_column = str(long(m.group(2)))
+            wells_by_location = None
+            if len(self.wells_by_location) == 1:
+                wells_by_location = self.wells_by_location.values()[0]
+                log.debug(
+                    'Parsed "%s" row: %s column: %s' % (
+                        value, plate_row, plate_column))
+            else:
+                for column, plate in row:
+                    if column.__class__ is PlateColumn:
+                        wells_by_location = self.wells_by_location[plate]
+                        log.debug(
+                            'Parsed "%s" row: %s column: %s plate: %s' % (
+                                value, plate_row, plate_column, plate))
+                        break
+            if wells_by_location is None:
+                raise MetadataError(
+                    'Unable to locate Plate column in Row: %r' % row
+                )
+            try:
+                return wells_by_location[plate_row][plate_column].id.val
+            except KeyError:
+                log.debug('Row: %s Column: %s not found!' % (
+                    plate_row, plate_column))
+                return -1L
+
+
+class ScreenWrapper(SPWWrapper):
+
+    def __init__(self, value_resolver):
+        super(ScreenWrapper, self).__init__(value_resolver)
+        self._load()
+
+    def get_plate_name_by_id(self, plate):
+        plate = self.plates_by_id[plate]
+        return plate.name.val
+
+    def get_well_by_id(self, well_id, plate=None):
+        wells = self.wells_by_id[plate]
+        return wells[well_id]
+
+    def resolve_plate(self, column, row, value):
+        try:
+            return self.plates_by_name[value].id.val
+        except KeyError:
+            log.warn('Screen is missing plate: %s' % value)
+            return Skip()
+
+    def _load(self):
         query_service = self.client.getSession().getQueryService()
         parameters = omero.sys.ParametersI()
         parameters.addId(self.target_object.id.val)
@@ -289,7 +505,34 @@ class ValueResolver(object):
                 plate, wells_by_location, wells_by_id, images_by_id
             )
 
-    def load_plate(self):
+
+class PlateWrapper(SPWWrapper):
+
+    def __init__(self, value_resolver):
+        super(PlateWrapper, self).__init__(value_resolver)
+        self._load()
+
+    def get_well_by_id(self, well_id, plate=None):
+        plate = self.target_object.id.val
+        wells = self.wells_by_id[plate]
+        return wells[well_id]
+
+    def subselect(self, rows, names):
+        """
+        If we're processing a plate but the bulk-annotations file contains
+        a plate column then select rows for this plate only
+        """
+        for i, name in enumerate(names):
+            if name.lower() == 'plate':
+                valuerows = [row for row in rows if row[i] ==
+                             self.value_resolver.target_name]
+                log.debug(
+                    'Selected %d/%d rows for plate "%s"', len(valuerows),
+                    len(rows), self.value_resolver.target_name)
+                return valuerows
+        return rows
+
+    def _load(self):
         query_service = self.client.getSession().getQueryService()
         parameters = omero.sys.ParametersI()
         parameters.addId(self.target_object.id.val)
@@ -318,111 +561,132 @@ class ValueResolver(object):
             self.target_object, wells_by_location, wells_by_id, images_by_id
         )
 
-    def parse_plate(self, plate, wells_by_location, wells_by_id, images_by_id):
-        # TODO: This should use the PlateNamingConvention. We're assuming rows
-        # as alpha and columns as numeric.
-        for well in plate.copyWells():
-            wells_by_id[well.id.val] = well
-            row = well.row.val
-            # 0 offsetted is not what people use in reality
-            column = str(well.column.val + 1)
-            try:
-                columns = wells_by_location[self.AS_ALPHA[row]]
-            except KeyError:
-                wells_by_location[self.AS_ALPHA[row]] = columns = dict()
-            columns[column] = well
 
-            for well_sample in well.copyWellSamples():
-                image = well_sample.getImage()
-                images_by_id[image.id.val] = image
-        log.debug('Completed parsing plate: %s' % plate.name.val)
-        for row in wells_by_location:
-            log.debug('%s: %r' % (row, wells_by_location[row].keys()))
+class PDIWrapper(ValueWrapper):
 
-    def load_dataset(self):
-        raise Exception('To be implemented!')
+    def get_image_id_by_name(self, iname, dname=None):
+        raise Exception("to be implemented by subclasses")
 
-    def resolve(self, column, value, row):
-        column_class = column.__class__
-        column_as_lower = column.name.lower()
-        if ImageColumn is column_class:
-            if len(self.images_by_id) == 1:
-                images_by_id = self.images_by_id.values()[0]
+
+class DatasetWrapper(PDIWrapper):
+
+    def __init__(self, value_resolver):
+        super(DatasetWrapper, self).__init__(value_resolver)
+        self.images_by_id = dict()
+        self.images_by_name = dict()
+        self._load()
+
+    def get_image_id_by_name(self, iname, dname=None):
+        return self.images_by_name[iname]
+
+    def _load(self):
+        query_service = self.client.getSession().getQueryService()
+        parameters = omero.sys.ParametersI()
+        parameters.addId(self.target_object.id.val)
+        log.debug('Loading Dataset:%d' % self.target_object.id.val)
+
+        parameters.page(0, 1)
+        self.target_object = unwrap(query_service.findByQuery(
+            'select d from Dataset d where d.id = :id',
+            parameters, {'omero.group': '-1'}))
+        self.target_name = self.target_object.name.val
+
+        data = list()
+        while True:
+            parameters.page(len(data), 1000)
+            rv = unwrap(query_service.projection((
+                'select distinct i.id, i.name from Dataset as d '
+                'join d.imageLinks as l '
+                'join l.child as i '
+                'where d.id = :id order by i.id desc'),
+                parameters, {'omero.group': '-1'}))
+            if len(rv) == 0:
+                break
             else:
-                for column, plate in row:
-                    if column.__class__ is PlateColumn:
-                        images_by_id = self.images_by_id[
-                            self.plates_by_name[plate].id.val
-                        ]
-                        log.debug(
-                            "Got plate %i", self.plates_by_name[plate].id.val
-                        )
-                    break
-            if images_by_id is None:
-                raise MetadataError(
-                    'Unable to locate Plate column in Row: %r' % row
-                )
-            try:
-                return images_by_id[long(value)].id.val
-            except KeyError:
-                log.debug('Image Id: %i not found!' % (value))
-                return -1L
-            return
-        if WellColumn is column_class:
-            m = self.WELL_REGEX.match(value)
-            if m is None or len(m.groups()) != 2:
-                msg = 'Cannot parse well identifier "%s" from row: %r'
-                msg = msg % (value, [o[1] for o in row])
-                raise MetadataError(msg)
-            plate_row = m.group(1).lower()
-            plate_column = str(long(m.group(2)))
-            wells_by_location = None
-            if len(self.wells_by_location) == 1:
-                wells_by_location = self.wells_by_location.values()[0]
-                log.debug(
-                    'Parsed "%s" row: %s column: %s' % (
-                        value, plate_row, plate_column))
+                data.extend(rv)
+        if not data:
+            raise MetadataError('Could not find target object!')
+
+        for iid, iname in data:
+            self.images_by_id[iid] = iname
+            if iname in self.images_by_name:
+                raise Exception("Image named %s(id=%d) present. (id=%s)" % (
+                    iname, self.images_by_name[iname], iid
+                ))
+            self.images_by_name[iname] = iid
+        log.debug('Completed parsing dataset: %s' % self.target_name)
+
+
+class ProjectWrapper(PDIWrapper):
+
+    def __init__(self, value_resolver):
+        super(ProjectWrapper, self).__init__(value_resolver)
+        self.graph_by_id = defaultdict(lambda: dict())
+        self.graph_by_name = defaultdict(lambda: dict())
+        self._load()
+
+    def get_image_id_by_name(self, iname, dname=None):
+        return self.graph_by_name[dname][iname][2]
+
+    def _load(self):
+        query_service = self.client.getSession().getQueryService()
+        parameters = omero.sys.ParametersI()
+        parameters.addId(self.target_object.id.val)
+        log.debug('Loading Project:%d' % self.target_object.id.val)
+
+        parameters.page(0, 1)
+        self.target_object = unwrap(query_service.findByQuery(
+            'select p from Project p where p.id = :id',
+            parameters, {'omero.group': '-1'}))
+        self.target_name = self.target_object.name.val
+
+        data = list()
+        while True:
+            parameters.page(len(data), 1000)
+            rv = unwrap(query_service.projection((
+                'select distinct d.id, d.name, i.id, i.name '
+                'from Project p '
+                'join p.datasetLinks as pdl '
+                'join pdl.child as d '
+                'join d.imageLinks as l '
+                'join l.child as i '
+                'where p.id = :id order by i.id desc'),
+                parameters, {'omero.group': '-1'}))
+            if len(rv) == 0:
+                break
             else:
-                for column, plate in row:
-                    if column.__class__ is PlateColumn:
-                        wells_by_location = self.wells_by_location[plate]
-                        log.debug(
-                            'Parsed "%s" row: %s column: %s plate: %s' % (
-                                value, plate_row, plate_column, plate))
-                        break
-            if wells_by_location is None:
-                raise MetadataError(
-                    'Unable to locate Plate column in Row: %r' % row
-                )
-            try:
-                return wells_by_location[plate_row][plate_column].id.val
-            except KeyError:
-                log.debug('Row: %s Column: %s not found!' % (
-                    plate_row, plate_column))
-                return -1L
-        if PlateColumn is column_class:
-            try:
-                return self.plates_by_name[value].id.val
-            except KeyError:
-                log.warn('Screen is missing plate: %s' % value)
-                return Skip()
-        if column_as_lower in ('row', 'column') \
-           and column_class is LongColumn:
-            try:
-                # The value is not 0 offsetted
-                return long(value) - 1
-            except ValueError:
-                return long(self.AS_ALPHA.index(value.lower()))
-        if StringColumn is column_class:
-            return value
-        raise MetadataError('Unsupported column class: %s' % column_class)
+                data.extend(rv)
+        if not data:
+            raise MetadataError('Could not find target object!')
+
+        seen = dict()
+        for row in data:
+            did, dname, iid, iname = row
+
+            if dname in seen and seen[dname] != did:
+                raise Exception("Duplicate datasets: '%s' = %s, %s" % (
+                    dname, seen[dname], did
+                ))
+            else:
+                seen[dname] = did
+
+            ikey = (did, iname)
+            if ikey in seen and iid != seen[ikey]:
+                raise Exception("Duplicate image: '%s' = %s, %s (Dataset:%s)"
+                                % (iname, seen[ikey], iid, did))
+            else:
+                seen[ikey] = iid
+
+            self.graph_by_id[did][iid] = row
+            self.graph_by_name[dname][iname] = row
+        log.debug('Completed parsing project: %s' % self.target_object.id.val)
 
 
 class ParsingContext(object):
     """Generic parsing context for CSV files."""
 
     def __init__(self, client, target_object, file=None, fileid=None,
-                 cfg=None, cfgid=None, attach=False):
+                 cfg=None, cfgid=None, attach=False, column_types=None):
         '''
         This lines should be handled outside of the constructor:
 
@@ -439,6 +703,7 @@ class ParsingContext(object):
         self.client = client
         self.target_object = target_object
         self.file = file
+        self.column_types = column_types
         self.value_resolver = ValueResolver(self.client, self.target_object)
 
     def create_annotation_link(self):
@@ -449,6 +714,8 @@ class ParsingContext(object):
             return PlateAnnotationLinkI()
         if DatasetI is self.target_class:
             return DatasetAnnotationLinkI()
+        if ProjectI is self.target_class:
+            return ProjectAnnotationLinkI()
         raise MetadataError(
             'Unsupported target object class: %s' % self.target_class)
 
@@ -461,35 +728,32 @@ class ParsingContext(object):
                 widths.append(None)
         return widths
 
-    def subselect_plate(self, rows, names):
-        """
-        If we're processing a plate but the bulk-annotations file contains
-        a plate column then select rows for this plate only
-        """
-        for i, name in enumerate(names):
-            if name.lower() == 'plate':
-                valuerows = [row for row in rows if row[i] ==
-                             self.value_resolver.target_name]
-                log.debug(
-                    'Selected %d/%d rows for plate "%s"', len(valuerows),
-                    len(rows), self.value_resolver.target_name)
-                return valuerows
-        return rows
-
     def parse_from_handle(self, data):
         rows = list(csv.reader(data, delimiter=','))
-        log.debug('Header: %r' % rows[0])
+        first_row_is_types = HeaderResolver.is_row_column_types(rows[0])
+        header_index = 0
+        rows_index = 1
+        if first_row_is_types:
+            header_index = 1
+            rows_index = 2
+        log.debug('Header: %r' % rows[header_index])
         for h in rows[0]:
             if not h:
-                raise Exception('Empty column header in CSV: %s' % rows[0])
-        self.header_resolver = HeaderResolver(self.target_object, rows[0])
+                raise Exception('Empty column header in CSV: %s'
+                                % rows[header_index])
+        if self.column_types is None and first_row_is_types:
+            self.column_types = HeaderResolver.get_column_types(rows[0])
+        log.debug('Column types: %r' % self.column_types)
+        self.header_resolver = HeaderResolver(
+            self.target_object, rows[header_index],
+            column_types=self.column_types)
         self.columns = self.header_resolver.create_columns()
         log.debug('Columns: %r' % self.columns)
 
-        valuerows = rows[1:]
+        valuerows = rows[rows_index:]
         log.debug('Got %d rows', len(valuerows))
-        if PlateI is self.value_resolver.target_class:
-            valuerows = self.subselect_plate(valuerows, rows[0])
+        valuerows = self.value_resolver.subselect(
+            valuerows, rows[header_index])
         self.populate(valuerows)
         self.post_process()
         log.debug('Column widths: %r' % self.get_column_widths())
@@ -505,7 +769,6 @@ class ParsingContext(object):
 
     def populate(self, rows):
         nrows = len(rows)
-
         for (r, row) in enumerate(rows):
             values = list()
             row = [(self.columns[i], value) for i, value in enumerate(row)]
@@ -518,7 +781,8 @@ class ParsingContext(object):
                     break
                 values.append(value)
                 try:
-                    if value.__class__ is not long:
+                    log.debug("Value's class: %s" % value.__class__)
+                    if value.__class__ is str:
                         column.size = max(column.size, len(value))
                 except TypeError:
                     log.error('Original value "%s" now "%s" of bad type!' % (
@@ -527,15 +791,20 @@ class ParsingContext(object):
             if value.__class__ is not Skip:
                 values.reverse()
                 for column in self.columns:
-                    if column.name in (PLATE_NAME_COLUMN, WELL_NAME_COLUMN,
-                                       IMAGE_NAME_COLUMN):
-                        continue
-                    try:
+                    if not values:
+                        if isinstance(column, ImageColumn) or \
+                           column.name in (PLATE_NAME_COLUMN,
+                                           WELL_NAME_COLUMN,
+                                           IMAGE_NAME_COLUMN):
+                            # Then assume that the values will be calculated
+                            # later based on another column.
+                            continue
+                        else:
+                            msg = 'Column %s has no values.' % column.name
+                            log.error(msg)
+                            raise IndexError(msg)
+                    else:
                         column.values.append(values.pop())
-                    except IndexError:
-                        log.error(
-                            'Column %s has no values to pop.' % column.name)
-                        raise
 
     def post_process(self):
         columns_by_name = dict()
@@ -558,23 +827,23 @@ class ParsingContext(object):
                 image_name_column = column
             elif column.__class__ is ImageColumn:
                 image_column = column
+
         if well_name_column is None and plate_name_column is None \
                 and image_name_column is None:
             log.info('Nothing to do during post processing.')
-        for i in range(0, len(self.columns[0].values)):
+            return
+
+        sz = max([len(x.values) for x in self.columns])
+        for i in range(0, sz):
             if well_name_column is not None:
-                if PlateI is self.value_resolver.target_class:
-                    plate = self.value_resolver.target_object.id.val
-                elif ScreenI is self.value_resolver.target_class:
-                    plate = columns_by_name['Plate'].values[i]
+
                 v = ''
                 try:
-                    well = self.value_resolver.wells_by_id[plate]
-                    well = well[well_column.values[i]]
-                    row = well.row.val
-                    col = well.column.val
-                    row = self.value_resolver.AS_ALPHA[row]
-                    v = '%s%d' % (row, col + 1)
+                    well_id = well_column.values[i]
+                    plate = None
+                    if "Plate" in columns_by_name:  # FIXME
+                        plate = columns_by_name["Plate"].values[i]
+                    v = self.value_resolver.get_well_name(well_id, plate)
                 except KeyError:
                     log.warn(
                         'Skipping table row %d! Missing well row or column '
@@ -587,23 +856,25 @@ class ParsingContext(object):
 
             if image_name_column is not None:
                 try:
-                    image = self.value_resolver.images_by_id[
-                        self.target_object.id.val]
-                    image = image[image_column.values[i]]
+                    iname = image_name_column.values[i]
+                    did = None
+                    if "Dataset Name" in columns_by_name:  # FIXME
+                        did = columns_by_name["Dataset Name"].values[i]
+                    iid = self.value_resolver.get_image_id_by_name(iname, did)
+                    assert i == len(image_column.values)
+                    image_column.values.append(iid)
+                    image_name_column.size = max(
+                        image_name_column.size, len(iname))
                 except KeyError:
                     log.error(
-                        'Missing row or column for image name population!')
+                        "%s not found in image names" % iname)
                     raise
-                name = image.name.val
-                image_name_column.size = max(image_name_column.size, len(name))
-                image_name_column.values.append(name)
             else:
                 log.info('Missing image name column, skipping.')
 
             if plate_name_column is not None:
-                plate = columns_by_name['Plate'].values[i]
-                plate = self.value_resolver.plates_by_id[plate]
-                v = plate.name.val
+                plate = columns_by_name['Plate'].values[i]   # FIXME
+                v = self.value_resolver.get_plate_name_by_id(plate)
                 plate_name_column.size = max(plate_name_column.size, len(v))
                 plate_name_column.values.append(v)
             else:
@@ -611,7 +882,7 @@ class ParsingContext(object):
 
     def write_to_omero(self):
         sf = self.client.getSession()
-        group = str(self.value_resolver.target_object.details.group.id.val)
+        group = str(self.value_resolver.target_group)
         sr = sf.sharedResources()
         update_service = sf.getUpdateService()
         name = 'bulk_annotations'
@@ -821,9 +1092,12 @@ class BulkToMapAnnotationContext(_QueryContext):
             for omerotype, n in idcols:
                 if row[n] > 0:
                     obj = omerotype(row[n], False)
-                    # Josh: disabling to prevent duplication in UI
-                    # targets.append(obj)
+                    additional = self._get_additional_targets(obj)
                     targets.extend(self._get_additional_targets(obj))
+                    # Josh: disabling to prevent duplication in UI
+                    # if there are other targets to be used. FIXME
+                    if not additional:
+                        targets.append(obj)
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
             if targets:
@@ -840,7 +1114,7 @@ class BulkToMapAnnotationContext(_QueryContext):
 
     def write_to_omero(self):
         sf = self.client.getSession()
-        group = str(self.target_object.details.group.id.val)
+        group = str(self.target_object.details.group.id)
         update_service = sf.getUpdateService()
         ids = update_service.saveAndReturnIds(
             self.mapannotations, {'omero.group': group})
@@ -888,6 +1162,8 @@ class DeleteMapAnnotationContext(_QueryContext):
             "Well": None,
             "WellSample": None,
             "Image": None,
+            "Dataset": None,
+            "Project": None,
         }
 
         target = self.target_object
@@ -933,8 +1209,27 @@ class DeleteMapAnnotationContext(_QueryContext):
             q = "SELECT image.id FROM WellSample WHERE id IN (:ids)"
             parentids["Image"] = self.projection(q, parentids["WellSample"])
 
+        if isinstance(target, ProjectI):
+            parentids["Project"] = ids
+        if parentids["Project"]:
+            q = ("SELECT ds.id FROM ProjectDatasetLink link "
+                 "join link.parent prj "
+                 "join link.child as ds WHERE prj.id IN (:ids)")
+            parentids["Dataset"] = self.projection(q, parentids["Project"])
+
+        if isinstance(target, DatasetI):
+            parentids["Dataset"] = ids
+        if parentids["Dataset"]:
+            q = ("SELECT i.id FROM DatasetImageLink link "
+                 "join link.parent ds "
+                 "join link.child as i WHERE ds.id IN (:ids)")
+            parentids["Image"] = self.projection(q, parentids["Dataset"])
+
         if isinstance(target, ImageI):
             parentids["Image"] = ids
+
+        # TODO: This should really include:
+        #    raise Exception("Unknown target: %s" % target.__class__.__name__)
 
         log.debug("Parent IDs: %s", parentids)
 
@@ -1003,9 +1298,23 @@ def parse_target_object(target_object):
         return ScreenI(long(id), False)
     raise ValueError('Unsupported target object: %s' % target_object)
 
+
+def parse_column_types(column_type_list):
+    column_types = []
+    for column_type in column_type_list:
+        if column_type.lower() in COLUMN_TYPES:
+            column_types.append(column_type.lower())
+        else:
+            column_types = []
+            message = "\nColumn type '%s' unknown.\nChoose from following: " \
+                "%s" % (column_type, ",".join(COLUMN_TYPES.keys()))
+            raise MetadataError(message)
+    return column_types
+
+
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "s:p:u:w:k:c:id")
+        options, args = getopt(sys.argv[1:], "s:p:u:w:k:c:id", ["columns="])
     except GetoptError, (msg, opt):
         usage(msg)
 
@@ -1023,6 +1332,7 @@ if __name__ == "__main__":
     session_key = None
     logging_level = logging.INFO
     thread_count = 1
+    column_types = None
     context_class = ParsingContext
     for option, argument in options:
         if option == "-u":
@@ -1041,6 +1351,8 @@ if __name__ == "__main__":
             logging_level = logging.DEBUG
         if option == "-t":
             thread_count = int(argument)
+        if option == "--columns":
+            column_types = parse_column_types(argument.split(','))
         if option == "-c":
             try:
                 context_class = globals()[argument]
@@ -1066,7 +1378,8 @@ if __name__ == "__main__":
 
         log.debug('Creating pool of %d threads' % thread_count)
         thread_pool = ThreadPool(thread_count)
-        ctx = context_class(client, target_object, file)
+        ctx = context_class(
+            client, target_object, file, column_types=column_types)
         ctx.parse()
         if not info:
             ctx.write_to_omero()
