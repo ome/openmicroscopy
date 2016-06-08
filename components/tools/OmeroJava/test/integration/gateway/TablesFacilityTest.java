@@ -65,16 +65,16 @@ public class TablesFacilityTest extends GatewayTest {
         FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
                 .iterator().next();
         this.data.setOriginalFileId(tablesFile.getFileID());
-        // get row 1 and 2 with column 1 and 2
+        // get row 1 and 2 with column 0 and 2
         TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getFileID(),
-                1, 2, 1, 2);
-
+                1, 2, 0, 2);
+        
         TableDataColumn[] header = new TableDataColumn[2];
-        header[0] = new TableDataColumn("column1", 1, Long.class);
+        header[0] = new TableDataColumn("column0", 0, String.class);
         header[1] = new TableDataColumn("column2", 2, Double.class);
 
         Object[][] expData = new Object[2][2];
-        expData[0] = new Object[] { 1l, 2l };
+        expData[0] = new Object[] { "test1", "test2" };
         expData[1] = new Object[] { 1.0d, 2.0d };
 
         TableData exp = new TableData(header, expData);
