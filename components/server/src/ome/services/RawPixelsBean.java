@@ -270,7 +270,15 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             }
 
             try {
-                buffer = dataService.getPixelBuffer(pixelsInstance, true);
+                Map<String, String> ctx = this.sec.getCallContext();
+                if (ctx.containsKey("omero.pixeldata.fail_if_missing")) {
+                    boolean failIfMissing = Boolean.valueOf(ctx.get(
+                        "omero.pixeldata.fail_if_missing"));
+                    buffer = dataService.getPixelBuffer(pixelsInstance, true, failIfMissing);
+                } else {
+                    // Use the default
+                    buffer = dataService.getPixelBuffer(pixelsInstance, true);
+                }
             } catch (RuntimeException re) {
                 // Rolling back to let the next setPixelsId try again
                 // since this is most likely our MissingPyramidException.
