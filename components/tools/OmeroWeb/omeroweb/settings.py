@@ -506,6 +506,22 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.public.cache.timeout":
         ["PUBLIC_CACHE_TIMEOUT", 60 * 60 * 24, int, None],
 
+    # Social media integration
+    "omero.web.sharing.twitter":
+        ["SHARING_TWITTER",
+         '{}',
+         json.loads,
+         ("Dictionary of `server-name: @twitter-site-username`, where "
+          "server-name matches a name from `omero.web.server_list`. "
+          "For example: ``'{\"omero\": \"@openmicroscopy\"}'``")],
+    "omero.web.sharing.opengraph":
+        ["SHARING_OPENGRAPH",
+         '{}',
+         json.loads,
+         ("Dictionary of `server-name: site-name`, where "
+          "server-name matches a name from `omero.web.server_list`. "
+          "For example: ``'{\"omero\": \"Open Microscopy\"}'``")],
+
     # Application configuration
     "omero.web.server_list":
         ["SERVER_LIST",
