@@ -116,6 +116,7 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                 $mapAnnContainer.html(html);
 
                 // Finish up...
+                OME.linkify_element($( "table.keyValueTable tbody tr td" ));
                 OME.filterAnnotationsAddedBy();
                 $(".tooltip", $mapAnnContainer).tooltip_init();
             });
