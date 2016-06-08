@@ -111,6 +111,21 @@ class TestChown(CLITest):
             assert obj.id.val == i.id.val
             assert obj.details.owner.id.val == user.id.val
 
+    def testFilesetPartialFailing(self):
+        images = self.importMIF(2)  # 2 images sharing a fileset
+
+        # Create user and try to transfer only one image to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        self.args += ['Image:%s' % images[0].id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check the images have not been transferred
+        for i in images:
+            obj = self.query.get('Image', i.id.val, all_grps)
+            assert obj.id.val == i.id.val
+            assert obj.details.owner.id.val == self.user.id.val
+
 
 class TestChownRoot(RootCLITest):
 
