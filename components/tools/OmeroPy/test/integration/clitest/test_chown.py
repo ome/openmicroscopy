@@ -312,6 +312,49 @@ class TestChown(CLITest):
             assert obj.id.val == d.id.val
             assert obj.details.owner.id.val == user.id.val
 
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testMultipleSkipheadsPlusObjectsInterlaced(self, number, ordered):
+        projs = [self.make_project() for i in range(number)]
+        dsets = [self.make_dataset() for i in range(number)]
+        imgs = [self.update.saveAndReturnObject(self.new_image())
+                for i in range(number)]
+
+        for i in range(number):
+            self.link(projs[i], dsets[i])
+            self.link(dsets[i], imgs[i])
+
+        ds = [self.make_dataset() for i in range(number)]
+
+        # Create user and transfer the objects to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        for i in range(number):
+            self.args += ['Project/Dataset/Image:%s' % projs[i].id.val]
+            self.args += ['Dataset:%s' % ds[i].id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only the images and separate datasets
+        # have been transferred
+        for p in projs:
+            obj = self.query.get('Project', p.id.val, all_grps)
+            assert obj.id.val == p.id.val
+            assert obj.details.owner.id.val == self.user.id.val
+        for d in dsets:
+            obj = self.query.get('Dataset', d.id.val, all_grps)
+            assert obj.id.val == d.id.val
+            assert obj.details.owner.id.val == self.user.id.val
+        for i in imgs:
+            obj = self.query.get('Image', i.id.val, all_grps)
+            assert obj.id.val == i.id.val
+            assert obj.details.owner.id.val == user.id.val
+        for d in ds:
+            obj = self.query.get('Dataset', d.id.val, all_grps)
+            assert obj.id.val == d.id.val
+            assert obj.details.owner.id.val == user.id.val
+
 
 class TestChownRoot(RootCLITest):
 
