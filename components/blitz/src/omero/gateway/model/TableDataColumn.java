@@ -32,7 +32,11 @@ public class TableDataColumn {
     /** A description */
     private String description = "";
 
-    /** The index of the column */
+    /**
+     * The index of the column (in the original table; this doesn't have to
+     * match the index in the {@link TableData#columns} or
+     * {@link TableData#data} array, depending on which columns are loaded)
+     */
     private int index = -1;
 
     /** The type of data in this column */
