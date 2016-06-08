@@ -20,6 +20,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # from omero.cli import NonZeroReturnCode
+
+import omero
 from omero.plugins.chown import ChownControl
 from test.integration.clitest.cli import CLITest, RootCLITest
 import pytest
@@ -125,6 +127,34 @@ class TestChown(CLITest):
             obj = self.query.get('Image', i.id.val, all_grps)
             assert obj.id.val == i.id.val
             assert obj.details.owner.id.val == self.user.id.val
+
+    def testFilesetAllImagesChownDataset(self):
+        images = self.importMIF(2)  # 2 images sharing a fileset
+        dataset_id = self.create_object('Dataset')  # ... in a dataset
+
+        # put the images into the dataset
+        for image in images:
+            link = omero.model.DatasetImageLinkI()
+            link.parent = omero.model.DatasetI(dataset_id, False)
+            link.child = omero.model.ImageI(image.id.val, False)
+            self.update.saveObject(link)
+
+        # Create user and transfer the dataset to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        self.args += ['Dataset:%s' % dataset_id]
+        self.cli.invoke(self.args, strict=True)
+
+        # check the dataset has been transferred
+        obj = self.query.get('Dataset', dataset_id, all_grps)
+        assert obj.id.val == dataset_id
+        assert obj.details.owner.id.val == user.id.val
+
+        # check the images have been transferred
+        for i in images:
+            obj = self.query.get('Image', image.id.val, all_grps)
+            assert obj.id.val == image.id.val
+            assert obj.details.owner.id.val == user.id.val
 
 
 class TestChownRoot(RootCLITest):
