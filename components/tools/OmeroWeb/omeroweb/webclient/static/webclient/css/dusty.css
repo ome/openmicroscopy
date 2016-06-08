@@ -1039,7 +1039,24 @@ button::-moz-focus-inner {
 	}
 	
 
+	.imagefilter {
+		float:left;
+		display:none;
+		margin-right:5px
+	}
 
+	.imagefilter .removefilter {
+		visibility: hidden;
+	}
+
+	.imagefilter:hover .removefilter {
+		display: inline-block;
+		visibility: visible;
+	}
+	.removefilter:hover {
+		cursor: pointer;
+		color: blue;
+	}
 
 
 

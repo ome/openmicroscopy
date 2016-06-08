@@ -3,22 +3,26 @@
     <div id="layout_chooser">
         <button id="icon_layout" title="View as Thumbnails" class="<% if (layout === 'icon') print('checked') %>" /><button id="table_layout" title="View as List" class="<% if (layout === 'table') print('checked') %>" />
     </div>
-    <form class="search filtersearch" id="filtersearch" action="#" style="top:4px; width:600px">
+    <form class="search filtersearch" id="filtersearch" action="#" style="top:8px; width:90%">
         <div style="float:left; font-size: 16px">Filter:</div>
-         <img title="Click to add rating" style="float:left" src="/static/webclient/image/rating0.png">
+        <div id="filtersContainer" style="float:left">
+            <div id="filterrating" class="imagefilter">
+                <img title="Click to add rating" src="/static/webclient/image/rating0.png">
+                <span title="Clear filter" class="removefilter" style="vertical-align:top">X</span>
+            </div>
 
-         <div style="position: relative; float: left; width: 170px; height:30px">
-            <label for="id_search"> Filter Images </label>
-            <input id="id_search" type="text" size="25">
+            <div id="filtername" class="imagefilter" style="position: relative; width: 180px; height:30px; top: -4px">
+                <label for="id_search"> Filter by name </label>
+                <input id="id_search" type="text" size="25">
+                <span title="Clear filter" class="removefilter" style="float: right; margin-right:8px">X</span>
+            </div>
+            <span class="loading" style="display: none;"></span>
         </div>
-        <span class="loading" style="display: none;"></span>
 
-        <select id="choosefilter" style="margin-top: 2px;">
-            <option value="0">Add filter</option>
+        <select id="choosefilter" style="margin-top: -1px;">
+            <option value="addfilter">Add filter</option>
             <option value="rating">Rating</option>
-            <option value="2">Name</option>
-            <option value="3">Tag</option>
-            <option value="4">Comment</option>
+            <option value="name">Name</option>
         </select>
     </form>
 </div>
