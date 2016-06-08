@@ -372,6 +372,36 @@ class TestChown(CLITest):
         assert obj.id.val == img.id.val
         assert obj.details.owner.id.val == self.user.id.val
 
+    # Test combinations of include and exclude other than annotations
+    @pytest.fixture()
+    def simpleHierarchy(self):
+        proj = self.make_project()
+        dset = self.make_dataset()
+        img = self.update.saveAndReturnObject(self.new_image())
+        self.link(proj, dset)
+        self.link(dset, img)
+        return proj, dset, img
+
+    def testExcludeNone(self, simpleHierarchy):
+        proj, dset, img = simpleHierarchy
+
+        # Create user and transfer objects to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        self.args += ['Project:%s' % proj.id.val]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that all objects have been transferred
+        obj = self.query.get('Project', proj.id.val, all_grps)
+        assert obj.id.val == proj.id.val
+        assert obj.details.owner.id.val == user.id.val
+        obj = self.query.get('Dataset', dset.id.val, all_grps)
+        assert obj.id.val == dset.id.val
+        assert obj.details.owner.id.val == user.id.val
+        obj = self.query.get('Image', img.id.val, all_grps)
+        assert obj.id.val == img.id.val
+        assert obj.details.owner.id.val == user.id.val
+
 
 class TestChownRoot(RootCLITest):
 
