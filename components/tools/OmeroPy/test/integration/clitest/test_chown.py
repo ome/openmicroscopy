@@ -355,6 +355,23 @@ class TestChown(CLITest):
             assert obj.id.val == d.id.val
             assert obj.details.owner.id.val == user.id.val
 
+    # Test dry-run option
+    def testDryRun(self):
+        img = self.update.saveAndReturnObject(self.new_image())
+
+        # Create user and try to transfer image to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        self.args += ['Image:%s' % img.id.val]
+        self.args += ['--dry-run']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check the image has not been transferred
+        assert self.query.find('Image', img.id.val)
+        obj = self.query.get('Image', img.id.val, all_grps)
+        assert obj.id.val == img.id.val
+        assert obj.details.owner.id.val == self.user.id.val
+
 
 class TestChownRoot(RootCLITest):
 
