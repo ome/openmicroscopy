@@ -260,7 +260,6 @@ class TestChown(CLITest):
         obj = self.query.get('Project', proj.id.val, all_grps)
         assert obj.id.val == proj.id.val
         assert obj.details.owner.id.val == self.user.id.val
-        assert self.query.find('Dataset', dset.id.val)
         obj = self.query.get('Dataset', dset.id.val, all_grps)
         assert obj.id.val == dset.id.val
         assert obj.details.owner.id.val == self.user.id.val
