@@ -57,6 +57,7 @@ public class TablesFacilityTest extends GatewayTest {
         TableData data2 = tablesFacility.getTable(rootCtx, tablesFile.getFileID());
         Assert.assertEquals(data2, data,
                 "The tables data retrieved doesn't match the original");
+        Assert.assertTrue(data2.isCompleted());
     }
 
     @Test(dependsOnMethods = { "testAddTable" })
@@ -79,9 +80,10 @@ public class TablesFacilityTest extends GatewayTest {
         TableData exp = new TableData(header, expData);
         exp.setOffset(1);
         exp.setOriginalFileId(tablesFile.getFileID());
-        exp.setCompleted(false);
+        exp.setNumberOfRows(4);
         Assert.assertEquals(data2, exp,
                 "The tables data retrieved doesn't match the original");
+        Assert.assertFalse(data2.isCompleted());
     }
 
     private void initData() throws Exception {
@@ -98,7 +100,7 @@ public class TablesFacilityTest extends GatewayTest {
 
         Object[][] objs = new Object[4][4];
         objs[0] = new Object[] { new String("test0"), new String("test1"),
-                new String("test2") , new String("test4")};
+                new String("test2") , new String("test3")};
         objs[1] = new Object[] { new Long(0), new Long(1), new Long(2), new Long(3) };
         objs[2] = new Object[] { new Double(0.0), new Double(1.0),
                 new Double(2.0), new Double(3.0) };
@@ -106,6 +108,6 @@ public class TablesFacilityTest extends GatewayTest {
                 new Double[] { 0.1, 1.1, 2.1 }, new Double[] { 0.2, 1.2, 2.2 }, new Double[] { 0.3, 1.3, 2.3 } };
 
         this.data = new TableData(header, objs);
-
+        this.data.setCompleted();
     }
 }

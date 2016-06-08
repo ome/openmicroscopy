@@ -217,6 +217,39 @@ public class TablesFacility extends Facility {
      *             service.
      */
     public TableData getTable(SecurityContext ctx, long fileId, long rowFrom,
+            long rowTo, int... columns) throws DSOutOfServiceException,
+            DSAccessException {
+        long[] lcolumns = new long[columns.length];
+        for (int i = 0; i < columns.length; i++) {
+            lcolumns[i] = columns[i];
+        }
+        return getTable(ctx, fileId, rowFrom, rowTo, lcolumns);
+    }
+    
+    /**
+     * Load the data from a table
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param fileId
+     *            The id of the {@link OriginalFile} which stores the table
+     * @param rowFrom
+     *            The start row (inclusive)
+     * @param rowTo
+     *            The end row (inclusive) (can be <code>-1</code> in which case
+     *            {@link TablesFacility#DEFAULT_MAX_ROWS_TO_FETCH} rows will be
+     *            fetched)
+     * @param columns
+     *            The columns to take into account (can be left unspecified, in
+     *            which case all columns will used)
+     * @return All data which the table contains
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public TableData getTable(SecurityContext ctx, long fileId, long rowFrom,
             long rowTo, long... columns) throws DSOutOfServiceException,
             DSAccessException {
         TablePrx table = null;
@@ -260,151 +293,154 @@ public class TablesFacility extends Facility {
             if (rowTo > maxRow)
                 rowTo = maxRow;
 
-            if (rowTo - rowFrom + 1 > Integer.MAX_VALUE)
+            if (rowTo - rowFrom > Integer.MAX_VALUE)
                 throw new Exception("Can't fetch more than "
                         + (Integer.MAX_VALUE - 1) + " rows at once.");
 
             int nRows = (int) (rowTo - rowFrom + 1);
 
-            Object[][] dataArray = new Object[columns.length][nRows];
-            Data data = table.read(columns, rowFrom, rowTo + 1);
-            for (int i = 0; i < data.columns.length; i++) {
-                Column col = data.columns[i];
-                if (col instanceof BoolColumn) {
-                    Boolean[] rowData = new Boolean[nRows];
-                    boolean tableData[] = ((BoolColumn) col).values;
-                    for (int j = 0; j < nRows; j++)
-                        rowData[j] = tableData[j];
-                    dataArray[i] = rowData;
-                    header[i].setType(Boolean.class);
-                }
-                if (col instanceof DoubleArrayColumn) {
-                    Double[][] rowData = new Double[nRows][];
-                    double tableData[][] = ((DoubleArrayColumn) col).values;
-                    for (int j = 0; j < nRows; j++) {
-                        Double[] tmp = new Double[tableData[j].length];
-                        for (int k = 0; k < tableData[j].length; k++) {
-                            tmp[k] = tableData[j][k];
+            Object[][] dataArray = null;
+            if (nRows > 0) {
+                dataArray = new Object[columns.length][nRows];
+                Data data = table.read(columns, rowFrom, rowTo + 1);
+                for (int i = 0; i < data.columns.length; i++) {
+                    Column col = data.columns[i];
+                    if (col instanceof BoolColumn) {
+                        Boolean[] rowData = new Boolean[nRows];
+                        boolean tableData[] = ((BoolColumn) col).values;
+                        for (int j = 0; j < nRows; j++)
+                            rowData[j] = tableData[j];
+                        dataArray[i] = rowData;
+                        header[i].setType(Boolean.class);
+                    }
+                    if (col instanceof DoubleArrayColumn) {
+                        Double[][] rowData = new Double[nRows][];
+                        double tableData[][] = ((DoubleArrayColumn) col).values;
+                        for (int j = 0; j < nRows; j++) {
+                            Double[] tmp = new Double[tableData[j].length];
+                            for (int k = 0; k < tableData[j].length; k++) {
+                                tmp[k] = tableData[j][k];
+                            }
+                            rowData[j] = tmp;
                         }
-                        rowData[j] = tmp;
+                        dataArray[i] = rowData;
+                        header[i].setType(Double[].class);
                     }
-                    dataArray[i] = rowData;
-                    header[i].setType(Double[].class);
-                }
-                if (col instanceof DoubleColumn) {
-                    Double[] rowData = new Double[nRows];
-                    double tableData[] = ((DoubleColumn) col).values;
-                    for (int j = 0; j < nRows; j++)
-                        rowData[j] = tableData[j];
-                    dataArray[i] = rowData;
-                    header[i].setType(Double.class);
-                }
-                if (col instanceof FileColumn) {
-                    FileAnnotationData[] rowData = new FileAnnotationData[nRows];
-                    long tableData[] = ((FileColumn) col).values;
-                    for (int j = 0; j < nRows; j++) {
-                        FileAnnotation f = new FileAnnotationI(tableData[j],
-                                false);
-                        rowData[j] = new FileAnnotationData(f);
+                    if (col instanceof DoubleColumn) {
+                        Double[] rowData = new Double[nRows];
+                        double tableData[] = ((DoubleColumn) col).values;
+                        for (int j = 0; j < nRows; j++)
+                            rowData[j] = tableData[j];
+                        dataArray[i] = rowData;
+                        header[i].setType(Double.class);
                     }
-                    dataArray[i] = rowData;
-                    header[i].setType(FileAnnotationData.class);
-                }
-                if (col instanceof FloatArrayColumn) {
-                    Float[][] rowData = new Float[nRows][];
-                    float tableData[][] = ((FloatArrayColumn) col).values;
-                    for (int j = 0; j < nRows; j++) {
-                        Float[] tmp = new Float[tableData[j].length];
-                        for (int k = 0; k < tableData[j].length; k++) {
-                            tmp[k] = tableData[j][k];
+                    if (col instanceof FileColumn) {
+                        FileAnnotationData[] rowData = new FileAnnotationData[nRows];
+                        long tableData[] = ((FileColumn) col).values;
+                        for (int j = 0; j < nRows; j++) {
+                            FileAnnotation f = new FileAnnotationI(
+                                    tableData[j], false);
+                            rowData[j] = new FileAnnotationData(f);
                         }
-                        rowData[j] = tmp;
+                        dataArray[i] = rowData;
+                        header[i].setType(FileAnnotationData.class);
                     }
-                    dataArray[i] = rowData;
-                    header[i].setType(Float[].class);
-                }
-                if (col instanceof ImageColumn) {
-                    ImageData[] rowData = new ImageData[nRows];
-                    long tableData[] = ((ImageColumn) col).values;
-                    for (int j = 0; j < nRows; j++) {
-                        Image im = new ImageI(tableData[j], false);
-                        rowData[j] = new ImageData(im);
-                    }
-                    dataArray[i] = rowData;
-                    header[i].setType(ImageData.class);
-                }
-                if (col instanceof LongArrayColumn) {
-                    Long[][] rowData = new Long[nRows][];
-                    long tableData[][] = ((LongArrayColumn) col).values;
-                    for (int j = 0; j < nRows; j++) {
-                        Long[] tmp = new Long[tableData[j].length];
-                        for (int k = 0; k < tableData[j].length; k++) {
-                            tmp[k] = tableData[j][k];
+                    if (col instanceof FloatArrayColumn) {
+                        Float[][] rowData = new Float[nRows][];
+                        float tableData[][] = ((FloatArrayColumn) col).values;
+                        for (int j = 0; j < nRows; j++) {
+                            Float[] tmp = new Float[tableData[j].length];
+                            for (int k = 0; k < tableData[j].length; k++) {
+                                tmp[k] = tableData[j][k];
+                            }
+                            rowData[j] = tmp;
                         }
-                        rowData[j] = tmp;
+                        dataArray[i] = rowData;
+                        header[i].setType(Float[].class);
                     }
-                    dataArray[i] = rowData;
-                    header[i].setType(Long[].class);
-                }
-                if (col instanceof LongColumn) {
-                    Long[] rowData = new Long[nRows];
-                    long tableData[] = ((LongColumn) col).values;
-                    for (int j = 0; j < nRows; j++)
-                        rowData[j] = tableData[j];
-                    dataArray[i] = rowData;
-                    header[i].setType(Long.class);
-                }
-                if (col instanceof MaskColumn) {
-                    MaskColumn mc = ((MaskColumn) col);
-                    MaskData[] rowData = new MaskData[nRows];
-                    for (int j = 0; j < nRows; j++) {
-                        MaskData md = new MaskData(mc.x[j], mc.y[j], mc.w[j],
-                                mc.h[j], mc.bytes[j]);
-                        rowData[j] = md;
+                    if (col instanceof ImageColumn) {
+                        ImageData[] rowData = new ImageData[nRows];
+                        long tableData[] = ((ImageColumn) col).values;
+                        for (int j = 0; j < nRows; j++) {
+                            Image im = new ImageI(tableData[j], false);
+                            rowData[j] = new ImageData(im);
+                        }
+                        dataArray[i] = rowData;
+                        header[i].setType(ImageData.class);
                     }
-                    dataArray[i] = rowData;
-                    header[i].setType(MaskData.class);
-                }
-                if (col instanceof PlateColumn) {
-                    PlateData[] rowData = new PlateData[nRows];
-                    long tableData[] = ((PlateColumn) col).values;
-                    for (int j = 0; j < nRows; j++) {
-                        Plate p = new PlateI(tableData[j], false);
-                        rowData[j] = new PlateData(p);
+                    if (col instanceof LongArrayColumn) {
+                        Long[][] rowData = new Long[nRows][];
+                        long tableData[][] = ((LongArrayColumn) col).values;
+                        for (int j = 0; j < nRows; j++) {
+                            Long[] tmp = new Long[tableData[j].length];
+                            for (int k = 0; k < tableData[j].length; k++) {
+                                tmp[k] = tableData[j][k];
+                            }
+                            rowData[j] = tmp;
+                        }
+                        dataArray[i] = rowData;
+                        header[i].setType(Long[].class);
                     }
-                    dataArray[i] = rowData;
-                    header[i].setType(PlateData.class);
-                }
-                if (col instanceof RoiColumn) {
-                    ROIData[] rowData = new ROIData[nRows];
-                    long tableData[] = ((RoiColumn) col).values;
-                    for (int j = 0; j < nRows; j++) {
-                        Roi p = new RoiI(tableData[j], false);
-                        rowData[j] = new ROIData(p);
+                    if (col instanceof LongColumn) {
+                        Long[] rowData = new Long[nRows];
+                        long tableData[] = ((LongColumn) col).values;
+                        for (int j = 0; j < nRows; j++)
+                            rowData[j] = tableData[j];
+                        dataArray[i] = rowData;
+                        header[i].setType(Long.class);
                     }
-                    dataArray[i] = rowData;
-                    header[i].setType(ROIData.class);
-                }
-                if (col instanceof StringColumn) {
-                    String[] rowData = ((StringColumn) col).values;
-                    dataArray[i] = rowData;
-                    header[i].setType(String.class);
-                }
-                if (col instanceof WellColumn) {
-                    WellSampleData[] rowData = new WellSampleData[nRows];
-                    long tableData[] = ((WellColumn) col).values;
-                    for (int j = 0; j < nRows; j++) {
-                        WellSample p = new WellSampleI(tableData[j], false);
-                        rowData[j] = new WellSampleData(p);
+                    if (col instanceof MaskColumn) {
+                        MaskColumn mc = ((MaskColumn) col);
+                        MaskData[] rowData = new MaskData[nRows];
+                        for (int j = 0; j < nRows; j++) {
+                            MaskData md = new MaskData(mc.x[j], mc.y[j],
+                                    mc.w[j], mc.h[j], mc.bytes[j]);
+                            rowData[j] = md;
+                        }
+                        dataArray[i] = rowData;
+                        header[i].setType(MaskData.class);
                     }
-                    dataArray[i] = rowData;
-                    header[i].setType(ROIData.class);
+                    if (col instanceof PlateColumn) {
+                        PlateData[] rowData = new PlateData[nRows];
+                        long tableData[] = ((PlateColumn) col).values;
+                        for (int j = 0; j < nRows; j++) {
+                            Plate p = new PlateI(tableData[j], false);
+                            rowData[j] = new PlateData(p);
+                        }
+                        dataArray[i] = rowData;
+                        header[i].setType(PlateData.class);
+                    }
+                    if (col instanceof RoiColumn) {
+                        ROIData[] rowData = new ROIData[nRows];
+                        long tableData[] = ((RoiColumn) col).values;
+                        for (int j = 0; j < nRows; j++) {
+                            Roi p = new RoiI(tableData[j], false);
+                            rowData[j] = new ROIData(p);
+                        }
+                        dataArray[i] = rowData;
+                        header[i].setType(ROIData.class);
+                    }
+                    if (col instanceof StringColumn) {
+                        String[] rowData = ((StringColumn) col).values;
+                        dataArray[i] = rowData;
+                        header[i].setType(String.class);
+                    }
+                    if (col instanceof WellColumn) {
+                        WellSampleData[] rowData = new WellSampleData[nRows];
+                        long tableData[] = ((WellColumn) col).values;
+                        for (int j = 0; j < nRows; j++) {
+                            WellSample p = new WellSampleI(tableData[j], false);
+                            rowData[j] = new WellSampleData(p);
+                        }
+                        dataArray[i] = rowData;
+                        header[i].setType(ROIData.class);
+                    }
                 }
             }
             TableData result = new TableData(header, dataArray);
             result.setOffset(rowFrom);
             result.setOriginalFileId(fileId);
-            result.setCompleted(rowTo == maxRow);
+            result.setNumberOfRows(maxRow + 1);
             return result;
         } catch (Exception e) {
             handleException(this, e, "Could not load table data");

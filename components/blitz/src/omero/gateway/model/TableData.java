@@ -45,10 +45,10 @@ public class TableData {
     private long originalFileId = -1;
 
     /**
-     * Flag to indicate if this TableData object contains that last available
-     * row
+     * Number of rows in the original table (this doesn't have to match
+     * data[x].length, depending on how many rows are loaded)
      */
-    private boolean completed = true;
+    private long numberOfRows = 0;
 
     /**
      * Creates a new instance
@@ -148,18 +148,37 @@ public class TableData {
      *         table
      */
     public boolean isCompleted() {
-        return completed;
+        if (data == null || data.length == 0)
+            return true;
+
+        return (offset + data[0].length) == numberOfRows;
     }
 
     /**
-     * Set to <code>true</code> if the last available row is contained,
-     * <code>false</code> if there's more data available in the original table
+     * Manually set completed state (sets the {@link TableData#numberOfRows} to
+     * the last row in the {@link TableData#data} array)
+     */
+    public void setCompleted() {
+        this.numberOfRows = (data == null || data.length == 0) ? 0 : offset
+                + data[0].length;
+    }
+
+    /**
+     * @return The total number of rows in the original table (this doesn't have
+     *         to match data[x].length, depending on how many rows are loaded)
+     */
+    public long getNumberOfRows() {
+        return numberOfRows;
+    }
+
+    /**
+     * Set the total number of rows in the original table
      * 
-     * @param completed
+     * @param numberOfRows
      *            See above
      */
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
+    public void setNumberOfRows(long numberOfRows) {
+        this.numberOfRows = numberOfRows;
     }
 
     @Override
@@ -167,7 +186,7 @@ public class TableData {
         final int prime = 31;
         int result = 1;
         result = prime + (int) offset;
-        result = prime * result + (completed ? 1231 : 1237);
+        result = prime * result + (int) numberOfRows;
         result = prime * result + (int) originalFileId;
         result = prime * result + Arrays.hashCode(columns);
         return result;
@@ -186,7 +205,7 @@ public class TableData {
             return false;
         if (offset != other.getOffset())
             return false;
-        if (completed != other.completed)
+        if (numberOfRows != other.numberOfRows)
             return false;
         if (Arrays.hashCode(columns) != Arrays.hashCode(other.columns))
             return false;
