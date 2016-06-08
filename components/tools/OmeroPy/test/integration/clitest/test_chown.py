@@ -234,6 +234,41 @@ class TestChown(CLITest):
             assert obj.id.val == d.id.val
             assert obj.details.owner.id.val == user.id.val
 
+    @pytest.mark.parametrize('form', ['/Dataset', ''])
+    @pytest.mark.parametrize('number', [1, 2])
+    @pytest.mark.parametrize("ordered", ordered)
+    def testBasicSkipheadBothForms(self, form, number, ordered):
+        proj = self.make_project()
+        dset = self.make_dataset()
+        imgs = [self.update.saveAndReturnObject(self.new_image())
+                for i in range(number)]
+
+        self.link(proj, dset)
+        for i in imgs:
+            self.link(dset, i)
+
+        # Create user and transfer the objects to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        self.args += ['Project' + form + '/Image:%s' % proj.id.val]
+        if ordered:
+            self.args += ["--ordered"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that only the images have been transferred
+        # the Project and Dataset still belongs to the original user
+        obj = self.query.get('Project', proj.id.val, all_grps)
+        assert obj.id.val == proj.id.val
+        assert obj.details.owner.id.val == self.user.id.val
+        assert self.query.find('Dataset', dset.id.val)
+        obj = self.query.get('Dataset', dset.id.val, all_grps)
+        assert obj.id.val == dset.id.val
+        assert obj.details.owner.id.val == self.user.id.val
+        for i in imgs:
+            obj = self.query.get('Image', i.id.val, all_grps)
+            assert obj.id.val == i.id.val
+            assert obj.details.owner.id.val == user.id.val
+
 
 class TestChownRoot(RootCLITest):
 
