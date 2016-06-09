@@ -498,14 +498,14 @@ class TestChown(CLITest):
         assert obj.details.owner.id.val == user.id.val
 
     def testOutputWithElision(self, capfd):
-        IMAGES = 8
+        DATASETS = 8
         # Import several images
         ids = []
-        for i in range(IMAGES):
-            ids.append(self.importSingleImage().id.val)
+        for i in range(DATASETS):
+            ids.append(self.make_dataset().id.val)
         ids = sorted(ids)
-        assert len(ids) == IMAGES
-        assert ids[-1] - ids[0] + 1 == IMAGES
+        assert len(ids) == DATASETS
+        assert ids[-1] - ids[0] + 1 == DATASETS
         ids = [str(id) for id in ids]
 
         # Create user and transfer some of those images
@@ -513,7 +513,7 @@ class TestChown(CLITest):
         client, user = self.new_client_and_user(group=self.group)
         self.args += ['%s' % user.id.val]
         iids = [ids[5], ids[4], ids[0], ids[7], ids[2], ids[1]]
-        self.args += ['Image:%s' % ",".join(iids)]
+        self.args += ['Dataset:%s' % ",".join(iids)]
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         o = o.strip().split(" ")
@@ -523,7 +523,7 @@ class TestChown(CLITest):
         assert o[2] == "ok"
         type, oids = o[1].split(":")
         # ... the object type,...
-        assert type == "Image"
+        assert type == "Dataset"
         oids = oids.split(",")
         # ... the first three sequential ids elided,...
         assert oids[0] == ids[0]+"-"+ids[2]
