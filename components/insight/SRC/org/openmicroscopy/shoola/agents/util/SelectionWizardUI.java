@@ -1179,6 +1179,7 @@ public class SelectionWizardUI
     public void setAvailableItems(Collection<Object> data) {
         this.availableItems = new ArrayList<TreeImageDisplay>(
                 TreeViewerTranslator.transformHierarchy(data));
+        createOriginalSelections();
         sortLists();
         populateTreeItems(availableItemsListbox, availableItems);
     }
