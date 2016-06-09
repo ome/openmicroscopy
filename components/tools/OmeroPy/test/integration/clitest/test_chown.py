@@ -497,6 +497,42 @@ class TestChown(CLITest):
         assert obj.id.val == fa2.id.val
         assert obj.details.owner.id.val == user.id.val
 
+    def testOutputWithElision(self, capfd):
+        IMAGES = 8
+        # Import several images
+        ids = []
+        for i in range(IMAGES):
+            ids.append(self.importSingleImage().id.val)
+        ids = sorted(ids)
+        assert len(ids) == IMAGES
+        assert ids[-1] - ids[0] + 1 == IMAGES
+        ids = [str(id) for id in ids]
+
+        # Create user and transfer some of those images
+        # to the user, mix up the order
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        iids = [ids[5], ids[4], ids[0], ids[7], ids[2], ids[1]]
+        self.args += ['Image:%s' % ",".join(iids)]
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        o = o.strip().split(" ")
+        # The output should contain:...
+        # ... the command and an ok at either end,...
+        assert o[0] == "omero.cmd.Chown2"
+        assert o[2] == "ok"
+        type, oids = o[1].split(":")
+        # ... the object type,...
+        assert type == "Image"
+        oids = oids.split(",")
+        # ... the first three sequential ids elided,...
+        assert oids[0] == ids[0]+"-"+ids[2]
+        # ... the next two sequential ids, not elided,...
+        assert oids[1] == ids[4]
+        assert oids[2] == ids[5]
+        # ... and the final separate single id.
+        assert oids[3] == ids[7]
+
 
 class TestChownRoot(RootCLITest):
 
