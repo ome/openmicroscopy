@@ -101,7 +101,7 @@ $(document).ready(function() {
 
     // Set up the centre panel header.
     var setupDatasetHeader = function() {
-        var html = headerTmpl({'layout': layout});
+        var html = headerTmpl({'layout': layout, 'staticUrl': '{% static "webclient/" %}'});
         $("#content_details").html(html);
 
         // single click handler on image (container). Selection then update toolbar & metadata pane
