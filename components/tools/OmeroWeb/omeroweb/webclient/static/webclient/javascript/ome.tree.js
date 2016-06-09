@@ -905,7 +905,6 @@ $(function() {
                 config["share"] = {
                     "label" : "Create share",
                     "_disabled": function(){
-                        console.log("disabled", arguments);
                         var selected = $.jstree.reference('#dataTree').get_selected(true);
                         var enabled = true;
                         $.each(selected, function(index, node) {
