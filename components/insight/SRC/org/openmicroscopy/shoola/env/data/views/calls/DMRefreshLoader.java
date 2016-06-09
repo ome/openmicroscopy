@@ -93,7 +93,7 @@ public class DMRefreshLoader
         List containers;
         
         Object result;
-        Set set, children, newChildren, r;
+        Collection set, children, newChildren, r;
         List<Long> ids;
         Iterator i, j, c, k;
         Long id;
@@ -435,7 +435,7 @@ public class DMRefreshLoader
                 TagAnnotationData tag, child;
                 Map<Long, Collection<?>> values;
                 SecurityContext ctx;
-                Map<DataObject, Set<?>> mapForDataObject;
+                Map<DataObject, Collection<?>> mapForDataObject;
                 while (j.hasNext()) {
                     entry = j.next();
                     ctx = entry.getKey();
@@ -444,7 +444,7 @@ public class DMRefreshLoader
 
                     tags = os.loadTags(ctx, -1L, true, userID, ctx.getGroupID());
                     List<Object> tagResults = new ArrayList<Object>();
-                    mapForDataObject = new HashMap<DataObject, Set<?>>();
+                    mapForDataObject = new HashMap<DataObject, Collection<?>>();
                     if (CollectionUtils.isEmpty(l)) {
                         r.put(ctx, tags);
                     } else {
@@ -499,7 +499,7 @@ public class DMRefreshLoader
      */
     private void handleTags(Collection<TagAnnotationData> tags,
             List<Object> tagResults, Map<Long, Collection<?>> values,
-            Map<DataObject, Set<?>> mapForDataObject)
+            Map<DataObject, Collection<?>> mapForDataObject)
     {
         Iterator<TagAnnotationData> k = tags.iterator();
         TagAnnotationData tag, child;
@@ -536,7 +536,7 @@ public class DMRefreshLoader
      */
     private void populateTag(TagAnnotationData tag,
             Map<Long, Collection<?>> values,
-            Map<DataObject, Set<?>> mapForDataObject)
+            Map<DataObject, Collection<?>> mapForDataObject)
     {
         if (mapForDataObject.isEmpty()) {
             tag.setDataObjects((Set<DataObject>) values.get(tag.getId()));
@@ -557,13 +557,13 @@ public class DMRefreshLoader
      * @param map The list of reloaded object.
      * @param ho The data object of reference.
      */
-    private DataObject getLoadedObject(Map<DataObject, Set<?>> map,
+    private DataObject getLoadedObject(Map<DataObject, Collection<?>> map,
             DataObject ho)
     {
         Set<DataObject> sets = map.keySet();
         Iterator<DataObject> i = sets.iterator();
         DataObject object;
-        Set<?> s;
+        Collection<?> s;
         while (i.hasNext()) {
             object = i.next();
             if (object.getClass().equals(ho.getClass()) &&

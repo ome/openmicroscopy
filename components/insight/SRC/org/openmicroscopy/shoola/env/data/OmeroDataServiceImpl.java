@@ -208,7 +208,7 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#loadContainerHierarchy(SecurityContext, Class, List, boolean, long)
 	 */
-	public Set loadContainerHierarchy(SecurityContext ctx,
+	public Collection<DataObject> loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List rootNodeIDs, boolean withLeaves,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
@@ -232,7 +232,7 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#loadTopContainerHierarchy(SecurityContext, Class, long)
 	 */
-	public Set loadTopContainerHierarchy(SecurityContext ctx,
+	public Collection<DataObject> loadTopContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -245,7 +245,7 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#findContainerHierarchy(SecurityContext, Class, List, long)
 	 */
-	public Set findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
+	public Collection<DataObject> findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
 			List leavesIDs, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -259,7 +259,7 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImages(SecurityContext, Class, List, long)
 	 */
-	public Set getImages(SecurityContext ctx, Class nodeType, List nodeIDs,
+	public Collection<ImageData> getImages(SecurityContext ctx, Class nodeType, List nodeIDs,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -686,11 +686,10 @@ class OmeroDataServiceImpl
                 SecurityContext ctx = new SecurityContext(groupId);
     
                 try {
-                    Set tmp = gateway.getContainerImages(ctx, ImageData.class, ids,
+                    Collection<ImageData> tmp = gateway.getContainerImages(ctx, ImageData.class, ids,
                             new Parameters());
                     
-                    for(Object obj : tmp) {
-                        ImageData img = (ImageData) obj;
+                    for(ImageData img : tmp) {
                         for(SearchResult r : byGroup.get(groupId)) {
                             if(r.getObjectId()==img.getId()) {
                                 r.setObject(img);
@@ -1087,7 +1086,7 @@ class OmeroDataServiceImpl
 				ids.addAll(j.next());
 			}
 		}
-		Set<ImageData> imgs = getImages(ctx, ImageData.class, ids, -1);
+		Collection<ImageData> imgs = getImages(ctx, ImageData.class, ids, -1);
 		Map<Long, ImageData> idMap = new HashMap<Long, ImageData>(imgs.size());
 		Iterator<ImageData> k = imgs.iterator();
 		ImageData img;

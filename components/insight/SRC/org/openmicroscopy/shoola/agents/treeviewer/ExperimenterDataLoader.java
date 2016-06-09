@@ -240,7 +240,7 @@ public class ExperimenterDataLoader
     		Class klass = parent.getUserObject().getClass();
     		long id = parent.getUserObjectId();
     		if (TagAnnotationData.class.equals(klass)) {
-    			viewer.setLeaves((Set) result, parent, expNode);
+    			viewer.setLeaves((Collection) result, parent, expNode);
     		} else {
     			while (i.hasNext()) {
         			object = (DataObject) i.next();

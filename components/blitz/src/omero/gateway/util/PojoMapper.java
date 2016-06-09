@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -229,6 +230,8 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
+     * 
+     * @deprecated Use {@link #convertToDataObjects(Collection)} instead
      */
     public static Set asDataObjects(Collection objects)
     {
@@ -251,6 +254,30 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
+     */
+    public static <T extends DataObject> Collection<T> convertToDataObjects(Collection objects)
+    {
+        if (objects == null) return Collections.EMPTY_LIST;
+        Collection<T> result = new ArrayList<T>(objects.size());
+        Iterator i = objects.iterator();
+        DataObject data;
+        while (i.hasNext()) {
+            data = asDataObject((IObject) i.next());
+            if (data != null) result.add(((T)data));
+        }
+        return result;
+    }
+    
+    /**
+     * Converts each {@link IObject element} of the collection into its 
+     * corresponding {@link DataObject}.
+     *
+     * @param objects The set of objects to convert.
+     * @return A set of {@link DataObject}s.
+     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
+     * contain {@link IObject} or if the type {@link IObject} is unknown.
+     * 
+     * @deprecated Use {@link #convertToDataObjects(Collection)} instead 
      */
     public static List asDataObjectsAsList(Collection objects)
     {
@@ -277,7 +304,7 @@ public class PojoMapper
     public static <T extends DataObject> Collection<T> asCastedDataObjects(List objects)
     {
         if (objects == null) return new HashSet<T>();
-        Set<T> set = new HashSet<T>(objects.size());
+        Collection<T> set = new ArrayList<T>(objects.size());
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {
@@ -296,6 +323,8 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
+     * 
+     * @deprecated Use {@link #convertToDataObjects(Collection)} instead 
      */
     public static Set asDataObjects(List objects)
     {
@@ -318,6 +347,8 @@ public class PojoMapper
      * @return A set of {@link DataObject}s.
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
+     * 
+     * @deprecated Use {@link #convertToDataObjects(Collection)} instead
      */
     public static Set asDataObjects(IObject[] objects)
     {
@@ -433,6 +464,13 @@ public class PojoMapper
         throw new IllegalArgumentException("type not supported");
     }
 
+    /**
+     * Get the pojo type for a an {@link IObject}
+     * 
+     * @param modelType
+     *            The {@link IObject}
+     * @return See above
+     */
     public static Class<? extends DataObject> getPojoType(Class<? extends IObject> modelType) {
         if (OriginalFile.class.equals(modelType))
             return FileData.class;
@@ -658,7 +696,7 @@ public class PojoMapper
      * Returns the name of the data type which has to used for Graph actions,
      * see {@link Requests}
      *
-     * @param dataType
+     * @param dataType The pojo type
      * @return See above
      */
     public static String getGraphType(Class<? extends DataObject> dataType) {

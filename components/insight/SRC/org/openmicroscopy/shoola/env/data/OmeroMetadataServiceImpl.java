@@ -579,7 +579,7 @@ class OmeroMetadataServiceImpl
                             PojoMapper.asDataObject(link.getChild()));
                 }
             }
-			annotations.addAll(PojoMapper.asDataObjects(r));
+			annotations.addAll(PojoMapper.<AnnotationData>convertToDataObjects(r));
 		}
 		return annotations;
     }
@@ -1493,7 +1493,7 @@ class OmeroMetadataServiceImpl
 		Iterator<DataObject> j = data.iterator();
 		DataObject object, child;
 		List<Long> ids;
-		Set images = null;
+		Collection images = null;
 		Parameters po = new Parameters();
 		Iterator k;
 		List result = null;
@@ -2315,7 +2315,7 @@ class OmeroMetadataServiceImpl
 			throws DSOutOfServiceException, DSAccessException
 	{
 		//Tmp code
-		Set<DataObject> set = gateway.loadAnnotation(ctx, 
+	    Collection<DataObject> set = gateway.loadAnnotation(ctx, 
 				Arrays.asList(annotationID));
 		if (set.size() != 1) return null;
 		Iterator<DataObject> i = set.iterator();

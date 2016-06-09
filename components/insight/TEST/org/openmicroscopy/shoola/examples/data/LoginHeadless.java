@@ -112,7 +112,7 @@ implements AgentEventListener
 			try {
 				
 				//1 Load images knowing image's id.
-				Set images = dataSvc.getImages(ctx, ImageData.class, imageIds,
+			    Collection images = dataSvc.getImages(ctx, ImageData.class, imageIds,
 						-1);
 				System.err.println("images:"+images.size());
 				
