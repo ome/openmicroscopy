@@ -252,8 +252,8 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         bar.setRollover(true);
         bar.setBorder(null);
 
-        filterButton = new JButton(icons.getIcon(IconManager.FILTER_MENU));
-        filterButton.setText("Display ROI Folders");
+        filterButton = new JButton(icons.getIcon(IconManager.ADD_16));
+        filterButton.setText("Add ROI Folders");
         filterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

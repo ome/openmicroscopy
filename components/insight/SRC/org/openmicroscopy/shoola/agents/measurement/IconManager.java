@@ -195,11 +195,13 @@ public class IconManager
     /** The <code>Filter Menu</code> icon. */
     public static final int           FILTER_MENU = 48;
     
+    public static final int           ADD_16 = 49;
+    
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 48;
+    private static final int    MAX_ID = 49;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -256,6 +258,7 @@ public class IconManager
         relPaths[ROISTACK_OTHER_OWNER] = "roistack_owner_16.png";
         relPaths[ROIFOLDER] = "ROI-foldertest-24.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png";
+        relPaths[ADD_16] = "nuvola_edit_add16.png";
     }
     
     /** 
