@@ -85,6 +85,10 @@
       .rdef .owner {
         color: blue;
       }
+      /* histogram svg */
+      .line {
+        fill: none;
+      }
     </style>
 
 
@@ -340,6 +344,46 @@
               return false;
             });
 
+            var histogram;
+            $("#showhistogram").click(function(){
+              var show = this.checked;
+              if (show) {
+                var plotWidth = $("#histogram").show().width();
+                if (!histogram) {
+                  histogram = new OME.Histogram("#histogram", "{% url 'webgateway' %}", plotWidth, 125);
+                }
+                var img = OME.preview_viewport.loadedImg;
+                var chIdx = 0;
+                var curr = img.current;
+                var ch = img.channels[chIdx];
+                histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, ch.color, ch.window);
+              } else {
+                $("#histogram").hide();
+              }
+            });
+
+            OME.preview_viewport.bind('channelChange', function(event, viewport, chIdx, channel){
+              console.log("channelChange", chIdx, channel, channel.window);
+              if (histogram && $("#histogram").is(":visible")) {
+                var img = OME.preview_viewport.loadedImg;
+                var ch = img.channels[chIdx];
+                var curr = img.current;
+                histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, ch.color, ch.window);
+              }
+            });
+            OME.preview_viewport.bind('channelSlide', function(event, viewport, chIdx, start, end){
+              if (histogram && $("#histogram").is(":visible")) {
+                var img = OME.preview_viewport.loadedImg;
+                var ch = img.channels[chIdx];
+                var curr = img.current;
+                var w = {'min': ch.window.min,
+                         'max': ch.window.max,
+                         'start': start,
+                         'end': end}
+                histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, ch.color, w);
+              }
+            });
+
         });
     </script>
 
@@ -420,6 +464,11 @@
       <div id="rdef-active-area">
         <input id="rd-wblitz-rmodel" type="checkbox" />
         <label for="rd-wblitz-rmodel">Grayscale</label>
+        <div style="float:right">
+          <input id="showhistogram" type="checkbox" />
+          <label>Show Histogram</label>
+        </div>
+        <div id="histogram" style="display:none; width: 100%; height: 125px; background:white; border: solid #ccc 1px; margin-bottom: 6px"></div>
         <table cellspacing="0" style="font-size:0.9em">
           <tr>
           </tr>

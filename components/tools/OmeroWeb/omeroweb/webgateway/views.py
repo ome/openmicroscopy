@@ -2260,6 +2260,35 @@ def get_rois_json(request, imageId, conn=None, **kwargs):
     return rois
 
 
+@login_required()
+def histogram_json(request, iid, theC, conn=None, **kwargs):
+    """
+    Returns a histogram for a single channel as a list of
+    256 values as json
+    """
+    image = conn.getObject("Image", iid)
+
+    theZ = int(request.REQUEST.get('theZ', 0))
+    theT = int(request.REQUEST.get('theT', 0))
+    theC = int(theC)
+    proj = request.REQUEST.get('p', None)
+
+    ch = image.getChannels()[theC]
+    wMin = ch.getWindowMin()
+    wMax = ch.getWindowMax()
+
+    # Render Image (single channel white) and Use PIL for histogram
+    image.setActiveChannels((theC + 1,), ([wMin, wMax],), ('FFFFFF',))
+    if proj == 'intmean' or proj == 'intmax':
+        image.setProjection(proj)
+    pilImg = image.renderImage(theZ, theT)
+    rgbHistogram = pilImg.histogram()
+    hsize = len(rgbHistogram) / 3
+    histogram = rgbHistogram[0:hsize]
+
+    return HttpJsonResponse(histogram)
+
+
 @login_required(isAdmin=True)
 @jsonp
 def su(request, user, conn=None, **kwargs):

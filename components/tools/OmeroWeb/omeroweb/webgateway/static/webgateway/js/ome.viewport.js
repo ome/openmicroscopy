@@ -597,13 +597,13 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.isGreyModel() && this.getProjection() != 'split') {
       /* Only allow activation of channels, and disable all other */
       if (act) {
-	for (var i = 0; i < _this.loadedImg.channels.length; i++) {
+        for (var i = 0; i < _this.loadedImg.channels.length; i++) {
           act = i == idx;
           if (act != _this.loadedImg.channels[i].active) {
             _this.loadedImg.channels[i].active = act;
             _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
           }
-	}
+        }
         if (!noreload) {
           _load();
         }
@@ -620,24 +620,31 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.setChannelColor = function (idx, color, noreload) {
-    _this.loadedImg.channels[idx].color = color;
-    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
-    if (!noreload) {
-      _load();
+    if (color[0] === "#") color = color.replace("#", "");
+    if (color !== _this.loadedImg.channels[idx].color) {
+      _this.loadedImg.channels[idx].color = color;
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      if (!noreload) {
+        _load();
+      }
     }
   };
 
   this.setChannelLabel = function (idx, label, noreload) {
-    _this.loadedImg.channels[idx].metalabel = label;
-    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
-    if (!noreload) {
-      _load();
+    if (label !== _this.loadedImg.channels[idx].metalabel) {
+      _this.loadedImg.channels[idx].metalabel = label;
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      if (!noreload) {
+        _load();
+      }
     }
   };
 
   this.setChannelWindow = function (idx, start, end, noreload) {
     var channel = _this.loadedImg.channels[idx];
-    if (parseInt(start, 10) > parseInt(end, 10)) {
+    start = parseInt(start, 10);
+    end = parseInt(end, 10);
+    if (start > end) {
       var t = start;
       start = end;
       end = t;
@@ -645,18 +652,16 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (start < _this.loadedImg.pixel_range[0]) {
       start = _this.loadedImg.pixel_range[0];
     }
-//    if (channel.window.min <= start) {
-      channel.window.start = start;
-//    }
     if (end > _this.loadedImg.pixel_range[1]) {
       end = _this.loadedImg.pixel_range[1];
     }
-//    if (channel.window.max >= end) {
+    if (start !== channel.window.start || end !== channel.window.end) {
+      channel.window.start = start;
       channel.window.end = end;
-//    }
-    _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
-    if (!noreload) {
-      _load();
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      if (!noreload) {
+        _load();
+      }
     }
   };
 
@@ -898,7 +903,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     for (var i=0; i<e1.channels.length; i++) {
       if (!(e1.channels[i].active == e2.channels[i].active &&
-            OME.rgbToHex(e1.channels[i].color) == OME.rgbToHex(e2.channels[i].color) &&
+            e1.channels[i].color == e2.channels[i].color &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
             e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
             e1.channels[i].metalabel == e2.channels[i].metalabel)) {
@@ -914,7 +919,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     var channels = _this.loadedImg.channels;
     for (i=0; i<channels.length; i++) {
       var channel = {active: channels[i].active,
-                     color: toRGB(channels[i].color),
+                     color: channels[i].color,
                      windowStart: channels[i].window.start,
                      windowEnd: channels[i].window.end,
                      metalabel: channels[i].metalabel};
@@ -1152,7 +1157,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * Some events are handled by us, some are proxied to the viewport plugin.
    */
   this.bind = function (event, callback) {
-    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' ||
+    if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'channelSlide' ||
     event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
       _this.self.bind(event, callback);
     } else {
