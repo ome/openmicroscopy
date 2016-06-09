@@ -205,7 +205,7 @@ module omero {
                  */
                 ["deprecated: use omero::romio::PlaneDefWithMasks instead"] idempotent void setOverlays(omero::RLong tablesId, omero::RLong imageId, LongIntMap rowColorMap) throws ServerError;
 
-                /** Creates a instance of the rendering engine. */
+                /** Creates an instance of the rendering engine. */
                 idempotent void load() throws ServerError;
 
                 /**

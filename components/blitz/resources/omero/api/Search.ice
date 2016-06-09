@@ -21,8 +21,8 @@ module omero {
          * Central search interface, allowing Web2.0 style queries. Each
          * {@link omero.api.Search} instance keeps up with several queries and
          * lazily-loads the results as {@link #hasNext}, {@link #next} and
-         * {@link #results} are called. These queries are created by the "by*"
-         * methods.
+         * {@link #results} are called. These queries are created by the
+         * <i>by*</i> methods.
          *
          * Each instance also has a number of settings which can all be
          * changed from their defaults via accessors, e.g.
@@ -33,7 +33,7 @@ module omero {
          * <ul>
          * <li>{@link #onlyType}, {@link #onlyTypes} OR
          * {@link #allTypes}</li>
-         * <li>Any by* method to create a query</li>
+         * <li>Any <i>by*</i> method to create a query</li>
          * </ul>
          * Use of the {@link #allTypes} method is discouraged, since it is
          * possibly very resource intensive, which is why any attempt to
