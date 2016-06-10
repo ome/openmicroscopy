@@ -97,9 +97,6 @@
         var PLATE_LINKS_URL_999 = '{% url 'webgateway_object_table_query' 'Screen.plateLinks.child.wells' 999 %}';
         var PLATE_WELLS_URL_999 = '{% url 'webgateway_object_table_query' 'Plate.wells' 999 %}';
 
-        // not needed, but prevents error message
-        var rdChanSelHelper = function() {};
-
         $(document).ready(function() {
 
             // Fix size according to right panel size... NB: this behaviour is also in right_plugin.preview.js
@@ -127,6 +124,9 @@
             OME.preview_viewport.bind('imageChange', function(){
               imageChange(OME.preview_viewport);
             });
+
+            // Create Histogram - displayed when #showhistogram checkbox is checked
+            OME.createViewportHistogram(OME.preview_viewport, "#histogram", "#showhistogram", "{% url 'webgateway' %}");
 
             // Load image
             {% if share and not share.share.isOwned %}
@@ -343,46 +343,6 @@
               OME.openPopup(url + "?" + vpQuery);
               return false;
             });
-
-            var histogram;
-            var plotHistogram = function(chIdx, start, end) {
-              var img = OME.preview_viewport.loadedImg;
-              var curr = img.current;
-              var ch = img.channels[chIdx];
-              var color = ch.color === 'FFFFFF' ? '000000' : ch.color;
-              var wndw = ch.window;
-              if (start !== undefined && end !== undefined) {
-                wndw = {'min': ch.window.min,
-                        'max': ch.window.max,
-                        'start': start,
-                        'end': end}
-              }
-              histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, color, wndw);
-            }
-            $("#showhistogram").click(function(){
-              var show = this.checked;
-              if (show) {
-                var plotWidth = $("#histogram").show().width();
-                if (!histogram) {
-                  histogram = new OME.Histogram("#histogram", "{% url 'webgateway' %}", plotWidth, 125);
-                  plotHistogram(0);
-                }
-              } else {
-                $("#histogram").hide();
-              }
-            });
-
-            OME.preview_viewport.bind('channelChange', function(event, viewport, chIdx, channel){
-              if (histogram && $("#histogram").is(":visible")) {
-                plotHistogram(chIdx);
-              }
-            });
-            OME.preview_viewport.bind('channelSlide', function(event, viewport, chIdx, start, end){
-              if (histogram && $("#histogram").is(":visible")) {
-                plotHistogram(chIdx, start, end);
-              }
-            });
-
         });
     </script>
 

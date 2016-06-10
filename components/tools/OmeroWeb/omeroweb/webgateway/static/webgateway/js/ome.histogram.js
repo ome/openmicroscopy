@@ -43,7 +43,7 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         .data([0, 0])
         .enter().append("text")
         .attr("font-family", "sans-serif")
-        .attr("font-size", "20px")
+        .attr("font-size", "16px")
         .attr("y", 20)
         .attr("fill", "black");
 
@@ -138,6 +138,62 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
             .text(function(d) { return "" + d[0]; })
             .attr('x', function(d) { return (d[1] * (graphWidth/colCount)) + 3; });
     };
+};
+
+
+window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxSelector, webgatewayUrl) {
+    var histogram;
+    var currChIdx = 0;
+    var plotHistogram = function(opts) {
+        opts = opts || {};
+        var chIdx = opts.chIdx !== undefined ? opts.chIdx : currChIdx;
+        currChIdx = chIdx;
+        var img = viewport.loadedImg;
+        var ch = img.channels[chIdx];
+        var color = ch.color === 'FFFFFF' ? '000000' : ch.color;
+        var curr = img.current;
+        var theZ = opts.theZ !== undefined ? opts.theZ : curr.z;
+        var theT = opts.theT !== undefined ? opts.theT : curr.t;
+        var wndw = ch.window;
+        if (opts.start !== undefined && opts.end !== undefined) {
+            wndw = {'min': ch.window.min,
+                    'max': ch.window.max,
+                    'start': opts.start,
+                    'end': opts.end};
+        }
+        histogram.loadAndPlot(img.id, theZ, chIdx, theT, color, wndw);
+    };
+    $(checkboxSelector).click(function(){
+        var show = this.checked;
+        if (show) {
+            var plotWidth = $("#histogram").show().width();
+            if (!histogram) {
+                histogram = new OME.Histogram(chartSelector, webgatewayUrl, plotWidth, 125);
+                plotHistogram();
+            }
+        } else {
+            $("#histogram").hide();
+        }
+    });
+
+    viewport.bind('channelChange', function(event, viewport, chIdx, channel){
+        if (histogram && $("#histogram").is(":visible")) {
+            plotHistogram({'chIdx': chIdx});
+        }
+    });
+    viewport.bind('channelSlide', function(event, viewport, chIdx, start, end){
+        if (histogram && $("#histogram").is(":visible")) {
+            plotHistogram({'chIdx': chIdx, 'start': start, 'end': end});
+        }
+    });
+
+    viewport.zslider.bind('change', function (e,pos) {
+        plotHistogram({'theZ': pos-1});
+    });
+
+    viewport.tslider.bind('change', function (e,pos) {
+        plotHistogram({'theT': pos-1});
+    });
 };
 
 })();
