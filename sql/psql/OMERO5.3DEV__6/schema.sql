@@ -7,6 +7,24 @@
         primary key (id)
     );;
 
+    create table affinetransform (
+        id int8 not null,
+        a00 float8 not null,
+        a01 float8 not null,
+        a02 float8 not null,
+        a10 float8 not null,
+        a11 float8 not null,
+        a12 float8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
     create table annotation (
         discriminator varchar(31) not null,
         id int8 not null,
@@ -2178,7 +2196,6 @@
         theC int4,
         theT int4,
         theZ int4,
-        transform varchar(255),
         version int4,
         radiusX float8,
         radiusY float8,
@@ -2202,6 +2219,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         roi int8 not null,
+        transform int8,
         pixels int8,
         roi_index int4 not null,
         primary key (id),
@@ -2411,6 +2429,31 @@
         add constraint FKacquisitionmode_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table annotation 
         add constraint FKannotation_creation_id_event 
@@ -5706,6 +5749,11 @@
         add constraint FKshape_roi_roi 
         foreign key (roi) 
         references roi  ;;
+
+    alter table shape 
+        add constraint FKshape_transform_affinetransform 
+        foreign key (transform) 
+        references affinetransform  ;;
 
     alter table shape 
         add constraint FKshape_owner_id_experimenter 

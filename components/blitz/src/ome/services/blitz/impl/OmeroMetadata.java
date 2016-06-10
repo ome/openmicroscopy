@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import loci.formats.meta.DummyMetadata;
 import loci.formats.meta.MetadataRetrieve;
@@ -100,7 +98,6 @@ import omero.model.Roi;
 import omero.model.Shape;
 import omero.util.IceMapper;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.joda.time.Instant;
 
 import org.slf4j.Logger;
@@ -118,9 +115,6 @@ import org.slf4j.LoggerFactory;
 public class OmeroMetadata extends DummyMetadata {
 
     private final static Logger log = LoggerFactory.getLogger(OmeroMetadata.class);
-
-    private static final Pattern AFFINE_TRANSFORM =
-            Pattern.compile("\\[\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+\\]");
 
     // -- State --
 
@@ -482,27 +476,20 @@ public class OmeroMetadata extends DummyMetadata {
         }
     }
 
-    private static AffineTransform toTransform(RString v) {
-        final String transformString = fromRType(v);
-        if (transformString == null) {
+    private static AffineTransform toTransform(omero.model.AffineTransform omeroTransform) {
+        if (omeroTransform == null ||
+                omeroTransform.getA00() == null || omeroTransform.getA01() == null || omeroTransform.getA02() == null ||
+                omeroTransform.getA10() == null || omeroTransform.getA11() == null || omeroTransform.getA12() == null) {
             return null;
         }
-        final Matcher transformMatcher = AFFINE_TRANSFORM.matcher(transformString);
-        if (!transformMatcher.matches()) {
-            return null;
-        }
-        final AffineTransform transform = new AffineTransform();
-        try {
-            transform.setA00(Double.valueOf(transformMatcher.group(1)));
-            transform.setA01(Double.valueOf(transformMatcher.group(2)));
-            transform.setA02(Double.valueOf(transformMatcher.group(3)));
-            transform.setA10(Double.valueOf(transformMatcher.group(4)));
-            transform.setA11(Double.valueOf(transformMatcher.group(5)));
-            transform.setA12(Double.valueOf(transformMatcher.group(6)));
-            return transform;
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        final AffineTransform schemaTransform = new AffineTransform();
+        schemaTransform.setA00(omeroTransform.getA00().getValue());
+        schemaTransform.setA01(omeroTransform.getA01().getValue());
+        schemaTransform.setA02(omeroTransform.getA02().getValue());
+        schemaTransform.setA10(omeroTransform.getA10().getValue());
+        schemaTransform.setA11(omeroTransform.getA11().getValue());
+        schemaTransform.setA12(omeroTransform.getA12().getValue());
+        return schemaTransform;
     }
 
     /* IMAGE */

@@ -627,12 +627,24 @@
         <!-- Move contained objects: shapes of moved ROIs, pixels of moved masks. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[I].transform = T:[E]" p:changes="T:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels =/o P:[E], P.image = I:[E]{i}" p:changes="I:{r}"/>
 
         <!-- Delete the shapes of deleted ROIs. -->
 
         <bean parent="graphPolicyRule" p:matches="Roi[D].shapes = S:[E]" p:changes="S:[D]"/>
+
+        <!-- Delete orphaned affine transforms. -->
+
+        <bean parent="graphPolicyRule" p:matches="Shape[D].transform = T:[E]{i}" p:changes="T:[E]{r}"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[E].transform = T:[E]{r}" p:changes="T:[E]{a}"/>
+        <bean parent="graphPolicyRule" p:matches="T:AffineTransform[E]{o}" p:changes="T:[D]"/>
+
+        <!-- Cannot split affine transforms. -->
+
+        <bean parent="graphPolicyRule" p:matches="S1:Shape[I].transform = T:[EI], S2:Shape[E].transform = T"
+                                       p:error="may not move {S1} while {S2} remains as they share {T}"/>
 
         <!-- SCREEN -->
 

@@ -86,6 +86,7 @@
         <value>ExternalInfo</value>
 
         <!-- roi -->
+        <value>AffineTransform</value>
         <value>Roi</value>
         <value>Shape</value>
 
@@ -240,6 +241,7 @@
         <bean parent="graphPolicyRule" p:matches="X:ExternalInfo[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Roi[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Shape[E].details.owner = [I]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="X:AffineTransform[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Plate[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:PlateAcquisition[E].details.owner = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Reagent[E].details.owner = [I]" p:changes="X:[I]"/>
@@ -273,6 +275,7 @@
         <bean parent="graphPolicyRule" p:matches="X:ExternalInfo[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Roi[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Shape[E].details.group = [I]" p:changes="X:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="X:AffineTransform[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Plate[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:PlateAcquisition[E].details.group = [I]" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="X:Reagent[E].details.group = [I]" p:changes="X:[I]"/>
@@ -285,6 +288,7 @@
 
         <bean parent="graphPolicyRule" p:matches="Image[I].rois = ROI:[E]" p:changes="ROI:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Roi[I].shapes = S:[E]" p:changes="S:[I]"/>
+        <bean parent="graphPolicyRule" p:matches="Shape[I].transform = T:[E]" p:changes="T:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI]" p:changes="P:[-]"/>
         <bean parent="graphPolicyRule" p:matches="Mask[I].pixels = P:[EI], P.image = I:[E]" p:changes="I:[I]"/>
 

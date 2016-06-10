@@ -39,7 +39,7 @@
                                Color keyword : red, blue, black, ...
                         -->
                         <!-- Global -->
-                        <optional name="transform" type="string"/><!-- e.g. [cos(a) sin(a) -sin(a) cos(a) 0 0] -->
+                        <optional name="transform" type="ome.model.roi.AffineTransform"/>
                         <!-- Fill -->
                         <optional name="fillColor" type="int"/>
                         <optional name="fillRule" type="string"/><!-- even-odd, nonzero -->
@@ -99,7 +99,7 @@
         <type id="ome.model.roi.Path" discriminator="path" superclass="ome.model.roi.Shape">
                 <properties>
                         <optional name="d" type="text"/><!-- e.g. "M 100 100 L 300 100 L 200 300 z" -->
-                         <optional name="textValue" type="text"/>
+                        <optional name="textValue" type="text"/>
                </properties>
         </type>
         <type id="ome.model.roi.Polygon" discriminator="polygon" superclass="ome.model.roi.Shape">
@@ -125,6 +125,19 @@
                         <optional name="markerStart" type="string"/>  <!-- only "Arrow" at present -->
                         <optional name="markerEnd"   type="string"/>  <!-- only "Arrow" at present -->
                         <optional name="textValue" type="text"/>
+                </properties>
+        </type>
+        <type id="ome.model.roi.AffineTransform">
+                <!-- A00 A01 A02 -->
+                <!-- A10 A11 A12 -->
+                <!--  0   0   1  -->
+                <properties>
+                        <required name="a00" type="double"/>  <!-- x scaling -->
+                        <required name="a10" type="double"/>  <!-- y shearing -->
+                        <required name="a01" type="double"/>  <!-- x shearing -->
+                        <required name="a11" type="double"/>  <!-- y scaling -->
+                        <required name="a02" type="double"/>  <!-- x translation -->
+                        <required name="a12" type="double"/>  <!-- y translation -->
                 </properties>
         </type>
         <!-- MISSING:

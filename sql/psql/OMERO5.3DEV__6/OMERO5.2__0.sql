@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__5.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__6.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  5,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  6,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1502,6 +1502,220 @@ CREATE TRIGGER roi_delete_trigger
     FOR EACH ROW
     EXECUTE PROCEDURE roi_delete_trigger();
 
+-- ... up to patch 6:
+
+CREATE FUNCTION combine_ctm(new_transform FLOAT[], ctm FLOAT[]) RETURNS FLOAT[] AS $$
+
+BEGIN
+    RETURN ARRAY [ctm[1] * new_transform[1] + ctm[3] * new_transform[2],
+                  ctm[2] * new_transform[1] + ctm[4] * new_transform[2],
+                  ctm[1] * new_transform[3] + ctm[3] * new_transform[4],
+                  ctm[2] * new_transform[3] + ctm[4] * new_transform[4],
+                  ctm[1] * new_transform[5] + ctm[3] * new_transform[6] + ctm[5],
+                  ctm[2] * new_transform[5] + ctm[4] * new_transform[6] + ctm[6]];
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION parse_transform(transform TEXT) RETURNS FLOAT[] AS $$
+
+DECLARE
+    number_text TEXT;
+    number_texts TEXT[];
+    transform_matrix FLOAT[];
+    identity_matrix CONSTANT FLOAT[] := ARRAY [1, 0, 0, 1, 0, 0];
+    angle FLOAT;
+
+BEGIN
+    IF transform IS NULL OR transform = '' OR transform = 'none' THEN
+        RETURN NULL;
+    END IF;
+
+    IF left(transform, 2) = '[ ' AND right(transform, 2) = ' ]' THEN
+        transform := 'matrix(' || left(right(transform, -2), -2) || ')';
+    ELSIF left(transform, 1) = '[' AND right(transform, 1) = ']' THEN
+        transform := 'matrix(' || left(right(transform, -1), -1) || ')';
+    END IF;
+
+    IF left(transform, 7) = 'matrix(' AND right(transform, 1) = ')' THEN
+
+        number_texts := string_to_array(left(right(transform, -7), -1), ' ');
+
+        IF array_length(number_texts, 1) != 6 THEN
+            RAISE EXCEPTION 'must have six numbers in shape.transform value: %', transform;
+        END IF;
+
+        FOREACH number_text IN ARRAY number_texts LOOP
+            transform_matrix := array_append(transform_matrix, CAST(number_text AS FLOAT));
+        END LOOP;
+
+    ELSIF left(transform, 10) = 'translate(' AND right(transform, 1) = ')' THEN
+
+        number_texts := string_to_array(left(right(transform, -10), -1), ' ');
+
+        IF array_length(number_texts, 1) = 1 THEN
+            number_texts := array_append(number_texts, '0');
+        ELSIF array_length(number_texts, 1) != 2 THEN
+            RAISE EXCEPTION 'must have one or two numbers in shape.transform value: %', transform;
+        END IF;
+
+        transform_matrix := ARRAY [1, 0, 0, 1];
+
+        FOREACH number_text IN ARRAY number_texts LOOP
+            transform_matrix := array_append(transform_matrix, CAST(number_text AS FLOAT));
+        END LOOP;
+
+    ELSIF left(transform, 6) = 'scale(' AND right(transform, 1) = ')' THEN
+
+        number_texts := string_to_array(left(right(transform, -6), -1), ' ');
+
+        IF array_length(number_texts, 1) = 1 THEN
+            number_texts[2] := number_texts[1];
+        ELSIF array_length(number_texts, 1) != 2 THEN
+            RAISE EXCEPTION 'must have one or two numbers in shape.transform value: %', transform;
+        END IF;
+
+        FOREACH number_text IN ARRAY number_texts LOOP
+            transform_matrix := array_append(transform_matrix, CAST(number_text AS FLOAT)) || CAST(ARRAY [0, 0] AS FLOAT[]);
+        END LOOP;
+
+    ELSIF left(transform, 7) = 'rotate(' AND right(transform, 1) = ')' THEN
+
+        number_texts := string_to_array(left(right(transform, -7), -1), ' ');
+
+        IF array_length(number_texts, 1) = 1 THEN
+            number_texts := number_texts || ARRAY ['0', '0'];
+        ELSIF array_length(number_texts, 1) != 3 THEN
+            RAISE EXCEPTION 'must have one or three numbers in shape.transform value: %', transform;
+        END IF;
+
+        FOREACH number_text IN ARRAY number_texts LOOP
+            transform_matrix := array_append(transform_matrix, CAST(number_text AS FLOAT));
+        END LOOP;
+
+        angle := transform_matrix[1] * pi() / 180;
+
+        IF transform_matrix[2] = 0 AND transform_matrix[3] = 0 THEN
+            transform_matrix := ARRAY [cos(angle), sin(angle), -sin(angle), cos(angle), 0, 0];
+        ELSE
+            transform_matrix := combine_ctm(ARRAY [1, 0, 0, 1, -transform_matrix[2], -transform_matrix[3]],
+                      combine_ctm(ARRAY [cos(angle), sin(angle), -sin(angle), cos(angle), 0, 0],
+                      combine_ctm(ARRAY [1, 0, 0, 1, transform_matrix[2], transform_matrix[3]],
+                                  identity_matrix)));
+        END IF;
+
+    ELSIF left(transform, 6) = 'skewX(' AND right(transform, 1) = ')' THEN
+
+        number_texts := string_to_array(left(right(transform, -6), -1), ' ');
+
+        IF array_length(number_texts, 1) != 1 THEN
+            RAISE EXCEPTION 'must have one number in shape.transform value: %', transform;
+        END IF;
+
+        angle := CAST(number_texts[1] AS FLOAT) * pi() / 180;
+        transform_matrix := ARRAY [1, 0, tan(angle), 1, 0, 0];
+
+    ELSIF left(transform, 6) = 'skewY(' AND right(transform, 1) = ')' THEN
+
+        number_texts := string_to_array(left(right(transform, -6), -1), ' ');
+
+        IF array_length(number_texts, 1) != 1 THEN
+            RAISE EXCEPTION 'must have one number in shape.transform value: %', transform;
+        END IF;
+
+        angle := CAST(number_texts[1] AS FLOAT) * pi() / 180;
+        transform_matrix := ARRAY [1, tan(angle), 0, 1, 0, 0];
+
+    ELSE
+        RAISE EXCEPTION 'cannot parse shape.transform value: %', transform;
+
+    END IF;
+
+    IF transform_matrix = identity_matrix THEN
+        RETURN NULL;
+    ELSE
+        RETURN transform_matrix;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TABLE affinetransform (
+    id BIGINT PRIMARY KEY,
+    a00 DOUBLE PRECISION NOT NULL,
+    a10 DOUBLE PRECISION NOT NULL,
+    a01 DOUBLE PRECISION NOT NULL,
+    a11 DOUBLE PRECISION NOT NULL,
+    a02 DOUBLE PRECISION NOT NULL,
+    a12 DOUBLE PRECISION NOT NULL,
+    permissions BIGINT NOT NULL,
+    version INTEGER,
+    external_id BIGINT UNIQUE,
+    group_id BIGINT NOT NULL,
+    owner_id BIGINT NOT NULL,
+    creation_id BIGINT NOT NULL,
+    update_id BIGINT NOT NULL);
+
+CREATE SEQUENCE seq_affinetransform; INSERT INTO _lock_ids (name, id)
+    SELECT 'seq_affinetransform', nextval('_lock_seq');
+
+ALTER TABLE affinetransform ADD CONSTRAINT FKaffinetransform_creation_id_event
+    FOREIGN KEY (creation_id) REFERENCES event;
+ALTER TABLE affinetransform ADD CONSTRAINT FKaffinetransform_update_id_event
+    FOREIGN KEY (update_id) REFERENCES event;
+ALTER TABLE affinetransform ADD CONSTRAINT FKaffinetransform_external_id_externalinfo
+    FOREIGN KEY (external_id) REFERENCES externalinfo;
+ALTER TABLE affinetransform ADD CONSTRAINT FKaffinetransform_group_id_experimentergroup
+    FOREIGN KEY (group_id) REFERENCES experimentergroup;
+ALTER TABLE affinetransform ADD CONSTRAINT FKaffinetransform_owner_id_experimenter
+    FOREIGN KEY (owner_id) REFERENCES experimenter;
+
+CREATE FUNCTION upgrade_transform(
+    svg_transform VARCHAR(255), permissions BIGINT, owner_id BIGINT, group_id BIGINT)
+    RETURNS BIGINT AS $$
+
+DECLARE
+    matrix FLOAT[];
+    transform_id BIGINT;
+    event_id BIGINT;
+
+BEGIN
+    matrix := parse_transform(svg_transform);
+
+    IF matrix IS NULL THEN
+        RETURN NULL;
+    END IF;
+
+    SELECT ome_nextval('seq_affinetransform') INTO STRICT transform_id;
+    SELECT _current_or_new_event() INTO STRICT event_id;
+
+    INSERT INTO affinetransform (id, a00, a10, a01, a11, a02, a12,
+                                 permissions, owner_id, group_id, creation_id, update_id)
+        VALUES (transform_id, matrix[1], matrix[2], matrix[3], matrix[4], matrix[5], matrix[6],
+                permissions, owner_id, group_id,  event_id, event_id);
+
+    RETURN transform_id;
+END;
+$$ LANGUAGE plpgsql;
+
+ALTER TABLE shape RENAME COLUMN transform TO transform_old;
+ALTER TABLE shape ADD COLUMN transform BIGINT;
+
+ALTER TABLE shape ADD CONSTRAINT FKshape_transform_affinetransform
+    FOREIGN KEY (transform) REFERENCES affinetransform;
+
+UPDATE shape SET transform = upgrade_transform(transform_old, permissions, owner_id, group_id)
+    WHERE transform_old IS NOT NULL;
+
+ALTER TABLE shape DROP COLUMN transform_old;
+
+DROP FUNCTION upgrade_transform(VARCHAR(255), BIGINT, BIGINT, BIGINT);
+DROP FUNCTION parse_transform(TEXT);
+DROP FUNCTION combine_ctm(FLOAT[], FLOAT[]);
+
+CREATE INDEX i_affinetransform_owner ON affinetransform(owner_id);
+CREATE INDEX i_affinetransform_group ON affinetransform(group_id);
+CREATE INDEX i_shape_transform ON shape(transform);
+
 
 --
 -- FINISHED
@@ -1509,10 +1723,10 @@ CREATE TRIGGER roi_delete_trigger
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 5             AND
+          currentPatch    = 6             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__5'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__6'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
