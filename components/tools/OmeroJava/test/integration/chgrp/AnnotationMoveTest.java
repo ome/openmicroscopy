@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2015 University of Dundee. All rights reserved.
+ * Copyright 2006-2016 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -11,14 +11,25 @@ import integration.DeleteServiceTest;
 import java.util.ArrayList;
 import java.util.List;
 
+import ome.services.blitz.repo.path.FsFile;
+import omero.api.RawFileStorePrx;
 import omero.cmd.Chgrp2;
 import omero.cmd.graphs.ChildOption;
 import omero.gateway.util.Requests;
+import omero.grid.ManagedRepositoryPrx;
+import omero.grid.ManagedRepositoryPrxHelper;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
@@ -547,4 +558,91 @@ public class AnnotationMoveTest extends AbstractServerTest {
         assertEquals("#9496? anns", results.size(), 0);
     }
 
+    /**
+     * Check that moving acts appropriately with attachments that share files.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testMoveAttachmentsSharingFile() throws Exception {
+        /* set up user and groups */
+        final EventContext user = newUserAndGroup("rw----");
+        final ExperimenterGroup fromGroup = new ExperimenterGroupI(user.groupId, false);
+        final ExperimenterGroup toGroup = newGroupAddUser("rw----", user.userId);
+
+        /* work in first group */
+        loginUser(fromGroup);
+
+        /* obtain the managed repository */
+        ManagedRepositoryPrx repo = null;
+        RepositoryMap rm = factory.sharedResources().repositories();
+        for (int i = 0; i < rm.proxies.size(); i++) {
+            final RepositoryPrx prx = rm.proxies.get(i);
+            final ManagedRepositoryPrx tmp = ManagedRepositoryPrxHelper.checkedCast(prx);
+            if (tmp != null) {
+                repo = tmp;
+            }
+        }
+        if (repo == null) {
+            throw new Exception("Unable to find managed repository");
+        }
+
+        /* create a destination directory for upload */
+        final EventContext ctx = iAdmin.getEventContext();
+        final StringBuffer pathBuilder = new StringBuffer();
+        pathBuilder.append(ctx.userName);
+        pathBuilder.append('_');
+        pathBuilder.append(ctx.userId);
+        pathBuilder.append(FsFile.separatorChar);
+        pathBuilder.append("test-");
+        pathBuilder.append(getClass());
+        pathBuilder.append(FsFile.separatorChar);
+        pathBuilder.append(System.currentTimeMillis());
+        final String path = pathBuilder.toString();
+        repo.makeDir(path, true);
+
+        /* upload a file */
+        final RawFileStorePrx rfs = repo.file(path + FsFile.separatorChar + System.nanoTime(), "rw");
+        rfs.write(new byte[] {1, 2, 3, 4}, 0, 4);
+        final OriginalFile file = new OriginalFileI(rfs.save().getId().getValue(), false);
+        rfs.close();
+
+        /* create two attachments that share the file */
+        final List<FileAnnotation> attachments = new ArrayList<FileAnnotation>();
+        for (int i = 1; i <= 2; i++) {
+            final FileAnnotation attachment = new FileAnnotationI();
+            attachment.setFile(file);
+            attachments.add((FileAnnotation) iUpdate.saveAndReturnObject(attachment).proxy());
+        }
+
+        /* check that the file does not move without its attachment */
+        Chgrp2 request;
+        request = Requests.chgrp().target(file).toGroup(toGroup).build();
+        doChange(client, factory, request, false);
+
+        /* check that one attachment cannot move without the other */
+        request = Requests.chgrp().target(attachments.get(0)).toGroup(toGroup).build();
+        doChange(client, factory, request, false);
+
+        /* check that the attachments can move together */
+        request = Requests.chgrp().target(attachments.get(0)).target(attachments.get(1)).toGroup(toGroup).build();
+        doChange(request);
+
+        /* check what remains in the source group */
+        assertNull(iQuery.findByQuery("FROM OriginalFile WHERE id = :id", new ParametersI().addId(file.getId())));
+        for (final FileAnnotation attachment : attachments) {
+            assertNull(iQuery.findByQuery("FROM FileAnnotation WHERE id = :id", new ParametersI().addId(attachment.getId())));
+        }
+
+        /* switch to the destination group */
+        loginUser(toGroup);
+
+        /* check what was moved to the destination group */
+        assertNotNull(iQuery.findByQuery("FROM OriginalFile WHERE id = :id", new ParametersI().addId(file.getId())));
+        for (final FileAnnotation attachment : attachments) {
+            assertNotNull(iQuery.findByQuery("FROM FileAnnotation WHERE id = :id", new ParametersI().addId(attachment.getId())));
+        }
+
+        /* delete the test data */
+        doChange(Requests.delete().target(attachments.get(0)).target(attachments.get(1)).build());
+    }
 }

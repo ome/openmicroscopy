@@ -15,10 +15,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ome.services.blitz.repo.path.FsFile;
 import omero.RLong;
 import omero.RString;
+import omero.api.RawFileStorePrx;
 import omero.cmd.Delete2;
 import omero.gateway.util.Requests;
+import omero.grid.ManagedRepositoryPrx;
+import omero.grid.ManagedRepositoryPrxHelper;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
@@ -32,6 +38,7 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.model.PlaneInfo;
 import omero.model.Roi;
 import omero.model.TagAnnotation;
@@ -363,5 +370,83 @@ public class AnnotationDeleteTest extends AbstractServerTest {
             testCases[index++][0] = value;
         }
         return testCases;
+    }
+
+    /**
+     * Check that deletion acts appropriately with attachments that share files.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testDeleteAttachmentSharingFile() throws Exception {
+        /* ensure a connection to the server */
+        newUserAndGroup("rwra--");
+
+        /* obtain the managed repository */
+        ManagedRepositoryPrx repo = null;
+        RepositoryMap rm = factory.sharedResources().repositories();
+        for (int i = 0; i < rm.proxies.size(); i++) {
+            final RepositoryPrx prx = rm.proxies.get(i);
+            final ManagedRepositoryPrx tmp = ManagedRepositoryPrxHelper.checkedCast(prx);
+            if (tmp != null) {
+                repo = tmp;
+            }
+        }
+        if (repo == null) {
+            throw new Exception("Unable to find managed repository");
+        }
+
+        /* create a destination directory for upload */
+        final EventContext ctx = iAdmin.getEventContext();
+        final StringBuffer pathBuilder = new StringBuffer();
+        pathBuilder.append(ctx.userName);
+        pathBuilder.append('_');
+        pathBuilder.append(ctx.userId);
+        pathBuilder.append(FsFile.separatorChar);
+        pathBuilder.append("test-");
+        pathBuilder.append(getClass());
+        pathBuilder.append(FsFile.separatorChar);
+        pathBuilder.append(System.currentTimeMillis());
+        final String path = pathBuilder.toString();
+        repo.makeDir(path, true);
+
+        /* upload files */
+        final List<OriginalFile> files = new ArrayList<OriginalFile>();
+        for (int i = 1; i <= 2; i++) {
+            final RawFileStorePrx rfs = repo.file(path + FsFile.separatorChar + System.nanoTime(), "rw");
+            rfs.write(new byte[] {1, 2, 3, 4}, 0, 4);
+            files.add(new OriginalFileI(rfs.save().getId().getValue(), false));
+            rfs.close();
+        }
+
+        /* create three attachments that use files 0, 1, 1 */
+        final List<FileAnnotation> attachments = new ArrayList<FileAnnotation>();
+        for (int i = 1; i <= 3; i++) {
+            final FileAnnotation attachment = new FileAnnotationI();
+            attachment.setFile(files.get(i/2));
+            attachments.add((FileAnnotation) iUpdate.saveAndReturnObject(attachment).proxy());
+        }
+
+        /* delete the first attachment via its file */
+        Delete2 request;
+        request = Requests.delete().target(files.get(0)).build();
+        doChange(request);
+        assertDoesNotExist(files.get(0));
+        assertExists(files.get(1));
+        assertDoesNotExist(attachments.get(0));
+        assertExists(attachments.get(1));
+        assertExists(attachments.get(2));
+
+        /* delete the second attachment: other file should remain */
+        request = Requests.delete().target(attachments.get(1)).build();
+        doChange(request);
+        assertExists(files.get(1));
+        assertDoesNotExist(attachments.get(1));
+        assertExists(attachments.get(2));
+
+        /* delete the final attachment: other file should be deleted */
+        request = Requests.delete().target(attachments.get(2)).build();
+        doChange(request);
+        assertDoesNotExist(files.get(1));
+        assertDoesNotExist(attachments.get(2));
     }
 }
