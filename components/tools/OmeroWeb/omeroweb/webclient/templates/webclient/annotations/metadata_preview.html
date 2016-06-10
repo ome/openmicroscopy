@@ -351,19 +351,18 @@
                 var plotWidth = $("#histogram").show().width();
                 if (!histogram) {
                   histogram = new OME.Histogram("#histogram", "{% url 'webgateway' %}", plotWidth, 125);
+                  var img = OME.preview_viewport.loadedImg;
+                  var chIdx = 0;
+                  var curr = img.current;
+                  var ch = img.channels[chIdx];
+                  histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, ch.color, ch.window);
                 }
-                var img = OME.preview_viewport.loadedImg;
-                var chIdx = 0;
-                var curr = img.current;
-                var ch = img.channels[chIdx];
-                histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, ch.color, ch.window);
               } else {
                 $("#histogram").hide();
               }
             });
 
             OME.preview_viewport.bind('channelChange', function(event, viewport, chIdx, channel){
-              console.log("channelChange", chIdx, channel, channel.window);
               if (histogram && $("#histogram").is(":visible")) {
                 var img = OME.preview_viewport.loadedImg;
                 var ch = img.channels[chIdx];

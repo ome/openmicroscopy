@@ -85,7 +85,7 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
             .attr('fill', color);
     };
 
-    this.loadAndPlot = function(imageId, theZ, theC, theT, color, window, proj){
+    var _loadAndPlot = function(imageId, theZ, theC, theT, color, window, proj){
         // window is {'min':0, 'max': 1000, 'start': 50, 'end': 250}
         color = color || "#000000";
         if (color[1] !== "#") {
@@ -117,6 +117,9 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         });
     };
 
+    // Don't want to rapidly re-load data...
+    this.loadAndPlot = _.debounce(_loadAndPlot);
+
     this.plotStartEnd = function(window, color) {
         var start = window.start,
             end = window.end,
@@ -124,7 +127,6 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
             max = window.max;
         var s = ((start - min)/(max - min)) * 256;
         var e = ((end - min)/(max - min)) * 256;
-        console.log(window, s, e, graphWidth, colCount);
 
         svg.selectAll("rect")
         .data([s, e])

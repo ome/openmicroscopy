@@ -146,8 +146,7 @@
             $('#wblitz-ch'+idx).removeClass('pressed');
             $('#rd-wblitz-ch'+idx).removeClass('pressed');
         }
-        var rgb = OME.hexToRgb(ch.color);
-        $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')').attr('title', ch.label);
+        $('#wblitz-ch'+idx).css('background-color', '#' + ch.color).attr('title', ch.label);
     };
 
 
@@ -322,13 +321,12 @@
                 updateUndoRedo(viewport);
             };
         };
-        var rgb;
         for (i=0; i<channels.length; i++) {
-            rgb = OME.hexToRgb(channels[i].color);
+            color = channels[i].color;
             $('<button id="wblitz-ch'+i+
-                '"class="squared' + (channels[i].active?' pressed':'') +
-                '"style="background-color: rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')' +
-                '"title="' + channels[i].label +
+                '" class="squared' + (channels[i].active?' pressed':'') +
+                '" style="background-color: #'+ channels[i].color +
+                '" title="' + channels[i].label +
                 '">'+channels[i].label+'</button>')
             .appendTo(box)
             .bind('click', doToggle(i));
@@ -464,10 +462,9 @@
             if (lbl.length > 7) {
                 lbl = lbl.slice(0, 5) + "...";
             }
-            rgb = OME.hexToRgb(channels[i].color);
             tmp.after(template
                 .replace(/\$class/g, btnClass)
-                .replace(/\$col/g, 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')')
+                .replace(/\$col/g, '#' + channels[i].color)
                 .replace(/\$label/g, channels[i].label)
                 .replace(/\$l/g, lbl)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based

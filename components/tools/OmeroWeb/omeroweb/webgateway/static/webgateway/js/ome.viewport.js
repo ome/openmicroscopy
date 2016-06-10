@@ -597,13 +597,20 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.isGreyModel() && this.getProjection() != 'split') {
       /* Only allow activation of channels, and disable all other */
       if (act) {
+        // turn off other channels...
         for (var i = 0; i < _this.loadedImg.channels.length; i++) {
-          act = i == idx;
-          if (act != _this.loadedImg.channels[i].active) {
-            _this.loadedImg.channels[i].active = act;
+          if (i !== idx && _this.loadedImg.channels[i].active) {
+            _this.loadedImg.channels[i].active = false;
             _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
           }
         }
+        // ...then turn on active channel (last to be triggered - E.g. shown in histogram)
+        if (!_this.loadedImg.channels[idx].active) {
+          _this.loadedImg.channels[idx].active = true;
+        }
+        // we always trigger, so last triggered channel is the active one
+        _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+
         if (!noreload) {
           _load();
         }
@@ -1098,7 +1105,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
           }
         }
         if (t.length > 1) {
-          this.setChannelColor(idx, toRGB(t[1]), true);
+          this.setChannelColor(idx, t[1], true);
         }
       }
     }
