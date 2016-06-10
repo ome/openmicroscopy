@@ -275,8 +275,6 @@ urlpatterns = patterns(
 
     url(r'^api/experimenters/$', views.api_experimenter_list,
         name='api_experimenters'),
-    url(r'^api/experimenters/(?P<experimenter_id>[0-9]+)/$',
-        views.api_experimenter_detail, name='api_experimenter'),
 
     # Generic container list. This is necessary as an experimenter may have
     # datasets/etc which do not belong to any project
