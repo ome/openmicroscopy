@@ -345,17 +345,27 @@
             });
 
             var histogram;
+            var plotHistogram = function(chIdx, start, end) {
+              var img = OME.preview_viewport.loadedImg;
+              var curr = img.current;
+              var ch = img.channels[chIdx];
+              var color = ch.color === 'FFFFFF' ? '000000' : ch.color;
+              var wndw = ch.window;
+              if (start !== undefined && end !== undefined) {
+                wndw = {'min': ch.window.min,
+                        'max': ch.window.max,
+                        'start': start,
+                        'end': end}
+              }
+              histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, color, wndw);
+            }
             $("#showhistogram").click(function(){
               var show = this.checked;
               if (show) {
                 var plotWidth = $("#histogram").show().width();
                 if (!histogram) {
                   histogram = new OME.Histogram("#histogram", "{% url 'webgateway' %}", plotWidth, 125);
-                  var img = OME.preview_viewport.loadedImg;
-                  var chIdx = 0;
-                  var curr = img.current;
-                  var ch = img.channels[chIdx];
-                  histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, ch.color, ch.window);
+                  plotHistogram(0);
                 }
               } else {
                 $("#histogram").hide();
@@ -364,22 +374,12 @@
 
             OME.preview_viewport.bind('channelChange', function(event, viewport, chIdx, channel){
               if (histogram && $("#histogram").is(":visible")) {
-                var img = OME.preview_viewport.loadedImg;
-                var ch = img.channels[chIdx];
-                var curr = img.current;
-                histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, ch.color, ch.window);
+                plotHistogram(chIdx);
               }
             });
             OME.preview_viewport.bind('channelSlide', function(event, viewport, chIdx, start, end){
               if (histogram && $("#histogram").is(":visible")) {
-                var img = OME.preview_viewport.loadedImg;
-                var ch = img.channels[chIdx];
-                var curr = img.current;
-                var w = {'min': ch.window.min,
-                         'max': ch.window.max,
-                         'start': start,
-                         'end': end}
-                histogram.loadAndPlot(img.id, curr.z, chIdx, curr.t, ch.color, w);
+                plotHistogram(chIdx, start, end);
               }
             });
 
