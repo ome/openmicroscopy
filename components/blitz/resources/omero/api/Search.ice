@@ -411,8 +411,9 @@ module omero {
                  * Returns transient (without ID)
                  * {@link omero.model.TextAnnotation} instances which represent
                  * terms which are similar to the given terms. For example, if
-                 * the argument is "cell", one return value might have as its
-                 * textValue: "cellular" while another has "cellularize".
+                 * the argument is <i>cell</i>, one return value might have as
+                 * its textValue: <i>cellular</i> while another has
+                 * <i>cellularize</i>.
                  *
                  * No filtering or fetching is performed.
                  *

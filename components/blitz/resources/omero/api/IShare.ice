@@ -74,8 +74,8 @@ module omero {
                  *
                  * @param onlyActive
                  *            if true, then only shares which can be used for
-                 *            login will be returned. All ""draft"" shares (see
-                 *            {@link #createShare} and closed shares (see
+                 *            login will be returned. All <i>draft</i> shares
+                 *            (see {@link #createShare}) and closed shares (see
                  *            {@link #closeShare}) will be filtered.
                  * @return set of shares. Never null. May be empty.
                  */
@@ -87,8 +87,8 @@ module omero {
                  *
                  * @param onlyActive
                  *            if true, then only shares which can be used for
-                 *            login will be returned. All ""draft"" shares (see
-                 *            {@link #createShare}) and closed shares (see
+                 *            login will be returned. All <i>draft</i> shares
+                 *            (see {@link #createShare}) and closed shares (see
                  *            {@link #closeShare}) will be filtered.
                  * @return set of shares. Never null. May be empty.
                  */
@@ -100,8 +100,8 @@ module omero {
                  *
                  * @param onlyActive
                  *            if true, then only shares which can be used for
-                 *            login will be returned. All ""draft"" shares (see
-                 *            {@link #createShare}) and closed shares (see
+                 *            login will be returned. All <i>draft</i> shares
+                 *            (see {@link #createShare}) and closed shares (see
                  *            {@link #closeShare}) will be filtered.
                  * @return set of shares. Never null. May be empty.
                  */
@@ -113,8 +113,8 @@ module omero {
                  *
                  * @param onlyActive
                  *            if true, then only shares which can be used for
-                 *            login will be returned. All ""draft"" shares (see
-                 *            {@link #createShare}) and closed shares (see
+                 *            login will be returned. All <i>draft</i> shares
+                 *            (see {@link #createShare}) and closed shares (see
                  *            {@link #closeShare}) will be filtered.
                  * @return set of shares. Never null. May be empty.
                  */

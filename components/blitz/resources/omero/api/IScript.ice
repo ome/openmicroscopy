@@ -88,7 +88,7 @@ module omero {
                 /**
                  * Returns non-official scripts which have been uploaded by individual users.
                  * These scripts will <em>not</me> be run by the server, though a user can
-                 * start a personal ""usermode processor"" which will allow the scripts to be
+                 * start a personal <i>usermode processor</i> which will allow the scripts to be
                  * executed. This is particularly useful for testing new scripts.
                  */
                 idempotent OriginalFileList getUserScripts(IObjectList acceptsList) throws ServerError;
@@ -185,8 +185,9 @@ module omero {
                 /**
                  * If {@link ResourceError} is thrown, then no
                  * {@link Processor} is available. Use {@link #scheduleJob}
-                 * to create a {@link omero.model.ScriptJob} in the "Waiting"
-                 * state. A {@link Processor} may become available.
+                 * to create a {@link omero.model.ScriptJob} in the
+                 * <i>Waiting</i> state. A {@link Processor} may become
+                 * available.
                  *
                  * <pre>
                  * try:
@@ -197,7 +198,7 @@ module omero {
                  *
                  * The {@link ScriptProcess} proxy MUST be closed before
                  * exiting. If you would like the script execution to continue
-                 * in the background, pass "True" as the argument.
+                 * in the background, pass <code>True</code> as the argument.
                  *
                  * <pre>
                  * try:
