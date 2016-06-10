@@ -499,7 +499,7 @@ class TestChown(CLITest):
 
     def testOutputWithElision(self, capfd):
         DATASETS = 8
-        # Import several images
+        # Create several datasets
         ids = []
         for i in range(DATASETS):
             ids.append(self.make_dataset().id.val)
@@ -508,7 +508,7 @@ class TestChown(CLITest):
         assert ids[-1] - ids[0] + 1 == DATASETS
         ids = [str(id) for id in ids]
 
-        # Create user and transfer some of those images
+        # Create user and transfer some of those datasets
         # to the user, mix up the order
         client, user = self.new_client_and_user(group=self.group)
         self.args += ['%s' % user.id.val]
