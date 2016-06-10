@@ -650,3 +650,7 @@ input.spin-button {
     width: 8px;
     height: 10px;
 }
+/* histogram svg */
+.line {
+  fill: none;
+}

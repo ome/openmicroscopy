@@ -80,6 +80,10 @@
     <script type="text/javascript" src="{% static "3rdparty/raphael-2.1.0/raphael-min.js" %}"></script>
     <script type="text/javascript" src="{% static "3rdparty/raphael-2.1.0/scale.raphael.js" %}"></script>
 
+    <script type="text/javascript" src="{% static '3rdparty/underscore/underscore-1.8.3-min.js' %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/d3-3.5.17/d3.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.histogram.js" %}"></script>
+
     <!-- big images -->
 
     <script type="text/javascript" src="{% static "3rdparty/panojs-2.0.0/extjs/ext-core.js" %}"></script>
@@ -828,6 +832,11 @@
           <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="{% static "webgateway/img/question.png" %}" alt="Show help on channel window ranges" /></a>
           <input id="rd-wblitz-rmodel" type="checkbox" onchange="return handleModelCheckbox();"/>
           <label for="rd-wblitz-rmodel">Greyscale</label>
+          <div style="float: right">
+            <input type="checkbox" id="showhistogram" />
+            <label>Show Histogram</label>
+          </div>
+          <div id="histogram" style="display:none; width: 100%; height: 125px; background:white; border: solid #ccc 1px; margin-bottom: 6px"></div>
           <table cellspacing="0">
             <tr>
             </tr>
@@ -1128,6 +1137,11 @@
           .css(layout_pos);
       }
     });
+
+    // Create Histogram - displayed when #showhistogram checkbox is checked
+    // NB: we do this AFTER the postit init above, otherwise $("#showhistogram").click() gets unbound!
+    OME.createViewportHistogram(viewport, "#histogram", "#showhistogram", "{% url 'webgateway' %}");
+
     var legend_open = function () {
       var d = $(this);
       d.unbind('opening', legend_open);
