@@ -27,7 +27,6 @@ from test.integration.clitest.cli import CLITest, RootCLITest
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
-object_forms = ["Dataset", "/Dataset", "DatasetI", "/DatasetI"]
 user_prefixes = ["", "User:", "Experimenter:"]
 all_grps = {'omero.group': '-1'}
 ordered = [True, False]
@@ -58,18 +57,20 @@ class TestChown(CLITest):
         assert obj.id.val == oid
         assert obj.details.owner.id.val == user.id.val
 
-    @pytest.mark.parametrize("object_form", object_forms)
-    def testChownBasicUsageWithName(self, object_form):
-        oid = self.create_object("Dataset")
+    @pytest.mark.parametrize("object_prefix", ["", "/"])
+    @pytest.mark.parametrize("object_suffix", ["", "I"])
+    def testChownBasicUsageWithName(self, object_prefix, object_suffix):
+        object_name = "Dataset"
+        oid = self.create_object(object_name)
+        argument = object_prefix + object_name + object_suffix
 
         # create a user in the same group and transfer the object to the user
         client, user = self.new_client_and_user(group=self.group)
-        self.args += ['%s' % (user.omeName.val),
-                      '%s:%s' % (object_form, oid)]
+        self.args += ['%s' % (user.omeName.val), '%s:%s' % (argument, oid)]
         self.cli.invoke(self.args, strict=True)
 
         # check the object has been transferred
-        obj = client.sf.getQueryService().get("Dataset", oid, all_grps)
+        obj = client.sf.getQueryService().get(object_name, oid, all_grps)
         assert obj.id.val == oid
         assert obj.details.owner.id.val == user.id.val
 
