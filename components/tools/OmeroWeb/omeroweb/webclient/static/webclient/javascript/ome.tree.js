@@ -424,6 +424,10 @@ $(function() {
                 if (path && (node.type === 'experimenter' || node.type === 'orphaned')) {
                     payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
                 }
+                // set activate user to load root node
+                if (!path) {
+                    payload['experimenter'] = WEBCLIENT.active_user_id;
+                }
 
                 // If this is a node which can have paged results then either specify that
                 // we want the specific page, or use default first page
@@ -488,26 +492,7 @@ $(function() {
                 } else if (node.id === '#') {
                     // Here we handle root of jsTree
                     // Either show a single experimenters's data...
-                    if (WEBCLIENT.active_user && WEBCLIENT.active_user.id != -1) {
-                        url = WEBCLIENT.URLS.api_experimenter;   // url includes active_user.id
-                    } else {
-                        // ...or multiple experimenters
-                        node = {
-                            'data': {'id': -1, 'obj': {'id': -1}},
-                            'text': WEBCLIENT.LABELS.all_members,
-                            'children': true,
-                            'type': 'experimenter',
-                            'state': {
-                                'opened': true
-                            },
-                            'li_attr': {
-                                'data-id': -1
-                            }
-                        };
-
-                        callback.call(this, [node]);
-                        return;
-                    }
+                    url = WEBCLIENT.URLS.api_experimenters;   // url includes 
                 }
 
                 if (url === undefined) {

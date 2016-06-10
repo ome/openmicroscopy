@@ -160,8 +160,6 @@
         WEBCLIENT.USER = {'id': {{ ome.user.id }} };
         WEBCLIENT.active_user_id = {{ ome.user_id }};
 
-        WEBCLIENT.LABELS = {'all_members':'All members'};
-
         WEBCLIENT.URLS = {};
         WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";
         WEBCLIENT.URLS.api_paths_to_object = "{% url 'api_paths_to_object' %}";
@@ -189,10 +187,7 @@
             WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_containers;
         {% endifequal %}
 
-        {% if active_user %}
-        WEBCLIENT.active_user = {'id': {{ active_user.id }} };
-        WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' active_user.id %}";
-        {% endif %}
+        WEBCLIENT.URLS.api_experimenters = "{% url 'api_experimenters' %}";
 
         WEBCLIENT.UI = {};
         WEBCLIENT.UI.TREE = {};
