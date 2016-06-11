@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__6.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__7.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  6,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  7,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1716,6 +1716,10 @@ CREATE INDEX i_affinetransform_owner ON affinetransform(owner_id);
 CREATE INDEX i_affinetransform_group ON affinetransform(group_id);
 CREATE INDEX i_shape_transform ON shape(transform);
 
+-- ... up to patch 7:
+
+-- TODO
+
 
 --
 -- FINISHED
@@ -1723,10 +1727,10 @@ CREATE INDEX i_shape_transform ON shape(transform);
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 6             AND
+          currentPatch    = 7             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__6'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__7'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
