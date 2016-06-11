@@ -641,6 +641,7 @@
   CREATE INDEX i_projectiondef_owner ON projectiondef(owner_id);
   CREATE INDEX i_projectiondef_group ON projectiondef(group_id);
   CREATE INDEX i_ProjectionDef_renderingDef ON projectiondef(renderingDef);
+  CREATE INDEX i_ProjectionDef_axis ON projectiondef(axis);
   CREATE INDEX i_ProjectionDef_type ON projectiondef(type);
   CREATE INDEX i_quantumdef_owner ON quantumdef(owner_id);
   CREATE INDEX i_quantumdef_group ON quantumdef(group_id);
@@ -921,6 +922,7 @@ CREATE SEQUENCE seq_plateannotationlink; INSERT INTO _lock_ids (name, id) SELECT
 CREATE SEQUENCE seq_project; INSERT INTO _lock_ids (name, id) SELECT 'seq_project', nextval('_lock_seq');
 CREATE SEQUENCE seq_projectannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_projectdatasetlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectdatasetlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_projectionaxis; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectionaxis', nextval('_lock_seq');
 CREATE SEQUENCE seq_projectiondef; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectiondef', nextval('_lock_seq');
 CREATE SEQUENCE seq_projectiontype; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectiontype', nextval('_lock_seq');
 CREATE SEQUENCE seq_pulse; INSERT INTO _lock_ids (name, id) SELECT 'seq_pulse', nextval('_lock_seq');
@@ -2786,6 +2788,14 @@ insert into pixelstype (id,permissions,value)
     select ome_nextval('seq_pixelstype'),-52,'complex';
 insert into pixelstype (id,permissions,value)
     select ome_nextval('seq_pixelstype'),-52,'double-complex';
+insert into projectionaxis (id,permissions,value)
+    select ome_nextval('seq_projectionaxis'),-52,'T';
+insert into projectionaxis (id,permissions,value)
+    select ome_nextval('seq_projectionaxis'),-52,'ModuloT';
+insert into projectionaxis (id,permissions,value)
+    select ome_nextval('seq_projectionaxis'),-52,'Z';
+insert into projectionaxis (id,permissions,value)
+    select ome_nextval('seq_projectionaxis'),-52,'ModuloZ';
 insert into projectiontype (id,permissions,value)
     select ome_nextval('seq_projectiontype'),-52,'maximum';
 insert into projectiontype (id,permissions,value)

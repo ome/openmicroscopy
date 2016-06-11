@@ -1393,6 +1393,22 @@ insert into pixelstype (id,permissions,value)
     select ome_nextval('seq_pixelstype'),-35,'double-complex' from pixelstype where not exists(
         select 1 from pixelstype where value = 'double-complex') limit 1;
 
+insert into projectionaxis (id,permissions,value)
+    select ome_nextval('seq_projectionaxis'),-35,'T' from projectionaxis where not exists(
+        select 1 from projectionaxis where value = 'T') limit 1;
+
+insert into projectionaxis (id,permissions,value)
+    select ome_nextval('seq_projectionaxis'),-35,'ModuloT' from projectionaxis where not exists(
+        select 1 from projectionaxis where value = 'ModuloT') limit 1;
+
+insert into projectionaxis (id,permissions,value)
+    select ome_nextval('seq_projectionaxis'),-35,'Z' from projectionaxis where not exists(
+        select 1 from projectionaxis where value = 'Z') limit 1;
+
+insert into projectionaxis (id,permissions,value)
+    select ome_nextval('seq_projectionaxis'),-35,'ModuloZ' from projectionaxis where not exists(
+        select 1 from projectionaxis where value = 'ModuloZ') limit 1;
+
 insert into projectiontype (id,permissions,value)
     select ome_nextval('seq_projectiontype'),-35,'maximum' from projectiontype where not exists(
         select 1 from projectiontype where value = 'maximum') limit 1;

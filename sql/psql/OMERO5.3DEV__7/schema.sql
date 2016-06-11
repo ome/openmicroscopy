@@ -1971,14 +1971,22 @@
         unique (parent, child, owner_id)
     );;
 
+    create table projectionaxis (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
     create table projectiondef (
         id int8 not null,
         active bool not null,
-        axis varchar(255) not null,
         permissions int8 not null,
         end nonnegative_int,
         start nonnegative_int,
         version int4,
+        axis int8 not null,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
@@ -5383,6 +5391,11 @@
         foreign key (parent) 
         references project  ;;
 
+    alter table projectionaxis 
+        add constraint FKprojectionaxis_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
     alter table projectiondef 
         add constraint FKprojectiondef_creation_id_event 
         foreign key (creation_id) 
@@ -5397,6 +5410,11 @@
         add constraint FKprojectiondef_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_axis_projectionaxis 
+        foreign key (axis) 
+        references projectionaxis  ;;
 
     alter table projectiondef 
         add constraint FKprojectiondef_type_projectiontype 
