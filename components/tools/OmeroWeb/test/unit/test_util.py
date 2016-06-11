@@ -22,9 +22,13 @@
 Simple unit tests for the "webclient_utils" module.
 """
 
+import pytest
+import json
+
+from django.core.urlresolvers import reverse
+from omeroweb.utils import reverse_with_params
 from omeroweb.webclient.webclient_utils import formatPercentFraction
 from omeroweb.webclient.webclient_utils import getDateTime
-import pytest
 
 
 class TestUtil(object):
@@ -53,3 +57,20 @@ class TestUtil(object):
             getDateTime("invalid")
         with pytest.raises(ValueError):
             getDateTime("2015-12-01")
+
+    @pytest.mark.parametrize('top_links', [(
+        ('{"viewname": "load_template", "args": ["userdata"],'
+         '"query_string": {"experimenter": -1}}'),
+        "/webclient/userdata/?experimenter=-1"),
+        ('{"viewname": "webindex", "query_string": {"foo": "bar"}}',
+         "/webclient/?foo=bar"),
+        ("history", "/webclient/history/")
+        ])
+    def test_reverse_with_params(self, top_links):
+        try:
+            top_link = json.loads(top_links[0])
+            assert reverse_with_params(**top_link) == top_links[1]
+        except:
+            top_link = top_links[0]
+            assert reverse_with_params(top_link) == reverse(top_link) \
+                == top_links[1]
