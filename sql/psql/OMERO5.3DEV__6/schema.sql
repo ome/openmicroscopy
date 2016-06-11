@@ -1971,6 +1971,34 @@
         unique (parent, child, owner_id)
     );;
 
+    create table projectiondef (
+        id int8 not null,
+        active bool not null,
+        axis varchar(255) not null,
+        permissions int8 not null,
+        end nonnegative_int,
+        start nonnegative_int,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        renderingDef int8,
+        type int8 not null,
+        renderingDef_index int4 not null,
+        primary key (id),
+        unique (renderingDef, renderingDef_index)
+    );;
+
+    create table projectiontype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
     create table pulse (
         id int8 not null,
         permissions int8 not null,
@@ -5354,6 +5382,46 @@
         add constraint FKprojectdatasetlink_parent_project 
         foreign key (parent) 
         references project  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_type_projectiontype 
+        foreign key (type) 
+        references projectiontype  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_renderingDef_renderingdef 
+        foreign key (renderingDef) 
+        references renderingdef  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table projectiontype 
+        add constraint FKprojectiontype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table pulse 
         add constraint FKpulse_external_id_externalinfo 

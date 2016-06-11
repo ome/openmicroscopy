@@ -1393,6 +1393,18 @@ insert into pixelstype (id,permissions,value)
     select ome_nextval('seq_pixelstype'),-35,'double-complex' from pixelstype where not exists(
         select 1 from pixelstype where value = 'double-complex') limit 1;
 
+insert into projectiontype (id,permissions,value)
+    select ome_nextval('seq_projectiontype'),-35,'maximum' from projectiontype where not exists(
+        select 1 from projectiontype where value = 'maximum') limit 1;
+
+insert into projectiontype (id,permissions,value)
+    select ome_nextval('seq_projectiontype'),-35,'mean' from projectiontype where not exists(
+        select 1 from projectiontype where value = 'mean') limit 1;
+
+insert into projectiontype (id,permissions,value)
+    select ome_nextval('seq_projectiontype'),-35,'sum' from projectiontype where not exists(
+        select 1 from projectiontype where value = 'sum') limit 1;
+
 insert into pulse (id,permissions,value)
     select ome_nextval('seq_pulse'),-35,'CW' from pulse where not exists(
         select 1 from pulse where value = 'CW') limit 1;

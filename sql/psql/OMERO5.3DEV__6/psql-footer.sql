@@ -242,6 +242,35 @@
         BEFORE UPDATE ON pixels
         FOR EACH ROW EXECUTE PROCEDURE pixels_image_index_move ();
 
+  CREATE OR REPLACE FUNCTION projectiondef_renderingDef_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.renderingDef = old.renderingDef AND new.renderingDef_index = old.renderingDef_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM projectiondef
+       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping projectiondef %% via (-1 - oldvalue )'', duplicate;
+          UPDATE projectiondef SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+  CREATE TRIGGER projectiondef_renderingDef_index_trigger
+        BEFORE UPDATE ON projectiondef
+        FOR EACH ROW EXECUTE PROCEDURE projectiondef_renderingDef_index_move ();
+
   CREATE OR REPLACE FUNCTION shape_roi_index_move() RETURNS "trigger" AS '
     DECLARE
       duplicate INT8;
@@ -609,6 +638,10 @@
   CREATE INDEX i_projectdatasetlink_group ON projectdatasetlink(group_id);
   CREATE INDEX i_ProjectDatasetLink_parent ON projectdatasetlink(parent);
   CREATE INDEX i_ProjectDatasetLink_child ON projectdatasetlink(child);
+  CREATE INDEX i_projectiondef_owner ON projectiondef(owner_id);
+  CREATE INDEX i_projectiondef_group ON projectiondef(group_id);
+  CREATE INDEX i_ProjectionDef_renderingDef ON projectiondef(renderingDef);
+  CREATE INDEX i_ProjectionDef_type ON projectiondef(type);
   CREATE INDEX i_quantumdef_owner ON quantumdef(owner_id);
   CREATE INDEX i_quantumdef_group ON quantumdef(group_id);
   CREATE INDEX i_reagent_owner ON reagent(owner_id);
@@ -888,6 +921,8 @@ CREATE SEQUENCE seq_plateannotationlink; INSERT INTO _lock_ids (name, id) SELECT
 CREATE SEQUENCE seq_project; INSERT INTO _lock_ids (name, id) SELECT 'seq_project', nextval('_lock_seq');
 CREATE SEQUENCE seq_projectannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_projectdatasetlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectdatasetlink', nextval('_lock_seq');
+CREATE SEQUENCE seq_projectiondef; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectiondef', nextval('_lock_seq');
+CREATE SEQUENCE seq_projectiontype; INSERT INTO _lock_ids (name, id) SELECT 'seq_projectiontype', nextval('_lock_seq');
 CREATE SEQUENCE seq_pulse; INSERT INTO _lock_ids (name, id) SELECT 'seq_pulse', nextval('_lock_seq');
 CREATE SEQUENCE seq_quantumdef; INSERT INTO _lock_ids (name, id) SELECT 'seq_quantumdef', nextval('_lock_seq');
 CREATE SEQUENCE seq_reagent; INSERT INTO _lock_ids (name, id) SELECT 'seq_reagent', nextval('_lock_seq');
@@ -2751,6 +2786,12 @@ insert into pixelstype (id,permissions,value)
     select ome_nextval('seq_pixelstype'),-52,'complex';
 insert into pixelstype (id,permissions,value)
     select ome_nextval('seq_pixelstype'),-52,'double-complex';
+insert into projectiontype (id,permissions,value)
+    select ome_nextval('seq_projectiontype'),-52,'maximum';
+insert into projectiontype (id,permissions,value)
+    select ome_nextval('seq_projectiontype'),-52,'mean';
+insert into projectiontype (id,permissions,value)
+    select ome_nextval('seq_projectiontype'),-52,'sum';
 insert into pulse (id,permissions,value)
     select ome_nextval('seq_pulse'),-52,'CW';
 insert into pulse (id,permissions,value)
