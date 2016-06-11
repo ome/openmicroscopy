@@ -67,7 +67,7 @@
 		<!-- Note: ProjectionDef is not in model-->
 		<properties>
 			<manyzero name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
-			<required name="axis" type="string"/>
+			<required name="axis" type="ome.model.enums.ProjectionAxis"/>
 			<required name="type" type="ome.model.enums.ProjectionType"/>
 			<required name="active" type="boolean"/>
 			<optional name="start" type="NonNegativeInteger"/>
@@ -127,6 +127,13 @@
 		<entry name="polynomial"/>
 		<entry name="exponential"/>
 		<entry name="logarithmic"/>
+	</enum>
+	<enum id="ome.model.enums.ProjectionAxis">
+		<!-- Note: ProjectionAxis is not in model-->
+		<entry name="T"/>
+		<entry name="ModuloT"/>
+		<entry name="Z"/>
+		<entry name="ModuloZ"/>
 	</enum>
 	<enum id="ome.model.enums.ProjectionType">
 		<!-- Note: ProjectionType is not in model-->
