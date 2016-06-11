@@ -66,12 +66,12 @@
 	<type id="ome.model.display.ProjectionDef">
 		<!-- Note: ProjectionDef is not in model-->
 		<properties>
-			<manyzero name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
+			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
 			<required name="axis" type="ome.model.enums.ProjectionAxis"/>
 			<required name="type" type="ome.model.enums.ProjectionType"/>
 			<required name="active" type="boolean"/>
-			<optional name="start" type="NonNegativeInteger"/>
-			<optional name="end" type="NonNegativeInteger"/>
+			<optional name="startPlane" type="NonNegativeInteger"/>
+			<optional name="endPlane" type="NonNegativeInteger"/>
 		</properties>
 	</type>
 
