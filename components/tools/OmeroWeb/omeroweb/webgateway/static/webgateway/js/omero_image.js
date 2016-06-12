@@ -379,7 +379,6 @@
                     min = $sl.slider( "option", "min" );
                 $sl.slider('values', 0, Math.min(new_start, end));    // ensure start < end
                 $sl.slider( "option", "min", Math.min(min, new_start) );   // extend range if needed
-                show_change($('#wblitz-ch'+i+'-cw-start').get(0), channels[i].window.start, 'changed');
             };
         };
         var end_cb = function (i) {
@@ -390,7 +389,6 @@
                     max = $sl.slider( "option", "max" );
                 $sl.slider('values', 1, Math.max(new_end, start));    // ensure end > start
                 $sl.slider( "option", "max", Math.max(max, new_end) );   // extend range if needed
-                show_change($('#wblitz-ch'+i+'-cw-end').get(0), channels[i].window.end, 'changed');
             };
         };
         var slide_start_cb = function() {
@@ -472,12 +470,8 @@
                 .replace(/\$cwl/g, channels[i].label) // Wavelength
                 .replace(/\$cls/g, i/2!=parseInt(i/2, 10)?'even':'odd') // class
             );
-            $('#wblitz-ch'+(i)+'-cw').rangewidget({
-                min: channels[i].window.min,
-                max: channels[i].window.max,
-                template: '<td width="10%"><span class="min" title="min: $min">$start</span></td><td><div class="rangeslider" id="wblitz-ch'+i+'-cwslider"></div></td> <td width="10%"><span class="max" title="max: $max">$end</span></td>',
-                lblStart: '',
-                lblEnd: ''});
+
+            $('#wblitz-ch'+(i)+'-cw').append('<td width="10%"><span class="min" title="min: ' + channels[i].window.min + '"><input type="text" id="wblitz-ch' + i + '-cw-start" /></span></td><td><div class="rangeslider" id="wblitz-ch' + i + '-cwslider"></div></td> <td width="10%"><span class="max" title="max: ' + channels[i].window.max + '"><input type="text" id="wblitz-ch' + i + '-cw-end" /></span></td>');
             init_ch_slider(i, channels);
             $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).unbind('change').bind('change', start_cb(i));
             $('#wblitz-ch'+i+'-cw-start').keyup(keyup_cb());
