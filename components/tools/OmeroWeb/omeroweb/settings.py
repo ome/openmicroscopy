@@ -602,7 +602,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " <ref/urlresolvers/#django.core.urlresolvers.reverse>`. "
           "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\":"
           " \"load_template\", \"args\":[\"userdata\"], \"query_string\":"
-          " \"experimenter=-1\"}'``")],
+          " {\"experimenter\": -1}}'``")],
     "omero.web.apps":
         ["ADDITIONAL_APPS",
          '[]',
