@@ -1051,12 +1051,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'omeroweb.feedback',
-    'omeroweb.webadmin',
-    'omeroweb.webclient',
-    'omeroweb.webgateway',
-    'omeroweb.webredirect',
-    'pipeline',
 )
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to
@@ -1082,6 +1076,15 @@ for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
         report_settings(module.settings)
     except ImportError:
         logger.debug("Couldn't import settings from app: %s" % app)
+
+INSTALLED_APPS += (
+    'omeroweb.feedback',
+    'omeroweb.webadmin',
+    'omeroweb.webclient',
+    'omeroweb.webgateway',
+    'omeroweb.webredirect',
+    'pipeline',
+)
 
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 
