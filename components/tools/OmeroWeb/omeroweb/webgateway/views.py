@@ -41,8 +41,8 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
-from api_marshal import marshal_projects, marshal_datasets, \
-    omero_marshal_datasets, \
+from api_marshal import marshal_projects, omero_marshal_projects, \
+    marshal_datasets, omero_marshal_datasets, \
     marshal_images, marshal_screens, marshal_plates, \
     marshal_plate_acquisitions, marshal_orphaned, \
     marshal_tags, marshal_tagged, \
@@ -1496,6 +1496,40 @@ def api_project_list(request, conn=None, **kwargs):
         return HttpResponseServerError(e.message)
 
     return {'projects': projects}
+
+
+@login_required()
+@jsonp
+def api_projects(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        # group_id = getIntOrDefault(request, 'group', -1)
+        # experimenter_id = getIntOrDefault(request, 'owner', -1)
+        normalize = request.REQUEST.get('normalize', False)
+        normalize = not not normalize
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the projects
+        n = time.time()
+        projects = omero_marshal_projects(conn,
+                                          childCount=True,
+                                          page=page,
+                                          limit=limit,
+                                          normalize=normalize)
+        print time.time() - n, 'api_projects (omero-marshal)', len(projects)
+
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return projects
 
 
 @login_required()

@@ -342,6 +342,60 @@ def marshal_projects(conn, group_id=-1, experimenter_id=-1,
     return projects
 
 
+def omero_marshal_projects(conn, childCount=False,
+                           page=1, limit=settings.PAGE,
+                           normalize=False):
+
+    qs = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    if page:
+        params.page((page-1) * limit, limit)
+    ctx = {'omero.group': '-1'}
+
+    withChildCount = ""
+    if childCount:
+        withChildCount = """, (select count(id) from ProjectDatasetLink pdl
+                 where pdl.parent=project.id)"""
+    query = "select project %s from Project project" % withChildCount
+
+    query += " order by lower(project.name), project.id"
+
+    ps = []
+    experimenters = {}
+    groups = {}
+
+    if childCount:
+        result = qs.projection(query, params, ctx)
+        encoder = get_encoder(unwrap(result[0][0]).__class__)
+        for p in result:
+            project = encoder.encode(unwrap(p[0]))
+            project['childCount'] = unwrap(p[1])
+            ps.append(project)
+    else:
+        result = qs.findAllByQuery(query, params, ctx)
+        encoder = get_encoder(result[0].__class__)
+        for p in result:
+            project = encoder.encode(p)
+            ps.append(project)
+
+    if not normalize:
+        return {'projects': ps}
+
+    projects = []
+    for project in ps:
+        exp = project['omero:details']['owner']
+        experimenters[exp['@id']] = exp
+        project['omero:details']['owner'] = {'@id': exp['@id']}
+        grp = project['omero:details']['group']
+        groups[grp['@id']] = grp
+        project['omero:details']['group'] = {'@id': grp['@id']}
+        projects.append(project)
+
+    return {'projects': projects,
+            'experimenters': experimenters,
+            'groups': groups}
+
+
 def _marshal_dataset(conn, row):
     ''' Given a Dataset row (list) marshals it into a dictionary.  Order
         and type of columns in row is:

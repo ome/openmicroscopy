@@ -441,10 +441,16 @@ Filter by 'group' or 'owner' ids in query.
 Also supports 'page' and 'limit' parameters for pagination.
 """
 
-api_project_list = url(r'^api/projects/$', views.api_project_list,
-                       name='api_projects')
+api_project_list = url(r'^api/p/projects/$', views.api_project_list,
+                       name='api_project_list')
 """
 List all projects.
+"""
+
+api_projects = url(r'^api/m/projects/$', views.api_projects,
+                   name='api_projects')
+"""
+List all projects, using omero-marshal to generate json.
 """
 
 api_dataset_list = url(r'^api/p/datasets/$', views.api_dataset_list,
@@ -456,7 +462,7 @@ List all datasets.  To list datasets within a Project, use ?id=projectId
 api_datasets = url(r'^api/m/datasets/$', views.api_datasets,
                    name='api_datasets')
 """
-List all datasets, using omero-marshal to p
+List all datasets, using omero-marshal to generate json.
 To list datasets within a Project, use ?id=projectId
 """
 
@@ -571,6 +577,7 @@ urlpatterns = patterns(
     api_shares,
 
     # api omero-marshal
+    api_projects,
     api_datasets
 
     # Debug stuff
