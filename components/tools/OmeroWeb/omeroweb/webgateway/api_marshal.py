@@ -361,9 +361,6 @@ def omero_marshal_projects(conn, childCount=False,
     query += " order by lower(project.name), project.id"
 
     ps = []
-    experimenters = {}
-    groups = {}
-
     if childCount:
         result = qs.projection(query, params, ctx)
         encoder = get_encoder(unwrap(result[0][0]).__class__)
@@ -380,20 +377,27 @@ def omero_marshal_projects(conn, childCount=False,
 
     if not normalize:
         return {'projects': ps}
+    projects, objects = normalize_objects(ps)
+    objects['projects'] = projects
+    return objects
 
-    projects = []
-    for project in ps:
-        exp = project['omero:details']['owner']
+
+def normalize_objects(objects):
+
+    experimenters = {}
+    groups = {}
+    objs = []
+    for o in objects:
+        exp = o['omero:details']['owner']
         experimenters[exp['@id']] = exp
-        project['omero:details']['owner'] = {'@id': exp['@id']}
-        grp = project['omero:details']['group']
+        o['omero:details']['owner'] = {'@id': exp['@id']}
+        grp = o['omero:details']['group']
         groups[grp['@id']] = grp
-        project['omero:details']['group'] = {'@id': grp['@id']}
-        projects.append(project)
-
-    return {'projects': projects,
-            'experimenters': experimenters,
-            'groups': groups}
+        o['omero:details']['group'] = {'@id': grp['@id']}
+        objs.append(o)
+    experimenters = experimenters.values()
+    groups = groups.values()
+    return objs, {'experimenters': experimenters, 'groups': groups}
 
 
 def _marshal_dataset(conn, row):
@@ -450,9 +454,6 @@ def omero_marshal_datasets(conn, project_id=None, childCount=False,
     query += " order by lower(dataset.name), dataset.id"
 
     ds = []
-    experimenters = {}
-    groups = {}
-
     if childCount:
         result = qs.projection(query, params, ctx)
         encoder = get_encoder(unwrap(result[0][0]).__class__)
@@ -469,20 +470,9 @@ def omero_marshal_datasets(conn, project_id=None, childCount=False,
 
     if not normalize:
         return {'datasets': ds}
-
-    datasets = []
-    for dataset in ds:
-        exp = dataset['omero:details']['owner']
-        experimenters[exp['@id']] = exp
-        dataset['omero:details']['owner'] = {'@id': exp['@id']}
-        grp = dataset['omero:details']['group']
-        groups[grp['@id']] = grp
-        dataset['omero:details']['group'] = {'@id': grp['@id']}
-        datasets.append(dataset)
-
-    return {'datasets': datasets,
-            'experimenters': experimenters,
-            'groups': groups}
+    datasets, objects = normalize_objects(ds)
+    objects['datasets'] = datasets
+    return objects
 
 
 def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
