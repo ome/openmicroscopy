@@ -447,10 +447,17 @@ api_project_list = url(r'^api/projects/$', views.api_project_list,
 List all projects.
 """
 
-api_dataset_list = url(r'^api/datasets/$', views.api_dataset_list,
-                       name='api_datasets')
+api_dataset_list = url(r'^api/p/datasets/$', views.api_dataset_list,
+                       name='api_dataset_list')
 """
 List all datasets.  To list datasets within a Project, use ?id=projectId
+"""
+
+api_datasets = url(r'^api/m/datasets/$', views.api_datasets,
+                   name='api_datasets')
+"""
+List all datasets, using omero-marshal to p
+To list datasets within a Project, use ?id=projectId
 """
 
 api_image_list = url(r'^api/images/$', views.api_image_list,
@@ -562,6 +569,9 @@ urlpatterns = patterns(
     api_plate_acquisition_list,
     api_tags_and_tagged,
     api_shares,
+
+    # api omero-marshal
+    api_datasets
 
     # Debug stuff
 

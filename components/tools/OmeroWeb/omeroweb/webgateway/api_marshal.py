@@ -373,7 +373,8 @@ def _marshal_dataset(conn, row):
 
 
 def omero_marshal_datasets(conn, project_id=None, childCount=False,
-                           page=1, limit=settings.PAGE):
+                           page=1, limit=settings.PAGE,
+                           normalize=False):
 
     qs = conn.getQueryService()
     params = omero.sys.ParametersI()
@@ -394,21 +395,40 @@ def omero_marshal_datasets(conn, project_id=None, childCount=False,
 
     query += " order by lower(dataset.name), dataset.id"
 
-    datasets = []
+    ds = []
+    experimenters = {}
+    groups = {}
+
     if childCount:
         result = qs.projection(query, params, ctx)
         encoder = get_encoder(unwrap(result[0][0]).__class__)
         for d in result:
-            ds = encoder.encode(unwrap(d[0]))
-            ds['childCount'] = unwrap(d[1])
-            datasets.append(ds)
+            dataset = encoder.encode(unwrap(d[0]))
+            dataset['childCount'] = unwrap(d[1])
+            ds.append(dataset)
     else:
         result = qs.findAllByQuery(query, params, ctx)
         encoder = get_encoder(result[0].__class__)
         for d in result:
-            datasets.append(encoder.encode(d))
+            dataset = encoder.encode(d)
+            ds.append(dataset)
 
-    return datasets
+    if not normalize:
+        return {'datasets': ds}
+
+    datasets = []
+    for dataset in ds:
+        exp = dataset['omero:details']['owner']
+        experimenters[exp['@id']] = exp
+        dataset['omero:details']['owner'] = {'@id': exp['@id']}
+        grp = dataset['omero:details']['group']
+        groups[grp['@id']] = grp
+        dataset['omero:details']['group'] = {'@id': grp['@id']}
+        datasets.append(dataset)
+
+    return {'datasets': datasets,
+            'experimenters': experimenters,
+            'groups': groups}
 
 
 def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,

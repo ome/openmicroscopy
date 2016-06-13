@@ -1507,7 +1507,7 @@ def api_dataset_list(request, conn=None, **kwargs):
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group_id = getIntOrDefault(request, 'group', -1)
         experimenter_id = getIntOrDefault(request, 'owner', -1)
-        project_id = getIntOrDefault(request, 'id', None)
+        project_id = getIntOrDefault(request, 'project', None)
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
 
@@ -1521,33 +1521,7 @@ def api_dataset_list(request, conn=None, **kwargs):
                                     childCount=True,
                                     page=page,
                                     limit=limit)
-        print time.time() - n, 'Projection childCount', len(datasets)
-
-        # time.sleep(1)
-        n = time.time()
-        datasets = marshal_datasets(conn=conn,
-                                    project_id=project_id,
-                                    group_id=group_id,
-                                    experimenter_id=experimenter_id,
-                                    childCount=False,
-                                    page=page,
-                                    limit=limit)
-        print time.time() - n, 'Projection', len(datasets)
-
-        n = time.time()
-        datasets = omero_marshal_datasets(conn,
-                                          project_id=project_id,
-                                          childCount=True,
-                                          page=page,
-                                          limit=limit)
-        print time.time() - n, 'omero-marshal childCount', len(datasets)
-
-        n = time.time()
-        datasets = omero_marshal_datasets(conn,
-                                          project_id=project_id,
-                                          page=page,
-                                          limit=limit)
-        print time.time() - n, 'omero-marshal', len(datasets)
+        print time.time() - n, 'api_dataset_list (projection)', len(datasets)
 
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
@@ -1557,6 +1531,41 @@ def api_dataset_list(request, conn=None, **kwargs):
         return HttpResponseServerError(e.message)
 
     return {'datasets': datasets}
+
+@login_required()
+@jsonp
+def api_datasets(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
+        project_id = getIntOrDefault(request, 'project', None)
+        normalize = request.REQUEST.get('normalize', False)
+        normalize = not not normalize
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the datasets
+        n = time.time()
+        datasets = omero_marshal_datasets(conn,
+                                          project_id=project_id,
+                                          childCount=True,
+                                          page=page,
+                                          limit=limit,
+                                          normalize=normalize)
+        print time.time() - n, 'api_datasets (omero-marshal)', len(datasets)
+
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return datasets
 
 
 @login_required()
