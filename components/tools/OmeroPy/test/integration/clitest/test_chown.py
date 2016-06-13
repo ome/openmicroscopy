@@ -24,6 +24,7 @@
 import omero
 from omero.plugins.chown import ChownControl
 from test.integration.clitest.cli import CLITest, RootCLITest
+from test.integration.clitest.test_tag import AbstractTagTest
 import pytest
 
 object_types = ["Image", "Dataset", "Project", "Plate", "Screen"]
@@ -535,6 +536,52 @@ class TestChown(CLITest):
         assert oids[2] == ids[5]
         # ... and the final separate single id.
         assert oids[3] == ids[7]
+
+
+class TestTagChown(AbstractTagTest):
+
+    DEFAULT_GROUP_OWNER = True
+
+    def setup_method(self, method):
+        super(AbstractTagTest, self).setup_method(method)
+        self.cli.register("chown", ChownControl, "TEST")
+        self.args += ["chown"]
+        # Create two tags sets with two tags each, one in common
+        tag_name = self.uuid()
+        self.tag_ids = self.create_tags(3, tag_name)
+        self.ts1_id = self.create_tagset(self.tag_ids[:2], tag_name)
+        self.ts2_id = self.create_tagset(self.tag_ids[1:], tag_name)
+
+    def teardown_method(self, method):
+        pass
+
+    def testChownOneTagSetWithUniqueTags(self):
+        # Create user and transfer one tagset to the user
+        client, user = self.new_client_and_user(group=self.group)
+        self.args += ['%s' % user.id.val]
+        self.args += ['TagAnnotation:%s' % self.ts1_id]
+        self.args += ['--report']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check the tagset and the tag unique to the tagset
+        # transfer. Check that the tag shared with the other
+        # tagset and the other tagset with its unique tag
+        # still belong to original owner.
+        obj = self.query.get('TagAnnotation', self.ts1_id, all_grps)
+        assert obj.id.val == self.ts1_id
+        assert obj.details.owner.id.val == user.id.val
+        obj = self.query.get('TagAnnotation', self.tag_ids[0], all_grps)
+        assert obj.id.val == self.tag_ids[0]
+        assert obj.details.owner.id.val == user.id.val
+        obj = self.query.get('TagAnnotation', self.tag_ids[1], all_grps)
+        assert obj.id.val == self.tag_ids[1]
+        assert obj.details.owner.id.val == self.user.id.val
+        obj = self.query.get('TagAnnotation', self.tag_ids[2], all_grps)
+        assert obj.id.val == self.tag_ids[2]
+        assert obj.details.owner.id.val == self.user.id.val
+        obj = self.query.get('TagAnnotation', self.ts2_id, all_grps)
+        assert obj.id.val == self.ts2_id
+        assert obj.details.owner.id.val == self.user.id.val
 
 
 class TestChownRoot(RootCLITest):
