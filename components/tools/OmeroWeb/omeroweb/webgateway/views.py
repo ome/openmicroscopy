@@ -1532,6 +1532,7 @@ def api_dataset_list(request, conn=None, **kwargs):
 
     return {'datasets': datasets}
 
+
 @login_required()
 @jsonp
 def api_datasets(request, conn=None, **kwargs):
@@ -1539,8 +1540,8 @@ def api_datasets(request, conn=None, **kwargs):
     try:
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
-        group_id = getIntOrDefault(request, 'group', -1)
-        experimenter_id = getIntOrDefault(request, 'owner', -1)
+        # group_id = getIntOrDefault(request, 'group', -1)
+        # experimenter_id = getIntOrDefault(request, 'owner', -1)
         project_id = getIntOrDefault(request, 'project', None)
         normalize = request.REQUEST.get('normalize', False)
         normalize = not not normalize
