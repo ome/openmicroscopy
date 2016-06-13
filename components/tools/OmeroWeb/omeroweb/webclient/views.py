@@ -1643,7 +1643,11 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             'c': ",".join(chs),
             'm': r['model'] == 'greyscale' and 'g' or 'c'
             })
+    maxW, maxH = conn.getMaxPlaneSize()
+    sizeX = manager.image.getSizeX()
+    sizeY = manager.image.getSizeY()
 
+    context['tiledImage'] = (sizeX * sizeY) > (maxW * maxH)
     context['manager'] = manager
     context['rdefsJson'] = json.dumps(rdefQueries)
     context['rdefs'] = rdefs
