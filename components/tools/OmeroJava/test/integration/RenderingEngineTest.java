@@ -36,6 +36,10 @@ import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.ProjectionAxisI;
+import omero.model.ProjectionDef;
+import omero.model.ProjectionDefI;
+import omero.model.ProjectionTypeI;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.RenderingModel;
@@ -1868,5 +1872,65 @@ public class RenderingEngineTest extends AbstractServerTest {
         }
         re.saveCurrentSettings();
         re.close();
+    }
+
+    /**
+     * Tests the retrieval of projection def
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderingEngineProjectionDef() throws Exception {
+        File f = File.createTempFile("testRenderingEngineGetters", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        //create the rendering def
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        re.close();
+        //create projectionDef for now using IUpdate
+        ProjectionDef pDef = new ProjectionDefI();
+        pDef.setActive(omero.rtypes.rbool(true));
+        pDef.setStartPlane(omero.rtypes.rint(0));
+        pDef.setEndPlane(omero.rtypes.rint(1));
+        ProjectionAxisI projection = new ProjectionAxisI();
+        projection.setValue(omero.rtypes.rstring("Z"));
+        pDef.setAxis(projection);
+        ProjectionTypeI type = new ProjectionTypeI();
+        type.setValue(omero.rtypes.rstring("maximum"));
+        pDef.setType(type);
+        // retrieve the rendering def
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        assertNotNull(def);
+        pDef.setRenderingDef(def);
+        factory.getUpdateService().saveAndReturnObject(def);
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ProjectionDef> list = def.copyProjections();
+        assertNotNull(list);
+        assertEquals(1, list.size());
+        ProjectionDef savedDef = def.getProjectionDef(0);
+        assertEquals(true, savedDef.getActive().getValue());
+        assertEquals(0, savedDef.getStartPlane().getValue());
+        assertEquals(1, savedDef.getEndPlane().getValue());
+        assertEquals("Z", savedDef.getAxis().getValue().getValue());
+        assertEquals("maximum", savedDef.getType().getValue().getValue());
     }
 }
