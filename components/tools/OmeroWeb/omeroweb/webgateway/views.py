@@ -41,7 +41,9 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
-from api_marshal import marshal_projects, omero_marshal_projects, \
+from api_marshal import omero_marshal_groups, \
+    omero_marshal_experimenters, \
+    marshal_projects, omero_marshal_projects, \
     marshal_datasets, omero_marshal_datasets, \
     marshal_images, marshal_screens, marshal_plates, \
     marshal_plate_acquisitions, marshal_orphaned, \
@@ -1350,6 +1352,33 @@ def api_group_list(request, conn=None, **kwargs):
 
 @login_required()
 @jsonp
+def api_groups(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        member_id = getIntOrDefault(request, 'member', None)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the groups
+        groups = omero_marshal_groups(conn=conn,
+                                      member=member_id,
+                                      page=page,
+                                      limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return groups
+
+
+@login_required()
+@jsonp
 def api_experimenter_list(request, conn=None, **kwargs):
     # Get parameters
     try:
@@ -1398,6 +1427,29 @@ def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
     if experimenter is None:
         raise Http404("experimenter not found")
     return {'experimenter': experimenter}
+
+
+@login_required()
+@jsonp
+def api_experimenters(request, conn=None, **kwargs):
+    # Validate parameter
+    try:
+        group = getIntOrDefault(request, 'group', None)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    # try:
+    print "api_experimenters"
+        # Get the experimenters
+    experimenters = omero_marshal_experimenters(conn=conn, group=group)
+    # except ApiUsageException as e:
+    #     return HttpResponseBadRequest(e.serverStackTrace)
+    # except ServerError as e:
+    #     return HttpResponseServerError(e.serverStackTrace)
+    # except IceException as e:
+    #     return HttpResponseServerError(e.message)
+
+    return experimenters
 
 
 @login_required()

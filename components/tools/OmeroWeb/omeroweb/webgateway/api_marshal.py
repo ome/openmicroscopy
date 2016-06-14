@@ -135,6 +135,38 @@ def marshal_groups(conn, member_id=-1, page=1, limit=settings.PAGE):
     return groups
 
 
+def omero_marshal_groups(conn, member=None, page=1, limit=settings.PAGE):
+
+    qs = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    if page:
+        params.page((page-1) * limit, limit)
+
+    join_clause = ''
+    where_clause = ''
+    if member is not None:
+        params.add('mid', rlong(member))
+        join_clause = ' join grp.groupExperimenterMap grexp '
+        where_clause = ' and grexp.child.id = :mid '
+
+    query = """
+        select grp from ExperimenterGroup grp
+        %s
+        where grp.name != 'user'
+        %s
+        order by lower(grp.name), grp.id
+        """ % (join_clause, where_clause)
+
+    groups = []
+    result = qs.findAllByQuery(query, params, {})
+    encoder = get_encoder(result[0].__class__)
+    for g in result:
+        group = encoder.encode(g)
+        groups.append(group)
+
+    return {'groups': groups}
+
+
 def _marshal_experimenter(conn, row):
     ''' Given an Experimenter row (list) marshals it into a dictionary.  Order
         and type of columns in row is:
@@ -257,6 +289,46 @@ def marshal_experimenter(conn, experimenter_id):
     if len(rows) != 1:
         return None
     return _marshal_experimenter(conn, rows[0][0:5])
+
+
+def omero_marshal_experimenters(conn, group=None,
+                                page=1, limit=settings.PAGE):
+
+    qs = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+
+    if group is None:
+        group = -1
+
+    # This does not actually restrict the results so the restriction to
+    # a certain group is done in the query
+    service_opts.setOmeroGroup(-1)
+
+    # Paging
+    if page is not None and page > 0:
+        params.page((page-1) * limit, limit)
+
+    where_clause = ''
+    if group != -1:
+        params.add('gid', rlong(group))
+        where_clause = '''
+                       join experimenter.groupExperimenterMap grexp
+                       where grexp.parent.id = :gid
+                           '''
+
+    query = """
+        select experimenter
+        from Experimenter experimenter %s
+        order by lower(experimenter.omeName), experimenter.id
+        """ % (where_clause)
+    experimenters = []
+    result = qs.findAllByQuery(query, params, service_opts)
+    for e in result:
+        encoder = get_encoder(e.__class__)
+        experimenter = encoder.encode(e)
+        experimenters.append(experimenter)
+    return {'experimenters': experimenters}
 
 
 def _marshal_project(conn, row):

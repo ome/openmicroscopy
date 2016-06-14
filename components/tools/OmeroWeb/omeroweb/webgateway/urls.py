@@ -407,18 +407,32 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
-api_group_list = url(r'^api/groups/$', views.api_group_list,
-                     name='api_groups')
+api_group_list = url(r'^api/p/groups/$', views.api_group_list,
+                     name='api_group_list')
 """
 List all groups.
 To filter groups that a user is member of, use 'member' query parameter.
 """
 
-api_experimenter_list = url(r'^api/experimenters/$',
+api_groups = url(r'^api/m/groups/$', views.api_groups,
+                 name='api_groups')
+"""
+List all groups. Uses omero-marshal to generate json.
+To filter groups that a user is member of, use 'member' query parameter.
+"""
+
+api_experimenter_list = url(r'^api/p/experimenters/$',
                             views.api_experimenter_list,
-                            name='api_experimenters')
+                            name='api_experimenter_list')
 """
 List all experimenters.
+To show experimenters in a single group, use 'group' query parameter.
+"""
+
+api_experimenters = url(r'^api/m/experimenters/$', views.api_experimenters,
+                        name='api_experimenters')
+"""
+List all experimenters. Uses omero-marshal to create json.
 To show experimenters in a single group, use 'group' query parameter.
 """
 
@@ -577,6 +591,8 @@ urlpatterns = patterns(
     api_shares,
 
     # api omero-marshal
+    api_groups,
+    api_experimenters,
     api_projects,
     api_datasets
 
