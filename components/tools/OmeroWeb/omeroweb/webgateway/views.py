@@ -18,8 +18,10 @@ import json
 import omero
 import omero.clients
 
+from Ice import Exception as IceException
 from django.http import HttpResponse, HttpResponseServerError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
+from django.http import HttpResponseBadRequest
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse
@@ -32,6 +34,7 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
+from api_query import query_projects
 
 try:
     from hashlib import md5
@@ -41,7 +44,7 @@ except:
 from cStringIO import StringIO
 import tempfile
 
-from omero import ApiUsageException
+from omero import ApiUsageException, ServerError
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError
@@ -2493,3 +2496,33 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     tableData['parentId'] = ann['parentId']
     tableData['addedOn'] = ann['addedOn']
     return tableData
+
+
+@login_required()
+@jsonp
+def api_projects(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        normalize = request.REQUEST.get('normalize', False)
+        normalize = not not normalize
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the projects
+        projects = query_projects(conn,
+                                  childCount=True,
+                                  page=page,
+                                  limit=limit,
+                                  normalize=normalize)
+
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return projects

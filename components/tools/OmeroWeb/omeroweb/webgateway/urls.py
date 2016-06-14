@@ -14,6 +14,7 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 from django.conf.urls import url, patterns
+from omeroweb.webgateway import views
 
 webgateway = url(r'^$', 'webgateway.views.index', name="webgateway")
 """
@@ -406,6 +407,12 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+api_projects = url(r'^api/m/projects/$', views.api_projects,
+                   name='api_projects')
+"""
+List all projects, using omero-marshal to generate json.
+"""
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -455,6 +462,7 @@ urlpatterns = patterns(
     table_query,
     object_table_query,
 
-    # Debug stuff
+    # api omero-marshal
+    api_projects,
 
 )
