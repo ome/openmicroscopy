@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -44,13 +45,14 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.ui.HistogramPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WrapLayout;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -137,6 +139,9 @@ class GraphicsPane
     /** The selected item.*/
     private RndProxyDef selectedDef;
 
+    /** Component display the histogram.*/
+    private HistogramPane histogram;
+
     /**
      * Formats the specified value.
      * 
@@ -147,8 +152,7 @@ class GraphicsPane
     {
         if (model.isIntegerPixelData())
             return ""+(int) value;
-        else
-            return UIUtilities.formatToDecimal(value);
+        return UIUtilities.formatToDecimal(value);
     }
 
     /** Initializes the domain slider. */
@@ -174,6 +178,8 @@ class GraphicsPane
     /** Initializes the components. */
     private void initComponents()
     {
+        histogram = new HistogramPane();
+        histogram.setImage(null);
         viewedBy = new JPanel();
         Font font = viewedBy.getFont();
         viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
@@ -217,10 +223,8 @@ class GraphicsPane
         if (model.getModuloT() != null || !model.isLifetimeImage()) {
             List<ChannelData> channels = model.getChannelData();
             Iterator<ChannelData> i = channels.iterator();
-            ChannelSlider slider;
             while (i.hasNext()) {
-                slider = new ChannelSlider(this, model, controller, i.next());
-                sliders.add(slider);
+                sliders.add(new ChannelSlider(this, model, controller, i.next()));
             }
         }
         previewToolBar = new PreviewToolBar(controller, model);
@@ -283,7 +287,11 @@ class GraphicsPane
         
         content.add(greyScale, c);
         c.gridy++;
-        
+
+        content.add(histogram, c);
+        c.gridy++;
+
+        c.weighty = 0;
         Iterator<ChannelSlider> i = sliders.iterator();
         while (i.hasNext())  {
             content.add(i.next(), c);
@@ -352,10 +360,8 @@ class GraphicsPane
     void setSelectedChannel()
     {
         Iterator<ChannelSlider> i = sliders.iterator();
-        ChannelSlider slider;
         while (i.hasNext()) {
-            slider = i.next();
-            slider.setSelectedChannel();
+            i.next().setSelectedChannel();
         }
     }
 
@@ -371,6 +377,24 @@ class GraphicsPane
             e = model.getWindowEnd(slider.getIndex());
             slider.setInterval(s, e);
         }
+    }
+
+    /**
+     * Update the histogram.
+     *
+     * @param start The start value.
+     * @param end The end value.
+     * @param channelIndex The index of the channel.
+     */
+    void updateHistogram(double start, double end, int channelIndex)
+    {
+        //if (channelIndex != model.getSelectedChannel()) {
+            histogram.setImage(model.getHistogramImage(channelIndex));
+        //}
+        double r = (model.getGlobalMax(channelIndex) - model.getGlobalMin(channelIndex)) * 256;
+        double s = (start - model.getGlobalMin(channelIndex))/r;
+        double e = (end - model.getGlobalMin(channelIndex))/r;
+        histogram.setInputWindow(s, e);
     }
 
     /** 
