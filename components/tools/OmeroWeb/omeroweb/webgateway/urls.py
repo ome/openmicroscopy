@@ -407,7 +407,8 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
-api_projects = url(r'^api/m/projects/$', views.api_projects,
+api_projects = url(r'^api/v(?P<version>[^/]+)/m/projects/$',
+                   views.api_projects,
                    name='api_projects')
 """
 List all projects, using omero-marshal to generate json.
