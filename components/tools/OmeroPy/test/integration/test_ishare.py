@@ -1035,6 +1035,32 @@ class TestIShare(lib.ITest):
         with pytest.raises(Glacier2.PermissionDeniedException):
             self.new_client(session=s.uuid)
 
+    def testShareGroup(self):
+        """
+        Add a group to a share to make all data in the group available.
+        """
+        group = self.new_group(perms="rw----")
+        owner = self.new_client(group=group)
+        member, mobj = self.new_client_and_user(group=group)
+
+        createTestImage(owner.sf)
+        image = owner.sf.getQueryService().findAll("Image", None)[0]
+        tablePrx = owner.sf.sharedResources().newTable(1, "testShareGroup.h5")
+        origFile = tablePrx.getOriginalFile()
+        tablePrx.close()
+
+        # TODO: make this an admin only item? or only in shared groups?
+        o_share = owner.sf.getShareService()
+        sid = o_share.createShare("", None, [group], [mobj], [], True)
+
+        m_share = member.sf.getShareService()
+        m_query = member.sf.getQueryService()
+        m_share.activate(sid)
+        m_query.find("Image", image.id.val)
+        tablePrx = member.sf.sharedResources().openTable(origFile)
+        assert tablePrx
+        tablePrx.close()
+
     # Helpers
 
     def assert_access(self, client, sid, success=True):

@@ -44,6 +44,7 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Share;
 import ome.model.meta.ShareMember;
 import ome.model.stats.StatsInfo;
@@ -299,8 +300,18 @@ public class BlobShareStore extends ShareStore implements
          * "left outer join fetch r.quantization "
          */
 
-        List<Long> images = data.objectMap.get(Image.class.getName());
         Session s = session();
+
+        List<Long> groups = data.objectMap.get(ExperimenterGroup.class.getName());
+        if (groups.size() > 0) {
+            ExperimenterGroup g = (ExperimenterGroup) s.createQuery(
+                    String.format("select x.details.group from %s x where x.id = %d", kls.getSimpleName(), objId)).uniqueResult();
+            if (g != null && groups.contains(g.getId())) {
+                return true;
+            }
+        }
+
+        List<Long> images = data.objectMap.get(Image.class.getName());
         if (Pixels.class.isAssignableFrom(kls)) {
             return imagesContainsPixels(s, images, objId, pixToImageCache);
         } else if (RenderingDef.class.isAssignableFrom(kls)) {
