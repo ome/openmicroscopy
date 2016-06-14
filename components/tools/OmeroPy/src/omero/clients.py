@@ -716,16 +716,20 @@ class BaseClient(object):
         finally:
             self.__lock.release()
 
-    def getManagedRepository(self):
-        repoMap = self.getSession().sharedResources().repositories()
+    def getManagedRepository(self, description=False):
+        repos = self.getSession().sharedResources().repositories()
+        repoMap = zip(repos.proxies, repos.descriptions)
         prx = None
-        for prx in repoMap.proxies:
+        for (prx, desc) in repoMap:
             if not prx:
                 continue
             prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
             if prx:
                 break
-        return prx
+        if description:
+            return(prx, desc)
+        else:
+            return prx
 
     def getRouter(self, comm):
         """
