@@ -2505,6 +2505,8 @@ def api_projects(request, conn=None, **kwargs):
     try:
         page = getIntOrDefault(request, 'page', 1)
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group = getIntOrDefault(request, 'group', -1)
+        owner = getIntOrDefault(request, 'owner', -1)
         normalize = request.REQUEST.get('normalize', False)
         normalize = not not normalize
     except ValueError as ex:
@@ -2513,6 +2515,8 @@ def api_projects(request, conn=None, **kwargs):
     try:
         # Get the projects
         projects = query_projects(conn,
+                                  group=group,
+                                  owner=owner,
                                   childCount=True,
                                   page=page,
                                   limit=limit,

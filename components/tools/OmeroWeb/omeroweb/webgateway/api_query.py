@@ -21,13 +21,15 @@
 
 import omero
 
-from omero.rtypes import unwrap
+from omero.rtypes import unwrap, rlong
 from django.conf import settings
 
 from api_marshal import marshal_projects
+from copy import deepcopy
 
 
 def query_projects(conn, childCount=False,
+                   group=None, owner=None,
                    page=1, limit=settings.PAGE,
                    normalize=False):
 
@@ -35,15 +37,29 @@ def query_projects(conn, childCount=False,
     params = omero.sys.ParametersI()
     if page:
         params.page((page-1) * limit, limit)
-    ctx = {'omero.group': '-1'}
+    ctx = deepcopy(conn.SERVICE_OPTS)
+
+    # Set the desired group context and owner
+    if group is None:
+        group = -1
+    ctx.setOmeroGroup(group)
+    where_clause = ''
+    if owner is not None and owner != -1:
+        params.add('owner', rlong(owner))
+        where_clause = 'where project.details.owner.id = :owner'
 
     withChildCount = ""
     if childCount:
         withChildCount = """, (select count(id) from ProjectDatasetLink pdl
                  where pdl.parent=project.id)"""
-    query = "select project %s from Project project" % withChildCount
 
-    query += " order by lower(project.name), project.id"
+    # Need to load owners specifically, else can be unloaded if group != -1
+    query = """
+            select project %s from Project project
+            join fetch project.details.owner
+            %s
+            order by lower(project.name), project.id
+            """ % (withChildCount, where_clause)
 
     projects = []
     extras = []
