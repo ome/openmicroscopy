@@ -62,27 +62,13 @@ public class HistogramPane extends JPanel
     /** The histogram.*/
     private HistogramDataset dataset;
 
-    /**
-     * Sets the value for the specified marker.
-     *
-     * @param value The value to set.
-     * @param marker The marker to handle.
-     */
-    private void formatMarker(double value, ValueMarker marker)
-    {
-        marker.setValue(value);
-        marker.setLabel(""+value);
-    }
-
     /** Initializes the component.*/
     private void initialize()
     {
         dataset = new HistogramDataset();
         markerStart = new ValueMarker(0);
-        markerStart.setLabel(""+0);
         markerStart.setPaint(MARKER_COLOR);
-        markerEnd = new ValueMarker(1);
-        markerEnd.setLabel(""+1);
+        markerEnd = new ValueMarker(SIZE);
         markerEnd.setPaint(MARKER_COLOR);
     }
 
@@ -103,7 +89,7 @@ public class HistogramPane extends JPanel
         xybarrenderer.setBarPainter(new StandardXYBarPainter());
         xybarrenderer.setDrawBarOutline(false);
         ChartPanel jpanel = new ChartPanel(jfreechart);
-        jpanel.setPreferredSize(new Dimension(500, 300));
+        jpanel.setPreferredSize(new Dimension(400, 200));
         add(jpanel);
     }
 
@@ -145,8 +131,8 @@ public class HistogramPane extends JPanel
      */
     public void setInputWindow(double start, double end)
     {
-        formatMarker(end, markerEnd);
-        formatMarker(start, markerStart);
+        markerEnd.setValue(end*SIZE);
+        markerStart.setValue(start*SIZE);
     }
 
 }

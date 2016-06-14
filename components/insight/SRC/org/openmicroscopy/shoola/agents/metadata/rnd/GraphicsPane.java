@@ -388,10 +388,9 @@ class GraphicsPane
      */
     void updateHistogram(double start, double end, int channelIndex)
     {
-        //if (channelIndex != model.getSelectedChannel()) {
-            histogram.setImage(model.getHistogramImage(channelIndex));
-        //}
-        double r = (model.getGlobalMax(channelIndex) - model.getGlobalMin(channelIndex)) * 256;
+        histogram.setImage(model.getHistogramImage(channelIndex));
+        double r = (model.getGlobalMax(channelIndex) -
+                model.getGlobalMin(channelIndex));
         double s = (start - model.getGlobalMin(channelIndex))/r;
         double e = (end - model.getGlobalMin(channelIndex))/r;
         histogram.setInputWindow(s, e);
