@@ -311,7 +311,7 @@ Check Right Panel Image
 Wait Until Center Panel Loads
     [Arguments]                     ${containerType}
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="content_details"]/div[1]
-    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="filtersearch"]/div/label[contains(text(),'Filter Images')]
+    Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//form[@id="filtersearch"]/select[@id="choosefilter"]
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      xpath=//*[@id="icon_layout"][contains(@title,"View as Thumbnails")][contains(@class,"checked")]
     Run Keyword If                  '${containerType}' == 'Dataset'        Wait Until Element Is Visible      //*[@id="table_layout"][contains(@title,"View as List")]    
     
