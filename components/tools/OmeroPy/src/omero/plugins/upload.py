@@ -13,6 +13,7 @@
 
 import sys
 import re
+import path
 
 from omero.cli import BaseControl, CLI
 
@@ -57,6 +58,9 @@ class UploadControl(BaseControl):
     def upload(self, args):
         client = self.ctx.conn(args)
         objIds = []
+        for file in args.file:
+            if not path.path(file).exists():
+                self.ctx.die(500, "File: %s does not exist" % file)
         for file in args.file:
             is_importer, omero_format = \
                 omero.util.originalfileutils.getFormat(file)
