@@ -377,15 +377,6 @@ class TestChown(CLITest):
         assert obj.details.owner.id.val == self.user.id.val
 
     # Test combinations of include and exclude other than annotations
-    @pytest.fixture()
-    def simpleHierarchy(self):
-        proj = self.make_project()
-        dset = self.make_dataset()
-        img = self.update.saveAndReturnObject(self.new_image())
-        self.link(proj, dset)
-        self.link(dset, img)
-        return proj, dset, img
-
     def testExcludeNone(self, simpleHierarchy):
         proj, dset, img = simpleHierarchy
 
