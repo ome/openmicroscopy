@@ -56,6 +56,7 @@ class UploadControl(BaseControl):
 
     def upload(self, args):
         client = self.ctx.conn(args)
+        objIds = []
         for file in args.file:
             is_importer, omero_format = \
                 omero.util.originalfileutils.getFormat(file)
@@ -64,8 +65,11 @@ class UploadControl(BaseControl):
                              " import")
             else:
                 obj = client.upload(file, type=omero_format)
-                self.ctx.out("Uploaded %s as " % file + str(obj.id.val))
+                objIds.append(obj.id.val)
                 self.ctx.set("last.upload.id", obj.id.val)
+
+        objIds = self._order_and_range_ids(objIds)
+        self.ctx.out("OriginalFile:%s" % objIds)
 
 try:
     register("upload", UploadControl, HELP)
