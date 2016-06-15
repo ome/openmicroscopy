@@ -35,6 +35,8 @@ import omero.cmd.Delete2;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
+import omero.model.FileAnnotationI;
+import omero.model.MapAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -147,7 +149,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         final List<IObject> annotationObjects = new ArrayList<IObject>();
 
-        for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(), new TagAnnotationI()}) {
+        for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(), new TagAnnotationI(), new FileAnnotationI(), new MapAnnotationI()}) {
             final ImageAnnotationLink link = annotateImage(image, annotation);
             annotationObjects.add(link.proxy());
             annotationObjects.add(link.getChild().proxy());
