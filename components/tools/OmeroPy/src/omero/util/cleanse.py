@@ -5,7 +5,7 @@ Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 """
 
 #
-#  Copyright (c) 2009-2015 University of Dundee. All rights reserved.
+#  Copyright (c) 2009-2016 University of Dundee. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
