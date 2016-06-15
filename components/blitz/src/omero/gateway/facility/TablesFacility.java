@@ -168,6 +168,7 @@ public class TablesFacility extends Facility {
                 try {
                     table.close();
                 } catch (ServerError e) {
+                    logError(this, "Could not close table", e);
                 }
         }
         return data;
@@ -452,6 +453,7 @@ public class TablesFacility extends Facility {
                 try {
                     table.close();
                 } catch (ServerError e) {
+                    logError(this, "Could not close table", e);
                 }
         }
         return null;
