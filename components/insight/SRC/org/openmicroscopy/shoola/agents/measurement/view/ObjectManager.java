@@ -296,7 +296,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
         SelectionWizard wizard = new SelectionWizard(MeasurementAgent
                 .getRegistry().getTaskBar().getFrame(), available, selected,
-                FolderData.class, false, MeasurementAgent.getUserDetails());
+                FolderData.class, true, MeasurementAgent.getUserDetails());
         wizard.setTitle("Displayed Folders",
                 "Select the folders which are displayed in the ROI table",
                 icons.getIcon(IconManager.FILTER_MENU));
@@ -311,6 +311,18 @@ class ObjectManager extends JPanel implements TabPaneInterface {
                     if (m == null || m.size() != 1)
                         return;
                     folders = m.get(FolderData.class);
+                    Iterator<FolderData> it = folders.iterator();
+                    Collection<FolderData> toSave = new ArrayList<FolderData>();
+                    while (it.hasNext()) {
+                        FolderData f = it.next();
+                        if (f.getId() < 0) {
+                            toSave.add(f);
+                            it.remove();
+                        }
+                    }
+                    if (!toSave.isEmpty()) {
+                        folders.addAll(model.saveROIFolders(toSave, false));
+                    }
                     handleFilterSelection(folders);
                 }
             }
@@ -867,7 +879,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
     public void saveROIFolders(Collection<FolderData> folders) {
         saveROIs();
-        model.saveROIFolders(folders);
+        model.saveROIFolders(folders, true);
     }
 
     /**

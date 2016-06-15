@@ -33,6 +33,7 @@ import omero.api.StatefulServiceInterfacePrx;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
+import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -480,6 +481,12 @@ public class NullOmeroPojoService
         public SearchResultCollection search(SecurityContext ctx,
                 SearchParameters context, int maxResults) throws DSOutOfServiceException,
                 DSAccessException {
+            return null;
+        }
+
+        @Override
+        public Gateway getGateway() {
+            // TODO Auto-generated method stub
             return null;
         }
 }

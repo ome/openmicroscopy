@@ -460,7 +460,7 @@ public class SelectionWizard
         }
         else if(FolderData.class.equals(type)) {
             
-            addLabel.setText("Add a new folder and select it immediately:");
+            addLabel.setText("Create a new folder and select it immediately:");
             addField.setToolTipText("Folder Name");
             descriptionField.setToolTipText("Folder Description");
             

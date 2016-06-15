@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ import omero.api.StatefulServiceInterfacePrx;
 
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 
+import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -57,6 +58,12 @@ public interface OmeroDataService
 	 */
 	public static final String IMAGES_PROPERTY = "images";
 
+	/**
+	 * Get a reference to the {@link Gateway}
+	 * @return See above
+	 */
+	public Gateway getGateway();
+	
 	/**
 	 * Retrieves hierarchy trees rooted by a given node.
 	 * i.e. the requested node as root and all of its descendants.
