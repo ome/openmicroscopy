@@ -2507,8 +2507,8 @@ def api_projects(request, conn=None, **kwargs):
         limit = getIntOrDefault(request, 'limit', settings.PAGE)
         group = getIntOrDefault(request, 'group', -1)
         owner = getIntOrDefault(request, 'owner', -1)
-        childCount = not not request.REQUEST.get('childCount', False)
-        normalize = request.REQUEST.get('normalize', False)
+        childCount = not not request.GET.get('childCount', False)
+        normalize = request.GET.get('normalize', False)
         normalize = not not normalize
     except ValueError as ex:
         return HttpResponseBadRequest(str(ex))
