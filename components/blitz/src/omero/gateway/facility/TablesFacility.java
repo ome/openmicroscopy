@@ -190,7 +190,7 @@ public class TablesFacility extends Facility {
      */
     public TableData getTable(SecurityContext ctx, long fileId)
             throws DSOutOfServiceException, DSAccessException {
-        return getTable(ctx, fileId, 0, DEFAULT_MAX_ROWS_TO_FETCH);
+        return getTable(ctx, fileId, 0, DEFAULT_MAX_ROWS_TO_FETCH - 1);
     }
 
     /**
@@ -219,9 +219,12 @@ public class TablesFacility extends Facility {
     public TableData getTable(SecurityContext ctx, long fileId, long rowFrom,
             long rowTo, int... columns) throws DSOutOfServiceException,
             DSAccessException {
-        long[] lcolumns = new long[columns.length];
-        for (int i = 0; i < columns.length; i++) {
-            lcolumns[i] = columns[i];
+        long[] lcolumns = null;
+        if (columns != null) {
+            lcolumns = new long[columns.length];
+            for (int i = 0; i < columns.length; i++) {
+                lcolumns[i] = columns[i];
+            }
         }
         return getTable(ctx, fileId, rowFrom, rowTo, lcolumns);
     }
