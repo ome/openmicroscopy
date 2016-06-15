@@ -487,7 +487,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service.
 	 */
 	public Map<Long, Map<Boolean, List<ImageData>>> getImagesBySplitFilesets(
-			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
+			SecurityContext ctx, Class<? extends DataObject> rootType, List<Long> rootIDs)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

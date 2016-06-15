@@ -2468,7 +2468,7 @@ class OmeroMetadataServiceImpl
 	 * Class, List, List)
 	 */
 	public Map<Long, Collection<AnnotationData>>
-		loadAnnotations(SecurityContext ctx, Class<?> rootType,
+		loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 			List<String> nsExclude)
 		throws DSOutOfServiceException, DSAccessException
@@ -2486,7 +2486,7 @@ class OmeroMetadataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#downloadMetadataFile(SecurityContext, File, long)
+	 * @see OmeroMetadataService#downloadMetadataFile(SecurityContext, File, long)
 	 */
 	public RequestCallback downloadMetadataFile(SecurityContext ctx,
 			File file, long id)
@@ -2501,10 +2501,10 @@ class OmeroMetadataServiceImpl
 
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroDataService#loadLogFiles(SecurityContext, Class, List)
+     * @see OmeroMetadataService#loadLogFiles(SecurityContext, Class, List)
      */
     public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
-            Class<?> rootType, List<Long> rootIDs)
+            Class<? extends DataObject> rootType, List<Long> rootIDs)
                     throws DSOutOfServiceException, DSAccessException
    {
         if (rootType == null || CollectionUtils.isEmpty(rootIDs))
@@ -2514,7 +2514,7 @@ class OmeroMetadataServiceImpl
 
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroMetadataService#saveData(SecurityContext, Map, Map, long)
+     * @see OmeroMetadataService#saveAnnotationData(SecurityContext, Map, Map, long)
      */
     public void saveAnnotationData(SecurityContext ctx,
             Map<DataObject, List<AnnotationData>> toAdd,

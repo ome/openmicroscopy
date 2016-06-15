@@ -1065,7 +1065,7 @@ class OmeroDataServiceImpl
 	 * List)
 	 */
 	public Map<Long, Map<Boolean, List<ImageData>>> getImagesBySplitFilesets(
-			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
+			SecurityContext ctx, Class<? extends DataObject> rootType, List<Long> rootIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (CollectionUtils.isEmpty(rootIDs) || rootType == null)

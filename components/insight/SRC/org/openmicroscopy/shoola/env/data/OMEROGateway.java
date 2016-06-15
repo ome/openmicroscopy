@@ -7409,7 +7409,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 */
 	Map<Long, Collection<AnnotationData>>
-	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<?> rootType,
+	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<? extends DataObject> rootType,
 			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 			List<String> nsExclude, Parameters options)
 	throws DSOutOfServiceException, DSAccessException
@@ -7470,7 +7470,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 */
 	Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
-			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs,
+			SecurityContext ctx, Class<? extends DataObject> rootType, List<Long> rootIDs,
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -7520,7 +7520,7 @@ class OMEROGateway
      * retrieve data from OMERO service.
      */
     Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
-            Class<?> rootType, List<Long> rootIDs)
+            Class<? extends DataObject> rootType, List<Long> rootIDs)
             throws DSOutOfServiceException, DSAccessException
     {
        
