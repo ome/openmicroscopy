@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -1920,7 +1919,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         // retrieve the rendering def
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         assertNotNull(def);
-        pDef.setRenderingDef(def);
+        def.addProjectionDef(pDef);
         factory.getUpdateService().saveAndReturnObject(def);
         def = factory.getPixelsService().retrieveRndSettings(id);
         List<ProjectionDef> list = def.copyProjections();
