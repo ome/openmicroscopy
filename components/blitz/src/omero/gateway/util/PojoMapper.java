@@ -443,6 +443,8 @@ public class PojoMapper
      *
      * @param nodeType The type to convert.
      * @return See above.
+     * 
+     * @deprecated Not used.
      */
     public static String convertTypeForSearchByQuery(Class nodeType) {
         if (nodeType.equals(Image.class) || nodeType.equals(ImageData.class))
@@ -465,7 +467,8 @@ public class PojoMapper
     }
 
     /**
-     * Get the pojo type for a an {@link IObject}
+     * Get the pojo type for a an {@link IObject} class
+     * (Reverse of {@link #getModelType(Class)})
      * 
      * @param modelType
      *            The {@link IObject}
@@ -519,7 +522,8 @@ public class PojoMapper
     }
 
     /**
-     * Converts the specified POJO into the corresponding model class
+     * Converts the specified POJO into the corresponding model class,
+     * see {@link #getModelType(Class)}
      *
      * @param pojoType
      *            The POJO class (Either the simple or the full
@@ -614,12 +618,12 @@ public class PojoMapper
     
     /**
      * Converts the specified POJO into the corresponding model class.
-     *
+     * (Reverse of {@link #getPojoType(Class)})
      * @param pojoType
      *            The POJO class.
      * @return The corresponding {@link IObject} class.
      */
-    public static Class<? extends IObject> getModelType(Class pojoType) {
+    public static Class<? extends IObject> getModelType(Class<? extends DataObject> pojoType) {
         if (!DataObject.class.isAssignableFrom(pojoType))
             throw new IllegalArgumentException(pojoType.getSimpleName()+" is not a DataObject");
 
