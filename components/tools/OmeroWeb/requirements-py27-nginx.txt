@@ -5,3 +5,4 @@
 #
 Django>=1.8,<1.9
 gunicorn>=19.3
+-r requirements-common.txt
