@@ -457,6 +457,39 @@ class TestDelete(CLITest):
         assert not self.query.find('FileAnnotation', fa.id.val)
         assert not self.query.find('FileAnnotation', fa2.id.val)
 
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    def testInputWithElisionDefault(self, number, capfd):
+        # Create several datasets
+        ids = []
+        for i in range(number):
+            ids.append(self.make_dataset().id.val)
+        ids = sorted(ids)
+        assert len(ids) == number
+        assert ids[-1] - ids[0] + 1 == number
+        # Try to delete the datasets, defaults to --dry-run for elision
+        self.args += ['Dataset:%s' % str(ids[0]) + "-" + str(ids[number-1])]
+        self.cli.invoke(self.args, strict=True)
+        # Check that the Datasets were not deleted
+        for did in ids:
+            assert self.query.find('Dataset', did)
+
+    def testInputWithElisionForce(self, capfd):
+        DATASETS = 3
+        # Create several datasets
+        ids = []
+        for i in range(DATASETS):
+            ids.append(self.make_dataset().id.val)
+        ids = sorted(ids)
+        assert len(ids) == DATASETS
+        assert ids[-1] - ids[0] + 1 == DATASETS
+        # Delete the datasets using --force flag
+        self.args += ['Dataset:%s' % str(ids[0]) + "-" + str(ids[2])]
+        self.args += ['--force']
+        self.cli.invoke(self.args, strict=True)
+        # Check that the Datasets were deleted
+        for did in ids:
+            assert not self.query.find('Dataset', did)
+
     def testOutputWithElision(self, capfd):
         IMAGES = 8
         # Import several images
