@@ -1182,6 +1182,7 @@ public class SelectionWizardUI
         createOriginalSelections();
         sortLists();
         populateTreeItems(availableItemsListbox, availableItems);
+        filter(true);
     }
     
     /** Resets the selection. */
