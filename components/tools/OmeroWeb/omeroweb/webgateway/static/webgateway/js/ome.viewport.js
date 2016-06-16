@@ -610,7 +610,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         }
         // we always trigger, so last triggered channel is the active one
         _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
-
+        _this.self.trigger('channelToggle', [_this, idx, _this.loadedImg.channels[idx]]);
         if (!noreload) {
           _load();
         }
