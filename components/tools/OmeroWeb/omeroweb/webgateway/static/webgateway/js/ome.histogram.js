@@ -15,8 +15,9 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         currentT,
         currentC;
 
+    // 1px margin to right so slider marker not lost
     var svg = d3.select(element).append("svg")
-        .attr("width", graphWidth)
+        .attr("width", graphWidth + 1)
         .attr("height", graphHeight)
         .append("g");
 
@@ -117,8 +118,8 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
             end = window.end,
             min = window.min,
             max = window.max;
-        var s = ((start - min)/(max - min)) * 256;
-        var e = ((end - min)/(max - min)) * 256;
+        var s = ((start - min)/(max - min)) * colCount;
+        var e = ((end - min)/(max - min)) * colCount;
 
         svg.selectAll("rect")
         .data([s, e])
@@ -154,6 +155,8 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
         var show = this.checked;
         if (show) {
             var plotWidth = $("#histogram").show().width();
+            // since we don't support resizing of histogram, let's also fix width of container
+            $("#histogram").css('width', plotWidth + 'px');
             if (!histogram) {
                 histogram = new OME.Histogram(chartSelector, webgatewayUrl, plotWidth, 125);
                 plotHistogram();
