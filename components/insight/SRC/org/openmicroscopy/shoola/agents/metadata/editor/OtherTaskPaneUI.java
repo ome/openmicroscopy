@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,13 +25,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -223,60 +221,9 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
     
     @Override
     List<AnnotationData> getAnnotationsToSave() {
-        List<AnnotationData> l = new ArrayList<AnnotationData>();
-        
-        Collection<AnnotationData> original = model.getAllOtherAnnotations();
-        Iterator<AnnotationData> j = original.iterator();
-        List<Long> ids = new ArrayList<Long>();
-        while (j.hasNext()) {
-            ids.add(((AnnotationData) j.next()).getId());
-        }
-        Iterator<DocComponent> i = otherList.iterator();
-        Map<Long, Integer> map = new HashMap<Long, Integer>();
-        Map<Long, AnnotationData> 
-            annotations = new HashMap<Long, AnnotationData>();
-        Integer count;
-        while (i.hasNext()) {
-            DocComponent doc = i.next();
-            Object object = doc.getData();
-            if (object instanceof AnnotationData) {
-                AnnotationData annotation = (AnnotationData) object;
-                long id = annotation.getId();
-                if (!ids.contains(id)) {
-                    l.add(annotation);
-                } else {
-                    count = map.get(id);
-                    if (count != null) {
-                        count++;
-                        map.put(id, count);
-                    } else {
-                        count = 1;
-                        annotations.put(id, annotation);
-                        map.put(id, count);
-                    }
-                }
-            }
-        }
-        
-        //check the count
-        Entry<Long, Integer> entry;
-        Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
-        int n = otherList.size();
-        Map<DataObject, Boolean> m;
-        while (k.hasNext()) {
-            entry = k.next();
-            count = entry.getValue();
-            if (count != null && count == n) {
-                //Check if the annotation needs to be added
-                AnnotationData annotation = annotations.get(entry.getKey());
-                m = model.getObjectsWith(annotation);
-                if (m.size() < count) {
-                    l.add(annotation);
-                }
-            }
-        }
-        
-        return l;
+        // Edits are saved instantly and there's no way to create
+        // "other" annotations, so it's save to just return an empty list.
+        return Collections.EMPTY_LIST;
     }
 
     @Override
