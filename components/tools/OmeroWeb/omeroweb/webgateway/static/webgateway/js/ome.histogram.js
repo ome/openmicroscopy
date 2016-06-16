@@ -38,14 +38,6 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         .attr("height", 300)
         .attr("width", 1)
         .attr("x", function(d, i) { return d * (graphWidth/2); });
-    // with labels to show position
-    var t = svg.selectAll("text")
-        .data([0, 0])
-        .enter().append("text")
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "16px")
-        .attr("y", 20)
-        .attr("fill", "black");
 
 
     var plotJson = function(data, color) {
@@ -132,11 +124,6 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         .data([s, e])
         .attr("x", function(d, i) { return d * (graphWidth/colCount); })
         .attr('fill', color);
-
-        svg.selectAll("text")
-            .data([[start, s], [end, e]])
-            .text(function(d) { return "" + d[0]; })
-            .attr('x', function(d) { return (d[1] * (graphWidth/colCount)) + 3; });
     };
 };
 
