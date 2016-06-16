@@ -39,11 +39,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -159,10 +157,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
     /** The filter by name text field */
     private JTextField filterField;
-
-    /** Show all check box */
-    private JCheckBox showAllBox;
-
+    
     /**
      * The table selection listener attached to the table displaying the
      * objects.
@@ -269,16 +264,6 @@ class ObjectManager extends JPanel implements TabPaneInterface {
                         filterFolders((String) evt.getNewValue());
                     }
                 });
-
-        showAllBox = new JCheckBox("Show all ROI Folders");
-        showAllBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                filterButton.setEnabled(!showAllBox.isSelected());
-                filterField.setEnabled(!showAllBox.isSelected());
-                showAll();
-            }
-        });
     }
 
     private void showFilterDialog() {
@@ -392,22 +377,12 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         rebuildTable();
     }
 
-    /**
-     * Disable any filtering and show all folders
-     */
-    private void showAll() {
-        boolean showAll = showAllBox.isSelected();
-        objectsTable.setIgnoreFilters(showAll);
-        rebuildTable();
-    }
-
     /** Builds and lays out the UI. */
     private void buildGUI() {
         setLayout(new BorderLayout());
 
         bar.add(filterButton);
         bar.add(filterField);
-        bar.add(showAllBox);
 
         add(bar, BorderLayout.NORTH);
         add(new JScrollPane(objectsTable), BorderLayout.CENTER);

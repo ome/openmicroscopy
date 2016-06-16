@@ -55,7 +55,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import javax.swing.DropMode;
 import javax.swing.JFrame;
@@ -163,9 +162,6 @@ public class ROITable
 	
 	/** If set, only Folders with the given Ids will be displayed */
 	private Collection<Long> onlyShowFolderIds = new HashSet<Long>();
-	
-	/** Overrides the filtering mechanisms */
-	private boolean ignoreFilters = false;
 
     /**
      * Reference to folders which have been recently modified (ROIs
@@ -526,16 +522,6 @@ public class ROITable
     public Collection<Long> getIDFilter() {
         return this.onlyShowFolderIds;
     }
-
-    /**
-     * Enable/Disable filtering
-     * 
-     * @param b
-     *            Pass <code>false</code> to disable filtering
-     */
-    public void setIgnoreFilters(boolean b) {
-        this.ignoreFilters = b;
-    }
 	
 	/**
 	 * Set the value of the object at row and column to value object, 
@@ -774,8 +760,7 @@ public class ROITable
      * @return See above.
      */
     private boolean displayFolder(FolderData folder) {
-        return ignoreFilters
-                || (checkIDFilter(folder) && checkNameFilter(folder));
+        return (checkIDFilter(folder) && checkNameFilter(folder));
     }
 
     /**
