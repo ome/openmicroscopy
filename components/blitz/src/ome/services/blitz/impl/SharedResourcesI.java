@@ -65,8 +65,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
-import Ice.LocalException;
-import Ice.UserException;
 
 /**
  * Implementation of the SharedResources interface.
