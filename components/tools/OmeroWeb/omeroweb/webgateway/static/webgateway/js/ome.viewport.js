@@ -604,7 +604,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
             _this.self.trigger('channelChange', [_this, i, _this.loadedImg.channels[i]]);
           }
         }
-        // ...then turn on active channel (last to be triggered - E.g. shown in histogram)
+        // ...then turn on active channel
         if (!_this.loadedImg.channels[idx].active) {
           _this.loadedImg.channels[idx].active = true;
         }
@@ -1165,7 +1165,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
    */
   this.bind = function (event, callback) {
     if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'channelSlide' ||
-    event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange') {
+    event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange' || event == 'channelToggle') {
       _this.self.bind(event, callback);
     } else {
       _this.viewportimg.bind(event, callback);

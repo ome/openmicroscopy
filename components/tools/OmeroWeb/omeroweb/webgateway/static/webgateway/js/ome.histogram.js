@@ -128,11 +128,12 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
     };
 };
 
-
+// Helper for creating a Histogram and binding it to change events from viewport
 window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxSelector, webgatewayUrl) {
     var histogram;
     var currChIdx = 0;
     var plotHistogram = function(opts) {
+        if (!histogram) return;  // not shown/created yet
         opts = opts || {};
         var chIdx = opts.chIdx !== undefined ? opts.chIdx : currChIdx;
         currChIdx = chIdx;
@@ -166,15 +167,29 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
         }
     });
 
-    viewport.bind('channelChange', function(event, viewport, chIdx, channel){
-        if (histogram && $("#histogram").is(":visible")) {
-            plotHistogram({'chIdx': chIdx});
-        }
+    // Will get lots of channelChange events on Copy/Paste/Reset etc
+    // We don't change selected channel of histogram - simply refresh.
+    // NB: debounce on histogram.loadAndPlot() prevents multiple loads
+    viewport.bind('channelChange', function(){
+        plotHistogram();
     });
-    viewport.bind('channelSlide', function(event, viewport, chIdx, start, end){
-        if (histogram && $("#histogram").is(":visible")) {
-            plotHistogram({'chIdx': chIdx, 'start': start, 'end': end});
+
+    viewport.bind('channelToggle', function(event, viewport, chIdx, channel){
+        // If channel has been turned off, find another channel
+        if (!channel.active) {
+            var active = viewport.loadedImg.channels.reduce(function(prev, ch, idx){
+                if (ch.active) prev.push(idx);
+                return prev;
+            }, []);
+            if (active.length > 0) {
+                chIdx = active[0];
+            }
         }
+        plotHistogram({'chIdx': chIdx});
+    });
+
+    viewport.bind('channelSlide', function(event, viewport, chIdx, start, end){
+        plotHistogram({'chIdx': chIdx, 'start': start, 'end': end});
     });
 
     viewport.zslider.bind('change', function (e,pos) {

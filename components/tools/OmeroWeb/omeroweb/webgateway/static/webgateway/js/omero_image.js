@@ -319,6 +319,7 @@
                 viewport.toggleChannel(index);
                 viewport.save_channels();
                 updateUndoRedo(viewport);
+                viewport.self.trigger('channelToggle', [viewport, index, viewport.loadedImg.channels[index]]);
             };
         };
         for (i=0; i<channels.length; i++) {
