@@ -1165,7 +1165,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
    */
   this.bind = function (event, callback) {
     if (event == 'projectionChange' || event == 'modelChange' || event == 'channelChange' || event == 'channelSlide' ||
-    event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange' || event == 'channelToggle') {
+    event == 'imageChange' || event == 'imageLoad' || event == 'linePlotPos' || event == 'linePlotChange' ||
+    event == 'channelToggle' || event == 'channelFocus') {
       _this.self.bind(event, callback);
     } else {
       _this.viewportimg.bind(event, callback);

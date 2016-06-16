@@ -369,6 +369,12 @@
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
           '</tr>';
 
+        $('#rdef-postit table').on('focus', '.rangewidget input', function(){
+            // id is wblitz-ch1-cw-start or wblitz-ch1-cw-end
+            var chIdx = this.id.replace('wblitz-ch', '').split('-')[0];
+            chIdx = parseInt(chIdx, 10);
+            viewport.self.trigger('channelFocus', [viewport, chIdx, viewport.loadedImg.channels[i]]);
+        });
         tmp = $('#rdef-postit table tr:first');
         tmp.siblings().remove();
 

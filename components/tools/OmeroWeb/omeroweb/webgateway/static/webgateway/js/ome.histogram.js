@@ -192,6 +192,10 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
         plotHistogram({'chIdx': chIdx, 'start': start, 'end': end});
     });
 
+    viewport.bind('channelFocus', function(event, viewport, chIdx){
+        plotHistogram({'chIdx': chIdx});
+    });
+
     viewport.zslider.bind('change', function (e,pos) {
         plotHistogram({'theZ': pos-1});
     });
