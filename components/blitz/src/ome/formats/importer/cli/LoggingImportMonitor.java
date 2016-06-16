@@ -36,7 +36,7 @@ public class LoggingImportMonitor implements IObserver
 
     private final ImportSummary importSummary = new ImportSummary();
 
-    private ImportOutput importOutput = ImportOutput.legacy;
+    private ImportOutput importOutput = ImportOutput.ids;
 
     /**
      * Set the current {@link ImportOutput} (defaulting to null if
@@ -48,7 +48,7 @@ public class LoggingImportMonitor implements IObserver
     public ImportOutput setImportOutput(ImportOutput importOutput) {
         ImportOutput old = importOutput;
         if (importOutput == null) {
-            this.importOutput = ImportOutput.legacy;
+            this.importOutput = ImportOutput.ids;
         }
         this.importOutput = importOutput;
         return old;
@@ -66,8 +66,11 @@ public class LoggingImportMonitor implements IObserver
                 case yaml:
                     importSummary.outputYamlResults(ev);
                     break;
+                case legacy:
+                    importSummary.outputGreppableResults(ev);
+                    break;
                 default:
-                importSummary.outputGreppableResults(ev);
+                    importSummary.outputImageIds(ev);
             }
             importSummary.update(ev);
         } else if (event instanceof IMPORT_SUMMARY) {
@@ -253,6 +256,37 @@ public class LoggingImportMonitor implements IObserver
                 System.out.print(Joiner.on(",").join(ids));
                 System.out.println("]");
             }
+        }
+
+        /**
+         * Displays a list of successfully imported Image IDs on standard
+         * output using the Object:id format.
+         *
+         * Note that this behavior is intended for other command line tools to
+         * pipe/grep the import results, and should be kept as is.
+         *
+         * @param ev the end of import event.
+         */
+        void outputImageIds(IMPORT_DONE ev) {
+            StringBuilder sb = new StringBuilder();
+            String separator = "";
+            sb.append("Image:");
+            for (IObject object : ev.objects) {
+                sb.append(separator);
+                separator = ",";
+                if (object != null && object.getId() != null) {
+                    String kls = object.getClass().getSimpleName();
+                    if (kls.endsWith("I")) {
+                        kls = kls.substring(0,kls.length()-1);
+                    }
+                    if (kls.equals("Image")) {
+                        sb.append(object.getId().getValue());
+                    }
+                }
+            }
+            sb.append("\n");
+            System.out.print(sb.toString());
+
         }
     }
 }

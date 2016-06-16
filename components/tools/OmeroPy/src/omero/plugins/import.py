@@ -88,7 +88,7 @@ Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
-OUTPUT_CHOICES = ["legacy", "yaml"]
+OUTPUT_CHOICES = ["ids", "legacy", "yaml"]
 SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 NO_ARG = object()
 

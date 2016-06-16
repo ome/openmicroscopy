@@ -93,8 +93,8 @@ public class CommandLineImporter {
     /** If true, then only a report on used files will be produced */
     private final boolean getUsedFiles;
 
-    /** Format which should be preferred for stdandard out messages */
-    private ImportOutput importOutput = ImportOutput.legacy;
+    /** Format which should be preferred for standard out messages */
+    private ImportOutput importOutput = ImportOutput.ids;
 
     /**
      * Legacy constructor which uses a {@link UploadFileTransfer}.
@@ -247,7 +247,7 @@ public class CommandLineImporter {
     public ImportOutput setImportOutput(ImportOutput importOutput) {
         ImportOutput old = importOutput;
         if (importOutput == null) {
-            this.importOutput = ImportOutput.legacy;
+            this.importOutput = ImportOutput.ids;
         }
         this.importOutput = importOutput;
         return old;
@@ -383,6 +383,7 @@ public class CommandLineImporter {
             + "  --logs\t\t\t\tUpload log file (if any) with report. Required --report\n"
             + "  --email EMAIL\t\t\t\tEmail for reported errors. Required --report\n"
             + "  --debug LEVEL\t\t\t\tTurn debug logging on (optional level)\n"
+            + "  --legacy\t\t\t\tUse legacy output format\n"
             + "  --annotation-ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
             + "  --annotation-text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
             + "  --annotation-link ANNOTATION_LINK\tComment annotation ID to link all images to\n"
@@ -596,6 +597,7 @@ public class CommandLineImporter {
                 new LongOpt("no-stats-info", LongOpt.NO_ARGUMENT, null, 23);
         LongOpt noUpgradeCheck =
                 new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
+        LongOpt legacy = new LongOpt("legacy", LongOpt.NO_ARGUMENT, null, 25);
 
         LongOpt outputFormat =
                 new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 25);
@@ -636,7 +638,7 @@ public class CommandLineImporter {
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
                                 exclude, target, noStatsInfo,
-                                noUpgradeCheck, qaBaseURL,
+                                noUpgradeCheck, qaBaseURL, legacy,
                                 outputFormat,
                                 plateName, plateName2,
                                 plateDescription, plateDescription2,
@@ -794,7 +796,7 @@ public class CommandLineImporter {
                 String outputArg = g.getOptarg();
                 log.info("Setting output format: {}", outputArg);
                 outputChoice = ImportOutput.valueOf(outputArg);
-                break;
+
             }
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
