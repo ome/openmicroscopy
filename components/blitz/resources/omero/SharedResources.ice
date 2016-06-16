@@ -72,6 +72,15 @@ module omero {
                 throws ServerError;
 
             /**
+             * Returns the single (possibly mirrored) LUT repository which makes
+             * all official LUTs available.
+             **/
+            idempotent
+            omero::grid::Repository*
+                getLUTRepository()
+                throws ServerError;
+
+            /**
              * Returns true if a {@link Tables} service is active in the grid.
              * If this value is false, then all calls to {@link #newTable}
              * or {@link #openTable} will either fail or return null (possibly

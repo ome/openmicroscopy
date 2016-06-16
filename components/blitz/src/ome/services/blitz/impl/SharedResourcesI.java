@@ -235,6 +235,22 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
         return prx == null ? null : prx.getProxy();
     }
 
+    public RepositoryPrx getLUTRepository(Current __current)
+            throws ServerError {
+        InternalRepositoryPrx[] repos = registry.lookupRepositories();
+        InternalRepositoryPrx prx = null;
+        if (repos != null) {
+            for (int i = 0; i < repos.length; i++) {
+                if (repos[i] != null) {
+                    if (repos[i].toString().contains(helper.getUuid())) {
+                        prx = repos[i];
+                    }
+                }
+            }
+        }
+        return prx == null ? null : prx.getProxy();
+    }
+
     @SuppressWarnings("unchecked")
     public RepositoryMap repositories(Current current) throws ServerError {
 
