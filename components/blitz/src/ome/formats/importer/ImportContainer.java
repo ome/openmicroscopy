@@ -64,15 +64,23 @@ public class ImportContainer
     private IObject target;
     private String checksumAlgorithm;
     private ImportConfig config;
+    private Boolean legacyOutput;
 
     public ImportContainer(File file, IObject target, Double[] userPixels,
             String reader, String[] usedFiles, Boolean isSPW) {
-        this(null, file, target, userPixels, reader, usedFiles, isSPW);
+        this(null, file, target, userPixels, reader, usedFiles, isSPW, false);
     }
 
     public ImportContainer(ImportConfig config,
             File file, IObject target, Double[] userPixels,
             String reader, String[] usedFiles, Boolean isSPW) {
+        this(config, file, target, userPixels, reader, usedFiles, isSPW, false);
+    }
+
+    public ImportContainer(ImportConfig config,
+            File file, IObject target, Double[] userPixels,
+            String reader, String[] usedFiles, Boolean isSPW,
+            Boolean legacyOutput) {
         this.config = config;
         this.file = file;
         this.target = target;
@@ -80,6 +88,7 @@ public class ImportContainer
         this.reader = reader;
         this.usedFiles = usedFiles;
         this.isSPW = isSPW;
+        this.legacyOutput = legacyOutput;
     }
 
     // Various Getters and Setters //
@@ -253,6 +262,22 @@ public class ImportContainer
      */
     public void setIsSPW(Boolean isSPW) {
         this.isSPW = isSPW;
+    }
+
+    /**
+     * Return true if the legacy output flag is set. False otherwise.
+     * @return See above.
+     */
+    public Boolean getLegacyOutput() {
+        return legacyOutput;
+    }
+
+    /**
+     * Set true if the legacy output flag is set. False otherwise.
+     * @param legacyOutput True if legacy output flag is set, false otherwise.
+     */
+    public void setLegacyOutput(Boolean legacyOutput) {
+        this.legacyOutput = legacyOutput;
     }
 
     /**

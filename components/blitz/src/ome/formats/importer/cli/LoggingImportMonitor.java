@@ -38,7 +38,11 @@ public class LoggingImportMonitor implements IObserver
 
             // send the import results to stdout
             // to enable external tools integration
-            importSummary.outputGreppableResults(ev);
+            if (ev.container.getLegacyOutput()) {
+                importSummary.outputGreppableResults(ev);
+            } else {
+                importSummary.outputImageIds(ev);
+            }
             importSummary.update(ev);
         } else if (event instanceof IMPORT_SUMMARY) {
             IMPORT_SUMMARY ev = (IMPORT_SUMMARY) event;
@@ -190,6 +194,37 @@ public class LoggingImportMonitor implements IObserver
                     System.err.println(object.getId().getValue());
                 }
             }
+        }
+
+        /**
+         * Displays a list of successfully imported Image IDs on standard
+         * output using the Object:id format.
+         *
+         * Note that this behavior is intended for other command line tools to
+         * pipe/grep the import results, and should be kept as is.
+         *
+         * @param ev the end of import event.
+         */
+        void outputImageIds(IMPORT_DONE ev) {
+            StringBuilder sb = new StringBuilder();
+            String separator = "";
+            sb.append("Image:");
+            for (IObject object : ev.objects) {
+                sb.append(separator);
+                separator = ",";
+                if (object != null && object.getId() != null) {
+                    String kls = object.getClass().getSimpleName();
+                    if (kls.endsWith("I")) {
+                        kls = kls.substring(0,kls.length()-1);
+                    }
+                    if (kls.equals("Image")) {
+                        sb.append(object.getId().getValue());
+                    }
+                }
+            }
+            sb.append("\n");
+            System.out.print(sb.toString());
+
         }
     }
 }

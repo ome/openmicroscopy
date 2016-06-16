@@ -129,6 +129,7 @@ public class ImportConfig {
     public final StrValue target;
 
     public final BoolValue debug;
+    public final BoolValue legacy;
     public final BoolValue contOnError;
     public final BoolValue sendReport;
     public final BoolValue sendFiles;
@@ -274,6 +275,7 @@ public class ImportConfig {
         savedScreen  = new LongValue("savedScreen", this, 0L);
 
         debug        = new BoolValue("debug", this, false);
+        legacy       = new BoolValue("legacy", this, false);
         contOnError  = new BoolValue("contOnError", this, false);
         sendReport   = new BoolValue("sendReport", this, false);
         sendFiles    = new BoolValue("sendFiles", this, true);

@@ -91,6 +91,9 @@ class ImportControl(BaseControl):
             "--clientdir", type=str,
             help="Path to the directory containing the client JARs. "
             " Default: lib/client")
+        parser.add_argument(
+            "--legacy", action="store_true", dest="java_legacy",
+            help="Use legacy output format (**)")
 
         # The following arguments are strictly passed to Java
         name_group = parser.add_argument_group(
@@ -254,6 +257,7 @@ class ImportControl(BaseControl):
             "java_text": "--annotation-text",
             "java_link": "--annotation-link",
             "java_advanced_help": "--advanced-help",
+            "java_legacy": ("--legacy"),
             }
 
         for attr_name, arg_name in java_args.items():

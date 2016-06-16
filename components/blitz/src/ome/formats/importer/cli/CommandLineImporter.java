@@ -356,6 +356,7 @@ public class CommandLineImporter {
             + "  --logs\t\t\t\tUpload log file (if any) with report. Required --report\n"
             + "  --email EMAIL\t\t\t\tEmail for reported errors. Required --report\n"
             + "  --debug LEVEL\t\t\t\tTurn debug logging on (optional level)\n"
+            + "  --legacy\t\t\t\tUse legacy output format\n"
             + "  --annotation-ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
             + "  --annotation-text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
             + "  --annotation-link ANNOTATION_LINK\tComment annotation ID to link all images to\n"
@@ -567,6 +568,7 @@ public class CommandLineImporter {
                 new LongOpt("no-stats-info", LongOpt.NO_ARGUMENT, null, 23);
         LongOpt noUpgradeCheck =
                 new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
+        LongOpt legacy = new LongOpt("legacy", LongOpt.NO_ARGUMENT, null, 25);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
@@ -592,7 +594,7 @@ public class CommandLineImporter {
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
                                 exclude, target, noStatsInfo,
-                                noUpgradeCheck, qaBaseURL,
+                                noUpgradeCheck, qaBaseURL, legacy,
                                 plateName, plateDescription,
                                 noThumbnailsDeprecated,
                                 checksumAlgorithmDeprecated,
@@ -733,6 +735,11 @@ public class CommandLineImporter {
             case 24: {
                 log.info("Disabling upgrade check");
                 config.checkUpgrade.set(false);
+                break;
+            }
+            case 25: {
+                log.info("Enabling legacy output");
+                config.legacy.set(true);
                 break;
             }
             // ADVANCED END ---------------------------------------------------
