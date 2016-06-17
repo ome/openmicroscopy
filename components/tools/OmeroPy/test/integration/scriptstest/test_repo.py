@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2010-2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2010-2016 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 
 """
    Integration test focused on the registering of official
-   scripts in the ScriptRepo. (see ticket:#2073)
+   scripts in the ScriptRepo and LUT in the LUTRepo. (see ticket:#2073)
 
 """
 
@@ -38,6 +38,12 @@ class TestScriptRepo(lib.ITest):
         sr = self.client.sf.sharedResources()
         repo = sr.getLUTRepository()
         assert repo
+
+    def testGetOfficialLUTs(self):
+        scriptService = self.sf.getScriptService()
+        officialLUTs = scriptService.getLUTs()
+        count = len(officialLUTs)
+        assert count > 0
 
     def testScriptRepo(self):
         sr = self.client.sf.sharedResources()
