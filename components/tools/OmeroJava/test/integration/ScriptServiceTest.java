@@ -112,7 +112,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             fail("Only administrators can upload official script.");
         } catch (Exception e) {
         }
-        assertTrue(svc.getScripts().size() == n);
+        assertEquals(n, svc.getScripts().size());
     }
 
     /**
@@ -199,7 +199,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             fail("Only administrators can upload official LUT.");
         } catch (Exception e) {
         }
-        assertEquals(n, svc.getScripts().size());
+        assertEquals(n, svc.getLUTs().size());
     }
 
     /**
