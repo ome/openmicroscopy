@@ -110,7 +110,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         COLUMN_NAMES.add(AnnotationDescription.SHAPE_STRING);
         COLUMN_NAMES.add(AnnotationDescription.annotationDescription
                 .get(AnnotationKeys.TEXT));
-        COLUMN_NAMES.add("Visible");
+        COLUMN_NAMES.add("Show");
     }
 
     /**
