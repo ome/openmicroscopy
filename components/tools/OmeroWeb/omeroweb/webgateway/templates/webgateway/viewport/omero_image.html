@@ -1055,6 +1055,12 @@
 
     // once image loads, check session via /getImgRDef/ to see if we can paste
     viewport.bind('imageLoad', function() {
+      // disable histogram for big images
+      if (viewport.loadedImg.tiles) {
+        $("#showhistogram").attr('disabled', true)
+          .parent().css('color', '#bbb')
+          .attr('title', 'Histogram not supported for tiled images');
+      }
 
       // Enable 'Show ROIs' button
     {% if roiCount > 0 and roiCount <= roiLimit  %}
