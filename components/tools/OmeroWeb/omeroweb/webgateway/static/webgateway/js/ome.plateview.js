@@ -164,7 +164,7 @@ jQuery._WeblitzPlateview = function (container, options) {
     if (field === undefined) {
       field = 0;
     }
-    gs_json(opts.baseurl+'/plate/'+pid+'/'+field+'/', {size:opts.size}, _reset);
+    gs_json(opts.baseurl+'/plate/'+pid+'/'+field+'/?size='+opts.size, null, _reset);
   };
 
   this.setFocus = function (elm, evt) {
