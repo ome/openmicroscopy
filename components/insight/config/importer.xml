@@ -39,5 +39,7 @@ into a dataset -->
 <entry name="/options/Debug" type="boolean">false</entry>
 <!-- limit the number of files to import at once -->
 <entry name="/options/ImportFileLimit" type="integer">2000</entry>
+<!-- Is offline import enabled? true = YES, false = N0. -->
+<entry name="omero.client.import.offline.enabled" type="boolean">true</entry>
 </options>
 </agent>
