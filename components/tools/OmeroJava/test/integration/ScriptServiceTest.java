@@ -213,17 +213,21 @@ public class ScriptServiceTest extends AbstractServerTest {
     public void testUploadOfficialLUTAsRoot() throws Exception {
         logRootIntoGroup();
         StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
+        String[] values = { "4943 4f4c 00a2 0100 0000 00ff 0100 0300",
+                "0200 fe00 fa00 f600 0000 0000 0000 0000"};
         for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
+            buf.append(values[i]);
+            buf.append("\n");
         }
         String folder = "officialTestLUT.lut";
         IScriptPrx svc = factory.getScriptService();
+        int n = svc.getLUTs().size();
         try {
             long id = svc.uploadOfficialLUT(folder, buf.toString());
             assertTrue(id > 0);
         } catch (Exception e) {
         }
+        assertEquals(n+1, svc.getLUTs().size());
     }
 
 }
