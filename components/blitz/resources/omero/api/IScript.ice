@@ -74,7 +74,8 @@ module omero {
                  * scripts = scriptService.getScripts()
                  * for script in scripts:
                  *     text = scriptService.getScriptText(script.id.val)
-                 *     path = script.path.val\[1:\] # First symbol is a "/"
+                 *     # First character is a "/" symbol
+                 *     path = script.path.val\[1:\]
                  *     path = path.replace("/",".")
                  *     print "Possible import: %s" % path
                  * </pre>
