@@ -975,9 +975,18 @@ $(function() {
                                     url = v.url + "?" + query;
                                 // if plugin has provided an action handler...
                                 if (v.action) {
-                                    v.action(sel, v.url);
+                                    // prepare json of selected objects to pass to function
+                                    var selJson = sel.map(function(s){
+                                        var o = $.extend({}, s.data.obj);
+                                        o.type = s.type;
+                                        return o;
+                                    });
+                                    // see if it handles the event
+                                    var eventBubbled = v.action(selJson, v.url);
+                                    if (!eventBubbled) return;
                                 }
-                                else if (v.target && v.target === 'tab') {
+                                // ...otherwise we use default handling...
+                                if (v.target && v.target === 'tab') {
                                     // tries to open in a new tab (not reliable)
                                     // see http://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window-using-javascript
                                     window.open(url,'_blank');
@@ -992,9 +1001,15 @@ $(function() {
                                         return s.type + (sel.length > 1 ? "s" : "");
                                     }, "undefined"),
                                     enabled;
-                                // If plugin has provided a function 'isEnabled'...
                                 if (typeof v.isEnabled === "function") {
-                                    enabled = v.isEnabled(sel);
+                                    // If plugin has provided a function 'isEnabled'...
+                                    // prepare json of selected objects to pass to function
+                                    var selJson = sel.map(function(s){
+                                        var o = $.extend({}, s.data.obj);
+                                        o.type = s.type;
+                                        return o;
+                                    });
+                                    enabled = v.isEnabled(selJson);
                                     return !enabled;
                                 }
                                 // ...Otherwise use the supported objects list

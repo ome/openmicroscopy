@@ -117,6 +117,25 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
         OME.deleteItem(event, "file_ann_wrapper", url);
     });
 
+    // Handle 'Open With'...
+    $("#fileanns_container").on("change", ".openWith", function(event) {
+        var label = this.value;
+        var annId = $(this).attr('data-id');
+
+        // get json data for this file, using cached self.annJson
+        var annData = self.annJson.filter(function(a){
+            return a.id == annId;
+        })[0];  // should find single unique item matching annId
+        WEBCLIENT.OPEN_WITH.forEach(function(ow){
+            if (ow.label === label) {
+                // need json data for fileannotation
+                annData = $.extend({'type': 'fileannotation'}, annData);
+                // action expects list of objects
+                ow.action([annData], ow.url);
+            }
+        });
+    });
+
 
     var isNotCompanionFile = function isNotCompanionFile(ann) {
         return ann.ns !== OMERO.constants.namespaces.NSCOMPANIONFILE;
@@ -209,6 +228,28 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
                         }
                     }
                 }
+
+                // We cache json - used for openWith handling above
+                self.annJson = anns;
+
+                // for each annotation, we create an 'Open With' menu...
+                anns.forEach(function(ann){
+                    var openWith = WEBCLIENT.OPEN_WITH.map(function(v){
+                        var menu = {'label': v.label};
+                        //If plugin has provided a function 'isEnabled'...
+                        if (typeof v.isEnabled === "function") {
+                            // prepare json to pass to isEnabled()
+                            var objJson = $.extend({'type': 'fileannotation'}, ann);
+                            // isEnabled() expects a list of objects
+                            menu.enabled = v.isEnabled([objJson]);
+                        } else {
+                            // Just test to see if plugin accepts fileannotations...
+                            menu.enabled = (v.objects.indexOf("fileannotation") > -1);
+                        }
+                        return menu;
+                    });
+                    ann.openWith = openWith;
+                });
 
                 // Update html...
                 var html = "";
