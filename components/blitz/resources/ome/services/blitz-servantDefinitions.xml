@@ -64,6 +64,7 @@
         <bean class="ome.services.blitz.impl.ScriptI">
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="scriptRepoHelper"/>
+            <constructor-arg ref="lutRepoHelper"/>
             <constructor-arg ref="checksumProviderFactory"/>
             <constructor-arg ref="paramsCache"/>
         </bean>
@@ -73,6 +74,15 @@
       <constructor-arg ref="executor"/>
       <constructor-arg ref="roles"/>
       <constructor-arg ref="uuid"/>
+  </bean>
+  <bean id="lutRepoHelper" class="ome.services.scripts.LUTRepoHelper" depends-on="sessionManager">
+      <constructor-arg ref="executor"/>
+      <constructor-arg ref="roles"/>
+      <constructor-arg ref="uuid"/>
+  </bean>
+  <bean id="Luts" class="ome.services.scripts.LUTFileType">
+      <constructor-arg index="0" value="*.lut"/>
+      <constructor-arg index="1" value="text/x-lut"/>
   </bean>
   <bean id="PythonScripts" class="ome.services.scripts.ScriptFileType">
       <constructor-arg index="0" value="*.py"/>

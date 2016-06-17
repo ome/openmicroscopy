@@ -19,6 +19,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ParamsCache;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.scripts.LUTRepoHelper;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
@@ -36,6 +37,7 @@ import omero.ValidationException;
 import omero.api.AMD_IScript_canRunScript;
 import omero.api.AMD_IScript_deleteScript;
 import omero.api.AMD_IScript_editScript;
+import omero.api.AMD_IScript_getLUTs;
 import omero.api.AMD_IScript_getParams;
 import omero.api.AMD_IScript_getScriptID;
 import omero.api.AMD_IScript_getScriptText;
@@ -89,14 +91,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     protected final ScriptRepoHelper scripts;
 
+    protected final LUTRepoHelper luts;
+
     protected final ChecksumProviderFactory cpf;
 
-    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts,
+    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts, LUTRepoHelper luts,
             ChecksumProviderFactory cpf, ParamsCache cache) {
         super(null, be);
         this.scripts = scripts;
         this.cpf = cpf;
         this.cache = cache;
+        this.luts = luts;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -433,6 +438,26 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         });
     }
 
+    /**
+     * Get LUTs will return all the luts by id and name available on the
+     * server.
+     * 
+     * @param __current
+     *            ice context,
+     * @throws ServerError
+     *             validation, api usage.
+     */
+    public void getLUTs_async(final AMD_IScript_getLUTs __cb,
+            Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
+            public Object call() throws Exception {
+                List<OriginalFile> files = luts.loadAll(true);
+                IceMapper mapper = new IceMapper();
+                return mapper.map(files);
+            }
+        });
+    }
+    
     @SuppressWarnings("unchecked")
     public void getUserScripts_async(AMD_IScript_getUserScripts __cb,
             final List<IObject> acceptsList, final Current __current) throws ServerError {

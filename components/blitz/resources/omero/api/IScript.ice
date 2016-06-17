@@ -54,6 +54,20 @@ module omero {
             {
 
                 //
+                // LUT management
+                //
+
+                /**
+                 * This method returns official server LUTs as a list of
+                 * {@link omero.model.OriginalFile} objects.
+                 *
+                 * @return see above.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                idempotent OriginalFileList getLUTs() throws ServerError;
+
+                //
                 // Script management
                 //
 
