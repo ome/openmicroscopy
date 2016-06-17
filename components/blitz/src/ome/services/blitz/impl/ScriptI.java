@@ -38,6 +38,7 @@ import omero.api.AMD_IScript_canRunScript;
 import omero.api.AMD_IScript_deleteScript;
 import omero.api.AMD_IScript_editScript;
 import omero.api.AMD_IScript_getLUTs;
+import omero.api.AMD_IScript_getLUTID;
 import omero.api.AMD_IScript_getParams;
 import omero.api.AMD_IScript_getScriptID;
 import omero.api.AMD_IScript_getScriptText;
@@ -45,6 +46,7 @@ import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
 import omero.api.AMD_IScript_getUserScripts;
 import omero.api.AMD_IScript_runScript;
+import omero.api.AMD_IScript_uploadOfficialLUT;
 import omero.api.AMD_IScript_uploadOfficialScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api.AMD_IScript_validateScript;
@@ -457,7 +459,64 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             }
         });
     }
-    
+
+    /**
+     * Get the id of the official LUT with given path.
+     *
+     * @param __cb The LUT context.
+     * @param lutPath
+     *            {@link OriginalFile#getPath()} of the lut to find id for.
+     * @param __current
+     *            ice context.
+     */
+    public void getLUTID_async(final AMD_IScript_getLUTID __cb,
+            final String lutPath, final Current __current)
+            throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Long>(){
+            public Long call() {
+                Long id = luts.findInDb(lutPath, true);
+                if (id == null) {
+                    return -1L;
+                } else {
+                    return id;
+                }
+            }
+        });
+    }
+
+    public void uploadOfficialLUT_async(
+            AMD_IScript_uploadOfficialLUT __cb, final String path,
+            final String lutText, final Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Long>() {
+            public Long call() throws Exception {
+                EventContext ec = factory.getEventContext();
+                if ( ! ec.isCurrentUserAdmin() ) {
+                    throw new omero.SecurityViolation(null, null, "User is not an administrator");
+                }
+                try {
+                    // ticket:2356 - should only overwrite non-scripts
+                    Long lutID = luts.findInDb(path, true);
+                    Long fileID = luts.findInDb(path, false);
+                    if (lutID != null) {
+                        throw new ApiUsageException(null, null,
+                                "Path already exists: " + path);
+                    } else if (fileID != null) {
+                        log.info("Overwriting existing non-lut: " + fileID);
+                        cache.removeParams(fileID);
+                    }
+                    RepoFile f = luts.write(path, lutText);
+                    OriginalFile file = scripts.addOrReplace(f, fileID);
+                    validateParams(__current, file);
+                    return file.getId();
+                } catch (IOException e) {
+                    omero.ServerError se = new omero.InternalException(null, null, "Cannot write " + path);
+                    IceMapper.fillServerError(se, e);
+                    throw se;
+                }
+            }
+        });
+    }
+
     @SuppressWarnings("unchecked")
     public void getUserScripts_async(AMD_IScript_getUserScripts __cb,
             final List<IObject> acceptsList, final Current __current) throws ServerError {
