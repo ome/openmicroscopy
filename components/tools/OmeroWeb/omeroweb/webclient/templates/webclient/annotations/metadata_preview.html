@@ -421,7 +421,9 @@
 
     <div id="rdef-postit">
       <div id="rdef-active-area">
-        <div style="float: left{% if tiledImage %}; color:#bbb{%endif%}"
+        <input id="rd-wblitz-rmodel" type="checkbox" />
+        <label for="rd-wblitz-rmodel">Grayscale</label>
+        <div style="float:right {% if tiledImage %}; color:#bbb{%endif%}"
           {% if tiledImage %}
             title="Histogram not supported for tiled images"
           {%else%}
@@ -431,11 +433,6 @@
           <input id="showhistogram" type="checkbox" {% if tiledImage %}disabled{% endif %}/>
           <label for="showhistogram">Show Histogram</label>
         </div>
-        <div style="float: right">
-          <input id="rd-wblitz-rmodel" type="checkbox" />
-          <label for="rd-wblitz-rmodel">Grayscale</label>
-        </div>
-        <div style="clear: both"></div>
         <div id="histogram" style="display:none; width: 100%; height: 125px; background:white; border: solid #ccc 1px; margin-bottom: 6px"></div>
         <table cellspacing="0" style="font-size:0.9em">
           <tr>
