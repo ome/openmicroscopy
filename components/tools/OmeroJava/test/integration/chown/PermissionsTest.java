@@ -35,8 +35,6 @@ import omero.cmd.Delete2;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
-import omero.model.FileAnnotationI;
-import omero.model.MapAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -45,6 +43,8 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.Folder;
 import omero.model.FolderImageLink;
 import omero.model.FolderImageLinkI;
@@ -53,6 +53,7 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
+import omero.model.MapAnnotationI;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.RectangleI;
@@ -242,6 +243,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         final List<IObject> imageAnnotations;
         final List<ImageAnnotationLink> tagLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
+        final List<ImageAnnotationLink> fileAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
 
         /* import and annotate an image */
 
@@ -251,7 +253,7 @@ public class PermissionsTest extends AbstractServerTest {
         testImages.add(imageId);
         imageAnnotations = annotateImage(image);
 
-        /* tag another image with the tags from the first image */
+        /* tag and add FileAnnotation to another image with the tags and FileAnnotations from the first image */
 
         final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage.getId().getValue());
@@ -259,6 +261,10 @@ public class PermissionsTest extends AbstractServerTest {
             if (annotation instanceof TagAnnotation) {
                 final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
                 tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
+            }
+            if (annotation instanceof FileAnnotation) {
+                final ImageAnnotationLink linkf = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
+                fileAnnLinksOnOtherImage.add((ImageAnnotationLink) linkf.proxy());
             }
         }
 
@@ -279,7 +285,7 @@ public class PermissionsTest extends AbstractServerTest {
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
         for (final IObject annotation : imageAnnotations) {
-            if (annotation instanceof TagAnnotation) {
+            if (annotation instanceof TagAnnotation || annotation instanceof FileAnnotation) {
                 assertOwnedBy(annotation, importer);
             } else if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
@@ -288,14 +294,15 @@ public class PermissionsTest extends AbstractServerTest {
             }
         }
         assertOwnedBy(tagLinksOnOtherImage, importer);
+        assertOwnedBy(fileAnnLinksOnOtherImage, importer);
 
-        /* check that the image's links to the tags that were also linked to the other image were deleted */
+        /* check that the image's links to the tags and FileAnnotations that were also linked to the other image were deleted */
 
         final String query = "SELECT COUNT(id) FROM ImageAnnotationLink WHERE id IN (:ids)";
         final ParametersI params = new ParametersI().addIds(imageLinkIds);
         final List<List<RType>> results = iQuery.projection(query, params);
         final long remainingLinkCount = ((RLong) results.get(0).get(0)).getValue();
-        Assert.assertEquals(remainingLinkCount, imageLinkIds.size() - tagLinksOnOtherImage.size());
+        Assert.assertEquals(remainingLinkCount, imageLinkIds.size() - tagLinksOnOtherImage.size() - fileAnnLinksOnOtherImage.size());
     }
 
     /**
