@@ -26,7 +26,6 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
     var tmplText = $('#mapanns_template').html();
     var mapAnnsTempl = _.template(tmplText);
 
-
     var initEvents = (function initEvents() {
 
         $header.click(function(){
@@ -50,6 +49,10 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
         return isClientMapAnn(ann) && ann.owner.id == WEBCLIENT.USER.id;
     };
 
+    this.apiAnnotationUrl = function apiAnnotationUrl(url) {
+        if (!url) { return WEBCLIENT.URLS.webindex + "api/annotations/";}
+        return url;
+    }
 
     this.render = function render() {
 
@@ -59,11 +62,12 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
                 $mapAnnContainer.html("Loading key value annotations...");
             }
 
+            // convert objects to json data
             var request = objects.map(function(o){
                 return o.replace("-", "=");
             });
-
-            $.getJSON(WEBCLIENT.URLS.webindex + "api/annotations/?type=map&" + request, function(data){
+            
+            $.getJSON(this.apiAnnotationUrl(opts.url) + "?type=map&" + request, function(data){
 
                 // manipulate data...
                 // make an object of eid: experimenter
