@@ -13,7 +13,8 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         currentImageId,
         currentZ,
         currentT,
-        currentC;
+        currentC,
+        currentProj;
 
     // 1px margin to right so slider marker not lost
     var svg = d3.select(element).append("svg")
@@ -86,18 +87,17 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         }
         proj = (proj === "intmax" || proj === "intmean") ? proj : false;
 
-        this.plotStartEnd(window, color);
         // If we are already showing the required data
-        if (currentImageId == imageId && theZ === currentZ && theC === currentC && theT === currentT) {
-            // just upate color
-            svg.selectAll(".area").attr('fill', color);
-            svg.selectAll(".line").attr('stroke', color);
+        if (currentImageId == imageId && theZ === currentZ && theC === currentC && theT === currentT && proj === currentProj) {
+            // and start/end line markers
+            this.plotStartEnd(window, color);
             return;
         }
         currentImageId = imageId;
         currentZ = theZ;
         currentC = theC;
         currentT = theT;
+        currentProj = proj;
 
         var url = webgatewayUrl + 'histogram_json/' + imageId + "/channel/" + theC + "/";
         url += '?theT=' + theT + '&theZ=' + theZ;
@@ -106,8 +106,8 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
         }
         $.getJSON(url, function(data){
             plotJson(data, color);
-            // this.plotStartEnd(window, color);
-        });
+            this.plotStartEnd(window, color);
+        }.bind(this));
     };
 
     // Don't want to rapidly re-load data...
@@ -144,13 +144,14 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
         var theZ = opts.theZ !== undefined ? opts.theZ : curr.z;
         var theT = opts.theT !== undefined ? opts.theT : curr.t;
         var wndw = ch.window;
+        var proj = viewport.getProjection();
         if (opts.start !== undefined && opts.end !== undefined) {
             wndw = {'min': ch.window.min,
                     'max': ch.window.max,
                     'start': opts.start,
                     'end': opts.end};
         }
-        histogram.loadAndPlot(img.id, theZ, chIdx, theT, color, wndw);
+        histogram.loadAndPlot(img.id, theZ, chIdx, theT, color, wndw, proj);
     };
     $(checkboxSelector).click(function(){
         var show = this.checked;
@@ -202,6 +203,10 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
 
     viewport.tslider.bind('change', function (e,pos) {
         plotHistogram({'theT': pos-1});
+    });
+
+    viewport.bind('projectionChange', function (viewport) {
+        plotHistogram();
     });
 };
 
