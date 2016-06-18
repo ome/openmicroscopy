@@ -33,7 +33,6 @@ import omero.all
 
 class TestScriptRepo(lib.ITest):
 
-
     def testLUTRepo(self):
         sr = self.client.sf.sharedResources()
         repo = sr.getLUTRepository()
