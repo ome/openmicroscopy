@@ -86,6 +86,35 @@ module omero {
                 idempotent OriginalFileList getScripts() throws ServerError;
 
                 /**
+                 * This method returns official server scripts identified
+                 * with the specified extension as a list of
+                 * {@link omero.model.OriginalFile} objects.
+                 * These scripts will be executed by the server if submitted
+                 * via {@link #runScript}. The input parameters
+                 * necessary for proper functioning can be retrieved via
+                 * {@link #getParams}.
+                 *
+                 * The {@link omero.model.OriginalFile#path} value can be used
+                 * in other official scripts via the
+                 * language specific import command, since the script
+                 * directory will be placed on the appropriate
+                 * environment path variable.
+                 * <pre>
+                 * scripts = scriptService.getScripts("py")
+                 * for script in scripts:
+                 *     text = scriptService.getScriptText(script.id.val)
+                 *     path = script.path.val\[1:\] # First symbol is a "/"
+                 *     path = path.replace("/",".")
+                 *     print "Possible import: %s" % path
+                 * </pre>
+                 *
+                 * @return see above.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                idempotent OriginalFileList getScriptsByExtension(string extension) throws ServerError;
+
+                /**
                  * Returns non-official scripts which have been uploaded by individual users.
                  * These scripts will <em>not</me> be run by the server, though a user can
                  * start a personal ""usermode processor"" which will allow the scripts to be
