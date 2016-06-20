@@ -137,6 +137,14 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
         opts = opts || {};
         var chIdx = opts.chIdx !== undefined ? opts.chIdx : currChIdx;
         currChIdx = chIdx;
+        // If viewport image not loaded yet (E.g. we're immediately showing histogram)
+        if (!viewport.loadedImg || !viewport.loadedImg.channels) {
+            // then we listen for the load event and try again
+            viewport.bind('imageLoad', function(){
+                plotHistogram();
+            });
+            return;
+        }
         var img = viewport.loadedImg;
         var ch = img.channels[chIdx];
         var color = ch.color === 'FFFFFF' ? '000000' : ch.color;
@@ -153,20 +161,34 @@ window.OME.createViewportHistogram = function(viewport, chartSelector, checkboxS
         }
         histogram.loadAndPlot(img.id, theZ, chIdx, theT, color, wndw, proj);
     };
+
+    var showHistogram = function() {
+        var plotWidth = $("#histogram").show().width();
+        // since we don't support resizing of histogram, let's also fix width of container
+        $("#histogram").css('width', plotWidth + 'px');
+        if (!histogram) {
+            histogram = new OME.Histogram(chartSelector, webgatewayUrl, plotWidth, 125);
+            plotHistogram();
+        }
+    };
+
+
     $(checkboxSelector).click(function(){
         var show = this.checked;
+        if (OME.setPaneExpanded) {
+            OME.setPaneExpanded('histogram', show);
+        }
         if (show) {
-            var plotWidth = $("#histogram").show().width();
-            // since we don't support resizing of histogram, let's also fix width of container
-            $("#histogram").css('width', plotWidth + 'px');
-            if (!histogram) {
-                histogram = new OME.Histogram(chartSelector, webgatewayUrl, plotWidth, 125);
-                plotHistogram();
-            }
+            showHistogram();
         } else {
             $("#histogram").hide();
         }
     });
+
+    // on load, check to see if we should show histogram...
+    if (OME.getPaneExpanded && OME.getPaneExpanded('histogram')) {
+        $(checkboxSelector).click();
+    }
 
     // Will get lots of channelChange events on Copy/Paste/Reset etc
     // We don't change selected channel of histogram - simply refresh.
