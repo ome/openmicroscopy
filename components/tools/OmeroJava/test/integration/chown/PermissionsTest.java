@@ -53,6 +53,7 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
+import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -150,11 +151,14 @@ public class PermissionsTest extends AbstractServerTest {
 
         final List<IObject> annotationObjects = new ArrayList<IObject>();
 
-        for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(), new TagAnnotationI(), new FileAnnotationI(), new MapAnnotationI()}) {
+        for (final Annotation annotation : new Annotation[] {new CommentAnnotationI(),
+             new TagAnnotationI(), new FileAnnotationI(), new MapAnnotationI()}) {
             final ImageAnnotationLink link = annotateImage(image, annotation);
             annotationObjects.add(link.proxy());
             annotationObjects.add(link.getChild().proxy());
         }
+
+
 
         Roi roi = new RoiI();
         roi.addShape(new RectangleI());
@@ -242,18 +246,22 @@ public class PermissionsTest extends AbstractServerTest {
         /* note which objects were used to annotate an image */
 
         final List<IObject> imageAnnotations;
+        final List<IObject> imageAnnotations2;
         final List<ImageAnnotationLink> tagLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
         final List<ImageAnnotationLink> fileAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
-
-        /* import and annotate an image */
+        final List<ImageAnnotationLink> mapAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
+        
+        /* import and annotate an image with two sets of annotations */
 
         init(importer);
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
         imageAnnotations = annotateImage(image);
+        imageAnnotations2 = annotateImage(image);
 
-        /* tag and add FileAnnotation to another image with the tags and FileAnnotations from the first image */
+        /* tag and add FileAnnotation and MapAnnotation from "imageAnnotations", but not from "imageAnnotations2"
+         to another image with the tags and FileAnnotations from the first image */
 
         final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage.getId().getValue());
@@ -265,6 +273,10 @@ public class PermissionsTest extends AbstractServerTest {
             if (annotation instanceof FileAnnotation) {
                 final ImageAnnotationLink linkf = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
                 fileAnnLinksOnOtherImage.add((ImageAnnotationLink) linkf.proxy());
+            }
+            if (annotation instanceof MapAnnotation) {
+                final ImageAnnotationLink linkf = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
+                mapAnnLinksOnOtherImage.add((ImageAnnotationLink) linkf.proxy());
             }
         }
 
@@ -278,23 +290,32 @@ public class PermissionsTest extends AbstractServerTest {
             return;
         }
 
-        /* check that the objects' ownership is all as expected */
+        /* check that the objects' ownership is all as expected, i.e. the non-doubly linked
+         * annotations belong to recipient, the doubly-linked annotations belong to importer */
 
         final Set<Long> imageLinkIds = new HashSet<Long>();
 
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
         for (final IObject annotation : imageAnnotations) {
-            if (annotation instanceof TagAnnotation || annotation instanceof FileAnnotation) {
+            if (annotation instanceof TagAnnotation || annotation instanceof FileAnnotation || 
+                annotation instanceof MapAnnotation) {
                 assertOwnedBy(annotation, importer);
             } else if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
             } else {
+
                 assertOwnedBy(annotation, recipient);
             }
         }
+
+        for (final IObject annotation : imageAnnotations2) {
+        	assertOwnedBy(annotation, recipient);
+        }
+
         assertOwnedBy(tagLinksOnOtherImage, importer);
         assertOwnedBy(fileAnnLinksOnOtherImage, importer);
+        assertOwnedBy(mapAnnLinksOnOtherImage, importer);
 
         /* check that the image's links to the tags and FileAnnotations that were also linked to the other image were deleted */
 
@@ -302,7 +323,8 @@ public class PermissionsTest extends AbstractServerTest {
         final ParametersI params = new ParametersI().addIds(imageLinkIds);
         final List<List<RType>> results = iQuery.projection(query, params);
         final long remainingLinkCount = ((RLong) results.get(0).get(0)).getValue();
-        Assert.assertEquals(remainingLinkCount, imageLinkIds.size() - tagLinksOnOtherImage.size() - fileAnnLinksOnOtherImage.size());
+        final long deletedLinkCount = tagLinksOnOtherImage.size() + fileAnnLinksOnOtherImage.size() + mapAnnLinksOnOtherImage.size();
+        Assert.assertEquals(remainingLinkCount, imageLinkIds.size() - deletedLinkCount);
     }
 
     /**
