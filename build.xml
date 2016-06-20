@@ -777,8 +777,8 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="copy-luts" depends="init">
-        <mkdir dir="${dist.dir}/lib/luts"/>
-        <copy todir="${dist.dir}/lib/luts">
+        <mkdir dir="${dist.dir}/lib/scripts/luts"/>
+        <copy todir="${dist.dir}/lib/scripts/luts">
             <fileset dir="luts"/>
         </copy>
     </target>
