@@ -69,7 +69,7 @@
  }
 	
 	
-	#middle_header_left a, #show_user_dropdown { 
+	#middle_header_left a, #show_user_dropdown, #public_login_button {
 		color: hsl(210,20%,80%);
 		font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
 		font-weight:500;
@@ -78,7 +78,7 @@
 		font-size:1.2em;
 	}
 	
-	#middle_header_left ul a:hover, #user_dropdown:hover {
+	#middle_header_left ul a:hover, #user_dropdown:hover, #public_login_button:hover {
 		text-decoration:none;
 		color:white;
 		background-color:rgba(255,255,255,.1);
@@ -110,7 +110,7 @@
 		} 
 
 
-			#middle_header_left li a, #show_user_dropdown{
+			#middle_header_left li a, #show_user_dropdown, #show_public_login_button {
 				display: block;
 				padding: .9em 1em 1.1em;
 			}
@@ -830,7 +830,7 @@ li.menu_back a {
 
 	/* User */
 
-	#user_dropdown {
+	#user_dropdown, #public_login_button {
 		cursor:pointer;
 		float:left;
 		position:relative;
@@ -841,7 +841,7 @@ li.menu_back a {
 		/* Link for User Dropdown */
 		
 		
-		#show_user_dropdown img{
+		#show_user_dropdown img, #show_public_login_button img {
 			-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.2);
 			
 			-webkit-box-shadow: 0 1px 0 rgba(255,255,255,0.2); /* Saf3.0+, Chrome */
@@ -873,7 +873,14 @@ li.menu_back a {
 			font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
 			font-weight:500;
 		}
-	
+
+        #show_public_login_button span {
+            position:relative;
+            padding-left:2px;
+            padding-right:12px;
+            font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight:500;
+        }
 
 		/* Actual Dropdown */
 		
