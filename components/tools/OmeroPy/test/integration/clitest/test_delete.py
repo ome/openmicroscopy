@@ -516,7 +516,7 @@ class TestDelete(CLITest):
         self.cli.invoke(self.args, strict=True)
 
         # Check that the Datasets were not deleted
-        # because I dont have permission to delete the dat2
+        # because the user does not have permission to delete the dat2
         assert self.query.find('Dataset', ids[0])
         assert client.sf.getQueryService().find("Dataset", ids[1])
         assert self.query.find('Dataset', ids[2])
