@@ -1448,6 +1448,10 @@
         background: #727C86;
         border-radius: 3px;
     }
+    /* disable transition delay on slider handles */
+    .ui-slider-handle.ui-state-default {
+        transition-duration: 0s;
+    }
 
     /* Style a <ul> as a Table or Icons, depending on class .tableLayout or .iconLayout */
     .tableLayout {
