@@ -92,6 +92,10 @@
       <constructor-arg index="2" value="${omero.launcher.matlab}"/>
       <constructor-arg index="3" value="${omero.process.matlab}"/>
   </bean>
+  <bean id="LUTScripts" class="ome.services.scripts.ScriptFileType">
+      <constructor-arg index="0" value="*.lut"/>
+      <constructor-arg index="1" value="text/x-lut"/>
+  </bean>
 
   <bean id="omero.api.Exporter" class="omero.api._ExporterTie" singleton="false">
     <constructor-arg>
