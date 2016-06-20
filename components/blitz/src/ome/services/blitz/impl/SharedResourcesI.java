@@ -65,8 +65,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
-import Ice.LocalException;
-import Ice.UserException;
 
 /**
  * Implementation of the SharedResources interface.
@@ -222,6 +220,22 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
     static String QUERY = "select o from OriginalFile o where o.mimetype = 'Repository'";
 
     public RepositoryPrx getScriptRepository(Current __current)
+            throws ServerError {
+        InternalRepositoryPrx[] repos = registry.lookupRepositories();
+        InternalRepositoryPrx prx = null;
+        if (repos != null) {
+            for (int i = 0; i < repos.length; i++) {
+                if (repos[i] != null) {
+                    if (repos[i].toString().contains(helper.getUuid())) {
+                        prx = repos[i];
+                    }
+                }
+            }
+        }
+        return prx == null ? null : prx.getProxy();
+    }
+
+    public RepositoryPrx getLUTRepository(Current __current)
             throws ServerError {
         InternalRepositoryPrx[] repos = registry.lookupRepositories();
         InternalRepositoryPrx prx = null;

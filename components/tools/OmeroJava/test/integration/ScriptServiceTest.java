@@ -22,6 +22,7 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -111,7 +112,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             fail("Only administrators can upload official script.");
         } catch (Exception e) {
         }
-        assertTrue(svc.getScripts().size() == n);
+        assertEquals(n, svc.getScripts().size());
     }
 
     /**
@@ -155,6 +156,78 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         long id = svc.uploadScript(folder, buf.toString());
         assertTrue(id > 0);
+    }
+
+    /**
+     * Tests the retrieval of the LUTs using the <code>getLUTs</code>
+     * method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetLUTs() throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> luts = svc.getLUTs();
+        assertNotNull(luts);
+        assertTrue(luts.size() > 0);
+        Iterator<OriginalFile> i = luts.iterator();
+        while (i.hasNext()) {
+            assertNotNull(i.next());
+        }
+    }
+
+    /**
+     * Tests to upload an official script by a user who is not an administrator,
+     * this method uses the <code>uploadOfficialScript</code>.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testUploadOfficialLUT() throws Exception {
+        StringBuffer buf = new StringBuffer("");
+        String[] values = { "a", "b", "c" };
+        for (int i = 0; i < values.length; i++) {
+            buf.append(values[i].charAt(0));
+        }
+        String folder = "officialTestLUT.lut";
+        IScriptPrx svc = factory.getScriptService();
+        int n = svc.getLUTs().size();
+        try {
+            svc.uploadOfficialLUT(folder, buf.toString());
+            fail("Only administrators can upload official LUT.");
+        } catch (Exception e) {
+        }
+        assertEquals(n, svc.getLUTs().size());
+    }
+
+    /**
+     * Tests to upload an official LUT by a user who is an administrator,
+     * this method uses the <code>uploadOfficialLUT</code>.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testUploadOfficialLUTAsRoot() throws Exception {
+        logRootIntoGroup();
+        StringBuffer buf = new StringBuffer("");
+        String[] values = { "4943 4f4c 00a2 0100 0000 00ff 0100 0300",
+                "0200 fe00 fa00 f600 0000 0000 0000 0000"};
+        for (int i = 0; i < values.length; i++) {
+            buf.append(values[i]);
+            buf.append("\n");
+        }
+        String folder = "officialTestLUT.lut";
+        IScriptPrx svc = factory.getScriptService();
+        int n = svc.getLUTs().size();
+        try {
+            long id = svc.uploadOfficialLUT(folder, buf.toString());
+            assertTrue(id > 0);
+        } catch (Exception e) {
+        }
+        assertEquals(n+1, svc.getLUTs().size());
     }
 
 }

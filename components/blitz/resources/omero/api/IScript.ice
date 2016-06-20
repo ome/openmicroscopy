@@ -54,6 +54,40 @@ module omero {
             {
 
                 //
+                // LUT management
+                //
+
+                /**
+                 * This method returns official server LUTs as a list of
+                 * {@link omero.model.OriginalFile} objects.
+                 *
+                 * @return see above.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                idempotent OriginalFileList getLUTs() throws ServerError;
+
+                /**
+                 * Get the id of an official LUT by the LUT path.
+                 * The script service ensures that all LUT paths are unique.
+                 *
+                 * Note: there is no similar method for user LUTs (e.g. getUserLUTID)
+                 * since the path is not guaranteed to be unique.
+                 *
+                 * @param path The name of the LUT.
+                 * @return see above.
+                 * @throws ApiUsageException
+                 * @throws SecurityViolation
+                 **/
+                idempotent long getLUTID(string path) throws  ServerError;
+
+                /**
+                 * Like {@link #uploadOfficialScript} but is only callable by
+                 * administrators.
+                 **/
+                long uploadOfficialLUT(string path, string lutText) throws ServerError;
+
+                //
                 // Script management
                 //
 

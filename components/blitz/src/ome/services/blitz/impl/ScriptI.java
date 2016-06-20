@@ -19,6 +19,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ParamsCache;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.scripts.LUTRepoHelper;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
@@ -36,6 +37,8 @@ import omero.ValidationException;
 import omero.api.AMD_IScript_canRunScript;
 import omero.api.AMD_IScript_deleteScript;
 import omero.api.AMD_IScript_editScript;
+import omero.api.AMD_IScript_getLUTs;
+import omero.api.AMD_IScript_getLUTID;
 import omero.api.AMD_IScript_getParams;
 import omero.api.AMD_IScript_getScriptID;
 import omero.api.AMD_IScript_getScriptText;
@@ -43,6 +46,7 @@ import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
 import omero.api.AMD_IScript_getUserScripts;
 import omero.api.AMD_IScript_runScript;
+import omero.api.AMD_IScript_uploadOfficialLUT;
 import omero.api.AMD_IScript_uploadOfficialScript;
 import omero.api.AMD_IScript_uploadScript;
 import omero.api.AMD_IScript_validateScript;
@@ -89,14 +93,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     protected final ScriptRepoHelper scripts;
 
+    protected final LUTRepoHelper luts;
+
     protected final ChecksumProviderFactory cpf;
 
-    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts,
+    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts, LUTRepoHelper luts,
             ChecksumProviderFactory cpf, ParamsCache cache) {
         super(null, be);
         this.scripts = scripts;
         this.cpf = cpf;
         this.cache = cache;
+        this.luts = luts;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -429,6 +436,83 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 List<OriginalFile> files = scripts.loadAll(true); // FIXME
                 IceMapper mapper = new IceMapper();
                 return mapper.map(files);
+            }
+        });
+    }
+
+    /**
+     * Get LUTs will return all the luts by id and name available on the
+     * server.
+     * 
+     * @param __current
+     *            ice context,
+     * @throws ServerError
+     *             validation, api usage.
+     */
+    public void getLUTs_async(final AMD_IScript_getLUTs __cb,
+            Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Object>() {
+            public Object call() throws Exception {
+                List<OriginalFile> files = luts.loadAll(true);
+                IceMapper mapper = new IceMapper();
+                return mapper.map(files);
+            }
+        });
+    }
+
+    /**
+     * Get the id of the official LUT with given path.
+     *
+     * @param __cb The LUT context.
+     * @param lutPath
+     *            {@link OriginalFile#getPath()} of the lut to find id for.
+     * @param __current
+     *            ice context.
+     */
+    public void getLUTID_async(final AMD_IScript_getLUTID __cb,
+            final String lutPath, final Current __current)
+            throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Long>(){
+            public Long call() {
+                Long id = luts.findInDb(lutPath, true);
+                if (id == null) {
+                    return -1L;
+                } else {
+                    return id;
+                }
+            }
+        });
+    }
+
+    public void uploadOfficialLUT_async(
+            AMD_IScript_uploadOfficialLUT __cb, final String path,
+            final String lutText, final Current __current) throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<Long>() {
+            public Long call() throws Exception {
+                EventContext ec = factory.getEventContext();
+                if ( ! ec.isCurrentUserAdmin() ) {
+                    throw new omero.SecurityViolation(null, null, "User is not an administrator");
+                }
+                try {
+                    // ticket:2356 - should only overwrite non-scripts
+                    Long lutID = luts.findInDb(path, true);
+                    Long fileID = luts.findInDb(path, false);
+                    if (lutID != null) {
+                        throw new ApiUsageException(null, null,
+                                "Path already exists: " + path);
+                    } else if (fileID != null) {
+                        log.info("Overwriting existing non-lut: " + fileID);
+                        cache.removeParams(fileID);
+                    }
+                    RepoFile f = luts.write(path, lutText);
+                    OriginalFile file = scripts.addOrReplace(f, fileID);
+                    validateParams(__current, file);
+                    return file.getId();
+                } catch (IOException e) {
+                    omero.ServerError se = new omero.InternalException(null, null, "Cannot write " + path);
+                    IceMapper.fillServerError(se, e);
+                    throw se;
+                }
             }
         });
     }
