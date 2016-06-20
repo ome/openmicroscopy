@@ -150,12 +150,20 @@ public class ImagesImporter
                     data.annotationIds = ids.toArray(new String[ids.size()]);
                 }
                 //create a new client //no sudo for that demo
+                /*
                 if (sessionKey == null) {
                     OmeroSessionService oss =
                             new OmeroSessionServiceImpl(context);
                     sessionKey = oss.createOfflineImportSession();
                 }
                 data.sessionKey = sessionKey;
+                */
+                // TODO: Smuggler import batch.
+                // After rolling out the new Smuggler with import batches,
+                // delete line below and comment in code block above.
+                data.sessionKey = new OmeroSessionServiceImpl(context)
+                                .createOfflineImportSession();
+
                 //Prepare json string
                 Gson writer = new Gson();
                 c.enqueueImport(writer.toJson(data), new StringBuilder());
