@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.roi.IconManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -190,11 +190,13 @@ public class IconManager
     /** The <code>ROI stack</code> icon if ROI is owned by other users. */
     public static final int ROISTACK_OTHER_OWNER = 46;
     
+    /** Icon for ROI folders */
     public static final int ROIFOLDER = 47;
     
     /** The <code>Filter Menu</code> icon. */
     public static final int           FILTER_MENU = 48;
     
+    /** 16px plus icon */
     public static final int           ADD_16 = 49;
     
 	/** 

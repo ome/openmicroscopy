@@ -266,6 +266,9 @@ class ObjectManager extends JPanel implements TabPaneInterface {
                 });
     }
 
+    /**
+     * Pops up the dialog to select the Folders to display
+     */
     private void showFilterDialog() {
         Collection<Object> available = new ArrayList<Object>();
         Collection<Object> selected = new ArrayList<Object>();

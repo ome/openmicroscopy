@@ -74,7 +74,6 @@ import javax.swing.tree.TreePath;
 
 
 
-
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jhotdraw.draw.Figure;
