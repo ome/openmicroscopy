@@ -37,7 +37,9 @@ import ome.util.SqlAction;
 // Note: This cannot be imported because
 // it's in the blitz pacakge. TODO
 
+
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.EmptyFileFilter;
@@ -440,19 +442,9 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         return FileUtils.iterateFiles(dir, scriptFilter, TrueFileFilter.TRUE);
     }
 
-    /**
-     * Walks all files in the repository (via {@link #iterate()} and adds them
-     * if not found in the database.
-     *
-     * If modificationCheck is true, then a change in the hash for a file in
-     * the repository will cause the old file to be removed from the repository
-     * <pre>(uuid == null)</pre> and a new file created in its place.
-     *
-     * @param modificationCheck
-     * @return See above.
-     */
     @SuppressWarnings("unchecked")
-    public List<OriginalFile> loadAll(final boolean modificationCheck) {
+    private List<OriginalFile> loadAll(final boolean modificationCheck, final
+            String extension, final boolean defaultLoad) {
         final Iterator<File> it = iterate();
         final List<OriginalFile> rv = new ArrayList<OriginalFile>();
         return (List<OriginalFile>) ex.execute(p, new Executor.SimpleWork(this,
@@ -467,6 +459,17 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
                 while (it.hasNext()) {
                     f = it.next();
+                    String e = FilenameUtils.getExtension(f.getAbsolutePath());
+                    if (defaultLoad) {
+                        //exclude from the list.
+                        if ("lut".equals(e)) {
+                            continue;
+                        }
+                    } else {
+                        if (!e.equals(extension)) {
+                            continue;
+                        }
+                    }
                     file = new RepoFile(dir, f);
                     Long id = findInDb(sqlAction, file, false); // non-scripts count
                     String hash = null;
@@ -492,6 +495,32 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                 removeMissingFilesFromDb(sqlAction, session, rv);
                 return rv;
             }});
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<OriginalFile> loadAll(final boolean modificationCheck, final
+            String extension) {
+        boolean check = false;
+        if (StringUtils.isBlank(extension)) {
+            check = true;
+        }
+        return loadAll(modificationCheck, extension, check);
+    }
+
+    /**
+     * Walks all files in the repository (via {@link #iterate()} and adds them
+     * if not found in the database.
+     *
+     * If modificationCheck is true, then a change in the hash for a file in
+     * the repository will cause the old file to be removed from the repository
+     * <pre>(uuid == null)</pre> and a new file created in its place.
+     *
+     * @param modificationCheck
+     * @return See above.
+     */
+    @SuppressWarnings("unchecked")
+    public List<OriginalFile> loadAll(final boolean modificationCheck) {
+        return loadAll(modificationCheck, null, true);
     }
 
     /**
