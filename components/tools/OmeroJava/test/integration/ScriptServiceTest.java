@@ -22,6 +22,7 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -111,7 +112,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             fail("Only administrators can upload official script.");
         } catch (Exception e) {
         }
-        assertTrue(svc.getScripts().size() == n);
+        assertEquals(n, svc.getScripts().size());
     }
 
     /**
