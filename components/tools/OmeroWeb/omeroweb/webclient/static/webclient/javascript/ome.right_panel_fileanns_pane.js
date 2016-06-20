@@ -128,10 +128,22 @@ var FileAnnsPane = function FileAnnsPane($element, opts) {
         })[0];  // should find single unique item matching annId
         WEBCLIENT.OPEN_WITH.forEach(function(ow){
             if (ow.label === label) {
-                // need json data for fileannotation
-                annData = $.extend({'type': 'fileannotation'}, annData);
-                // action expects list of objects
-                ow.action([annData], ow.url);
+                // if action has been provided...
+                if (ow.action) {
+                    // need json data for fileannotation
+                    annData = $.extend({'type': 'fileannotation'}, annData);
+                    // action expects list of objects
+                    var eventBubbled = ow.action([annData], ow.url);
+                    if (!eventBubbled) return;
+                }
+                // ...otherwise we use default handling...
+                var url = ow.url + "?annotation=" + annId;
+                if (ow.target && ow.target === 'tab') {
+                    // tries to open in a new tab (not reliable)
+                    window.open(url,'_blank');
+                } else {
+                    OME.openPopup(url);
+                }
             }
         });
     });
