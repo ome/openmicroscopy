@@ -34,6 +34,7 @@ import omero.api.IScriptPrx;
 import omero.grid.JobParams;
 import omero.model.OriginalFile;
 
+import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.Test;
 
 /**
@@ -49,6 +50,9 @@ import org.testng.annotations.Test;
  */
 public class ScriptServiceTest extends AbstractServerTest {
 
+    /** The extension of the lookup table files.*/
+    private static final String LUT_EXTENSION = "lut";
+
     /**
      * Tests the retrieval of the scripts using the <code>getScripts</code>
      * method.
@@ -63,11 +67,44 @@ public class ScriptServiceTest extends AbstractServerTest {
         assertNotNull(scripts);
         assertNotNull(scripts.size() > 0);
         Iterator<OriginalFile> i = scripts.iterator();
+        OriginalFile f;
         while (i.hasNext()) {
-            assertNotNull(i.next());
+            f = i.next();
+            assertNotNull(f);
+            String name = f.getName().getValue();
+            String extension = FilenameUtils.getExtension(name);
+            if (LUT_EXTENSION.equals(extension)) {
+                fail("LUT file should not be returned.");
+            }
         }
     }
 
+    /**
+     * Tests the retrieval of the scripts using the <code>getScriptsByExtension</code>
+     * method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetScriptsByExtension() throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByExtension(LUT_EXTENSION);
+        assertNotNull(scripts);
+        assertNotNull(scripts.size() > 0);
+        Iterator<OriginalFile> i = scripts.iterator();
+        OriginalFile f;
+        while (i.hasNext()) {
+            f = i.next();
+            assertNotNull(f);
+            String name = f.getName().getValue();
+            String extension = FilenameUtils.getExtension(name);
+            if (!LUT_EXTENSION.equals(extension)) {
+                fail("Only LUT files should be returned.");
+            }
+        }
+    }
+    
     /**
      * Tests the retrieval of the parameters associated to a script using the
      * <code>getParams</code> method.
