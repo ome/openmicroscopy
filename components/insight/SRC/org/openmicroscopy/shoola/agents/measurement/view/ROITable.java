@@ -1192,6 +1192,15 @@ public class ROITable
     public void loadTags() {
         manager.loadTags();
     }
+    
+    /**
+     * Checks if the user is allowed to create folders
+     * 
+     * @return See above.
+     */
+    public boolean canCreateFolder() {
+        return manager.canCreateFolder();
+    }
 
     @Override
     public void addToFolder() {
@@ -1220,7 +1229,7 @@ public class ROITable
             ds[1] = dsAll;
         }
             
-        SelectionWizard wiz = new SelectionWizard(null, null, FolderData.class, manager.canEdit(), MeasurementAgent.getUserDetails(), ds);
+        SelectionWizard wiz = new SelectionWizard(null, null, FolderData.class, canCreateFolder(), MeasurementAgent.getUserDetails(), ds);
         wiz.setTitle("Add to ROI Folders", "Select the Folders to add the ROI(s) to", IconManager.getInstance().getIcon(IconManager.ROIFOLDER));
         wiz.addPropertyChangeListener(this);
         UIUtilities.centerAndShow(wiz);

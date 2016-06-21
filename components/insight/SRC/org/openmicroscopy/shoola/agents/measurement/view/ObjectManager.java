@@ -284,7 +284,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
         SelectionWizard wizard = new SelectionWizard(MeasurementAgent
                 .getRegistry().getTaskBar().getFrame(), available, selected,
-                FolderData.class, true, MeasurementAgent.getUserDetails());
+                FolderData.class, canCreateFolder(), MeasurementAgent.getUserDetails());
         wizard.setTitle("Displayed Folders",
                 "Select the folders which are displayed in the ROI table",
                 icons.getIcon(IconManager.FILTER_MENU));
@@ -868,11 +868,11 @@ class ObjectManager extends JPanel implements TabPaneInterface {
      * 
      * @return See above.
      */
-    public boolean canEdit() {
+    public boolean canCreateFolder() {
         if (model.getImage() == null)
             return false;
         else
-            return model.getImage().canEdit();
+            return model.getImage().canAnnotate();
     }
 
     /**
