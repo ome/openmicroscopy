@@ -443,8 +443,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     @SuppressWarnings("unchecked")
-    private List<OriginalFile> loadAll(final boolean modificationCheck, final
-            String extension, final boolean defaultLoad) {
+    private List<OriginalFile> loadAllScripts(final boolean modificationCheck, final
+            String extension) {
         final Iterator<File> it = iterate();
         final List<OriginalFile> rv = new ArrayList<OriginalFile>();
         return (List<OriginalFile>) ex.execute(p, new Executor.SimpleWork(this,
@@ -460,7 +460,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                 while (it.hasNext()) {
                     f = it.next();
                     String e = FilenameUtils.getExtension(f.getAbsolutePath());
-                    if (defaultLoad) {
+                    if (StringUtils.isBlank(extension)) {
                         //exclude from the list.
                         if ("lut".equals(e)) {
                             continue;
@@ -500,11 +500,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck, final
             String extension) {
-        boolean check = false;
-        if (StringUtils.isBlank(extension)) {
-            check = true;
-        }
-        return loadAll(modificationCheck, extension, check);
+        return loadAllScripts(modificationCheck, extension);
     }
 
     /**
@@ -520,7 +516,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      */
     @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck) {
-        return loadAll(modificationCheck, null, true);
+        return loadAllScripts(modificationCheck, null);
     }
 
     /**
