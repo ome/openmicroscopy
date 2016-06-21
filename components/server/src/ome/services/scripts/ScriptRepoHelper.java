@@ -166,7 +166,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
             mimetypes.add(entry.getValue().getMimetype());
             if (entry.getValue().isInert()) {
                 inertMimetypes.add(entry.getValue().getMimetype());
-                log.info("mimetypes:"+entry.getValue().getMimetype());
             }
         }
         mimetypes = Collections.unmodifiableSet(mimetypes);
@@ -472,7 +471,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                 } else {
                     types.add(mimetype);
                 }
-                log.info("types mimetypes:"+types);
                 while (it.hasNext()) {
                     f = it.next();
                     file = new RepoFile(dir, f);
