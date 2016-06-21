@@ -75,6 +75,11 @@ public class ScriptFileType {
         this.process = process;
     }
 
+    /**
+     * Returns <code>true</code> if the script type cannot be executed,
+     * <code>false</code> otherwise.
+     * @return See above.
+     */
     public boolean isInert()
     {
         return StringUtils.isBlank(launcher) && StringUtils.isBlank(process);
