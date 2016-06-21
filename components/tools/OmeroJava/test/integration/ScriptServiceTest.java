@@ -50,8 +50,8 @@ import org.testng.annotations.Test;
  */
 public class ScriptServiceTest extends AbstractServerTest {
 
-    /** The extension of the lookup table files.*/
-    private static final String LUT_EXTENSION = "lut";
+    /** The mimetype of the lookup table files.*/
+    private static final String LUT_MIMETYPE = "text/x-lut";
 
     /**
      * Tests the retrieval of the scripts using the <code>getScripts</code>
@@ -71,25 +71,24 @@ public class ScriptServiceTest extends AbstractServerTest {
         while (i.hasNext()) {
             f = i.next();
             assertNotNull(f);
-            String name = f.getName().getValue();
-            String extension = FilenameUtils.getExtension(name);
-            if (LUT_EXTENSION.equals(extension)) {
+            String mimetype = f.getMimetype().getValue();
+            if (LUT_MIMETYPE.equals(mimetype)) {
                 fail("LUT file should not be returned.");
             }
         }
     }
 
     /**
-     * Tests the retrieval of the scripts using the <code>getScriptsByExtension</code>
+     * Tests the retrieval of the scripts using the <code>getScriptsByMimetype</code>
      * method.
      *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test
-    public void testGetScriptsByExtension() throws Exception {
+    public void testGetScriptsByMimetype() throws Exception {
         IScriptPrx svc = factory.getScriptService();
-        List<OriginalFile> scripts = svc.getScriptsByExtension(LUT_EXTENSION);
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
         assertNotNull(scripts);
         assertNotNull(scripts.size() > 0);
         Iterator<OriginalFile> i = scripts.iterator();
@@ -97,9 +96,8 @@ public class ScriptServiceTest extends AbstractServerTest {
         while (i.hasNext()) {
             f = i.next();
             assertNotNull(f);
-            String name = f.getName().getValue();
-            String extension = FilenameUtils.getExtension(name);
-            if (!LUT_EXTENSION.equals(extension)) {
+            String mimetype = f.getMimetype().getValue();
+            if (!LUT_MIMETYPE.equals(mimetype)) {
                 fail("Only LUT files should be returned.");
             }
         }
