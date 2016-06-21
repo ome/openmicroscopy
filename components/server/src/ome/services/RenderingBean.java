@@ -41,6 +41,7 @@ import ome.model.enums.RenderingModel;
 import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
@@ -146,6 +147,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /** Reference to the compression service. */
     private final LocalCompress compressionSrv;
 
+    private final ScriptRepoHelper helper;
+
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
 
@@ -171,13 +174,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
      *          Reference to the executor.
      * @param secSys
      *          Reference to the security system.
+     * @param helper
+     *          Reference to the script repo.
      */
     public RenderingBean(PixelsService dataService, LocalCompress compress,
-            Executor ex, SecuritySystem secSys) {
+            Executor ex, SecuritySystem secSys, ScriptRepoHelper helper) {
         this.ex = ex;
         this.secSys = secSys;
         this.pixDataSrv = dataService;
         this.compressionSrv = compress;
+        this.helper = helper;
     }
 
     @RolesAllowed("user")
