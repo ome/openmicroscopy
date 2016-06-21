@@ -459,11 +459,11 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
                 File f = null;
                 RepoFile file = null;
-
+                boolean isBlank = StringUtils.isBlank(extension);
                 while (it.hasNext()) {
                     f = it.next();
                     String e = FilenameUtils.getExtension(f.getAbsolutePath());
-                    if (StringUtils.isBlank(extension)) {
+                    if (isBlank) {
                         //exclude from the list.
                         if (LUT_EXTENSION.equals(e)) {
                             continue;
