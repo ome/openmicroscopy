@@ -108,11 +108,12 @@ module omero {
                  *     print "Possible import: %s" % path
                  * </pre>
                  *
+                 * @param mimetype the mimetype identifying the scripts.
                  * @return see above.
                  * @throws ApiUsageException
                  * @throws SecurityViolation
                  **/
-                idempotent OriginalFileList getScriptsByExtension(string extension) throws ServerError;
+                idempotent OriginalFileList getScriptsByMimetype(string mimetype) throws ServerError;
 
                 /**
                  * Returns non-official scripts which have been uploaded by individual users.

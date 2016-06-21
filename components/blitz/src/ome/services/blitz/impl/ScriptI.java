@@ -41,7 +41,7 @@ import omero.api.AMD_IScript_getScriptID;
 import omero.api.AMD_IScript_getScriptText;
 import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
-import omero.api.AMD_IScript_getScriptsByExtension;
+import omero.api.AMD_IScript_getScriptsByMimetype;
 import omero.api.AMD_IScript_getUserScripts;
 import omero.api.AMD_IScript_runScript;
 import omero.api.AMD_IScript_uploadOfficialScript;
@@ -438,17 +438,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      * Get Scripts will return all the scripts by id and name available on the
      * server.
      *
-     * @param extension The extension of the script to retrieve.
+     * @param mimetype The mimetype of the scripts to retrieve.
      * @param __current
      *            ice context,
      * @throws ServerError
      *             validation, api usage.
      */
-    public void getScriptsByExtension_async(final AMD_IScript_getScriptsByExtension __cb,
-            final String extension, Current __current) throws ServerError {
+    public void getScriptsByMimetype_async(final AMD_IScript_getScriptsByMimetype __cb,
+            final String mimetype, Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
             public Object call() throws Exception {
-                List<OriginalFile> files = scripts.loadAll(true, extension);
+                List<OriginalFile> files = scripts.loadAll(true, mimetype);
                 IceMapper mapper = new IceMapper();
                 return mapper.map(files);
             }

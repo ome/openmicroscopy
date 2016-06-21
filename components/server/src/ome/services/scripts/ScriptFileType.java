@@ -22,6 +22,7 @@ import ome.model.core.OriginalFile;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Definition of the script types that will be accepted by the server.
@@ -72,6 +73,11 @@ public class ScriptFileType {
         this.mimetype = mimetype;
         this.launcher = launcher;
         this.process = process;
+    }
+
+    public boolean isInert()
+    {
+        return StringUtils.isBlank(launcher) && StringUtils.isBlank(process);
     }
 
     /**

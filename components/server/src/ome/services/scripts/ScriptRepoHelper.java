@@ -39,7 +39,6 @@ import ome.util.SqlAction;
 
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.EmptyFileFilter;
@@ -72,9 +71,6 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      */
     public final static String SCRIPT_REPO = "ScriptRepo";
 
-    /** The lookup table extension.*/
-    private final static String LUT_EXTENSION = "lut";
-
     /**
      * {@link IOFileFilter} instance used during {@link #iterate()} to find the
      * matching scripts in the given directory.
@@ -92,6 +88,11 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * the collection is frequently passed out.
      */
     private/* final */ Set<String> mimetypes = new HashSet<String>();
+
+    /** The collection of mimetypes from each from each of the
+     * {@link ScriptFileType} instances in {@link #types} that are marked as inert.
+     */
+    private/* final */ Set<String> inertMimetypes = new HashSet<String>();
 
     private final String uuid;
 
@@ -163,9 +164,13 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
             log.info("Registering {}: {}", entry.getKey(), found);
             orFilters.add(found);
             mimetypes.add(entry.getValue().getMimetype());
+            if (entry.getValue().isInert()) {
+                inertMimetypes.add(entry.getValue().getMimetype());
+                log.info("mimetypes:"+entry.getValue().getMimetype());
+            }
         }
         mimetypes = Collections.unmodifiableSet(mimetypes);
-
+        inertMimetypes = Collections.unmodifiableSet(inertMimetypes);
         andFilters.add(BASE_SCRIPT_FILTER);
         andFilters.add(new OrFileFilter(orFilters));
         this.scriptFilter = new AndFileFilter(andFilters);
@@ -446,8 +451,8 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     @SuppressWarnings("unchecked")
-    private List<OriginalFile> loadAllScripts(final boolean modificationCheck, final
-            String extension) {
+    private List<OriginalFile> loadAllScripts(final boolean modificationCheck,
+            final String mimetype) {
         final Iterator<File> it = iterate();
         final List<OriginalFile> rv = new ArrayList<OriginalFile>();
         return (List<OriginalFile>) ex.execute(p, new Executor.SimpleWork(this,
@@ -459,20 +464,17 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
                 File f = null;
                 RepoFile file = null;
-                boolean isBlank = StringUtils.isBlank(extension);
+                //only retrieve the non-inert mimetypes
+                Set<String> types = new HashSet<String>();
+                if (StringUtils.isBlank(mimetype)) {
+                    types.addAll(mimetypes);
+                    types.removeAll(inertMimetypes);
+                } else {
+                    types.add(mimetype);
+                }
+                log.info("types mimetypes:"+types);
                 while (it.hasNext()) {
                     f = it.next();
-                    String e = FilenameUtils.getExtension(f.getAbsolutePath());
-                    if (isBlank) {
-                        //exclude from the list.
-                        if (LUT_EXTENSION.equals(e)) {
-                            continue;
-                        }
-                    } else {
-                        if (!e.equals(extension)) {
-                            continue;
-                        }
-                    }
                     file = new RepoFile(dir, f);
                     Long id = findInDb(sqlAction, file, false); // non-scripts count
                     String hash = null;
@@ -480,8 +482,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     if (id == null) {
                         ofile = addOrReplace(session, sqlAction, sf, file, null);
                     } else {
-
-                        ofile = load(id, session, getSqlAction(), true); // checks for type & repo
+                        ofile = load(id, session, getSqlAction(), true, types); // checks for type & repo
                         if (ofile == null) {
                             continue; // wrong type or similar
                         }
@@ -500,10 +501,22 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
             }});
     }
 
+    /**
+     * Walks all files in the repository (via {@link #iterate()} and adds them
+     * if not found in the database.
+     *
+     * If modificationCheck is true, then a change in the hash for a file in
+     * the repository will cause the old file to be removed from the repository
+     * <pre>(uuid == null)</pre> and a new file created in its place.
+     *
+     * @param modificationCheck
+     * @param mimetype the mimetype of the scripts or <code>null</code>.
+     * @return See above.
+     */
     @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck, final
-            String extension) {
-        return loadAllScripts(modificationCheck, extension);
+            String mimetype) {
+        return loadAllScripts(modificationCheck, mimetype);
     }
 
     /**
@@ -658,15 +671,20 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     public OriginalFile load(final long id, Session s, SqlAction sqlAction, boolean check) {
+        return load(id, s, sqlAction, check, mimetypes);
+    }
+
+    private OriginalFile load(final long id, Session s, SqlAction sqlAction,
+            boolean check, Set<String> types) {
         if (check) {
-            String repo = sqlAction.scriptRepo(id, mimetypes);
+            String repo = sqlAction.scriptRepo(id, types);
             if (!uuid.equals(repo)) {
                 return null;
             }
         }
         return (OriginalFile) s.get(OriginalFile.class, id);
     }
-
+    
     /**
      * Checks if
      */
