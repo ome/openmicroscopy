@@ -434,8 +434,11 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         if (action == ROIFolderAction.CREATE_FOLDER
                 || action == ROIFolderAction.ADD_TO_FOLDER
                 && MapUtils.isNotEmpty(result)) {
-            FolderData f = (FolderData) result.keySet().iterator().next();
-            objectsTable.getIDFilter().add(f.getId());
+            Iterator it = result.keySet().iterator();
+            while(it.hasNext()) {
+                FolderData f = (FolderData) it.next();
+                objectsTable.getIDFilter().add(f.getId());
+            }
         }
         rebuildTable();
     }
