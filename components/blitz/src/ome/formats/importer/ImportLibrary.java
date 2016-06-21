@@ -281,7 +281,7 @@ public class ImportLibrary implements IObservable
                         throw new RuntimeException("Failed to load target", e);
                     }
                 }
-
+                ic.setLegacyOutput(config.legacy.get());
                 if (config.checksumAlgorithm.get() != null) {
                     ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
                 }
