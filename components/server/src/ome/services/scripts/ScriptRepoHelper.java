@@ -72,6 +72,9 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      */
     public final static String SCRIPT_REPO = "ScriptRepo";
 
+    /** The lookup table extension.*/
+    private final static String LUT_EXTENSION = "lut";
+
     /**
      * {@link IOFileFilter} instance used during {@link #iterate()} to find the
      * matching scripts in the given directory.
@@ -462,7 +465,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     String e = FilenameUtils.getExtension(f.getAbsolutePath());
                     if (StringUtils.isBlank(extension)) {
                         //exclude from the list.
-                        if ("lut".equals(e)) {
+                        if (LUT_EXTENSION.equals(e)) {
                             continue;
                         }
                     } else {
