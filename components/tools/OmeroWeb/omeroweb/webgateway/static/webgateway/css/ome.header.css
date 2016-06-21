@@ -880,6 +880,7 @@ li.menu_back a {
             padding-right:12px;
             font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
             font-weight:500;
+            color: hsl(210, 20%, 80%);
         }
 
 		/* Actual Dropdown */
