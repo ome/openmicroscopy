@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
@@ -26,7 +27,6 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
@@ -135,6 +135,9 @@ public class Renderer {
     
     /** Map of overlays we've currently been told to render. */
     private Map<byte[], Integer> overlays;
+
+    /** The collections of available lookup tables.*/
+    private List<OriginalFile> luts;
 
     /**
      * Returns a copy of a list of channel bindings with one element removed;
@@ -325,15 +328,17 @@ public class Renderer {
      * @param pixelsObj Pixels object.
      * @param renderingDefObj Rendering definition object.
      * @param bufferObj PixelBuffer object.
+     * @param luts the available lookup tables.
      * @throws NullPointerException If <code>null</code> parameters are passed.
      */
     public Renderer(QuantumFactory quantumFactory,
     		List<RenderingModel> renderingModels, Pixels pixelsObj,
-            RenderingDef renderingDefObj, PixelBuffer bufferObj) {
+            RenderingDef renderingDefObj, PixelBuffer bufferObj,
+            List<OriginalFile> luts) {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
-
+        this.luts = luts;
         if (metadata == null) {
             throw new NullPointerException("Expecting not null metadata");
         } else if (rndDef == null) {
