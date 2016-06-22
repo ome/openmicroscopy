@@ -50,6 +50,15 @@ public class TablesFacilityTest extends GatewayTest {
     }
 
     @Test(dependsOnMethods = { "testAddTable" })
+    public void testGetTableInfo() throws Exception {
+        FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
+                .iterator().next();
+        TableData data2 = tablesFacility.getTableInfo(rootCtx, tablesFile.getFileID());
+        Assert.assertEquals(data2.getNumberOfRows(), 4);
+        Assert.assertEquals(data2.getColumns(), this.data.getColumns());
+    }
+    
+    @Test(dependsOnMethods = { "testAddTable" })
     public void testGetTable() throws Exception {
         FileAnnotationData tablesFile = tablesFacility.getAvailableTables(rootCtx, ds)
                 .iterator().next();
