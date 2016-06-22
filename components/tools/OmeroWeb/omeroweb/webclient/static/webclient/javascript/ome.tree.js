@@ -157,52 +157,61 @@ $(function() {
                     // Use the open_node callback mechanism to facilitate loading the tree to the
                     // point indicated by the path, starting from the top, 'experimenter'.
                     if (data.length === 0) return;
-                    var path = data[0];
-                    var lastIndex = path.length - 1;
 
-                    var traverse = function(index, parentNode) {
-                        // Get this path component
-                        var comp = path[index];
-                        // Get the node for this path component
-                        var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
+                    var getTraverse = function(path) {
+                        var traverse = function(index, parentNode) {
+                            // Get this path component
+                            var comp = path[index];
+                            // Get the node for this path component
+                            var node = inst.locate_node(comp.type + '-' + comp.id, parentNode)[0];
 
-                        // if we've failed to find root, we might be showing "All Members". Try again...
-                        if (index === 0 && !node) {
-                            node = inst.locate_node(comp.type + '-' + '-1', parentNode)[0];
-                        }
+                            // if we've failed to find root, we might be showing "All Members". Try again...
+                            if (index === 0 && !node) {
+                                node = inst.locate_node(comp.type + '-' + '-1', parentNode)[0];
+                            }
+                            
+                            // If at any point the node doesn't exist, simply give up as the path has
+                            // become invalid
+                            if (!node) {
+                                return;
+                            }
+                            // If we have a 'childPage' greater than 0, need to paginate
+                            if (comp.childPage) {
+                                inst._set_page(node, comp.childPage);
+                            }
 
-                        // If at any point the node doesn't exist, simply give up as the path has
-                        // become invalid
-                        if (!node) {
-                            return;
-                        }
-                        // If we have a 'childPage' greater than 0, need to paginate
-                        if (comp.childPage) {
-                            inst._set_page(node, comp.childPage);
-                        }
-
-                        if (index < lastIndex) {
-                            inst.open_node(node, function() {
-                                traverse(index += 1, node);
-                            });
-                        // Otherwise select it
-                        } else {
-                            inst.select_node(node);
-                            inst.open_node(node);
-                            // we also focus the node, to scroll to it and setup hotkey events
-                            $("#" + node.id).children('.jstree-anchor').focus();
-                            // Handle multiple selection. E.g. extra images in same dataset
-                            for(var n=1; n<nodeIds.length; n++) {
-                                node = inst.locate_node(nodeIds[n], parentNode)[0];
-                                if(node) {
-                                    inst.select_node(node);
+                            if (index < lastIndex) {
+                                inst.open_node(node, function() {
+                                    traverse(index += 1, node);
+                                });
+                            // Otherwise select it
+                            } else {
+                                inst.select_node(node);
+                                inst.open_node(node);
+                                // we also focus the node, to scroll to it and setup hotkey events
+                                $("#" + node.id).children('.jstree-anchor').focus();
+                                // Handle multiple selection. E.g. extra images in same dataset
+                                for(var n=1; n<nodeIds.length; n++) {
+                                    node = inst.locate_node(nodeIds[n], parentNode)[0];
+                                    if(node) {
+                                        inst.select_node(node);
+                                    }
                                 }
                             }
+                        };
+                        return traverse;
+                    }
+                    var i;
+                    for (i=0; i < (data.length); i++) {
+                        var path = data[i];
+                        var lastIndex = path.length - 1;
+                        var traverse = getTraverse(path)
+                        // Start traversing at the start of the path with no parent node
+                        try {
+                            traverse(0, undefined);
+                        } finally {
                         }
-                    };
-
-                    // Start traversing at the start of the path with no parent node
-                    traverse(0, undefined);
+                    }
                 },
 
                 error: function(json) {
