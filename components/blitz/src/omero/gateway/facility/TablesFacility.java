@@ -175,6 +175,27 @@ public class TablesFacility extends Facility {
     }
 
     /**
+     * Get basic information about a table.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param fileId
+     *            The id of the {@link OriginalFile} which stores the table
+     * @return An 'empty' {@link TableData} object without the actual table data
+     *         loaded; which only contains information about the columns and the
+     *         size of the table.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public TableData getTableInfo(SecurityContext ctx, long fileId)
+            throws DSOutOfServiceException, DSAccessException {
+        return getTable(ctx, fileId, 0, 0);
+    }
+    
+    /**
      * Load the data from a table (Note: limited to
      * {@link TablesFacility#DEFAULT_MAX_ROWS_TO_FETCH} number of rows)
      * 
