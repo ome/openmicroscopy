@@ -480,7 +480,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     if (id == null) {
                         ofile = addOrReplace(session, sqlAction, sf, file, null);
                     } else {
-                        ofile = load(id, session, getSqlAction(), true, types); // checks for type & repo
+                        ofile = load(id, session, getSqlAction(), true); // checks for type & repo
                         if (ofile == null) {
                             continue; // wrong type or similar
                         }
