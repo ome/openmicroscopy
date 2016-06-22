@@ -492,7 +492,9 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                             }
                         }
                     }
-                    rv.add(ofile);
+                    if (types.contains(ofile.getMimetype())) {
+                        rv.add(ofile);
+                    }
                 }
                 removeMissingFilesFromDb(sqlAction, session, rv);
                 return rv;
