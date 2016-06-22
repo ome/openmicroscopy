@@ -164,16 +164,15 @@ public class MeasurementTableModel extends AbstractTableModel
                     }
                 }
                 return buffer.toString();
-            } else {
-                if (value instanceof Number) {
+            } 
+            else if (value instanceof Number) {
                     double d = ((Number) value).doubleValue();
                     return UIUtilities.twoDecimalPlaces(d);
-                }
-                if (value instanceof Length) 
+                    }
+            else if (value instanceof Length) 
                     return UIUtilities.twoDecimalPlaces(((Length) value)
                             .getValue());
-                return value;
-            }
+            return value;
         } else {
             if (value instanceof List) {
                 List<Object> l = (List<Object>) value;
@@ -201,16 +200,15 @@ public class MeasurementTableModel extends AbstractTableModel
                         buffer.append(" ");
                 }
                 return buffer.toString();
-            } else {
-                if (value instanceof Number) {
+            } 
+            else if (value instanceof Number) {
                     double d = ((Number) value).doubleValue();
                     return UIUtilities.twoDecimalPlacesAsNumber(d);
                 }
-                if (value instanceof Length) 
+            else if (value instanceof Length)  
                     return UIUtilities.twoDecimalPlacesAsNumber(((Length) value)
-                            .getValue());
-                return value;
-            }
+                            .getValue());      
+            return value;
         }
     }
 
