@@ -65,16 +65,22 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScripts();
         assertNotNull(scripts);
-        assertNotNull(scripts.size() > 0);
+        assertTrue(scripts.size() > 0);
         Iterator<OriginalFile> i = scripts.iterator();
         OriginalFile f;
         while (i.hasNext()) {
             f = i.next();
             assertNotNull(f);
             String mimetype = f.getMimetype().getValue();
-            if (LUT_MIMETYPE.equals(mimetype)) {
-                fail("LUT file should not be returned.");
-            }
+            assertEquals("text/x-python", mimetype);
+        }
+        scripts = svc.getScripts();
+        i = scripts.iterator();
+        while (i.hasNext()) {
+            f = i.next();
+            assertNotNull(f);
+            String mimetype = f.getMimetype().getValue();
+            assertEquals("text/x-python", mimetype);
         }
     }
 
@@ -90,16 +96,22 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
         assertNotNull(scripts);
-        assertNotNull(scripts.size() > 0);
+        assertTrue(scripts.size() > 0);
         Iterator<OriginalFile> i = scripts.iterator();
         OriginalFile f;
         while (i.hasNext()) {
             f = i.next();
             assertNotNull(f);
             String mimetype = f.getMimetype().getValue();
-            if (!LUT_MIMETYPE.equals(mimetype)) {
-                fail("Only LUT files should be returned.");
-            }
+            assertEquals(LUT_MIMETYPE, mimetype);
+        }
+        scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
+        i = scripts.iterator();
+        while (i.hasNext()) {
+            f = i.next();
+            assertNotNull(f);
+            String mimetype = f.getMimetype().getValue();
+            assertEquals(LUT_MIMETYPE, mimetype);
         }
     }
     
