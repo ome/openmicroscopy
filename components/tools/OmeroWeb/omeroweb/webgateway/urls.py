@@ -15,6 +15,8 @@
 
 from django.conf.urls import url, patterns
 from omeroweb.webgateway import views
+from django.conf import settings
+import re
 
 webgateway = url(r'^$', 'webgateway.views.index', name="webgateway")
 """
@@ -407,7 +409,11 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
-api_projects = url(r'^api/v(?P<version>[^/]+)/m/projects/$',
+
+versions = '|'.join([re.escape(str(v))
+                    for v in settings.WEBGATEWAY_API_VERSIONS])
+
+api_projects = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/$',
                    views.api_projects,
                    name='api_projects')
 """
