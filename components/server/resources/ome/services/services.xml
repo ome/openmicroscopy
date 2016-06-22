@@ -73,27 +73,25 @@
         </property>
     </bean>
 
-	<bean id="managedService" abstract="true"
-		class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="interceptorNames" ref="statelessInterceptors"/>
-	</bean>
+    <bean id="managedService" abstract="true"
+        class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="interceptorNames" ref="statelessInterceptors"/>
+    </bean>
 
-	<bean id="managedStatefulService" abstract="true"
-		class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="interceptorNames" ref="statefulInterceptors"/>
-	</bean>
+    <bean id="managedStatefulService" abstract="true"
+    class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interceptorNames" ref="statefulInterceptors"/>
+    </bean>
 
-	<bean
-		       id="serviceHandler"
-		    class="ome.services.util.ServiceHandler"
-		lazy-init="true">
-		<constructor-arg index="0" ref="currentDetails"/>
-		<constructor-arg index="1" value="${omero.throttling.method_time.warn}"/>
-		<constructor-arg index="2" value="${omero.throttling.method_time.error}"/>
-	</bean>
+    <bean id="serviceHandler" class="ome.services.util.ServiceHandler"
+    lazy-init="true">
+        <constructor-arg index="0" ref="currentDetails"/>
+        <constructor-arg index="1" value="${omero.throttling.method_time.warn}"/>
+        <constructor-arg index="2" value="${omero.throttling.method_time.error}"/>
+    </bean>
 
-	<bean id="profile"
-		class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"/>
+    <bean id="profile"
+    class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"/>
 
 <!--
   Service Levels
@@ -112,17 +110,17 @@
   </bean>
 
   <bean id="level2" abstract="true">
-    <property name="queryFactory"   ref="queryFactory"/>
-    <property name="updateService" 	ref="internal-ome.api.IUpdate"/>
-    <property name="queryService"	ref="internal-ome.api.IQuery"/>
+    <property name="queryFactory" ref="queryFactory"/>
+    <property name="updateService" ref="internal-ome.api.IUpdate"/>
+    <property name="queryService" ref="internal-ome.api.IQuery"/>
     <property name="extendedMetadata" ref="extendedMetadata"/>
     <property name="securitySystem" ref="securitySystem"/>
   </bean>
 
   <bean id="level3" abstract="true">
-    <property name="queryFactory"   ref="queryFactory"/>
-    <property name="pixelsService"  ref="internal-ome.api.IPixels"/>
-    <property name="pojosService" 	ref="internal-ome.api.IPojos"/>
+    <property name="queryFactory" ref="queryFactory"/>
+    <property name="pixelsService" ref="internal-ome.api.IPixels"/>
+    <property name="pojosService" ref="internal-ome.api.IPojos"/>
   </bean>
 
   <bean id="stateful" abstract="true" class="ome.services.AbstractStatefulBean">
@@ -133,7 +131,7 @@
 
   <bean name="binary" abstract="true">
     <property name="pixelsMetadata" ref="internal-ome.api.IPixels"/>
-    <property name="pixelsData"     ref="/OMERO/Pixels"/>
+    <property name="pixelsData" ref="/OMERO/Pixels"/>
   </bean>
 
   <bean name="filesystem"  abstract="true">
