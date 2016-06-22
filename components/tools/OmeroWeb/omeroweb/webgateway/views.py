@@ -2500,6 +2500,34 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
 
 @login_required()
 @jsonp
+def api_base(request, conn=None, **kwargs):
+    """
+    Base url of the webgateway json api.
+    """
+    versions = []
+    for v in settings.WEBGATEWAY_API_VERSIONS:
+        url = request.build_absolute_uri(
+            reverse(api_version, kwargs={'api_version': v}))
+        versions.append({
+            'version': v,
+            'version_url': url
+        })
+    return versions
+
+
+@login_required()
+@jsonp
+def api_version(request, api_version=None, conn=None, **kwargs):
+    """
+    Base url of the webgateway json api.
+    """
+
+    return {'projects_url': request.build_absolute_uri(
+        reverse(api_projects, kwargs={'api_version': api_version}))}
+
+
+@login_required()
+@jsonp
 def api_projects(request, conn=None, **kwargs):
     # Get parameters
     try:

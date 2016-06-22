@@ -1138,7 +1138,7 @@ FEEDBACK_APP = 6
 # For any given release of webgateway api, we may support
 # one or more versions of the api.
 # E.g. webgateway/api/v1.0/
-WEBGATEWAY_API_VERSIONS = [1.0]
+WEBGATEWAY_API_VERSIONS = ['1.0']
 
 # IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')

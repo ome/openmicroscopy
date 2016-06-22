@@ -410,8 +410,14 @@ Get a json dict of original file paths.
 """
 
 
-versions = '|'.join([re.escape(str(v))
+versions = '|'.join([re.escape(v)
                     for v in settings.WEBGATEWAY_API_VERSIONS])
+
+api_base = url(r'^api/$', views.api_base, name='api_base')
+
+api_version = url(r'^api/v(?P<api_version>' + versions + ')/$',
+                  views.api_version,
+                  name='api_version')
 
 api_projects = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/$',
                    views.api_projects,
@@ -470,6 +476,8 @@ urlpatterns = patterns(
     object_table_query,
 
     # api omero-marshal
+    api_base,
+    api_version,
     api_projects,
 
 )
