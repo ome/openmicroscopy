@@ -74,7 +74,6 @@ from controller.search import BaseSearch
 from controller.share import BaseShare
 
 from omeroweb.webadmin.forms import LoginForm
-from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.marshal import chgrpMarshal
@@ -86,9 +85,7 @@ from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 from omeroweb.webclient.show import Show, IncorrectMenuError, \
     paths_to_object, paths_to_tag
-from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
-from omeroweb.decorators import get_client_ip
 from omeroweb.webgateway.util import getIntOrDefault
 
 from omero.model import ProjectI, DatasetI, ImageI, \
@@ -176,10 +173,13 @@ def custom_index(request, conn=None, **kwargs):
 ##############################################################################
 # views
 
+# from omeroweb.webgateway import LoginView
 
-def login(request):
+
+class WebclientLoginView(webgateway_views.LoginView):
     """
-    Webclient Login - Also can be used by other Apps to log in to OMERO. Uses
+    Webclient Login - Customises the superclass LoginView
+    for webclient. Also can be used by other Apps to log in to OMERO. Uses
     the 'server' id from request to lookup the server-id (index), host and
     port from settings. E.g. "localhost", 4064. Stores these details, along
     with username, password etc in the request.session. Resets other data
@@ -189,108 +189,62 @@ def login(request):
     with appropriate error messages.
     """
 
-    request.session.modified = True
-
-    conn = None
-    error = None
-
-    form = LoginForm(data=request.POST.copy())
-    useragent = 'OMERO.web'
-    if form.is_valid():
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        server_id = form.cleaned_data['server']
-        is_secure = form.cleaned_data['ssl']
-
-        connector = Connector(server_id, is_secure)
-
-        # TODO: version check should be done on the low level, see #5983
-        compatible = True
-        if settings.CHECK_VERSION:
-            compatible = connector.check_version(useragent)
-        if (server_id is not None and username is not None and
-                password is not None and compatible):
-            conn = connector.create_connection(
-                useragent, username, password, userip=get_client_ip(request))
-            if conn is not None:
-                # Check if user is in "user" group
-                roles = conn.getAdminService().getSecurityRoles()
-                userGroupId = roles.userGroupId
-                if userGroupId in conn.getEventContext().memberOfGroups:
-                    request.session['connector'] = connector
-                    # UpgradeCheck URL should be loaded from the server or
-                    # loaded omero.web.upgrades.url allows to customize web
-                    # only
-                    try:
-                        upgrades_url = settings.UPGRADES_URL
-                    except:
-                        upgrades_url = conn.getUpgradesUrl()
-                    upgradeCheck(url=upgrades_url)
-                    # if 'active_group' remains in session from previous
-                    # login, check it's valid for this user
-                    if request.session.get('active_group'):
-                        if (request.session.get('active_group') not in
-                                conn.getEventContext().memberOfGroups):
-                            del request.session['active_group']
-                    if request.session.get('user_id'):
-                        # always want to revert to logged-in user
-                        del request.session['user_id']
-                    if request.session.get('server_settings'):
-                        # always clean when logging in
-                        del request.session['server_settings']
-                    # do we ned to display server version ?
-                    # server_version = conn.getServerVersion()
-                    if request.POST.get('noredirect'):
-                        return HttpResponse('OK')
-                    url = request.GET.get("url")
-                    if url is None or len(url) == 0:
-                        try:
-                            url = parse_url(settings.LOGIN_REDIRECT)
-                        except:
-                            url = reverse("webindex")
-                    return HttpResponseRedirect(url)
-                else:
-                    error = "This user is not active."
-
-        if not connector.is_server_up(useragent):
-            error = "Server is not responding, please contact administrator."
-        elif not settings.CHECK_VERSION:
-            error = ("Connection not available, please check your"
-                     " credentials and version compatibility.")
-        else:
-            if not compatible:
-                error = ("Client version does not match server,"
-                         " please contact administrator.")
-            else:
-                error = ("Connection not available, please check your"
-                         " user name and password.")
-
-    url = request.GET.get("url")
-
     template = "webclient/login.html"
-    if request.method != 'POST':
+
+    def get(self, request, *args, **kwargs):
+        return self._handleNotLoggedIn(request, *args, **kwargs)
+
+    def _handleLoggedIn(self, request, conn, connector, *args, **kwargs):
+
+        # webclient has various state that needs cleaning up...
+        # if 'active_group' remains in session from previous
+        # login, check it's valid for this user
+        if request.session.get('active_group'):
+            if (request.session.get('active_group') not in
+                    conn.getEventContext().memberOfGroups):
+                del request.session['active_group']
+        if request.session.get('user_id'):
+            # always want to revert to logged-in user
+            del request.session['user_id']
+        if request.session.get('server_settings'):
+            # always clean when logging in
+            del request.session['server_settings']
+        # do we ned to display server version ?
+        # server_version = conn.getServerVersion()
+        if request.POST.get('noredirect'):
+            return HttpResponse('OK')
+        url = request.GET.get("url")
+        if url is None or len(url) == 0:
+            try:
+                url = parse_url(settings.LOGIN_REDIRECT)
+            except:
+                url = reverse("webindex")
+        return HttpResponseRedirect(url)
+
+    def _handleNotLoggedIn(self, request, error=None, **kwargs):
+
         server_id = request.GET.get('server', request.POST.get('server'))
         if server_id is not None:
             initial = {'server': unicode(server_id)}
             form = LoginForm(initial=initial)
         else:
             form = LoginForm()
+        context = {
+            'version': omero_version,
+            'build_year': build_year,
+            'error': error,
+            'form': form}
+        url = request.GET.get("url")
+        if url is not None and len(url) != 0:
+            context['url'] = urlencode({'url': url})
 
-    context = {
-        'version': omero_version,
-        'build_year': build_year,
-        'error': error,
-        'form': form}
-    if url is not None and len(url) != 0:
-        context['url'] = urlencode({'url': url})
+        if hasattr(settings, 'LOGIN_LOGO'):
+            context['LOGIN_LOGO'] = settings.LOGIN_LOGO
 
-    if hasattr(settings, 'LOGIN_LOGO'):
-        context['LOGIN_LOGO'] = settings.LOGIN_LOGO
-
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+        t = template_loader.get_template(self.template)
+        c = Context(request, context)
+        rsp = t.render(c)
+        return HttpResponse(rsp)
 
 
 @login_required(ignore_login_fail=True)

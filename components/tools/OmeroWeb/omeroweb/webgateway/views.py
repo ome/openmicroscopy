@@ -24,6 +24,7 @@ from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.http import HttpResponseBadRequest
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
+from django.views.generic import View
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
@@ -37,6 +38,9 @@ from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
 from api_query import query_projects
 from omeroweb.webadmin.forms import LoginForm
+from omeroweb.decorators import get_client_ip
+from omeroweb.webadmin.webadmin_utils import upgradeCheck
+
 
 try:
     from hashlib import md5
@@ -2562,55 +2566,86 @@ def api_servers(request, api_version, **kwargs):
     return {'servers': servers}
 
 
-from omeroweb.decorators import get_client_ip
-from omeroweb.webadmin.webadmin_utils import upgradeCheck
-
-
-# @require_POST
-@jsonp
-def api_login(request, api_version, conn=None, **kwargs):
+class LoginView(View):
     """
-    Login with username, password. Needs csrftoken
+    Webgateway Login - Subclassed by WebclientLoginView
     """
-    if request.method != 'POST':
+
+    form_class = LoginForm
+
+    def get(self, request, *args, **kwargs):
+        # server_id = request.GET.get('server')
+        # if server_id is not None:
+        #     initial = {'server': unicode(server_id)}
+        #     form = self.form_class(initial=initial)
+        # else:
+        #     form = self.form_class()
         return {"message": "POST only with username, password and csrftoken"}
-    form = LoginForm(data=request.POST.copy())
-    useragent = 'OMERO.webgatewayApi'
 
-    print 'form.is_valid()', form.is_valid()
+    def _handleLoggedIn(self, request, conn, connector, *args, **kwargs):
+            return {"OK": True}
 
-    if form.is_valid():
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        server_id = form.cleaned_data['server']
-        is_secure = form.cleaned_data['ssl']
+    def _handleNotLoggedIn(self, request, error=None, **kwargs):
+        # return render(request, self.template_name, {'form': form})
+        if error is not None:
+            return {"message": error}
+        return {"OK": False}
 
-        connector = Connector(server_id, is_secure)
+    def post(self, request, *args, **kwargs):
+        error = None
+        form = self.form_class(request.POST.copy())
+        useragent = 'OMERO.webgateway_api'
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            server_id = form.cleaned_data['server']
+            is_secure = form.cleaned_data['ssl']
 
-        # TODO: version check should be done on the low level, see #5983
-        compatible = True
-        if settings.CHECK_VERSION:
-            compatible = connector.check_version(useragent)
-        if (server_id is not None and username is not None and
-                password is not None and compatible):
-            conn = connector.create_connection(
-                useragent, username, password, userip=get_client_ip(request))
-            if conn is not None:
-                # Check if user is in "user" group
-                roles = conn.getAdminService().getSecurityRoles()
-                userGroupId = roles.userGroupId
-                if userGroupId in conn.getEventContext().memberOfGroups:
-                    request.session['connector'] = connector
-                    # UpgradeCheck URL should be loaded from the server or
-                    # loaded omero.web.upgrades.url allows to customize web
-                    # only
-                    try:
-                        upgrades_url = settings.UPGRADES_URL
-                    except:
-                        upgrades_url = conn.getUpgradesUrl()
-                    upgradeCheck(url=upgrades_url)
-                    return {"OK": True}
-    return {"OK": False}
+            connector = Connector(server_id, is_secure)
+
+            # TODO: version check should be done on the low level, see #5983
+            compatible = True
+            if settings.CHECK_VERSION:
+                compatible = connector.check_version(useragent)
+            if (server_id is not None and username is not None and
+                    password is not None and compatible):
+                conn = connector.create_connection(
+                    useragent, username, password, userip=get_client_ip(request))
+                # TODO: conn is None if user is INACTIVE (not in user group)...
+                if conn is not None:
+                    # Check if user is in "user" group
+                    roles = conn.getAdminService().getSecurityRoles()
+                    userGroupId = roles.userGroupId
+                    # ... so this will ALWAYS be True
+                    if userGroupId in conn.getEventContext().memberOfGroups:
+                        request.session['connector'] = connector
+                        # UpgradeCheck URL should be loaded from the server or
+                        # loaded omero.web.upgrades.url allows to customize web
+                        # only
+                        try:
+                            upgrades_url = settings.UPGRADES_URL
+                        except:
+                            upgrades_url = conn.getUpgradesUrl()
+                        upgradeCheck(url=upgrades_url)
+
+                        return self._handleLoggedIn(request, conn, connector)
+                    else:
+                        error = "This user is not active."
+                        return self._handleNotLoggedIn(self, request, error, **kwargs)
+
+            if not connector.is_server_up(useragent):
+                error = "Server is not responding, please contact administrator."
+            elif not settings.CHECK_VERSION:
+                error = ("Connection not available, please check your"
+                         " credentials and version compatibility.")
+            else:
+                if not compatible:
+                    error = ("Client version does not match server,"
+                             " please contact administrator.")
+                else:
+                    error = ("Connection not available, please check your"
+                             " user name and password.")
+        return self._handleNotLoggedIn(request, error, *args, **kwargs)
 
 
 @login_required()

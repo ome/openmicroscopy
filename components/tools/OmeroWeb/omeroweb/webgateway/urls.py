@@ -15,6 +15,7 @@
 
 from django.conf.urls import url, patterns
 from omeroweb.webgateway import views
+from omeroweb.webgateway.views import LoginView, jsonp
 from django.conf import settings
 import re
 
@@ -416,8 +417,8 @@ versions = '|'.join([re.escape(v)
 api_versions = url(r'^api/$', views.api_versions, name='api_versions')
 
 api_base = url(r'^api/v(?P<api_version>' + versions + ')/$',
-                  views.api_base,
-                  name='api_base')
+               views.api_base,
+               name='api_base')
 
 api_token = url(r'^api/v(?P<api_version>' + versions + ')/token/$',
                 views.api_token,
@@ -428,7 +429,7 @@ api_servers = url(r'^api/v(?P<api_version>' + versions + ')/servers/$',
                   name='api_servers')
 
 api_login = url(r'^api/v(?P<api_version>' + versions + ')/login/$',
-                views.api_login,
+                jsonp(LoginView.as_view()),
                 name='api_login')
 
 api_projects = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/$',
