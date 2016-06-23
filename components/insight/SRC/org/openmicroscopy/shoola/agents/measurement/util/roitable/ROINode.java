@@ -556,12 +556,12 @@ public class ROINode
                     .getLastPathComponent();
             roinode.show = show;
         }
-        if (isROINode()) {
+        else if (isROINode()) {
             for (MutableTreeTableNode n : getChildList()) {
                 ((ROINode) n).show = show;
             }
         }
-        if (isFolderNode()) {
+        else if (isFolderNode()) {
             for (MutableTreeTableNode n : getChildList()) {
                 ((ROINode) n).setShowEnabled(show);
             }

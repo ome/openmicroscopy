@@ -72,14 +72,10 @@ import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.tree.TreePath;
 
-
-
-
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jhotdraw.draw.Figure;
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
@@ -180,6 +176,9 @@ public class ROITable
     /** Name of the collection which is used as default */
     private String defaultDS = DS_DISPLAYED_NAMED;
 	
+    /** The renderer for the 'Show' column */
+    private CheckboxRenderer checkboxRenderer = new CheckboxRenderer();
+    
 	// DnD Scroll
 	
 	/** DnD autoscroll insets (this defines the scroll sensitive area) */
@@ -757,20 +756,7 @@ public class ROITable
      */
     public void setTreeTableModel(TreeTableModel model) {
         super.setTreeTableModel(model);
-        setDefaultRenderer(Boolean.class, new BooleanCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table,
-                    Object value, boolean isSelected, boolean hasFocus,
-                    int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value,
-                        isSelected, hasFocus, row, column);
-                ROINode node = (ROINode) ROITable.this.getNodeAtRow(row);
-                if (node != null) {
-                    c.setEnabled(node.isShowEnabled());
-                }
-                return c;
-            }
-        });
+        setDefaultRenderer(Boolean.class, checkboxRenderer);
     }
     
     /**
@@ -1648,6 +1634,24 @@ public class ROITable
         }
 
     }
-    
+
+    /**
+     * Customized {@link BooleanCellRenderer} which is en-/disabled depending on
+     * the state of the {@link ROINode} it represents
+     */
+    class CheckboxRenderer extends BooleanCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column) {
+            Component c = super.getTableCellRendererComponent(table, value,
+                    isSelected, hasFocus, row, column);
+            ROINode node = (ROINode) ROITable.this.getNodeAtRow(row);
+            if (node != null) {
+                c.setEnabled(node.isShowEnabled());
+            }
+            return c;
+        }
+    }
 }
 
