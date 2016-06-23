@@ -39,6 +39,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.logic.AbstractLevel2Service;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
@@ -341,7 +342,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Loading last to try to ensure that the buffer will get closed.
         PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels, false);
         renderer = new Renderer(quantumFactory, renderingModels, pixels,
-                settings, buffer);
+                settings, buffer, new ArrayList<OriginalFile>());
         dirty = false;
     }
 
@@ -1372,4 +1373,5 @@ public class ThumbnailBean extends AbstractLevel2Service
             throw ie;
         }
     }
+
 }
