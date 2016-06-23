@@ -103,6 +103,9 @@ public class ROINode
      */
     private boolean show = true;
     
+    /** Flag to indicate if the "Show" checkbox should be enabled */
+    private boolean showEnabled = true;
+    
 	/**
 	 * Constructor for parent node. 
 	 * @param str parent type.
@@ -291,6 +294,7 @@ public class ROINode
 		switch (column)
 		{
 			case SHOW_COLUMN+1:
+			    return showEnabled;
 			case ANNOTATION_COLUMN+1:
 				return true;
 			default:
@@ -470,7 +474,7 @@ public class ROINode
 					    updateShapeVisibility();
 					}
 					break;
-					default:
+				default:
 					break;
 			}
 		} else if (userObject instanceof ROIShape) {
@@ -517,6 +521,28 @@ public class ROINode
 	}
 	
     /**
+     * Check if the "Show" checkbox is enabled
+     * 
+     * @return See above.
+     */
+    public boolean isShowEnabled() {
+        return showEnabled;
+    }
+
+    /**
+     * Enable/Disable the "Show" checkbox
+     * 
+     * @param showEnabled
+     *            Pass <code>true</code> to enable the checkbox
+     */
+    public void setShowEnabled(boolean showEnabled) {
+        this.showEnabled = showEnabled;
+        for (MutableTreeTableNode n : getChildList()) {
+            ((ROINode) n).setShowEnabled(showEnabled);
+        }
+    }
+
+    /**
      * Set the show flag; this method makes sure, that the ROI is set to the
      * same state in case this node represents a shape and vice versa
      * 
@@ -533,6 +559,11 @@ public class ROINode
         if (isROINode()) {
             for (MutableTreeTableNode n : getChildList()) {
                 ((ROINode) n).show = show;
+            }
+        }
+        if (isFolderNode()) {
+            for (MutableTreeTableNode n : getChildList()) {
+                ((ROINode) n).setShowEnabled(show);
             }
         }
     }

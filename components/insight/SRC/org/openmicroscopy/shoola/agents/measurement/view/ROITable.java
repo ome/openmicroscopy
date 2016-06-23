@@ -59,6 +59,7 @@ import java.util.Vector;
 import javax.swing.DropMode;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
@@ -76,6 +77,7 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jhotdraw.draw.Figure;
 
 
@@ -102,6 +104,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.BooleanCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 
@@ -749,7 +752,27 @@ public class ROITable
 		this.setTreeTableModel(new ROITableModel(root, columnNames));
 	}
 	
-	
+    /**
+     * Overridden to undo the setting of the default renderers
+     */
+    public void setTreeTableModel(TreeTableModel model) {
+        super.setTreeTableModel(model);
+        setDefaultRenderer(Boolean.class, new BooleanCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table,
+                    Object value, boolean isSelected, boolean hasFocus,
+                    int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value,
+                        isSelected, hasFocus, row, column);
+                ROINode node = (ROINode) ROITable.this.getNodeAtRow(row);
+                if (node != null) {
+                    c.setEnabled(node.isShowEnabled());
+                }
+                return c;
+            }
+        });
+    }
+    
     /**
      * Determines if the given Folder should be displayed or not, taking the
      * different filtering options into account
