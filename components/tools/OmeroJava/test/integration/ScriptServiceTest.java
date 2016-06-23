@@ -71,16 +71,20 @@ public class ScriptServiceTest extends AbstractServerTest {
         while (i.hasNext()) {
             f = i.next();
             assertNotNull(f);
-            String mimetype = f.getMimetype().getValue();
-            assertEquals("text/x-python", mimetype);
+            if (LUT_MIMETYPE.equals(f.getMimetype().getValue())) {
+                fail("Lut should not be returned.");
+            }
         }
         scripts = svc.getScripts();
+        assertNotNull(scripts);
+        assertTrue(scripts.size() > 0);
         i = scripts.iterator();
         while (i.hasNext()) {
             f = i.next();
             assertNotNull(f);
-            String mimetype = f.getMimetype().getValue();
-            assertEquals("text/x-python", mimetype);
+            if (LUT_MIMETYPE.equals(f.getMimetype().getValue())) {
+                fail("Lut should not be returned.");
+            }
         }
     }
 
