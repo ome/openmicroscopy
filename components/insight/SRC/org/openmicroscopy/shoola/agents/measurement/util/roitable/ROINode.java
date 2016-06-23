@@ -466,7 +466,7 @@ public class ROINode
 				case SHOW_COLUMN+1:
 					if (value instanceof Boolean)
 					{
-					    this.show = (Boolean) value;
+					    setShow((Boolean) value);
 					    updateShapeVisibility();
 					}
 					break;
@@ -493,7 +493,7 @@ public class ROINode
 					break;
 				case SHOW_COLUMN+1:
 					if(value instanceof Boolean) {
-					    this.show = (Boolean) value;
+					    setShow((Boolean) value);
 					    updateShapeVisibility();
 					}
 					break;
@@ -505,7 +505,7 @@ public class ROINode
             switch (column) {
             case SHOW_COLUMN + 1:
                 if(value instanceof Boolean) {
-                    this.show = (Boolean) value;
+                    setShow((Boolean) value);
                     updateShapeVisibility();
                 }
                 break;
@@ -517,12 +517,42 @@ public class ROINode
 	}
 	
     /**
+     * Set the show flag; this method makes sure, that the ROI is set to the
+     * same state in case this node represents a shape and vice versa
+     * 
+     * @param show
+     *            The show flag
+     */
+    void setShow(boolean show) {
+        this.show = show;
+        if (isShapeNode()) {
+            ROINode roinode = (ROINode) getPath().getParentPath()
+                    .getLastPathComponent();
+            roinode.show = show;
+        }
+        if (isROINode()) {
+            for (MutableTreeTableNode n : getChildList()) {
+                ((ROINode) n).show = show;
+            }
+        }
+    }
+	
+    /**
      * Updates the visibility of all shape nodes. A shape will be set to visible
      * if and only if all parent nodes of one branch (in case the ROI is part of
      * multiple branches ie folders), are marked as shown.
      */
     private void updateShapeVisibility() {
 
+        long shapeId = -123;
+        if (isShapeNode()) {
+            shapeId = ((ROIShape) getUserObject()).getID();
+        }
+        if (isROINode()) {
+            shapeId = ((ROIShape) ((ROINode) (getChildList().iterator().next()))
+                    .getUserObject()).getID();
+        }
+            
         Collection<ROINode> shapeNodes = ROIUtil.getShapeNodes(getRoot());
 
         // transform to map for faster access to nodes for a specific shape
@@ -532,6 +562,14 @@ public class ROINode
         
         for (ROINode n : shapeNodes) {
             ROIShape s = (ROIShape) n.getUserObject();
+            
+            // make sure all ROINodes which represent this ROI or Shape node
+            // are set to the same 'show' state
+            if (s.getID() == shapeId) {
+                n.setShow(isShown());
+                s.getFigure().setVisible(isShown());
+                continue;
+            }
             
             // check all branches this shape is part of
             Collection<ROINode> sNodes = map.get(s.getID());
