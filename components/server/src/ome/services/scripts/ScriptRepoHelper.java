@@ -674,20 +674,15 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     }
 
     public OriginalFile load(final long id, Session s, SqlAction sqlAction, boolean check) {
-        return load(id, s, sqlAction, check, mimetypes);
-    }
-
-    private OriginalFile load(final long id, Session s, SqlAction sqlAction,
-            boolean check, Set<String> types) {
         if (check) {
-            String repo = sqlAction.scriptRepo(id, types);
+            String repo = sqlAction.scriptRepo(id, mimetypes);
             if (!uuid.equals(repo)) {
                 return null;
             }
         }
         return (OriginalFile) s.get(OriginalFile.class, id);
     }
-    
+
     /**
      * Checks if
      */
