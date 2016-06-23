@@ -408,7 +408,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             List<Family> families = getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = getAllEnumerations(RenderingModel.class);
             QuantumFactory quantumFactory = new QuantumFactory(families);
-            List<OriginalFile> luts = helper.loadAll(true, "text/x-lut");
+            List<OriginalFile> luts = helper.loadAll(true, "text/x-lut", null);
             // Loading last to try to ensure that the buffer will get closed.
             PixelBuffer buffer = getPixelBuffer();
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
