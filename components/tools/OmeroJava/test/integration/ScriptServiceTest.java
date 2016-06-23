@@ -26,15 +26,17 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
+import static omero.rtypes.rstring;
 
 import java.util.Iterator;
 import java.util.List;
 
 import omero.api.IScriptPrx;
 import omero.grid.JobParams;
+import omero.model.IObject;
 import omero.model.OriginalFile;
+import omero.sys.ParametersI;
 
-import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.Test;
 
 /**
@@ -52,6 +54,25 @@ public class ScriptServiceTest extends AbstractServerTest {
 
     /** The mimetype of the lookup table files.*/
     private static final String LUT_MIMETYPE = "text/x-lut";
+
+    /**
+     * Tests to make sure that a new entry for the same file is not added
+     * to the originalFile table.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDuplicateEntries() throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
+        assertNotNull(scripts);
+        int n = scripts.size();
+        ParametersI param = new ParametersI();
+        param.add("m", rstring(LUT_MIMETYPE));
+        String sql = "select f from OriginalFile as f "
+                + "where f.mimetype = :m";
+        List<IObject> values = iQuery.findAllByQuery(sql, param);
+        assertEquals(n, values.size());
+    }
 
     /**
      * Tests the retrieval of the scripts using the <code>getScripts</code>
