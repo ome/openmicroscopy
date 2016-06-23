@@ -2503,22 +2503,6 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     return tableData
 
 
-@jsonp
-def api_base(request, **kwargs):
-    """
-    Base url of the webgateway json api.
-    """
-    versions = []
-    for v in settings.WEBGATEWAY_API_VERSIONS:
-        url = request.build_absolute_uri(
-            reverse(api_version, kwargs={'api_version': v}))
-        versions.append({
-            'version': v,
-            'version_url': url
-        })
-    return versions
-
-
 def build_url(request, name, api_version, **kwargs):
     kwargs['api_version'] = api_version
     return request.build_absolute_uri(
@@ -2526,15 +2510,29 @@ def build_url(request, name, api_version, **kwargs):
 
 
 @jsonp
-def api_version(request, api_version=None, **kwargs):
+def api_versions(request, **kwargs):
+    """
+    Base url of the webgateway json api.
+    """
+    versions = []
+    for v in settings.WEBGATEWAY_API_VERSIONS:
+        versions.append({
+            'version': v,
+            'base_url': build_url(request, 'api_base', v)
+        })
+    return versions
+
+
+@jsonp
+def api_base(request, api_version=None, **kwargs):
     """
     Base url of the webgateway json api for a specified version.
     """
-    r = request
     v = api_version
-    rv = {'projects_url': build_url(r, 'api_projects', v),
-          'token_url': build_url(r, 'api_token', v),
-          'servers_url': build_url(r, 'api_servers', v)}
+    rv = {'projects_url': build_url(request, 'api_projects', v),
+          'token_url': build_url(request, 'api_token', v),
+          'servers_url': build_url(request, 'api_servers', v),
+          'login_url': build_url(request, 'api_login', v)}
     return rv
 
 
@@ -2554,10 +2552,9 @@ def api_servers(request, api_version, **kwargs):
     """
     servers = []
     for i, obj in enumerate(Server):
-        s = {'server_id': i,
+        s = {'id': i + 1,
              'host': obj.host,
-             'port': obj.port,
-             'login_url': build_url(request, 'api_login', api_version, server_id=i)
+             'port': obj.port
              }
         if obj.server is not None:
             s['server'] = obj.server
@@ -2571,7 +2568,7 @@ from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 # @require_POST
 @jsonp
-def api_login(request, api_version, server_id, conn=None, **kwargs):
+def api_login(request, api_version, conn=None, **kwargs):
     """
     Login with username, password. Needs csrftoken
     """
