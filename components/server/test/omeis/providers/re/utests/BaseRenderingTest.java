@@ -7,6 +7,7 @@
 package omeis.providers.re.utests;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -17,6 +18,7 @@ import ome.io.nio.PixelBuffer;
 import ome.util.PixelData;
 import ome.logic.RenderingSettingsImpl;
 import ome.model.core.Channel;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
@@ -24,7 +26,6 @@ import ome.model.enums.RenderingModel;
 import ome.model.stats.StatsInfo;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.quantum.QuantumFactory;
-
 import junit.framework.TestCase;
 
 public class BaseRenderingTest extends TestCase
@@ -77,7 +78,7 @@ public class BaseRenderingTest extends TestCase
 			pixelsMetadataService.getAllEnumerations(RenderingModel.class);
 		quantumFactory = createQuantumFactory();
 		renderer = new Renderer(quantumFactory, renderingModels,
-				                pixels, settings, pixelBuffer);
+				                pixels, settings, pixelBuffer, new ArrayList<OriginalFile>());
 	}
 	
 	protected QuantumFactory createQuantumFactory()
