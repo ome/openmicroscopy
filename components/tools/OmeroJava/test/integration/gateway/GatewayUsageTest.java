@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package integration.gateway;
 
 import integration.AbstractServerTest;
@@ -30,7 +31,6 @@ import omero.log.SimpleLogger;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-
 /**
  * Tests the login options supported by gateway
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -40,8 +40,12 @@ import org.testng.annotations.Test;
 public class GatewayUsageTest extends AbstractServerTest
 {
 
+    /**
+     * Check logging in using username and password.
+     * @throws DSOutOfServiceException unexpected
+     */
     @Test
-    public void testLoginWithCredentials()
+    public void testLoginWithCredentialsUserPass()
             throws DSOutOfServiceException {
         omero.client client =  new omero.client();
         String port = client.getProperty("omero.port");
@@ -52,6 +56,24 @@ public class GatewayUsageTest extends AbstractServerTest
         c.getUser().setPassword(client.getProperty("omero.rootpass"));
         Gateway gw = new Gateway(new SimpleLogger());
         ExperimenterData root = gw.connect(c);
+        Assert.assertNotNull(root);
+        gw.disconnect();
+    }
+
+    /**
+     * Check logging in using a session ID.
+     * @throws DSOutOfServiceException unexpected
+     */
+    @Test
+    public void testLoginWithCredentialsSessionId()
+            throws DSOutOfServiceException {
+        final omero.client client =  new omero.client();
+        final LoginCredentials c = new LoginCredentials(
+                root.getSessionId(),  // use an active session
+                client.getProperty("omero.host"),
+                Integer.parseInt(client.getProperty("omero.port")));
+        final Gateway gw = new Gateway(new SimpleLogger());
+        final ExperimenterData root = gw.connect(c);
         Assert.assertNotNull(root);
         gw.disconnect();
     }

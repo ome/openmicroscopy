@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
  *
  *------------------------------------------------------------------------------
  */
+
 package omero.gateway;
 
 import java.util.List;
@@ -115,6 +116,36 @@ public class LoginCredentials {
         user.setPassword(password);
         server.setHostname(host);
         server.setPort(port);
+    }
+
+    /**
+     * Creates a new instance with the given credentials and default port.
+     * Note that the given session ID is passed via the user name property
+     * and is subsequently available from {@link UserCredentials#getUsername()}.
+     *
+     * @param sessionId
+     *            The session UUID
+     * @param host
+     *            The server hostname
+     */
+    public LoginCredentials(String sessionId, String host) {
+        this(sessionId, null, host, omero.constants.GLACIER2PORT.value);
+    }
+
+    /**
+     * Creates a new instance with the given credentials.
+     * Note that the given session ID is passed via the user name property
+     * and is subsequently available from {@link UserCredentials#getUsername()}.
+     *
+     * @param sessionId
+     *            The session UUID
+     * @param host
+     *            The server hostname
+     * @param port
+     *            The server port
+     */
+    public LoginCredentials(String sessionId, String host, int port) {
+        this(sessionId, null, host, port);
     }
 
     /**
