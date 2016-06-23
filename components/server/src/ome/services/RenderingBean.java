@@ -829,6 +829,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb.setInputEnd(binding.getInputEnd());
                 cb.setCoefficient(binding.getCoefficient());
                 cb.setNoiseReduction(binding.getNoiseReduction());
+                cb.setLookupTable(binding.getLookupTable());
                 //binding.setFamily(unloadedFamily);
                 index++;
             }
