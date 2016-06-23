@@ -10,6 +10,7 @@ package omeis.providers.re;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -338,7 +339,7 @@ public class Renderer {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
-        this.luts = luts;
+        this.luts = Collections.unmodifiableList(luts);
         if (metadata == null) {
             throw new NullPointerException("Expecting not null metadata");
         } else if (rndDef == null) {
@@ -366,6 +367,15 @@ public class Renderer {
         checkOptimizations();
     }
 
+    /**
+     * Returns the list of lookup tables that can be used.
+     *
+     * @return See above.
+     */
+    List<OriginalFile> getAllLuts()
+    {
+        return luts;
+    }
     /**
      * Specifies the model that dictates how transformed raw data has to be
      * mapped onto a color space. This class delegates the actual rendering to a
