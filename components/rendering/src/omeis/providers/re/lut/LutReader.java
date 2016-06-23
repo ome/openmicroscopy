@@ -18,7 +18,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package lut;
+package omeis.providers.re.lut;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -30,7 +30,7 @@ import ome.model.core.OriginalFile;
 
 
 /**
- *
+ * Readers for lut.
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 5.3
@@ -77,19 +77,20 @@ public class LutReader {
                 f.close();
                 return 0;
             }
-            int version = f.readShort();
+            f.readShort(); //version
             nColors = f.readShort();
-            int start = f.readShort();
-            int end = f.readShort();
-            long fill1 = f.readLong();
-            long fill2 = f.readLong();
-            int filler = f.readInt();
+            f.readShort(); //start
+            f.readShort(); //end
+            f.readLong(); //fill 1
+            f.readLong(); //fill 2
+            f.readInt(); // filler
         }
         f.read(reds, 0, nColors);
         f.read(greens, 0, nColors);
         f.read(blues, 0, nColors);
-        if (nColors < 256)
+        if (nColors < 256) {
             interpolate(reds, greens, blues, nColors);
+        }
         f.close();
         return 256;
     }
@@ -104,6 +105,7 @@ public class LutReader {
         this.file = file;
     }
 
+    /** Reads the file.*/
     public void read()
         throws Exception
     {
