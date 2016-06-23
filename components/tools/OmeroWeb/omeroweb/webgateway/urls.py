@@ -419,6 +419,18 @@ api_version = url(r'^api/v(?P<api_version>' + versions + ')/$',
                   views.api_version,
                   name='api_version')
 
+api_token = url(r'^api/v(?P<api_version>' + versions + ')/token/$',
+                views.api_token,
+                name='api_token')
+
+api_servers = url(r'^api/v(?P<api_version>' + versions + ')/servers/$',
+                  views.api_servers,
+                  name='api_servers')
+
+api_login = url(r'^api/v(?P<api_version>' + versions + ')/servers/(?P<server_id>[0-9]+)/login/$',
+                views.api_login,
+                name='api_login')
+
 api_projects = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/$',
                    views.api_projects,
                    name='api_projects')
@@ -478,6 +490,9 @@ urlpatterns = patterns(
     # api omero-marshal
     api_base,
     api_version,
+    api_token,
+    api_servers,
+    api_login,
     api_projects,
 
 )

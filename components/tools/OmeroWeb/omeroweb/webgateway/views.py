@@ -28,6 +28,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
+from django.middleware import csrf
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
@@ -35,6 +36,7 @@ from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
 from api_query import query_projects
+from omeroweb.webadmin.forms import LoginForm
 
 try:
     from hashlib import md5
@@ -46,6 +48,7 @@ import tempfile
 
 from omero import ApiUsageException, ServerError
 from omero.util.decorators import timeit, TimeIt
+from omeroweb.connector import Server
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError
 
@@ -1215,8 +1218,10 @@ def jsonp(f):
         try:
             server_id = kwargs.get('server_id', None)
             if server_id is None:
-                server_id = request.session['connector'].server_id
-            kwargs['server_id'] = server_id
+                if 'connector' in request.session:
+                    server_id = request.session['connector'].server_id
+            if server_id is not None:
+                kwargs['server_id'] = server_id
             rv = f(request, *args, **kwargs)
             if kwargs.get('_raw', False):
                 return rv
@@ -2498,9 +2503,8 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     return tableData
 
 
-@login_required()
 @jsonp
-def api_base(request, conn=None, **kwargs):
+def api_base(request, **kwargs):
     """
     Base url of the webgateway json api.
     """
@@ -2515,15 +2519,101 @@ def api_base(request, conn=None, **kwargs):
     return versions
 
 
-@login_required()
-@jsonp
-def api_version(request, api_version=None, conn=None, **kwargs):
-    """
-    Base url of the webgateway json api.
-    """
+def build_url(request, name, api_version, **kwargs):
+    kwargs['api_version'] = api_version
+    return request.build_absolute_uri(
+        reverse(name, kwargs=kwargs))
 
-    return {'projects_url': request.build_absolute_uri(
-        reverse(api_projects, kwargs={'api_version': api_version}))}
+
+@jsonp
+def api_version(request, api_version=None, **kwargs):
+    """
+    Base url of the webgateway json api for a specified version.
+    """
+    r = request
+    v = api_version
+    rv = {'projects_url': build_url(r, 'api_projects', v),
+          'token_url': build_url(r, 'api_token', v),
+          'servers_url': build_url(r, 'api_servers', v)}
+    return rv
+
+
+@jsonp
+def api_token(request, api_version, **kwargs):
+    """
+    Provides CSRF token for current session
+    """
+    token = csrf.get_token(request)
+    return {'token': token}
+
+
+@jsonp
+def api_servers(request, api_version, **kwargs):
+    """
+    Lists the available servers to connect to
+    """
+    servers = []
+    for i, obj in enumerate(Server):
+        s = {'server_id': i,
+             'host': obj.host,
+             'port': obj.port,
+             'login_url': build_url(request, 'api_login', api_version, server_id=i)
+             }
+        if obj.server is not None:
+            s['server'] = obj.server
+        servers.append(s)
+    return {'servers': servers}
+
+
+from omeroweb.decorators import get_client_ip
+from omeroweb.webadmin.webadmin_utils import upgradeCheck
+
+
+# @require_POST
+@jsonp
+def api_login(request, api_version, server_id, conn=None, **kwargs):
+    """
+    Login with username, password. Needs csrftoken
+    """
+    if request.method != 'POST':
+        return {"message": "POST only with username, password and csrftoken"}
+    form = LoginForm(data=request.POST.copy())
+    useragent = 'OMERO.webgatewayApi'
+
+    print 'form.is_valid()', form.is_valid()
+
+    if form.is_valid():
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        server_id = form.cleaned_data['server']
+        is_secure = form.cleaned_data['ssl']
+
+        connector = Connector(server_id, is_secure)
+
+        # TODO: version check should be done on the low level, see #5983
+        compatible = True
+        if settings.CHECK_VERSION:
+            compatible = connector.check_version(useragent)
+        if (server_id is not None and username is not None and
+                password is not None and compatible):
+            conn = connector.create_connection(
+                useragent, username, password, userip=get_client_ip(request))
+            if conn is not None:
+                # Check if user is in "user" group
+                roles = conn.getAdminService().getSecurityRoles()
+                userGroupId = roles.userGroupId
+                if userGroupId in conn.getEventContext().memberOfGroups:
+                    request.session['connector'] = connector
+                    # UpgradeCheck URL should be loaded from the server or
+                    # loaded omero.web.upgrades.url allows to customize web
+                    # only
+                    try:
+                        upgrades_url = settings.UPGRADES_URL
+                    except:
+                        upgrades_url = conn.getUpgradesUrl()
+                    upgradeCheck(url=upgrades_url)
+                    return {"OK": True}
+    return {"OK": False}
 
 
 @login_required()
