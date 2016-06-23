@@ -451,10 +451,10 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
 
     @SuppressWarnings("unchecked")
     private List<OriginalFile> loadAllScripts(final boolean modificationCheck,
-            final String mimetype) {
+            final String mimetype, final Principal pp) {
         final Iterator<File> it = iterate();
         final List<OriginalFile> rv = new ArrayList<OriginalFile>();
-        return (List<OriginalFile>) ex.execute(p, new Executor.SimpleWork(this,
+        return (List<OriginalFile>) ex.execute(pp, new Executor.SimpleWork(this,
                 "loadAll", modificationCheck) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -519,7 +519,12 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
     @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck, final
             String mimetype) {
-        return loadAllScripts(modificationCheck, mimetype);
+        return loadAllScripts(modificationCheck, mimetype, p);
+    }
+
+    public List<OriginalFile> loadAll(final boolean modificationCheck, final
+            String mimetype, final Principal pp) {
+        return loadAllScripts(modificationCheck, mimetype, pp);
     }
 
     /**
@@ -535,7 +540,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      */
     @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck) {
-        return loadAllScripts(modificationCheck, null);
+        return loadAll(modificationCheck, null);
     }
 
     /**
