@@ -11,27 +11,30 @@ import java.awt.Color;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 import ome.util.PixelData;
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.lut.LutReader;
 import omeis.providers.re.quantum.BinaryMaskQuantizer;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -135,6 +138,52 @@ class HSBStrategy extends RenderingStrategy {
     }
 
     /**
+     * Reads the Lut if it is valid.
+     *
+     * @param name The name of the lookup table.
+     * @param luts The collection of supported LUT.
+     * @return See above.
+     */
+    private LutReader initReader(String name, List<OriginalFile> luts)
+    {
+        Iterator<OriginalFile> i = luts.iterator();
+        while (i.hasNext()) {
+            OriginalFile of = i.next();
+            String lutName = of.getName();
+            if (lutName.equals(name) ||
+                    FilenameUtils.getBaseName(lutName).equals(name)) {
+                LutReader reader = new LutReader(of);
+                try {
+                    reader.read();
+                } catch (Exception e) {
+                    reader = null;
+                }
+                return reader;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the lookup table readers if any.
+     *
+     * @return See above.
+     */
+    private List<LutReader> getLutReaders()
+    {
+        ChannelBinding[] channelBindings = renderer.getChannelBindings();
+        List<OriginalFile> luts = renderer.getAllLuts();
+        List<LutReader> l = new ArrayList<LutReader>();
+        for (int w = 0; w < channelBindings.length; w++) {
+            ChannelBinding cb = channelBindings[w];
+            if (cb.getActive()) {
+                l.add(initReader(cb.getLookupTable(), luts));
+            }
+        }
+        return l;
+    }
+
+    /**
      * Retrieves the color for each active channels.
      * 
      * @return the active channel color data.
@@ -216,6 +265,7 @@ class HSBStrategy extends RenderingStrategy {
         //RenderingStats performanceStats = renderer.getStats();
         List<Plane2D> wData = getWavelengthData(def);
         List<int[]> colors = getColors();
+        List<LutReader> readers = getLutReaders();
         List<QuantumStrategy> strategies = getStrategies();
         // Create a number of rendering tasks.
         int taskCount = numTasks(sizeX2);
@@ -228,8 +278,8 @@ class HSBStrategy extends RenderingStrategy {
             x2Start = i*delta;
             x2End = (i+1)*delta;
             tasks.add(new RenderHSBRegionTask(buf, wData, strategies, cc,
-            		colors, renderer.getOptimizations(),
-            		x1Start, x1End, x2Start, x2End));
+                    colors, renderer.getOptimizations(),
+                    x1Start, x1End, x2Start, x2End, readers));
         }
 
         // Turn the list into an array an return it.

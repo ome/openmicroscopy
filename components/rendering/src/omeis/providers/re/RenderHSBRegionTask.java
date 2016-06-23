@@ -13,9 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ome.util.PixelData;
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
+import omeis.providers.re.lut.LutReader;
 import omeis.providers.re.quantum.BinaryMaskQuantizer;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -69,6 +69,9 @@ class RenderHSBRegionTask implements RenderingTask {
     /** The optimizations that the renderer has turned on for us. */
     private Optimizations optimizations;
 
+    /** The collection of readers.*/
+    private List<LutReader> readers;
+
     /**
      * Creates a new instance to render a wavelength.
      * 
@@ -86,16 +89,18 @@ class RenderHSBRegionTask implements RenderingTask {
      * @param x1Start
      *            The <i>X1</i>-axis start
      * @param x1End
-     *            The <i>X1</i>-axis start
+     *            The <i>X1</i>-axis end
      * @param x2Start
      *            The <i>X2</i>-axis start
      * @param x2End
-     *            The <i>X2</i>-axis start
+     *            The <i>X2</i>-axis end
+     * @param readers The lookup table readers.
      */
     RenderHSBRegionTask(RGBBuffer dataBuffer, List<Plane2D> wData,
             List<QuantumStrategy> strategies, CodomainChain cc,
             List<int[]> colors, Optimizations optimizations,
-            int x1Start, int x1End, int x2Start, int x2End) {
+            int x1Start, int x1End, int x2Start, int x2End,
+            List<LutReader> readers) {
         this.dataBuffer = dataBuffer;
         this.wData = wData;
         this.strategies = strategies;
@@ -106,6 +111,7 @@ class RenderHSBRegionTask implements RenderingTask {
         this.x1End = x1End;
         this.x2Start = x2Start;
         this.x2End = x2End;
+        this.readers = readers;
     }
 
     /**
@@ -151,7 +157,7 @@ class RenderHSBRegionTask implements RenderingTask {
             int bColor = color[ColorsFactory.BLUE_INDEX];
 
             float alpha = new Float(
-            		color[ColorsFactory.ALPHA_INDEX]).floatValue() / 65025;// 255*255
+                    color[ColorsFactory.ALPHA_INDEX]).floatValue() / 65025;// 255*255
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
@@ -206,38 +212,40 @@ class RenderHSBRegionTask implements RenderingTask {
         int[] buf = ((RGBIntBuffer) dataBuffer).getDataBuffer();
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
+        LutReader reader;
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
+            reader = readers.get(i);
             QuantumStrategy qs = strategies.get(i);
             boolean isMask = qs instanceof BinaryMaskQuantizer? true : false;
             redRatio = color[ColorsFactory.RED_INDEX] > 0 ? 
-            		color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
+                    color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
             greenRatio = color[ColorsFactory.GREEN_INDEX] > 0 ? 
-            		color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
+                     color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
             blueRatio = color[ColorsFactory.BLUE_INDEX] > 0 ? 
-            		color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
+                     color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
             boolean isXYPlanar = plane.isXYPlanar();
             PixelData data = plane.getData();
             int bytesPerPixel = data.bytesPerPixel();
 
             // Get our color offset if we've got the primary color optimization
             // enabled.
-            if (isPrimaryColor)
-            	colorOffset = getColorOffset(color);
-            
+            if (isPrimaryColor && reader == null)
+                colorOffset = getColorOffset(color);
+
             float alpha = new Integer(
-            		color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
+                    color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
                     if (isXYPlanar)
-                    	discreteValue = 
-                    		qs.quantize(
-                    			data.getPixelValueDirect(pix * bytesPerPixel));
+                        discreteValue =
+                        qs.quantize(
+                                data.getPixelValueDirect(pix * bytesPerPixel));
                     else
-                    	discreteValue = 
-                    		qs.quantize(plane.getPixelValue(x1, x2));
-                    
+                        discreteValue =
+                            qs.quantize(plane.getPixelValue(x1, x2));
+
                     // Right now we have no transforms being used so it's safe to
                     // comment this out for the time being.
                     //discreteValue = cc.transform(discreteValue);
@@ -248,11 +256,17 @@ class RenderHSBRegionTask implements RenderingTask {
                     // the next pixel value.
                     if (colorOffset != 24)
                     {
-                    	buf[pix] |= 0xFF000000;  // Alpha.
-                    	buf[pix] |= discreteValue << colorOffset;
-                    	continue;
+                        buf[pix] |= 0xFF000000;  // Alpha.
+                        buf[pix] |= discreteValue << colorOffset;
+                        continue;
                     }
-
+                    if (reader != null) {
+                        buf[pix] = 0xFF000000 |
+                                reader.getRed(discreteValue) << 16 |
+                                reader.getGreen(discreteValue) << 8 |
+                                reader.getBlue(discreteValue);
+                        continue;
+                    }
                     newRValue = (int) (redRatio * discreteValue);
                     newGValue = (int) (greenRatio * discreteValue);
                     newBValue = (int) (blueRatio * discreteValue);
@@ -332,11 +346,11 @@ class RenderHSBRegionTask implements RenderingTask {
             int[] color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
             redRatio = color[ColorsFactory.RED_INDEX] > 0 ? 
-            		color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
+                    color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
             greenRatio = color[ColorsFactory.GREEN_INDEX] > 0 ? 
-            		color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
+                    color[ColorsFactory.GREEN_INDEX] / 255.0 : 0.0;
             blueRatio = color[ColorsFactory.BLUE_INDEX] > 0 ? 
-            		color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
+                    color[ColorsFactory.BLUE_INDEX] / 255.0 : 0.0;
             boolean isXYPlanar = plane.isXYPlanar();
             PixelData data = plane.getData();
             int bytesPerPixel = data.bytesPerPixel();
@@ -344,19 +358,19 @@ class RenderHSBRegionTask implements RenderingTask {
             // Get our color offset if we've got the primary color optimization
             // enabled.
             if (isPrimaryColor)
-            	colorOffset = getColorOffsetAsRGBA(color);
+                colorOffset = getColorOffsetAsRGBA(color);
 
             float alpha = new Integer(color[ColorsFactory.ALPHA_INDEX]).floatValue() / 255;
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
                     if (isXYPlanar)
-                    	discreteValue = 
-                    		qs.quantize(
-                    			data.getPixelValueDirect(pix * bytesPerPixel));
+                        discreteValue =
+                        qs.quantize(
+                                data.getPixelValueDirect(pix * bytesPerPixel));
                     else
-                    	discreteValue = 
-                    		qs.quantize(plane.getPixelValue(x1, x2));
+                        discreteValue =
+                            qs.quantize(plane.getPixelValue(x1, x2));
                     // Right now we have no transforms being used so it's safe to
                     // comment this out for the time being.
                     //discreteValue = cc.transform(discreteValue);
@@ -367,9 +381,9 @@ class RenderHSBRegionTask implements RenderingTask {
                     // the next pixel value.
                     if (colorOffset != 32)
                     {
-                    	buf[pix] |= 0x000000FF;  // Alpha.
-                    	buf[pix] |= discreteValue << colorOffset;
-                    	continue;
+                        buf[pix] |= 0x000000FF;  // Alpha.
+                        buf[pix] |= discreteValue << colorOffset;
+                        continue;
                     }
 
                     newRValue = (int) (redRatio * discreteValue);
@@ -380,9 +394,9 @@ class RenderHSBRegionTask implements RenderingTask {
                     // image has a non-1.0 alpha component.
                     if (!isAlphaless)
                     {
-                    	newRValue *= alpha;
-                    	newGValue *= alpha;
-                    	newBValue *= alpha;
+                        newRValue *= alpha;
+                        newGValue *= alpha;
+                        newBValue *= alpha;
                     }
 
                     // Add the existing colour component values to the new
