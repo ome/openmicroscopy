@@ -8,6 +8,7 @@ package ome.services;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -408,11 +409,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
             List<Family> families = getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = getAllEnumerations(RenderingModel.class);
             QuantumFactory quantumFactory = new QuantumFactory(families);
-            List<OriginalFile> luts = helper.loadAll(true, "text/x-lut", null);
+            List<OriginalFile> luts = loadLuts();
             // Loading last to try to ensure that the buffer will get closed.
             PixelBuffer buffer = getPixelBuffer();
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
-                    rendDefObj, buffer);
+                    rendDefObj, buffer, luts);
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1806,6 +1807,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
                         return sf.getPixelsService().loadRndSettings(rdefId);
                     }
                 });
+    }
+
+    /** Loads the lookup tables.*/
+    private List<OriginalFile> loadLuts()
+    {
+        List<OriginalFile> luts = helper.loadAll(true, "text/x-lut", null);
+        Iterator<OriginalFile> i = luts.iterator();
+        File dir = new File(ScriptRepoHelper.getDefaultScriptDir());
+        while (i.hasNext()) {
+            OriginalFile f = i.next();
+            f.setPath((new File(dir, f.getPath())).getPath());
+        }
+        return luts;
     }
 
     /**
