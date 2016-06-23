@@ -72,12 +72,16 @@ public class ROITableCellRenderer
 	/** Reference to the Folder icon */
 	private static Icon FOLDER_ICON;
 	
+    /** Reference to the Folder owned by other users icon */
+    private static Icon FOLDER_OTHER_OWNER_ICON;
+	
 	static {
 		IconManager icons = IconManager.getInstance();
 		SHAPE_ICON = icons.getIcon(IconManager.ROISHAPE);
 		ROI_ICON = icons.getIcon(IconManager.ROISTACK);
 		ROI_OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
 		FOLDER_ICON = icons.getIcon(IconManager.ROIFOLDER);
+		FOLDER_OTHER_OWNER_ICON = icons.getIcon(IconManager.ROIFOLDERUSER);
 	}
 	
 	/** The identifier of the user currently logged in. */
@@ -116,7 +120,10 @@ public class ROITableCellRenderer
 			setText("");
 		} else if (node.isFolderNode()) {
 		    FolderData folder = (FolderData) node.getUserObject();
-		    setIcon(FOLDER_ICON);
+		    if(userID == folder.getOwner().getId())
+		        setIcon(FOLDER_ICON);
+		    else
+		        setIcon(FOLDER_OTHER_OWNER_ICON);
 		    setText(folder.getName()+" ["+node.getChildCount()+"]");
 		}
 		return this;
