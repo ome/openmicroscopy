@@ -69,33 +69,6 @@
         </bean>
     </constructor-arg>
   </bean>
-  <bean id="scriptRepoHelper" class="ome.services.scripts.ScriptRepoHelper" depends-on="sessionManager">
-      <constructor-arg ref="executor"/>
-      <constructor-arg ref="roles"/>
-      <constructor-arg ref="uuid"/>
-  </bean>
-  <bean id="PythonScripts" class="ome.services.scripts.ScriptFileType">
-      <constructor-arg index="0" value="*.py"/>
-      <constructor-arg index="1" value="text/x-python"/>
-      <constructor-arg index="2" value="${omero.launcher.python}"/>
-      <constructor-arg index="3" value="${omero.process.python}"/>
-  </bean>
-  <bean id="JythonScripts" class="ome.services.scripts.ScriptFileType">
-      <constructor-arg index="0" value="*.jy"/>
-      <constructor-arg index="1" value="text/x-jython"/>
-      <constructor-arg index="2" value="${omero.launcher.jython}"/>
-      <constructor-arg index="3" value="${omero.process.jython}"/>
-  </bean>
-  <bean id="MatlabScripts" class="ome.services.scripts.ScriptFileType">
-      <constructor-arg index="0" value="*.m"/>
-      <constructor-arg index="1" value="text/x-matlab"/>
-      <constructor-arg index="2" value="${omero.launcher.matlab}"/>
-      <constructor-arg index="3" value="${omero.process.matlab}"/>
-  </bean>
-  <bean id="LUTScripts" class="ome.services.scripts.ScriptFileType">
-      <constructor-arg index="0" value="*.lut"/>
-      <constructor-arg index="1" value="text/x-lut"/>
-  </bean>
 
   <bean id="omero.api.Exporter" class="omero.api._ExporterTie" singleton="false">
     <constructor-arg>
