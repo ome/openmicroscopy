@@ -460,7 +460,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
             public Object doWork(Session session, ServiceFactory sf) {
 
                 SqlAction sqlAction = getSqlAction();
-
+                List<OriginalFile> list = new ArrayList<OriginalFile>();
                 File f = null;
                 RepoFile file = null;
                 //only retrieve the non-inert mimetypes
@@ -494,9 +494,12 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                     }
                     if (types.contains(ofile.getMimetype())) {
                         rv.add(ofile);
+                    } else {
+                        list.add(ofile);
                     }
                 }
-                removeMissingFilesFromDb(sqlAction, session, rv);
+                list.addAll(rv);
+                removeMissingFilesFromDb(sqlAction, session, list);
                 return rv;
             }});
     }
