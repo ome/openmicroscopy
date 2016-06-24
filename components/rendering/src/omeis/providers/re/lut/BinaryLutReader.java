@@ -27,7 +27,7 @@ import java.io.InputStream;
 
 
 /**
- * Binary lookup table reader.
+ * Binary lookup table reader. After code from ImageJ source.
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 5.3
