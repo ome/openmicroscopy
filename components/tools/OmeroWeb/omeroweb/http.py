@@ -21,7 +21,14 @@
 
 import json
 
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError, JsonResponse
+
+
+class JsonResponseForbidden(JsonResponse):
+    status_code = 403
+
+    def __init__(self, content):
+        JsonResponse.__init__(self, content)
 
 
 class HttpJavascriptResponse(HttpResponse):

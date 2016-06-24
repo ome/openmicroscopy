@@ -40,13 +40,14 @@ from django.http import HttpResponseServerError, HttpResponseNotFound
 from django.http import HttpResponseForbidden
 from django.template import RequestContext
 from django.views.defaults import page_not_found
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 
 from django.views.debug import get_exception_reporter_filter
 from django.utils.encoding import force_text
 
 from omeroweb.feedback.sendfeedback import SendFeedback
 from omeroweb.feedback.forms import ErrorForm, CommentForm
+from omeroweb.http import JsonResponseForbidden
 
 logger = logging.getLogger(__name__)
 
@@ -131,8 +132,17 @@ def send_comment(request):
 ##############################################################################
 # handlers
 
+from django.views.decorators.vary import vary_on_headers
 
+
+# NB: use this decorator because is_ajax() depends on Header
+@vary_on_headers('HTTP_X_REQUESTED_WITH')
 def csrf_failure(request, reason=""):
+    url = request.META['PATH_INFO']
+    match = resolve(url)
+    # if match.url_name.startswith('api_') or request.is_ajax():
+    error = "CSRF Error. You need to include 'X-CSRFToken' in header"
+    return JsonResponseForbidden({"message": error})
     logger.warn('csrf_failure: Forbidden')
     t = template_loader.get_template("403_csrf.html")
     c = RequestContext(request, {})

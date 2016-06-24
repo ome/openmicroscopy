@@ -54,7 +54,7 @@ from omero import ApiUsageException, ServerError
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.connector import Server
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
-    HttpJavascriptResponseServerError
+    HttpJavascriptResponseServerError, JsonResponseForbidden
 
 import glob
 
@@ -2583,13 +2583,21 @@ class LoginView(View):
         return {"message": "POST only with username, password and csrftoken"}
 
     def _handleLoggedIn(self, request, conn, connector, *args, **kwargs):
-            return {"OK": True}
+        """ Returns a response for successful login """
+        c = conn.getEventContext()
+        ctx = {}
+        for a in ['sessionId', 'sessionUuid', 'userId', 'userName', 'groupId',
+                  'groupName', 'isAdmin', 'eventId', 'eventType',
+                  'memberOfGroups', 'leaderOfGroups']:
+            if (hasattr(c, a)):
+                ctx[a] = getattr(c, a)
+        return {"success": True, "eventContext": ctx}
 
-    def _handleNotLoggedIn(self, request, error=None, **kwargs):
-        # return render(request, self.template_name, {'form': form})
-        if error is not None:
-            return {"message": error}
-        return {"OK": False}
+    def _handleNotLoggedIn(self, request, error, **kwargs):
+        """ Returns a response for failed login """
+        # Since @jsonp decorator can't return a 403,
+        # we do it manually. NB: this won't return jsonp 'callback()'
+        return JsonResponseForbidden({"message": error})
 
     def post(self, request, *args, **kwargs):
         error = None
