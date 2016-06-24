@@ -433,7 +433,7 @@ api_login = url(r'^api/v(?P<api_version>' + versions + ')/login/$',
                 name='api_login')
 
 api_projects = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/$',
-                   views.api_projects,
+                   views.ApiProjects.as_view(),
                    name='api_projects')
 """
 List all projects, using omero-marshal to generate json.

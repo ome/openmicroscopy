@@ -25,10 +25,19 @@ from django.http import HttpResponse, HttpResponseServerError, JsonResponse
 
 
 class JsonResponseForbidden(JsonResponse):
+    """ Response 403 when for unauthorised """
     status_code = 403
 
-    def __init__(self, content):
-        JsonResponse.__init__(self, content)
+    def __init__(self, *args, **kwargs):
+        JsonResponse.__init__(self, *args, **kwargs)
+
+
+class JsonResponseUnprocessable(JsonResponse):
+    """ Response 422 when client submits invalid data """
+    status_code = 422
+
+    def __init__(self, *args, **kwargs):
+        JsonResponse.__init__(self, *args, **kwargs)
 
 
 class HttpJavascriptResponse(HttpResponse):

@@ -54,7 +54,8 @@ from omero import ApiUsageException, ServerError
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.connector import Server
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
-    HttpJavascriptResponseServerError, JsonResponseForbidden
+    HttpJavascriptResponseServerError, JsonResponseForbidden, \
+    JsonResponseUnprocessable
 
 import glob
 
@@ -2657,36 +2658,67 @@ class LoginView(View):
         return self._handleNotLoggedIn(request, error, *args, **kwargs)
 
 
-@api_login_required()
-@jsonp
-def api_projects(request, conn=None, **kwargs):
-    # Get parameters
-    try:
-        page = getIntOrDefault(request, 'page', 1)
-        limit = getIntOrDefault(request, 'limit', settings.PAGE)
-        group = getIntOrDefault(request, 'group', -1)
-        owner = getIntOrDefault(request, 'owner', -1)
-        childCount = not not request.GET.get('childCount', False)
-        normalize = request.GET.get('normalize', False)
-        normalize = not not normalize
-    except ValueError as ex:
-        return HttpResponseBadRequest(str(ex))
+from django.utils.decorators import method_decorator
+from omeroweb.webclient.forms import ContainerForm
+from omero_marshal import get_encoder
+from omero.rtypes import rstring
 
-    try:
-        # Get the projects
-        projects = query_projects(conn,
-                                  group=group,
-                                  owner=owner,
-                                  childCount=childCount,
-                                  page=page,
-                                  limit=limit,
-                                  normalize=normalize)
 
-    except ApiUsageException as e:
-        return HttpResponseBadRequest(e.serverStackTrace)
-    except ServerError as e:
-        return HttpResponseServerError(e.serverStackTrace)
-    except IceException as e:
-        return HttpResponseServerError(e.message)
+class ApiProjects(View):
 
-    return projects
+    @method_decorator(api_login_required())
+    @method_decorator(jsonp)
+    def dispatch(self, *args, **kwargs):
+        return super(ApiProjects, self).dispatch(*args, **kwargs)
+
+    def get(self, request, conn=None, **kwargs):
+        # Get parameters
+        try:
+            page = getIntOrDefault(request, 'page', 1)
+            limit = getIntOrDefault(request, 'limit', settings.PAGE)
+            group = getIntOrDefault(request, 'group', -1)
+            owner = getIntOrDefault(request, 'owner', -1)
+            childCount = not not request.GET.get('childCount', False)
+            normalize = request.GET.get('normalize', False)
+            normalize = not not normalize
+        except ValueError as ex:
+            return HttpResponseBadRequest(str(ex))
+
+        try:
+            # Get the projects
+            projects = query_projects(conn,
+                                      group=group,
+                                      owner=owner,
+                                      childCount=childCount,
+                                      page=page,
+                                      limit=limit,
+                                      normalize=normalize)
+
+        except ApiUsageException as e:
+            return HttpResponseBadRequest(e.serverStackTrace)
+        except ServerError as e:
+            return HttpResponseServerError(e.serverStackTrace)
+        except IceException as e:
+            return HttpResponseServerError(e.message)
+
+        return projects
+
+    def post(self, request, conn=None, **kwargs):
+
+        conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
+        form = ContainerForm(data=request.POST.copy())
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            pr = omero.model.ProjectI()
+            pr.name = rstring(str(name))
+            if description is not None and description != "":
+                pr.description = rstring(str(description))
+            pr = conn.saveAndReturnObject(pr)._obj
+            encoder = get_encoder(pr.__class__)
+            return encoder.encode(pr)
+        else:
+            errorsString = form.errors.as_json()
+            rsp = {'message': 'Validation Failed',
+                   'errors': json.loads(errorsString)}
+            return JsonResponseUnprocessable(rsp)
