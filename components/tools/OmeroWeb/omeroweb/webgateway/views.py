@@ -73,6 +73,7 @@ import zipfile
 import shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
+from omeroweb.webgateway.decorators import login_required as api_login_required
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
 
@@ -2656,7 +2657,7 @@ class LoginView(View):
         return self._handleNotLoggedIn(request, error, *args, **kwargs)
 
 
-@login_required()
+@api_login_required()
 @jsonp
 def api_projects(request, conn=None, **kwargs):
     # Get parameters
