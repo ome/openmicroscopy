@@ -234,7 +234,7 @@ public class SelectionWizard
         }
         String[] values = new String[2];
         StringBuilder builder = new StringBuilder();
-        builder.append("start of ");
+        builder.append("Start of ");
         if (txt != null) {
             builder.append(txt);
             builder.append(" ");
@@ -243,7 +243,7 @@ public class SelectionWizard
         values[0] = builder.toString();
 
         builder = new StringBuilder();
-        builder.append("anywhere in ");
+        builder.append("Anywhere in ");
         if (txt != null) {
             builder.append(txt);
             builder.append(" ");
@@ -754,7 +754,8 @@ public class SelectionWizard
             acceptButton.setEnabled(b.booleanValue());
             resetButton.setEnabled(b.booleanValue());
             acceptButton.requestFocus();
-        } else if (SelectionWizardUI.AVAILABLE_SELECTION_CHANGE.equals(name)) {
+        } else if (SelectionWizardUI.AVAILABLE_SELECTION_CHANGE.equals(name) &&
+                TagAnnotationData.class.equals(type)) {
             formatAddLabelText();
         }
     }
