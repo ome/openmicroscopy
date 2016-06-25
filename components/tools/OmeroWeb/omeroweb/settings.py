@@ -643,12 +643,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
           '{"title":"Open OMERO user guide in a new tab", "target":"new"}]'
           ']'),
          json.loads,
-         ("Add links to the top header: links are ``['Link Text', 'link',"
-          " options]``, where "
-          "the url is reverse('link') OR simply 'link' (for external urls). "
-          "E.g. ``'[[\"Webtest\", \"webtest_index\"], [\"Homepage\","
+         ("Add links to the top header: links are ``['Link Text', "
+          "'link|lookup_view', options]``, where the url is reverse('link'), "
+          "simply 'link' (for external urls) or lookup_view is a detailed "
+          "dictionary {\"viewname\": \"str\", \"args\": [], \"query_string\": "
+          "{\"param\": \"value\" }], "
+          "E.g. ``'[\"Webtest\", \"webtest_index\"] or [\"Homepage\","
           " \"http://...\", {\"title\": \"Homepage\", \"target\": \"new\"}"
-          " ]]'``")],
+          " ] or [\"Repository\", {\"viewname\": \"webindex\", "
+          "\"query_string\": {\"experimenter\": -1}}, "
+          "{\"title\": \"Repo\"}]'``")],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'
