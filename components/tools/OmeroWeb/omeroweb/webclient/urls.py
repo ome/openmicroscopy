@@ -322,5 +322,7 @@ urlpatterns = patterns(
 
     url(r'^api/shares/$', views.api_share_list, name='api_shares'),
 
+    url(r'^api/rendering_def/$', views.api_rendering_def,
+        name='api_rendering_def'),
 
 )

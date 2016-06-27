@@ -98,6 +98,15 @@
 
         $(document).ready(function() {
 
+            {% if manager.well %}
+            // If we're looking at a well we know parent is plate
+              var PARENT_ID = "plate-{{ manager.well.plate.id.val }}";
+            {% else %}
+              // For images in Datasets, we get parent from jsTree, using selected image
+              // E.g. dataset-123
+              var PARENT_ID = OME.getParentId();
+            {% endif %}
+
             // Fix size according to right panel size... NB: this behaviour is also in right_plugin.preview.js
             var vpWidth = $("#right_panel").width() - 50,
               vpHeight = Math.min(vpWidth, $("#preview_tab").height() - 100);
@@ -212,6 +221,11 @@
               syncRDCW(OME.preview_viewport);
             });
 
+            $("#save-last-change").click(function(){
+              OME.preview_viewport.save_unsaved_changes_to_all(PARENT_ID);
+              syncRDCW(OME.preview_viewport);
+            });
+
             var rdefs = {{ rdefsJson|safe }};
             // All button events are delegated, so will also apply to new buttons
             $( "#rdef-buttons" )
@@ -284,25 +298,15 @@
 
             {% if manager.image.canAnnotate %}
 
-            {% if manager.well %}
-            // If we're looking at a well we know parent is plate
-              var pid = "plate-{{ manager.well.plate.id.val }}";
-            {% else %}
-              // For images in Datasets, we get parent from jsTree, using selected image
-              // E.g. dataset-123
-              var pid = OME.getParentId();
-            {% endif %}
-
-
-            if (pid) {
+            if (PARENT_ID) {
               $("#rdef-save-all")
-                .attr('title', "Apply and Save settings to all images in " + pid)
+                .attr('title', "Apply and Save settings to all images in " + PARENT_ID)
                 .removeAttr('disabled').removeClass("button-disabled")
                 .click(function(){
                   var $span = $('span', this),
                     spanTxt = $span.text();
                   $span.text("Saving...");
-                  var typeId = pid.split("-");
+                  var typeId = PARENT_ID.split("-");
                   var rdefQry = OME.preview_viewport.getQuery();
                   // need to paste current settings to all images...
                   var url = "{% url 'webgateway.views.copy_image_rdef_json' %}"+ "?" + rdefQry;
@@ -371,7 +375,7 @@
       T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
     </div>
 
-    <ul class="toolbar borderless labels">
+    <ul class="toolbar borderless labels" style="overflow:visible">
       <li>
         <button id="rdef-setdef-btn" class="button button-disabled"
             {% if manager.image.canAnnotate %}
@@ -414,8 +418,14 @@
         <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
         Paste
       </button></li>
+      <li><button id="save-last-change" class="button"
+          title="Save last change to all">
+        <img src="{% static 'webclient/image/icon_save.png' %}"/><br>
+        <span>Save Change</span>
+      </button></li>
     </ul>
 
+    <div style="clear: both"></div>
     <div id="rdef-postit">
       <div id="rdef-active-area">
         <input id="rd-wblitz-rmodel" type="checkbox" />

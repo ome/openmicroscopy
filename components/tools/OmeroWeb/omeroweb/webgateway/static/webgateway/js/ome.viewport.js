@@ -887,6 +887,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
    * Undo / Redo support
    */
 
+  var sizeOfObject = function (obj) {
+    var count = 0;
+    for (var k in obj) {
+      if (obj.hasOwnProperty(k)) count++;
+    }
+    return count;
+  };
+
   var channels_undo_stack = [];
   var channels_undo_stack_ptr = -1;
   var saved_undo_stack_ptr = 0;   // channels_undo_stack_ptr will start off here
@@ -926,6 +934,76 @@ jQuery._WeblitzViewport = function (container, server, options) {
       channels_undo_stack.length = channels_undo_stack_ptr;
       channels_undo_stack.push(entry);
     }
+  };
+
+  // get difference between last 2 states in undo queue
+  this.get_unsaved_changes = function() {
+
+    console.log('saved_undo_stack_ptr, channels_undo_stack_ptr', saved_undo_stack_ptr, channels_undo_stack_ptr);
+    if (channels_undo_stack_ptr === 0) {
+      return false;
+    }
+    if (saved_undo_stack_ptr === channels_undo_stack_ptr) {
+      return false;
+    }
+
+    var e1 = channels_undo_stack[saved_undo_stack_ptr],
+      e2 = channels_undo_stack[channels_undo_stack_ptr];
+
+    var diff = {};
+    if (e1.model != e2.model) {
+      diff.model = e2.model;
+    }
+    var diffChannels = {},
+      ch1, ch2,
+      chdiff;
+    for (var i=0; i<e1.channels.length; i++) {
+      ch1 = e1.channels[i];
+      ch2 = e2.channels[i];
+      chdiff = {};
+      if (ch1.active != ch2.active) {
+        chdiff.active = ch2.active;
+      }
+      if (OME.rgbToHex(ch1.color) != OME.rgbToHex(ch2.color)) {
+        chdiff.color = OME.rgbToHex(ch2.color);
+      }
+      // If start OR end has changed, return both
+      if (ch1.windowStart != ch2.windowStart || ch1.windowEnd != ch2.windowEnd) {
+        chdiff.windowStart = ch2.windowStart;
+        chdiff.windowEnd = ch2.windowEnd;
+      }
+      if (ch1.metalabel != ch2.metalabel) {
+        chdiff.metalabel = ch2.metalabel;
+      }
+      if (sizeOfObject(chdiff) > 0) {
+        diffChannels['' + i] = chdiff;
+      }
+    }
+    if (sizeOfObject(diffChannels) > 0) {
+      diff.channels = diffChannels;
+    }
+    console.log('unsaved changes', diff);
+    return diff;
+  };
+
+  this.save_unsaved_changes_to_all = function(parentId) {
+    var diff = this.get_unsaved_changes();
+
+    // E.g dataset-123
+    if (!parentId) return;
+    parentId = parentId.replace('-', '=');
+
+    $.ajax({
+        url: server + "/api/rendering_def/?" + parentId,
+        type: "POST",
+        data: JSON.stringify(diff),
+        dataType: 'json'
+    })
+    .done(function(data){
+        OME.refreshThumbnails({'ignorePreview': true});
+    });
+
+    this.setSaved();
   };
 
   this.undo_channels = function (redo) {

@@ -148,7 +148,7 @@
         }
         //var t = $('#rd-wblitz-ch'+idx).get(0);
         //if (t != undefined) t.checked=ch.active;
-        var rgb = OME.hexToRgb(ch.color)
+        var rgb = OME.hexToRgb(ch.color);
         $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')').attr('title', ch.label);
     };
 
@@ -212,9 +212,33 @@
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
             $("#rdef-setdef-btn").attr("disabled", "disabled").addClass("button-disabled");
+            $('#save-last-change').attr("disabled", "disabled").addClass("button-disabled");
         } else {
             $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
+            $('#save-last-change').removeAttr('disabled').removeClass("button-disabled");
         }
+
+        // update 'save last change' button according to diff between last changes
+        var diff = viewport.get_unsaved_changes();
+        var btnHtml = "Save Changes<br>to All";
+        var btnTooltip = "Save unsaved changes to all images";
+        // var chCount = 0;
+        // if (diff.channels) {
+        //     for (var ch in diff.channels) {
+        //         if (diff.channels.hasOwnProperty(ch)){
+        //             chCount++;
+        //             for (var attr in diff.channels[ch]) {
+        //                 btnHtml = "Save Ch-" + (parseInt(ch, 10) + 1) + " " + "<br>to all";
+        //                 btnTooltip = "Save Ch-" + (parseInt(ch, 10) + 1) + " ";
+        //                 // windowStart /End -> Slider Start /End
+        //                 attr = attr.replace('window', 'Slider ');
+        //                 btnTooltip += attr + " to all images";
+        //             }
+        //         }
+        //     }
+        // }
+        $('#save-last-change').attr('title', btnTooltip);
+        $('#save-last-change span').html(btnHtml);
     };
 
     var on_batchCopyRDefs = false;
@@ -325,8 +349,9 @@
                 updateUndoRedo(viewport);
             };
         };
+        var rgb;
         for (i=0; i<channels.length; i++) {
-            var rgb = OME.hexToRgb(channels[i].color)
+            rgb = OME.hexToRgb(channels[i].color);
             $('<button id="wblitz-ch'+i+
                 '"class="squared' + (channels[i].active?' pressed':'') +
                 '"style="background-color: rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')' +
@@ -465,7 +490,7 @@
             if (lbl.length > 7) {
                 lbl = lbl.slice(0, 5) + "...";
             }
-            var rgb = OME.hexToRgb(channels[i].color)
+            rgb = OME.hexToRgb(channels[i].color);
             tmp.after(template
                 .replace(/\$class/g, btnClass)
                 .replace(/\$col/g, 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')')
