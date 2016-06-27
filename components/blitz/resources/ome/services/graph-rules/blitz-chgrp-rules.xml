@@ -495,12 +495,14 @@
 
         <!-- If rendering settings are deleted then delete the subgraph below. -->
 
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[D].projections = PD:[E]" p:changes="PD:[D]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].quantization = Q:[E]" p:changes="Q:[D]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[D]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].waveRendering = CB:[E]" p:changes="CB:[D]"/>
 
         <!-- If rendering settings are moved then move the subgraph below. -->
 
+        <bean parent="graphPolicyRule" p:matches="RenderingDef[I].projections = PD:[E]" p:changes="PD:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].quantization = Q:[E]" p:changes="Q:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].spatialDomainEnhancement = SDE:[E]" p:changes="SDE:[I]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[I].waveRendering = CB:[E]" p:changes="CB:[I]"/>

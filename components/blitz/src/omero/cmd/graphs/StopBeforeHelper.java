@@ -225,7 +225,7 @@ public class StopBeforeHelper<X> {
         {"FilesetEntry", "OriginalFile"},
         {"PixelsOriginalFileMap", "OriginalFile"},
         {"Roi", "OriginalFile"},
-        {"RenderingDef", "QuantumDef", "CodomainMapContext", "ChannelBinding"},
+        {"RenderingDef", "QuantumDef", "CodomainMapContext", "ChannelBinding", "ProjectionDef"},
         {"Image", "Experiment"},
         {"Experiment", "MicrobeamManipulation"},
         {"Fileset", "Image", "FilesetEntry", "FilesetJobLink"},
