@@ -1077,35 +1077,23 @@ $(function() {
             var inst = this;
             var node1 = inst.get_node(nodeId1);
             var node2 = inst.get_node(nodeId2);
-            var name1 = node1.text.toLowerCase();
-            var name2 = node2.text.toLowerCase();
 
             function getRanking(node) {
-                if (node.type === 'tagset') {
-                    return 1;
-                } else if (node.type === 'tag') {
-                    return 2;
-                } else if (node.type === 'project') {
-                    return 3;
-                } else if (node.type === 'dataset') {
-                    return 4;
-                } else if (node.type === 'screen') {
-                    return 5;
-                } else if (node.type === 'plate') {
-                    return 6;
-                } else if (node.type === 'orphaned') {
-                    return 7;
-                } else if (node.type === 'image') {
-                    return 8;
-                } else if (node.type === 'acquisition') {
-                    return 9;
-                } else {
-                    return 10;
+                // return rank based on 'omero.client.ui.tree.type_order' list
+                // first type is ranked 1 (the highest), last  is the lowest
+                var rank = WEBCLIENT.UI.TREE.type_order.indexOf(node.type);
+                if (rank > -1) {
+                    return rank;
                 }
+                // types not specified in 'omero.client.ui.tree.type_order'
+                // are sorted as loaded to jquery based on sql
+                return WEBCLIENT.UI.TREE.type_order.length + 1;
             }
-            // If the nodes are the same type then just compare lexicographically
-            if (node1.type === node2.type && node1.text && node2.text) {
-                // Unless they are experimenters and one of them is the current user.
+
+            function sortingStrategy(node1, node2) {
+                // sorting strategy
+
+                // If the nodes are experimenters and one of them is the current user.
                 if(node1.type === 'experimenter') {
                     if (node1.data.obj.id === WEBCLIENT.USER.id) {
                         return -1;
@@ -1113,11 +1101,23 @@ $(function() {
                         return 1;
                     }
                 }
+                var name1 = node1.text.toLowerCase();
+                var name2 = node2.text.toLowerCase();
+
                 // If names are same, sort by ID
                 if (name1 === name2) {
                     return node1.data.obj.id <= node2.data.obj.id ? -1 : 1;
                 }
                 return name1 <= name2 ? -1 : 1;
+            }
+
+            // if sorting list is turned off mix object and sort by name
+            if (WEBCLIENT.UI.TREE.type_order.indexOf('false') > -1) {
+                return sortingStrategy(node1, node2);
+            }
+            // If the nodes are the same type then just compare lexicographically
+            if (node1.type === node2.type && node1.text && node2.text) {
+                return sortingStrategy(node1, node2);
             // Otherwise explicitly order the type that might be siblings
             } else {
 
