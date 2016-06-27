@@ -36,6 +36,7 @@ public class LutReader {
     /** The lookup table file. */
     private OriginalFile file;
 
+    /** The reader used.*/
     private BasicLutReader reader;
 
     /**
