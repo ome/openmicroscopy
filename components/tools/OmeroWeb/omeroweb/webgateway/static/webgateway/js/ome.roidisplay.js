@@ -138,6 +138,7 @@ $.fn.roi_display = function(options) {
             var arrowPath = "";
             var arrowPoint1x, arrowPoint1y, arrowPoint2x, arrowPoint2y;
             // if line starts with arrow...
+            arrowStart = true;
             if (arrowStart) {
                 arrowPoint1x = x1 - (f * Math.sin(lineAngle - 0.4) * headSize);
                 arrowPoint1y = y1 - (f * Math.cos(lineAngle - 0.4) * headSize);
@@ -179,8 +180,8 @@ $.fn.roi_display = function(options) {
                 arrowPath += " L" + endRightX + " " + endRightY;
             } else {
                 // ...otherwise simple line end
-                arrowPath += " L" + endLeftX + " " + endLeftY;
-                arrowPath += " L" + endRightX + " " + endRightY;
+                // arrowPath += " L" + endLeftX + " " + endLeftY;
+                // arrowPath += " L" + endRightX + " " + endRightY;
             }
 
             // ...and back to start point
@@ -212,12 +213,22 @@ $.fn.roi_display = function(options) {
               if (shape.markerStart || shape.markerEnd) {
                 var arrowPath = getArrowPath(shape);
 
-                newShape = paper.path(arrowPath);
-                newShape.attr({'stroke-width': 0});
+                var arrowSet = paper.set();
+                var arrowHead = paper.path(arrowPath);
+                arrowHead.attr({'stroke-width': 0});
+                arrowHead.attr({'fill': shape['strokeColor']});
+                if (shape['strokeAlpha']) {
+                    arrowHead.attr({'fill-opacity': shape['strokeAlpha']});
+                }
+                newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
+
+                arrowSet.push(arrowHead, newShape);
+
+                // newShape.attr({'stroke-width': 0});
                 // We don't want to apply strokeWidth later
-                shape['strokeWidth'] = 0;
-                shape['fillColor'] = shape['strokeColor'];
-                shape['fillAlpha'] = shape['strokeAlpha'];
+                // shape['strokeWidth'] = 0;
+                // shape['fillColor'] = shape['strokeColor'];
+                // shape['fillAlpha'] = shape['strokeAlpha'];
               } else {
                 newShape = paper.path("M"+ shape['x1'] +" "+ shape['y1'] +"L"+ shape['x2'] +" "+ shape['y2'] );
               }
@@ -293,7 +304,7 @@ $.fn.roi_display = function(options) {
             // *NB: For some reason, can't overlay text with selectedClone.
             // So, for text shapes, we highlight by editing attributes instead.
             if ((selectedClone != null) && (selectedClone.type != 'text')) {
-                if (selectedClone.node.parentNode.parentNode) selectedClone.remove();
+                if (selectedClone.node) selectedClone.remove();
             }
             if (selected_shape_id == null) return;
 
@@ -852,6 +863,21 @@ $.fn.roi_display = function(options) {
                             newShape.attr({ title: toolTip });
                             newShape.id = shape['id'] + "_shape";
                             shape_objects.push(newShape);
+
+                            // if arrow heads - add them separately
+                            // if (shape.markerStart || shape.markerEnd) {
+                            if (true) {
+                                var arrowPath = getArrowPath(shape);
+                                var arrowHead = paper.path(arrowPath);
+                                arrowHead.attr({'stroke-width': 0});
+                                arrowHead.attr({'fill': shape['strokeColor']});
+                                if (shape['strokeAlpha']) {
+                                    arrowHead.attr({'fill-opacity': shape['strokeAlpha']});
+                                }
+                                arrowHead.click(handle_shape_click);
+                                arrowHead.id = shape['id'] + "_shape";
+                                shape_objects.push(arrowHead);
+                            }
                         }
 
                     }
