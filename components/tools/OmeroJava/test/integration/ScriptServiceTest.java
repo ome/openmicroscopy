@@ -30,6 +30,7 @@ import static omero.rtypes.rstring;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import omero.api.IScriptPrx;
 import omero.grid.JobParams;
@@ -228,6 +229,34 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         long id = svc.uploadScript(folder, buf.toString());
         assertTrue(id > 0);
+    }
+
+    /**
+     * Tests to upload an official lut by a user who is an administrator,
+     * this method uses the <code>uploadOfficialScript</code>.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testUploadOfficialLUTAsRoot() throws Exception {
+        logRootIntoGroup();
+        StringBuffer buf = new StringBuffer("");
+        String[] values = { "a", "b", "c" };
+        for (int i = 0; i < values.length; i++) {
+            buf.append(values[i].charAt(0));
+        }
+        String uuid = UUID.randomUUID().toString();
+        String folder = "officialTestFolder"+uuid+".lut";
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
+        int n = scripts.size();
+        try {
+            long id = svc.uploadOfficialScript(folder, buf.toString());
+            assertTrue(id > 0);
+        } catch (Exception e) {
+        }
+        assertEquals(n+1, svc.getScriptsByMimetype(LUT_MIMETYPE).size());
     }
 
 }
