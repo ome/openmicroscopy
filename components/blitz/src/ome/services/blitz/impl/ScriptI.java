@@ -237,7 +237,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     }
                     RepoFile f = scripts.write(path, scriptText);
                     OriginalFile file = scripts.addOrReplace(f, fileID);
-                    validateParams(__current, file);
+                    if (!scripts.isInert(file)) {
+                        validateParams(__current, file);
+                    }
                     return file.getId();
                 } catch (IOException e) {
                     omero.ServerError se = new omero.InternalException(null, null, "Cannot write " + path);

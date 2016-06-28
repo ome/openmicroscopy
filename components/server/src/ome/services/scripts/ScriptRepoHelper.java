@@ -750,4 +750,19 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                 });
     }
 
+    /**
+     * Returns <code>true</code> if the file is an "inert" file e.g. a lut,
+     * <code>false</code> otherwise.
+     * @param f The file to handle.
+     * @return See above.
+     */
+    public boolean isInert(OriginalFile f)
+    {
+        if (f == null) return false;
+        String mimetype = f.getMimetype();
+        if (StringUtils.isBlank(mimetype)) {
+            return false;
+        }
+        return inertMimetypes.contains(mimetype);
+    }
 }
