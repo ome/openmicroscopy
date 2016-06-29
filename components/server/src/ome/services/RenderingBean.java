@@ -149,6 +149,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /** Reference to the compression service. */
     private final LocalCompress compressionSrv;
 
+    /** Reference to the helper used to retrieve luts.*/
     private final ScriptRepoHelper helper;
 
     /** Notification that the bean has just returned from passivation. */
