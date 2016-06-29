@@ -22,6 +22,7 @@
 """
 
 import library as lib
+import json
 
 from django.test import Client
 from django.test.client import MULTIPART_CONTENT
@@ -94,6 +95,15 @@ def _post_response(django_client, request_url, data, status_code=403,
                      **extra)
 
 
+def _post_response_json(django_client, request_url, data, status_code=403,
+                   content_type=MULTIPART_CONTENT, **extra):
+    rsp = _response(django_client, request_url, method='post', data=data,
+                    status_code=status_code, content_type=content_type,
+                    **extra)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
 def _csrf_post_response(django_client, request_url, data, status_code=200,
                         content_type=MULTIPART_CONTENT):
     csrf_token = django_client.cookies['csrftoken'].value
@@ -101,6 +111,14 @@ def _csrf_post_response(django_client, request_url, data, status_code=200,
     return _post_response(django_client, request_url, data=data,
                           status_code=status_code, content_type=content_type,
                           **extra)
+
+
+def _csrf_post_response_json(django_client, request_url,
+                             query_string, status_code=200):
+    rsp = _csrf_post_response(django_client, request_url,
+                              query_string, status_code)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
 
 
 # DELETE
@@ -134,3 +152,10 @@ def _csrf_get_response(django_client, request_url, query_string,
     query_string['csrfmiddlewaretoken'] = csrf_token
     return _get_response(django_client, request_url, query_string,
                          status_code)
+
+
+def _get_response_json(django_client, request_url,
+                       query_string, status_code=200):
+    rsp = _get_response(django_client, request_url, query_string, status_code)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
