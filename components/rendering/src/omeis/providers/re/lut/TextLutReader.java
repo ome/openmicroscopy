@@ -195,6 +195,7 @@ class TextLutReader
         int y = height > SIZE ? 1: 0;
         //crop again
         float[] result = crop(x, y, 3, SIZE, values);
+        width = 3;
         for (int i = 0; i< SIZE; i++) {
             reds[i] = (byte) result[i*width];
             greens[i] = (byte) result[i*width+1];
