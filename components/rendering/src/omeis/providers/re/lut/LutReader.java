@@ -22,9 +22,6 @@ package omeis.providers.re.lut;
 
 import java.io.File;
 
-import ome.model.core.OriginalFile;
-
-
 /**
  * Initializes the reader corresponding to the specified lookup table.
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -33,8 +30,8 @@ import ome.model.core.OriginalFile;
  */
 public class LutReader {
 
-    /** The lookup table file. */
-    private OriginalFile file;
+    /** The file to read. */
+    private File file;
 
     /** The reader used.*/
     private BasicLutReader reader;
@@ -42,9 +39,20 @@ public class LutReader {
     /**
      * Creates a new instance.
      *
-     * @param file The lookup table file
+     * @param filePath The path to the file.
+     * @param fileName The name of the file.
      */
-    public LutReader(OriginalFile file)
+    public LutReader(String filePath, String fileName)
+    {
+        file = new File(filePath, fileName);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param file The file to read.
+     */
+    public LutReader(File file)
     {
         this.file = file;
     }
@@ -53,21 +61,20 @@ public class LutReader {
     public void read()
         throws Exception
     {
-        File f = new File(file.getPath(), file.getName());
-        long length = f.length();
+        long length = file.length();
         int size = 0;
         if (length > 768) { // attempt to read NIH Image LUT
             reader = new BinaryLutReader();
-            size = reader.read(f, false);
+            size = reader.read(file, false);
         }
         //read raw lut
         if (size == 0 && (length == 0 || length == 768 || length == 970)) {
             reader = new BinaryLutReader();
-            size = reader.read(f, true);
+            size = reader.read(file, true);
         }
         if (size == 0 && length > 768) {
             reader = new TextLutReader();
-            size = reader.read(f, true);//the boolean flag is not taken into account
+            size = reader.read(file, true);//the boolean flag is not taken into account
         }
         if (size == 0) {
             throw new Exception("Cannot read the lookup table.");
