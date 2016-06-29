@@ -8,6 +8,7 @@ package ome.services;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +49,7 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.parameters.Parameters;
 import ome.services.ThumbnailCtx.NoThumbnail;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
@@ -151,6 +154,9 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /** The in-progress image resource we'll use for in progress images. */
     private Resource inProgressImageResource;
+
+    /** The list of all luts used by the {@link Renderer}. */
+    private transient List<OriginalFile> luts;
 
     /** The default X-width for a thumbnail. */
     public static final int DEFAULT_X_WIDTH = 48;
@@ -310,6 +316,29 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
+     * Returns the luts supported.
+     * @return See above.
+     */
+    private List<OriginalFile> getLuts()
+    {
+        if (luts == null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("from OriginalFile as f ");
+            sb.append("where f.mimetype =:type");
+            Parameters p = new Parameters();
+            p.addString("type", "text/x-lut");
+            luts = iQuery.findAllByQuery(sb.toString(), p);
+            Iterator<OriginalFile> i = luts.iterator();
+            File dir = new File(ScriptRepoHelper.getDefaultScriptDir());
+            while (i.hasNext()) {
+                OriginalFile f = i.next();
+                f.setPath((new File(dir, f.getPath())).getPath());
+            }
+        }
+        return luts;
+    }
+
+    /**
      * Retrieves a list of the rendering models supported by the
      * {@link Renderer} either from instance variable cache or the database.
      * @return See above.
@@ -342,7 +371,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Loading last to try to ensure that the buffer will get closed.
         PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels, false);
         renderer = new Renderer(quantumFactory, renderingModels, pixels,
-                settings, buffer, new ArrayList<OriginalFile>());
+                settings, buffer, getLuts());
         dirty = false;
     }
 
