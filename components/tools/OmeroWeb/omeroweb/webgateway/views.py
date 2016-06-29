@@ -30,7 +30,8 @@ from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from django.middleware import csrf
-from omero.rtypes import rlong, unwrap
+from django.utils.decorators import method_decorator
+from omero.rtypes import rlong, unwrap, rstring
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
@@ -40,7 +41,8 @@ from api_query import query_projects
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
-
+from omeroweb.webclient.forms import ContainerForm
+from omero_marshal import get_encoder
 
 try:
     from hashlib import md5
@@ -64,8 +66,6 @@ import glob
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
 
-cache = CacheBase()
-
 import logging
 import os
 import traceback
@@ -78,6 +78,7 @@ from omeroweb.webgateway.decorators import login_required as api_login_required
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
 
+cache = CacheBase()
 logger = logging.getLogger(__name__)
 
 try:
@@ -1071,8 +1072,8 @@ def render_ome_tiff(request, ctx, cid, conn=None, **kwargs):
         except:
             logger.debug(traceback.format_exc())
             raise
-        return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/'
-                                    + rpath)
+        return HttpResponseRedirect(settings.STATIC_URL +
+                                    'webgateway/tfiles/' + rpath)
 
 
 @login_required()
@@ -1710,8 +1711,8 @@ def list_compatible_imgs_json(request, iid, conn=None, **kwargs):
                 return False
             pp = i.getPrimaryPixels()
             if (pp is None or
-                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype
-                    or i.getSizeC() != img_ccount):
+                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype or
+                    i.getSizeC() != img_ccount):
                 return False
             ew = [x.getLabel() for x in i.getChannels()]
             ew.sort()
@@ -2624,7 +2625,8 @@ class LoginView(View):
             if (server_id is not None and username is not None and
                     password is not None and compatible):
                 conn = connector.create_connection(
-                    useragent, username, password, userip=get_client_ip(request))
+                    useragent, username, password,
+                    userip=get_client_ip(request))
                 # TODO: conn is None if user is INACTIVE (not in user group)...
                 if conn is not None:
                     # Check if user is in "user" group
@@ -2645,10 +2647,12 @@ class LoginView(View):
                         return self._handleLoggedIn(request, conn, connector)
                     else:
                         error = "This user is not active."
-                        return self._handleNotLoggedIn(self, request, error, **kwargs)
+                        return self._handleNotLoggedIn(self, request, error,
+                                                       **kwargs)
 
             if not connector.is_server_up(useragent):
-                error = "Server is not responding, please contact administrator."
+                error = ("Server is not responding,"
+                         " please contact administrator.")
             elif not settings.CHECK_VERSION:
                 error = ("Connection not available, please check your"
                          " credentials and version compatibility.")
@@ -2660,12 +2664,6 @@ class LoginView(View):
                     error = ("Connection not available, please check your"
                              " user name and password.")
         return self._handleNotLoggedIn(request, error, *args, **kwargs)
-
-
-from django.utils.decorators import method_decorator
-from omeroweb.webclient.forms import ContainerForm
-from omero_marshal import get_encoder
-from omero.rtypes import rstring
 
 
 class ApiProjects(View):
