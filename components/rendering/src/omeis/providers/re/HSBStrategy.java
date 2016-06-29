@@ -155,10 +155,11 @@ class HSBStrategy extends RenderingStrategy {
             String lutName = of.getName();
             if (lutName.equals(name) ||
                     FilenameUtils.getBaseName(lutName).equals(name)) {
-                LutReader reader = new LutReader(of);
+                LutReader reader = new LutReader(of.getPath(), of.getName());
                 try {
                     reader.read();
                 } catch (Exception e) {
+                    log.debug("cannot read lut "+of.getName(), e);
                     reader = null;
                 }
                 return reader;
