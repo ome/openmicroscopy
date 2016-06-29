@@ -17,12 +17,12 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans>	
+<beans>
 
   <bean singleton="false" parent="level2"
-  		id="internal-ome.api.ThumbnailStore"
-  	class="ome.services.ThumbnailBean">
-  	<constructor-arg><value>true</value></constructor-arg>
+        id="internal-ome.api.ThumbnailStore"
+    class="ome.services.ThumbnailBean">
+    <constructor-arg><value>true</value></constructor-arg>
     <property name="ioService" ref="/OMERO/Thumbs"/>
     <property name="IPixels" ref="internal-ome.api.IPixels"/>
     <property name="pixelDataService" ref="/OMERO/Pixels"/>
@@ -35,7 +35,7 @@
   
   <bean id="managed-ome.api.ThumbnailStore" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.ThumbnailStore"/>
-    <property name="target" ref="internal-ome.api.ThumbnailStore"/>    
+    <property name="target" ref="internal-ome.api.ThumbnailStore"/>
   </bean>
 
 </beans>
