@@ -147,7 +147,9 @@ class HSBStrategy extends RenderingStrategy {
     private LutReader initReader(String name, List<OriginalFile> luts)
     {
         Iterator<OriginalFile> i = luts.iterator();
-        name = name.toLowerCase();
+        if (name != null) {
+            name = name.toLowerCase();
+        }
         while (i.hasNext()) {
             OriginalFile of = i.next();
             String lutName = of.getName();
