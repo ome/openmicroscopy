@@ -21,9 +21,8 @@
 Tests logging in with webgateway json api
 """
 
-from weblibrary import IWebTest, _get_response, _csrf_post_response
+from weblibrary import IWebTest, _get_response_json, _post_response_json
 from django.core.urlresolvers import reverse
-import json
 from django.conf import settings
 
 
@@ -38,24 +37,34 @@ class TestLogin(IWebTest):
         """
         django_client = self.django_root_client
         request_url = reverse('api_versions')
-        data = _get_response_json(django_client, request_url, {})
-        versions = data['versions']
+        rsp = _get_response_json(django_client, request_url, {})
+        versions = rsp['versions']
         assert len(versions) == len(settings.WEBGATEWAY_API_VERSIONS)
         for v in versions:
             assert v['version'] in settings.WEBGATEWAY_API_VERSIONS
 
+    def test_base_url(self):
+        """
+        Tests that the base url for a given version provides other urls
+        """
+        django_client = self.django_root_client
+        # test the most recent version
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_base', kwargs={'api_version': version})
+        rsp = _get_response_json(django_client, request_url, {})
+        assert 'servers_url' in rsp
+        assert 'login_url' in rsp
+        assert 'projects_url' in rsp
 
-# Helpers
-def _get_response_json(django_client, request_url,
-                       query_string, status_code=200):
-    rsp = _get_response(django_client, request_url, query_string, status_code)
-    assert rsp.get('Content-Type') == 'application/json'
-    return json.loads(rsp.content)
-
-
-def _csrf_post_response_json(django_client, request_url,
-                             query_string, status_code=200):
-    rsp = _csrf_post_response(django_client, request_url,
-                              query_string, status_code)
-    assert rsp.get('Content-Type') == 'application/json'
-    return json.loads(rsp.content)
+    def test_login_csrf(self):
+        """
+        Tests that we can only login with CSRF
+        """
+        django_client = self.django_root_client
+        # test the most recent version
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_login', kwargs={'api_version': version})
+        rsp = _post_response_json(django_client, request_url, {},
+                             status_code=403)
+        assert (rsp['message'] ==
+                "CSRF Error. You need to include 'X-CSRFToken' in header")
