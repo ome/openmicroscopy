@@ -42,7 +42,8 @@ class JsonResponseUnprocessable(JsonResponse):
 
 class HttpJavascriptResponse(HttpResponse):
     def __init__(self, content):
-        HttpResponse.__init__(self, content, content_type="text/javascript")
+        HttpResponse.__init__(self, content,
+                              content_type="application/javascript")
 
 
 class HttpJavascriptResponseServerError(HttpResponseServerError):

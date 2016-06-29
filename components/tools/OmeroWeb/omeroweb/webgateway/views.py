@@ -19,7 +19,7 @@ import omero
 import omero.clients
 
 from Ice import Exception as IceException
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError, JsonResponse
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.http import HttpResponseBadRequest
 from django.template import loader as template_loader
@@ -1233,13 +1233,17 @@ def jsonp(f):
                 return rv
             if isinstance(rv, HttpResponse):
                 return rv
-            rv = json.dumps(rv)
             c = request.GET.get('callback', None)
             if c is not None and not kwargs.get('_internal', False):
+                rv = json.dumps(rv)
                 rv = '%s(%s)' % (c, rv)
+                # mimetype for JSONP is application/javascript
+                return HttpJavascriptResponse(rv)
             if kwargs.get('_internal', False):
                 return rv
-            return HttpJavascriptResponse(rv)
+            # mimetype for JSON is application/json
+            # NB: rv must be a dict.
+            return JsonResponse(rv)
         except omero.ServerError:
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
@@ -2526,7 +2530,7 @@ def api_versions(request, **kwargs):
             'version': v,
             'base_url': build_url(request, 'api_base', v)
         })
-    return versions
+    return {'versions': versions}
 
 
 @jsonp
