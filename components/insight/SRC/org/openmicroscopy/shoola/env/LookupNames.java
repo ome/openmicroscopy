@@ -388,4 +388,7 @@ public class LookupNames
 
     /** Lookup name of the orphaned images folder */
     public static final String ORPHANED_IMAGE_DESCRIPTION = "omero.client.ui.tree.orphans.description";
+    
+    /** Lookup name for the tree type order */
+    public static final String TREE_TYPE_ORDER = "omero.client.ui.tree.type_order";
 }
