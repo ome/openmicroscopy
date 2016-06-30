@@ -8,6 +8,7 @@
 package omeis.providers.re;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -144,22 +145,23 @@ class HSBStrategy extends RenderingStrategy {
      * @param luts The collection of supported LUT.
      * @return See above.
      */
-    private LutReader initReader(String name, List<OriginalFile> luts)
+    private LutReader initReader(String name, List<File> luts)
     {
-        Iterator<OriginalFile> i = luts.iterator();
+        Iterator<File> i = luts.iterator();
         if (name != null) {
             name = name.toLowerCase();
         }
         while (i.hasNext()) {
-            OriginalFile of = i.next();
-            String lutName = of.getName();
+            File f = i.next();
+            String lutName = f.getName();
+            lutName = lutName.toLowerCase();
             if (lutName.equals(name) ||
                     FilenameUtils.getBaseName(lutName).equals(name)) {
-                LutReader reader = new LutReader(of.getPath(), of.getName());
+                LutReader reader = new LutReader(f);
                 try {
                     reader.read();
                 } catch (Exception e) {
-                    log.debug("cannot read lut "+of.getName(), e);
+                    log.debug("cannot read lut "+f.getName(), e);
                     reader = null;
                 }
                 return reader;
@@ -176,7 +178,7 @@ class HSBStrategy extends RenderingStrategy {
     private List<LutReader> getLutReaders()
     {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
-        List<OriginalFile> luts = renderer.getAllLuts();
+        List<File> luts = renderer.getAllLuts();
         List<LutReader> l = new ArrayList<LutReader>();
         for (int w = 0; w < channelBindings.length; w++) {
             ChannelBinding cb = channelBindings[w];
