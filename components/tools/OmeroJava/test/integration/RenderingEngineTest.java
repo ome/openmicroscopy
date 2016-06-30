@@ -21,20 +21,25 @@ import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import ome.services.scripts.ScriptRepoHelper;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
+import omeis.providers.re.lut.LutReader;
 import omero.api.IPixelsPrx;
+import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
 import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
@@ -1830,7 +1835,7 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineChannelLookupTable() throws Exception {
-        File f = File.createTempFile("testRenderingEngineGetters", "."
+        File f = File.createTempFile("testRenderingEngineChannelLookupTable", "."
                 + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
@@ -1869,4 +1874,61 @@ public class RenderingEngineTest extends AbstractServerTest {
         re.saveCurrentSettings();
         re.close();
     }
+
+    /**
+     * Tests the retrieval of the lookup table info using the rendering
+     * engine.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testSaveChannelLookupTable() throws Exception {
+        File f = File.createTempFile("testSaveChannelLookupTable", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        // retrieve the rendering def
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels1 = def.copyWaveRendering();
+        assertNotNull(channels1);
+        Iterator<ChannelBinding> i = channels1.iterator();
+        ChannelBinding c1;
+        int index = 0;
+        while (i.hasNext()) {
+            c1 = i.next();
+            assertEquals(null, c1.getLookupTable());
+            re.setChannelLookupTable(index, "cool.lut");
+            index++;
+        }
+        re.saveCurrentSettings();
+        re.close();
+        //Check that the lookup is saved,
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels1 = def.copyWaveRendering();
+        i = channels1.iterator();
+        while (i.hasNext()) {
+            c1 = i.next();
+            assertEquals("cool.lut", c1.getLookupTable().getValue());
+        }
+    }
+
 }
