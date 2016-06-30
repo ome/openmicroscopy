@@ -410,11 +410,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
             List<Family> families = getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = getAllEnumerations(RenderingModel.class);
             QuantumFactory quantumFactory = new QuantumFactory(families);
-            List<OriginalFile> luts = loadLuts();
             // Loading last to try to ensure that the buffer will get closed.
             PixelBuffer buffer = getPixelBuffer();
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
-                    rendDefObj, buffer, luts);
+                    rendDefObj, buffer, loadLuts());
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1811,16 +1810,18 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /** Loads the lookup tables.*/
-    private List<OriginalFile> loadLuts()
+    private List<File> loadLuts()
     {
         List<OriginalFile> luts = helper.loadAll(true, "text/x-lut", null);
         Iterator<OriginalFile> i = luts.iterator();
         File dir = new File(ScriptRepoHelper.getDefaultScriptDir());
+        List<File> files = new ArrayList<File>(luts.size());
         while (i.hasNext()) {
             OriginalFile f = i.next();
-            f.setPath((new File(dir, f.getPath())).getPath());
+            String path = (new File(f.getPath(), f.getName())).getPath();
+            files.add(new File(dir, path));
         }
-        return luts;
+        return files;
     }
 
     /**

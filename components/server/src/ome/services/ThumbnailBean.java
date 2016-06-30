@@ -156,7 +156,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     private Resource inProgressImageResource;
 
     /** The list of all luts used by the {@link Renderer}. */
-    private transient List<OriginalFile> luts;
+    private transient List<File> luts;
 
     /** The default X-width for a thumbnail. */
     public static final int DEFAULT_X_WIDTH = 48;
@@ -319,7 +319,7 @@ public class ThumbnailBean extends AbstractLevel2Service
      * Returns the luts supported.
      * @return See above.
      */
-    private List<OriginalFile> getLuts()
+    private List<File> getLuts()
     {
         if (luts == null) {
             StringBuilder sb = new StringBuilder();
@@ -327,12 +327,14 @@ public class ThumbnailBean extends AbstractLevel2Service
             sb.append("where f.mimetype =:type");
             Parameters p = new Parameters();
             p.addString("type", "text/x-lut");
-            luts = iQuery.findAllByQuery(sb.toString(), p);
-            Iterator<OriginalFile> i = luts.iterator();
+            List<OriginalFile> files = iQuery.findAllByQuery(sb.toString(), p);
+            Iterator<OriginalFile> i = files.iterator();
             File dir = new File(ScriptRepoHelper.getDefaultScriptDir());
+            luts = new ArrayList<File>(files.size());
             while (i.hasNext()) {
                 OriginalFile f = i.next();
-                f.setPath((new File(dir, f.getPath())).getPath());
+                String path = (new File(f.getPath(), f.getName())).getPath();
+                luts.add(new File(dir, path));
             }
         }
         return luts;

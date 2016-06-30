@@ -8,6 +8,7 @@
 package omeis.providers.re;
 
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -138,7 +139,7 @@ public class Renderer {
     private Map<byte[], Integer> overlays;
 
     /** The collections of available lookup tables.*/
-    private List<OriginalFile> luts;
+    private List<File> luts;
 
     /**
      * Returns a copy of a list of channel bindings with one element removed;
@@ -335,7 +336,7 @@ public class Renderer {
     public Renderer(QuantumFactory quantumFactory,
     		List<RenderingModel> renderingModels, Pixels pixelsObj,
             RenderingDef renderingDefObj, PixelBuffer bufferObj,
-            List<OriginalFile> luts) {
+            List<File> luts) {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
@@ -372,7 +373,7 @@ public class Renderer {
      *
      * @return See above.
      */
-    List<OriginalFile> getAllLuts()
+    List<File> getAllLuts()
     {
         return luts;
     }
