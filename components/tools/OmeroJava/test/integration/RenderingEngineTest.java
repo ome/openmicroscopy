@@ -21,25 +21,20 @@ import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import ome.services.scripts.ScriptRepoHelper;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
-import omeis.providers.re.lut.LutReader;
 import omero.api.IPixelsPrx;
-import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
 import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
