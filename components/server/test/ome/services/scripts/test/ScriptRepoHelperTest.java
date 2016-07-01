@@ -7,6 +7,7 @@ package ome.services.scripts.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
 
@@ -151,9 +152,11 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
     public void testFilesCanBeDeletedByRelativeValue() throws Exception {
         path = generateFile();
         files = helper.loadAll(false);
+        assertEquals(1, files.size());
         Long id = files.get(0).getId();
         assertTrue(path.file().exists());
         helper.delete(id);
+        helper.modificationCheck();
         assertFalse(helper.isInRepo(id));
         assertFalse(path.file().exists());
     }
