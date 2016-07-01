@@ -14,10 +14,12 @@ import ome.model.core.OriginalFile;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
+import ome.system.OmeroContext;
 import ome.system.Roles;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -45,6 +47,9 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         loginRoot();
         helper = new ScriptRepoHelper(uuid(""), dir, this.executor,
                 this.loginAop.p, new Roles());
+        ContextRefreshedEvent event = new ContextRefreshedEvent(
+                OmeroContext.getManagedServerContext());
+        helper.handleContextRefreshedEvent(event);
         assertEmptyRepo();
     }
 
