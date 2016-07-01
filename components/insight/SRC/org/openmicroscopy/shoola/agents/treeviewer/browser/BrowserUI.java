@@ -1396,9 +1396,15 @@ class BrowserUI
 			}
 			else if (uo instanceof TagAnnotationData) {
 				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
-					((TagAnnotationData) uo).getNameSpace()) && tagsetPriority<=tagPriority)
-					top.add(object);
-				else bottom.add(object);
+					((TagAnnotationData) uo).getNameSpace()))
+				    if(tagsetPriority<=tagPriority)
+				        top.add(object);
+				    else 
+				        bottom.add(object);
+				else 
+				    if(tagsetPriority<=tagPriority)
+				        bottom.add(object);
+				    else top.add(object);
 			} else if (uo instanceof File) {
 				File f = (File) uo;
 				if (f.isDirectory()) {
