@@ -459,7 +459,7 @@ public class SelectionWizardUI
         tree.setVisible(true);
         tree.setRootVisible(false);
         ToolTipManager.sharedInstance().registerComponent(tree);
-        tree.setCellRenderer(new TreeCellRenderer(false));
+        tree.setCellRenderer(new TreeCellRenderer(user, false));
         tree.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         tree.setModel(new DefaultTreeModel(root));

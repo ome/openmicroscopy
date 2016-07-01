@@ -198,12 +198,15 @@ public class IconManager
     
     /** 16px plus icon */
     public static final int           ADD_16 = 49;
+   
+    /** Icon for ROI folders owned by other user */
+    public static final int ROIFOLDERUSER = 50;
     
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 49;
+    private static final int    MAX_ID = 50;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -258,9 +261,10 @@ public class IconManager
         relPaths[DELETE_22] = "nuvola_cancel22.png";
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[ROISTACK_OTHER_OWNER] = "roistack_owner_16.png";
-        relPaths[ROIFOLDER] = "ROI-foldertest-24.png";
+        relPaths[ROIFOLDER] = "roi_folder_icon.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png";
         relPaths[ADD_16] = "nuvola_edit_add16.png";
+        relPaths[ROIFOLDERUSER] = "roi_folder_user_icon.png";
     }
     
     /** 
