@@ -448,6 +448,70 @@ class TestDelete(CLITest):
         assert not self.query.find('FileAnnotation', fa.id.val)
         assert not self.query.find('FileAnnotation', fa2.id.val)
 
+    @pytest.mark.parametrize('number', [1, 2, 3])
+    def testInputWithElisionDefault(self, number, capfd):
+        # Create several datasets
+        ids = []
+        for i in range(number):
+            ids.append(self.make_dataset().id.val)
+        ids = sorted(ids)
+        assert len(ids) == number
+        assert ids[-1] - ids[0] + 1 == number
+        # Try to delete the datasets, defaults to --dry-run for elision
+        self.args += ['Dataset:%s' % str(ids[0]) + "-" + str(ids[number-1])]
+        self.cli.invoke(self.args, strict=True)
+        # Check that the Datasets were not deleted
+        for did in ids:
+            assert self.query.find('Dataset', did)
+
+    def testInputWithElisionForce(self, capfd):
+        DATASETS = 3
+
+        # Create several datasets
+        ids = []
+        for i in range(DATASETS):
+            ids.append(self.make_dataset().id.val)
+        ids = sorted(ids)
+        assert len(ids) == DATASETS
+        assert ids[-1] - ids[0] + 1 == DATASETS
+
+        # Delete the datasets using --force flag
+        self.args += ['Dataset:%s' % str(ids[0]) + "-" + str(ids[2])]
+        self.args += ['--force']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that the Datasets were deleted
+        for did in ids:
+            assert not self.query.find('Dataset', did)
+
+    def testElisionDefaultFailForce(self):
+        DATASETS = 3
+        ids = []
+
+        # Create a Dataset as me
+        dat_my1 = self.make_dataset()
+        ids.append(dat_my1.id.val)
+        # Create a Dataset as another user
+        client, user = self.new_client_and_user(group=self.group)
+        dat2 = self.make_dataset(client=client)
+        ids.append(dat2.id.val)
+        # Create another Dataset as me
+        dat_my3 = self.make_dataset()
+        ids.append(dat_my3.id.val)
+        ids = sorted(ids)
+        assert len(ids) == DATASETS
+        assert ids[-1] - ids[0] + 1 == DATASETS
+        # Try to delete the Datasets with --force
+        self.args += ['Dataset:%s' % str(ids[0]) + "-" + str(ids[2])]
+        self.args += ['--force']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check that the Datasets were not deleted
+        # because the user does not have permission to delete the dat2
+        assert self.query.find('Dataset', ids[0])
+        assert client.sf.getQueryService().find("Dataset", ids[1])
+        assert self.query.find('Dataset', ids[2])
+
     def testOutputWithElision(self, capfd):
         IMAGES = 8
         # Import several images
