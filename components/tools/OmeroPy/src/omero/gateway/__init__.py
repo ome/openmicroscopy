@@ -3111,7 +3111,6 @@ class _BlitzGateway (object):
             toExclude.append(omero.constants.namespaces.NSCOMPANIONFILE)
             toExclude.append(omero.constants.annotation.file.ORIGINALMETADATA)
             toExclude.append(omero.constants.namespaces.NSEXPERIMENTERPHOTO)
-            toExclude.append(omero.constants.analysis.flim.NSFLIM)
 
         anns = self.getMetadataService().loadSpecifiedAnnotations(
             "FileAnnotation", toInclude, toExclude, params, self.SERVICE_OPTS)

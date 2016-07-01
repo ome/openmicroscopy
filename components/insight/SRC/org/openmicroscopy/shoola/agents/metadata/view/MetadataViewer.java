@@ -495,13 +495,6 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	Dimension getIdealRendererSize();
-	
-	/**
-	 * Analyzes the image.
-	 * 
-	 *  @param index The index identifying the type of analysis routine.
-	 */
-	void analyse(int index);
 
 	/**
 	 * Notifies that the rendering settings have been copied.

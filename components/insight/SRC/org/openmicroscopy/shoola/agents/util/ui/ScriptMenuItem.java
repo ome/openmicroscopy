@@ -22,18 +22,12 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JMenuItem;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -84,7 +78,6 @@ public class ScriptMenuItem
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
-		SCRIPTS_UI_AVAILABLE.add(AnalysisParam.FLIM_SCRIPT);
 	}
 	
 	/** The script to handle. */
@@ -152,8 +145,6 @@ public class ScriptMenuItem
 			return SPLIT_VIEW_FIGURE_SCRIPT;
 		else if (MovieExportParam.MOVIE_SCRIPT.equals(path))
 			return MOVIE_EXPORT_SCRIPT;
-		else if (AnalysisParam.FLIM_SCRIPT.equals(path))
-			return FLIM_SCRIPT;
 		return -1;
 	}
 	
