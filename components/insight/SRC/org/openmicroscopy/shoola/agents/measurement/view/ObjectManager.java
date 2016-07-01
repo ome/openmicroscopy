@@ -24,19 +24,15 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,14 +42,10 @@ import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
@@ -73,6 +65,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.calls.ROIFolderSaver.ROIFolderAction;
@@ -82,9 +75,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.FancyTextField;
-import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
-import org.openmicroscopy.shoola.util.ui.SelectableMenu;
-import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FolderData;
@@ -119,7 +110,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         COLUMN_NAMES.add(AnnotationDescription.SHAPE_STRING);
         COLUMN_NAMES.add(AnnotationDescription.annotationDescription
                 .get(AnnotationKeys.TEXT));
-        COLUMN_NAMES.add("Visible");
+        COLUMN_NAMES.add("Show");
     }
 
     /**
@@ -166,19 +157,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
     /** The filter by name text field */
     private JTextField filterField;
-
-    /** Show all check box */
-    private JCheckBox showAllBox;
-
-    /** The filter popup menu */
-    private JPopupMenu popupMenu;
-
-    /** The 'Select All' popup menu item */
-    private SelectableMenuItem<String> selectAll;
     
-    /** References to all popup menu items */
-    Map<Long, Object> popupMenuItems = new HashMap<Long, Object>();
-
     /**
      * The table selection listener attached to the table displaying the
      * objects.
@@ -268,19 +247,14 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         bar.setRollover(true);
         bar.setBorder(null);
 
-        filterButton = new JButton(icons.getIcon(IconManager.FILTER_MENU));
-        MouseAdapter adapter = new MouseAdapter() {
-
-            /**
-             * Shows the popup menu
-             */
-            public void mousePressed(MouseEvent me) {
-                createFilterMenu((Component) me.getSource(), me.getPoint());
+        filterButton = new JButton(icons.getIcon(IconManager.ADD_16));
+        filterButton.setText("Add ROI Folders");
+        filterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showFilterDialog();
             }
-        };
-        filterButton.setHorizontalTextPosition(SwingConstants.LEFT);
-        filterButton.setText("Display ROI Folders");
-        filterButton.addMouseListener(adapter);
+        });
 
         filterField = new FancyTextField(DEFAULT_FILTER_TEXT, 50);
         filterField.addPropertyChangeListener(FancyTextField.EDIT_PROPERTY,
@@ -290,341 +264,111 @@ class ObjectManager extends JPanel implements TabPaneInterface {
                         filterFolders((String) evt.getNewValue());
                     }
                 });
-
-        showAllBox = new JCheckBox("Show all ROI Folders");
-        showAllBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                filterButton.setEnabled(!showAllBox.isSelected());
-                filterField.setEnabled(!showAllBox.isSelected());
-                showAll();
-            }
-        });
-
-        popupMenu = new ScrollablePopupMenu();
     }
 
     /**
-     * Creates the filter popup menu
-     * 
-     * @param src
-     *            The component which triggers the popup menu
-     * @param loc
-     *            The location where to show the popup menu
+     * Pops up the dialog to select the Folders to display
      */
-    private void createFilterMenu(Component src, Point loc) {
-        if (!src.isEnabled())
-            return;
+    private void showFilterDialog() {
+        Collection<Object> available = new ArrayList<Object>();
+        Collection<Object> selected = new ArrayList<Object>();
 
-        popupMenu.removeAll();
+        for (FolderData f : getFolders()) {
+            if (objectsTable.getIDFilter().contains(f.getId()))
+                selected.add(f);
+            else
+                available.add(f);
+        }
 
-        popupMenuItems.clear();
-        
-        selectAll = new SelectableMenuItem(
-                (objectsTable.getIDFilter().size() == model
-                        .getFolders().size()), "Select All", true);
-        selectAll.addPropertyChangeListener(new PropertyChangeListener() {
+        IconManager icons = IconManager.getInstance();
+
+        SelectionWizard wizard = new SelectionWizard(MeasurementAgent
+                .getRegistry().getTaskBar().getFrame(), available, selected,
+                FolderData.class, canCreateFolder(), MeasurementAgent.getUserDetails());
+        wizard.setTitle("Displayed Folders",
+                "Select the folders which are displayed in the ROI table",
+                icons.getIcon(IconManager.FILTER_MENU));
+        wizard.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                String name = evt.getPropertyName();
-                if (SelectableMenuItem.SELECTION_PROPERTY.equals(name)) {
-                    handleSelectAll(selectAll.isChecked());
+                if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(evt
+                        .getPropertyName())) {
+                    Collection<FolderData> folders = Collections.EMPTY_LIST;
+                    Map<Class<?>, Collection<FolderData>> m = (Map<Class<?>, Collection<FolderData>>) evt
+                            .getNewValue();
+                    if (m == null || m.size() != 1)
+                        return;
+                    folders = m.get(FolderData.class);
+                    Iterator<FolderData> it = folders.iterator();
+                    Collection<FolderData> toSave = new ArrayList<FolderData>();
+                    while (it.hasNext()) {
+                        FolderData f = it.next();
+                        if (f.getId() < 0) {
+                            toSave.add(f);
+                            it.remove();
+                        }
+                    }
+                    if (!toSave.isEmpty()) {
+                        folders.addAll(model.saveROIFolders(toSave, false));
+                    }
+                    handleFilterSelection(folders);
                 }
             }
         });
-        popupMenu.add(selectAll);
-        popupMenu.add(new JSeparator());
-        
-        List<Object> topLevelMenuItems = new ArrayList<Object>();
 
-        // As FolderData doesn't have references to children, start from the
-        // leaf nodes and work the way up to the top level of the hierarchy
-        for (FolderData folder : getLeafFolders(model.getFolders())) {
-            final SelectableMenuItem<FolderData> item = new SelectableMenuItem<FolderData>(
-                    objectsTable.getIDFilter().contains(folder.getId()),
-                    folder.getName(), true);
-            item.setObject(folder);
-            item.addPropertyChangeListener(new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    String name = evt.getPropertyName();
-                    if (SelectableMenuItem.SELECTION_PROPERTY.equals(name)) {
-                        handleFolderSelection(item, item.isChecked());
-                    }
-                }
-            });
-
-            if (folder.getParentFolder() != null)
-                buildMenuBranch(folder, popupMenuItems, topLevelMenuItems, item);
-            else {
-                topLevelMenuItems.add(item);
-            }
-
-            popupMenuItems.put(folder.getId(), item);
-        }
-
-        Collections.sort(topLevelMenuItems, new Comparator<Object>() {
-            @Override
-            public int compare(Object o1, Object o2) {
-                String name1 = "", name2 = "";
-                if (o1 instanceof SelectableMenu)
-                    name1 = ((SelectableMenu) o1).getText();
-                if (o1 instanceof SelectableMenuItem)
-                    name1 = ((SelectableMenuItem) o1).getText();
-                if (o2 instanceof SelectableMenu)
-                    name2 = ((SelectableMenu) o2).getText();
-                if (o2 instanceof SelectableMenuItem)
-                    name2 = ((SelectableMenuItem) o2).getText();
-
-                return name1.compareToIgnoreCase(name2);
-            }
-        });
-
-        for (Object obj : topLevelMenuItems) {
-            if (obj instanceof SelectableMenu)
-                popupMenu.add((SelectableMenu) obj);
-            if (obj instanceof SelectableMenuItem)
-                popupMenu.add((SelectableMenuItem) obj);
-        }
-
-        popupMenu.show(src, loc.x, loc.y);
+        UIUtilities.centerAndShow(wizard);
     }
     
     /**
-     * Recursively builds up the popup menu structure from bottom (leaves) to
-     * top.
+     * Adds the folder and their descendants to the ROI tables list of folders
+     * to display
      * 
-     * @param folder
-     *            The current folder
-     * @param menuItems
-     *            A map of all menu items created so far
-     * @param topLevelMenuItems
-     *            A collection to gather the top level menu items (only these
-     *            have to added to the popup menu)
-     * @param item
-     *            The current menu item
+     * @param folders
+     *            The folders to display
      */
-    private void buildMenuBranch(FolderData folder,
-            Map<Long, Object> menuItems, Collection<Object> topLevelMenuItems,
-            Object item) {
-
-        FolderData parent = folder.getParentFolder();
-        SelectableMenu<FolderData> parentItem = (SelectableMenu<FolderData>) menuItems
-                .get(parent.getId());
-
-        if (parentItem != null) {
-            // menu item for parent folder already exists, simply add the
-            // current menu item to it
-            if (item != null) {
-                if (item instanceof SelectableMenu)
-                    parentItem.add(
-                            (SelectableMenu) item,
-                            getInsertionsIndex(parentItem,
-                                    (SelectableMenu) item));
-                else if (item instanceof SelectableMenuItem)
-                    parentItem.add(
-                            (SelectableMenuItem) item,
-                            getInsertionsIndex(parentItem,
-                                    (SelectableMenuItem) item));
-            }
-        } else {
-            // menu item for the parent folder doesn't exist yet, create one and
-            // add the current menu item to it
-            final SelectableMenu tmp = new SelectableMenu<FolderData>(
-                    objectsTable.getIDFilter().contains(parent.getId()),
-                    parent.getName(), true);
-            tmp.setObject(parent);
-            tmp.addPropertyChangeListener(new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    String name = evt.getPropertyName();
-                    if (SelectableMenu.GROUP_SELECTION_PROPERTY.equals(name)) {
-                        handleFolderSelection(tmp, tmp.isMenuSelected());
-                    }
-                }
-            });
-            parentItem = tmp;
-            if (item != null) {
-                if (item instanceof SelectableMenu)
-                    parentItem.add(
-                            (SelectableMenu) item,
-                            getInsertionsIndex(parentItem,
-                                    (SelectableMenu) item));
-                else if (item instanceof SelectableMenuItem)
-                    parentItem.add(
-                            (SelectableMenuItem) item,
-                            getInsertionsIndex(parentItem,
-                                    (SelectableMenuItem) item));
-            }
-            menuItems.put(parent.getId(), parentItem);
+    private void handleFilterSelection(Collection<FolderData> folders) {
+        objectsTable.getIDFilter().clear();
+        for (FolderData f : folders) {
+            objectsTable.getIDFilter().add(f.getId());
+            objectsTable.getIDFilter().addAll(getAllDescendantIds(f));
         }
-
-        if (parent.getParentFolder() != null)
-            // the parent has a parent folder itself, continue with recursion on
-            // next level
-            buildMenuBranch(parent, menuItems, topLevelMenuItems, parentItem);
-        else
-            // if not, the parent item is a top level menu item
-            topLevelMenuItems.add(parentItem);
-    }
-
-    /**
-     * Determines on which position of the menu the item has to be inserted in
-     * order to maintain an alphabetical order
-     * 
-     * @param menu
-     *            The target menu
-     * @param item
-     *            The new menu item
-     * @return See above.
-     */
-    private int getInsertionsIndex(SelectableMenu<FolderData> menu, Object item) {
-        String name = "";
-        if (item instanceof SelectableMenu)
-            name = ((SelectableMenu) item).getText();
-        else if (item instanceof SelectableMenuItem)
-            name = ((SelectableMenuItem) item).getText();
-
-        int i = 0;
-        for (; i < menu.getMenuComponentCount(); i++) {
-            Component c = menu.getMenuComponent(i);
-            String childName = "";
-            if (c instanceof SelectableMenu) {
-                SelectableMenu<FolderData> child = (SelectableMenu<FolderData>) c;
-                childName = child.getText();
-            }
-            if (c instanceof SelectableMenuItem) {
-                SelectableMenuItem<FolderData> child = (SelectableMenuItem<FolderData>) c;
-                childName = child.getText();
-            }
-            if (childName.compareToIgnoreCase(name) >= 0)
-                break;
-        }
-        return i;
-    }
-    
-    /**
-     * Handles the 'Select All' action
-     * 
-     * @param selectAll
-     *            Pass <code>true</code> to select all,
-     *            <code>false<code> to deselect all
-     */
-    private void handleSelectAll(boolean selectAll) {
-        for (Object obj : popupMenuItems.values()) {
-            if (obj instanceof SelectableMenu) {
-                SelectableMenu<FolderData> menu = (SelectableMenu<FolderData>) obj;
-                menu.setMenuSelected(selectAll, false);
-            }
-            if (obj instanceof SelectableMenuItem) {
-                SelectableMenuItem<FolderData> menuitem = (SelectableMenuItem<FolderData>) obj;
-                menuitem.setChecked(selectAll, false);
-            }
-        }
-
-        if (selectAll) {
-            for (FolderData f : model.getFolders())
-                objectsTable.getIDFilter().add(f.getId());
-        } else {
-            objectsTable.getIDFilter().clear();
-        }
-
         rebuildTable();
     }
 
     /**
-     * Handles check/uncheck events of the filter popup menu
-     * 
-     * @param obj
-     *            The menu item which has been checked/unchecked
-     * @param isChecked
-     *            The flag if the item has been checked or unchecked
-     */
-    private void handleFolderSelection(Object obj, boolean isChecked) {
-        FolderData folder = null;
-        if (obj instanceof SelectableMenu)
-            folder = ((SelectableMenu<FolderData>) obj).getObject();
-        else if (obj instanceof SelectableMenuItem)
-            folder = ((SelectableMenuItem<FolderData>) obj).getObject();
-
-        // Add or remove the selected folder to the visible folder ids,
-        // depending on if it has been checked or unchecked; propagate
-        // check/uncheck state to sub folders
-        if (isChecked) {
-            objectsTable.getIDFilter().add(folder.getId());
-            for (FolderData f : model.getFolders())
-                if (hasAncestor(f, folder.getId()))
-                    objectsTable.getIDFilter().add(f.getId());
-        } else {
-            objectsTable.getIDFilter().remove(folder.getId());
-            for (FolderData f : model.getFolders())
-                if (hasAncestor(f, folder.getId()))
-                    objectsTable.getIDFilter().remove(f.getId());
-        }
-
-        // Refresh the checkbox state of all menu items
-        for (Object item : popupMenuItems.values()) {
-            if (item instanceof SelectableMenu) {
-                SelectableMenu<FolderData> folderItem = (SelectableMenu<FolderData>) item;
-                folderItem.setMenuSelected(
-                        objectsTable.getIDFilter().contains(
-                                folderItem.getObject().getId()), false);
-            } else if (item instanceof SelectableMenuItem) {
-                SelectableMenuItem<FolderData> folderItem = (SelectableMenuItem<FolderData>) item;
-                folderItem.setChecked(
-                        objectsTable.getIDFilter().contains(
-                                folderItem.getObject().getId()), false);
-            }
-        }
-        selectAll.setChecked(objectsTable.getIDFilter().size() == model
-                .getFolders().size(), false);
-        
-        rebuildTable();
-    }
-    
-    /**
-     * Checks if the specified folder has an ancestor with the given id
+     * Get the ids of all descendant folders of Folder f
      * 
      * @param f
-     *            The Folder to check
-     * @param parentId
-     *            The potential parent id
+     *            The Folder
      * @return See above
      */
-    private boolean hasAncestor(FolderData f, long parentId) {
-        if (f.getParentFolder() != null) {
-            if (f.getParentFolder().getId() == parentId)
+    private Collection<Long> getAllDescendantIds(FolderData f) {
+        Collection<Long> ids = new HashSet<Long>();
+        for (FolderData fd : getFolders()) {
+            if (isAncestor(f, fd))
+                ids.add(fd.getId());
+        }
+        return ids;
+    }
+
+    /**
+     * Checks if Folder f1 is an ancestor of Folder f2
+     * 
+     * @param f1
+     *            See above
+     * @param f2
+     *            See above
+     * @return See above
+     */
+    private boolean isAncestor(FolderData f1, FolderData f2) {
+        if (f2.getParentFolder() != null) {
+            if (f2.getParentFolder().getId() == f1.getId())
                 return true;
-            else
-                return hasAncestor(f.getParentFolder(), parentId);
+            return isAncestor(f1, f2.getParentFolder());
         }
         return false;
     }
-
-    /**
-     * Determines which of the given Folders are leaf folders, i.e. don't have
-     * sub folders
-     * 
-     * @param folders
-     *            The collection of Folders to check
-     * @return The leaf folders
-     */
-    private Collection<FolderData> getLeafFolders(Collection<FolderData> folders) {
-        Map<Long, FolderData> result = new HashMap<Long, FolderData>();
-        // First consider all folders as leaf folders...
-        for (FolderData f : folders) {
-            result.put(f.getId(), f);
-        }
-
-        // ...then remove the parent folders
-        for (FolderData f : folders) {
-            if (f.getParentFolder() != null)
-                result.remove(f.getParentFolder().getId());
-        }
-
-        return result.values();
-    }
-
+    
     /**
      * Propagate the filter by name text to the table and perform refresh.
      * 
@@ -636,22 +380,12 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         rebuildTable();
     }
 
-    /**
-     * Disable any filtering and show all folders
-     */
-    private void showAll() {
-        boolean showAll = showAllBox.isSelected();
-        objectsTable.setIgnoreFilters(showAll);
-        rebuildTable();
-    }
-
     /** Builds and lays out the UI. */
     private void buildGUI() {
         setLayout(new BorderLayout());
 
         bar.add(filterButton);
         bar.add(filterField);
-        bar.add(showAllBox);
 
         add(bar, BorderLayout.NORTH);
         add(new JScrollPane(objectsTable), BorderLayout.CENTER);
@@ -700,8 +434,11 @@ class ObjectManager extends JPanel implements TabPaneInterface {
         if (action == ROIFolderAction.CREATE_FOLDER
                 || action == ROIFolderAction.ADD_TO_FOLDER
                 && MapUtils.isNotEmpty(result)) {
-            FolderData f = (FolderData) result.keySet().iterator().next();
-            objectsTable.getIDFilter().add(f.getId());
+            Iterator it = result.keySet().iterator();
+            while(it.hasNext()) {
+                FolderData f = (FolderData) it.next();
+                objectsTable.getIDFilter().add(f.getId());
+            }
         }
         rebuildTable();
     }
@@ -1123,7 +860,7 @@ class ObjectManager extends JPanel implements TabPaneInterface {
 
     public void saveROIFolders(Collection<FolderData> folders) {
         saveROIs();
-        model.saveROIFolders(folders);
+        model.saveROIFolders(folders, true);
     }
 
     /**
@@ -1131,11 +868,11 @@ class ObjectManager extends JPanel implements TabPaneInterface {
      * 
      * @return See above.
      */
-    public boolean canEdit() {
+    public boolean canCreateFolder() {
         if (model.getImage() == null)
             return false;
         else
-            return model.getImage().canEdit();
+            return model.getImage().canAnnotate();
     }
 
     /**

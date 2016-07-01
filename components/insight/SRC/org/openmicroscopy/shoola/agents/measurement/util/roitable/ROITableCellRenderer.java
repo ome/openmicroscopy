@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 //Java imports
 import java.awt.Component;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.TreeMap;
 
 import javax.swing.Icon;
@@ -119,7 +117,7 @@ public class ROITableCellRenderer
 		} else if (node.isFolderNode()) {
 		    FolderData folder = (FolderData) node.getUserObject();
 		    setIcon(FOLDER_ICON);
-		    setText("Folder: "+folder.getName()+" ["+node.getChildCount()+"]");
+		    setText(folder.getName()+" ["+node.getChildCount()+"]");
 		}
 		return this;
 	}

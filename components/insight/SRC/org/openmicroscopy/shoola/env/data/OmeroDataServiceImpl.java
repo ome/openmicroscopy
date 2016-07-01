@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -70,6 +70,7 @@ import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
+import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -93,7 +94,6 @@ import omero.gateway.model.ScreenData;
 import omero.gateway.model.TagAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
-
 import omero.api.StatefulServiceInterfacePrx;
 
 /**
@@ -114,6 +114,11 @@ class OmeroDataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway gateway;
 
+	@Override
+	public Gateway getGateway() {
+	    return gateway.getGateway();
+	}
+	
 	/**
 	 * Unlinks the collection of children from the specified parent.
 	 *
