@@ -115,9 +115,26 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
     }
 
     public void testTxtFiles() throws Exception {
+        files = helper.loadAll(false);
+        int n = files.size();
         path = generateFile("test", ".txt", "import omero");
         files = helper.loadAll(false);
-        assertEmptyRepo();
+    }
+
+    public void testLutFilesLoadByMimetype() throws Exception {
+        path = generateFile("test", ".lut", "1 2 3");
+        files = helper.loadAll(false, "text/x-lut");
+        assertEquals(1, helper.countOnDisk());
+        assertEquals(1, helper.countInDb());
+        assertEquals(1, files.size());
+    }
+
+    public void testLutFilesLoadAll() throws Exception {
+        path = generateFile("test", ".lut", "1 2 3");
+        files = helper.loadAll(false);
+        assertEquals(1, helper.countOnDisk());
+        assertEquals(1, helper.countInDb());
+        assertEquals(0, files.size());
     }
 
     public void testFilesAreAddedToUserGroup() throws Exception {
