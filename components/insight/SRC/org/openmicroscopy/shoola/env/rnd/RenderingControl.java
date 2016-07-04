@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -839,4 +839,24 @@ public interface RenderingControl
 	 */
 	List<ResolutionLevel> getResolutionDescriptions()
 		throws RenderingServiceException, DSOutOfServiceException;
+	
+    /**
+     * Get the lookup table
+     * 
+     * @param w
+     *            The channel index
+     * @return See above
+     */
+    String getLookupTable(int w);
+
+    /**
+     * Set the lookup table
+     * 
+     * @param w
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int w, String lut) throws RenderingServiceException,
+            DSOutOfServiceException;
 }
