@@ -34,7 +34,6 @@ types {
     application/vnd.wap.xhtml+xml         xhtml;
     application/x-cocoa                   cco;
     application/x-java-archive-diff       jardiff;
-    application/x-java-jnlp-file          jnlp;
     application/x-makeself                run;
     application/x-perl                    pl pm;
     application/x-pilot                   prc pdb;

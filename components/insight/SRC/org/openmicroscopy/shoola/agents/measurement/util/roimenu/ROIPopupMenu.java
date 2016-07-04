@@ -185,17 +185,17 @@ public class ROIPopupMenu
 
         if (action == CreationActionType.CREATE_FOLDER) {
             if (selection.size() == 0)
-                return true;
+                return table.canCreateFolder();
             if (selection.size() == 1) {
                 Object obj = selection.iterator().next();
                 if (obj instanceof FolderData) {
                     FolderData f = (FolderData) obj;
-                    return f.canEdit();
+                    return table.canCreateFolder() && f.canEdit();
                 }
                 if (obj instanceof ROI)
-                    return ((ROI) obj).canEdit();
+                    return table.canCreateFolder() && ((ROI) obj).canEdit();
                 if (obj instanceof ROIShape)
-                    return ((ROIShape) obj).getROI().canEdit();
+                    return table.canCreateFolder() && ((ROIShape) obj).getROI().canEdit();
             }
             else {
                 for (Object obj : selection) {
@@ -208,7 +208,7 @@ public class ROIPopupMenu
                         return false;
                 }
                 //only editable ROIs selected
-                return true;
+                return table.canCreateFolder();
             }
         }
            

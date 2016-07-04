@@ -264,7 +264,7 @@ set(OMERO_ICE_SOURCES
 
 add_library(omero-ice SHARED
             ${OMERO_ICE_HEADERS} ${OMERO_ICE_SOURCES})
-target_link_libraries(omero-ice ${Ice_LIBRARIES})
+target_link_libraries(omero-ice Ice::Ice Ice::IceUtil Ice::Glacier2)
 set_target_properties(omero-ice PROPERTIES
                       VERSION ${OME_VERSION_SHORT})
 
@@ -379,7 +379,7 @@ add_library(omero-client SHARED
             ${OMERO_MODEL_HEADERS} ${OMERO_MODEL_SOURCES}
             ${OMERO_API_HEADERS} ${OMERO_API_SOURCES}
             ${OMERO_CLIENT_HEADERS} ${OMERO_CLIENT_SOURCES})
-target_link_libraries(omero-client omero-ice ${Ice_LIBRARIES})
+target_link_libraries(omero-client omero-ice Ice::Ice Ice::IceUtil Ice::Glacier2)
 set_target_properties(omero-client PROPERTIES
                       VERSION ${OME_VERSION_SHORT})
 

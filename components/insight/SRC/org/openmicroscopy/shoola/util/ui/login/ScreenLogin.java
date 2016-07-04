@@ -1013,7 +1013,10 @@ public class ScreenLogin
 	{
 		setIconImage(frameIcon);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(false);
+		// Setting resizable to false causes the login screen to be positioned in
+		// the center of a dual screen setup, instead of the center of the primary
+		// screen.
+		setResizable(true);
 		setUndecorated(true);
 		toFront();
 	}

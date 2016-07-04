@@ -19,8 +19,8 @@ module omero {
     module api {
 
         /**
-         * Provides methods for dealing with the core "Pojos" of OME. Included
-         * are:
+         * Provides methods for dealing with the core <i>Pojos</i> of OME.
+         * Included are:
          * Projects, Datasets, Images.
          *
          * <h3>Read API</h3>
@@ -323,10 +323,10 @@ module omero {
 
                 /**
                  * Retrieves a collection with all members initialized
-                 * ("loaded"). This is useful when a collection has been
+                 * (<i>loaded</i>). This is useful when a collection has been
                  * nulled in a previous query.
                  *
-                 * @param obj Can be "unloaded".
+                 * @param obj Can be <i>unloaded</i>.
                  * @param collectionName
                  *            <code>public final static String</code> from the
                  *            IObject.class

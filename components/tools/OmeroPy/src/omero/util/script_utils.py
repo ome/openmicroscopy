@@ -29,8 +29,6 @@ import warnings
 from struct import unpack
 
 import omero.clients
-from omero.rtypes import rdouble
-from omero.rtypes import rint
 from omero.rtypes import rstring
 from omero.rtypes import unwrap
 import omero.util.pixelstypetopython as pixelstypetopython
@@ -737,90 +735,6 @@ def uploadDirAsImages(sf, queryService, updateService,
     return imageId
 
 
-def uploadCecogObjectDetails(updateService, imageId, filePath):
-    """
-    Parses a single line of cecog output and saves as a roi.
-
-    Adds a Rectangle (particle) to the current OMERO image, at point x, y.
-    Uses the self.image (OMERO image) and self.updateService
-    """
-
-    objects = {}
-    roi_ids = []
-
-    import fileinput
-    for line in fileinput.input([filePath]):
-
-        theT = None
-        x = None
-        y = None
-
-        parts = line.split("\t")
-        names = ("frame", "objID", "primaryClassLabel", "primaryClassName",
-                 "centerX", "centerY", "mean", "sd", "secondaryClassabel",
-                 "secondaryClassName", "secondaryMean", "secondarySd")
-        values = {}
-        for idx, name in enumerate(names):
-            if len(parts) >= idx:
-                values[name] = parts[idx]
-
-        frame = values["frame"]
-        try:
-            frame = long(frame)
-        except ValueError:
-            SU_LOG.debug("Non-roi line: %s " % line)
-            continue
-
-        theT = frame - 1
-        objID = values["objID"]
-        className = values["primaryClassName"]
-        x = float(values["centerX"])
-        y = float(values["centerY"])
-
-        description = ""
-        for name in names:
-            description += ("%s=%s\n" % (name, values.get(name, "(missing)")))
-
-        if theT and x and y:
-            SU_LOG.debug(
-                "Adding point '%s' to frame: %s, x: %s, y: %s"
-                % (className, theT, x, y))
-            try:
-                shapes = objects[objID]
-            except KeyError:
-                shapes = []
-                objects[objID] = shapes
-            shapes.append((theT, className, x, y, values, description))
-
-    for object, shapes in objects.items():
-
-        # create an ROI, add the point and save
-        roi = omero.model.RoiI()
-        roi.setImage(omero.model.ImageI(imageId, False))
-        roi.setDescription(omero.rtypes.rstring("objID: %s" % object))
-
-        # create and save a point
-        for shape in shapes:
-
-            theT, className, x, y, values, description = shape
-
-            point = omero.model.PointI()
-            point.x = rdouble(x)
-            point.y = rdouble(y)
-            point.theT = rint(theT)
-            point.theZ = rint(0)  # Workaround for shoola:ticket:1596
-            if className:
-                point.setTextValue(rstring(className))    # for display only
-
-            # link the point to the ROI and save it
-            roi.addShape(point)
-
-        roi = updateService.saveAndReturnObject(point)
-        roi_ids.append(roi.id.val)
-
-    return roi_ids
-
-
 def split_image(client, imageId, dir,
                 unformattedImageName="tubulin_P037_T%05d_C%s_Z%d_S1.tif",
                 dims=('T', 'C', 'Z')):
@@ -873,7 +787,6 @@ def split_image(client, imageId, dir,
         dd = tuple([dimMap[d] for d in dims])
         return unformatted % dd
 
-    # cecog does this, but other formats may want to start at 0
     zStart = 1
     tStart = 1
 
@@ -1279,7 +1192,8 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @return see above.
     """
     from omero.util.OmeroPopo import WorkflowData as WorkflowData
-
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     # Support rstring and str namespaces
     namespace = unwrap(namespace)
     keywords = unwrap(keywords)
@@ -1311,6 +1225,8 @@ def findROIByImage(roiService, image, namespace):
     @return see above.
     """
     from omero.util.OmeroPopo import ROIData as ROIData
+    warnings.warn(
+        "This method is deprecated as of OMERO 5.3.0", DeprecationWarning)
     roiOptions = omero.api.RoiOptions()
     roiOptions.namespace = omero.rtypes.rstring(namespace)
     results = roiService.findByImage(image, roiOptions)

@@ -7,6 +7,24 @@
         primary key (id)
     );;
 
+    create table affinetransform (
+        id int8 not null,
+        a00 float8 not null,
+        a01 float8 not null,
+        a02 float8 not null,
+        a10 float8 not null,
+        a11 float8 not null,
+        a12 float8 not null,
+        permissions int8 not null,
+        version int4,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        primary key (id)
+    );;
+
     create table annotation (
         discriminator varchar(31) not null,
         id int8 not null,
@@ -1953,6 +1971,42 @@
         unique (parent, child, owner_id)
     );;
 
+    create table projectionaxis (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
+    create table projectiondef (
+        id int8 not null,
+        active bool not null,
+        permissions int8 not null,
+        endPlane nonnegative_int,
+        startPlane nonnegative_int,
+        version int4,
+        axis int8 not null,
+        creation_id int8 not null,
+        external_id int8 unique,
+        group_id int8 not null,
+        owner_id int8 not null,
+        update_id int8 not null,
+        renderingDef int8 not null,
+        type int8 not null,
+        renderingDef_index int4 not null,
+        primary key (id),
+        unique (renderingDef, renderingDef_index)
+    );;
+
+    create table projectiontype (
+        id int8 not null,
+        permissions int8 not null,
+        value varchar(255) not null unique,
+        external_id int8 unique,
+        primary key (id)
+    );;
+
     create table pulse (
         id int8 not null,
         permissions int8 not null,
@@ -2178,7 +2232,6 @@
         theC int4,
         theT int4,
         theZ int4,
-        transform varchar(255),
         version int4,
         radiusX float8,
         radiusY float8,
@@ -2202,6 +2255,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         roi int8 not null,
+        transform int8,
         pixels int8,
         roi_index int4 not null,
         primary key (id),
@@ -2411,6 +2465,31 @@
         add constraint FKacquisitionmode_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table annotation 
         add constraint FKannotation_creation_id_event 
@@ -5312,6 +5391,56 @@
         foreign key (parent) 
         references project  ;;
 
+    alter table projectionaxis 
+        add constraint FKprojectionaxis_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_axis_projectionaxis 
+        foreign key (axis) 
+        references projectionaxis  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_type_projectiontype 
+        foreign key (type) 
+        references projectiontype  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_renderingDef_renderingdef 
+        foreign key (renderingDef) 
+        references renderingdef  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table projectiontype 
+        add constraint FKprojectiontype_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
     alter table pulse 
         add constraint FKpulse_external_id_externalinfo 
         foreign key (external_id) 
@@ -5706,6 +5835,11 @@
         add constraint FKshape_roi_roi 
         foreign key (roi) 
         references roi  ;;
+
+    alter table shape 
+        add constraint FKshape_transform_affinetransform 
+        foreign key (transform) 
+        references affinetransform  ;;
 
     alter table shape 
         add constraint FKshape_owner_id_experimenter 

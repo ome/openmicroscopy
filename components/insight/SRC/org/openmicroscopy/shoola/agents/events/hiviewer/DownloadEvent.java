@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,8 @@
 package org.openmicroscopy.shoola.agents.events.hiviewer;
 
 import java.io.File;
-
+import java.util.List;
+import omero.gateway.model.DataObject;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 
@@ -41,16 +42,25 @@ public class DownloadEvent
     /**  Flag indicating to override the existing file if it exists.*/
     private boolean override;
 
+    /** The objects to download */
+    private List<DataObject> selection;
+    
     /**
      * Creates a new instance.
      *
-     * @param folder where to download the objects
-     * @param override Indicate to override or not the name if it already exits.
+     * @param folder
+     *            where to download the objects
+     * @param override
+     *            Indicate to override or not the name if it already exits.
+     * @param selection
+     *            The objects to download (can be <code>null</code> in which case
+     *            the receiver of this event has to figure it out itself)
      */
-    public DownloadEvent(File folder, boolean override)
-    {
+    public DownloadEvent(File folder, boolean override,
+            List<DataObject> selection) {
         this.folder = folder;
         this.override = override;
+        this.selection = selection;
     }
 
     /**
@@ -67,4 +77,14 @@ public class DownloadEvent
      * @return See above.
      */
     public File getFolder() { return folder; }
+
+    /**
+     * Get the objects to download
+     * @return See above
+     */
+    public List<DataObject> getSelection() {
+        return selection;
+    }
+    
+    
 }

@@ -38,6 +38,7 @@ from omero.model import MaskI
 from omero.model import NamespaceI
 from omero.rtypes import rdouble, rint, rlong, rstring
 
+import warnings
 # Popo helpers #
 
 
@@ -47,6 +48,8 @@ def toCSV(list):
     @param list The list to convert.
     @return See above.
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     lenList = len(list)
     cnt = 0
     str = ""
@@ -64,6 +67,8 @@ def toList(csvString):
     @param csvString The CSV string to convert.
     @return See above.
     """
+    warnings.warn(
+        "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
     list = csvString.split(',')
     for index in range(len(list)):
         list[index] = list[index].strip()
@@ -81,6 +86,8 @@ class DataObject(object):
     #
 
     def __init__(self):
+        warnings.warn(
+            "This module is deprecated as of OMERO 5.3.0", DeprecationWarning)
         self.value = None
         self.dirty = False
 

@@ -1399,8 +1399,6 @@ class OmeroMetadataServiceImpl
 	            toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
 	        if (!FileAnnotationData.MEASUREMENT_NS.equals(nameSpace))
 	            toExclude.add(FileAnnotationData.MEASUREMENT_NS);
-	        if (!FileAnnotationData.FLIM_NS.equals(nameSpace))
-	            toExclude.add(FileAnnotationData.FLIM_NS);
 	        if (!FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(nameSpace))
 	            toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 	        if (!FileAnnotationData.LOG_FILE_NS.equals(nameSpace))
@@ -2265,7 +2263,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
-				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
@@ -2298,7 +2295,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
-				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}

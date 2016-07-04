@@ -213,14 +213,14 @@ module omero {
      * Namespaces for analysis.
      **/
     module analysis {
+        /** namespaces related to the FLIM analysis. **/
+        ["deprecated: It will be removed in 5.4"]
+        module flim {
+            const string NSFLIM = "openmicroscopy.org/omero/analysis/flim";
 
-       /** namespaces related to the FLIM analysis. **/
-       module flim {
-         const string NSFLIM = "openmicroscopy.org/omero/analysis/flim";
-
-         //keywords associated to the namespace.
-         const string KEYWORDFLIMCELL = "Cell";
-         const string KEYWORDFLIMBACKGROUND = "Background";
+           //keywords associated to the namespace.
+           const string KEYWORDFLIMCELL = "Cell";
+           const string KEYWORDFLIMBACKGROUND = "Background";
        };
     };
 
