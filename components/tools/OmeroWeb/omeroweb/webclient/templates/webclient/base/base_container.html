@@ -209,7 +209,17 @@
             // look for label in OPEN_WITH
             WEBCLIENT.OPEN_WITH.forEach(function(ow){
                 if (ow.label === label) {
-                    ow.isEnabled = fn;
+                    ow.isEnabled = function() {
+                        // wrap fn with try/catch, return true by default
+                        var args = Array.from(arguments);
+                        try {
+                            enabled = fn(args);
+                        } catch (e) {
+                            console.log("Open with " + label + ": " + e);
+                            enabled = true;
+                        }
+                        return enabled;
+                    }
                 }
             });
         };
@@ -217,7 +227,17 @@
             // look for label in OPEN_WITH
             WEBCLIENT.OPEN_WITH.forEach(function(ow){
                 if (ow.label === label) {
-                    ow.action = fn;
+                    ow.action = function() {
+                        // wrap fn with try/catch, return false if error
+                        var args = Array.from(arguments);
+                        try {
+                            enabled = fn(args);
+                        } catch (e) {
+                            console.log("Open with " + label + ": " + e);
+                            enabled = false;
+                        }
+                        return enabled;
+                    }
                 }
             });
         };
