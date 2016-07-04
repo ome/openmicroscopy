@@ -89,7 +89,7 @@ Create Edit Group
     Page Should Contain     ${group_name}
     # find row which contains group name, and click 'btn_edit' of that row
     Click Element           xpath=//table[@id="groupTable"]/tbody/tr[descendant::td[contains(text(), '${group_name}')]]//a[contains(@class, "btn_edit")]
-    Wait Until Page Contains Element    xpath=//input[@value='${group_name}']
+    Wait Until Page Contains Element    xpath=//input[@value='${group_name}']       ${WAIT}
     Input Text                          name    ${group_name}-Edited
     Click Button                        Save
     Location Should Be                  ${GROUPS URL}
