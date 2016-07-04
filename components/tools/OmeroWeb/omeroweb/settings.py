@@ -326,28 +326,28 @@ INTERNAL_SETTINGS_MAPPING = {
          parse_boolean,
          ("Whether to use a TLS (secure) connection when talking to the SMTP"
           " server.")],
-    "omero.slack.enabled":
+    "omero.notify.slack.enabled":
         ["SLACK_ENABLED",
          "false",
          parse_boolean,
          "Enable and disable the OMERO.web slack error notification."],
-    "omero.slack.token":
+    "omero.notify.slack.token":
         ["SLACK_TOKEN",
          None,
          leave_none_unset,
          ("Your Slack authentication token. You can generate a tokens on:"
           "https://api.slack.com/web#authentication")],
-    "omero.slack.channel":
+    "omero.notify.slack.channel":
         ["SLACK_CHANNEL",
          "#logs",
          str,
          ("Set a default channel of the room the message should appear in.")],
-    "omero.slack.username":
+    "omero.notify.slack.username":
         ["SLACK_USERNAME",
          "webbot",
          str,
          ("Set a default name the message will appear be sent from.")],
-    "omero.slack.fail_silently":
+    "omero.notify.slack.fail_silently":
         ["SLACK_FAIL_SILENTLY",
          True,
          bool,
@@ -355,7 +355,7 @@ INTERNAL_SETTINGS_MAPPING = {
           "messages are often for administrators of a site and not the "
           "users, masking temporary errors with the Slack API may be "
           "desired.")],
-    "omero.slack.backend":
+    "omero.notify.slack.backend":
         ["SLACK_BACKEND",
          "django_slack.backends.UrllibBackend",
          str,
