@@ -977,8 +977,10 @@ $(function() {
                                 if (v.action) {
                                     // prepare json of selected objects to pass to function
                                     var selJson = sel.map(function(s){
-                                        var o = $.extend({}, s.data.obj);
-                                        o.type = s.type;
+                                        // var o = $.extend({}, s.data.obj);
+                                        var o = {'id': s.data.obj.id,
+                                                 'name': s.data.obj.name,
+                                                 'type': s.type};
                                         return o;
                                     });
                                     // see if it handles the event
@@ -1005,8 +1007,9 @@ $(function() {
                                     // If plugin has provided a function 'isEnabled'...
                                     // prepare json of selected objects to pass to function
                                     var selJson = sel.map(function(s){
-                                        var o = $.extend({}, s.data.obj);
-                                        o.type = s.type;
+                                        var o = {'id': s.data.obj.id,
+                                                 'name': s.data.obj.name,
+                                                 'type': s.type};
                                         return o;
                                     });
                                     enabled = v.isEnabled(selJson);
