@@ -31,6 +31,7 @@ from omero import constants
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.urlresolvers import NoReverseMatch
 
 from omeroweb.webclient.forms import GlobalSearchForm
 from omeroweb.utils import reverse_with_params
@@ -169,11 +170,11 @@ class render_response(omeroweb.decorators.render_response):
             try:
                 # test if complex dictionary view with args and query_string
                 l["link"] = reverse_with_params(**link_id)
-            except:
+            except TypeError:
                 # assume is only view name
                 try:
                     l["link"] = reverse(link_id)
-                except:
+                except NoReverseMatch:
                     # assume we've been passed a url
                     l["link"] = link_id
             # simply add optional attrs dict
