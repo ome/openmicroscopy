@@ -537,16 +537,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
     # OPEN WITH
     "omero.web.open_with":
         ["OPEN_WITH",
-         ('[["Test", "api_paths_to_object"],'
-          '["OMERO.figure", "new_figure", '
-          '{"objects": ["images", "dataset"], "target": "tab"}]]'),
+         ('[]'),
          json.loads,
          ("A list of viewers that can be used to display selected Images "
           "or other objects. Each viewer is defined as "
           "``[\"Name\", \"url\", options]``. Url is reverse(url). "
           "Selected objects are added to the url as ?image=:1&image=2"
-          "The options object is optional E.g. {\"objects\":[\"images\"]} "
-          "to enable viewer for one or more images")],
+          "The options object is optional E.g. ``{\"objects\":[\"images\"]}`` "
+          "to enable viewer for one or more images, "
+          "``{\"target\":\"tab\"}`` to open in new tab. "
+          "See https://github.com/openmicroscopy/openmicroscopy/pull/4630")],
 
     # PIPELINE 1.3.20
 
