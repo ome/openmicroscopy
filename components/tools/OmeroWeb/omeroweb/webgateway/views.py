@@ -2579,14 +2579,9 @@ class LoginView(View):
     """
 
     form_class = LoginForm
+    useragent = 'OMERO.webapi'
 
     def get(self, request, *args, **kwargs):
-        # server_id = request.GET.get('server')
-        # if server_id is not None:
-        #     initial = {'server': unicode(server_id)}
-        #     form = self.form_class(initial=initial)
-        # else:
-        #     form = self.form_class()
         return {"message": "POST only with username, password and csrftoken"}
 
     def _handleLoggedIn(self, request, conn, connector, *args, **kwargs):
@@ -2609,7 +2604,6 @@ class LoginView(View):
     def post(self, request, *args, **kwargs):
         error = None
         form = self.form_class(request.POST.copy())
-        useragent = 'OMERO.webgateway_api'
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -2621,11 +2615,11 @@ class LoginView(View):
             # TODO: version check should be done on the low level, see #5983
             compatible = True
             if settings.CHECK_VERSION:
-                compatible = connector.check_version(useragent)
+                compatible = connector.check_version(self.useragent)
             if (server_id is not None and username is not None and
                     password is not None and compatible):
                 conn = connector.create_connection(
-                    useragent, username, password,
+                    self.useragent, username, password,
                     userip=get_client_ip(request))
                 # TODO: conn is None if user is INACTIVE (not in user group)...
                 if conn is not None:
@@ -2650,7 +2644,7 @@ class LoginView(View):
                         return self._handleNotLoggedIn(self, request, error,
                                                        **kwargs)
 
-            if not connector.is_server_up(useragent):
+            if not connector.is_server_up(self.useragent):
                 error = ("Server is not responding,"
                          " please contact administrator.")
             elif not settings.CHECK_VERSION:
@@ -2668,7 +2662,7 @@ class LoginView(View):
 
 class ApiProjects(View):
 
-    @method_decorator(api_login_required())
+    @method_decorator(api_login_required(useragent='OMERO.webapi'))
     @method_decorator(jsonp)
     def dispatch(self, *args, **kwargs):
         return super(ApiProjects, self).dispatch(*args, **kwargs)

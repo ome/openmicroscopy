@@ -190,6 +190,7 @@ class WebclientLoginView(webgateway_views.LoginView):
     """
 
     template = "webclient/login.html"
+    useragent = 'OMERO.web'
 
     def get(self, request, *args, **kwargs):
         return self._handleNotLoggedIn(request, *args, **kwargs)
