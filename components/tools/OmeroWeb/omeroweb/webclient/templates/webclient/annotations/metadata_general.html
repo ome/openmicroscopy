@@ -105,6 +105,8 @@
                     $("#link_info_popup").show();
                 {% if webclient_path %}
                     var lnk = "{{ webclient_path }}";
+                {% elif webclient_pathname %}
+                    var lnk = location.protocol + "//" + location.host + "{{ webclient_pathname }}";
                 {% else %}
                     var lnk = location.href.substring(0,location.href.length - location.search.length);
                     if (lnk.charAt( lnk.length-1 ) == "#") { lnk = lnk.substring(0, lnk.length-1)}

@@ -1566,8 +1566,11 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
 
     context['figScripts'] = figScripts
     context['template'] = template
-    context['webclient_path'] = request.build_absolute_uri(
-        reverse('webindex'))
+    if settings.WEB_URL_USE_CLIENT_HOST:
+        context['webclient_pathname'] = reverse('webindex')
+    else:
+        context['webclient_path'] = request.build_absolute_uri(
+            reverse('webindex'))
     return context
 
 
