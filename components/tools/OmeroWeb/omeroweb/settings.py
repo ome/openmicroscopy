@@ -663,6 +663,12 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
+    "omero.web.ui.use_client_host":
+        ["WEB_URL_USE_CLIENT_HOST",
+         False,
+         bool,
+         ("If True build link-to URLs using client-side javascript, otherwise"
+          " use the server side HOST header")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {
