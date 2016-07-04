@@ -19,11 +19,14 @@
 
 package integration.chown;
 
+import static omero.rtypes.rstring;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import omero.RLong;
@@ -34,6 +37,8 @@ import omero.cmd.Chown2;
 import omero.cmd.Delete2;
 import omero.gateway.util.Requests;
 import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLink;
+import omero.model.AnnotationAnnotationLinkI;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
@@ -73,9 +78,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.SetMultimap;
 
 import integration.AbstractServerTest;
+
 
 /**
  * Tests that only appropriate users may use {@link Chown2} and that others' data is left unchanged.
@@ -328,17 +336,21 @@ public class PermissionsTest extends AbstractServerTest {
     }
 
     /**
-     * Test a specific case of using {@link Chown2} with owner's and others' annotations in a read-annotate group.
+     * Test a specific case of using {@link Chown2} with owner's and others' annotations, including tag sets with
+     * variously linked tags in a read-annotate group
      * @param isDataOwner if the user submitting the {@link Chown2} request owns the data in the group
      * @param isAdmin if the user submitting the {@link Chown2} request is a member of the system group
      * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccess if the chown is expected to succeed
+     * @param option the child option to use in the tagset transfer
      * @throws Exception unexpected
      */
+
+
     @Test(dataProvider = "chown annotation test cases")
     public void testChownAnnotationReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner,
-            boolean isRecipientInGroup, boolean isExpectSuccess) throws Exception {
+            boolean isRecipientInGroup, boolean isExpectSuccess, Option option) throws Exception {
 
         /* set up the users and group for this test case */
 
@@ -381,22 +393,148 @@ public class PermissionsTest extends AbstractServerTest {
         init(annotator);
         otherAnnotations = annotateImage(image);
 
-        /* perform the chown */
+        /* create two tag sets */
+        final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
+        for (int i = 1; i <= 2; i++) {
+            final TagAnnotation tagset = new TagAnnotationI();
+            tagset.setName(rstring("tagset #" + i));
+            tagset.setNs(rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
+            tagsets.add((TagAnnotation) iUpdate.saveAndReturnObject(tagset).proxy());
+        }
 
+        /* create three tags */
+        final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
+        for (int i = 1; i <= 3; i++) {
+            final TagAnnotation tag = new TagAnnotationI();
+            tag.setName(rstring("tag #" + i));
+            tags.add((TagAnnotation) iUpdate.saveAndReturnObject(tag).proxy());
+        }
+
+        /* define how to link the tag sets to the tags */
+        final SetMultimap<TagAnnotation, TagAnnotation> members = HashMultimap.create();
+        members.put(tagsets.get(0), tags.get(0));
+        members.put(tagsets.get(0), tags.get(1));
+        members.put(tagsets.get(1), tags.get(1));
+        members.put(tagsets.get(1), tags.get(2));
+
+        /* perform the linking */
+        for (final Map.Entry<TagAnnotation, TagAnnotation> toLink : members.entries()) {
+            final AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
+            link.setParent(toLink.getKey());
+            link.setChild(toLink.getValue());
+            iUpdate.saveObject(link);
+        }
+
+        /* chown the first tag set */
         init(chowner);
+        /*final Delete2 request = Requests.delete().target(tagsets.get(0)).build();*/
         final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
+        final Chown2 chown2 = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
+        
         doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
             return;
         }
+        
+        switch (option) {
+        case NONE:
+            break;
+        case INCLUDE:
+            chown2.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
+            break;
+        case EXCLUDE:
+            chown2.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
+            break;
+        case BOTH:
+            chown2.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
+                                                                              .excludeType("Annotation").build());
+            break;
+        default:
+            Assert.fail("unexpected option for chown");
+        }
+        doChange(client, factory, chown2, isExpectSuccess);
 
+        if (!isExpectSuccess) {
+            return;
+        }
+
+
+        
         /* check that the objects' ownership is all as expected */
 
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
         assertOwnedBy(ownerAnnotations, importer);
         assertOwnedBy(otherAnnotations, annotator);
+        
+        /* check that the tag set is transferred and the other remains owned by original owner */
+        assertOwnedBy(tagsets.get(0), recipient);
+        assertOwnedBy(tagsets.get(1), annotator);
+
+        /* check that only the expected tags are transferred */
+        switch (option) {
+        case NONE:
+            assertOwnedBy(tags.get(0), annotator);
+            assertOwnedBy(tags.get(1), annotator);
+            assertOwnedBy(tags.get(2), annotator);
+            break;
+        case BOTH:
+            /* include overrides exclude */
+        case INCLUDE:
+        	assertOwnedBy(tags.get(0), recipient);
+        	assertOwnedBy(tags.get(1), recipient);
+        	assertOwnedBy(tags.get(2), annotator);
+            break;
+        case EXCLUDE:
+        	assertOwnedBy(tags.get(0), annotator);
+        	assertOwnedBy(tags.get(1), annotator);
+        	assertOwnedBy(tags.get(2), annotator);
+            /* transfer the tag that is not in the second tag set */
+            init(chowner);
+            final Chown2 chown3 = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
+            doChange(client, factory, chown3, isExpectSuccess);
+            if (!isExpectSuccess) {
+                return;
+            }
+            break;
+        }
+
+        /* transfer the second tag set */
+        init(chowner);
+        final Chown2 chown4 = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
+        doChange(client, factory, chown4, isExpectSuccess);
+        if (!isExpectSuccess) {
+            return;
+        }
+
+        
+        /* check that the tag sets are transferred*/
+        logRootIntoGroup(dataGroupId);
+        assertOwnedBy(tagsets, recipient);
+        /* check that the tag in the second tag set was not implicitly transferred */
+        assertOwnedBy(tags.get(2), annotator);
+        
+    }
+
+
+    
+    /* child options to try using in transfer */
+    private enum Option { NONE, INCLUDE, EXCLUDE, BOTH };
+
+
+    /**
+     * @return the child options to try using in chown of tags/tagsets
+     */
+    @DataProvider(name = "child option")
+    public Object[][] provideChildOption() {
+        final Option[] values = Option.values();
+        final Object[][] testCases = new Object[values.length][1];
+        int index = 0;
+        for (final Option value : values) {
+            testCases[index++][0] = value;
+        }
+        return testCases;
     }
 
     /**
@@ -410,35 +548,47 @@ public class PermissionsTest extends AbstractServerTest {
         final int IS_GROUP_OWNER = index++;
         final int IS_RECIPIENT_IN_GROUP = index++;
         final int IS_EXPECT_SUCCESS = index++;
+        final int CHILD_OPTION = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
-
+        
+        final Option[] values = Option.values();
+        
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
+        
         for (final boolean isDataOwner : booleanCases) {
             for (final boolean isAdmin : booleanCases) {
                 for (final boolean isGroupOwner : booleanCases) {
                     for (final boolean isRecipientInGroup : booleanCases) {
-                        if (isAdmin && isGroupOwner) {
-                            /* not an interesting case */
-                            continue;
+                        for (final Option value : values) {
+                        	if (isAdmin && isGroupOwner) {
+                        		/* not an interesting case */
+                        		continue;
+                        	}
+                        	final Object[] testCase = new Object[index];
+                        	testCase[IS_DATA_OWNER] = isDataOwner;
+                        	testCase[IS_ADMIN] = isAdmin;
+                        	testCase[IS_GROUP_OWNER] = isGroupOwner;
+                        	testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
+                        	testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
+                        	testCase[CHILD_OPTION] = value;
+                        	// DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == true &&
+                        	//            isRecipientInGroup == true)
+                        	testCases.add(testCase);
                         }
-                        final Object[] testCase = new Object[index];
-                        testCase[IS_DATA_OWNER] = isDataOwner;
-                        testCase[IS_ADMIN] = isAdmin;
-                        testCase[IS_GROUP_OWNER] = isGroupOwner;
-                        testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
-                        testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
-                        // DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == true &&
-                        //            isRecipientInGroup == true)
-                        testCases.add(testCase);
                     }
                 }
             }
         }
+        
+        
 
         return testCases.toArray(new Object[testCases.size()][]);
     }
+
+    
+    
 
     /**
      * Test a specific case of using {@link Chown2} on an image that is in a dataset or a folder.
