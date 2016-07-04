@@ -680,15 +680,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          None,
          identity,
          ("Use this host (including protocol) for absolute urls displayed in "
-          "the client. If omero.web.ui.use_client_host=True this will only be "
-          "used for absolute URLs which cannot be created with client-side "
-          "javascript.")],
-    "omero.web.ui.use_client_host":
-        ["WEB_URL_USE_CLIENT_HOST",
-         False,
-         bool,
-         ("If True build link-to URLs using client-side javascript, otherwise"
-          " use the server side HOST header")],
+          "the client. This does not include client-side generated URLs.")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {
