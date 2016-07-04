@@ -1974,12 +1974,16 @@ def full_viewer(request, iid, conn=None, **kwargs):
             prefix = kwargs.get(
                 'thumbprefix', 'webgateway.views.render_thumbnail')
 
-            def urlprefix(iid):
-                return reverse(prefix, args=(iid,))
+            def reverse_urlprefix(p, iid):
+                r = reverse(p, args=(iid,))
+                if settings.WEB_URL_DEFAULT_CLIENT_BASEURL:
+                    return "%s%s" % (
+                        settings.WEB_URL_DEFAULT_CLIENT_BASEURL, r)
+                else:
+                    return request.build_absolute_uri(r)
 
-            image_preview = request.build_absolute_uri(urlprefix(iid))
-            page_url = request.build_absolute_uri(reverse(
-                'webgateway.views.full_viewer', args=(iid,)))
+            image_preview = reverse_urlprefix(prefix, iid)
+            page_url = reverse_urlprefix('webgateway.views.full_viewer', iid)
 
         d = {'blitzcon': conn,
              'image': image,
