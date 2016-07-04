@@ -20,6 +20,8 @@
 #include <omero/model/PressureI.h>
 #include <omero/ClientErrors.h>
 
+#include <omero/IcePortPush.h>
+
 ::Ice::Object* IceInternal::upCast(::omero::model::PressureI* t) { return t; }
 
 using namespace omero::conversions;
@@ -1322,3 +1324,4 @@ namespace omero {
     }
 }
 
+#include <omero/IcePortPop.h>
