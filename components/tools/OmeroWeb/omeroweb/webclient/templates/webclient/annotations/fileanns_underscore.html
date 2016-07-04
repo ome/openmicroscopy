@@ -42,18 +42,6 @@
     </span>
 
     <div class="attachment_actions">
-        <% if (ann.openWith.length > 0) { %>
-            <select class="openWith" data-id="<%= ann.id %>">
-                <option>Open With...</option>
-                <% _.each(ann.openWith, function(menuItem) { %>
-                    <option <% if (!menuItem.enabled) { %>disabled='true'<% } %>
-                            value="<%= menuItem.label %>">
-                        <%= menuItem.label %>
-                    </option>
-                <% }) %>
-            </select>
-        <% } %>
-
         <input type="checkbox" style="display:none;"/>
         <% if (ann.link.permissions.canDelete) { %> <!-- and not ann.isOriginalMetadata -->
             <a class='removeFile action' id="<%= ann.id %>-file" title="Remove File"
