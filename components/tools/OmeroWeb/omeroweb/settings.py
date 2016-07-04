@@ -675,6 +675,14 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
+    "omero.web.ui.default_client_baseurl":
+        ["WEB_URL_DEFAULT_CLIENT_BASEURL",
+         None,
+         identity,
+         ("Use this host (including protocol) for absolute urls displayed in "
+          "the client. If omero.web.ui.use_client_host=True this will only be "
+          "used for absolute URLs which cannot be created with client-side "
+          "javascript.")],
     "omero.web.ui.use_client_host":
         ["WEB_URL_USE_CLIENT_HOST",
          False,

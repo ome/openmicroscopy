@@ -1568,6 +1568,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     context['template'] = template
     if settings.WEB_URL_USE_CLIENT_HOST:
         context['webclient_pathname'] = reverse('webindex')
+    elif settings.WEB_URL_DEFAULT_CLIENT_BASEURL:
+        context['webclient_path'] = "%s%s" % (
+            settings.WEB_URL_DEFAULT_CLIENT_BASEURL, reverse('webindex'))
     else:
         context['webclient_path'] = request.build_absolute_uri(
             reverse('webindex'))
