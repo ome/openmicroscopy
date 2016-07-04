@@ -23,14 +23,23 @@ import logging
 
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
+from django.core.urlresolvers import NoReverseMatch
 
 
 logger = logging.getLogger(__name__)
 
 
 def reverse_with_params(*args, **kwargs):
+    """
+    Adds query string to django.core.urlresolvers.reverse
+    """
+
+    url = ''
     qs = kwargs.pop('query_string', {})
-    url = reverse(*args, **kwargs)
+    try:
+        url = reverse(*args, **kwargs)
+    except NoReverseMatch:
+        return url
     if qs:
         url += '?' + urlencode(qs)
     return url

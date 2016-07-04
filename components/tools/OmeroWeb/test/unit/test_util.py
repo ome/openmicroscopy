@@ -26,6 +26,7 @@ import pytest
 import json
 
 from django.core.urlresolvers import reverse
+
 from omeroweb.utils import reverse_with_params
 from omeroweb.webclient.webclient_utils import formatPercentFraction
 from omeroweb.webclient.webclient_utils import getDateTime
@@ -64,13 +65,27 @@ class TestUtil(object):
         "/webclient/userdata/?experimenter=-1"),
         ('{"viewname": "webindex", "query_string": {"foo": "bar"}}',
          "/webclient/?foo=bar"),
-        ("history", "/webclient/history/")
+        ('{"viewname": "foo", "args": ["bar"]}', ""),
+        ('{"viewname": "foo", "query_string": {"foo": "bar"}}', ""),
         ])
-    def test_reverse_with_params(self, top_links):
+    def test_reverse_with_params_dict(self, top_links):
+        top_link = json.loads(top_links[0])
+        assert reverse_with_params(**top_link) == top_links[1]
+
+    @pytest.mark.parametrize('top_links', [
+        ("history", "/webclient/history/"),
+        ("webindex", "/webclient/"),
+        ])
+    def test_reverse_with_params_string(self, top_links):
+        top_link = top_links[0]
+        assert reverse_with_params(top_link) == reverse(top_link) \
+            == top_links[1]
+
+    @pytest.mark.parametrize('top_link', ["foo", '', None])
+    def test_bad_reverse_with_params_string(self, top_link):
         try:
-            top_link = json.loads(top_links[0])
-            assert reverse_with_params(**top_link) == top_links[1]
-        except:
-            top_link = top_links[0]
-            assert reverse_with_params(top_link) == reverse(top_link) \
-                == top_links[1]
+            reverse_with_params(**top_link)
+        except TypeError:
+            pass
+        else:
+            assert False, "Error: Invalid view name!"
