@@ -357,6 +357,12 @@ public class BrowseFacilityTest extends GatewayTest {
         Assert.assertEquals(user2Folder.getId(), f.getId());
     }
     
+    @Test
+    public void testGetLookupTables() throws DSOutOfServiceException, DSAccessException {
+        Collection<String> luts = browseFacility.getLookupTables(rootCtx);
+        Assert.assertFalse(luts.isEmpty());
+     }
+    
     private void initData() throws Exception {
         this.group = createGroup();
         this.user = createExperimenter(group);
