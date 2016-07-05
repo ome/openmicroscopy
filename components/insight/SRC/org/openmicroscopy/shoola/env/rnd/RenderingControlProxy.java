@@ -28,6 +28,8 @@ import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -168,6 +170,9 @@ class RenderingControlProxy
 	
 	/** The number of retry.*/
 	private int retry;
+	
+	/** The lookup tables */
+	private Collection<String> lookupTables;
 	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
@@ -2041,12 +2046,35 @@ class RenderingControlProxy
 		}
     	return levels;
     }
+    
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#setAvailableLookupTables(Collection)
+     */
+    @Override
+    public void setAvailableLookupTables(Collection<String> lookupTables) {
+        this.lookupTables = lookupTables;
+    }
+
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#getAvailableLookupTables()
+     */
+    @Override
+    public Collection<String> getAvailableLookupTables() {
+        if (lookupTables == null)
+            return Collections.EMPTY_LIST;
+        return lookupTables;
+    }
 
     /**
      * Implemented as specified by {@link RenderingControl}.
      * 
      * @see RenderingControl#getLookupTable(int)
      */
+    @Override
     public String getLookupTable(int w) {
         ChannelBindingsProxy channel = rndDef.getChannel(w);
         if (channel == null)
@@ -2059,6 +2087,7 @@ class RenderingControlProxy
      * 
      * @see RenderingControl#setLookupTable(int, String)
      */
+    @Override
     public void setLookupTable(int w, String lut)
             throws RenderingServiceException, DSOutOfServiceException {
         isSessionAlive();
