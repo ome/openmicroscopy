@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -810,4 +810,14 @@ public interface Renderer
      * @return See above.
      */
     RndProxyDef getSelectedDef();
+    
+    /**
+     * Set the lookup table for the specified channel
+     * 
+     * @param index
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int index, String lut);
 }
