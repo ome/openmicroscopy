@@ -3575,7 +3575,7 @@ class EditorModel
 	/**
          * Reloads the {@link RenderingControl} for the given pixelsID
          * (Note: This is a blocking method, for asynchronous call use 
-         *   {@link fireRenderingControlLoading(long, int)} instead
+         *   {@link #fireRenderingControlLoading(long, int)} instead
          * @param pixelsID The id of the pixels set.
          */
         void loadRenderingControl(long pixelsID) {
