@@ -2660,12 +2660,12 @@ class LoginView(View):
         return self._handleNotLoggedIn(request, error, *args, **kwargs)
 
 
-class ApiProjects(View):
+class ProjectsView(View):
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
     @method_decorator(jsonp)
     def dispatch(self, *args, **kwargs):
-        return super(ApiProjects, self).dispatch(*args, **kwargs)
+        return super(ProjectsView, self).dispatch(*args, **kwargs)
 
     def get(self, request, conn=None, **kwargs):
         # Get parameters
