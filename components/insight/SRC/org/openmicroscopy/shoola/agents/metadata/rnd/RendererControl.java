@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -220,8 +221,11 @@ class RendererControl
     {
 		colorPickerIndex = channel;
 		Color c = view.getChannelColor(channel);
+		String lut = view.getLookupTable(channel);
+		Collection<String> luts = view.getAvailableLookupTables();
+		MetadataViewerAgent.getAvailableUserGroups();
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		ColourPicker dialog = new ColourPicker(f, c);
+		ColourPicker dialog = new ColourPicker(f, c, luts, lut);
 		dialog.setPreviewVisible(true);
 		dialog.addPropertyChangeListener(this);
 		if (location == null)
