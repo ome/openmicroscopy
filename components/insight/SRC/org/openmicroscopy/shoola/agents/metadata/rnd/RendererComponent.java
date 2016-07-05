@@ -492,6 +492,23 @@ class RendererComponent
         view.setSelectedChannel();
 	}
 
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#setLookupTable(int, String)
+     */
+    public void setLookupTable(int index, String lut) {
+        try {
+            makeHistorySnapshot();
+            model.setLookupTable(index, lut);
+            firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false),
+                    Boolean.valueOf(true));
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setChannelColor(int, Color, boolean)

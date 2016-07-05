@@ -35,6 +35,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import omero.romio.PlaneDef;
 
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsChanged;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -1778,5 +1779,27 @@ class RendererModel
         if (rndControl == null)
             return null;
         return rndControl.getAvailableLookupTables();
+    }
+
+    /**
+     * Set the lookup table
+     * 
+     * @param index
+     *            The channel index
+     * @param lut
+     *            The lookup table
+     */
+    public void setLookupTable(int index, String lut) {
+        try {
+            rndControl.setLookupTable(index, lut);
+            RndSettingsChanged evt = new RndSettingsChanged(getRefImage()
+                    .getId());
+            MetadataViewerAgent.getRegistry().getEventBus().post(evt);
+        } catch (Exception e) {
+            LogMessage msg = new LogMessage();
+            msg.append("Error while setting lookup table.");
+            msg.print(e);
+            MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+        }
     }
 }

@@ -1856,6 +1856,8 @@ class RenderingControlProxy
 				return false;
 			if (channel.isNoiseReduction() != getChannelNoiseReduction(i))
 				return false;
+			if (channel.getLookupTable() != getLookupTable(i))
+			    return false;
 			rgba = channel.getRGBA();
 			color = getRGBA(i);
 			if (rgba[0] != color.getRed()) return false;
@@ -2097,6 +2099,9 @@ class RenderingControlProxy
             while (i.hasNext())
                 i.next().setLookupTable(w, lut);
             invalidateCache();
+            ChannelBindingsProxy channel = rndDef.getChannel(w);
+            if (channel != null)
+                channel.setLookupTable(lut);
         } catch (Exception e) {
             handleException(e, ERROR + " lookup up table for channel: " + w
                     + ".");
