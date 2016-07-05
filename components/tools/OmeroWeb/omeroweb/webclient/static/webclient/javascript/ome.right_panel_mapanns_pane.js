@@ -69,21 +69,27 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
             
             $.getJSON(this.apiAnnotationUrl(opts.url) + "?type=map&" + request, function(data){
 
-                // manipulate data...
-                // make an object of eid: experimenter
-                var experimenters = data.experimenters.reduce(function(prev, exp){
-                    prev[exp.id + ""] = exp;
-                    return prev;
-                }, {});
+                var experimenters = []
+                if (data.experimenters.length > 0) {
+                    // manipulate data...
+                    // make an object of eid: experimenter
+                    experimenters = data.experimenters.reduce(function(prev, exp){
+                        prev[exp.id + ""] = exp;
+                        return prev;
+                    }, {});
+
+                }
 
                 // Populate experimenters within anns
                 var anns = data.annotations.map(function(ann){
-                    ann.owner = experimenters[ann.owner.id];
+                    if (data.experimenters.length > 0) {
+                        ann.owner = experimenters[ann.owner.id];
+                    }
                     if (ann.link && ann.link.owner) {
                         ann.link.owner = experimenters[ann.link.owner.id];
+                        // AddedBy IDs for filtering
+                        ann.addedBy = [ann.link.owner.id]; 
                     }
-                    // AddedBy IDs for filtering
-                    ann.addedBy = [ann.link.owner.id];
                     return ann;
                 });
 
