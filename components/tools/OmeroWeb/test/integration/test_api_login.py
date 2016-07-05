@@ -65,6 +65,6 @@ class TestLogin(IWebTest):
         version = settings.WEBGATEWAY_API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
         rsp = _post_response_json(django_client, request_url, {},
-                             status_code=403)
+                                  status_code=403)
         assert (rsp['message'] ==
                 "CSRF Error. You need to include 'X-CSRFToken' in header")
