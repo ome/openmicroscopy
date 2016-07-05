@@ -81,11 +81,7 @@ class TestUtil(object):
         assert reverse_with_params(top_link) == reverse(top_link) \
             == top_links[1]
 
+    @pytest.mark.xfail(raises=TypeError)
     @pytest.mark.parametrize('top_link', ["foo", '', None])
     def test_bad_reverse_with_params_string(self, top_link):
-        try:
-            reverse_with_params(**top_link)
-        except TypeError:
-            pass
-        else:
-            assert False, "Error: Invalid view name!"
+        reverse_with_params(**top_link)
