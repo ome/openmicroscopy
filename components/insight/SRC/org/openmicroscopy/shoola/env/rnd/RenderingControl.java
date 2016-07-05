@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -841,6 +842,13 @@ public interface RenderingControl
 		throws RenderingServiceException, DSOutOfServiceException;
 	
     /**
+     * Get all available lookup tables
+     * 
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables();
+	
+    /**
      * Get the lookup table
      * 
      * @param w
@@ -859,4 +867,12 @@ public interface RenderingControl
      */
     void setLookupTable(int w, String lut) throws RenderingServiceException,
             DSOutOfServiceException;
+
+    /**
+     * Set the available lookup tables
+     * 
+     * @param lookupTables
+     *            The lookup tables
+     */
+    void setAvailableLookupTables(Collection<String> lookupTables);
 }

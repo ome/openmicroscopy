@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -284,6 +284,19 @@ class RendererModel
 		if (rndControl == null) return Color.white;
 		return rndControl.getRGBA(index);
 	}
+	
+    /**
+     * Get the lookup table for the channel
+     * 
+     * @param index
+     *            The index of the channel.
+     * @return See above.
+     */
+    String getLookupTable(int index) {
+        if (rndControl == null)
+            return null;
+        return rndControl.getLookupTable(index);
+    }
 
 	/**
 	 * Returns the status of the window.
@@ -1760,4 +1773,10 @@ class RendererModel
                 || t.equals(OmeroImageService.INT_32)
                 || t.equals(OmeroImageService.UINT_32);
 	}
+
+    public Collection<String> getAvailableLookupTables() {
+        if (rndControl == null)
+            return null;
+        return rndControl.getAvailableLookupTables();
+    }
 }
