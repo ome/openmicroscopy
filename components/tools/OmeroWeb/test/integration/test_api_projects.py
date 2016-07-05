@@ -75,6 +75,11 @@ def names2(request):
     return ('Axe',)
 
 
+@pytest.fixture(scope='module')
+def names3(request):
+    return ('Bark', 'custard')
+
+
 # Projects
 @pytest.fixture(scope='function')
 def projects_userA_groupA(request, names1, userA,
@@ -111,6 +116,35 @@ def projects_userB_groupA(request, names2, userB):
     return projects
 
 
+@pytest.fixture(scope='function')
+def projects_userA_groupB(request, names3, userA, groupB):
+    """
+    Returns new OMERO Projects with required fields set and with names
+    that can be used to exercise sorting semantics.
+    """
+    to_save = []
+    for name in names3:
+        project = ProjectI()
+        project.name = rstring(name)
+        to_save.append(project)
+    conn = get_connection(userA, groupB.id.val)
+    projects = conn.getUpdateService().saveAndReturnArray(to_save,
+                                                          conn.SERVICE_OPTS)
+    projects.sort(cmp_name_insensitive)
+    return projects
+
+
+@pytest.fixture(scope='function')
+def projects_userA(request, projects_userA_groupA,
+                   projects_userA_groupB):
+    """
+    Returns OMERO Projects for userA in both groupA and groupB
+    """
+    projects = projects_userA_groupA + projects_userA_groupB
+    projects.sort(cmp_name_insensitive)
+    return projects
+
+
 def marshal_objects(objects):
     """ Marshal objects using omero_marshal """
     expected = []
@@ -120,18 +154,15 @@ def marshal_objects(objects):
     return expected
 
 
-def assert_objects(json_objects, omero_objects):
-    expected = marshal_objects(omero_objects)
+def assert_objects(conn, json_objects, omero_objects, dtype="Project",
+                   group='-1'):
+    pids = [p.id.val for p in omero_objects]
+    conn.SERVICE_OPTS.setOmeroGroup(group)
+    projects = conn.getObjects(dtype, pids, respect_order=True)
+    projects = [p._obj for p in projects]
+    expected = marshal_objects(projects)
     assert len(json_objects) == len(expected)
     for o1, o2 in zip(json_objects, expected):
-        # Ignore 'canLink' on owner and group permissions.
-        # Set them to be equal before we do full comparison.
-        o1['omero:details']['owner']['omero:details'][
-            'permissions']['canLink'] = o2['omero:details']['owner'][
-            'omero:details']['permissions']['canLink']
-        o1['omero:details']['group']['omero:details'][
-            'permissions']['canLink'] = o2['omero:details']['group'][
-            'omero:details']['permissions']['canLink']
         assert o1 == o2
 
 
@@ -236,11 +267,9 @@ class TestProjects(IWebTest):
         version = settings.WEBGATEWAY_API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
-        # json projects won't have Datasets loaded.
-        # Unload Datasets from original Projects before we compare
-        for p in projects_userA_groupA:
-            p.unloadDatasetLinks()
-        assert_objects(rsp['projects'], projects_userA_groupA)
+        # Reload projects with group '-1' to get same 'canLink' perms
+        # on owner and group permissions
+        assert_objects(conn, rsp['projects'], projects_userA_groupA)
 
     def test_marshal_projects_another_user(self, userA, userB,
                                            projects_userB_groupA):
@@ -254,9 +283,74 @@ class TestProjects(IWebTest):
         version = settings.WEBGATEWAY_API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
-
         # userA reloads userB's projects
-        pids = [p.id.val for p in projects_userB_groupA]
-        projects = conn.getObjects("Project", pids, respect_order=True)
-        projects = [p._obj for p in projects]
-        assert_objects(rsp['projects'], projects)
+        assert_objects(conn, rsp['projects'], projects_userB_groupA)
+
+    def test_marshal_projects_another_group(self, userA, groupB,
+                                            projects_userA_groupB):
+        """
+        Test marshalling user's projects in another group
+        """
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_projects', kwargs={'api_version': version})
+        rsp = _get_response_json(django_client, request_url, {})
+
+        # Group A is rwra--  Group B is rwr--
+        # userA reloads projects with group '-1' so that permissions on owner
+        # are same as owner's default group Group A (rwra--) instead of
+        # group that the data is in Group B (rwr--)
+        assert_objects(conn, rsp['projects'], projects_userA_groupB)
+
+    def test_marshal_projects_all_groups(self, userA, groupA, groupB,
+                                         projects_userA):
+        """
+        Test marshalling all projects for a user regardless of group and
+        filtering by group.
+        """
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_projects', kwargs={'api_version': version})
+
+        # All groups
+        rsp = _get_response_json(django_client, request_url, {})
+        assert_objects(conn, rsp['projects'], projects_userA)
+        # Filter by group A...
+        gid = groupA.id.val
+        rsp = _get_response_json(django_client, request_url, {'group': gid})
+        assert_objects(conn, rsp['projects'], projects_userA, group=gid)
+        #...and group B
+        gid = groupB.id.val
+        rsp = _get_response_json(django_client, request_url, {'group': gid})
+        assert_objects(conn, rsp['projects'], projects_userA, group=gid)
+
+    def test_marshal_projects_all_users(self, userA, userB,
+                                        projects_userA_groupA,
+                                        projects_userB_groupA):
+        """
+        Test marshalling all projects for a group regardless of owner
+        and filtering by owner.
+        """
+        projects = projects_userA_groupA + projects_userB_groupA
+        projects.sort(cmp_name_insensitive)
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_projects', kwargs={'api_version': version})
+
+        # Both users
+        rsp = _get_response_json(django_client, request_url, {})
+        assert_objects(conn, rsp['projects'], projects)
+
+        eid = userA[1].id.val
+        rsp = _get_response_json(django_client, request_url, {'owner': eid})
+        assert_objects(conn, rsp['projects'], projects_userA_groupA)
+
+        eid = userB[1].id.val
+        rsp = _get_response_json(django_client, request_url, {'owner': eid})
+        assert_objects(conn, rsp['projects'], projects_userB_groupA)
