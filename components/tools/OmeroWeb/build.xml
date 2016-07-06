@@ -72,7 +72,9 @@
     </target>
 
     <target name="findbugs">
-        <echo>Not yet implemented</echo>
+        <exec dir="${basedir}" executable="python" failonerror="true">
+            <arg line="validate.py" />
+        </exec>
     </target>
 
 </project>
