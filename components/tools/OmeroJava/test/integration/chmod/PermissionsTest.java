@@ -718,11 +718,11 @@ public class PermissionsTest extends AbstractServerTest {
 
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-                for (final String groupPerms : permsCases) {
-                    final Object[] testCase = new Object[index];
-                    testCase[GROUP_PERMS] = groupPerms;
-                    // DEBUG: if ("rwr---".equals(groupPerms))
-                    testCases.add(testCase);
+        for (final String groupPerms : permsCases) {
+            final Object[] testCase = new Object[index];
+            testCase[GROUP_PERMS] = groupPerms;
+            // DEBUG: if ("rwr---".equals(groupPerms))
+            testCases.add(testCase);
         }
 
         return testCases.toArray(new Object[testCases.size()][]);
