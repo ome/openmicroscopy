@@ -24,7 +24,7 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.jstree_theme.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% static 'webgateway/css/ome.jstree_theme.css'|add:url_suffix %}" type="text/css" />
 {% endblock %}
 
 {% block script %}

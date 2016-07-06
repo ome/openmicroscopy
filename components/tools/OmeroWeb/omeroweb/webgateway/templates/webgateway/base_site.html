@@ -17,16 +17,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    {% include "webgateway/base/includes/shortcut_icon.html" %}
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="imagetoolbar" content="no" />
     <title>{% block title %}{% endblock %}</title>
     {% block css %}
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/weblitz-viewport.css"|add:url_suffix %}" media="all" />
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/jquery-plugin-gs_slider.css"|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static 'webgateway/css/weblitz-viewport.css'|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static 'webgateway/css/jquery-plugin-gs_slider.css'|add:url_suffix %}" media="all" />
 
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/base.css"|add:url_suffix %}" media="all" />
-    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/snippet_header_logo.css"|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static 'webgateway/css/base.css'|add:url_suffix %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static 'webgateway/css/snippet_header_logo.css'|add:url_suffix %}" media="all" />
     {% endblock %}
     {% for href in extra_css %}
     <link rel="stylesheet" type="text/css" href="{{ href }}" />
