@@ -72,8 +72,8 @@
     </target>
 
     <target name="findbugs">
-        <exec dir="${basedir}" executable="python" failonerror="true">
-            <arg line="validate.py" />
+        <exec executable="python" failonerror="true">
+            <arg line="${basedir}/omeroweb_validator.py" />
         </exec>
     </target>
 

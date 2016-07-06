@@ -39,9 +39,9 @@ before_install:
     - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-nginx.txt; fi
     - export PATH=$PATH:$HOME/.local/bin
     - scc travis-merge
-    - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3; fi
+    - if [[ $BUILD == 'build-python' ]]; then travis_retry pip install --user flake8==2.4.0 pytest==2.7.3 lxml; fi
     - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-flake8; fi
-    - if [[ $BUILD == 'build-python' ]]; then (cd ./components/tools/OmeroWeb && ant findbugs); fi
+    - if [[ $BUILD == 'build-python' ]]; then ./build.py -f components/tools/OmeroWeb/build.xml findbugs; fi
 
 # retries the build due to:
 # https://github.com/travis-ci/travis-ci/issues/2507
