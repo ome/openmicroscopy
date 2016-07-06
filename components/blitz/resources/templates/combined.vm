@@ -152,6 +152,7 @@ DECLARATION BLOCK:
 [$ice]
 #end
 
+[$cpp] \#include <omero/internal/fixes.h>
 #foreach( $property in $type.propertyClosure )
 #if($property.type.startsWith("ome"))
 #if($property.isLink)
