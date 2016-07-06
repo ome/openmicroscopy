@@ -24,7 +24,9 @@
 #
 
 import pytest
-from omeroweb_validator import check_regex
+import tempfile
+
+from omeroweb_validator import check_regex, check_web_template
 from omeroweb_validator import check_url_suffix
 from omeroweb_validator import check_version
 from omeroweb_validator import check_variable
@@ -52,3 +54,48 @@ def test_check_version(attr):
 ])
 def test_check_variable(attr):
     assert attr[1] == check_regex(attr[0], check_variable)
+
+
+@pytest.mark.parametrize('content', [
+    ('<link rel="stylesheet" href="{% static \'web/css/file-0.0.css\' %}"'
+     ' type="text/css" />'),
+    ('<link rel="stylesheet" href="{% static \'web/css/file-0.0.0.css\' %}"'
+     'type="text/css" />'),
+    ('<link rel="stylesheet" href="{% static \'web/css/lib-0.0/file.css\' %}"'
+     'type="text/css" />'),
+    ('<script src="{% static \'3rd/file-0.0.js\' %}"'
+     'type="text/javascript"/>'),
+    ('<script src="{% static \'3rd/file-0.0.0.js\' %}"'
+     'type="text/javascript"/>'),
+    ('<script src="{% static \'3rd/lib-0.0/file.js\' %}"'
+     'type="text/javascript"/>'),
+    """<html><head>'
+       <script type="text/javascript"
+        src="{% static '3rd/file-0.0.0.js' %}"></script>
+       <link rel="stylesheet" href="{% static 'web/css/file-0.0.0.css' %}"
+        type="text/css" ></link>
+       </head></html>
+    """,
+])
+def test_check_web_template(content):
+    with tempfile.NamedTemporaryFile() as temp:
+        temp.write(content)
+        temp.flush()
+        for r in check_web_template(temp.name):
+            assert temp.name not in r
+
+
+@pytest.mark.parametrize('content', [
+    ('<link rel="shortcut icon" href="{% static \'favicon.ico\' %}"'
+     ' type="image/x-icon" />'),
+    ('<link  href="{% static \'web/css/file.css\'|add:url_suffix %}"'
+     ' rel="stylesheet" type="text/css" />'),
+    ('<script type="text/javascript" '
+     'src="{% static \'3rd/file.js\' %}"></script>'),
+])
+def test_bad_check_web_template(content):
+    with tempfile.NamedTemporaryFile() as temp:
+        temp.write(content)
+        temp.flush()
+        for r in check_web_template(temp.name):
+            assert temp.name in r
