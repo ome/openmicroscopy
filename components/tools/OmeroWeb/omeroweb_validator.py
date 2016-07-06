@@ -36,6 +36,7 @@ check_url_suffix = re.compile(r"{% static [\'|\"](.*?)[\'|\"]\|"
 check_version = re.compile(r"{% static [\'|\"].*(\d\.\d).*[\'|\"] %}")
 check_variable = re.compile(r"{{(.*?)}}")
 
+
 def check_regex(attr, regexp):
     match = regexp.search(attr)
     if match:
