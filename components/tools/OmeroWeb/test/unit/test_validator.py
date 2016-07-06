@@ -60,22 +60,24 @@ def test_check_variable(attr):
     ('<link rel="stylesheet" href="{% static \'web/css/file-0.0.css\' %}"'
      ' type="text/css" />'),
     ('<link rel="stylesheet" href="{% static \'web/css/file-0.0.0.css\' %}"'
-     'type="text/css" />'),
+     ' type="text/css" />'),
     ('<link rel="stylesheet" href="{% static \'web/css/lib-0.0/file.css\' %}"'
-     'type="text/css" />'),
+     ' type="text/css" />'),
     ('<script src="{% static \'3rd/file-0.0.js\' %}"'
-     'type="text/javascript"/>'),
+     ' type="text/javascript"/>'),
     ('<script src="{% static \'3rd/file-0.0.0.js\' %}"'
-     'type="text/javascript"/>'),
+     ' type="text/javascript"/>'),
     ('<script src="{% static \'3rd/lib-0.0/file.js\' %}"'
-     'type="text/javascript"/>'),
-    """<html><head>'
+     ' type="text/javascript"/>'),
+    """<html><head>
        <script type="text/javascript"
         src="{% static '3rd/file-0.0.0.js' %}"></script>
        <link rel="stylesheet" href="{% static 'web/css/file-0.0.0.css' %}"
         type="text/css" ></link>
        </head></html>
     """,
+    ("<script src='{% static \"3rd/lib-0.0/file.js\" %}'"
+     " type='text/javascript'/>"),
 ])
 def test_check_web_template(content):
     with tempfile.NamedTemporaryFile() as temp:
@@ -86,12 +88,17 @@ def test_check_web_template(content):
 
 
 @pytest.mark.parametrize('content', [
-    ('<link rel="shortcut icon" href="{% static \'favicon.ico\' %}"'
+    ('<link rel="shortcut icon" href="{% static "favicon.ico" %}"'
      ' type="image/x-icon" />'),
-    ('<link  href="{% static \'web/css/file.css\'|add:url_suffix %}"'
+    ('<link href="{% static "web/css/file.css"|add:url_suffix %}"'
      ' rel="stylesheet" type="text/css" />'),
     ('<script type="text/javascript" '
-     'src="{% static \'3rd/file.js\' %}"></script>'),
+     'src="{% static "3rd/file.js" %}"></script>'),
+    ("<script src='{% static '3rd/lib-0.0/file.js' %}'"
+     " type='text/javascript'/>"),
+    ('<script src="{% static "3rd/lib-0.0/file.js" %}"'
+     ' type="text/javascript"/>'),
+
 ])
 def test_bad_check_web_template(content):
     with tempfile.NamedTemporaryFile() as temp:
