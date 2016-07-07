@@ -71,6 +71,9 @@ public class ColourPicker
     /** Bounds property indicating that a new lookup table is selected. */
     public static final String LUT_PROPERTY = "lut";
     
+    /** Bounds property indicating that a new lookup table is selected. */
+    public static final String LUT_PREVIEW_PROPERTY = "lutPreview";
+    
     /** Bounds property indicating that a new color is selected. */
     public static final String COLOUR_PROPERTY = "colour";
     
@@ -139,7 +142,7 @@ public class ColourPicker
         if (model.isOriginalColor(model.getColour())
                 && model.isOriginalLut(model.getLUT()) && description == null)
             return;
-        if (!model.isOriginalLut(model.getLUT()))
+        if (!model.isOriginalLut(model.getLUT())) 
             firePropertyChange(LUT_PROPERTY, model.getOriginalLUT(),
                     model.getLUT());
         else if (description == null)
@@ -147,24 +150,32 @@ public class ColourPicker
         else
             firePropertyChange(COLOUR_PROPERTY, null, new ColourObject(c,
                     description));
-        cancel();
+        
+        setVisible(false);
+        dispose();
     }
     
-    /**  Returns the current colour to the user.*/
-    void preview()
-    {
+    /** Returns the current colour to the user. */
+    void preview() {
         Color c = model.getColour();
         String description = tabbedPane.getDescription();
-        if (model.isOriginalColor(model.getColour()) && description == null) 
-        	return;
-        firePropertyChange(COLOUR_PREVIEW_PROPERTY, model.getOriginalColor(),
-        		c);
+        if (!model.isOriginalLut(model.getLUT()))
+            firePropertyChange(LUT_PREVIEW_PROPERTY, model.getOriginalLUT(),
+                    model.getLUT());
+        else if (model.isOriginalColor(model.getColour())
+                && description == null)
+            return;
+
+        else
+            firePropertyChange(COLOUR_PREVIEW_PROPERTY,
+                    model.getOriginalColor(), c);
     }
     
     /** Resets the color to the original.*/
     void reset()
     {
     	firePropertyChange(COLOUR_PROPERTY, null, model.getOriginalColor());
+    	firePropertyChange(LUT_PROPERTY, null, model.getOriginalLUT());
     }
     
 	/** 

@@ -441,15 +441,21 @@ class RendererControl
         } else if (ColourPicker.LUT_PROPERTY.equals(name)) { 
             String lut = (String) evt.getNewValue();
             if (colorPickerIndex != -1) {
-                model.setLookupTable(colorPickerIndex, lut);
+                model.setLookupTable(colorPickerIndex, lut, false);
             }
         } else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) { 
 			Color c = (Color) evt.getNewValue();
 			if (colorPickerIndex != -1) {
 				model.setChannelColor(colorPickerIndex, c, true);
 			}
-		} else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
+		} else if (ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) { 
+            String lut = (String) evt.getNewValue();
+            if (colorPickerIndex != -1) {
+                model.setLookupTable(colorPickerIndex, lut, true);
+            }
+        } else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
 			model.setChannelColor(colorPickerIndex, null, true);
+			model.resetLookupTable(colorPickerIndex);
 		} else if (Renderer.Z_SELECTED_PROPERTY.equals(name)) {
 			view.setZSection(((Integer) evt.getNewValue()).intValue());
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {

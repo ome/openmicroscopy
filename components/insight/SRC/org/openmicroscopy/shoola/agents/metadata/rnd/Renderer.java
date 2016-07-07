@@ -818,6 +818,17 @@ public interface Renderer
      *            The channel index
      * @param lut
      *            The lookup table
+     * @param preview
+     *            Pass <code>true</code> to indicate that it is a color preview,
+     *            <code>false</code> otherwise.
      */
-    void setLookupTable(int index, String lut);
+    void setLookupTable(int index, String lut, boolean preview);
+
+    /**
+     * Resets a previously previewed lookup table
+     * 
+     * @param index
+     *            The channel index
+     */
+    void resetLookupTable(int index);
 }

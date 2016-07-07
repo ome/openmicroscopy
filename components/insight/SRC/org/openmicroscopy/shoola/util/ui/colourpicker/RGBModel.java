@@ -482,6 +482,7 @@ class RGBModel
 		green = originalGreen;
 		blue = originalBlue;
 		alpha = originalAlpha;
+		lut = originalLut;
 	}
 	
 	/**
