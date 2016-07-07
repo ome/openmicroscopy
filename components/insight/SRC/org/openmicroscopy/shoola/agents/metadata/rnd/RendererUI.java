@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -244,6 +245,17 @@ class RendererUI
     }
 
     /**
+     * Returns the lookup table associated to the channel.
+     *
+     * @param channel
+     *            The index of the channel.
+     * @return See above.
+     */
+    String getLookupTable(int channel) {
+        return model.getLookupTable(channel);
+    }
+
+    /**
      * Updates UI components when a new z-section is selected.
      *
      * @param z The selected z-section.
@@ -345,5 +357,14 @@ class RendererUI
     {
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         return pane.getSelectedDef();
+    }
+
+    /**
+     * Returns all available lookup tables
+     * 
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables() {
+        return model.getAvailableLookupTables();
     }
 }

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -220,8 +221,11 @@ class RendererControl
     {
 		colorPickerIndex = channel;
 		Color c = view.getChannelColor(channel);
+		String lut = view.getLookupTable(channel);
+		Collection<String> luts = view.getAvailableLookupTables();
+		MetadataViewerAgent.getAvailableUserGroups();
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		ColourPicker dialog = new ColourPicker(f, c);
+		ColourPicker dialog = new ColourPicker(f, c, luts, lut);
 		dialog.setPreviewVisible(true);
 		dialog.addPropertyChangeListener(this);
 		if (location == null)
@@ -434,13 +438,24 @@ class RendererControl
 			if (colorPickerIndex != -1) {
 				model.setChannelColor(colorPickerIndex, c, false);
 			}
+        } else if (ColourPicker.LUT_PROPERTY.equals(name)) { 
+            String lut = (String) evt.getNewValue();
+            if (colorPickerIndex != -1) {
+                model.setLookupTable(colorPickerIndex, lut, false);
+            }
         } else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) { 
 			Color c = (Color) evt.getNewValue();
 			if (colorPickerIndex != -1) {
 				model.setChannelColor(colorPickerIndex, c, true);
 			}
-		} else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
+		} else if (ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) { 
+            String lut = (String) evt.getNewValue();
+            if (colorPickerIndex != -1) {
+                model.setLookupTable(colorPickerIndex, lut, true);
+            }
+        } else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
 			model.setChannelColor(colorPickerIndex, null, true);
+			model.resetLookupTable(colorPickerIndex);
 		} else if (Renderer.Z_SELECTED_PROPERTY.equals(name)) {
 			view.setZSection(((Integer) evt.getNewValue()).intValue());
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {

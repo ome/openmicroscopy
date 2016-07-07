@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.RGBControl.java
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 //Java imports
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
@@ -271,6 +272,44 @@ class RGBControl
 	 * @return See above.
 	 */
 	float getValue() { return model.getValue(); }
+	
+    /**
+     * Set the lookup table
+     * 
+     * @param lut
+     *            The lookup table
+     */
+    void setLUT(String lut) {
+        model.setLUT(lut);
+        fireChangeEvent();
+    }
+
+    /**
+     * Get the lookup table
+     * 
+     * @return See above
+     */
+    String getLUT() {
+        return model.getLUT();
+    }
+
+    /**
+     * Check if the lookup table has been changed
+     * 
+     * @return <code>true</code> if it has not, <code>false</code> if it has
+     */
+    boolean isOriginalLut() {
+        return model.isOriginalLut(getLUT());
+    }
+
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables() {
+        return model.getAvailableLookupTables();
+    }
 	
 	/**
 	 * Adds listener e to the list of listeners.

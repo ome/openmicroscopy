@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.TabbedPaneUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -87,6 +87,9 @@ class TabbedPaneUI
 	/** Used by card layout to select swatch panel. */
 	private static final String SWATCHPANE = "Swatch Pane";
 	
+	/** Used by card layout to select lut panel. */
+    private static final String LUTPANE = "LUT Pane";
+    
 	/** Action id to preview the color changes.*/
 	private static final int	PREVIEW = 0;
 	
@@ -120,6 +123,9 @@ class TabbedPaneUI
 	/** Button to choose colour swatch panel. */
 	private JToggleButton		colourSwatchButton;
 	
+	/** Button to choose lookup table panel. */
+    private JToggleButton       lutButton;
+    
 	/** Accept the current colour choice. */
 	private JButton				acceptButton;
 	
@@ -143,6 +149,9 @@ class TabbedPaneUI
 	
 	/** Containing the Swatch UI. */
 	private ColourSwatchUI 		swatchPane;
+	
+	/** Containing the LUT UI. */
+    private LUTUI      lutPane;
 	
 	/** Layout manager for the colourwheel, slider and swatch panels. */
 	private CardLayout 			tabPaneLayout;
@@ -225,11 +234,26 @@ class TabbedPaneUI
             }
         };
         colourSwatchButton.addActionListener(action);
+        
+        lutButton = new JToggleButton(icons.getIcon(IconManager.COLOUR_SWATCH_24));
+        lutButton.setToolTipText("Show Lookup Tables List.");
+        UIUtilities.unifiedButtonLookAndFeel(lutButton);
+        lutButton.setBorderPainted(true);
+
+        action = new AbstractAction("LUT Button") {
+            public void actionPerformed(ActionEvent evt) {
+                clearToggleButtons();
+                pickLUTPane();
+            }
+        };
+        lutButton.addActionListener(action);
+                
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
         toolbar.add(colourWheelButton);
         toolbar.add(RGBSlidersButton);
         toolbar.add(colourSwatchButton);
+        toolbar.add(lutButton);
     }
     
     /** 
@@ -288,6 +312,7 @@ class TabbedPaneUI
         paintPotPane = new PaintPotUI(control.getColour(), control);
         RGBSliderPane = new RGBSliderUI(control);
         swatchPane = new ColourSwatchUI(control);
+        lutPane = new LUTUI(control);
     }
     
     /** 
@@ -318,6 +343,7 @@ class TabbedPaneUI
         tabPanel.add(colourWheelPane, COLOURWHEELPANE);
         tabPanel.add(RGBSliderPane, RGBSLIDERPANE);
         tabPanel.add(swatchPane, SWATCHPANE);
+        tabPanel.add(lutPane, LUTPANE);
         add(tabPanel);
         if (field) {
         	add(new JSeparator());
@@ -341,6 +367,7 @@ class TabbedPaneUI
         colourWheelButton.setSelected(false);
         RGBSlidersButton.setSelected(false);
         colourSwatchButton.setSelected(false);
+        lutButton.setSelected(false);
     }
     
     /** Sets Wheelbutton as picked and makes it visible. */
@@ -352,6 +379,7 @@ class TabbedPaneUI
         tabPaneLayout.show(tabPanel,COLOURWHEELPANE);
         RGBSliderPane.setActive(false);
         swatchPane.setActive(false);
+        lutPane.setActive(false);
         colourWheelPane.findPuck();
         colourWheelPane.refresh();
         colourWheelPane.repaint();
@@ -365,8 +393,22 @@ class TabbedPaneUI
         swatchPane.setActive(true);
         RGBSliderPane.setActive(false);
         colourWheelPane.setActive(false);
+        lutPane.setActive(false);
         this.doLayout();
         swatchPane.refresh();
+    }
+    
+    /** Sets lut as picked and makes it visible. */
+    private void pickLUTPane()
+    {   
+        tabPaneLayout.show(tabPanel,LUTPANE);
+        colourSwatchButton.setSelected(true);
+        lutPane.setActive(true);
+        swatchPane.setActive(false);
+        RGBSliderPane.setActive(false);
+        colourWheelPane.setActive(false);
+        this.doLayout();
+        lutPane.refresh();
     }
     
     /** Sets RGBSlider as picked and makes it visible. */
@@ -377,6 +419,7 @@ class TabbedPaneUI
         RGBSliderPane.setActive(true);
         colourWheelPane.setActive(false);
         swatchPane.setActive(false);
+        lutPane.setActive(false);
         this.doLayout();
         RGBSliderPane.refresh();
     }
@@ -386,6 +429,8 @@ class TabbedPaneUI
 	 * 
      * @param parent  The parent of this component. Mustn't be <code>null</code>.
 	 * @param control Reference to the control. Mustn't be <code>null</code>.
+	 * @param luts The available lookup tables
+	 * @param selectedLUT The selected lookup table
 	 * @param field	  Pass <code>true</code> to add a field, 
 	 * 				  <code>false</code> otherwise. 
 	 */
@@ -424,6 +469,7 @@ class TabbedPaneUI
 	{ 
 		control.revert(); 
 		swatchPane.revert();
+		lutPane.revert();
 		//Check if preview was 
 		if (preview) {
 			preview = false;
@@ -480,12 +526,16 @@ class TabbedPaneUI
 			colourWheelPane.refresh();
 		if (swatchPane != null && swatchPane.isVisible())
 			swatchPane.refresh();
+		if (lutPane != null && lutPane.isVisible())
+		    lutPane.refresh();
 		if (fieldDescription == null)
-			setButtonsEnabled(!control.isOriginalColour());
+			setButtonsEnabled(!control.isOriginalColour()
+			        || !control.isOriginalLut());
 		else {
 			String text = fieldDescription.getText();
 			setButtonsEnabled(!text.equals(originalDescription) 
-					|| !control.isOriginalColour());
+					|| !control.isOriginalColour() 
+					|| !control.isOriginalLut());
 		}
 	}
 
@@ -498,7 +548,8 @@ class TabbedPaneUI
 		if (fieldDescription == null) return;
 		String text = fieldDescription.getText();
 		setButtonsEnabled(!text.equals(originalDescription) 
-				|| !control.isOriginalColour());
+				|| !control.isOriginalColour() 
+				|| !control.isOriginalLut());
 	}
 
 	/**
@@ -510,7 +561,8 @@ class TabbedPaneUI
 		if (fieldDescription == null) return;
 		String text = fieldDescription.getText();
 		setButtonsEnabled(!text.equals(originalDescription) ||
-				!control.isOriginalColour());
+				!control.isOriginalColour()
+				|| !control.isOriginalLut());
 	}
 
 	/**

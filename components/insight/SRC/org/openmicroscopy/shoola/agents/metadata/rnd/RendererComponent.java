@@ -114,6 +114,9 @@ class RendererComponent
 	/** The color changes preview.*/
     private Map<Integer, Color>	colorChanges;
     
+    /** The original lookup table, in case a lut is previewed */
+    private String origLookupTable;
+    
 	/**
 	 * Notifies the user than an error occurred while trying to modify the 
 	 * rendering settings and dispose of the viewer 
@@ -492,6 +495,43 @@ class RendererComponent
         view.setSelectedChannel();
 	}
 
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#resetLookupTable(int)
+     */
+    public void resetLookupTable(int index) {
+        if (origLookupTable != null) {
+            if (origLookupTable.equals("NONE"))
+                model.setLookupTable(index, null);
+            else
+                model.setLookupTable(index, origLookupTable);
+        }
+    }
+	
+    /**
+     * Implemented as specified by the {@link Renderer} interface.
+     * 
+     * @see Renderer#setLookupTable(int, String, boolean)
+     */
+    public void setLookupTable(int index, String lut, boolean preview) {
+        if (preview)
+            origLookupTable = model.getLookupTable(index) == null ? "NONE"
+                    : model.getLookupTable(index);
+        else
+            origLookupTable = null;
+        
+        try {
+            makeHistorySnapshot();
+            model.setLookupTable(index, lut);
+            firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false),
+                    Boolean.valueOf(true));
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setChannelColor(int, Color, boolean)
