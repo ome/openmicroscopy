@@ -541,12 +541,18 @@ public class IconManager
     
     /** The <code>Folder</code> icon. */
     public static final int ROI_FOLDER = 159;
-    
+
+    /** Reference to the <code>Folder owned by other user</code> icon. */
+    public static final int ROI_FOLDER_NOT_OWNER = 160;
+
+    /** The lookup table icon */
+    public static final int LOOKUP_TABLE_24 = 161;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing.
      */
-    private static int MAX_ID = 159;
+    private static int MAX_ID = 161;
 
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
@@ -713,7 +719,10 @@ public class IconManager
         relPaths[SELECTED] = "tick_check16.png";
         relPaths[NOT_SELECTED] = "empty_check16.png";
         relPaths[PUBLIC_GROUP_READ_WRITE] = "public_read16.png";
+        relPaths[ROI_FOLDER] = "roi_folder_icon.png";
+        relPaths[ROI_FOLDER_NOT_OWNER] = "roi_folder_user_icon.png";
         relPaths[ROI_FOLDER] = "ROI-foldertest-24.png";
+        relPaths[LOOKUP_TABLE_24] = "lookuptable24.png";
     }
 
     /**
