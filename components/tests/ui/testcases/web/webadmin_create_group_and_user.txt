@@ -142,7 +142,7 @@ Check Admin Edit Self
     Go To                             ${USERS URL}
     Click Element                     xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${ROOT FULL NAME}')]]//a[contains(@class, "btn_edit")] 
 
-    Wait Until Page Contains Element  id=id_administrator
+    Wait Until Page Contains Element  id=id_administrator       ${WAIT}
     Checkbox Should Be selected       id=id_administrator
     Element Should Be Disabled        id=id_administrator
     
