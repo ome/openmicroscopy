@@ -469,6 +469,7 @@ class TabbedPaneUI
 	{ 
 		control.revert(); 
 		swatchPane.revert();
+		lutPane.revert();
 		//Check if preview was 
 		if (preview) {
 			preview = false;
