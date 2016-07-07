@@ -675,12 +675,13 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
-    "omero.web.ui.default_client_baseurl":
-        ["WEB_URL_DEFAULT_CLIENT_BASEURL",
+    "omero.web.ui.external_link_baseurl":
+        ["WEB_EXTERNAL_LINK_BASEURL",
          None,
          identity,
-         ("Use this host (including protocol) for absolute urls displayed in "
-          "the client. This does not include client-side generated URLs.")],
+         ("Use this host (including protocol) for absolute HTML urls "
+          "in the client, such as social media links. This does not include "
+          "client-side generated URLs.")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {

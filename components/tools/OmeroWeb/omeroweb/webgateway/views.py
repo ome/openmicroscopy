@@ -1976,9 +1976,9 @@ def full_viewer(request, iid, conn=None, **kwargs):
 
             def reverse_urlprefix(p, iid):
                 r = reverse(p, args=(iid,))
-                if settings.WEB_URL_DEFAULT_CLIENT_BASEURL:
+                if settings.WEB_EXTERNAL_LINK_BASEURL:
                     return "%s%s" % (
-                        settings.WEB_URL_DEFAULT_CLIENT_BASEURL, r)
+                        settings.WEB_EXTERNAL_LINK_BASEURL, r)
                 else:
                     return request.build_absolute_uri(r)
 
