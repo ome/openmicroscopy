@@ -235,7 +235,7 @@ class TabbedPaneUI
         };
         colourSwatchButton.addActionListener(action);
         
-        lutButton = new JToggleButton(icons.getIcon(IconManager.COLOUR_SWATCH_24));
+        lutButton = new JToggleButton(icons.getIcon(IconManager.LOOKUP_TABLE_24));
         lutButton.setToolTipText("Show Lookup Tables List.");
         UIUtilities.unifiedButtonLookAndFeel(lutButton);
         lutButton.setBorderPainted(true);

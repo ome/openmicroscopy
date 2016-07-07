@@ -542,11 +542,14 @@ public class IconManager
     /** The <code>Folder</code> icon. */
     public static final int ROI_FOLDER = 159;
     
+    /** The lookup table icon */
+    public static final int LOOKUP_TABLE_24 = 160;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing.
      */
-    private static int MAX_ID = 159;
+    private static int MAX_ID = 160;
 
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
@@ -714,6 +717,7 @@ public class IconManager
         relPaths[NOT_SELECTED] = "empty_check16.png";
         relPaths[PUBLIC_GROUP_READ_WRITE] = "public_read16.png";
         relPaths[ROI_FOLDER] = "ROI-foldertest-24.png";
+        relPaths[LOOKUP_TABLE_24] = "lookuptable24.png";
     }
 
     /**
