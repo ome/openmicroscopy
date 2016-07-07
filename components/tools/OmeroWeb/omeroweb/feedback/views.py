@@ -37,10 +37,9 @@ from django.conf import settings
 from django.template import loader as template_loader
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseServerError, HttpResponseNotFound
-from django.http import HttpResponseForbidden
 from django.template import RequestContext
 from django.views.defaults import page_not_found
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import reverse
 
 from django.views.debug import get_exception_reporter_filter
 from django.utils.encoding import force_text
@@ -132,21 +131,13 @@ def send_comment(request):
 ##############################################################################
 # handlers
 
-from django.views.decorators.vary import vary_on_headers
-
-
-# NB: use this decorator because is_ajax() depends on Header
-@vary_on_headers('HTTP_X_REQUESTED_WITH')
 def csrf_failure(request, reason=""):
-    url = request.META['PATH_INFO']
-    match = resolve(url)
-    # if match.url_name.startswith('api_') or request.is_ajax():
+    """
+    Always return Json response
+    since this is accepted by browser and API users
+    """
     error = "CSRF Error. You need to include 'X-CSRFToken' in header"
     return JsonResponseForbidden({"message": error})
-    logger.warn('csrf_failure: Forbidden')
-    t = template_loader.get_template("403_csrf.html")
-    c = RequestContext(request, {})
-    return HttpResponseForbidden(t.render(c))
 
 
 def handler500(request):
