@@ -637,27 +637,13 @@ public class PermissionsTest extends AbstractServerTest {
     /* child options to try using in transfer */
     private enum Option { NONE, INCLUDE, EXCLUDE, BOTH };
 
-
-    /**
-     * @return the child options to try using in chown of tags/tagsets
-     */
-    @DataProvider(name = "child option")
-    public Object[][] provideChildOption() {
-        final Option[] values = Option.values();
-        final Object[][] testCases = new Object[values.length][1];
-        int index = 0;
-        for (final Option value : values) {
-            testCases[index++][0] = value;
-        }
-        return testCases;
-    }
-
     /**
      * @return a variety of test cases for annotation chown
      */
     @DataProvider(name = "chown annotation test cases")
     public Object[][] provideChownAnnotationCases() {
         int index = 0;
+        int count_value = 0;
         final int IS_DATA_OWNER = index++;
         final int IS_ADMIN = index++;
         final int IS_GROUP_OWNER = index++;
@@ -676,36 +662,47 @@ public class PermissionsTest extends AbstractServerTest {
             for (final boolean isAdmin : booleanCases) {
                 for (final boolean isGroupOwner : booleanCases) {
                     for (final boolean isRecipientInGroup : booleanCases) {
-                        for (final Option value : values) {
-                        	if (isAdmin && isGroupOwner) {
-                        		/* not an interesting case */
-                        		continue;
-                        	}
-                        	final Object[] testCase = new Object[index];
-                        	testCase[IS_DATA_OWNER] = isDataOwner;
-                        	testCase[IS_ADMIN] = isAdmin;
-                        	testCase[IS_GROUP_OWNER] = isGroupOwner;
-                        	testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
-                        	testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
-                        	testCase[CHILD_OPTION] = value;
-                        	// DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == true &&
-                        	//            isRecipientInGroup == true)
-                        	testCases.add(testCase);
+                        if (isAdmin && isGroupOwner) {
+                            /* not an interesting case */
+                            continue;
                         }
+                        final Object[] testCase = new Object[index];
+                        testCase[IS_DATA_OWNER] = isDataOwner;
+                        testCase[IS_ADMIN] = isAdmin;
+                        testCase[IS_GROUP_OWNER] = isGroupOwner;
+                        testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
+                        testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
+                        for (final Option value : values) {
+                            /* only add one tag set child options per one permission
+                             * test, but alternate over all child options doing this
+                             */
+                            if (count_value < value.ordinal()) {
+                                continue;
+                            }
+                            testCase[CHILD_OPTION] = value;
+                        }
+                        count_value++;
+                        if (count_value == 4) {
+                            count_value = count_value - 4;
+                        }
+                        // DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == true &&
+                        //            isRecipientInGroup == true)
+                        testCases.add(testCase);
                     }
                 }
             }
         }
-        
-        
-
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
     
     
 
-    /**
+
+
+
+
+	/**
      * Test a specific case of using {@link Chown2} on an image that is in a dataset or a folder.
      * @param isImageOwner if the user who owns the container also owns the image
      * @param isLinkOwner if the user who owns the container also linked the image to the container
