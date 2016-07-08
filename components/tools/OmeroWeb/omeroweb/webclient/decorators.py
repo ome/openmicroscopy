@@ -31,10 +31,12 @@ from omero import constants
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.urlresolvers import NoReverseMatch
 
 from omeroweb.webclient.forms import GlobalSearchForm
+from omeroweb.utils import reverse_with_params
 
-logger = logging.getLogger('omeroweb.webclient.decorators')
+logger = logging.getLogger(__name__)
 
 
 class login_required(omeroweb.decorators.login_required):
@@ -166,10 +168,15 @@ class render_response(omeroweb.decorators.render_response):
             l["label"] = tl[0]
             link_id = tl[1]
             try:
-                l["link"] = reverse(link_id)
-            except:
-                # assume we've been passed a url
-                l["link"] = link_id
+                # test if complex dictionary view with args and query_string
+                l["link"] = reverse_with_params(**link_id)
+            except TypeError:
+                # assume is only view name
+                try:
+                    l["link"] = reverse(link_id)
+                except NoReverseMatch:
+                    # assume we've been passed a url
+                    l["link"] = link_id
             # simply add optional attrs dict
             if len(tl) > 2:
                 l['attrs'] = tl[2]
