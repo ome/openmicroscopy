@@ -442,9 +442,10 @@ $(function() {
                 // we want the specific page, or use default first page
 
                 // Disable paging for node without counter
+                var nopageTypes = ['project', 'screen', 'plate', 'tagset', 'tag'];
                 if (node.data && node.data.obj.childCount === undefined) {
                     payload['page'] = 0;
-                } else if (node.type === 'project' || node.type === 'screen' || node.type === 'plate') {
+                } else if (nopageTypes.indexOf(node.type) > -1) {
                     // TODO: temporary workaround to not paginate datasets,
                     // plates and acquisitions
                     // see center_plugin.thumbs.js.html
@@ -483,6 +484,8 @@ $(function() {
                 var url;
                 if (node.type === 'experimenter') {
                     // This will be set to containers or tags url, depending on page we're on 
+                    url = WEBCLIENT.URLS.tree_top_level;
+                } else if (node.type === 'map') {
                     url = WEBCLIENT.URLS.tree_top_level;
                 } else if (node.type === 'tagset') {
                     url = WEBCLIENT.URLS.tree_top_level;
@@ -579,6 +582,13 @@ $(function() {
                             if (data.hasOwnProperty('experimenter')) {
                                 node = makeNode(data.experimenter, 'experimenter');
                                 jstree_data.push(node);
+                            }
+
+                            if (data.hasOwnProperty('maps')) {
+                                $.each(data.maps, function(index, value) {
+                                    var node = makeNode(value, 'map');
+                                    jstree_data.push(node);
+                                });
                             }
 
                             // Add tags to the jstree data structure
@@ -736,6 +746,11 @@ $(function() {
             'experimenter': {
                 'icon' : WEBCLIENT.URLS.static_webclient + 'image/icon_user.png',
                 'valid_children': ['project','dataset','screen','plate', 'tag', 'tagset']
+            },
+            'map': {
+                'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tag.png',
+                'valid_children': ['project', 'screen'],
+                'draggable': false
             },
             'tagset': {
                 'icon': WEBCLIENT.URLS.static_webclient + 'image/left_sidebar_icon_tags.png',
