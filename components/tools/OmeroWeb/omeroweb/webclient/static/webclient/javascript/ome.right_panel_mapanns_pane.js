@@ -63,72 +63,83 @@ var MapAnnsPane = function MapAnnsPane($element, opts) {
             }
 
             // convert objects to json data
-            var request = objects.map(function(o){
-                return o.replace("-", "=");
-            });
-            
-            $.getJSON(this.apiAnnotationUrl(opts.url) + "?type=map&" + request, function(data){
-
-                var experimenters = []
-                if (data.experimenters.length > 0) {
-                    // manipulate data...
-                    // make an object of eid: experimenter
-                    experimenters = data.experimenters.reduce(function(prev, exp){
-                        prev[exp.id + ""] = exp;
-                        return prev;
-                    }, {});
-
+            ajaxdata = {"type": "map"};
+            for (var i=0; i < objects.length; i++) {
+                var o = objects[i].split(/-(.+)/);
+                if (typeof ajaxdata[o[0]] !== 'undefined') {
+                    ajaxdata[o[0]].push(o[1]);
+                } else {
+                    ajaxdata[o[0]] = [o[1]];
                 }
+            }
 
-                // Populate experimenters within anns
-                var anns = data.annotations.map(function(ann){
+            $.ajax({
+                dataType: "json",
+                url: this.apiAnnotationUrl(opts.url),
+                data: ajaxdata,
+                traditional: true,
+                success: function(data){
+
+                    var experimenters = []
                     if (data.experimenters.length > 0) {
-                        ann.owner = experimenters[ann.owner.id];
+                        // manipulate data...
+                        // make an object of eid: experimenter
+                        experimenters = data.experimenters.reduce(function(prev, exp){
+                            prev[exp.id + ""] = exp;
+                            return prev;
+                        }, {});
                     }
-                    if (ann.link && ann.link.owner) {
-                        ann.link.owner = experimenters[ann.link.owner.id];
-                        // AddedBy IDs for filtering
-                        ann.addedBy = [ann.link.owner.id]; 
-                    }
-                    return ann;
-                });
 
-                // Sort map anns into 3 lists...
-                var client_map_annotations = [];
-                var my_client_map_annotations = [];
-                var map_annotations = [];
+                    // Populate experimenters within anns
+                    var anns = data.annotations.map(function(ann){
+                        if (data.experimenters.length > 0) {
+                            ann.owner = experimenters[ann.owner.id];
+                        }
+                        if (ann.link && ann.link.owner) {
+                            ann.link.owner = experimenters[ann.link.owner.id];
+                            // AddedBy IDs for filtering
+                            ann.addedBy = [ann.link.owner.id]; 
+                        }
+                        return ann;
+                    });
 
-                anns.forEach(function(ann){
-                    if (isMyClientMapAnn(ann)) {
-                        my_client_map_annotations.push(ann);
-                    } else if (isClientMapAnn(ann)) {
-                        client_map_annotations.push(ann);
-                    } else {
-                        map_annotations.push(ann);
-                    }
-                });
+                    // Sort map anns into 3 lists...
+                    var client_map_annotations = [];
+                    var my_client_map_annotations = [];
+                    var map_annotations = [];
 
-                // Update html...
-                var html = "";
-                var showHead = true;
-                if (canAnnotate) {
-                    if (my_client_map_annotations.length === 0) {
-                        showHead = false;
-                        my_client_map_annotations = [{}];   // placeholder
+                    anns.forEach(function(ann){
+                        if (isMyClientMapAnn(ann)) {
+                            my_client_map_annotations.push(ann);
+                        } else if (isClientMapAnn(ann)) {
+                            client_map_annotations.push(ann);
+                        } else {
+                            map_annotations.push(ann);
+                        }
+                    });
+
+                    // Update html...
+                    var html = "";
+                    var showHead = true;
+                    if (canAnnotate) {
+                        if (my_client_map_annotations.length === 0) {
+                            showHead = false;
+                            my_client_map_annotations = [{}];   // placeholder
+                        }
+                        html = mapAnnsTempl({'anns': my_client_map_annotations,
+                        'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true});
                     }
-                    html = mapAnnsTempl({'anns': my_client_map_annotations,
-                    'showTableHead': showHead, 'showNs': false, 'clientMapAnn': true});
+                    html = html + mapAnnsTempl({'anns': client_map_annotations,
+                        'showTableHead': false, 'showNs': false, 'clientMapAnn': true});
+                    html = html + mapAnnsTempl({'anns': map_annotations,
+                        'showTableHead': false, 'showNs': true, 'clientMapAnn': false});
+                    $mapAnnContainer.html(html);
+
+                    // Finish up...
+                    OME.linkify_element($( "table.keyValueTable tbody tr td" ));
+                    OME.filterAnnotationsAddedBy();
+                    $(".tooltip", $mapAnnContainer).tooltip_init();
                 }
-                html = html + mapAnnsTempl({'anns': client_map_annotations,
-                    'showTableHead': false, 'showNs': false, 'clientMapAnn': true});
-                html = html + mapAnnsTempl({'anns': map_annotations,
-                    'showTableHead': false, 'showNs': true, 'clientMapAnn': false});
-                $mapAnnContainer.html(html);
-
-                // Finish up...
-                OME.linkify_element($( "table.keyValueTable tbody tr td" ));
-                OME.filterAnnotationsAddedBy();
-                $(".tooltip", $mapAnnContainer).tooltip_init();
             });
         }
     };
