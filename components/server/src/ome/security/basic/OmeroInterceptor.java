@@ -708,7 +708,7 @@ public class OmeroInterceptor implements Interceptor {
         }
 
         // EXTERNALINFO
-        // useres _are_ allowed to set the external info on a new object.
+        // users _are_ allowed to set the external info on a new object.
         // subsequent operations, however, will not be able to edit this
         // value.
         newDetails.setExternalInfo(source.getExternalInfo());
@@ -818,10 +818,9 @@ public class OmeroInterceptor implements Interceptor {
             // the object doesn't have owner/group
             final boolean sysType = sysTypes.isSystemType(iobj.getClass());
 
-            // isGlobal implies nothing (currently) about external info
-            // see mapping.vm for more.
-            altered |= managedExternalInfo(privileged, iobj,
-                    previousDetails, currentDetails, newDetails);
+            // As of 5.2, we are no longer being restrictive about external
+            // info. It is now a user-concern and can be changed like other
+            // fields.
 
             // implies that owner doesn't matter
             if (!sysType) {
@@ -858,7 +857,8 @@ public class OmeroInterceptor implements Interceptor {
 
     /**
      * responsible for guaranteeing that external info is not modified by any
-     * users, including root.
+     * users, including root. This does not apply to the "client concern" fields
+     * which can be modified after the fact.
      *
      * @param privileged if the user is privileged
      * @param obj the model object
@@ -871,6 +871,7 @@ public class OmeroInterceptor implements Interceptor {
      *            {@link Permissions}
      * @return true if the {@link Permissions} of newDetails are changed.
      */
+    @Deprecated
     protected boolean managedExternalInfo(boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
             Details newDetails) {
@@ -884,9 +885,10 @@ public class OmeroInterceptor implements Interceptor {
                 .getExternalInfo();
 
         if (previous == null) {
-            // do we allow a change?
-            newDetails.setExternalInfo(current);
-            altered |= newDetails.getExternalInfo() != current;
+            if (current != null) {
+              newDetails.setExternalInfo(current);
+              altered = true;
+            }
         }
 
         // The ExternalInfo was previously set. We do not allow it to be
