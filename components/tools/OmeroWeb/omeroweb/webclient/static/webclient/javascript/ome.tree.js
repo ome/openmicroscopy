@@ -486,7 +486,7 @@ $(function() {
                     // This will be set to containers or tags url, depending on page we're on 
                     url = WEBCLIENT.URLS.tree_top_level;
                 } else if (node.type === 'map') {
-                    url = WEBCLIENT.URLS.tree_top_level;
+                    url = WEBCLIENT.URLS.tree_map_level;
                 } else if (node.type === 'tagset') {
                     url = WEBCLIENT.URLS.tree_top_level;
                 } else if (node.type === 'tag') {
