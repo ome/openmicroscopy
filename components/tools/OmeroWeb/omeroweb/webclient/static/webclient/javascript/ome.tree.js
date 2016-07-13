@@ -561,6 +561,7 @@ $(function() {
                                     'text': value.name,
                                     'children': value.childCount ? true : false,
                                     'type': type,
+                                    'state': value.state ? value.state : {'opened': false},
                                     'li_attr': {
                                         'data-id': value.id
                                     },
@@ -568,7 +569,7 @@ $(function() {
                                 };
                                 if (type === 'experimenter') {
                                     rv.text = value.firstName + ' ' + value.lastName;
-                                    rv.state = {'opened': true};
+                                    rv.state = value.state ? value.state : {'opened': true},
                                     rv.children = true;
                                 } else if (type === 'tag') {
                                     // We don't count children for Tags (too expensive?) Assume they have children
