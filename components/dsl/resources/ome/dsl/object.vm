@@ -75,7 +75,144 @@ import ome.model.*;
     @org.hibernate.annotations.Filter(name="${efilter}", condition=":eventId = event_id"),
     @org.hibernate.annotations.Filter(name="${pfilter}", condition=":permsStr = permissions"),
     @org.hibernate.annotations.Filter(name="OneGroupSecurityFilter"),
-    @org.hibernate.annotations.Filter(name="AllGroupsSecurityFilter")
+    @org.hibernate.annotations.Filter(name="AllGroupsSecurityFilter"),
+#if($type.id.equals("ome.model.acquisition.Detector"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT detector.id FROM detector*, image* WHERE " +
+        "detector.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.DetectorSettings"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT detectorsettings.id FROM detectorsettings*, detector*, image* WHERE " +
+        "detectorsettings.detector = detector.id AND detector.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.Dichroic"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT dichroic.id FROM dichroic*, image* WHERE " +
+        "dichroic.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.Filter"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT filter.id FROM filter*, image* WHERE " +
+        "filter.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.FilterSet"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT filterset.id FROM filterset*, image* WHERE " +
+        "filterset.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.FilterSetEmissionFilterLink"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT link.id FROM filtersetemissionfilterlink AS link*, filter*, image* WHERE " +
+        "link.child = filter.id AND filter.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.FilterSetExcitationFilterLink"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT link.id FROM filtersetexcitationfilterlink AS link*, filter*, image* WHERE " +
+        "link.child = filter.id AND filter.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.ImagingEnvironment"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT imagingenvironment FROM image* WHERE " +
+        "id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.Instrument"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT instrument FROM image* WHERE " +
+        "id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.LightPath"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT logicalchannel.lightpath FROM logicalchannel*, channel*, pixels* WHERE " +
+        "logicalchannel.id = channel.logicalchannel AND channel.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.LightPathEmissionFilterLink"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT link.id FROM lightpathemissionfilterlink AS link*, filter*, image* WHERE " +
+        "link.child = filter.id AND filter.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.LightPathExcitationFilterLink"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT link.id FROM lightpathexcitationfilterlink AS link*, filter*, image* WHERE " +
+        "link.child = filter.id AND filter.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.LightSettings"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT lightsettings.id FROM lightsettings*, logicalchannel*, channel*, pixels* WHERE " +
+        "lightsettings.id = logicalchannel.lightsourcesettings AND logicalchannel.id = channel.logicalchannel AND channel.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.LightSource"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT lightsource.id FROM lightsource*, image* WHERE " +
+        "lightsource.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.Microscope"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT instrument.microscope FROM instrument*, image* WHERE " +
+        "instrument.id = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.Objective"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT objective.id FROM objective*, image* WHERE " +
+        "objective.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.ObjectiveSettings"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT objectivesettings FROM image* WHERE " +
+        "id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.OTF"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT otf.id FROM otf*, image* WHERE " +
+        "otf.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.StageLabel"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT stagelabel FROM image* WHERE " +
+        "id IN (:images)))")
+#elseif($type.id.equals("ome.model.acquisition.TransmittanceRange"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT filter.transmittancerange FROM filter*, image* WHERE " +
+        "filter.instrument = image.instrument AND image.id IN (:images)))")
+#elseif($type.id.equals("ome.model.core.Channel"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT channel.id FROM channel*, pixels* WHERE " +
+        "channel.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.core.Image"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (:images))")
+#elseif($type.id.equals("ome.model.core.LogicalChannel"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT channel.logicalchannel FROM channel*, pixels* WHERE " +
+        "channel.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.core.OriginalFile"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT pofm.parent FROM pixelsoriginalfilemap AS pofm*, pixels* WHERE " +
+        "pofm.child = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.core.Pixels"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "image IN (:images))")
+#elseif($type.id.equals("ome.model.core.PixelsOriginalFileMap"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT pofm.id FROM pixelsoriginalfilemap AS pofm*, pixels* WHERE " +
+        "pofm.child = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.core.PlaneInfo"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT planeinfo.id FROM planeinfo*, pixels* WHERE " +
+        "planeinfo.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.display.ChannelBinding"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT channelbinding.id FROM channelbinding*, renderingdef*, pixels* WHERE " +
+        "channelbinding.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.display.CodomainMapContext"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT codomainmapcontext.id FROM codomainmapcontext*, renderingdef*, pixels* WHERE " +
+        "codomainmapcontext.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.display.ProjectionDef"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT projectiondef.id FROM projectiondef*, renderingdef*, pixels* WHERE " +
+        "projectiondef.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.display.QuantumDef"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT renderingdef.quantization FROM renderingdef*, pixels* WHERE " +
+        "renderingdef.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.display.RenderingDef"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT renderingdef.id FROM renderingdef*, pixels* WHERE " +
+        "renderingdef.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.display.Thumbnail"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT thumbnail.id FROM thumbnail*, pixels* WHERE " +
+        "thumbnail.pixels = pixels.id AND pixels.image IN (:images)))")
+#elseif($type.id.equals("ome.model.stats.StatsInfo"))
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+        "id IN (SELECT channel.statsinfo FROM channel*, pixels* WHERE " +
+        "channel.pixels = pixels.id AND pixels.image IN (:images)))")
+#else
+    @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0)")
+#end
 })
 #elseif($type.id.equals("ome.model.meta.Session"))
 @org.hibernate.annotations.FilterDefs({
@@ -461,6 +598,143 @@ implements java.io.Serializable, IObject
     @org.hibernate.annotations.Filters({
         @org.hibernate.annotations.Filter(name="OneGroupSecurityFilter"),
         @org.hibernate.annotations.Filter(name="AllGroupsSecurityFilter"),
+#if($prop.type.equals("ome.model.acquisition.Detector"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT detector.id FROM detector*, image* WHERE " +
+            "detector.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.DetectorSettings"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT detectorsettings.id FROM detectorsettings*, detector*, image* WHERE " +
+            "detectorsettings.detector = detector.id AND detector.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.Dichroic"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT dichroic.id FROM dichroic*, image* WHERE " +
+            "dichroic.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.Filter"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT filter.id FROM filter*, image* WHERE " +
+            "filter.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.FilterSet"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT filterset.id FROM filterset*, image* WHERE " +
+            "filterset.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.FilterSetEmissionFilterLink"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT link.id FROM filtersetemissionfilterlink AS link*, filter*, image* WHERE " +
+            "link.child = filter.id AND filter.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.FilterSetExcitationFilterLink"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT link.id FROM filtersetexcitationfilterlink AS link*, filter*, image* WHERE " +
+            "link.child = filter.id AND filter.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.ImagingEnvironment"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT imagingenvironment FROM image* WHERE " +
+            "id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.Instrument"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT instrument FROM image* WHERE " +
+            "id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.LightPath"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT logicalchannel.lightpath FROM logicalchannel*, channel*, pixels* WHERE " +
+            "logicalchannel.id = channel.logicalchannel AND channel.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.LightPathEmissionFilterLink"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT link.id FROM lightpathemissionfilterlink AS link*, filter*, image* WHERE " +
+            "link.child = filter.id AND filter.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.LightPathExcitationFilterLink"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT link.id FROM lightpathexcitationfilterlink AS link*, filter*, image* WHERE " +
+            "link.child = filter.id AND filter.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.LightSettings"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT lightsettings.id FROM lightsettings*, logicalchannel*, channel*, pixels* WHERE " +
+            "lightsettings.id = logicalchannel.lightsourcesettings AND logicalchannel.id = channel.logicalchannel AND channel.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.LightSource"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT lightsource.id FROM lightsource*, image* WHERE " +
+            "lightsource.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.Microscope"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT instrument.microscope FROM instrument*, image* WHERE " +
+            "instrument.id = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.Objective"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT objective.id FROM objective*, image* WHERE " +
+            "objective.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.ObjectiveSettings"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT objectivesettings FROM image* WHERE " +
+            "id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.OTF"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT otf.id FROM otf*, image* WHERE " +
+            "otf.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.StageLabel"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT stagelabel FROM image* WHERE " +
+            "id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.acquisition.TransmittanceRange"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT filter.transmittancerange FROM filter*, image* WHERE " +
+            "filter.instrument = image.instrument AND image.id IN (:images)))"),
+#elseif($prop.type.equals("ome.model.core.Channel"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT channel.id FROM channel*, pixels* WHERE " +
+            "channel.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.core.Image"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (:images))"),
+#elseif($prop.type.equals("ome.model.core.LogicalChannel"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT channel.logicalchannel FROM channel*, pixels* WHERE " +
+            "channel.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.core.OriginalFile"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT pofm.parent FROM pixelsoriginalfilemap AS pofm*, pixels* WHERE " +
+            "pofm.child = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.core.Pixels"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "image IN (:images))"),
+#elseif($prop.type.equals("ome.model.core.PixelsOriginalFileMap"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT pofm.id FROM pixelsoriginalfilemap AS pofm*, pixels* WHERE " +
+            "pofm.child = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.core.PlaneInfo"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT planeinfo.id FROM planeinfo*, pixels* WHERE " +
+            "planeinfo.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.display.ChannelBinding"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT channelbinding.id FROM channelbinding*, renderingdef*, pixels* WHERE " +
+            "channelbinding.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.display.CodomainMapContext"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT codomainmapcontext.id FROM codomainmapcontext*, renderingdef*, pixels* WHERE " +
+            "codomainmapcontext.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.display.ProjectionDef"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT projectiondef.id FROM projectiondef*, renderingdef*, pixels* WHERE " +
+            "projectiondef.renderingdef = renderingdef.id AND renderingdef.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.display.QuantumDef"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT renderingdef.quantization FROM renderingdef*, pixels* WHERE " +
+            "renderingdef.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.display.RenderingDef"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT renderingdef.id FROM renderingdef*, pixels* WHERE " +
+            "renderingdef.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.display.Thumbnail"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT thumbnail.id FROM thumbnail*, pixels* WHERE " +
+            "thumbnail.pixels = pixels.id AND pixels.image IN (:images)))"),
+#elseif($prop.type.equals("ome.model.stats.StatsInfo"))
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0 OR " +
+            "id IN (SELECT channel.statsinfo FROM channel*, pixels* WHERE " +
+            "channel.pixels = pixels.id AND pixels.image IN (:images)))"),
+#else
+        @org.hibernate.annotations.Filter(name="SharingSecurityFilter", condition="(:is_admin = 1 OR :is_share = 0)"),
+#end
         @org.hibernate.annotations.Filter(name=OWNER_FILTER_${prop.nameUpper}, condition=":ownerId = owner_id"),
         @org.hibernate.annotations.Filter(name=GROUP_FILTER_${prop.nameUpper}, condition=":groupId = group_id"),
         @org.hibernate.annotations.Filter(name=EVENT_FILTER_${prop.nameUpper}, condition=":eventId = event_id"),
