@@ -38,14 +38,14 @@
     {{ block.super }}
 
     <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-3.0.8/jstree.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.pagination_plugin.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.omecut_plugin.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js" %}"></script>
-   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js" %}"></script>
-   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.pagination_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.fields_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.omecut_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js"|add:url_suffix %}"></script>
+   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.childcount_plugin.js"|add:url_suffix %}"></script>
+   <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js"|add:url_suffix %}"></script>
 
     <script type="text/javascript" src="{% static 'webclient/javascript/ome.chgrp.js'|add:url_suffix %}"></script>
 
