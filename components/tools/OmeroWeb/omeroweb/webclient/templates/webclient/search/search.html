@@ -318,14 +318,14 @@
                         <!-- for each group we can choose users - only show <select> for 1 group at a time -->
                         {% for grp in groups %}
                         <select name="ownedBy" id="searchByGroupMember-{{ grp.id }}">
-                            <option value="-1">All Members</option>
+                            <option value="-1" selected="selected">All Members</option>
                             {% for user in grp.leaders %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                <option value="{{ user.id }}">
                                     {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
                             {% for user in grp.colleagues %}}
-                                <option value="{{ user.id }}" {% ifequal user.id ome.user.id %}selected="selected"{% endifequal %}>
+                                <option value="{{ user.id }}">
                                     {{ user.getFullName|truncateafter:"50" }}
                                 </option>
                             {% endfor %}
