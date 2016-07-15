@@ -88,7 +88,7 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
     private final Ice.Current current;
 
     /**
-     * The managed repo instance which created (and ultimately is reponsible
+     * The managed repo instance which created (and ultimately is responsible
      * for) this import process.
      */
     private final ManagedRepositoryI repo;
