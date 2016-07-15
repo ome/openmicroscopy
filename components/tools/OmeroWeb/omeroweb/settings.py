@@ -433,12 +433,55 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["SESSION_COOKIE_DOMAIN",
          None,
          leave_none_unset,
-         "The domain to use for session cookies"],
+         "The domain to use for session cookies."],
     "omero.web.session_cookie_name":
         ["SESSION_COOKIE_NAME",
          None,
          leave_none_unset,
-         "The name to use for session cookies"],
+         "The name to use for session cookies."],
+    "omero.web.session_cookie_secure":
+        ["SESSION_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         "Use a secure cookie for the session cookie."],
+    "omero.web.session_cookie_path":
+        ["SESSION_COOKIE_PATH",
+         "/",
+         str,
+         ("The path set on the session cookie. This is useful if you have"
+          " multiple Django instances running under the same hostname."
+          " They can use different cookie paths, and each instance will"
+          " only see its own session cookie.")],
+    "omero.web.csrf_cookie_age":
+        ["CSRF_COOKIE_AGE",
+         31449600,
+         int,
+         "The age of CSRF cookies, in seconds."],
+    "omero.web.csrf_cookie_name":
+        ["CSRF_COOKIE_NAME",
+         None,
+         leave_none_unset,
+         "The name to use for CSRF cookies."],
+    "omero.web.csrf_cookie_domain":
+        ["CSRF_COOKIE_DOMAIN",
+         None,
+         leave_none_unset,
+         ("The domain to use for CSRF cookies. It allows cross-subdomain"
+          " requests to be excluded from the normal cross site request"
+          " forgery protection.")],
+    "omero.web.csrf_cookie_secure":
+        ["CSRF_COOKIE_SECURE",
+         "false",
+         parse_boolean,
+         "Whether to use a secure cookie for the CSRF cookie."],
+    "omero.web.csrf_cookie_path":
+        ["CSRF_COOKIE_PATH",
+         "/",
+         str,
+         ("The path set on the CSRF cookie. This is useful if you have"
+          " multiple Django instances running under the same hostname."
+          " They can use different cookie paths, and each instance will"
+          " only see its own CSRF cookie.")],
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
     "omero.web.secure_proxy_ssl_header":
