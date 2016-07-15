@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -95,12 +95,10 @@ import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.Resolver;
 
-import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
-import omero.gateway.facility.ROIFacility;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -120,7 +118,6 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
-import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.ROIData;
@@ -1050,7 +1047,7 @@ class OmeroImageServiceImpl
                 status.setText(ImportException.FILE_NOT_VALID_TEXT);
                 return e;
 			}
-			hcsFile = isHCS(ic.getContainers());
+			hcsFile = isHCS(ic.getContainers()) && !ImportableObject.isOMEFile(file);
 			//Create the container if required.
 			if (hcsFile) {
 				if (ic != null) {

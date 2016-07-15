@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -122,8 +122,10 @@ public class ImportableObject
 		
 
 		IFormatReader reader = new OMEXMLReader();
-		OME_SUFFIXES = (List<String>) Arrays.asList(reader.getSuffixes());
-
+		OME_SUFFIXES = new ArrayList<String>();
+		OME_SUFFIXES.addAll((List<String>) Arrays.asList(reader.getSuffixes()));
+		OME_SUFFIXES.add("tf8");
+		
 		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
 		ARBITRARY_FILES_EXTENSION.add("text");
 		ARBITRARY_FILES_EXTENSION.add("txt");
