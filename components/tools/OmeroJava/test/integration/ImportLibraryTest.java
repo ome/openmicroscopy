@@ -47,7 +47,7 @@ import org.testng.annotations.Test;
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @since 4.5
+ * @since 5.0.0
  */
 @Test(groups = { "import", "integration", "fs" })
 public class ImportLibraryTest extends AbstractServerTest {

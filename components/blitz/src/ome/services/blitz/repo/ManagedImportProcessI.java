@@ -57,7 +57,7 @@ import omero.model.FilesetJobLink;
  * all running server-side.
  *
  * @author Josh Moore, josh at glencoesoftware.com
- * @since 4.5
+ * @since 5.0.0
  */
 public class ManagedImportProcessI extends AbstractCloseableAmdServant
     implements _ImportProcessOperations, ServiceFactoryAware,

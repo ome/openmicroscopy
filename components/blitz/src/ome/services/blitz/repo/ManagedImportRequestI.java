@@ -85,7 +85,7 @@ import ch.qos.logback.classic.ClassicConstants;
  * {@link ManagedImportProcessI} object.
  *
  * @author Josh Moore, josh at glencoesoftware.com
- * @since 4.5.0
+ * @since 5.0.0
  */
 public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
