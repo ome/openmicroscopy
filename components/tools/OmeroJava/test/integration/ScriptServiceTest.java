@@ -22,16 +22,21 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
+import static omero.rtypes.rstring;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import omero.api.IScriptPrx;
 import omero.grid.JobParams;
+import omero.model.IObject;
 import omero.model.OriginalFile;
+import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 
@@ -48,6 +53,28 @@ import org.testng.annotations.Test;
  */
 public class ScriptServiceTest extends AbstractServerTest {
 
+    /** The mimetype of the lookup table files.*/
+    private static final String LUT_MIMETYPE = "text/x-lut";
+
+    /**
+     * Tests to make sure that a new entry for the same file is not added
+     * to the originalFile table.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDuplicateEntries() throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
+        assertNotNull(scripts);
+        int n = scripts.size();
+        ParametersI param = new ParametersI();
+        param.add("m", rstring(LUT_MIMETYPE));
+        String sql = "select f from OriginalFile as f "
+                + "where f.mimetype = :m";
+        List<IObject> values = iQuery.findAllByQuery(sql, param);
+        assertEquals(n, values.size());
+    }
+
     /**
      * Tests the retrieval of the scripts using the <code>getScripts</code>
      * method.
@@ -60,13 +87,60 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScripts();
         assertNotNull(scripts);
-        assertNotNull(scripts.size() > 0);
+        assertTrue(scripts.size() > 0);
         Iterator<OriginalFile> i = scripts.iterator();
+        OriginalFile f;
         while (i.hasNext()) {
-            assertNotNull(i.next());
+            f = i.next();
+            assertNotNull(f);
+            if (LUT_MIMETYPE.equals(f.getMimetype().getValue())) {
+                fail("Lut should not be returned.");
+            }
+        }
+        scripts = svc.getScripts();
+        assertNotNull(scripts);
+        assertTrue(scripts.size() > 0);
+        i = scripts.iterator();
+        while (i.hasNext()) {
+            f = i.next();
+            assertNotNull(f);
+            if (LUT_MIMETYPE.equals(f.getMimetype().getValue())) {
+                fail("Lut should not be returned.");
+            }
         }
     }
 
+    /**
+     * Tests the retrieval of the scripts using the <code>getScriptsByMimetype</code>
+     * method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testGetScriptsByMimetype() throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
+        assertNotNull(scripts);
+        assertTrue(scripts.size() > 0);
+        Iterator<OriginalFile> i = scripts.iterator();
+        OriginalFile f;
+        while (i.hasNext()) {
+            f = i.next();
+            assertNotNull(f);
+            String mimetype = f.getMimetype().getValue();
+            assertEquals(LUT_MIMETYPE, mimetype);
+        }
+        scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
+        i = scripts.iterator();
+        while (i.hasNext()) {
+            f = i.next();
+            assertNotNull(f);
+            String mimetype = f.getMimetype().getValue();
+            assertEquals(LUT_MIMETYPE, mimetype);
+        }
+    }
+    
     /**
      * Tests the retrieval of the parameters associated to a script using the
      * <code>getParams</code> method.
@@ -111,7 +185,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             fail("Only administrators can upload official script.");
         } catch (Exception e) {
         }
-        assertTrue(svc.getScripts().size() == n);
+        assertEquals(n, svc.getScripts().size());
     }
 
     /**
@@ -155,6 +229,34 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         long id = svc.uploadScript(folder, buf.toString());
         assertTrue(id > 0);
+    }
+
+    /**
+     * Tests to upload an official lut by a user who is an administrator,
+     * this method uses the <code>uploadOfficialScript</code>.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testUploadOfficialLUTAsRoot() throws Exception {
+        logRootIntoGroup();
+        StringBuffer buf = new StringBuffer("");
+        String[] values = { "a", "b", "c" };
+        for (int i = 0; i < values.length; i++) {
+            buf.append(values[i].charAt(0));
+        }
+        String uuid = UUID.randomUUID().toString();
+        String folder = "officialTestFolder"+uuid+".lut";
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
+        int n = scripts.size();
+        try {
+            long id = svc.uploadOfficialScript(folder, buf.toString());
+            assertTrue(id > 0);
+        } catch (Exception e) {
+        }
+        assertEquals(n+1, svc.getScriptsByMimetype(LUT_MIMETYPE).size());
     }
 
 }
