@@ -186,8 +186,12 @@ public class PermissionsTest extends AbstractServerTest {
 
         return annotationObjects;
     }
-    
-    /* create two tag sets */
+
+    /**
+     * Create tag sets
+     * @return the newly created tag sets
+     * @throws Exception unexpected
+     */
     private List<TagAnnotation> createTagsets() throws Exception {
         final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
         for (int i = 1; i <= 2; i++) {
@@ -199,7 +203,11 @@ public class PermissionsTest extends AbstractServerTest {
         return tagsets;
     }
     
-    /* create three tags */
+    /**
+     * Create tags
+     * @return the newly created tags
+     * @throws Exception unexpected
+     */
     private List<TagAnnotation> createTags() throws Exception {
         final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
         for (int i = 1; i <= 3; i++) {
@@ -210,7 +218,13 @@ public class PermissionsTest extends AbstractServerTest {
          return tags;
     }
     
-    /* define how to link the tag sets to the tags */
+    /**
+     * Define how to link the tag sets to the tags
+     * @param tags the tags to be mapped for linking
+     * @param tagsets the tag sets to be mapped for linking
+     * @return the map of the prospective links
+     * @throws Exception unexpected
+     */
     private SetMultimap<TagAnnotation, TagAnnotation> defineLinkingTags(List<TagAnnotation> tags, List<TagAnnotation> tagsets) throws Exception {
         final SetMultimap<TagAnnotation, TagAnnotation> members = HashMultimap.create();
         members.put(tagsets.get(0), tags.get(0));
@@ -220,7 +234,12 @@ public class PermissionsTest extends AbstractServerTest {
         return members;
     }
     
-    /* perform the linking */
+    /**
+     * Perform the linking
+     * of tags and tag sets
+     * @param members the map of the links
+     * @throws Exception unexpected
+     */
     private void linkTagsTagsets(SetMultimap<TagAnnotation, TagAnnotation> members) throws Exception {
     	for (final Map.Entry<TagAnnotation, TagAnnotation> toLink : members.entries()) {
             final AnnotationAnnotationLink link = new AnnotationAnnotationLinkI();
@@ -267,6 +286,7 @@ public class PermissionsTest extends AbstractServerTest {
      * @param isGroupOwner if the user submitting the {@link Chown2} request owns the group itself
      * @param isRecipientInGroup if the user receiving data by means of the {@link Chown2} request is a member of the data's group
      * @param isExpectSuccess if the chown is expected to succeed
+     * @param option the child option to use in the tagset transfer
      * @throws Exception unexpected
      */
     @Test(dataProvider = "chown annotation test cases")
