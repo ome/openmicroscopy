@@ -326,6 +326,15 @@ INTERNAL_SETTINGS_MAPPING = {
          parse_boolean,
          ("Whether to use a TLS (secure) connection when talking to the SMTP"
           " server.")],
+
+    "omero.web.session_file_path":
+        ["SESSION_FILE_PATH",
+         tempfile.gettempdir(),
+         str,
+         ("Set the directory in which Django will store session data and"
+          " save temprorarly created files. By default, Django will use"
+          " the standard temporary directory for the system. Note: it will"
+          " also respect env TEMPDIR/TEMP/TMP.")],
 }
 
 CUSTOM_SETTINGS_MAPPINGS = {
@@ -1184,15 +1193,9 @@ FEEDBACK_APP = 6
 # Default: ('mail.pl', 'mailform.pl', 'mail.cgi', 'mailform.cgi',
 # 'favicon.ico', '.php')
 
-# SESSION_FILE_PATH: If you're using file-based session storage, this sets the
-# directory in which Django will store session data. When the default value
-# (None) is used, Django will use the standard temporary directory for the
-# system.
-SESSION_FILE_PATH = tempfile.gettempdir()
-
 # FILE_UPLOAD_TEMP_DIR: The directory to store data temporarily while
 # uploading files.
-FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
+FILE_UPLOAD_TEMP_DIR = SESSION_FILE_PATH  # noqa
 
 # # FILE_UPLOAD_MAX_MEMORY_SIZE: The maximum size (in bytes) that an upload
 # will be before it gets streamed to the file system.
