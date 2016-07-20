@@ -319,8 +319,8 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* note which objects were used to annotate an image */
 
-        final List<IObject> imageAnnotations;
-        final List<IObject> imageAnnotations2;
+        final List<IObject> annotations;
+        final List<IObject> annotationsSinglyLinked;
         final List<ImageAnnotationLink> tagLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
         final List<ImageAnnotationLink> fileAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
         final List<ImageAnnotationLink> mapAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
@@ -331,15 +331,16 @@ public class PermissionsTest extends AbstractServerTest {
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        imageAnnotations = annotateImage(image);
-        imageAnnotations2 = annotateImage(image);
+        annotations = annotateImage(image);
+        annotationsSinglyLinked = annotateImage(image);
 
-        /* tag and add FileAnnotation and MapAnnotation from "imageAnnotations", but not from "imageAnnotations2"
-         to another image with the tags and FileAnnotations from the first image */
+        /* Link Tag, FileAnnotation and MapAnnotation from "annotations" to a second image.
+         * Note that ALL of both "annotations" and "annotationsSinglyLinked" are already linked to the first image.
+         * NONE of the "annotationsSinglyLinked" will be linked to the second image.*/
 
         final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage.getId().getValue());
-        for (final IObject annotation : imageAnnotations) {
+        for (final IObject annotation : annotations) {
             if (annotation instanceof TagAnnotation) {
                 final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
                 tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
@@ -379,7 +380,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
-        for (final IObject annotation : imageAnnotations) {
+        for (final IObject annotation : annotations) {
             if (annotation instanceof TagAnnotation || annotation instanceof FileAnnotation || 
                 annotation instanceof MapAnnotation) {
                 assertOwnedBy(annotation, importer);
@@ -391,7 +392,7 @@ public class PermissionsTest extends AbstractServerTest {
             }
         }
 
-        for (final IObject annotation : imageAnnotations2) {
+        for (final IObject annotation : annotationsSinglyLinked) {
         	assertOwnedBy(annotation, recipient);
         }
 
