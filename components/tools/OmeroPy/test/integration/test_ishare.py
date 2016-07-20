@@ -278,6 +278,7 @@ class TestIShare(lib.ITest):
         c2 = len(share2.getComments(sid))
         assert 2 == c2
 
+    @pytest.mark.broken(reason="shares are image-centric for now")
     def test1172(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.root.sf.getShareService()
