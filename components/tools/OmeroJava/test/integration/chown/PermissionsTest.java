@@ -363,7 +363,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* chown the image */
 
         init(chowner);
-        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
+        Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
@@ -408,31 +408,26 @@ public class PermissionsTest extends AbstractServerTest {
         
         /* chown the first tag set */
         init(chowner);
-        final Chown2 chown2 = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
+        chown = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
         
-        doChange(client, factory, chown, isExpectSuccess);
-
-        if (!isExpectSuccess) {
-            return;
-        }
         
         switch (option) {
         case NONE:
             break;
         case INCLUDE:
-            chown2.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
+            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
             break;
         case EXCLUDE:
-            chown2.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
+            chown.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
             break;
         case BOTH:
-            chown2.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
+            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
                                                                               .excludeType("Annotation").build());
             break;
         default:
             Assert.fail("unexpected option for chown");
         }
-        doChange(client, factory, chown2, isExpectSuccess);
+        doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
             return;
@@ -463,8 +458,8 @@ public class PermissionsTest extends AbstractServerTest {
         	assertOwnedBy(tags.get(2), importer);
             /* transfer the tag that is not in the second tag set */
             init(chowner);
-            final Chown2 chown3 = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
-            doChange(client, factory, chown3, isExpectSuccess);
+            chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
+            doChange(client, factory, chown, isExpectSuccess);
             if (!isExpectSuccess) {
                 return;
             }
@@ -473,8 +468,8 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* transfer the second tag set */
         init(chowner);
-        final Chown2 chown4 = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
-        doChange(client, factory, chown4, isExpectSuccess);
+        chown = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
+        doChange(client, factory, chown, isExpectSuccess);
         if (!isExpectSuccess) {
             return;
         }
@@ -556,7 +551,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* chown the image */
         init(chowner);
-        final Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
+        Chown2 chown = Requests.chown().target(image).toUser(recipient.userId).build();
         doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
@@ -572,31 +567,27 @@ public class PermissionsTest extends AbstractServerTest {
         
         
         /* chown the first tag set */
-        final Chown2 chown2 = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
+        chown = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
         
-        doChange(client, factory, chown, isExpectSuccess);
-
-        if (!isExpectSuccess) {
-            return;
-        }
+        
         
         switch (option) {
         case NONE:
             break;
         case INCLUDE:
-            chown2.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
+            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation").build());
             break;
         case EXCLUDE:
-            chown2.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
+            chown.childOptions = Collections.singletonList(Requests.option().excludeType("Annotation").build());
             break;
         case BOTH:
-            chown2.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
+            chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
                                                                               .excludeType("Annotation").build());
             break;
         default:
             Assert.fail("unexpected option for chown");
         }
-        doChange(client, factory, chown2, isExpectSuccess);
+        doChange(client, factory, chown, isExpectSuccess);
 
         if (!isExpectSuccess) {
             return;
@@ -627,8 +618,8 @@ public class PermissionsTest extends AbstractServerTest {
         	assertOwnedBy(tags.get(2), annotator);
             /* transfer the tag that is not in the second tag set */
             init(chowner);
-            final Chown2 chown3 = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
-            doChange(client, factory, chown3, isExpectSuccess);
+            chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
+            doChange(client, factory, chown, isExpectSuccess);
             if (!isExpectSuccess) {
                 return;
             }
@@ -637,8 +628,8 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* transfer the second tag set */
         init(chowner);
-        final Chown2 chown4 = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
-        doChange(client, factory, chown4, isExpectSuccess);
+        chown = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
+        doChange(client, factory, chown, isExpectSuccess);
         if (!isExpectSuccess) {
             return;
         }
