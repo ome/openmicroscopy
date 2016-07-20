@@ -84,7 +84,6 @@ import com.google.common.collect.SetMultimap;
 
 import integration.AbstractServerTest;
 
-
 /**
  * Tests that only appropriate users may use {@link Chown2} and that others' data is left unchanged.
  * @author m.t.b.carroll@dundee.ac.uk
@@ -167,8 +166,6 @@ public class PermissionsTest extends AbstractServerTest {
             annotationObjects.add(link.getChild().proxy());
         }
 
-
-
         Roi roi = new RoiI();
         roi.addShape(new RectangleI());
         roi.setImage((Image) image.proxy());
@@ -203,7 +200,7 @@ public class PermissionsTest extends AbstractServerTest {
         }
         return tagsets;
     }
-    
+
     /**
      * Create tags
      * @param number number of tags to create
@@ -216,10 +213,10 @@ public class PermissionsTest extends AbstractServerTest {
             final TagAnnotation tag = new TagAnnotationI();
             tag.setName(rstring("tag #" + i));
             tags.add((TagAnnotation) iUpdate.saveAndReturnObject(tag).proxy());
-    	    }
+        }
          return tags;
     }
-    
+
     /**
      * Define how to link the tag sets to the tags
      * @param tags the tags to be mapped for linking
@@ -235,7 +232,7 @@ public class PermissionsTest extends AbstractServerTest {
         members.put(tagsets.get(1), tags.get(2));
         return members;
     }
-    
+
     /**
      * Perform the linking
      * of tags and tag sets
@@ -387,7 +384,6 @@ public class PermissionsTest extends AbstractServerTest {
             } else if (annotation instanceof ImageAnnotationLink) {
                 imageLinkIds.add(annotation.getId().getValue());
             } else {
-
                 assertOwnedBy(annotation, recipient);
             }
         }
@@ -425,7 +421,7 @@ public class PermissionsTest extends AbstractServerTest {
             break;
         case BOTH:
             chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
-                                                                              .excludeType("Annotation").build());
+                                                                            .excludeType("Annotation").build());
             break;
         default:
             Assert.fail("unexpected option for chown");
@@ -435,7 +431,6 @@ public class PermissionsTest extends AbstractServerTest {
         if (!isExpectSuccess) {
             return;
         }
-
 
          /* check that the tag set is transferred and the other remains owned by original owner */
         assertOwnedBy(tagsets.get(0), recipient);
@@ -451,14 +446,14 @@ public class PermissionsTest extends AbstractServerTest {
         case BOTH:
             /* include overrides exclude */
         case INCLUDE:
-        	assertOwnedBy(tags.get(0), recipient);
-        	assertOwnedBy(tags.get(1), recipient);
-        	assertOwnedBy(tags.get(2), importer);
+            assertOwnedBy(tags.get(0), recipient);
+            assertOwnedBy(tags.get(1), recipient);
+            assertOwnedBy(tags.get(2), importer);
             break;
         case EXCLUDE:
-        	assertOwnedBy(tags.get(0), importer);
-        	assertOwnedBy(tags.get(1), importer);
-        	assertOwnedBy(tags.get(2), importer);
+            assertOwnedBy(tags.get(0), importer);
+            assertOwnedBy(tags.get(1), importer);
+            assertOwnedBy(tags.get(2), importer);
             /* transfer the tag that is not in the second tag set */
             init(chowner);
             chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
@@ -478,7 +473,7 @@ public class PermissionsTest extends AbstractServerTest {
         }
 
         
-        /* check that the tag sets are transferred*/
+        /* check that the tag sets are transferred */
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(tagsets, recipient);
         /* check that the tag in the second tag set was implicitly transferred */
@@ -560,20 +555,17 @@ public class PermissionsTest extends AbstractServerTest {
         if (!isExpectSuccess) {
             return;
         }
-        
+
         /* check that the objects' ownership is all as expected */
 
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
         assertOwnedBy(ownerAnnotations, importer);
         assertOwnedBy(otherAnnotations, annotator);
-        
-        
+
         /* chown the first tag set */
         chown = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
-        
-        
-        
+
         switch (option) {
         case NONE:
             break;
@@ -585,7 +577,7 @@ public class PermissionsTest extends AbstractServerTest {
             break;
         case BOTH:
             chown.childOptions = Collections.singletonList(Requests.option().includeType("Annotation")
-                                                                              .excludeType("Annotation").build());
+                                                                            .excludeType("Annotation").build());
             break;
         default:
             Assert.fail("unexpected option for chown");
@@ -596,8 +588,7 @@ public class PermissionsTest extends AbstractServerTest {
             return;
         }
 
-
-         /* check that the tag set is transferred and the other remains owned by original owner */
+        /* check that the tag set is transferred and the other remains owned by original owner */
         assertOwnedBy(tagsets.get(0), recipient);
         assertOwnedBy(tagsets.get(1), annotator);
 
@@ -611,14 +602,14 @@ public class PermissionsTest extends AbstractServerTest {
         case BOTH:
             /* include overrides exclude */
         case INCLUDE:
-        	assertOwnedBy(tags.get(0), recipient);
-        	assertOwnedBy(tags.get(1), recipient);
-        	assertOwnedBy(tags.get(2), annotator);
+            assertOwnedBy(tags.get(0), recipient);
+            assertOwnedBy(tags.get(1), recipient);
+            assertOwnedBy(tags.get(2), annotator);
             break;
         case EXCLUDE:
-        	assertOwnedBy(tags.get(0), annotator);
-        	assertOwnedBy(tags.get(1), annotator);
-        	assertOwnedBy(tags.get(2), annotator);
+            assertOwnedBy(tags.get(0), annotator);
+            assertOwnedBy(tags.get(1), annotator);
+            assertOwnedBy(tags.get(2), annotator);
             /* transfer the tag that is not in the second tag set */
             init(chowner);
             chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
@@ -637,8 +628,7 @@ public class PermissionsTest extends AbstractServerTest {
             return;
         }
 
-        
-        /* check that the tag sets are transferred*/
+        /* check that the tag sets are transferred */
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(tagsets, recipient);
         /* check that the tag in the second tag set was not implicitly transferred */
@@ -646,8 +636,6 @@ public class PermissionsTest extends AbstractServerTest {
         
     }
 
-
-    
     /* child options to try using in transfer */
     private enum Option { NONE, INCLUDE, EXCLUDE, BOTH };
 
@@ -666,12 +654,11 @@ public class PermissionsTest extends AbstractServerTest {
         final int CHILD_OPTION = index++;
 
         final boolean[] booleanCases = new boolean[]{false, true};
-        
+
         final Option[] values = Option.values();
-        
+
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-        
         for (final boolean isDataOwner : booleanCases) {
             for (final boolean isAdmin : booleanCases) {
                 for (final boolean isGroupOwner : booleanCases) {
@@ -688,8 +675,7 @@ public class PermissionsTest extends AbstractServerTest {
                         testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
                         for (final Option value : values) {
                             /* only add one tag set child options per one permission
-                             * test, but alternate over all child options doing this
-                             */
+                             * test, but alternate over all child options doing this */
                             if (count_value < value.ordinal()) {
                                 continue;
                             }
@@ -706,17 +692,11 @@ public class PermissionsTest extends AbstractServerTest {
                 }
             }
         }
+
         return testCases.toArray(new Object[testCases.size()][]);
     }
 
-    
-    
-
-
-
-
-
-	/**
+    /**
      * Test a specific case of using {@link Chown2} on an image that is in a dataset or a folder.
      * @param isImageOwner if the user who owns the container also owns the image
      * @param isLinkOwner if the user who owns the container also linked the image to the container
