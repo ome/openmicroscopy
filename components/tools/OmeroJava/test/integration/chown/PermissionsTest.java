@@ -472,7 +472,6 @@ public class PermissionsTest extends AbstractServerTest {
             return;
         }
 
-        
         /* check that the tag sets are transferred */
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(tagsets, recipient);
