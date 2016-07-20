@@ -189,12 +189,13 @@ public class PermissionsTest extends AbstractServerTest {
 
     /**
      * Create tag sets
+     * @param number number of tag sets to create
      * @return the newly created tag sets
      * @throws Exception unexpected
      */
-    private List<TagAnnotation> createTagsets() throws Exception {
+    private List<TagAnnotation> createTagsets(int number) throws Exception {
         final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
-        for (int i = 1; i <= 2; i++) {
+        for (int i = 1; i <= number; i++) {
             final TagAnnotation tagset = new TagAnnotationI();
             tagset.setName(rstring("tagset #" + i));
             tagset.setNs(rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
@@ -205,12 +206,13 @@ public class PermissionsTest extends AbstractServerTest {
     
     /**
      * Create tags
+     * @param number number of tags to create
      * @return the newly created tags
      * @throws Exception unexpected
      */
-    private List<TagAnnotation> createTags() throws Exception {
+    private List<TagAnnotation> createTags(int number) throws Exception {
         final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 1; i <= number; i++) {
             final TagAnnotation tag = new TagAnnotationI();
             tag.setName(rstring("tag #" + i));
             tags.add((TagAnnotation) iUpdate.saveAndReturnObject(tag).proxy());
@@ -353,8 +355,8 @@ public class PermissionsTest extends AbstractServerTest {
         }
         
         /* create two tag sets and three tags */
-        final List<TagAnnotation> tagsets = createTagsets();
-        final List<TagAnnotation> tags = createTags();
+        final List<TagAnnotation> tagsets = createTagsets(2);
+        final List<TagAnnotation> tags = createTags(3);
 
         /* define how to link the tag sets to the tags and link them */
         final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
@@ -542,8 +544,8 @@ public class PermissionsTest extends AbstractServerTest {
         otherAnnotations = annotateImage(image);
 
         /* create two tag sets and three tags */
-        final List<TagAnnotation> tagsets = createTagsets();
-        final List<TagAnnotation> tags = createTags();
+        final List<TagAnnotation> tagsets = createTagsets(2);
+        final List<TagAnnotation> tags = createTags(3);
 
         /* define how to link the tag sets to the tags and link them */
         final SetMultimap<TagAnnotation, TagAnnotation> members = defineLinkingTags(tags, tagsets);
