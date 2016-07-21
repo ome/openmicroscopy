@@ -942,7 +942,6 @@ class _QueryContext(object):
         for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
             yield batch
 
-
     def projection(self, q, ids, ns=None):
         """
         Run a projection query designed to return scalars only
@@ -1293,7 +1292,7 @@ class DeleteMapAnnotationContext(_QueryContext):
 
     def write_to_omero(self, batch_size=1000):
         combined = self.mapannids + self.fileannids
-        for batch in self._batch(self.mapannids + self.fileannids, sz=batch_size):
+        for batch in self._batch(combined, sz=batch_size):
             self._write_to_omero_batch(batch)
 
     def _write_to_omero_batch(self, batch):
