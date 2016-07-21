@@ -915,6 +915,15 @@ class _QueryContext(object):
     def __init__(self, client):
         self.client = client
 
+    def _batch(self, i, sz=1000):
+        """
+        Generate batches of size sz (by default 1000) from the input
+        iterable `i`.
+        """
+        for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
+            yield batch
+
+
     def projection(self, q, ids, ns=None):
         """
         Run a projection query designed to return scalars only
@@ -1116,9 +1125,12 @@ class BulkToMapAnnotationContext(_QueryContext):
         sf = self.client.getSession()
         group = str(self.target_object.details.group.id)
         update_service = sf.getUpdateService()
-        ids = update_service.saveAndReturnIds(
-            self.mapannotations, {'omero.group': group})
-        log.info('Created %d MapAnnotations', len(ids))
+        i = 0
+        for batch in self._batch(self.mapannotations):
+            i += 1
+            ids = update_service.saveAndReturnIds(
+                batch, {'omero.group': group})
+            log.info('Created %d MapAnnotations (batch %s)', len(ids), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):
@@ -1261,14 +1273,18 @@ class DeleteMapAnnotationContext(_QueryContext):
                      len(set(self.fileannids)), ns)
 
     def write_to_omero(self):
-        to_delete = {"Annotation": self.mapannids + self.fileannids}
+        for batch in self._batch(self.mapannids + self.fileannids):
+            self._write_to_omero_batch(batch)
+
+    def _write_to_omero_batch(self, batch):
+        to_delete = {"Annotation": batch}
         delCmd = omero.cmd.Delete2(targetObjects=to_delete)
         handle = self.client.getSession().submit(delCmd)
 
         callback = None
         try:
             callback = CmdCallbackI(self.client, handle)
-            loops = max(10, len(self.mapannids) / 10)
+            loops = max(10, len(batch) / 10)
             delay = 500
             callback.loop(loops, delay)
             rsp = callback.getResponse()
