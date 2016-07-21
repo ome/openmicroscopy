@@ -342,14 +342,12 @@ public class PermissionsTest extends AbstractServerTest {
             if (annotation instanceof TagAnnotation) {
                 final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
                 tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
-            }
-            else if (annotation instanceof FileAnnotation) {
-                final ImageAnnotationLink linkf = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
-                fileAnnLinksOnOtherImage.add((ImageAnnotationLink) linkf.proxy());
-            }
-            else if (annotation instanceof MapAnnotation) {
-                final ImageAnnotationLink linkf = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
-                mapAnnLinksOnOtherImage.add((ImageAnnotationLink) linkf.proxy());
+            } else if (annotation instanceof FileAnnotation) {
+                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (FileAnnotation) annotation);
+                fileAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
+            } else if (annotation instanceof MapAnnotation) {
+                final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (MapAnnotation) annotation);
+                mapAnnLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
             }
         }
         
