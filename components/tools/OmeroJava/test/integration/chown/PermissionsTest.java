@@ -316,7 +316,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         /* note which objects were used to annotate an image */
 
-        final List<IObject> annotations;
+        final List<IObject> annotationsDoublyLinked;
         final List<IObject> annotationsSinglyLinked;
         final List<ImageAnnotationLink> tagLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
         final List<ImageAnnotationLink> fileAnnLinksOnOtherImage = new ArrayList<ImageAnnotationLink>();
@@ -328,16 +328,17 @@ public class PermissionsTest extends AbstractServerTest {
         final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         final long imageId = image.getId().getValue();
         testImages.add(imageId);
-        annotations = annotateImage(image);
+        annotationsDoublyLinked = annotateImage(image);
         annotationsSinglyLinked = annotateImage(image);
 
-        /* Link Tag, FileAnnotation and MapAnnotation from "annotations" to a second image.
-         * Note that ALL of both "annotations" and "annotationsSinglyLinked" are already linked to the first image.
+        /* Link Tag, FileAnnotation and MapAnnotation from "annotationsDoublyLinked" to a second image.
+         * Note that ALL of both "annotationsDoublyLinked" and "annotationsSinglyLinked"
+         * are already linked to the first image.
          * NONE of the "annotationsSinglyLinked" will be linked to the second image.*/
 
         final Image otherImage = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage()).proxy();
         testImages.add(otherImage.getId().getValue());
-        for (final IObject annotation : annotations) {
+        for (final IObject annotation : annotationsDoublyLinked) {
             if (annotation instanceof TagAnnotation) {
                 final ImageAnnotationLink link = (ImageAnnotationLink) annotateImage(otherImage, (TagAnnotation) annotation);
                 tagLinksOnOtherImage.add((ImageAnnotationLink) link.proxy());
@@ -377,7 +378,7 @@ public class PermissionsTest extends AbstractServerTest {
 
         logRootIntoGroup(dataGroupId);
         assertOwnedBy(image, recipient);
-        for (final IObject annotation : annotations) {
+        for (final IObject annotation : annotationsDoublyLinked) {
             if (annotation instanceof TagAnnotation || annotation instanceof FileAnnotation || 
                 annotation instanceof MapAnnotation) {
                 assertOwnedBy(annotation, importer);
@@ -491,7 +492,6 @@ public class PermissionsTest extends AbstractServerTest {
      * @param option the child option to use in the tagset transfer
      * @throws Exception unexpected
      */
-
 
     @Test(dataProvider = "chown annotation test cases")
     public void testChownAnnotationReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner,
