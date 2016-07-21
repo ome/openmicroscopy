@@ -407,8 +407,7 @@ public class PermissionsTest extends AbstractServerTest {
         /* chown the first tag set */
         init(chowner);
         chown = Requests.chown().target(tagsets.get(0)).toUser(recipient.userId).build();
-        
-        
+
         switch (option) {
         case NONE:
             break;
@@ -466,7 +465,6 @@ public class PermissionsTest extends AbstractServerTest {
         assertOwnedBy(tagsets, recipient);
         /* check that the tag in the second tag set was implicitly transferred */
         assertOwnedBy(tags.get(2), recipient);
-      
     }
 
     /**
@@ -480,7 +478,6 @@ public class PermissionsTest extends AbstractServerTest {
      * @param option the child option to use in the tagset transfer
      * @throws Exception unexpected
      */
-
     @Test(dataProvider = "chown annotation test cases")
     public void testChownAnnotationReadAnnotate(boolean isDataOwner, boolean isAdmin, boolean isGroupOwner,
             boolean isRecipientInGroup, boolean isExpectSuccess, Option option) throws Exception {
