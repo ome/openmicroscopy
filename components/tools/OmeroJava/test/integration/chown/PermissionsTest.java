@@ -427,11 +427,7 @@ public class PermissionsTest extends AbstractServerTest {
         default:
             Assert.fail("unexpected option for chown");
         }
-        doChange(client, factory, chown, isExpectSuccess);
-
-        if (!isExpectSuccess) {
-            return;
-        }
+        doChange(chown);
 
          /* check that the tag set is transferred and the other remains owned by original owner */
         assertOwnedBy(tagsets.get(0), recipient);
@@ -458,20 +454,14 @@ public class PermissionsTest extends AbstractServerTest {
             /* transfer the tag that is not in the second tag set */
             init(chowner);
             chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
-            doChange(client, factory, chown, isExpectSuccess);
-            if (!isExpectSuccess) {
-                return;
-            }
+            doChange(chown);
             break;
         }
 
         /* transfer the second tag set */
         init(chowner);
         chown = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
-        doChange(client, factory, chown, isExpectSuccess);
-        if (!isExpectSuccess) {
-            return;
-        }
+        doChange(chown);
 
         /* check that the tag sets are transferred */
         logRootIntoGroup(dataGroupId);
@@ -581,11 +571,7 @@ public class PermissionsTest extends AbstractServerTest {
         default:
             Assert.fail("unexpected option for chown");
         }
-        doChange(client, factory, chown, isExpectSuccess);
-
-        if (!isExpectSuccess) {
-            return;
-        }
+        doChange(chown);
 
         /* check that the tag set is transferred and the other remains owned by original owner */
         assertOwnedBy(tagsets.get(0), recipient);
@@ -612,20 +598,14 @@ public class PermissionsTest extends AbstractServerTest {
             /* transfer the tag that is not in the second tag set */
             init(chowner);
             chown = Requests.chown().target(tags.get(0)).toUser(recipient.userId).build();
-            doChange(client, factory, chown, isExpectSuccess);
-            if (!isExpectSuccess) {
-                return;
-            }
+            doChange(chown);
             break;
         }
 
         /* transfer the second tag set */
         init(chowner);
         chown = Requests.chown().target(tagsets.get(1)).toUser(recipient.userId).build();
-        doChange(client, factory, chown, isExpectSuccess);
-        if (!isExpectSuccess) {
-            return;
-        }
+        doChange(chown);
 
         /* check that the tag sets are transferred */
         logRootIntoGroup(dataGroupId);
