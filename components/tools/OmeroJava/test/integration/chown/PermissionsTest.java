@@ -653,17 +653,14 @@ public class PermissionsTest extends AbstractServerTest {
                         testCase[IS_RECIPIENT_IN_GROUP] = isRecipientInGroup;
                         testCase[IS_EXPECT_SUCCESS] = isAdmin || isGroupOwner && isRecipientInGroup;
                         for (final Option value : values) {
-                            /* only add one tag set child options per one permission
+                            /* only add one tag set child option per one permission
                              * test, but alternate over all child options doing this */
                             if (count_value < value.ordinal()) {
                                 continue;
                             }
                             testCase[CHILD_OPTION] = value;
                         }
-                        count_value++;
-                        if (count_value == 4) {
-                            count_value = count_value - 4;
-                        }
+                        count_value = (count_value + 1) % values.length;;
                         // DEBUG: if (isDataOwner == true && isAdmin == true && isGroupOwner == true &&
                         //            isRecipientInGroup == true)
                         testCases.add(testCase);
