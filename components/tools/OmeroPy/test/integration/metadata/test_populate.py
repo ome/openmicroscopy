@@ -400,7 +400,8 @@ class TestPopulateMetadata(lib.ITest):
     METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
 
     @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
-    def testPopulateMetadata(self, fixture):
+    @mark.parametrize("batch_size", (None, 10, 1000))
+    def testPopulateMetadata(self, fixture, batch_size):
         """
         We should really test each of the parsing contexts in separate tests
         but in practice each one uses data created by the others, so for
@@ -413,11 +414,11 @@ class TestPopulateMetadata(lib.ITest):
             skip("PyYAML not installed.")
 
         fixture.init(self)
-        self._test_parsing_context(fixture)
-        self._test_bulk_to_map_annotation_context(fixture)
-        self._test_delete_map_annotation_context(fixture)
+        self._test_parsing_context(fixture, batch_size)
+        self._test_bulk_to_map_annotation_context(fixture, batch_size)
+        self._test_delete_map_annotation_context(fixture, batch_size)
 
-    def _test_parsing_context(self, fixture):
+    def _test_parsing_context(self, fixture, batch_size):
         """
             Create a small csv file, use populate_metadata.py to parse and
             attach to Plate. Then query to check table has expected content.
@@ -430,7 +431,10 @@ class TestPopulateMetadata(lib.ITest):
         csv = fixture.get_csv()
         ctx = ParsingContext(self.client, target, file=csv)
         ctx.parse()
-        ctx.write_to_omero()
+        if batch_size is None:
+            ctx.write_to_omero()
+        else:
+            ctx.write_to_omero(batch_size=batch_size)
 
         # Get file annotations
         anns = fixture.get_annotations()
@@ -459,7 +463,7 @@ class TestPopulateMetadata(lib.ITest):
                 assert False, \
                     "Row does not contain 'a1' or 'a2': %s" % rowValues
 
-    def _test_bulk_to_map_annotation_context(self, fixture):
+    def _test_bulk_to_map_annotation_context(self, fixture, batch_size):
         # self._testPopulateMetadataPlate()
         assert len(fixture.get_child_annotations()) == 0
 
@@ -474,12 +478,15 @@ class TestPopulateMetadata(lib.ITest):
         ctx.parse()
         assert len(fixture.get_child_annotations()) == 0
 
-        ctx.write_to_omero()
+        if batch_size is None:
+            ctx.write_to_omero()
+        else:
+            ctx.write_to_omero(batch_size=batch_size)
         oas = fixture.get_child_annotations()
         assert len(oas) == fixture.annCount
         fixture.assert_child_annotations(oas)
 
-    def _test_delete_map_annotation_context(self, fixture):
+    def _test_delete_map_annotation_context(self, fixture, batch_size):
         # self._test_bulk_to_map_annotation_context()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
@@ -488,7 +495,10 @@ class TestPopulateMetadata(lib.ITest):
         ctx.parse()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
-        ctx.write_to_omero()
+        if batch_size is None:
+            ctx.write_to_omero()
+        else:
+            ctx.write_to_omero(batch_size=batch_size)
         assert len(fixture.get_child_annotations()) == 0
 
 

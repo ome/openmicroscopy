@@ -880,7 +880,7 @@ class ParsingContext(object):
             else:
                 log.info('Missing plate name column, skipping.')
 
-    def write_to_omero(self):
+    def write_to_omero(self, batch_size=1000):
         sf = self.client.getSession()
         group = str(self.value_resolver.target_group)
         sr = sf.sharedResources()
@@ -892,10 +892,29 @@ class ParsingContext(object):
                 "Unable to create table: %s" % name)
         original_file = table.getOriginalFile()
         log.info('Created new table OriginalFile:%d' % original_file.id.val)
+
+        columns = self.columns
+        values = []
+        length = -1
+        for x in columns:
+            if length < 0:
+                length = len(x.values)
+            else:
+                assert length == len(x.values)
+            values.append(x.values)
+            x.values = None
+
         table.initialize(self.columns)
         log.info('Table initialized with %d columns.' % (len(self.columns)))
-        table.addData(self.columns)
-        log.info('Added data column data.')
+
+        i = 0
+        for pos in xrange(0, length, batch_size):
+            i += 1
+            for idx, x in enumerate(values):
+                columns[idx].values = x[pos:pos+batch_size]
+            table.addData(self.columns)
+            log.info('Added %s rows of column data (batch %s)', batch_size, i)
+
         table.close()
         file_annotation = FileAnnotationI()
         file_annotation.ns = rstring(
@@ -1121,12 +1140,12 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         self.mapannotations = mas
 
-    def write_to_omero(self):
+    def write_to_omero(self, batch_size=1000):
         sf = self.client.getSession()
         group = str(self.target_object.details.group.id)
         update_service = sf.getUpdateService()
         i = 0
-        for batch in self._batch(self.mapannotations):
+        for batch in self._batch(self.mapannotations, sz=batch_size):
             i += 1
             ids = update_service.saveAndReturnIds(
                 batch, {'omero.group': group})
@@ -1272,8 +1291,9 @@ class DeleteMapAnnotationContext(_QueryContext):
             log.info("Total: %d FileAnnotation(s) in %s",
                      len(set(self.fileannids)), ns)
 
-    def write_to_omero(self):
-        for batch in self._batch(self.mapannids + self.fileannids):
+    def write_to_omero(self, batch_size=1000):
+        combined = self.mapannids + self.fileannids
+        for batch in self._batch(self.mapannids + self.fileannids, sz=batch_size):
             self._write_to_omero_batch(batch)
 
     def _write_to_omero_batch(self, batch):
