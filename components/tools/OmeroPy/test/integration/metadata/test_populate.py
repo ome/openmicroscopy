@@ -165,7 +165,12 @@ class TestPopulateMetadata(BasePopulate):
             attach to Plate. Then query to check table has expected content.
         """
 
-        ctx = ParsingContext(self.client, self.plate, file=self.csvName)
+        target = fixture.get_target()
+        # Deleting anns so that we can re-use the same user
+        self.delete(fixture.get_annotations())
+
+        csv = fixture.get_csv()
+        ctx = ParsingContext(self.client, target, file=csv)
         ctx.parse()
         ctx.write_to_omero()
 
