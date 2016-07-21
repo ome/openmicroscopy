@@ -424,6 +424,9 @@ class TestPopulateMetadata(lib.ITest):
         """
 
         target = fixture.get_target()
+        # Deleting anns so that we can re-use the same user
+        self.delete(fixture.get_annotations())
+
         csv = fixture.get_csv()
         ctx = ParsingContext(self.client, target, file=csv)
         ctx.parse()
