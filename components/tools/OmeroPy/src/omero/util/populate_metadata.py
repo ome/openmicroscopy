@@ -942,7 +942,7 @@ class _QueryContext(object):
         for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
             yield batch
 
-    def projection(self, q, ids, ns=None):
+    def projection(self, q, ids, ns=None, batch_size=None):
         """
         Run a projection query designed to return scalars only
         :param q: The query to be projected, should contain either `:ids`
@@ -950,19 +950,40 @@ class _QueryContext(object):
         :param: ids: Either a list of IDs to be passed as `:ids` parameter or
                 a single scalar id to be passed as `:id` parameter in query
         :ns: Optional namespace to be passed as `:ns` parameter in query
+        :batch_size: Optional batch_size (default: all) defining the number
+                of IDs that will be queried at once. Methods that expect to
+                have more than several thousand input IDs should consider an
+                appropriate batch size. By default, however, no batch size is
+                applied since this could change the interpretation of the
+                query string (e.g. use of `distinct`).
         """
         qs = self.client.getSession().getQueryService()
         params = omero.sys.ParametersI()
+
         try:
             nids = len(ids)
-            params.addIds(ids)
+            single_id = None
         except TypeError:
             nids = 1
-            params.addId(ids)
+            single_id = ids
+
         if ns:
             params.addString("ns", ns)
+
         log.debug("Query: %s len(IDs): %d", q, nids)
-        rss = unwrap(qs.projection(q, params))
+
+        if single_id is not None:
+            params.addId(single_id)
+            rss = unwrap(qs.projection(q, params))
+        elif batch_size is None:
+            params.addIds(ids)
+            rss = unwrap(qs.projection(q, params))
+        else:
+            rss = []
+            for batch in self._batch(ids, sz=batch_size):
+                params.addIds(batch)
+                rss.extend(unwrap(qs.projection(q, params)))
+
         return [r for rs in rss for r in rs]
 
 
@@ -1179,7 +1200,8 @@ class DeleteMapAnnotationContext(_QueryContext):
             q = ("SELECT child.id FROM %sAnnotationLink WHERE "
                  "child.class=%s AND parent.id in (:ids) "
                  "AND child.ns=:ns")
-            r = self.projection(q % (objtype, anntype), objids, ns)
+            r = self.projection(q % (objtype, anntype), objids, ns,
+                                batch_size=10000)
             log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
         return r
 
@@ -1231,13 +1253,15 @@ class DeleteMapAnnotationContext(_QueryContext):
             parentids["Well"] = ids
         if parentids["Well"]:
             q = "SELECT id FROM WellSample WHERE well.id IN (:ids)"
-            parentids["WellSample"] = self.projection(q, parentids["Well"])
+            parentids["WellSample"] = self.projection(
+                q, parentids["Well"], batch_size=10000)
 
         if isinstance(target, WellSampleI):
             parentids["WellSample"] = ids
         if parentids["WellSample"]:
             q = "SELECT image.id FROM WellSample WHERE id IN (:ids)"
-            parentids["Image"] = self.projection(q, parentids["WellSample"])
+            parentids["Image"] = self.projection(
+                q, parentids["WellSample"], batch_size=10000)
 
         if isinstance(target, ProjectI):
             parentids["Project"] = ids
