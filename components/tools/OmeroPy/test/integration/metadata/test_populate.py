@@ -112,9 +112,11 @@ class Fixture(object):
 
     def createDataset(self, names=("A1", "A2")):
         ds = self.test.make_dataset()
-        for name in names:
-            img = self.test.importSingleImage(name=name)
+        imgs = self.test.importMIF(
+            seriesCount=len(names))
+        for i, name in enumerate(names):
             # Name must match exactly. No ".fake"
+            img = imgs[i]
             img = self.setName(img, name)
             self.test.link(ds, img)
         return ds.proxy()
@@ -249,6 +251,7 @@ class Dataset2Images(Fixture):
         )
         self.dataset = None
         self.images = None
+        self.names = ("A1", "A2")
 
     def assert_rows(self, rows):
         # Hard-coded in createCsv's arguments
@@ -256,7 +259,7 @@ class Dataset2Images(Fixture):
 
     def get_target(self):
         if not self.dataset:
-            self.dataset = self.createDataset()
+            self.dataset = self.createDataset(self.names)
             self.images = self.get_dataset_images()
         return self.dataset
 
@@ -301,14 +304,39 @@ class Dataset2Images(Fixture):
             img = mv['Image Name']
             con = mv['Concentration']
             typ = mv['Type']
-            if img == "A1":
+            assert img[0] in ("A", "a")
+            which = long(img[1:])
+            if which % 2 == 1:
                 assert con == '0'
                 assert typ == 'Control'
-            elif img == "A2":
+            elif which % 2 == 0:
                 assert con == '10'
                 assert typ == 'Treatment'
-            else:
-                raise Exception("Unknown img: %s" % img)
+
+
+class Dataset101Images(Dataset2Images):
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 102
+        self.names = []
+        rowData = []
+        for x in range(0, 101, 2):
+            name = "A%s" % (x+1)
+            self.names.append(name)
+            rowData.append("%s,Control,0" % name)
+            name = "A%s" % (x+2)
+            self.names.append(name)
+            rowData.append("A%s,Treatment,10" % (x+2))
+        self.csv = self.createCsv(
+            colNames="Image Name,Type,Concentration",
+            rowData=rowData,
+        )
+        self.dataset = None
+        self.images = None
+
+    def assert_rows(self, rows):
+        assert rows == 102
 
 
 class Project2Datasets(Fixture):
@@ -395,6 +423,7 @@ class TestPopulateMetadata(lib.ITest):
         Screen2Plates(),
         Plate2Wells(),
         Dataset2Images(),
+        Dataset101Images(),
         Project2Datasets(),
     )
     METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
@@ -427,6 +456,9 @@ class TestPopulateMetadata(lib.ITest):
         target = fixture.get_target()
         # Deleting anns so that we can re-use the same user
         self.delete(fixture.get_annotations())
+        child_anns = fixture.get_child_annotations()
+        child_anns = [x[0] for x in child_anns]
+        self.delete(child_anns)
 
         csv = fixture.get_csv()
         ctx = ParsingContext(self.client, target, file=csv)
@@ -459,9 +491,6 @@ class TestPopulateMetadata(lib.ITest):
                 assert "Control" in rowValues
             elif "A2" in rowValues or "a2" in rowValues:
                 assert "Treatment" in rowValues
-            else:
-                assert False, \
-                    "Row does not contain 'a1' or 'a2': %s" % rowValues
 
     def _test_bulk_to_map_annotation_context(self, fixture, batch_size):
         # self._testPopulateMetadataPlate()
