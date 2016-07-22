@@ -150,7 +150,7 @@ class MetadataControl(BaseControl):
         populate.add_argument("--batch",
                               type=long,
                               default=1000,
-                              help="Number of objects to save at once")
+                              help="Number of objects to process at once")
 
         for x in (summary, original, bulkanns, measures, mapanns, allanns,
                   rois, populate, populateroi):
