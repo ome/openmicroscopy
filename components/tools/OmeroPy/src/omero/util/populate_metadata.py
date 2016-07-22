@@ -1322,29 +1322,20 @@ class DeleteMapAnnotationContext(_QueryContext):
     def _write_to_omero_batch(self, batch):
         to_delete = {"Annotation": batch}
         delCmd = omero.cmd.Delete2(targetObjects=to_delete)
-        handle = self.client.getSession().submit(delCmd)
-
-        callback = None
-        try:
-            callback = CmdCallbackI(self.client, handle)
-            loops = max(10, len(batch) / 10)
-            delay = 500
-            callback.loop(loops, delay)
-            rsp = callback.getResponse()
-            if isinstance(rsp, omero.cmd.OK):
-                ndma = len(rsp.deletedObjects.get(
-                    "ome.model.annotations.MapAnnotation", []))
-                log.info("Deleted %d MapAnnotation(s)", ndma)
-                ndfa = len(rsp.deletedObjects.get(
-                    "ome.model.annotations.FileAnnotation", []))
-                log.info("Deleted %d FileAnnotation(s)", ndfa)
-            else:
-                log.error("Delete failed: %s", rsp)
-        finally:
-            if callback:
-                callback.close(True)
-            else:
-                handle.close()
+        callback = self.client.submit(
+            delCmd, loops=100, failontimeout=True)
+        # At this point, we're sure that there's a response OR
+        # an exception has been thrown (likely LockTimeout)
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.OK):
+            ndma = len(rsp.deletedObjects.get(
+                "ome.model.annotations.MapAnnotation", []))
+            log.info("Deleted %d MapAnnotation(s)", ndma)
+            ndfa = len(rsp.deletedObjects.get(
+                "ome.model.annotations.FileAnnotation", []))
+            log.info("Deleted %d FileAnnotation(s)", ndfa)
+        else:
+            log.error("Delete failed: %s", rsp)
 
 
 def parse_target_object(target_object):
