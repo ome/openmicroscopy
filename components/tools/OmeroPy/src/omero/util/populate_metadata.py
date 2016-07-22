@@ -33,6 +33,7 @@ from getopt import getopt, GetoptError
 from itertools import izip
 
 import omero.clients
+from omero import CmdError
 from omero.callbacks import CmdCallbackI
 from omero.rtypes import rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
@@ -671,6 +672,7 @@ class _QueryContext(object):
         Generate batches of size sz (by default 1000) from the input
         iterable `i`.
         """
+        i = list(i)  # Copying list to handle sets and modifications
         for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
             yield batch
 
@@ -993,10 +995,15 @@ class DeleteMapAnnotationContext(_QueryContext):
         if isinstance(target, ImageI):
             parentids["Image"] = ids
 
-        log.debug("Parent IDs: %s", parentids)
+        # TODO: This should really include:
+        #    raise Exception("Unknown target: %s" % target.__class__.__name__)
 
-        self.mapannids = []
-        self.fileannids = []
+        log.debug("Parent IDs: %s",
+                  ["%s:%s" % (k, v is not None and len(v) or "NA")
+                   for k, v in parentids.items()])
+
+        self.mapannids = set()
+        self.fileannids = set()
         not_annotatable = ('WellSample',)
 
         ns = omero.constants.namespaces.NSBULKANNOTATIONS
@@ -1005,7 +1012,7 @@ class DeleteMapAnnotationContext(_QueryContext):
                 continue
             r = self._get_annotations_for_deletion(
                 objtype, objids, 'MapAnnotation', ns)
-            self.mapannids.extend(r)
+            self.mapannids.update(r)
 
         log.info("Total: %d MapAnnotation(s) in %s",
                  len(set(self.mapannids)), ns)
@@ -1017,31 +1024,38 @@ class DeleteMapAnnotationContext(_QueryContext):
                     continue
                 r = self._get_annotations_for_deletion(
                     objtype, objids, 'FileAnnotation', ns)
-                self.fileannids.extend(r)
+                self.fileannids.update(r)
 
             log.info("Total: %d FileAnnotation(s) in %s",
                      len(set(self.fileannids)), ns)
 
     def write_to_omero(self, batch_size=1000):
-        combined = self.mapannids + self.fileannids
-        for batch in self._batch(combined, sz=batch_size):
-            self._write_to_omero_batch(batch)
+        for batch in self._batch(self.mapannids, sz=batch_size):
+            self._write_to_omero_batch({"MapAnnotation": batch})
+        for batch in self._batch(self.fileannids, sz=batch_size):
+            self._write_to_omero_batch({"FileAnnotation": batch})
 
-    def _write_to_omero_batch(self, batch):
-        to_delete = {"Annotation": batch}
+    def _write_to_omero_batch(self, to_delete):
         delCmd = omero.cmd.Delete2(targetObjects=to_delete)
-        callback = self.client.submit(
-            delCmd, loops=100, failontimeout=True)
+        try:
+            callback = self.client.submit(
+                delCmd, loops=100, failontimeout=True)
+        except CmdError, ce:
+            log.error("Failed to delete: %s" % to_delete)
+            raise Exception(ce.err)
+
         # At this point, we're sure that there's a response OR
         # an exception has been thrown (likely LockTimeout)
         rsp = callback.getResponse()
         if isinstance(rsp, omero.cmd.OK):
             ndma = len(rsp.deletedObjects.get(
                 "ome.model.annotations.MapAnnotation", []))
-            log.info("Deleted %d MapAnnotation(s)", ndma)
             ndfa = len(rsp.deletedObjects.get(
                 "ome.model.annotations.FileAnnotation", []))
-            log.info("Deleted %d FileAnnotation(s)", ndfa)
+            if ndma:
+                log.info("Deleted %d MapAnnotation(s)", ndma)
+            if ndfa:
+                log.info("Deleted %d FileAnnotation(s)", ndfa)
         else:
             log.error("Delete failed: %s", rsp)
 
