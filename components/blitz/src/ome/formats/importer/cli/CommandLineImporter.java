@@ -623,6 +623,10 @@ public class CommandLineImporter {
             new LongOpt("annotation_text", LongOpt.REQUIRED_ARGUMENT, null, 95);
         LongOpt annotationLinkDeprecated =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT, null, 96);
+        LongOpt plateDescription2 = new LongOpt(
+                "plate-description", LongOpt.REQUIRED_ARGUMENT, null, 97);
+        LongOpt plateName2= new LongOpt(
+                "plate-name", LongOpt.REQUIRED_ARGUMENT, null, 98);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:T:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
@@ -634,7 +638,8 @@ public class CommandLineImporter {
                                 exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
                                 outputFormat,
-                                plateName, plateDescription,
+                                plateName, plateName2,
+                                plateDescription, plateDescription2,
                                 noThumbnailsDeprecated,
                                 checksumAlgorithmDeprecated,
                                 annotationNamespaceDeprecated,
@@ -793,12 +798,14 @@ public class CommandLineImporter {
             }
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
-            case 90: {
+            case 90:
+            case 98: {
                 setArgument(conflictingArguments, "userSpecifiedName");
                 config.userSpecifiedName.set(g.getOptarg());
                 break;
             }
-            case 91: {
+            case 91:
+            case 97: {
                 setArgument(conflictingArguments, "userSpecifiedDescription");
                 config.userSpecifiedDescription.set(g.getOptarg());
                 break;
