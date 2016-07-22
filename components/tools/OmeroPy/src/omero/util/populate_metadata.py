@@ -893,10 +893,9 @@ class ParsingContext(object):
         original_file = table.getOriginalFile()
         log.info('Created new table OriginalFile:%d' % original_file.id.val)
 
-        columns = self.columns
         values = []
         length = -1
-        for x in columns:
+        for x in self.columns:
             if length < 0:
                 length = len(x.values)
             else:
@@ -911,9 +910,10 @@ class ParsingContext(object):
         for pos in xrange(0, length, batch_size):
             i += 1
             for idx, x in enumerate(values):
-                columns[idx].values = x[pos:pos+batch_size]
+                self.columns[idx].values = x[pos:pos+batch_size]
             table.addData(self.columns)
-            log.info('Added %s rows of column data (batch %s)', batch_size, i)
+            count = min(batch_size, length - pos)
+            log.info('Added %s rows of column data (batch %s)', count, i)
 
         table.close()
         file_annotation = FileAnnotationI()
