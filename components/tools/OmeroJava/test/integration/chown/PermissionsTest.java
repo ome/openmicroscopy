@@ -19,8 +19,6 @@
 
 package integration.chown;
 
-import static omero.rtypes.rstring;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +30,7 @@ import java.util.Set;
 import omero.RLong;
 import omero.RType;
 import omero.ServerError;
+import omero.rtypes;
 import omero.cmd.Chmod2;
 import omero.cmd.Chown2;
 import omero.cmd.Delete2;
@@ -194,8 +193,8 @@ public class PermissionsTest extends AbstractServerTest {
         final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
         for (int i = 1; i <= number; i++) {
             final TagAnnotation tagset = new TagAnnotationI();
-            tagset.setName(rstring("tagset #" + i));
-            tagset.setNs(rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
+            tagset.setName(rtypes.rstring("tagset #" + i));
+            tagset.setNs(rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
             tagsets.add((TagAnnotation) iUpdate.saveAndReturnObject(tagset).proxy());
         }
         return tagsets;
@@ -211,7 +210,7 @@ public class PermissionsTest extends AbstractServerTest {
         final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
         for (int i = 1; i <= number; i++) {
             final TagAnnotation tag = new TagAnnotationI();
-            tag.setName(rstring("tag #" + i));
+            tag.setName(rtypes.rstring("tag #" + i));
             tags.add((TagAnnotation) iUpdate.saveAndReturnObject(tag).proxy());
         }
          return tags;
