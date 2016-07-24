@@ -166,6 +166,11 @@ class CommandArguments(object):
         rv.extend(self.__java_initial)
         rv.extend(self.__java_additional)
         rv.extend(self.path)
+        if self.JAVA_DEBUG:
+            # Since "args.debug" is used by omero/cli.py itself,
+            # uses of "--debug" *after* the `import` command are
+            # handled by placing them in this special variable.
+            rv.append("--debug=%s" % self.JAVA_DEBUG)
         return rv
 
     def initial_args(self):
