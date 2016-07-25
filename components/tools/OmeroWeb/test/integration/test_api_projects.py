@@ -323,7 +323,7 @@ class TestProjects(IWebTest):
         gid = groupA.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
         assert_objects(conn, rsp['projects'], projects_userA, group=gid)
-        #...and group B
+        # ...and group B
         gid = groupB.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
         assert_objects(conn, rsp['projects'], projects_userA, group=gid)
