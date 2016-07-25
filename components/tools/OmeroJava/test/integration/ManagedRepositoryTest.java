@@ -19,12 +19,6 @@
 
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNotSame;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -139,7 +133,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      *            The absolute filename.
      */
     void assertFileExists(String message, String path) throws ServerError {
-        assertTrue(message + path, repo.fileExists(path));
+        Assert.assertTrue(repo.fileExists(path), message + path);
     }
 
     /**
@@ -149,7 +143,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      *            The absolute filename.
      */
     void assertFileDoesNotExist(String message, String path) throws ServerError {
-        assertFalse(message + path, repo.fileExists(path));
+        Assert.assertFalse(repo.fileExists(path), message + path);
     }
 
     /**
@@ -214,7 +208,7 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         final ImportRequest req = (ImportRequest) handle.getRequest();
         final ImportCallback cb = lib.createCallback(proc, handle, container);
         cb.loop(60 * 60, 1000); // Wait 1 hr per step.
-        assertNotNull(cb.getImportResponse());
+        Assert.assertNotNull(cb.getImportResponse());
         return req.location;
     }
 
@@ -296,20 +290,20 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         assertEndsWith(pathToUsedFile(data, 1), destPath2);
         for (final String usedFile : data.usedFiles) {
             /* all in the same directory below data.sharedPath */
-            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+            Assert.assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
         }
-        assertTrue(usedFile2s.add(pathToUsedFile(data, 1)));
+        Assert.assertTrue(usedFile2s.add(pathToUsedFile(data, 1)));
 
         // Same file that should go in new directory
         srcPaths.remove(0);
         data = importFileset(srcPaths);
         assertEndsWith(pathToUsedFile(data, 0), destPath2);
-        assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
+        Assert.assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
 
         // Same file again that should go in new directory
         data = importFileset(srcPaths);
         assertEndsWith(pathToUsedFile(data, 0), destPath2);
-        assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
+        Assert.assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
     }
 
     /**
@@ -354,29 +348,29 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         destPaths.add(destPath1);
         destPaths.add(destPath2);
         ImportLocation data = importFileset(srcPaths);
-        assertTrue(data.usedFiles.size() == destPaths.size());
+        Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
         }
         for (final String usedFile : data.usedFiles) {
             /* all in the same directory below data.sharedPath */
-            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+            Assert.assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
         }
-        assertTrue(sharedPaths.add(data.sharedPath));
+        Assert.assertTrue(sharedPaths.add(data.sharedPath));
 
         // One identical file both should go in a new directory
         srcPaths.set(1, file3.getAbsolutePath());
         destPaths.set(1, destPath3);
         data = importFileset(srcPaths);
-        assertTrue(data.usedFiles.size() == destPaths.size());
+        Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
         }
         for (final String usedFile : data.usedFiles) {
             /* all in the same directory below data.sharedPath */
-            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+            Assert.assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
         }
-        assertTrue(sharedPaths.add(data.sharedPath));
+        Assert.assertTrue(sharedPaths.add(data.sharedPath));
 
         // Two different files that should go in new directory
         srcPaths.set(0, file4.getAbsolutePath());
@@ -384,27 +378,27 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         destPaths.set(0, destPath4);
         destPaths.set(1, destPath5);
         data = importFileset(srcPaths);
-        assertTrue(data.usedFiles.size() == destPaths.size());
+        Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
         }
         for (final String usedFile : data.usedFiles) {
             /* all in the same directory below data.sharedPath */
-            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+            Assert.assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
         }
-        assertTrue(sharedPaths.add(data.sharedPath));
+        Assert.assertTrue(sharedPaths.add(data.sharedPath));
 
         // Two identical files that should go in a new directory
         data = importFileset(srcPaths);
-        assertTrue(data.usedFiles.size() == destPaths.size());
+        Assert.assertEquals(data.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
         }
         for (final String usedFile : data.usedFiles) {
             /* all in the same directory below data.sharedPath */
-            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+            Assert.assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
         }
-        assertTrue(sharedPaths.add(data.sharedPath));
+        Assert.assertTrue(sharedPaths.add(data.sharedPath));
     }
 
     /**
@@ -434,14 +428,14 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         final FsFile destFsFile2 = cfpt.getFsFileFromClientFile(file2, 3);
         final FsFile destFsFile3 = cfpt.getFsFileFromClientFile(file3, 4);
 
-        assertEquals(2, destFsFile1.getComponents().size());
-        assertEquals(3, destFsFile2.getComponents().size());
-        assertEquals(4, destFsFile3.getComponents().size());
-        assertEquals(destFsFile1.getComponents().get(0), destFsFile2
+        Assert.assertEquals(2, destFsFile1.getComponents().size());
+        Assert.assertEquals(3, destFsFile2.getComponents().size());
+        Assert.assertEquals(4, destFsFile3.getComponents().size());
+        Assert.assertEquals(destFsFile1.getComponents().get(0), destFsFile2
                 .getComponents().get(0));
-        assertEquals(destFsFile1.getComponents().get(0), destFsFile3
+        Assert.assertEquals(destFsFile1.getComponents().get(0), destFsFile3
                 .getComponents().get(0));
-        assertEquals(destFsFile2.getComponents().get(1), destFsFile3
+        Assert.assertEquals(destFsFile2.getComponents().get(1), destFsFile3
                 .getComponents().get(1));
 
         final List<String> srcPaths = new ArrayList<String>();
@@ -455,20 +449,20 @@ public class ManagedRepositoryTest extends AbstractServerTest {
         destPaths.add(destFsFile2.toString());
         destPaths.add(destFsFile3.toString());
         ImportLocation data1 = importFileset(srcPaths);
-        assertTrue(data1.usedFiles.size() == destPaths.size());
+        Assert.assertEquals(data1.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data1.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data1, i), destPaths.get(i));
         }
 
         // Same files should go into new directory
         ImportLocation data2 = importFileset(srcPaths);
-        assertTrue(data2.usedFiles.size() == destPaths.size());
+        Assert.assertEquals(data2.usedFiles.size(), destPaths.size());
         for (int i = 0; i < data2.usedFiles.size(); i++) {
             assertEndsWith(pathToUsedFile(data2, i), destPaths.get(i));
         }
-        assertNotSame(data1.sharedPath, data2.sharedPath);
+        Assert.assertNotSame(data1.sharedPath, data2.sharedPath);
         for (int index = 0; index < destPaths.size(); index++) {
-            assertEquals(data1.usedFiles.get(index), data2.usedFiles.get(index));
+            Assert.assertEquals(data1.usedFiles.get(index), data2.usedFiles.get(index));
         }
     }
 
@@ -701,8 +695,8 @@ public class ManagedRepositoryTest extends AbstractServerTest {
      *            the destination path
      */
     private static void assertEndsWith(String usedFile, String destPath) {
-        assertTrue("\nExpected: " + destPath + "\nActual: " + usedFile,
-                usedFile.endsWith(destPath));
+        Assert.assertTrue(usedFile.endsWith(destPath),
+                "\nExpected: " + destPath + "\nActual: " + usedFile);
     }
 
     /* the contents of the sample file used in file hash tests */

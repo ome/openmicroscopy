@@ -5,12 +5,6 @@
 
 package integration;
 
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -767,51 +761,51 @@ public class AbstractServerTest extends AbstractTest {
      */
     protected void compareRenderingDef(RenderingDef def1, RenderingDef def2)
             throws Exception {
-        assertNotNull(def1);
-        assertNotNull(def2);
-        assertTrue(def1.getDefaultZ().getValue() == def2.getDefaultZ()
-                .getValue());
-        assertTrue(def1.getDefaultT().getValue() == def2.getDefaultT()
-                .getValue());
-        assertTrue(def1.getModel().getValue().getValue()
-                .equals(def2.getModel().getValue().getValue()));
+        Assert.assertNotNull(def1);
+        Assert.assertNotNull(def2);
+        Assert.assertEquals(def1.getDefaultZ().getValue(),
+                def2.getDefaultZ().getValue());
+        Assert.assertEquals(def1.getDefaultT().getValue(),
+                def2.getDefaultT().getValue());
+        Assert.assertEquals(def1.getModel().getValue().getValue(),
+                def2.getModel().getValue().getValue());
         QuantumDef q1 = def1.getQuantization();
         QuantumDef q2 = def2.getQuantization();
-        assertNotNull(q1);
-        assertNotNull(q2);
-        assertTrue(q1.getBitResolution().getValue() == q2.getBitResolution()
-                .getValue());
-        assertTrue(q1.getCdStart().getValue() == q2.getCdStart().getValue());
-        assertTrue(q1.getCdEnd().getValue() == q2.getCdEnd().getValue());
+        Assert.assertNotNull(q1);
+        Assert.assertNotNull(q2);
+        Assert.assertEquals(q1.getBitResolution().getValue(),
+                q2.getBitResolution().getValue());
+        Assert.assertEquals(q1.getCdStart().getValue(), q2.getCdStart().getValue());
+        Assert.assertEquals(q1.getCdEnd().getValue(), q2.getCdEnd().getValue());
         List<ChannelBinding> channels1 = def1.copyWaveRendering();
         List<ChannelBinding> channels2 = def2.copyWaveRendering();
-        assertNotNull(channels1);
-        assertNotNull(channels2);
-        assertTrue(channels1.size() == channels2.size());
+        Assert.assertNotNull(channels1);
+        Assert.assertNotNull(channels2);
+        Assert.assertEquals(channels1.size(), channels2.size());
         Iterator<ChannelBinding> i = channels1.iterator();
         ChannelBinding c1, c2;
         int index = 0;
         while (i.hasNext()) {
             c1 = i.next();
             c2 = channels2.get(index);
-            assertTrue(c1.getAlpha().getValue() == c2.getAlpha().getValue());
-            assertTrue(c1.getRed().getValue() == c2.getRed().getValue());
-            assertTrue(c1.getGreen().getValue() == c2.getGreen().getValue());
-            assertTrue(c1.getBlue().getValue() == c2.getBlue().getValue());
-            assertTrue(c1.getCoefficient().getValue() == c2.getCoefficient()
+            Assert.assertEquals(c1.getAlpha().getValue(), c2.getAlpha().getValue());
+            Assert.assertEquals(c1.getRed().getValue(), c2.getRed().getValue());
+            Assert.assertEquals(c1.getGreen().getValue(), c2.getGreen().getValue());
+            Assert.assertEquals(c1.getBlue().getValue(), c2.getBlue().getValue());
+            Assert.assertEquals(c1.getCoefficient().getValue(), c2.getCoefficient()
                     .getValue());
-            assertTrue(c1.getFamily().getValue().getValue()
-                    .equals(c2.getFamily().getValue().getValue()));
-            assertTrue(c1.getInputStart().getValue() == c2.getInputStart()
+            Assert.assertEquals(c1.getFamily().getValue().getValue(),
+                    c2.getFamily().getValue().getValue());
+            Assert.assertEquals(c1.getInputStart().getValue(), c2.getInputStart()
                     .getValue());
-            assertTrue(c1.getInputEnd().getValue() == c2.getInputEnd()
+            Assert.assertEquals(c1.getInputEnd().getValue(), c2.getInputEnd()
                     .getValue());
             Boolean b1 = Boolean.valueOf(c1.getActive().getValue());
             Boolean b2 = Boolean.valueOf(c2.getActive().getValue());
-            assertTrue(b1.equals(b2));
+            Assert.assertEquals(b1, b2);
             b1 = Boolean.valueOf(c1.getNoiseReduction().getValue());
             b2 = Boolean.valueOf(c2.getNoiseReduction().getValue());
-            assertTrue(b1.equals(b2));
+            Assert.assertEquals(b1, b2);
         }
     }
 
@@ -867,9 +861,9 @@ public class AbstractServerTest extends AbstractTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertTrue(results.size() == 1);
+        Assert.assertEquals(1, results.size());
         WellSample ws = (WellSample) results.get(0);
-        assertNotNull(ws);
+        Assert.assertNotNull(ws);
         return ws;
     }
 
@@ -889,9 +883,9 @@ public class AbstractServerTest extends AbstractTest {
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertTrue(results.size() == 1);
+        Assert.assertEquals(1, results.size());
         Experiment e = (Experiment) results.get(0);
-        assertNotNull(e);
+        Assert.assertNotNull(e);
         return e;
     }
 
@@ -921,10 +915,10 @@ public class AbstractServerTest extends AbstractTest {
     protected void assertExists(IObject obj) throws Exception {
         IObject copy = iQuery.find(obj.getClass().getSimpleName(), obj.getId()
                 .getValue());
-        assertNotNull(
+        Assert.assertNotNull(
                 String.format("%s:%s", obj.getClass().getName(), obj.getId()
                         .getValue())
-                        + " is missing!", copy);
+                        + " is missing!", copy.toString());
     }
 
     protected void assertAllExist(IObject... obj) throws Exception {
@@ -961,10 +955,10 @@ public class AbstractServerTest extends AbstractTest {
     protected void assertDoesNotExist(IObject obj) throws Exception {
         IObject copy = iQuery.find(obj.getClass().getSimpleName(), obj.getId()
                 .getValue());
-        assertNull(
+        Assert.assertNull(
                 String.format("%s:%s", obj.getClass().getName(), obj.getId()
                         .getValue())
-                        + " still exists!", copy);
+                        + " still exists!", copy.toString());
     }
 
     protected void assertNoneExist(IObject... obj) throws Exception {
@@ -1132,8 +1126,8 @@ public class AbstractServerTest extends AbstractTest {
         ic.setTarget(target);
         // ic = library.uploadFilesToRepository(ic);
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-        assertNotNull(pixels);
-        assertTrue(pixels.size() > 0);
+        Assert.assertNotNull(pixels);
+        Assert.assertTrue(pixels.size() > 0);
         return pixels;
     }
 
@@ -1288,7 +1282,7 @@ public class AbstractServerTest extends AbstractTest {
 
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(mmFactory
                 .createOriginalFile());
-        assertNotNull(of);
+        Assert.assertNotNull(of);
         FileAnnotation f = new FileAnnotationI();
         f.setFile(of);
         f = (FileAnnotation) iUpdate.saveAndReturnObject(f);
@@ -2019,22 +2013,22 @@ public class AbstractServerTest extends AbstractTest {
     protected Response assertCmd(CmdCallbackI cb, boolean pass) {
         Status status = cb.getStatus();
         Response rsp = cb.getResponse();
-        assertNotNull(rsp);
+        Assert.assertNotNull(rsp);
         if (pass) {
             if (rsp instanceof ERR) {
                 ERR err = (ERR) rsp;
                 String name = err.getClass().getSimpleName();
-                fail(String.format(
+                Assert.fail(String.format(
                         "Found %s when pass==true: %s (%s) params=%s", name,
                         err.category, err.name, err.parameters));
             }
-            assertFalse(status.flags.contains(State.FAILURE));
+            Assert.assertFalse(status.flags.contains(State.FAILURE));
         } else {
             if (rsp instanceof OK) {
                 OK ok = (OK) rsp;
-                fail(String.format("Found OK when pass==false: %s", ok));
+                Assert.fail(String.format("Found OK when pass==false: %s", ok));
             }
-            assertTrue(status.flags.contains(State.FAILURE));
+            Assert.assertTrue(status.flags.contains(State.FAILURE));
         }
         return rsp;
     }

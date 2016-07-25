@@ -5,8 +5,6 @@
 
 package integration;
 
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.util.Date;
 import java.util.UUID;
 
@@ -21,6 +19,7 @@ import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.model.OriginalFile;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -170,7 +169,7 @@ public class TableTest extends AbstractServerTest {
     @Test
     public void testGetNumberOfRows() throws Exception {
         if (myTable != null) {
-            assertTrue(myTable.getNumberOfRows() == 0);
+            Assert.assertEquals(0, myTable.getNumberOfRows());
 
             Column[] newRow = createColumns(1);
 
@@ -184,7 +183,7 @@ public class TableTest extends AbstractServerTest {
 
             myTable.addData(newRow);
 
-            assertTrue(myTable.getNumberOfRows() == 1);
+            Assert.assertEquals(1, myTable.getNumberOfRows());
         }
     }
 
@@ -200,7 +199,7 @@ public class TableTest extends AbstractServerTest {
             long[] ids = myTable.getWhereList("(Uid==" + 0 + ")", null, 0,
                     myTable.getNumberOfRows(), 1);
 
-            assertTrue(ids.length == 0);
+            Assert.assertEquals(0, ids.length);
         }
     }
 
@@ -235,7 +234,7 @@ public class TableTest extends AbstractServerTest {
                     myTable.getNumberOfRows(), 1);
 
             // getWhereList should have returned one row
-            assertTrue(ids.length == 1);
+            Assert.assertEquals(1, ids.length);
 
             // Retrieve data again
             Data myData = myTable.read(ColNumbers, 0L,
@@ -245,8 +244,8 @@ public class TableTest extends AbstractServerTest {
             myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
             // Row's time string and value should be the same
-            assertTrue((myLongs.values[(int) ids[0]]) == 1);
-            assertTrue((myStrings.values[(int) ids[0]]).equals("one"));
+            Assert.assertEquals(1, (myLongs.values[(int) ids[0]]));
+            Assert.assertEquals("one", myStrings.values[(int) ids[0]]);
         }
     }
 
@@ -478,7 +477,7 @@ public class TableTest extends AbstractServerTest {
                     myTable.getNumberOfRows(), 1);
 
             // getWhereList should have returned one row
-            assertTrue(ids.length == 1);
+            Assert.assertEquals(1, ids.length);
 
             // Update the row with new data
             Long newTime = new Date().getTime();
@@ -496,9 +495,9 @@ public class TableTest extends AbstractServerTest {
             myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
             // Row's time string and value should be the same
-            assertTrue(newTime.toString()
-                    .equals(myStrings.values[(int) ids[0]]));
-            assertTrue(newTime == myLongs.values[(int) ids[0]]);
+            Assert.assertEquals(newTime.toString(),
+                    myStrings.values[(int) ids[0]]);
+            Assert.assertTrue(newTime == myLongs.values[(int) ids[0]]);
         }
 
     } // updateTableRow()
@@ -540,7 +539,7 @@ public class TableTest extends AbstractServerTest {
                     myTable.getNumberOfRows(), 1);
 
             // getWhereList should have returned one row
-            assertTrue(ids.length == 1);
+            Assert.assertEquals(1, ids.length);
 
             // Update the row with new data
             Long newTime = new Date().getTime();
@@ -558,9 +557,9 @@ public class TableTest extends AbstractServerTest {
             myLongs = (LongColumn) myData.columns[LONG_COLUMN];
 
             // Row's time string and value should be the same
-            assertTrue(newTime.toString()
-                    .equals(myStrings.values[(int) ids[0]]));
-            assertTrue(newTime == myLongs.values[(int) ids[0]]);
+            Assert.assertEquals(newTime.toString(),
+                    myStrings.values[(int) ids[0]]);
+            Assert.assertTrue(newTime == myLongs.values[(int) ids[0]]);
         }
     }
 

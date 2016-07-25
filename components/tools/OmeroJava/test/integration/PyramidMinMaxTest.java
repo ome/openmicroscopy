@@ -22,8 +22,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.fail;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -37,6 +35,7 @@ import javax.imageio.stream.ImageOutputStream;
 import omero.model.Pixels;
 import omero.model.StatsInfo;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -233,7 +232,7 @@ public class PyramidMinMaxTest extends AbstractServerTest {
         try {
             pixels = importFile(f, FORMAT);
         } catch (Throwable e) {
-            fail("Cannot import image file: " + f.getAbsolutePath()
+            Assert.fail("Cannot import image file: " + f.getAbsolutePath()
                     + " Reason: " + e.toString());
         }
         // Wait for a pyramid to be built (stats will be not null)
@@ -249,7 +248,7 @@ public class PyramidMinMaxTest extends AbstractServerTest {
             stats = p.getChannel(0).getStatsInfo();
         }
         if (stats == null) {
-            fail("No pyramid after " + WAITS * INTERVAL / 1000.0 + " seconds");
+            Assert.fail("No pyramid after " + WAITS * INTERVAL / 1000.0 + " seconds");
         }
         return p;
     }

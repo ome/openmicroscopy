@@ -6,9 +6,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +23,7 @@ import omero.model.Pixels;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.ResourceUtils;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 @Test
@@ -144,7 +142,7 @@ public class BfPixelBufferTest extends AbstractServerTest {
         byte[] buff2 = new byte[bf.getColSize()]; // rps has no getColSize
         bf.getColDirect(midX, midZ, midC, midT, buff1);
         buff2 = rps.getCol(midX, midZ, midC, midT);
-        assertEquals(sha1(buff1), sha1(buff2));
+        Assert.assertEquals(sha1(buff1), sha1(buff2));
     }
 
     private void testgetRowDirect() throws IOException,
@@ -157,7 +155,7 @@ public class BfPixelBufferTest extends AbstractServerTest {
         byte[] buff2 = new byte[rps.getRowSize()];
         bf.getRowDirect(midY, midZ, midC, midT, buff1);
         buff2 = rps.getRow(midY, midZ, midC, midT);
-        assertEquals(sha1(buff1), sha1(buff2));
+        Assert.assertEquals(sha1(buff1), sha1(buff2));
     }
 
     private void testgetPlaneDirect() throws IOException,
@@ -170,7 +168,7 @@ public class BfPixelBufferTest extends AbstractServerTest {
                 .getPlaneSize())];
         bf.getPlaneDirect(midZ, midC, midT, buff1);
         buff2 = rps.getPlane(midZ, midC, midT);
-        assertEquals(sha1(buff1), sha1(buff2));
+        Assert.assertEquals(sha1(buff1), sha1(buff2));
     }
 
     private void testgetPlaneAsHypercube() throws IOException,
@@ -189,7 +187,7 @@ public class BfPixelBufferTest extends AbstractServerTest {
         byte[] buff2 = new byte[bf.getPlaneSize().intValue()];
         bf.getPlaneDirect(midZ, midC, midT, buff1);
         bf.getHypercubeDirect(offset, size, step, buff2);
-        assertEquals(sha1(buff1), sha1(buff2));
+        Assert.assertEquals(sha1(buff1), sha1(buff2));
     }
 
     private void testgetStackDirect() throws IOException,
@@ -201,7 +199,7 @@ public class BfPixelBufferTest extends AbstractServerTest {
                 .getStackSize())];
         bf.getStackDirect(midC, midT, buff1);
         buff2 = rps.getStack(midC, midT);
-        assertEquals(sha1(buff1), sha1(buff2));
+        Assert.assertEquals(sha1(buff1), sha1(buff2));
     }
 
     private void testgetTimepointDirect() throws IOException,
@@ -212,37 +210,37 @@ public class BfPixelBufferTest extends AbstractServerTest {
                 .getTimepointSize())];
         bf.getTimepointDirect(midT, buff1);
         buff2 = rps.getTimepoint(midT);
-        assertEquals(sha1(buff1), sha1(buff2));
+        Assert.assertEquals(sha1(buff1), sha1(buff2));
     }
 
     private void testOtherGetters() {
-        assertEquals(bf.getPath(), destFileName);
+        Assert.assertEquals(bf.getPath(), destFileName);
     }
 
     private void testDimensionGetters() throws ServerError {
-        assertEquals(rps.getRowSize() / rps.getByteWidth(), bf.getSizeX());
-        assertEquals(rps.getPlaneSize() / rps.getRowSize(), bf.getSizeY());
-        assertEquals(rps.getStackSize() / rps.getPlaneSize(), bf.getSizeZ());
-        assertEquals(rps.getTimepointSize() / rps.getStackSize(), bf.getSizeC());
-        assertEquals(rps.getTotalSize() / rps.getTimepointSize(), bf.getSizeT());
+        Assert.assertEquals(rps.getRowSize() / rps.getByteWidth(), bf.getSizeX());
+        Assert.assertEquals(rps.getPlaneSize() / rps.getRowSize(), bf.getSizeY());
+        Assert.assertEquals(rps.getStackSize() / rps.getPlaneSize(), bf.getSizeZ());
+        Assert.assertEquals(rps.getTimepointSize() / rps.getStackSize(), bf.getSizeC());
+        Assert.assertEquals(rps.getTotalSize() / rps.getTimepointSize(), bf.getSizeT());
     }
 
     private void testSizeGetters() throws ServerError {
-        assertEquals(rps.getRowSize(), bf.getRowSize().intValue());
-        assertEquals(
+        Assert.assertEquals(rps.getRowSize(), bf.getRowSize().intValue());
+        Assert.assertEquals(
                 rps.getPlaneSize() * rps.getByteWidth() / rps.getRowSize(), bf
                         .getColSize().intValue());
-        assertEquals(rps.getPlaneSize(), bf.getPlaneSize().longValue());
-        assertEquals(rps.getStackSize(), bf.getStackSize().longValue());
-        assertEquals(rps.getTimepointSize(), bf.getTimepointSize().longValue());
-        assertEquals(rps.getTotalSize(), bf.getTotalSize().longValue());
+        Assert.assertEquals(rps.getPlaneSize(), bf.getPlaneSize().longValue());
+        Assert.assertEquals(rps.getStackSize(), bf.getStackSize().longValue());
+        Assert.assertEquals(rps.getTimepointSize(), bf.getTimepointSize().longValue());
+        Assert.assertEquals(rps.getTotalSize(), bf.getTotalSize().longValue());
     }
 
     private void testOffsetGettersZero() throws DimensionsOutOfBoundsException {
-        assertTrue(bf.getRowOffset(0, 0, 0, 0) == 0);
-        assertTrue(bf.getPlaneOffset(0, 0, 0) == 0);
-        assertTrue(bf.getStackOffset(0, 0) == 0);
-        assertTrue(bf.getTimepointOffset(0) == 0);
+        Assert.assertEquals(0, bf.getRowOffset(0, 0, 0, 0).longValue());
+        Assert.assertEquals(0, bf.getPlaneOffset(0, 0, 0).longValue());
+        Assert.assertEquals(0, bf.getStackOffset(0, 0).longValue());
+        Assert.assertEquals(0, bf.getTimepointOffset(0).longValue());
     }
 
     private void testOffsetGetters() throws DimensionsOutOfBoundsException,
@@ -251,65 +249,65 @@ public class BfPixelBufferTest extends AbstractServerTest {
         int midZ = bf.getSizeZ() / 2;
         int midC = bf.getSizeC() / 2;
         int midT = bf.getSizeT() / 2;
-        assertEquals((long) rps.getRowOffset(midY, midZ, midC, midT),
+        Assert.assertEquals((long) rps.getRowOffset(midY, midZ, midC, midT),
                 (long) bf.getRowOffset(midY, midZ, midC, midT));
-        assertEquals((long) rps.getPlaneOffset(midZ, midC, midT),
+        Assert.assertEquals((long) rps.getPlaneOffset(midZ, midC, midT),
                 (long) bf.getPlaneOffset(midZ, midC, midT));
-        assertEquals((long) rps.getStackOffset(midC, midT),
+        Assert.assertEquals((long) rps.getStackOffset(midC, midT),
                 (long) bf.getStackOffset(midC, midT));
-        assertEquals((long) rps.getTimepointOffset(midT),
+        Assert.assertEquals((long) rps.getTimepointOffset(midT),
                 (long) bf.getTimepointOffset(midT));
     }
 
     private void testCheckBounds() {
         try {
             bf.checkBounds(-1, 0, 0, 0, 0);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(bf.getSizeX(), 0, 0, 0, 0);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(0, -1, 0, 0, 0);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(0, bf.getSizeY(), 0, 0, 0);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(0, 0, -1, 0, 0);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(0, 0, bf.getSizeZ(), 0, 0);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(0, 0, 0, -1, 0);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(0, 0, 0, bf.getSizeC(), 0);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(0, 0, 0, 0, -1);
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
         try {
             bf.checkBounds(0, 0, 0, 0, bf.getSizeT());
-            fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
+            Assert.fail("Failed to throw DimensionsOutOfBoundsException with dimension out of bounds.");
         } catch (DimensionsOutOfBoundsException e) {
         }
     }

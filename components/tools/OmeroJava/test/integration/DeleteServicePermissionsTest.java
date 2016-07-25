@@ -5,8 +5,6 @@
 
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +43,7 @@ import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -203,11 +202,11 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(img.getId().getValue());
         List<IObject> images = iQuery.findAllByQuery(sql, param);
-        assertEquals(images.size(), 1);
+        Assert.assertEquals(1, images.size());
         img = (Image) images.get(0);
 
         Permissions perms = img.getDetails().getPermissions();
-        assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canDelete());
 
         Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
@@ -993,11 +992,11 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(img.getId().getValue());
         List<IObject> images = iQuery.findAllByQuery(sql, param);
-        assertEquals(images.size(), 1);
+        Assert.assertEquals(1, images.size());
         img = (Image) images.get(0);
 
         Permissions perms = img.getDetails().getPermissions();
-        assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canDelete());
         Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
@@ -1074,11 +1073,11 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(img.getId().getValue());
         List<IObject> images = iQuery.findAllByQuery(sql, param);
-        assertEquals(images.size(), 1);
+        Assert.assertEquals(1, images.size());
         img = (Image) images.get(0);
 
         Permissions perms = img.getDetails().getPermissions();
-        assertTrue(perms.canDelete());
+        Assert.assertTrue(perms.canDelete());
 
         Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);

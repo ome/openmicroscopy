@@ -22,10 +22,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,6 +33,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -101,13 +98,13 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         int sizeY = 48;
         byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
                 omero.rtypes.rint(sizeY));
-        assertNotNull(values);
-        assertTrue(values.length > 0);
+        Assert.assertNotNull(values);
+        Assert.assertTrue(values.length > 0);
 
         byte[] lsValues = svc.getThumbnailByLongestSide(omero.rtypes
                 .rint(sizeX));
-        assertNotNull(lsValues);
-        assertTrue(lsValues.length > 0);
+        Assert.assertNotNull(lsValues);
+        Assert.assertTrue(lsValues.length > 0);
         svc.close();
     }
 
@@ -149,21 +146,21 @@ public class ThumbnailStoreTest extends AbstractServerTest {
         int tnCount = 0;
         while (it.hasNext()) {
             t = it.next();
-            assertNotNull(t);
-            assertTrue(t.length > 0);
+            Assert.assertNotNull(t);
+            Assert.assertTrue(t.length > 0);
             tnCount++;
         }
-        assertEquals(tnCount, thumbNailCount);
+        Assert.assertEquals(thumbNailCount, tnCount);
 
         it = lsThmbs.values().iterator();
         tnCount = 0;
         while (it.hasNext()) {
             t = it.next();
-            assertNotNull(t);
-            assertTrue(t.length > 0);
+            Assert.assertNotNull(t);
+            Assert.assertTrue(t.length > 0);
             tnCount++;
         }
-        assertEquals(tnCount, thumbNailCount);
+        Assert.assertEquals(thumbNailCount, tnCount);
         svc.close();
     }
 
@@ -212,8 +209,8 @@ public class ThumbnailStoreTest extends AbstractServerTest {
             }
             values = svc.getThumbnail(omero.rtypes.rint(sizeX),
                     omero.rtypes.rint(sizeY));
-            assertNotNull(values);
-            assertTrue(values.length > 0);
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
         }
         // Reset the rendering settings.
         IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
@@ -229,8 +226,8 @@ public class ThumbnailStoreTest extends AbstractServerTest {
             }
             values = svc.getThumbnail(omero.rtypes.rint(sizeX),
                     omero.rtypes.rint(sizeY));
-            assertNotNull(values);
-            assertTrue(values.length > 0);
+            Assert.assertNotNull(values);
+            Assert.assertTrue(values.length > 0);
         }
         svc.close();
     }

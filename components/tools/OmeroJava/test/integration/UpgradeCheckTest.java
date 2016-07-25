@@ -23,9 +23,8 @@ package integration;
 import ome.system.OmeroContext;
 import ome.system.UpgradeCheck;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
 
 public class UpgradeCheckTest {
 
@@ -38,8 +37,8 @@ public class UpgradeCheckTest {
     public void testNoResponse() throws Exception {
 	    check = new UpgradeCheck(url, "test", "test");
 	    check.run();
-	    assertTrue(check.isUpgradeNeeded());
-	    assertFalse(check.isExceptionThrown());
+	    Assert.assertTrue(check.isUpgradeNeeded());
+	    Assert.assertFalse(check.isExceptionThrown());
 
 	}
 

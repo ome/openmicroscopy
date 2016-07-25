@@ -7,9 +7,6 @@
 package integration;
 
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +22,7 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.springframework.util.ResourceUtils;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -88,7 +86,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         Image img = projectImage(pixels, 0, pixels.getSizeT().getValue()-1, 0,
                 pixels.getSizeZ().getValue()-1, 1,
                 ProjectionType.MAXIMUMINTENSITY, null, channels);
-        assertEquals(ownerID, img.getDetails().getOwner().getId().getValue());
+        Assert.assertEquals(ownerID, img.getDetails().getOwner().getId().getValue());
     }
 
     /**
@@ -115,18 +113,18 @@ public class ProjectionServiceTest extends AbstractServerTest
         long imageID = svc.projectPixels(pixels.getId().getValue(), pixelsType,
                 prjType, startT, endT, channels, stepping, startZ, endZ,
                 "projectedImage");
-        assertTrue(imageID > 0);
+        Assert.assertTrue(imageID > 0);
         List<Image> images =
                 factory.getContainerService().getImages(Image.class.getName(),
                 Arrays.asList(imageID), new ParametersI());
-        assertEquals(images.size(), 1);
+        Assert.assertEquals(1, images.size());
         Pixels p = images.get(0).getPixels(0);
-        assertEquals(p.getSizeC().getValue(), channels.size());
-        assertEquals(p.getSizeT().getValue(), Math.abs(startT-endT)+1);
-        assertEquals(p.getSizeZ().getValue(), 1);
+        Assert.assertEquals(channels.size(), p.getSizeC().getValue());
+        Assert.assertEquals(Math.abs(startT-endT)+1, p.getSizeT().getValue());
+        Assert.assertEquals(1, p.getSizeZ().getValue());
         if (pixelsType == null) pixelsType = pixels.getPixelsType();
-        assertEquals(p.getPixelsType().getValue().getValue(),
-                pixelsType.getValue().getValue());
+        Assert.assertEquals(pixelsType.getValue().getValue(),
+                p.getPixelsType().getValue().getValue());
         return images.get(0);
     }
 
@@ -151,7 +149,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         IProjectionPrx svc = factory.getProjectionService();
         byte[] value = svc.projectStack(pixelsID, pixelsType, prjType,
                 timepoint, channelIndex, stepping, startZ, endZ);
-        assertTrue(value.length > 0);
+        Assert.assertTrue(value.length > 0);
         //TODO: more check to be added
     }
     

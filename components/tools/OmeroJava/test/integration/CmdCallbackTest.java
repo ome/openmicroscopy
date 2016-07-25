@@ -17,10 +17,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
@@ -38,6 +34,7 @@ import omero.cmd.Status;
 import omero.cmd.Timing;
 import omero.sys.EventContext;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import Ice.Current;
@@ -69,21 +66,21 @@ public class CmdCallbackTest extends AbstractServerTest {
         }
 
         public void assertSteps(int expected) {
-            assertEquals(expected, steps.get());
+            Assert.assertEquals(expected, steps.get());
         }
 
         public void assertFinished() {
-            assertEquals(0, finished.getCount());
-            assertFalse(isCancelled());
-            assertFalse(isFailure());
+            Assert.assertEquals(0, finished.getCount());
+            Assert.assertFalse(isCancelled());
+            Assert.assertFalse(isFailure());
             Response rsp = getResponse();
             if (rsp == null) {
-                fail("null response");
+                Assert.fail("null response");
             } else if (rsp instanceof ERR) {
                 ERR err = (ERR) rsp;
                 String msg = String.format("%s\ncat:%s\nname:%s\nparams:%s\n",
                         err, err.category, err.name, err.parameters);
-                fail(msg);
+                Assert.fail(msg);
             }
         }
 
@@ -93,8 +90,8 @@ public class CmdCallbackTest extends AbstractServerTest {
         }
 
         public void assertCancelled() {
-            assertEquals(0, finished.getCount());
-            assertTrue(isCancelled());
+            Assert.assertEquals(0, finished.getCount());
+            Assert.assertTrue(isCancelled());
         }
     }
 
@@ -119,7 +116,7 @@ public class CmdCallbackTest extends AbstractServerTest {
     public void testTimingFinishesOnLatch() throws Exception {
         TestCB cb = timing(25, 4 * 10); // Runs 1 second
         cb.finished.await(1500, TimeUnit.MILLISECONDS);
-        assertEquals(0, cb.finished.getCount());
+        Assert.assertEquals(0, cb.finished.getCount());
         cb.assertFinished(10); // Modulus-10
     }
 

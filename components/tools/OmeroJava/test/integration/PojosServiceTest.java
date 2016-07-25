@@ -5,17 +5,6 @@
 
 package integration;
 
-import static omero.rtypes.rbool;
-import static omero.rtypes.rlong;
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
-
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -108,18 +97,18 @@ public class PojosServiceTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      */
     private void checkPixels(PixelsData pixels) throws Exception {
-        assertNotNull(pixels);
-        assertNotNull(pixels.getPixelSizeX(null));
-        assertNotNull(pixels.getPixelSizeY(null));
-        assertNotNull(pixels.getPixelSizeZ(null));
-        assertNotNull(pixels.getPixelType());
-        assertNotNull(pixels.getImage());
-        assertNotNull(pixels.getOwner());
-        assertNotNull(pixels.getSizeC());
-        assertNotNull(pixels.getSizeT());
-        assertNotNull(pixels.getSizeZ());
-        assertNotNull(pixels.getSizeY());
-        assertNotNull(pixels.getSizeX());
+        Assert.assertNotNull(pixels);
+        Assert.assertNotNull(pixels.getPixelSizeX(null));
+        Assert.assertNotNull(pixels.getPixelSizeY(null));
+        Assert.assertNotNull(pixels.getPixelSizeZ(null));
+        Assert.assertNotNull(pixels.getPixelType());
+        Assert.assertNotNull(pixels.getImage());
+        Assert.assertNotNull(pixels.getOwner());
+        Assert.assertNotNull(pixels.getSizeC());
+        Assert.assertNotNull(pixels.getSizeT());
+        Assert.assertNotNull(pixels.getSizeZ());
+        Assert.assertNotNull(pixels.getSizeY());
+        Assert.assertNotNull(pixels.getSizeX());
     }
 
     /**
@@ -161,7 +150,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(p.getId().getValue());
         List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ProjectData project;
         Set<DatasetData> datasets;
@@ -169,13 +158,13 @@ public class PojosServiceTest extends AbstractServerTest {
         DatasetData dataset;
         while (i.hasNext()) {
             project = new ProjectData((Project) i.next());
-            assertEquals(project.getId(), p.getId().getValue());
+            Assert.assertEquals(project.getId(), p.getId().getValue());
             datasets = project.getDatasets();
-            assertEquals(datasets.size(), 1);
+            Assert.assertEquals(datasets.size(), 1);
             j = datasets.iterator();
             while (j.hasNext()) {
                 dataset = j.next();
-                assertEquals(dataset.getId(), d.getId().getValue());
+                Assert.assertEquals(dataset.getId(), d.getId().getValue());
             }
         }
     }
@@ -205,7 +194,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(p.getId().getValue());
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ScreenData screen;
         Set<PlateData> plates;
@@ -213,13 +202,13 @@ public class PojosServiceTest extends AbstractServerTest {
         PlateData plate;
         while (i.hasNext()) {
             screen = new ScreenData((Screen) i.next());
-            assertEquals(screen.getId(), p.getId().getValue());
+            Assert.assertEquals(screen.getId(), p.getId().getValue());
             plates = screen.getPlates();
-            assertEquals(plates.size(), 1);
+            Assert.assertEquals(plates.size(), 1);
             j = plates.iterator();
             while (j.hasNext()) {
                 plate = j.next();
-                assertEquals(plate.getId(), d.getId().getValue());
+                Assert.assertEquals(plate.getId(), d.getId().getValue());
             }
         }
     }
@@ -254,7 +243,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(p.getId().getValue());
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ScreenData screen;
         Set<PlateData> plates;
@@ -262,13 +251,13 @@ public class PojosServiceTest extends AbstractServerTest {
         PlateData plate;
         while (i.hasNext()) {
             screen = new ScreenData((Screen) i.next());
-            assertEquals(screen.getId(), p.getId().getValue());
+            Assert.assertEquals(screen.getId(), p.getId().getValue());
             plates = screen.getPlates();
-            assertEquals(plates.size(), 1);
+            Assert.assertEquals(plates.size(), 1);
             j = plates.iterator();
             while (j.hasNext()) {
                 plate = j.next();
-                assertEquals(plate.getId(), d.getId().getValue());
+                Assert.assertEquals(plate.getId(), d.getId().getValue());
             }
         }
     }
@@ -290,10 +279,10 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simpleProjectData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(rlong(self));
+        param.exp(omero.rtypes.rlong(self));
         List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(results.size() > 0);
         Iterator i = results.iterator();
         int count = 0;
         IObject object;
@@ -303,7 +292,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 count++;
             }
         }
-        assertEquals(count, 0);
+        Assert.assertEquals(count, 0);
     }
 
     /**
@@ -323,10 +312,10 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simpleScreenData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(rlong(self));
+        param.exp(omero.rtypes.rlong(self));
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(results.size() > 0);
         Iterator i = results.iterator();
         int count = 0;
         IObject object;
@@ -336,7 +325,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 count++;
             }
         }
-        assertEquals(count, 0);
+        Assert.assertEquals(count, 0);
     }
 
     /**
@@ -359,11 +348,11 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simpleProjectData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(rlong(self));
+        param.exp(omero.rtypes.rlong(self));
         param.orphan();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(results.size() > 0);
         Iterator i = results.iterator();
         IObject object;
         int value = 0;
@@ -375,7 +364,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 }
             }
         }
-        assertEquals(value, 1);
+        Assert.assertEquals(value, 1);
     }
 
     /**
@@ -396,11 +385,11 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(rlong(self));
+        param.exp(omero.rtypes.rlong(self));
         param.orphan();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(results.size() > 0);
         Iterator i = results.iterator();
         IObject object;
         int value = 0;
@@ -412,7 +401,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 }
             }
         }
-        assertEquals(value, 1);
+        Assert.assertEquals(value, 1);
     }
 
     /**
@@ -440,7 +429,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d.getId().getValue());
         List results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         DatasetData dataset;
         Set<ImageData> images;
@@ -450,14 +439,14 @@ public class PojosServiceTest extends AbstractServerTest {
             dataset = new DatasetData((Dataset) i.next());
             if (dataset.getId() == d.getId().getValue()) {
                 images = dataset.getImages();
-                assertEquals(images.size(), 1);
+                Assert.assertEquals(images.size(), 1);
                 j = images.iterator();
                 while (j.hasNext()) {
                     image = j.next();
-                    assertNotNull(image.asImage().getDetails().getUpdateEvent());
-                    assertTrue(image.asImage().getDetails().getUpdateEvent()
+                    Assert.assertNotNull(image.asImage().getDetails().getUpdateEvent());
+                    Assert.assertTrue(image.asImage().getDetails().getUpdateEvent()
                             .isLoaded());
-                    assertEquals(image.getId(), img.getId().getValue());
+                    Assert.assertEquals(image.getId(), img.getId().getValue());
                 }
             }
         }
@@ -488,7 +477,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d.getId().getValue());
         List results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         DatasetData dataset;
         Set<ImageData> images;
@@ -499,7 +488,7 @@ public class PojosServiceTest extends AbstractServerTest {
             dataset = new DatasetData((Dataset) i.next());
             if (dataset.getId() == d.getId().getValue()) {
                 images = dataset.getImages();
-                assertEquals(images.size(), 1);
+                Assert.assertEquals(images.size(), 1);
                 j = images.iterator();
                 while (j.hasNext()) {
                     image = j.next();
@@ -535,9 +524,9 @@ public class PojosServiceTest extends AbstractServerTest {
                 Dataset.class.getName(),
                 DatasetData.IMAGE_LINKS, ids, p);
         Long v = (Long) m.get(d1.getId().getValue());
-        assertEquals(v.longValue(), 1);
+        Assert.assertEquals(v.longValue(), 1);
         v = (Long) m.get(d2.getId().getValue());
-        assertEquals(v.longValue(), 0);
+        Assert.assertEquals(v.longValue(), 0);
     }
 
     /**
@@ -561,7 +550,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d.getId().getValue());
         List<Image> images = factory.getContainerService().getImages(Dataset.class.getName(), ids,
                 param);
-        assertTrue(images.size() > 0);
+        Assert.assertTrue(images.size() > 0);
         Iterator<Image> i = images.iterator();
         Image img;
         int count = 0;
@@ -571,12 +560,12 @@ public class PojosServiceTest extends AbstractServerTest {
                 count++;
 
         }
-        assertEquals(count, 1);
+        Assert.assertEquals(count, 1);
         param = new ParametersI();
-        param.exp(rlong(fixture.e.getId().getValue()));
+        param.exp(omero.rtypes.rlong(fixture.e.getId().getValue()));
         images = factory.getContainerService().getImages(
                 Dataset.class.getName(), ids, param);
-        assertEquals(images.size(), 0);
+        Assert.assertEquals(images.size(), 0);
     }
 
     /**
@@ -600,7 +589,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d.getId().getValue());
         List<Image> images = factory.getContainerService().getImages(
                 Dataset.class.getName(), ids, param);
-        assertTrue(images.size() > 0);
+        Assert.assertTrue(images.size() > 0);
         Iterator<Image> i = images.iterator();
         Image img;
         int count = 0;
@@ -613,12 +602,12 @@ public class PojosServiceTest extends AbstractServerTest {
                 count++;
             }
         }
-        assertEquals(count, 1);
+        Assert.assertEquals(count, 1);
         param = new ParametersI();
-        param.exp(rlong(fixture.e.getId().getValue()));
+        param.exp(omero.rtypes.rlong(fixture.e.getId().getValue()));
         images = factory.getContainerService().getImages(Dataset.class.getName(),
                 ids, param);
-        assertEquals(images.size(), 0);
+        Assert.assertEquals(images.size(), 0);
     }
 
     /**
@@ -642,7 +631,7 @@ public class PojosServiceTest extends AbstractServerTest {
         link.setChild(i1);
         try {
             iUpdate.saveAndReturnObject(link);
-            fail("Should not be able to insert twice.");
+            Assert.fail("Should not be able to insert twice.");
         } catch (Exception e) {
         }
         String sql = "select link from DatasetImageLink as link where "
@@ -653,7 +642,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.map.put("parentID", d.getId());
         param.map.put("childID", i1.getId());
         List l = iQuery.findAllByQuery(sql, param);
-        assertEquals(l.size(), 1);
+        Assert.assertEquals(l.size(), 1);
     }
 
     /**
@@ -667,14 +656,14 @@ public class PojosServiceTest extends AbstractServerTest {
         // Create 2 groups and add a user
         String uuid1 = UUID.randomUUID().toString();
         ExperimenterGroup g1 = new ExperimenterGroupI();
-        g1.setName(rstring(uuid1));
-        g1.setLdap(rbool(false));
+        g1.setName(omero.rtypes.rstring(uuid1));
+        g1.setLdap(omero.rtypes.rbool(false));
         g1.getDetails().setPermissions(new PermissionsI("rw----"));
 
         String uuid2 = UUID.randomUUID().toString();
         ExperimenterGroup g2 = new ExperimenterGroupI();
-        g2.setName(rstring(uuid2));
-        g2.setLdap(rbool(false));
+        g2.setName(omero.rtypes.rstring(uuid2));
+        g2.setLdap(omero.rtypes.rbool(false));
         g2.getDetails().setPermissions(new PermissionsI("rw----"));
 
         IAdminPrx svc = root.getSession().getAdminService();
@@ -695,10 +684,10 @@ public class PojosServiceTest extends AbstractServerTest {
                 "select distinct g from ExperimenterGroup g where g.id = :id",
                 p);
         Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(uuid1));
-        e.setFirstName(rstring("user"));
-        e.setLastName(rstring("user"));
-        e.setLdap(rbool(false));
+        e.setOmeName(omero.rtypes.rstring(uuid1));
+        e.setFirstName(omero.rtypes.rstring("user"));
+        e.setLastName(omero.rtypes.rstring("user"));
+        e.setLdap(omero.rtypes.rbool(false));
 
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
@@ -741,26 +730,26 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d2);
         List<Image> images = f.getContainerService().getImages(
                 Dataset.class.getName(), ids, p);
-        assertNotNull(images);
-        assertEquals(images.size(), 1);
+        Assert.assertNotNull(images);
+        Assert.assertEquals(images.size(), 1);
         Iterator<Image> i = images.iterator();
 
         // Should only retrieve images from group2
         while (i.hasNext()) {
-            assertEquals(i.next().getId().getValue(), image2.getId().getValue());
+            Assert.assertEquals(i.next().getId().getValue(), image2.getId().getValue());
         }
 
         client.getSession().setSecurityContext(
                 new ExperimenterGroupI(id1, false));
         images = f.getContainerService().getImages(Dataset.class.getName(),
                 ids, p);
-        assertNotNull(images);
-        assertEquals(images.size(), 1);
+        Assert.assertNotNull(images);
+        Assert.assertEquals(images.size(), 1);
         i = images.iterator();
 
         // Should only retrieve images from group2
         while (i.hasNext()) {
-            assertEquals(i.next().getId().getValue(), image1.getId().getValue());
+            Assert.assertEquals(i.next().getId().getValue(), image1.getId().getValue());
         }
     }
 
@@ -793,7 +782,7 @@ public class PojosServiceTest extends AbstractServerTest {
             iUpdate.saveObject(dil);
         }
         /* check that the resulting image IDs are unique */
-        Assert.assertEquals(imageIds.size(), totalNumberOfImages,
+        Assert.assertEquals(totalNumberOfImages, imageIds.size(),
                 "image IDs should be unique");
         /*
          * try various page sizes, make sure the total results set is as
@@ -824,7 +813,7 @@ public class PojosServiceTest extends AbstractServerTest {
                     Assert.assertTrue(
                             imageIdsPaged.add(image.getId().getValue()),
                             "paged query should not return duplicates");
-                    assertTrue(image.getFormat().isLoaded());
+                    Assert.assertTrue(image.getFormat().isLoaded());
                 }
                 startImageIndex += pageSize;
             }
@@ -846,7 +835,7 @@ public class PojosServiceTest extends AbstractServerTest {
         long id = fixture.e.getId().getValue();
         ParametersI param = new ParametersI();
         param.leaves();
-        param.exp(rlong(id));
+        param.exp(omero.rtypes.rlong(id));
 
         Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage());
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
@@ -869,9 +858,9 @@ public class PojosServiceTest extends AbstractServerTest {
         // Should have one project.
         List results = factory.getContainerService().findContainerHierarchies(
                 Project.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Image pp = (Image) results.get(0);
-        assertEquals(pp.getId().getValue(), i.getId().getValue());
+        Assert.assertEquals(pp.getId().getValue(), i.getId().getValue());
     }
 
     /**
@@ -886,7 +875,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asIObject());
         ParametersI param = new ParametersI();
-        param.exp(rlong(id));
+        param.exp(omero.rtypes.rlong(id));
 
         List<Long> ids = fixture.getProjectIds();
         List results = factory.getContainerService().loadContainerHierarchy(
@@ -899,7 +888,7 @@ public class PojosServiceTest extends AbstractServerTest {
             if (p.getId().getValue() == object.getId().getValue())
                 value++;
         }
-        assertEquals(value, 0);
+        Assert.assertEquals(value, 0);
     }
 
     /**
@@ -914,7 +903,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asIObject());
         ParametersI param = new ParametersI();
-        param.grp(rlong(id));
+        param.grp(omero.rtypes.rlong(id));
 
         List<Long> ids = fixture.getProjectIds();
         List results = factory.getContainerService().loadContainerHierarchy(
@@ -927,7 +916,7 @@ public class PojosServiceTest extends AbstractServerTest {
             if (p.getId().getValue() == object.getId().getValue())
                 value++;
         }
-        assertEquals(value, 0);
+        Assert.assertEquals(value, 0);
     }
 
     /**
@@ -944,13 +933,13 @@ public class PojosServiceTest extends AbstractServerTest {
         long startTime = gc.getTime().getTime();
         ParametersI po = new ParametersI();
         po.leaves();
-        po.startTime(rtime(startTime - 1));
+        po.startTime(omero.rtypes.rtime(startTime - 1));
         Image i = mmFactory.simpleImage();
-        i.setAcquisitionDate(rtime(startTime));
+        i.setAcquisitionDate(omero.rtypes.rtime(startTime));
         i = (Image) iUpdate.saveAndReturnObject(i);
 
         List result = factory.getContainerService().getImagesByOptions(po);
-        assertTrue(result.size() > 0);
+        Assert.assertTrue(result.size() > 0);
         Iterator j = result.iterator();
         int count = 0;
         IObject object;
@@ -962,12 +951,12 @@ public class PojosServiceTest extends AbstractServerTest {
                 img = (Image) object;
                 if (img.getId().getValue() == i.getId().getValue())
                     value++;
-                assertTrue(img.getFormat().isLoaded());
+                Assert.assertTrue(img.getFormat().isLoaded());
                 count++;
             }
         }
-        assertEquals(result.size(), count);
-        assertEquals(value, 1);
+        Assert.assertEquals(result.size(), count);
+        Assert.assertEquals(value, 1);
         //
         gc = new GregorianCalendar(gc.get(Calendar.YEAR),
                 gc.get(Calendar.MONTH), gc.get(Calendar.DAY_OF_MONTH), 23, 59,
@@ -975,9 +964,9 @@ public class PojosServiceTest extends AbstractServerTest {
         startTime = gc.getTime().getTime();
         po = new ParametersI();
         po.leaves();
-        po.startTime(rtime(startTime));
+        po.startTime(omero.rtypes.rtime(startTime));
         result = factory.getContainerService().getImagesByOptions(po);
-        assertEquals(result.size(), 0);
+        Assert.assertEquals(result.size(), 0);
     }
 
     /**
@@ -1004,7 +993,7 @@ public class PojosServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(), ids, param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(results.size() > 0);
         Iterator i = results.iterator();
         DatasetData dataset;
         Set<ImageData> images;
@@ -1014,7 +1003,7 @@ public class PojosServiceTest extends AbstractServerTest {
             dataset = new DatasetData((Dataset) i.next());
             if (dataset.getId() == d.getId().getValue()) {
                 images = dataset.getImages();
-                assertNull(images);
+                Assert.assertNull(images);
             }
         }
 
@@ -1024,13 +1013,13 @@ public class PojosServiceTest extends AbstractServerTest {
         results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(),
                 ids, param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(results.size() > 0);
         i = results.iterator();
         while (i.hasNext()) {
             dataset = new DatasetData((Dataset) i.next());
             if (dataset.getId() == d.getId().getValue()) {
                 images = dataset.getImages();
-                assertTrue(images.size() > 0);
+                Assert.assertTrue(images.size() > 0);
             }
         }
     }
@@ -1059,7 +1048,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ObjectiveSettings settings = (ObjectiveSettings) iUpdate
                 .saveAndReturnObject(mmFactory
                         .createObjectiveSettings(objective));
-        assertNotNull(settings);
+        Assert.assertNotNull(settings);
         image.setObjectiveSettings(settings);
         StageLabel label = (StageLabel) iUpdate.saveAndReturnObject(mmFactory
                 .createStageLabel());
@@ -1073,20 +1062,20 @@ public class PojosServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>(1);
         ids.add(image.getId().getValue());
         List results = factory.getContainerService().getImages(Image.class.getName(), ids, param);
-        assertNotNull(results);
-        assertTrue(results.size() == 1);
+        Assert.assertNotNull(results);
+        Assert.assertEquals(1, results.size());
         // Check if acquisition data are loaded.
         Image test = (Image) results.get(0);
-        assertNotNull(test);
-        assertEquals(test.getId().getValue(), image.getId().getValue());
-        assertNotNull(test.getObjectiveSettings());
-        assertNotNull(test.getImagingEnvironment());
-        assertNotNull(test.getStageLabel());
-        assertEquals(test.getObjectiveSettings().getId().getValue(), settings
+        Assert.assertNotNull(test);
+        Assert.assertEquals(test.getId().getValue(), image.getId().getValue());
+        Assert.assertNotNull(test.getObjectiveSettings());
+        Assert.assertNotNull(test.getImagingEnvironment());
+        Assert.assertNotNull(test.getStageLabel());
+        Assert.assertEquals(test.getObjectiveSettings().getId().getValue(), settings
                 .getId().getValue());
-        assertEquals(test.getImagingEnvironment().getId().getValue(), env
+        Assert.assertEquals(test.getImagingEnvironment().getId().getValue(), env
                 .getId().getValue());
-        assertEquals(test.getStageLabel().getId().getValue(), label.getId()
+        Assert.assertEquals(test.getStageLabel().getId().getValue(), label.getId()
                 .getValue());
     }
 
@@ -1106,7 +1095,7 @@ public class PojosServiceTest extends AbstractServerTest {
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
         CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(rstring("comment Project"));
+        comment.setTextValue(omero.rtypes.rstring("comment Project"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Project
         ProjectAnnotationLinkI pal = new ProjectAnnotationLinkI();
@@ -1114,7 +1103,7 @@ public class PojosServiceTest extends AbstractServerTest {
         pal.setChild(comment);
         iUpdate.saveAndReturnObject(pal);
         comment = new CommentAnnotationI();
-        comment.setTextValue(rstring("comment Dataset"));
+        comment.setTextValue(omero.rtypes.rstring("comment Dataset"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Project
         DatasetAnnotationLinkI dal = new DatasetAnnotationLinkI();
@@ -1132,7 +1121,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(p.getId().getValue());
         List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ProjectData project;
         Set<DatasetData> datasets;
@@ -1145,26 +1134,26 @@ public class PojosServiceTest extends AbstractServerTest {
             // use omero.gateway.model
             project = new ProjectData((Project) i.next());
             count = project.getAnnotationsCounts();
-            assertEquals(1, count.size());
+            Assert.assertEquals(1, count.size());
             datasets = project.getDatasets();
             k = count.entrySet().iterator();
             while (k.hasNext()) {
                 entry = (Entry) k.next();
-                assertEquals(((Long) entry.getValue()).longValue(), 1);
+                Assert.assertEquals(((Long) entry.getValue()).longValue(), 1);
 
             }
-            // assertTrue(count.containsKey(ctx.userId));
+            // Assert.assertTrue(count.containsKey(ctx.userId));
             // one annotation to project.
-            // assertEquals(((Long) count.get(ctx.userId)).longValue(), 1);
+            // Assert.assertEquals(((Long) count.get(ctx.userId)).longValue(), 1);
             j = datasets.iterator();
             while (j.hasNext()) {
                 dataset = j.next();
                 count = dataset.getAnnotationsCounts();
-                assertEquals(1, count.size());
+                Assert.assertEquals(1, count.size());
                 k = count.entrySet().iterator();
                 while (k.hasNext()) {
                     entry = (Entry) k.next();
-                    assertEquals(((Long) entry.getValue()).longValue(), 1);
+                    Assert.assertEquals(((Long) entry.getValue()).longValue(), 1);
 
                 }
             }
@@ -1193,7 +1182,7 @@ public class PojosServiceTest extends AbstractServerTest {
 
         // Now create and attach comments to each
         CommentAnnotation comment = new CommentAnnotationI();
-        comment.setTextValue(rstring("comment Screen"));
+        comment.setTextValue(omero.rtypes.rstring("comment Screen"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Screen
         ScreenAnnotationLinkI sal = new ScreenAnnotationLinkI();
@@ -1202,7 +1191,7 @@ public class PojosServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(sal);
 
         comment = new CommentAnnotationI();
-        comment.setTextValue(rstring("comment Plate"));
+        comment.setTextValue(omero.rtypes.rstring("comment Plate"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Plate
         PlateAnnotationLinkI pal = new PlateAnnotationLinkI();
@@ -1211,7 +1200,7 @@ public class PojosServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(pal);
 
         comment = new CommentAnnotationI();
-        comment.setTextValue(rstring("comment PlateAcquisition"));
+        comment.setTextValue(omero.rtypes.rstring("comment PlateAcquisition"));
         comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
         // attach comment to Plate
         PlateAcquisitionAnnotationLinkI aal = new PlateAcquisitionAnnotationLinkI();
@@ -1230,7 +1219,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(s.getId().getValue());
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ScreenData screen;
         Set<PlateData> plates;
@@ -1246,11 +1235,11 @@ public class PojosServiceTest extends AbstractServerTest {
             // use omero.gateway.model
             screen = new ScreenData((Screen) i.next());
             count = screen.getAnnotationsCounts();
-            assertEquals(1, count.size());
+            Assert.assertEquals(1, count.size());
             k = count.entrySet().iterator();
             while (k.hasNext()) {
                 entry = (Entry) k.next();
-                assertEquals(((Long) entry.getValue()).longValue(), 1);
+                Assert.assertEquals(((Long) entry.getValue()).longValue(), 1);
 
             }
             plates = screen.getPlates();
@@ -1258,11 +1247,11 @@ public class PojosServiceTest extends AbstractServerTest {
             while (j.hasNext()) {
                 plate = j.next();
                 count = plate.getAnnotationsCounts();
-                assertEquals(1, count.size());
+                Assert.assertEquals(1, count.size());
                 k = count.entrySet().iterator();
                 while (k.hasNext()) {
                     entry = (Entry) k.next();
-                    assertEquals(((Long) entry.getValue()).longValue(), 1);
+                    Assert.assertEquals(((Long) entry.getValue()).longValue(), 1);
 
                 }
                 plateAcquisitions = plate.getPlateAcquisitions();
@@ -1270,11 +1259,11 @@ public class PojosServiceTest extends AbstractServerTest {
                 while (l.hasNext()) {
                     plateAcquisition = l.next();
                     count = plateAcquisition.getAnnotationsCounts();
-                    assertEquals(1, count.size());
+                    Assert.assertEquals(1, count.size());
                     k = count.entrySet().iterator();
                     while (k.hasNext()) {
                         entry = (Entry) k.next();
-                        assertEquals(((Long) entry.getValue()).longValue(), 1);
+                        Assert.assertEquals(((Long) entry.getValue()).longValue(), 1);
                     }
                 }
             }
@@ -1311,23 +1300,23 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(i.getId().getValue());
         List results = factory.getContainerService().findContainerHierarchies(
                 Project.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Project found = (Project) results.get(0);
-        assertEquals(found.getId().getValue(), p.getId().getValue());
+        Assert.assertEquals(found.getId().getValue(), p.getId().getValue());
         ProjectData project = new ProjectData(found);
         Set<DatasetData> datasets = project.getDatasets();
-        assertEquals(datasets.size(), 1);
+        Assert.assertEquals(datasets.size(), 1);
         Iterator<DatasetData> j = datasets.iterator();
         DatasetData dataset;
         Set<ImageData> images;
         Iterator<ImageData> k;
         while (j.hasNext()) {
             dataset = j.next();
-            assertEquals(dataset.getId(), d.getId().getValue());
+            Assert.assertEquals(dataset.getId(), d.getId().getValue());
             images = dataset.getImages();
             k = images.iterator();
             while (k.hasNext()) {
-                assertEquals(k.next().getId(), i.getId().getValue());
+                Assert.assertEquals(k.next().getId(), i.getId().getValue());
             }
         }
     }
@@ -1355,15 +1344,15 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(i.getId().getValue());
         List results = factory.getContainerService().findContainerHierarchies(
                 Project.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Dataset found = (Dataset) results.get(0);
-        assertEquals(found.getId().getValue(), d.getId().getValue());
+        Assert.assertEquals(found.getId().getValue(), d.getId().getValue());
 
         DatasetData dataset = new DatasetData(found);
         Set<ImageData> images = dataset.getImages();
         Iterator<ImageData> k = images.iterator();
         while (k.hasNext()) {
-            assertEquals(k.next().getId(), i.getId().getValue());
+            Assert.assertEquals(k.next().getId(), i.getId().getValue());
         }
     }
 
@@ -1383,9 +1372,9 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(i.getId().getValue());
         List results = factory.getContainerService().findContainerHierarchies(
                 Project.class.getName(), ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Image found = (Image) results.get(0);
-        assertEquals(found.getId().getValue(), i.getId().getValue());
+        Assert.assertEquals(found.getId().getValue(), i.getId().getValue());
     }
 
     /**
@@ -1405,7 +1394,7 @@ public class PojosServiceTest extends AbstractServerTest {
         try {
             factory.getContainerService().findContainerHierarchies(Dataset.class.getName(), ids,
                     param);
-            fail("Only Project type is supported.");
+            Assert.fail("Only Project type is supported.");
         } catch (Exception e) {
         }
     }
@@ -1426,10 +1415,10 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject());
 
         ParametersI param = new ParametersI();
-        param.exp(rlong(self));
+        param.exp(omero.rtypes.rlong(self));
         List results = factory.getContainerService().loadContainerHierarchy(
                 Plate.class.getName(), new ArrayList(), param);
-        assertTrue(results.size() > 0);
+        Assert.assertTrue(results.size() > 0);
         Iterator i = results.iterator();
         int count = 0;
         IObject object;
@@ -1439,7 +1428,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 count++;
             }
         }
-        assertEquals(count, 0);
+        Assert.assertEquals(count, 0);
     }
 
     /**
@@ -1459,12 +1448,12 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(p.getId().getValue());
         List results = factory.getContainerService().loadContainerHierarchy(Plate.class.getName(),
                 ids, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         PlateData plate;
         while (i.hasNext()) {
             plate = new PlateData((Plate) i.next());
-            assertEquals(plate.getId(), p.getId().getValue());
+            Assert.assertEquals(plate.getId(), p.getId().getValue());
         }
     }
 
@@ -1486,14 +1475,14 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
         // Check that 2 images are linked
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
 
         Parameters param = new ParametersI();
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Image.class.getName(), Arrays.asList(i1.getId().getValue()));
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
         Entry<Boolean, List<Long>> entry;
         Iterator<Entry<Boolean, List<Long>>> j;
@@ -1501,15 +1490,15 @@ public class PojosServiceTest extends AbstractServerTest {
                 .iterator();
         while (i.hasNext()) {
             e = i.next();
-            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            Assert.assertEquals(e.getKey().longValue(), fileset.getId().getValue());
             j = e.getValue().entrySet().iterator();
             while (i.hasNext()) {
                 entry = j.next();
-                assertEquals(entry.getValue().size(), 1);
+                Assert.assertEquals(entry.getValue().size(), 1);
                 if (entry.getKey().booleanValue()) {
-                    assertTrue(entry.getValue().contains(i1.getId().getValue()));
+                    Assert.assertTrue(entry.getValue().contains(i1.getId().getValue()));
                 } else
-                    assertTrue(entry.getValue().contains(i2.getId().getValue()));
+                    Assert.assertTrue(entry.getValue().contains(i2.getId().getValue()));
             }
         }
     }
@@ -1532,7 +1521,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
         // Check that 2 images are linked
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
 
         Parameters param = new ParametersI();
         List<Long> ids = new ArrayList<Long>();
@@ -1542,7 +1531,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Image.class.getName(), ids);
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
     }
 
     /**
@@ -1562,7 +1551,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i1);
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
 
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
@@ -1577,7 +1566,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Dataset.class.getName(), Arrays.asList(d.getId().getValue()));
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
         Entry<Boolean, List<Long>> entry;
         Iterator<Entry<Boolean, List<Long>>> j;
@@ -1585,15 +1574,15 @@ public class PojosServiceTest extends AbstractServerTest {
                 .iterator();
         while (i.hasNext()) {
             e = i.next();
-            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            Assert.assertEquals(e.getKey().longValue(), fileset.getId().getValue());
             j = e.getValue().entrySet().iterator();
             while (i.hasNext()) {
                 entry = j.next();
-                assertEquals(entry.getValue().size(), 1);
+                Assert.assertEquals(entry.getValue().size(), 1);
                 if (entry.getKey().booleanValue()) {
-                    assertTrue(entry.getValue().contains(i1.getId().getValue()));
+                    Assert.assertTrue(entry.getValue().contains(i1.getId().getValue()));
                 } else
-                    assertTrue(entry.getValue().contains(i2.getId().getValue()));
+                    Assert.assertTrue(entry.getValue().contains(i2.getId().getValue()));
             }
         }
     }
@@ -1615,7 +1604,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i1);
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
 
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
@@ -1639,7 +1628,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Project.class.getName(), Arrays.asList(p.getId().getValue()));
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
         Entry<Boolean, List<Long>> entry;
         Iterator<Entry<Boolean, List<Long>>> j;
@@ -1647,15 +1636,15 @@ public class PojosServiceTest extends AbstractServerTest {
                 .iterator();
         while (i.hasNext()) {
             e = i.next();
-            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            Assert.assertEquals(e.getKey().longValue(), fileset.getId().getValue());
             j = e.getValue().entrySet().iterator();
             while (i.hasNext()) {
                 entry = j.next();
-                assertEquals(entry.getValue().size(), 1);
+                Assert.assertEquals(entry.getValue().size(), 1);
                 if (entry.getKey().booleanValue()) {
-                    assertTrue(entry.getValue().contains(i1.getId().getValue()));
+                    Assert.assertTrue(entry.getValue().contains(i1.getId().getValue()));
                 } else
-                    assertTrue(entry.getValue().contains(i2.getId().getValue()));
+                    Assert.assertTrue(entry.getValue().contains(i2.getId().getValue()));
             }
         }
     }
@@ -1679,7 +1668,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i1);
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
 
         Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
@@ -1705,7 +1694,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Dataset.class.getName(), ids);
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
     }
 
     /**
@@ -1728,7 +1717,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i1);
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
 
         Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
@@ -1773,7 +1762,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Project.class.getName(), ids);
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
     }
 
     /**
@@ -1798,7 +1787,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i2);
         fileset.addImage(i3);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 3);
+        Assert.assertEquals(fileset.copyImages().size(), 3);
 
         Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
@@ -1833,7 +1822,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
     }
 
     /**
@@ -1859,7 +1848,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i2);
         fileset.addImage(i3);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 3);
+        Assert.assertEquals(fileset.copyImages().size(), 3);
 
         Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
@@ -1893,7 +1882,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
         Entry<Boolean, List<Long>> entry;
         Iterator<Entry<Boolean, List<Long>>> j;
@@ -1901,20 +1890,20 @@ public class PojosServiceTest extends AbstractServerTest {
                 .iterator();
         while (i.hasNext()) {
             e = i.next();
-            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            Assert.assertEquals(e.getKey().longValue(), fileset.getId().getValue());
             j = e.getValue().entrySet().iterator();
             List<Long> l;
             while (i.hasNext()) {
                 entry = j.next();
-                assertEquals(entry.getValue().size(), 1);
+                Assert.assertEquals(entry.getValue().size(), 1);
                 l = entry.getValue();
                 if (entry.getKey().booleanValue()) {
-                    assertEquals(l.size(), 2);
-                    assertTrue(l.contains(i1.getId().getValue()));
-                    assertTrue(l.contains(i2.getId().getValue()));
+                    Assert.assertEquals(l.size(), 2);
+                    Assert.assertTrue(l.contains(i1.getId().getValue()));
+                    Assert.assertTrue(l.contains(i2.getId().getValue()));
                 } else {
-                    assertEquals(l.size(), 1);
-                    assertTrue(l.contains(i3.getId().getValue()));
+                    Assert.assertEquals(l.size(), 1);
+                    Assert.assertTrue(l.contains(i3.getId().getValue()));
                 }
             }
         }
@@ -1942,7 +1931,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i1);
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
 
         Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
@@ -1969,7 +1958,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Dataset.class.getName(), ids);
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
     }
 
     /**
@@ -1994,13 +1983,13 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i1);
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
         Parameters param = new ParametersI();
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(results.size(), 0);
     }
 
     /**
@@ -2025,7 +2014,7 @@ public class PojosServiceTest extends AbstractServerTest {
         fileset.addImage(i1);
         fileset.addImage(i2);
         fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-        assertEquals(fileset.copyImages().size(), 2);
+        Assert.assertEquals(fileset.copyImages().size(), 2);
         Parameters param = new ParametersI();
         Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
         List<Long> ids = new ArrayList<Long>();
@@ -2034,7 +2023,7 @@ public class PojosServiceTest extends AbstractServerTest {
         map.put(Image.class.getName(), ids);
         Map<Long, Map<Boolean, List<Long>>> results = factory.getContainerService()
                 .getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
+        Assert.assertEquals(results.size(), 1);
         Entry<Long, Map<Boolean, List<Long>>> e;
         Entry<Boolean, List<Long>> entry;
         Iterator<Entry<Boolean, List<Long>>> j;
@@ -2042,18 +2031,18 @@ public class PojosServiceTest extends AbstractServerTest {
                 .iterator();
         while (i.hasNext()) {
             e = i.next();
-            assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+            Assert.assertEquals(e.getKey().longValue(), fileset.getId().getValue());
             j = e.getValue().entrySet().iterator();
             List<Long> l;
             while (i.hasNext()) {
                 entry = j.next();
-                assertEquals(entry.getValue().size(), 1);
+                Assert.assertEquals(entry.getValue().size(), 1);
                 l = entry.getValue();
-                assertEquals(l.size(), 1);
+                Assert.assertEquals(l.size(), 1);
                 if (entry.getKey().booleanValue()) {
-                    assertTrue(l.contains(i1.getId().getValue()));
+                    Assert.assertTrue(l.contains(i1.getId().getValue()));
                 } else {
-                    assertTrue(l.contains(i2.getId().getValue()));
+                    Assert.assertTrue(l.contains(i2.getId().getValue()));
                 }
             }
         }
@@ -2196,7 +2185,7 @@ public class PojosServiceTest extends AbstractServerTest {
 				.loadContainerHierarchy(Project.class.getName(), ids, null)
 				.iterator().next();
 
-		assertTrue(p.getDetails().getCreationEvent().isLoaded());
+		Assert.assertTrue(p.getDetails().getCreationEvent().isLoaded());
 
 		Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
 				.simpleDatasetData().asIObject());
@@ -2206,7 +2195,7 @@ public class PojosServiceTest extends AbstractServerTest {
 				.loadContainerHierarchy(Dataset.class.getName(), ids, null)
 				.iterator().next();
 
-		assertTrue(d.getDetails().getCreationEvent().isLoaded());
+		Assert.assertTrue(d.getDetails().getCreationEvent().isLoaded());
 
 		Screen s = (Screen) iUpdate.saveAndReturnObject(mmFactory
 				.simpleScreenData().asIObject());
@@ -2216,7 +2205,7 @@ public class PojosServiceTest extends AbstractServerTest {
 				.loadContainerHierarchy(Screen.class.getName(), ids, null)
 				.iterator().next();
 
-		assertTrue(s.getDetails().getCreationEvent().isLoaded());
+		Assert.assertTrue(s.getDetails().getCreationEvent().isLoaded());
 
 		Plate pl = (Plate) iUpdate.saveAndReturnObject(mmFactory
 				.simplePlateData().asIObject());
@@ -2226,7 +2215,7 @@ public class PojosServiceTest extends AbstractServerTest {
 				.loadContainerHierarchy(Plate.class.getName(), ids, null)
 				.iterator().next();
 
-		assertTrue(pl.getDetails().getCreationEvent().isLoaded());
+		Assert.assertTrue(pl.getDetails().getCreationEvent().isLoaded());
 	}
 	
 
@@ -2252,7 +2241,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simpleDatasetData().asIObject());
         Dataset dNotOrphaned = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
-        assertEquals(dataOwner.userId,
+        Assert.assertEquals(dataOwner.userId,
                 dNotOrphaned.getDetails().getOwner().getId().getValue());
         //link the dataset to another user's project.
         ProjectDatasetLink link = new ProjectDatasetLinkI();
@@ -2264,11 +2253,11 @@ public class PojosServiceTest extends AbstractServerTest {
         Project p1 = (Project) iUpdate.saveAndReturnObject(mmFactory
                 .simpleProjectData().asIObject());
         ParametersI param = new ParametersI();
-        param.exp(rlong(dataOwner.userId));
+        param.exp(omero.rtypes.rlong(dataOwner.userId));
         param.orphan();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
-        Assert.assertEquals(results.size(), 2);
+        Assert.assertEquals(2, results.size());
         Iterator i = results.iterator();
         IObject object;
         int value = 0;
@@ -2287,7 +2276,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 }
             }
         }
-        Assert.assertEquals(value, 2);
+        Assert.assertEquals(2, value);
         Assert.assertEquals(orphaned, false);
     }
 
@@ -2312,7 +2301,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 .simplePlateData().asIObject());
         Plate dNotOrphaned = (Plate) iUpdate.saveAndReturnObject(mmFactory
                 .simplePlateData().asIObject());
-        assertEquals(dataOwner.userId,
+        Assert.assertEquals(dataOwner.userId,
                 dNotOrphaned.getDetails().getOwner().getId().getValue());
         ScreenPlateLink link = new ScreenPlateLinkI();
         link.setParent(p);
@@ -2322,11 +2311,11 @@ public class PojosServiceTest extends AbstractServerTest {
         Screen p1 = (Screen) iUpdate.saveAndReturnObject(mmFactory
                 .simpleScreenData().asIObject());
         ParametersI param = new ParametersI();
-        param.exp(rlong(dataOwner.userId));
+        param.exp(omero.rtypes.rlong(dataOwner.userId));
         param.orphan();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
-        Assert.assertEquals(results.size(), 2);
+        Assert.assertEquals(2, results.size());
         Iterator i = results.iterator();
         IObject object;
         int value = 0;
@@ -2345,7 +2334,7 @@ public class PojosServiceTest extends AbstractServerTest {
                 }
             }
         }
-        Assert.assertEquals(value, 2);
+        Assert.assertEquals(2, value);
         Assert.assertEquals(orphaned, false);
     }
 }

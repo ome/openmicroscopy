@@ -5,11 +5,6 @@
 
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,6 +52,7 @@ import omero.sys.ParametersI;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.util.ResourceUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -202,7 +198,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      */
     private void assertNoUndeletedThumbnails(Delete2Response report) {
         List<Long> tbIds = report.deletedObjects.get(REF_THUMBNAIL);
-        assertTrue(CollectionUtils.isEmpty(tbIds));
+        Assert.assertTrue(CollectionUtils.isEmpty(tbIds));
     }
 
     /**
@@ -213,7 +209,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      */
     private void assertNoUndeletedFiles(Delete2Response report) {
         List<Long> fileIds = report.deletedObjects.get(REF_ORIGINAL_FILE);
-        assertTrue(CollectionUtils.isEmpty(fileIds));
+        Assert.assertTrue(CollectionUtils.isEmpty(fileIds));
     }
 
     /**
@@ -224,7 +220,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      */
     private void assertNoUndeletedPixels(Delete2Response report) {
         List<Long> pixIds = report.deletedObjects.get(REF_PIXELS);
-        assertTrue(CollectionUtils.isEmpty(pixIds));
+        Assert.assertTrue(CollectionUtils.isEmpty(pixIds));
     }
 
     /**
@@ -393,7 +389,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
     void assertFileExists(Long id, String klass) throws Exception {
         String path = getPath(klass, id);
         RepositoryPrx legacy = getLegacyRepository();
-        assertTrue(path + " does not exist!", legacy.fileExists(path));
+        Assert.assertTrue(legacy.fileExists(path), path + " does not exist!");
     }
 
     /**
@@ -410,7 +406,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             throws Exception {
         String path = getOtherPixelsPath(id, kind);
         RepositoryPrx legacy = getLegacyRepository();
-        assertTrue(path + " does not exist!", legacy.fileExists(path));
+        Assert.assertTrue(legacy.fileExists(path), path + " does not exist!");
     }
 
     /**
@@ -445,7 +441,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
     void assertFileDoesNotExist(Long id, String klass) throws Exception {
         String path = getPath(klass, id);
         RepositoryPrx legacy = getLegacyRepository();
-        assertFalse(path + " exists!", legacy.fileExists(path));
+        Assert.assertFalse(legacy.fileExists(path), path + " exists!");
     }
 
     /**
@@ -462,7 +458,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             throws Exception {
         String path = getOtherPixelsPath(id, kind);
         RepositoryPrx legacy = getLegacyRepository();
-        assertFalse(path, legacy.fileExists(path));
+        Assert.assertFalse(legacy.fileExists(path), path);
     }
 
     /**
@@ -482,7 +478,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         Delete2 dc = Requests.delete().target(img).build();
         Delete2Response report = deleteWithReport(dc);
         assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
-        assertEquals(report.deletedObjects.get(REF_PIXELS).size(), 1);
+        Assert.assertEquals(1, report.deletedObjects.get(REF_PIXELS).size());
     }
 
     /**
@@ -503,7 +499,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         Delete2Response report = deleteWithReport(dc);
         assertOtherPixelsFileDoesNotExist(pix.getId().getValue(),
                 PyramidFileType.PYRAMID);
-        assertEquals(report.deletedObjects.get(REF_PIXELS).size(), 1);
+        Assert.assertEquals(1, report.deletedObjects.get(REF_PIXELS).size());
     }
 
     /**
@@ -527,7 +523,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
         assertOtherPixelsFileDoesNotExist(pix.getId().getValue(),
                 PyramidFileType.PYRAMID);
-        assertEquals(report.deletedObjects.get(REF_PIXELS).size(), 1);
+        Assert.assertEquals(1, report.deletedObjects.get(REF_PIXELS).size());
     }
 
     /**
@@ -557,7 +553,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
                 PyramidFileType.PYRAMID_LOCK);
         assertOtherPixelsFileDoesNotExist(pix.getId().getValue(),
                 PyramidFileType.PYRAMID_TMP);
-        assertEquals(report.deletedObjects.get(REF_PIXELS).size(), 1);
+        Assert.assertEquals(1, report.deletedObjects.get(REF_PIXELS).size());
     }
 
     /**
@@ -665,14 +661,14 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         Map<Long, byte[]> thumbnails = svc.getThumbnailSet(
                 omero.rtypes.rint(40), omero.rtypes.rint(40), ids);
         byte[] values = thumbnails.get(id);
-        assertNotNull(values);
-        assertTrue(values.length > 0);
+        Assert.assertNotNull(values);
+        Assert.assertTrue(values.length > 0);
         String sql = "select i from Thumbnail i where i.pixels.id = :id";
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> objects = iQuery.findAllByQuery(sql, param);
-        assertNotNull(objects);
-        assertTrue(objects.size() > 0);
+        Assert.assertNotNull(objects);
+        Assert.assertTrue(objects.size() > 0);
 
         List<Long> thumbIds = new ArrayList<Long>();
         Iterator<IObject> i = objects.iterator();
@@ -730,13 +726,13 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         int sizeY = 96;
         Map<Long, byte[]> thumbnails = svc.getThumbnailSet(
                 omero.rtypes.rint(sizeX), omero.rtypes.rint(sizeY), ids);
-        assertNotNull(thumbnails.get(id));
+        Assert.assertNotNull(thumbnails.get(id));
         String sql = "select i from Thumbnail i where i.pixels.id = :id";
         ParametersI param = new ParametersI();
         param.addId(id);
         List<IObject> objects = iQuery.findAllByQuery(sql, param);
-        assertNotNull(objects);
-        assertTrue(objects.size() > 0);
+        Assert.assertNotNull(objects);
+        Assert.assertTrue(objects.size() > 0);
 
         List<Long> thumbIds = new ArrayList<Long>();
         Iterator<IObject> i = objects.iterator();
@@ -748,10 +744,10 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         svc = factory.createThumbnailStore();
         thumbnails = svc.getThumbnailSet(omero.rtypes.rint(sizeX),
                 omero.rtypes.rint(sizeY), ids);
-        assertNotNull(thumbnails.get(id));
+        Assert.assertNotNull(thumbnails.get(id));
 
         objects = iQuery.findAllByQuery(sql, param);
-        assertTrue(objects.size() > 0);
+        Assert.assertTrue(objects.size() > 0);
         i = objects.iterator();
         long thumbId;
         while (i.hasNext()) {
@@ -977,7 +973,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             rfs.write(new byte[1], 0, 1);
             removeFile(of.getId().getValue(), "OriginalFile");
             rfs.save();
-            fail("Should not reach here.");
+            Assert.fail("Should not reach here.");
         } finally {
             rfs.close();
         }
@@ -999,7 +995,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             rfs.setFileId(of.getId().getValue());
             rfs.write(new byte[1], 0, 1);
             removeFile(of.getId().getValue(), "OriginalFile");
-            fail("Should not reach here.");
+            Assert.fail("Should not reach here.");
         } finally {
             rfs.close();
         }
@@ -1072,6 +1068,6 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         /* perform the deletion and confirm that it successfully deletes all the files */
         final Delete2Response deletions = (Delete2Response) doChange(request);
-        assertEquals(fileCount, deletions.deletedObjects.get(ome.model.core.OriginalFile.class.getName()).size());
+        Assert.assertEquals(fileCount, deletions.deletedObjects.get(ome.model.core.OriginalFile.class.getName()).size());
     }
 }

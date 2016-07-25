@@ -6,11 +6,9 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 import omero.api.IConfigPrx;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -52,7 +50,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
      */
     @Test
     public void testServerTime() throws Exception {
-        assertNotNull(iConfig.getServerTime());
+        Assert.assertNotNull(iConfig.getServerTime());
     }
 
     /**
@@ -64,7 +62,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
      */
     @Test
     public void testDatabaseTime() throws Exception {
-        assertNotNull(iConfig.getDatabaseTime());
+        Assert.assertNotNull(iConfig.getDatabaseTime());
     }
 
     /**
@@ -77,7 +75,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
     @Test
     public void testServerTimeAsAdmin() throws Exception {
         IConfigPrx svc = root.getSession().getConfigService();
-        assertNotNull(svc.getServerTime());
+        Assert.assertNotNull(svc.getServerTime());
     }
 
     /**
@@ -90,7 +88,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
     @Test
     public void testDatabaseTimeAsAdmin() throws Exception {
         IConfigPrx svc = root.getSession().getConfigService();
-        assertNotNull(svc.getDatabaseTime());
+        Assert.assertNotNull(svc.getDatabaseTime());
     }
 
     /**
@@ -103,7 +101,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
     @Test
     public void testDatabaseUUIDAsAdmin() throws Exception {
         IConfigPrx svc = root.getSession().getConfigService();
-        assertNotNull(svc.getDatabaseUuid());
+        Assert.assertNotNull(svc.getDatabaseUuid());
     }
 
     /**
@@ -115,7 +113,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
      */
     @Test
     public void testDatabaseUUID() throws Exception {
-        assertNotNull(iConfig.getDatabaseUuid());
+        Assert.assertNotNull(iConfig.getDatabaseUuid());
     }
 
     /**
@@ -131,8 +129,8 @@ public class ConfigurationServiceTest extends AbstractServerTest {
         String value = "test2";
         IConfigPrx svc = root.getSession().getConfigService();
         svc.setConfigValue(key, value);
-        assertNotNull(svc.getConfigValue(key));
-        assertTrue(svc.getConfigValue(key).equals(value));
+        Assert.assertNotNull(svc.getConfigValue(key));
+        Assert.assertTrue(svc.getConfigValue(key).equals(value));
     }
 
     /**
@@ -148,7 +146,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
         String value = "test3";
         try {
             iConfig.setConfigValue(key, value);
-            fail("A non admin user cannot configure the server");
+            Assert.fail("A non admin user cannot configure the server");
         } catch (Exception e) {
         }
     }
