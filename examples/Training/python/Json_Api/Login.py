@@ -91,7 +91,7 @@ print project
 
 # Update a project
 project['Name'] = 'API test updated'
-r = session.put(project_url, json=project)
+r = session.put(project_url, json=project, headers={'Referer': login_url})
 
 # Delete a project:
-r = session.delete(project_url)
+r = session.delete(project_url, headers={'Referer': login_url})
