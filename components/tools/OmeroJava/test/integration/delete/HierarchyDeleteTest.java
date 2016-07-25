@@ -5,8 +5,6 @@
 
 package integration.delete;
 
-import static omero.rtypes.rbool;
-import static omero.rtypes.rstring;
 import integration.AbstractServerTest;
 
 import java.util.ArrayList;
@@ -86,7 +84,7 @@ import com.google.common.collect.Multimap;
 @Test(groups = "ticket:2615")
 public class HierarchyDeleteTest extends AbstractServerTest {
 
-    private final static omero.RString t3031 = rstring("#3031");
+    private final static omero.RString t3031 = omero.rtypes.rstring("#3031");
 
     /**
      * Test to delete a dataset containing an image also contained in another
@@ -296,8 +294,8 @@ public class HierarchyDeleteTest extends AbstractServerTest {
 
         final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(rstring(normalGroupName));
-        normalGroup.setLdap(rbool(false));
+        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup.setLdap(omero.rtypes.rbool(false));
         normalGroup = rootAdminSvc.getGroup(rootAdminSvc.createGroup(normalGroup));
 
         /* Create a new user in that group. */

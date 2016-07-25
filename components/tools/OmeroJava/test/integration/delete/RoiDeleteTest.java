@@ -5,8 +5,6 @@
 
 package integration.delete;
 
-import static omero.rtypes.rdouble;
-import static omero.rtypes.rint;
 import integration.AbstractServerTest;
 
 import java.util.ArrayList;
@@ -40,8 +38,7 @@ import omero.model.Well;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
+import org.testng.Assert;
 import omero.gateway.model.FileAnnotationData;
 
 /**
@@ -99,12 +96,12 @@ public class RoiDeleteTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
@@ -116,7 +113,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         IRoiPrx svc = factory.getRoiService();
         List<Annotation> l = svc.getRoiMeasurements(image.getId().getValue(),
                 options);
-        assertEquals(l.size(), 0);
+        Assert.assertEquals(l.size(), 0);
 
         // create measurements.
         // First create a table
@@ -125,9 +122,9 @@ public class RoiDeleteTest extends AbstractServerTest {
         Column[] columns = new Column[1];
         columns[0] = new LongColumn("Uid", "", new long[1]);
         table.initialize(columns);
-        assertNotNull(table);
+        Assert.assertNotNull(table);
         OriginalFile of = table.getOriginalFile();
-        assertTrue(of.getId().getValue() > 0);
+        Assert.assertTrue(of.getId().getValue() > 0);
         FileAnnotation fa = new FileAnnotationI();
         fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS));
         fa.setFile(of);
@@ -149,7 +146,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         callback(true, client, dc);
         assertDoesNotExist(roi);
         l = svc.getRoiMeasurements(image.getId().getValue(), options);
-        assertEquals(l.size(), 0);
+        Assert.assertEquals(l.size(), 0);
     }
 
     /**
@@ -172,12 +169,12 @@ public class RoiDeleteTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
@@ -189,7 +186,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         IRoiPrx svc = factory.getRoiService();
         List<Annotation> l = svc.getRoiMeasurements(image.getId().getValue(),
                 options);
-        assertEquals(l.size(), 0);
+        Assert.assertEquals(l.size(), 0);
 
         // create measurements.
         // First create a table
@@ -198,9 +195,9 @@ public class RoiDeleteTest extends AbstractServerTest {
         Column[] columns = new Column[1];
         columns[0] = new LongColumn("Uid", "", new long[1]);
         table.initialize(columns);
-        assertNotNull(table);
+        Assert.assertNotNull(table);
         OriginalFile of = table.getOriginalFile();
-        assertTrue(of.getId().getValue() > 0);
+        Assert.assertTrue(of.getId().getValue() > 0);
         FileAnnotation fa = new FileAnnotationI();
         fa.setNs(omero.rtypes.rstring(FileAnnotationData.MEASUREMENT_NS));
         fa.setFile(of);
@@ -223,7 +220,7 @@ public class RoiDeleteTest extends AbstractServerTest {
         assertDoesNotExist(p);
         assertDoesNotExist(roi);
         l = svc.getRoiMeasurements(image.getId().getValue(), options);
-        assertEquals(l.size(), 0);
+        Assert.assertEquals(l.size(), 0);
     }
 
 }

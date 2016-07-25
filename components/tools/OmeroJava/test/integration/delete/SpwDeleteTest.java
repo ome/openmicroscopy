@@ -25,8 +25,7 @@ import omero.model.Screen;
 import omero.model.WellSample;
 
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
+import org.testng.Assert;
 
 /**
  * Tests for deleting screen/plate/wells
@@ -54,7 +53,7 @@ public class SpwDeleteTest extends AbstractServerTest {
             if (exp == null) {
                 exp = e;
             } else {
-                assertEquals(exp.getId().getValue(), e.getId().getValue());
+                Assert.assertEquals(exp.getId().getValue(), e.getId().getValue());
             }
 
             WellSample ws = getWellSample(p);
@@ -63,7 +62,7 @@ public class SpwDeleteTest extends AbstractServerTest {
             if (screen == null) {
                 screen = s;
             } else {
-                assertEquals(screen.getId().getValue(), s.getId().getValue());
+                Assert.assertEquals(screen.getId().getValue(), s.getId().getValue());
             }
         }
 

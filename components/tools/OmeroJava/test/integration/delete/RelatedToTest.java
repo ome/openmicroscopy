@@ -15,8 +15,7 @@ import omero.model.Pixels;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
+import org.testng.Assert;
 
 /**
  * Collections of tests for the <code>Delete</code> service. This carries on
@@ -38,7 +37,7 @@ public class RelatedToTest extends AbstractServerTest {
 
         p2.setRelatedTo(p1);
         p2 = (Pixels) iUpdate.saveAndReturnObject(p2);
-        assertEquals(p1.getId(), p2.getRelatedTo().getId());
+        Assert.assertEquals(p1.getId(), p2.getRelatedTo().getId());
 
         final Delete2 dc = Requests.delete().target(i1).build();
         callback(true, client, dc);
@@ -68,8 +67,8 @@ public class RelatedToTest extends AbstractServerTest {
         pixels1.setRelatedTo(pixels2);
         pixels1 = (Pixels) iUpdate.saveAndReturnObject(pixels1);
         Pixels pixels = pixels1.getRelatedTo();
-        assertNotNull(pixels);
-        assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
+        Assert.assertNotNull(pixels);
+        Assert.assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
 
         final Delete2 dc = Requests.delete().target(img2).build();
         callback(true, client, dc);
@@ -77,17 +76,17 @@ public class RelatedToTest extends AbstractServerTest {
         String sql = "select i from Image i where i.id = :id";
         ParametersI param = new ParametersI();
         param.addId(img2.getId().getValue());
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
         sql = "select i from Pixels i where i.id = :id";
         param = new ParametersI();
         param.addId(pixels2.getId().getValue());
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         sql = "select i from Pixels i where i.id = :id";
         param = new ParametersI();
         param.addId(pixels1.getId().getValue());
         pixels1 = (Pixels) iQuery.findByQuery(sql, param);
-        assertNull(pixels1.getRelatedTo());
+        Assert.assertNull(pixels1.getRelatedTo());
     }
 
     /**
@@ -108,8 +107,8 @@ public class RelatedToTest extends AbstractServerTest {
         pixels1.setRelatedTo(pixels2);
         pixels1 = (Pixels) iUpdate.saveAndReturnObject(pixels1);
         Pixels pixels = pixels1.getRelatedTo();
-        assertNotNull(pixels);
-        assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
+        Assert.assertNotNull(pixels);
+        Assert.assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
 
         final Delete2 dc = Requests.delete().target(img2).build();
         callback(true, client, dc);
@@ -117,17 +116,17 @@ public class RelatedToTest extends AbstractServerTest {
         String sql = "select i from Image i where i.id = :id";
         ParametersI param = new ParametersI();
         param.addId(img2.getId().getValue());
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
         sql = "select i from Pixels i where i.id = :id";
         param = new ParametersI();
         param.addId(pixels2.getId().getValue());
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         sql = "select i from Pixels i where i.id = :id";
         param = new ParametersI();
         param.addId(pixels1.getId().getValue());
         pixels1 = (Pixels) iQuery.findByQuery(sql, param);
-        assertNull(pixels1.getRelatedTo());
+        Assert.assertNull(pixels1.getRelatedTo());
     }
 
 }
