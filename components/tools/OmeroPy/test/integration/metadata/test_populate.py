@@ -27,8 +27,10 @@
 import library as lib
 import string
 import csv
+import gzip
 import os.path
 import re
+import shutil
 
 from omero.api import RoiOptions
 from omero.grid import ImageColumn
@@ -339,6 +341,18 @@ class Dataset101Images(Dataset2Images):
         assert rows == 102
 
 
+class GZIP(Dataset2Images):
+
+    def createCsv(self, *args, **kwargs):
+        csvFileName = super(GZIP, self).createCsv(*args, **kwargs)
+        gzipFileName = "%s.gz" % csvFileName
+        with open(csvFileName, 'rb') as f_in, \
+            gzip.open(gzipFileName, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+        return gzipFileName
+
+
 class Project2Datasets(Fixture):
 
     def __init__(self):
@@ -425,6 +439,7 @@ class TestPopulateMetadata(lib.ITest):
         Dataset2Images(),
         Dataset101Images(),
         Project2Datasets(),
+        GZIP(),
     )
     METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
 

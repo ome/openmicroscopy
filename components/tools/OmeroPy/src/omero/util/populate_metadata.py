@@ -24,6 +24,7 @@ Populate bulk metadata tables from delimited text files.
 
 
 import logging
+import gzip
 import sys
 import csv
 import re
@@ -762,7 +763,11 @@ class ParsingContext(object):
             (o.name, len(o.values)) for o in self.columns])
 
     def parse(self):
-        data = open(self.file, 'U')
+        if self.file.endswith(".gz"):
+            data = gzip.open(self.file, "rb")
+        else:
+            data = open(self.file, 'U')
+
         try:
             return self.parse_from_handle(data)
         finally:
