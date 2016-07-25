@@ -42,7 +42,7 @@ from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
 from omeroweb.webclient.forms import ContainerForm
-from omero_marshal import get_encoder
+from omero_marshal import get_encoder, get_decoder
 
 try:
     from hashlib import md5
@@ -52,12 +52,12 @@ except:
 from cStringIO import StringIO
 import tempfile
 
-from omero import ApiUsageException, ServerError
+from omero import ApiUsageException, ServerError, ValidationException
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.connector import Server
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError, JsonResponseForbidden, \
-    JsonResponseUnprocessable
+    JsonResponseUnprocessable, JsonResponseNotFound
 
 import glob
 
@@ -2658,6 +2658,53 @@ class LoginView(View):
                     error = ("Connection not available, please check your"
                              " user name and password.")
         return self._handleNotLoggedIn(request, error, *args, **kwargs)
+
+
+class ProjectView(View):
+
+    @method_decorator(api_login_required(useragent='OMERO.webapi'))
+    @method_decorator(jsonp)
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, pid, conn=None, **kwargs):
+        try:
+            project = conn.getQueryService().get('Project', long(pid))
+        except ValidationException:
+            return JsonResponseNotFound(
+                {'message': 'Project %s not found' % pid})
+        encoder = get_encoder(project.__class__)
+        return encoder.encode(project)
+
+    def put(self, request, pid, conn=None, **kwargs):
+        try:
+            project = conn.getQueryService().get('Project', long(pid))
+        except ValidationException:
+            return JsonResponseNotFound(
+                {'message': 'Project %s not found' % pid})
+        project_json = json.loads(request.body)
+        # If owner was unloaded (E.g. from get() above) or if missing
+        # ome.model.meta.Experimenter.ldap (not supported by omero_marshel)
+        # then saveObject() will give ValidationException.
+        # Therefore we ignore any details for now:
+        if 'omero:details' in project_json:
+            del project_json['omero:details']
+        decoder = get_decoder(project_json['@type'])
+        project = decoder.decode(project_json)
+        project = conn.getUpdateService().saveAndReturnObject(project)
+        encoder = get_encoder(project.__class__)
+        return encoder.encode(project)
+
+    def delete(self, request, pid, conn=None, **kwargs):
+        try:
+            project = conn.getQueryService().get('Project', long(pid))
+        except ValidationException:
+            return JsonResponseNotFound(
+                {'message': 'Project %s not found' % pid})
+        encoder = get_encoder(project.__class__)
+        json = encoder.encode(project)
+        conn.deleteObject(project)
+        return json
 
 
 class ProjectsView(View):

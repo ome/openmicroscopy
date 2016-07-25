@@ -435,6 +435,11 @@ api_login = url(r'^api/v(?P<api_version>' + versions + ')/login/$',
 api_projects = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/$',
                    views.ProjectsView.as_view(),
                    name='api_projects')
+
+api_project = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/(?P<pid>[0-9]+)/$',
+                  views.ProjectView.as_view(),
+                  name='api_project')
+
 """
 List all projects, using omero-marshal to generate json.
 """
@@ -495,5 +500,6 @@ urlpatterns = patterns(
     api_servers,
     api_login,
     api_projects,
+    api_project,
 
 )

@@ -32,6 +32,14 @@ class JsonResponseForbidden(JsonResponse):
         JsonResponse.__init__(self, *args, **kwargs)
 
 
+class JsonResponseNotFound(JsonResponse):
+    """ Response 404 when for unauthorised """
+    status_code = 404
+
+    def __init__(self, *args, **kwargs):
+        JsonResponse.__init__(self, *args, **kwargs)
+
+
 class JsonResponseUnprocessable(JsonResponse):
     """ Response 422 when client submits invalid data """
     status_code = 422
