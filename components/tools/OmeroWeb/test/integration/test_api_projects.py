@@ -354,3 +354,29 @@ class TestProjects(IWebTest):
         eid = userB[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
         assert_objects(conn, rsp['projects'], projects_userB_groupA)
+
+    def test_marshal_projects_pagination(self, userA, userB,
+                                         projects_userA_groupA,
+                                         projects_userB_groupA):
+        """
+        Test pagination of projects
+        """
+        projects = projects_userA_groupA + projects_userB_groupA
+        projects.sort(cmp_name_insensitive)
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_projects', kwargs={'api_version': version})
+
+        # First page, just 2 projects. Page = 1 by default
+        limit = 2
+        rsp = _get_response_json(django_client, request_url, {'limit': limit})
+        assert len(rsp['projects']) == limit
+        assert_objects(conn, rsp['projects'], projects[0:limit])
+
+        # Check that page 2 gives next 2 projects
+        page = 2
+        payload = {'limit': limit, 'page': page}
+        rsp = _get_response_json(django_client, request_url, payload)
+        assert_objects(conn, rsp['projects'], projects[limit:limit * page])
