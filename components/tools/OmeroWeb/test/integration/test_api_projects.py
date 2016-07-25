@@ -380,3 +380,53 @@ class TestProjects(IWebTest):
         payload = {'limit': limit, 'page': page}
         rsp = _get_response_json(django_client, request_url, payload)
         assert_objects(conn, rsp['projects'], projects[limit:limit * page])
+
+    def test_marshal_projects_params(self, userA, userB,
+                                     projects_userA_groupA,
+                                     projects_userB_groupA):
+        """
+        Tests normalize, childCount and callback params of projects
+        """
+        projects = projects_userA_groupA + projects_userB_groupA
+        projects.sort(cmp_name_insensitive)
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_projects', kwargs={'api_version': version})
+
+        # Test 'childCount' parameter
+        payload = {'childCount': True}
+        rsp = _get_response_json(django_client, request_url, payload)
+        childCounts = [p['omero:childCount'] for p in rsp['projects']]
+        assert childCounts == [0, 0, 0, 2, 1]
+
+        # make dict of owners and groups to use in next test...
+        owners = {}
+        groups = {}
+        for p in rsp['projects']:
+            details = p['omero:details']
+            owner = details['owner']
+            group = details['group']
+            owners[owner['@id']] = owner
+            groups[group['@id']] = group
+
+        # Test 'normalize' parameter.
+        payload = {'normalize': True}
+        rsp = _get_response_json(django_client, request_url, payload)
+        for p in rsp['projects']:
+            details = p['omero:details']
+            owner = details['owner']
+            group = details['group']
+            # owner and group have @id only
+            assert owner.keys() == ['@id']
+            assert group.keys() == ['@id']
+        # check normaliszed owners and groups are same as before
+        rsp_owners = {}
+        for o in rsp['experimenters']:
+            rsp_owners[o['@id']] = o
+        rsp_groups = {}
+        for g in rsp['groups']:
+            rsp_groups[g['@id']] = g
+        assert owners == rsp_owners
+        assert groups == rsp_groups
