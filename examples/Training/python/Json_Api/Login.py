@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+#                    All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
 
 import requests
 
@@ -19,17 +27,6 @@ urls = r.json()
 servers_url = urls['servers_url']
 login_url = urls['login_url']
 projects_url = urls['projects_url']
-
-# Trying to access data without logging in
-# gives 403 'Forbidden' and error message
-r = session.get(projects_url)
-assert r.status_code == 403
-print 'Forbidden error:', r.json()['message']
-
-# Trying to POST (E.g. login) without CSRF token fails
-r = session.post(login_url, data={})
-assert r.status_code == 403
-print 'CSRF error:', r.json()['message']
 
 # To login we need to get CSRF token
 token_url = urls['token_url']
@@ -53,35 +50,17 @@ if len(servers) < 1:
     print "Found no server called 'omero'"
 server = servers[0]
 
-
-# Invalid login returns 403 and message
-r = session.post(login_url, data={'username': 'bob'})
-assert r.status_code == 403
-print 'Login failed:', r.json()['message']
-
-
 # Login with username, password and token
 payload = {'username': 'will',
            'password': 'ome',
            'server': server['id']}
-r = session.post(login_url, data=payload)
+r = session.post(login_url, data=payload,
+                 headers={'Referer': login_url})
 login_rsp = r.json()
-# print "Login Response", login_rsp
 assert r.status_code == 200
-
-print 'LOGIN'
-print r.json()
-
-# This will give us 'Event Context' for this session
-if 'success' in login_rsp:
-    eventContext = login_rsp['eventContext']
-    # print eventContext
-    print 'Logged in! User ID', eventContext['userId']
-else:
-    # Login failure will contain 'message'
-    print 'Login failed:', login_rsp['message']
-    import sys
-    sys.exit()
+assert login_rsp['success']
+eventContext = login_rsp['eventContext']
+print 'eventContext', eventContext
 
 # With succesful login, request.session will contain
 # OMERO session details and reconnect to OMERO on
@@ -97,16 +76,8 @@ for p in data['projects']:
     print '  ', p['@id'], p['Name']
 
 # Create a project:
-# If we submit invalid data (E.g. no 'name')...
-r = session.post(projects_url, {'description': 'API TEST'})
-# ...get error message
-assert r.status_code == 422
-errors = r.json()['errors']
-assert 'name' in errors
-print "Errors", errors
-
-# Re-submit with valid data...
-r = session.post(projects_url, {'name': 'API TEST'})
+r = session.post(projects_url, {'name': 'API TEST'},
+                 headers={'Referer': login_url})
 assert r.status_code == 200
 project = r.json()
 print 'Created Project:', project['@id'], project['Name']
