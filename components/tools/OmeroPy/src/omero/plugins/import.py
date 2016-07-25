@@ -109,7 +109,8 @@ class CommandArguments(object):
             "javahelp", "skip", "file", "errs", "logback",
             "port", "password", "group", "create", "func",
             "bulk", "prog", "user", "key", "path", "logprefix",
-            "JAVA_DEBUG", "quiet", "server", "depth", "clientdir")
+            "JAVA_DEBUG", "quiet", "server", "depth", "clientdir",
+            "sudo")
         self.set_login_arguments(ctx, args)
         self.set_skip_arguments(args)
 
