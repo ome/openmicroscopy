@@ -46,10 +46,10 @@ import ome.parameters.Parameters;
  * @since 5.0
  */
 public class HierarchyNavigator {
-    /* This class and {@link HierarchyWrap} are designed to make it easy to adjust the Java types
+    /* This class and {@link HierarchyNavigatorWrap} are designed to make it easy to adjust the Java types
      * via which the model object hierarchy is navigated, and to make the HQL queries efficient
      * (batching, caching), at the small expense of constructing instances of simple Java objects.
-     * The methods are not public to avoid polluting users of subclasses of {@link HierarchyWrap}.
+     * The methods are not public to avoid polluting users of subclasses of {@link HierarchyNavigatorWrap}.
      */
 
     /** HQL queries to map from ID of first target type to that of the second */
