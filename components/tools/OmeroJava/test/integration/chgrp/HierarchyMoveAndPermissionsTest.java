@@ -37,8 +37,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-import static org.testng.AssertJUnit.*;
-
 /**
  * Tests that a group owners (source and destination) can move data between
  * groups.
@@ -81,14 +79,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -123,14 +121,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -163,14 +161,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -204,15 +202,15 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         // image should not have been moved.
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -247,15 +245,15 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != oldGroupOwner.groupId);
+        Assert.assertTrue(g.getId().getValue() != oldGroupOwner.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         // image should not have been moved.
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -288,15 +286,15 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         // image should not have been moved.
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -329,15 +327,15 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         // image should not have been moved.
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -370,15 +368,15 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         // image should not have been moved.
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -411,15 +409,15 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         // image should not have been moved.
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -453,10 +451,10 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         disconnect();
         logRootIntoGroup(g.getId().getValue());
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -505,14 +503,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("select i from Dataset i ");
         sb.append("where i.id = :id");
         // dataset should have been moved.
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(imageId);
         // image should not have been moved.
-        assertNotNull("#9496? anns", iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param),"#9496? anns");
 
         // destination group
         EventContext ec = loginUser(g); // log into second group
@@ -521,7 +519,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(id);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -572,14 +570,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("select i from Dataset i ");
         sb.append("where i.id = :id");
         // dataset should have been moved.
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(imageId);
         // image should not have been moved.
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert. assertNotNull(iQuery.findByQuery(sb.toString(), param));
 
         // destination group
         EventContext ec = loginUser(g); // log into second group
@@ -588,7 +586,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(id);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -642,14 +640,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("select i from Dataset i ");
         sb.append("where i.id = :id");
         // dataset should have been moved.
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(imageId);
         // image should not have been moved.
-        assertNotNull("#9496? anns", iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param), "#9496? anns");
 
         // destination group
         EventContext ec = loginUser(g); // log into second group
@@ -658,14 +656,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(id);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
         sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(imageId);
         // image should not have been moved.
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -718,14 +716,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("select i from Dataset i ");
         sb.append("where i.id = :id");
         // dataset should have been moved.
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
         sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(imageId);
         // image should have been moved.
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         // destination group
         EventContext ec = loginUser(g); // log into second group
@@ -734,14 +732,14 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(id);
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
         sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         param = new ParametersI();
         param.addId(imageId);
         // image should be there
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**
@@ -785,10 +783,10 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
         // image should not have been moved.
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
 
         loginUser(g);
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
     }
 
     /**

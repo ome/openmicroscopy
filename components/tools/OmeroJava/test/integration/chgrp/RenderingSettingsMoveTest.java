@@ -20,9 +20,9 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.sys.EventContext;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.*;
 
 /**
  * Move image with rendering settings.
@@ -63,7 +63,7 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         IPixelsPrx svc = factory.getPixelsService();
         List<IObject> settings = svc.retrieveAllRndSettings(pixelsID,
                 ctx.userId);
-        assertEquals(settings.size(), 1);
+        Assert.assertEquals(1, settings.size());
 
         EventContext ctx2 = null;
         if (memberRole > 0) { //create a second user in the group.
@@ -84,7 +84,7 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
             prx.setOriginalSettingsInSet(Pixels.class.getName(),
                     Arrays.asList(pixelsID));
             settings = svc.retrieveAllRndSettings(pixelsID, ctx2.userId);
-            assertEquals(settings.size(), 1);
+            Assert.assertEquals(1, settings.size());
         }
         //create a second group
         ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
@@ -103,7 +103,7 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         //Check if the settings have been deleted.
         svc = factory.getPixelsService();
         settings = svc.retrieveAllRndSettings(pixelsID, -1);
-        assertEquals(settings.size(), 0);
+        Assert.assertEquals(0, settings.size());
 
         // Log in to other group
         if (moveMemberRole == AbstractServerTest.ADMIN) {
@@ -113,12 +113,12 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
 
         //Check that image has been moved.
         long id = img.getId().getValue();
-        assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
+        Assert.assertNotNull(iQuery.find(Image.class.getSimpleName(), id));
 
         //Load the settings.
         svc = factory.getPixelsService();
         settings = svc.retrieveAllRndSettings(pixelsID, ctx.userId);
-        assertEquals(settings.size(), 1);
+        Assert.assertEquals(1, settings.size());
     }
 
     //move by owner

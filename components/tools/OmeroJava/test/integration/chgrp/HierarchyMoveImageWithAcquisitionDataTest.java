@@ -43,10 +43,9 @@ import omero.model.Pixels;
 import omero.sys.ParametersI;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * @author Scott Littlewood, <a
@@ -149,7 +148,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
         // check if the image have been moved.
         Image returnedSourceImage = getImageWithId(originalImageId);
-        assertNull(returnedSourceImage);
+        Assert.assertNull(returnedSourceImage);
 
         // Move the user into the target group!
         loginUser(targetGroup);
@@ -161,7 +160,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
                 .createLightSource(ome.xml.model.Laser.class.getName(), 0);
 
         Image returnedTargetImage = getImageWithId(originalImageId);
-        assertNotNull(returnedTargetImage);
+        Assert.assertNotNull(returnedTargetImage);
 
         long instrumentId = returnedTargetImage.getInstrument().getId()
                 .getValue();
@@ -199,12 +198,12 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
      *            The XML version.
      */
     private void validateLaser(Laser laser, ome.xml.model.Laser xml) {
-        assertEquals(laser.getManufacturer().getValue(), xml.getManufacturer());
-        assertEquals(laser.getModel().getValue(), xml.getModel());
-        assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
-        assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
-        assertEquals(laser.getPower().getValue(), xml.getPower());
-        assertEquals(laser.getType().getValue().getValue(),
+        Assert.assertEquals(laser.getManufacturer().getValue(), xml.getManufacturer());
+        Assert.assertEquals(laser.getModel().getValue(), xml.getModel());
+        Assert.assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
+        Assert.assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
+        Assert.assertEquals(laser.getPower().getValue(), xml.getPower());
+        Assert.assertEquals(laser.getType().getValue().getValue(),
                 XMLMockObjects.LASER_TYPE.getValue());
     }
 }

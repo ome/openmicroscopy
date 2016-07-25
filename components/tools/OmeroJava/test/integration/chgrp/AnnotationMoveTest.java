@@ -35,9 +35,8 @@ import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * Move annotated objects. Annotation.
@@ -93,18 +92,18 @@ public class AnnotationMoveTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Annotation i ");
         sb.append("where i.id in (:ids)");
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         int n = annotationIdsUser2.size();
         if (src.equals("rwrw--")) n = 0;
         param = new ParametersI();
         param.addIds(annotationIdsUser2);
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         loginUser(g);
         param = new ParametersI();
         param.addIds(annotationIdsUser1);
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
                 annotationIdsUser1.size());
         n = 0;
         if (src.equals("rwrw--") && !dest.equals("rw----")) {
@@ -112,8 +111,8 @@ public class AnnotationMoveTest extends AbstractServerTest {
         }
         param = new ParametersI();
         param.addIds(annotationIdsUser2);
-        assertEquals("#9496? anns", iQuery.findAllByQuery(sb.toString(), param)
-                .size(), n);
+        Assert.assertEquals(n, iQuery.findAllByQuery(sb.toString(), param)
+                .size(), "#9496? anns");
     }
 
     /**
@@ -142,17 +141,17 @@ public class AnnotationMoveTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         param = new ParametersI();
         param.addIds(annotationIds);
         sb = new StringBuilder();
         sb.append("select i from Annotation i ");
         sb.append("where i.id in (:ids)");
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         loginUser(g);
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
                 annotationIds.size());
     }
 
@@ -182,17 +181,17 @@ public class AnnotationMoveTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         param = new ParametersI();
         param.addIds(annotationIds);
         sb = new StringBuilder();
         sb.append("select i from Annotation i ");
         sb.append("where i.id in (:ids)");
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         loginUser(g);
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
                 annotationIds.size());
     }
 
@@ -214,7 +213,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
                 .saveAndReturnObject(mmFactory.createImage());
         // Annotate the image.
         List<Long> annotationIds = createSharableAnnotation(img, null);
-        assertTrue(annotationIds.size() > 0);
+        Assert.assertTrue(annotationIds.size() > 0);
         // now move the image.
         long id = img.getId().getValue();
         final ChildOption option = Requests.option().excludeType(DeleteServiceTest.SHARABLE_TO_KEEP_LIST).build();
@@ -225,18 +224,18 @@ public class AnnotationMoveTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
-        assertNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
 
         param = new ParametersI();
         param.addIds(annotationIds);
         sb = new StringBuilder();
         sb.append("select i from Annotation i ");
         sb.append("where i.id in (:ids)");
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
                 annotationIds.size());
 
         loginUser(g);
-        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+        Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
     }
 
     /**
@@ -545,7 +544,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Annotation i ");
         sb.append("where i.id = :id");
-        assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
 
         loginUser(g);
         param = new ParametersI();
@@ -555,7 +554,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         sb.append("where i.parent.id = :id");
         List<IObject> results = iQuery.findAllByQuery(sb.toString(), param);
 
-        assertEquals("#9496? anns", results.size(), 0);
+        Assert.assertEquals(0, results.size(), "#9496? anns");
     }
 
     /**
@@ -628,18 +627,18 @@ public class AnnotationMoveTest extends AbstractServerTest {
         doChange(request);
 
         /* check what remains in the source group */
-        assertNull(iQuery.findByQuery("FROM OriginalFile WHERE id = :id", new ParametersI().addId(file.getId())));
+        Assert.assertNull(iQuery.findByQuery("FROM OriginalFile WHERE id = :id", new ParametersI().addId(file.getId())));
         for (final FileAnnotation attachment : attachments) {
-            assertNull(iQuery.findByQuery("FROM FileAnnotation WHERE id = :id", new ParametersI().addId(attachment.getId())));
+            Assert.assertNull(iQuery.findByQuery("FROM FileAnnotation WHERE id = :id", new ParametersI().addId(attachment.getId())));
         }
 
         /* switch to the destination group */
         loginUser(toGroup);
 
         /* check what was moved to the destination group */
-        assertNotNull(iQuery.findByQuery("FROM OriginalFile WHERE id = :id", new ParametersI().addId(file.getId())));
+        Assert.assertNotNull(iQuery.findByQuery("FROM OriginalFile WHERE id = :id", new ParametersI().addId(file.getId())));
         for (final FileAnnotation attachment : attachments) {
-            assertNotNull(iQuery.findByQuery("FROM FileAnnotation WHERE id = :id", new ParametersI().addId(attachment.getId())));
+            Assert.assertNotNull(iQuery.findByQuery("FROM FileAnnotation WHERE id = :id", new ParametersI().addId(attachment.getId())));
         }
 
         /* delete the test data */
