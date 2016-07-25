@@ -80,4 +80,18 @@ r = session.post(projects_url, {'name': 'API TEST'},
                  headers={'Referer': login_url})
 assert r.status_code == 200
 project = r.json()
-print 'Created Project:', project['@id'], project['Name']
+project_id = project['@id']
+print 'Created Project:', project_id, project['Name']
+
+# Get project by ID
+project_url = projects_url + str(project_id) + '/'
+r = session.get(project_url)
+project = r.json()
+print project
+
+# Update a project
+project['Name'] = 'API test updated'
+r = session.put(project_url, json=project)
+
+# Delete a project:
+r = session.delete(project_url)
