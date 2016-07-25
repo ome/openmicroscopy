@@ -96,7 +96,7 @@ def _post_response(django_client, request_url, data, status_code=403,
 
 
 def _post_response_json(django_client, request_url, data, status_code=403,
-                   content_type=MULTIPART_CONTENT, **extra):
+                        content_type=MULTIPART_CONTENT, **extra):
     rsp = _response(django_client, request_url, method='post', data=data,
                     status_code=status_code, content_type=content_type,
                     **extra)
