@@ -24,6 +24,7 @@ Populate bulk metadata tables from delimited text files.
 
 
 import logging
+import gzip
 import sys
 import csv
 import re
@@ -34,6 +35,7 @@ from itertools import izip
 from collections import defaultdict
 
 import omero.clients
+from omero import CmdError
 from omero.callbacks import CmdCallbackI
 from omero.rtypes import rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
@@ -761,7 +763,11 @@ class ParsingContext(object):
             (o.name, len(o.values)) for o in self.columns])
 
     def parse(self):
-        data = open(self.file, 'U')
+        if self.file.endswith(".gz"):
+            data = gzip.open(self.file, "rb")
+        else:
+            data = open(self.file, 'U')
+
         try:
             return self.parse_from_handle(data)
         finally:
@@ -880,7 +886,7 @@ class ParsingContext(object):
             else:
                 log.info('Missing plate name column, skipping.')
 
-    def write_to_omero(self):
+    def write_to_omero(self, batch_size=1000):
         sf = self.client.getSession()
         group = str(self.value_resolver.target_group)
         sr = sf.sharedResources()
@@ -892,10 +898,29 @@ class ParsingContext(object):
                 "Unable to create table: %s" % name)
         original_file = table.getOriginalFile()
         log.info('Created new table OriginalFile:%d' % original_file.id.val)
+
+        values = []
+        length = -1
+        for x in self.columns:
+            if length < 0:
+                length = len(x.values)
+            else:
+                assert length == len(x.values)
+            values.append(x.values)
+            x.values = None
+
         table.initialize(self.columns)
         log.info('Table initialized with %d columns.' % (len(self.columns)))
-        table.addData(self.columns)
-        log.info('Added data column data.')
+
+        i = 0
+        for pos in xrange(0, length, batch_size):
+            i += 1
+            for idx, x in enumerate(values):
+                self.columns[idx].values = x[pos:pos+batch_size]
+            table.addData(self.columns)
+            count = min(batch_size, length - pos)
+            log.info('Added %s rows of column data (batch %s)', count, i)
+
         table.close()
         file_annotation = FileAnnotationI()
         file_annotation.ns = rstring(
@@ -915,7 +940,16 @@ class _QueryContext(object):
     def __init__(self, client):
         self.client = client
 
-    def projection(self, q, ids, ns=None):
+    def _batch(self, i, sz=1000):
+        """
+        Generate batches of size sz (by default 1000) from the input
+        iterable `i`.
+        """
+        i = list(i)  # Copying list to handle sets and modifications
+        for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
+            yield batch
+
+    def projection(self, q, ids, ns=None, batch_size=None):
         """
         Run a projection query designed to return scalars only
         :param q: The query to be projected, should contain either `:ids`
@@ -923,19 +957,40 @@ class _QueryContext(object):
         :param: ids: Either a list of IDs to be passed as `:ids` parameter or
                 a single scalar id to be passed as `:id` parameter in query
         :ns: Optional namespace to be passed as `:ns` parameter in query
+        :batch_size: Optional batch_size (default: all) defining the number
+                of IDs that will be queried at once. Methods that expect to
+                have more than several thousand input IDs should consider an
+                appropriate batch size. By default, however, no batch size is
+                applied since this could change the interpretation of the
+                query string (e.g. use of `distinct`).
         """
         qs = self.client.getSession().getQueryService()
         params = omero.sys.ParametersI()
+
         try:
             nids = len(ids)
-            params.addIds(ids)
+            single_id = None
         except TypeError:
             nids = 1
-            params.addId(ids)
+            single_id = ids
+
         if ns:
             params.addString("ns", ns)
+
         log.debug("Query: %s len(IDs): %d", q, nids)
-        rss = unwrap(qs.projection(q, params))
+
+        if single_id is not None:
+            params.addId(single_id)
+            rss = unwrap(qs.projection(q, params))
+        elif batch_size is None:
+            params.addIds(ids)
+            rss = unwrap(qs.projection(q, params))
+        else:
+            rss = []
+            for batch in self._batch(ids, sz=batch_size):
+                params.addIds(batch)
+                rss.extend(unwrap(qs.projection(q, params)))
+
         return [r for rs in rss for r in rs]
 
 
@@ -1112,13 +1167,16 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         self.mapannotations = mas
 
-    def write_to_omero(self):
+    def write_to_omero(self, batch_size=1000):
         sf = self.client.getSession()
         group = str(self.target_object.details.group.id)
         update_service = sf.getUpdateService()
-        ids = update_service.saveAndReturnIds(
-            self.mapannotations, {'omero.group': group})
-        log.info('Created %d MapAnnotations', len(ids))
+        i = 0
+        for batch in self._batch(self.mapannotations, sz=batch_size):
+            i += 1
+            ids = update_service.saveAndReturnIds(
+                batch, {'omero.group': group})
+            log.info('Created %d MapAnnotations (batch %s)', len(ids), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):
@@ -1149,7 +1207,8 @@ class DeleteMapAnnotationContext(_QueryContext):
             q = ("SELECT child.id FROM %sAnnotationLink WHERE "
                  "child.class=%s AND parent.id in (:ids) "
                  "AND child.ns=:ns")
-            r = self.projection(q % (objtype, anntype), objids, ns)
+            r = self.projection(q % (objtype, anntype), objids, ns,
+                                batch_size=10000)
             log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
         return r
 
@@ -1201,13 +1260,15 @@ class DeleteMapAnnotationContext(_QueryContext):
             parentids["Well"] = ids
         if parentids["Well"]:
             q = "SELECT id FROM WellSample WHERE well.id IN (:ids)"
-            parentids["WellSample"] = self.projection(q, parentids["Well"])
+            parentids["WellSample"] = self.projection(
+                q, parentids["Well"], batch_size=10000)
 
         if isinstance(target, WellSampleI):
             parentids["WellSample"] = ids
         if parentids["WellSample"]:
             q = "SELECT image.id FROM WellSample WHERE id IN (:ids)"
-            parentids["Image"] = self.projection(q, parentids["WellSample"])
+            parentids["Image"] = self.projection(
+                q, parentids["WellSample"], batch_size=10000)
 
         if isinstance(target, ProjectI):
             parentids["Project"] = ids
@@ -1231,10 +1292,12 @@ class DeleteMapAnnotationContext(_QueryContext):
         # TODO: This should really include:
         #    raise Exception("Unknown target: %s" % target.__class__.__name__)
 
-        log.debug("Parent IDs: %s", parentids)
+        log.debug("Parent IDs: %s",
+                  ["%s:%s" % (k, v is not None and len(v) or "NA")
+                   for k, v in parentids.items()])
 
-        self.mapannids = []
-        self.fileannids = []
+        self.mapannids = set()
+        self.fileannids = set()
         not_annotatable = ('WellSample',)
 
         ns = omero.constants.namespaces.NSBULKANNOTATIONS
@@ -1243,7 +1306,7 @@ class DeleteMapAnnotationContext(_QueryContext):
                 continue
             r = self._get_annotations_for_deletion(
                 objtype, objids, 'MapAnnotation', ns)
-            self.mapannids.extend(r)
+            self.mapannids.update(r)
 
         log.info("Total: %d MapAnnotation(s) in %s",
                  len(set(self.mapannids)), ns)
@@ -1255,37 +1318,40 @@ class DeleteMapAnnotationContext(_QueryContext):
                     continue
                 r = self._get_annotations_for_deletion(
                     objtype, objids, 'FileAnnotation', ns)
-                self.fileannids.extend(r)
+                self.fileannids.update(r)
 
             log.info("Total: %d FileAnnotation(s) in %s",
                      len(set(self.fileannids)), ns)
 
-    def write_to_omero(self):
-        to_delete = {"Annotation": self.mapannids + self.fileannids}
-        delCmd = omero.cmd.Delete2(targetObjects=to_delete)
-        handle = self.client.getSession().submit(delCmd)
+    def write_to_omero(self, batch_size=1000):
+        for batch in self._batch(self.mapannids, sz=batch_size):
+            self._write_to_omero_batch({"MapAnnotation": batch})
+        for batch in self._batch(self.fileannids, sz=batch_size):
+            self._write_to_omero_batch({"FileAnnotation": batch})
 
-        callback = None
+    def _write_to_omero_batch(self, to_delete):
+        delCmd = omero.cmd.Delete2(targetObjects=to_delete)
         try:
-            callback = CmdCallbackI(self.client, handle)
-            loops = max(10, len(self.mapannids) / 10)
-            delay = 500
-            callback.loop(loops, delay)
-            rsp = callback.getResponse()
-            if isinstance(rsp, omero.cmd.OK):
-                ndma = len(rsp.deletedObjects.get(
-                    "ome.model.annotations.MapAnnotation", []))
+            callback = self.client.submit(
+                delCmd, loops=100, failontimeout=True)
+        except CmdError, ce:
+            log.error("Failed to delete: %s" % to_delete)
+            raise Exception(ce.err)
+
+        # At this point, we're sure that there's a response OR
+        # an exception has been thrown (likely LockTimeout)
+        rsp = callback.getResponse()
+        if isinstance(rsp, omero.cmd.OK):
+            ndma = len(rsp.deletedObjects.get(
+                "ome.model.annotations.MapAnnotation", []))
+            ndfa = len(rsp.deletedObjects.get(
+                "ome.model.annotations.FileAnnotation", []))
+            if ndma:
                 log.info("Deleted %d MapAnnotation(s)", ndma)
-                ndfa = len(rsp.deletedObjects.get(
-                    "ome.model.annotations.FileAnnotation", []))
+            if ndfa:
                 log.info("Deleted %d FileAnnotation(s)", ndfa)
-            else:
-                log.error("Delete failed: %s", rsp)
-        finally:
-            if callback:
-                callback.close(True)
-            else:
-                handle.close()
+        else:
+            log.error("Delete failed: %s", rsp)
 
 
 def parse_target_object(target_object):

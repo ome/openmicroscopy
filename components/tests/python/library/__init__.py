@@ -36,6 +36,8 @@ import Ice
 import Glacier2
 import omero
 import omero.gateway
+
+from collections import defaultdict
 from omero.cmd import DoAll, State, ERR, OK, Chmod2, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
@@ -1031,26 +1033,19 @@ class ITest(object):
             link.setChild(obj2.proxy())
         return client.sf.getUpdateService().saveAndReturnObject(link)
 
-    def delete(self, obj):
+    def delete(self, objs):
         """
-        Deletes a list of model entities (ProjectI, DatasetI or ImageI)
+        Deletes model entities (ProjectI, DatasetI, ImageI, etc)
         by creating Delete2 commands and calling
         :func:`~test.ITest.doSubmit`.
 
         :param obj: a list of objects to be deleted
         """
-        if isinstance(obj[0], ProjectI):
-            t = "Project"
-        elif isinstance(obj[0], DatasetI):
-            t = "Dataset"
-        elif isinstance(obj[0], ImageI):
-            t = "Image"
-        else:
-            assert False, "Object type not supported."
-
-        ids = [i.id.val for i in obj]
-        command = Delete2(targetObjects={t: ids})
-
+        to_delete = defaultdict(list)
+        for obj in objs:
+            t = obj.__class__.__name__
+            to_delete[t].append(obj.id.val)
+        command = Delete2(targetObjects=to_delete)
         self.doSubmit(command, self.client)
 
     def change_group(self, obj, target, client=None):

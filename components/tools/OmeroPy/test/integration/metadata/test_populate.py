@@ -27,8 +27,10 @@
 import library as lib
 import string
 import csv
+import gzip
 import os.path
 import re
+import shutil
 
 from omero.api import RoiOptions
 from omero.grid import ImageColumn
@@ -112,9 +114,11 @@ class Fixture(object):
 
     def createDataset(self, names=("A1", "A2")):
         ds = self.test.make_dataset()
-        for name in names:
-            img = self.test.importSingleImage(name=name)
+        imgs = self.test.importMIF(
+            seriesCount=len(names))
+        for i, name in enumerate(names):
             # Name must match exactly. No ".fake"
+            img = imgs[i]
             img = self.setName(img, name)
             self.test.link(ds, img)
         return ds.proxy()
@@ -249,6 +253,7 @@ class Dataset2Images(Fixture):
         )
         self.dataset = None
         self.images = None
+        self.names = ("A1", "A2")
 
     def assert_rows(self, rows):
         # Hard-coded in createCsv's arguments
@@ -256,7 +261,7 @@ class Dataset2Images(Fixture):
 
     def get_target(self):
         if not self.dataset:
-            self.dataset = self.createDataset()
+            self.dataset = self.createDataset(self.names)
             self.images = self.get_dataset_images()
         return self.dataset
 
@@ -301,14 +306,51 @@ class Dataset2Images(Fixture):
             img = mv['Image Name']
             con = mv['Concentration']
             typ = mv['Type']
-            if img == "A1":
+            assert img[0] in ("A", "a")
+            which = long(img[1:])
+            if which % 2 == 1:
                 assert con == '0'
                 assert typ == 'Control'
-            elif img == "A2":
+            elif which % 2 == 0:
                 assert con == '10'
                 assert typ == 'Treatment'
-            else:
-                raise Exception("Unknown img: %s" % img)
+
+
+class Dataset101Images(Dataset2Images):
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 102
+        self.names = []
+        rowData = []
+        for x in range(0, 101, 2):
+            name = "A%s" % (x+1)
+            self.names.append(name)
+            rowData.append("%s,Control,0" % name)
+            name = "A%s" % (x+2)
+            self.names.append(name)
+            rowData.append("A%s,Treatment,10" % (x+2))
+        self.csv = self.createCsv(
+            colNames="Image Name,Type,Concentration",
+            rowData=rowData,
+        )
+        self.dataset = None
+        self.images = None
+
+    def assert_rows(self, rows):
+        assert rows == 102
+
+
+class GZIP(Dataset2Images):
+
+    def createCsv(self, *args, **kwargs):
+        csvFileName = super(GZIP, self).createCsv(*args, **kwargs)
+        gzipFileName = "%s.gz" % csvFileName
+        with open(csvFileName, 'rb') as f_in, \
+            gzip.open(gzipFileName, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+        return gzipFileName
 
 
 class Project2Datasets(Fixture):
@@ -395,12 +437,15 @@ class TestPopulateMetadata(lib.ITest):
         Screen2Plates(),
         Plate2Wells(),
         Dataset2Images(),
+        Dataset101Images(),
         Project2Datasets(),
+        GZIP(),
     )
     METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
 
     @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
-    def testPopulateMetadata(self, fixture):
+    @mark.parametrize("batch_size", (None, 10, 1000))
+    def testPopulateMetadata(self, fixture, batch_size):
         """
         We should really test each of the parsing contexts in separate tests
         but in practice each one uses data created by the others, so for
@@ -413,21 +458,30 @@ class TestPopulateMetadata(lib.ITest):
             skip("PyYAML not installed.")
 
         fixture.init(self)
-        self._test_parsing_context(fixture)
-        self._test_bulk_to_map_annotation_context(fixture)
-        self._test_delete_map_annotation_context(fixture)
+        self._test_parsing_context(fixture, batch_size)
+        self._test_bulk_to_map_annotation_context(fixture, batch_size)
+        self._test_delete_map_annotation_context(fixture, batch_size)
 
-    def _test_parsing_context(self, fixture):
+    def _test_parsing_context(self, fixture, batch_size):
         """
             Create a small csv file, use populate_metadata.py to parse and
             attach to Plate. Then query to check table has expected content.
         """
 
         target = fixture.get_target()
+        # Deleting anns so that we can re-use the same user
+        self.delete(fixture.get_annotations())
+        child_anns = fixture.get_child_annotations()
+        child_anns = [x[0] for x in child_anns]
+        self.delete(child_anns)
+
         csv = fixture.get_csv()
         ctx = ParsingContext(self.client, target, file=csv)
         ctx.parse()
-        ctx.write_to_omero()
+        if batch_size is None:
+            ctx.write_to_omero()
+        else:
+            ctx.write_to_omero(batch_size=batch_size)
 
         # Get file annotations
         anns = fixture.get_annotations()
@@ -452,11 +506,8 @@ class TestPopulateMetadata(lib.ITest):
                 assert "Control" in rowValues
             elif "A2" in rowValues or "a2" in rowValues:
                 assert "Treatment" in rowValues
-            else:
-                assert False, \
-                    "Row does not contain 'a1' or 'a2': %s" % rowValues
 
-    def _test_bulk_to_map_annotation_context(self, fixture):
+    def _test_bulk_to_map_annotation_context(self, fixture, batch_size):
         # self._testPopulateMetadataPlate()
         assert len(fixture.get_child_annotations()) == 0
 
@@ -471,12 +522,15 @@ class TestPopulateMetadata(lib.ITest):
         ctx.parse()
         assert len(fixture.get_child_annotations()) == 0
 
-        ctx.write_to_omero()
+        if batch_size is None:
+            ctx.write_to_omero()
+        else:
+            ctx.write_to_omero(batch_size=batch_size)
         oas = fixture.get_child_annotations()
         assert len(oas) == fixture.annCount
         fixture.assert_child_annotations(oas)
 
-    def _test_delete_map_annotation_context(self, fixture):
+    def _test_delete_map_annotation_context(self, fixture, batch_size):
         # self._test_bulk_to_map_annotation_context()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
@@ -485,7 +539,10 @@ class TestPopulateMetadata(lib.ITest):
         ctx.parse()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
-        ctx.write_to_omero()
+        if batch_size is None:
+            ctx.write_to_omero()
+        else:
+            ctx.write_to_omero(batch_size=batch_size)
         assert len(fixture.get_child_annotations()) == 0
 
 
