@@ -6,7 +6,6 @@
 package integration;
 
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -20,6 +19,7 @@ import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -2032,11 +2032,42 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.t = re.getDefaultT();
         pDef.z = re.getDefaultZ();
         pDef.slice = omero.romio.XY.value;
+        RenderingModel model = re.getModel();
+        List<IObject> models = factory.getPixelsService().getAllEnumerations(
+                RenderingModel.class
+                .getName());
+        Iterator<IObject> j = models.iterator();
+        RenderingModel m;
+        // Change the color model so it is not grey scale.
+        while (j.hasNext()) {
+            m = (RenderingModel) j.next();
+            if (m.getId().getValue() != model.getId().getValue())
+                re.setModel(m);
+        }
+        List<String> failures = new ArrayList<String>();
+        byte[] ref = re.renderCompressed(pDef);
         while (i.hasNext()) {
             of = i.next();
             re.setChannelLookupTable(0, of.getName().getValue());
-            RGBBuffer buffer = re.render(pDef);
+            byte[] buffer = re.renderCompressed(pDef);
             Assert.assertNotNull(buffer);
+            //check that the lut is correctly read.
+            //if not read the color will be used.
+            if (Arrays.equals(ref, buffer)) {
+                failures.add(of.getName().getValue());
+            }
+        }
+        if (failures.isEmpty()) {
+            Assert.assertTrue(failures.size() == 0, "LUT read");
+        } else {
+            Iterator<String> s = failures.iterator();
+            StringBuffer b = new StringBuffer();
+            while (s.hasNext()) {
+                b.append(s.next());
+                b.append("\n");
+            }
+            Assert.fail("LUT not read:"+b.toString());
         }
     }
+
 }
