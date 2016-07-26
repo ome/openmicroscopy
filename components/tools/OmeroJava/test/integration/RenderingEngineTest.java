@@ -6,6 +6,10 @@
 package integration;
 
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -25,11 +29,13 @@ import javax.imageio.ImageIO;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 import omero.api.IPixelsPrx;
+import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
 import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.ProjectionAxisI;
 import omero.model.ProjectionDef;
@@ -1983,6 +1989,54 @@ public class RenderingEngineTest extends AbstractServerTest {
         while (i.hasNext()) {
             c1 = i.next();
             Assert.assertEquals(lut, c1.getLookupTable());
+        }
+    }
+
+    @Test
+    public void testLutReaders() throws Exception {
+        //First import an image
+        File f = File.createTempFile("testLutReaders", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels1 = def.copyWaveRendering();
+        Assert.assertNotNull(channels1);
+
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(
+                ScriptServiceTest.LUT_MIMETYPE);
+        assertNotNull(scripts);
+        assertTrue(scripts.size() > 0);
+        Iterator<OriginalFile> i = scripts.iterator();
+        OriginalFile of;
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        while (i.hasNext()) {
+            of = i.next();
+            re.setChannelLookupTable(0, of.getName().getValue());
+            RGBBuffer buffer = re.render(pDef);
+            Assert.assertNotNull(buffer);
         }
     }
 }

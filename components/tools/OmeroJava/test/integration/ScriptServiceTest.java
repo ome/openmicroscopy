@@ -51,7 +51,7 @@ import org.testng.annotations.Test;
 public class ScriptServiceTest extends AbstractServerTest {
 
     /** The mimetype of the lookup table files.*/
-    private static final String LUT_MIMETYPE = "text/x-lut";
+    static final String LUT_MIMETYPE = "text/x-lut";
 
     /**
      * Tests to make sure that a new entry for the same file is not added
