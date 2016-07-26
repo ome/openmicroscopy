@@ -36,6 +36,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+
 /**
  * This is a UI which represents the lookup tables as a list.
  *
@@ -70,7 +72,7 @@ public class LUTUI extends JPanel {
      * Create the UI
      */
     private void createUI() {
-        String[] lutsArray = createLutsArray();
+        LookupTableItem[] lutsArray = createLutsArray();
         if (lutsArray != null)
             lutList = new JList(lutsArray);
         else
@@ -79,7 +81,7 @@ public class LUTUI extends JPanel {
         int index = 0;
         if (c.getLUT() != null && lutsArray != null) {
             for (int i = 0; i < lutsArray.length; i++) {
-                if (lutsArray[i].equals(c.getLUT())) {
+                if (lutsArray[i].matchesFilename(c.getLUT())) {
                     index = i;
                     break;
                 }
@@ -92,11 +94,11 @@ public class LUTUI extends JPanel {
         lutList.setSelectedIndex(index);
         selectionListener = new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                String lut = (String) lutList.getSelectedValue();
+                LookupTableItem lut = (LookupTableItem) lutList.getSelectedValue();
                 if (lut == null || lut.equals(NONE))
                     c.setLUT(null);
                 else
-                    c.setLUT(lut);
+                    c.setLUT(lut.getFilename());
             }
 
         };
@@ -119,18 +121,19 @@ public class LUTUI extends JPanel {
      * 
      * @return See above
      */
-    private String[] createLutsArray() {
-        String[] lutsArray = null;
+    private LookupTableItem[] createLutsArray() {
+        LookupTableItem[] lutsArray = null;
         if (CollectionUtils.isNotEmpty(c.getAvailableLookupTables())) {
-            lutsArray = new String[c.getAvailableLookupTables().size() + 1];
-            lutsArray[0] = NONE;
+            lutsArray = new LookupTableItem[c.getAvailableLookupTables().size() + 1];
+            lutsArray[0] = new LookupTableItem(NONE);
             int i = 1;
             Iterator<String> it = c.getAvailableLookupTables().iterator();
             while (it.hasNext()) {
-                lutsArray[i] = it.next();
+                lutsArray[i] =  new LookupTableItem(it.next());
                 i++;
             }
         }
+        Arrays.sort(lutsArray);
         return lutsArray;
     }
 
@@ -148,7 +151,7 @@ public class LUTUI extends JPanel {
         int index = 0;
         if (c.getLUT() != null && lutList.getModel().getSize() > 0) {
             for (int i = 0; i < lutList.getModel().getSize(); i++) {
-                if (lutList.getModel().getElementAt(i).equals(c.getLUT())) {
+                if (( (LookupTableItem)lutList.getModel().getElementAt(i) ).matchesFilename(c.getLUT())) {
                     index = i;
                     break;
                 }
@@ -184,4 +187,83 @@ public class LUTUI extends JPanel {
         repaint();
     }
 
+    /**
+     * Item for the Lookup Table list, which shows a nicely formatted name for
+     * the lookup table, based on the file name.
+     */
+    class LookupTableItem implements Comparable<LookupTableItem> {
+
+        /** The file name **/
+        private String filename;
+
+        /** More readable name generated from the filename */
+        private String readableName;
+
+        /**
+         * Create new instance
+         * 
+         * @param filename
+         *            The lut file name
+         */
+        LookupTableItem(String filename) {
+            this.filename = filename;
+            this.readableName = generateReadableName(filename);
+        }
+
+        /**
+         * Generates a more readable name for the given lut filename by removing
+         * '*.lut' extension, underscores and using upper case at the beginning
+         * of words.
+         * 
+         * @param filename
+         *            The filename
+         * @return See above
+         */
+        private String generateReadableName(String filename) {
+            filename = filename.replace(".lut", "");
+            String[] parts = filename.replace(".lut", "").split("_");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < parts.length; i++) {
+                String part = parts[i];
+                sb.append(part.substring(0, 1).toUpperCase());
+                if (part.length() > 1) {
+                    sb.append(part.substring(1));
+                }
+
+                if (i < parts.length - 1)
+                    sb.append(' ');
+            }
+
+            return sb.toString();
+        }
+
+        @Override
+        public String toString() {
+            return readableName;
+        }
+
+        /**
+         * Get the lut file name
+         * 
+         * @return See above
+         */
+        public String getFilename() {
+            return this.filename;
+        }
+
+        /**
+         * @param filename
+         *            The file name
+         * @return <code>true</code> if the given filename matches the filename
+         *         of this {@link LookupTableItem}
+         */
+        public boolean matchesFilename(String filename) {
+            return this.filename.equals(filename);
+        }
+
+        @Override
+        public int compareTo(LookupTableItem o) {
+            return this.readableName.compareTo(o.readableName);
+        }
+    }
 }
