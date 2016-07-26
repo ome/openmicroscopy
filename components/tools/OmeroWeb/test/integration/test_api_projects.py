@@ -21,7 +21,8 @@
 Tests querying & editing Projects with webgateway json api
 """
 
-from weblibrary import IWebTest, _get_response_json, _get_response
+from weblibrary import IWebTest, _get_response_json, _get_response, \
+    _csrf_post_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
@@ -154,9 +155,19 @@ def marshal_objects(objects):
     return expected
 
 
-def assert_objects(conn, json_objects, omero_objects, dtype="Project",
+def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
                    group='-1'):
-    pids = [p.id.val for p in omero_objects]
+    """
+    Load objects from OMERO, via conn.getObjects(), marshal with
+    omero_marshal and compare with json_objects.
+    omero_ids_objects can be IDs or list of omero.model objects.
+    """
+    pids = []
+    for p in omero_ids_objects:
+        try:
+            pids.append(long(p))
+        except ValueError:
+            pids.append(p.id.val)
     conn.SERVICE_OPTS.setOmeroGroup(group)
     projects = conn.getObjects(dtype, pids, respect_order=True)
     projects = [p._obj for p in projects]
@@ -437,3 +448,23 @@ class TestProjects(IWebTest):
                             status_code=200)
         assert rsp.get('Content-Type') == 'application/javascript'
         assert rsp.content.startswith('callback(')
+
+    def test_project_create_read(self):
+        django_client = self.django_root_client
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_projects', kwargs={'api_version': version})
+        projectName = 'test_api_projects'
+        payload = {'name': projectName}
+        rsp = _csrf_post_response_json(django_client, request_url, payload,
+                                       status_code=200)
+        # We get the complete new Project returned
+        assert rsp['Name'] == projectName
+        projectId = rsp['@id']
+
+        # Read Project
+        project_url = reverse('api_project', kwargs={'api_version': version,
+                                                     'pid': projectId})
+        rsp = _get_response_json(django_client, project_url, {})
+        assert rsp['@id'] == projectId
+        conn = BlitzGateway(client_obj=self.root)
+        assert_objects(conn, [rsp], [projectId])
