@@ -2058,7 +2058,7 @@ public class RenderingEngineTest extends AbstractServerTest {
             }
         }
         if (failures.isEmpty()) {
-            Assert.assertTrue(failures.size() == 0, "LUT read");
+            Assert.assertTrue(failures.size() == 0, "All LUTs read");
         } else {
             Iterator<String> s = failures.iterator();
             StringBuffer b = new StringBuffer();
@@ -2066,7 +2066,7 @@ public class RenderingEngineTest extends AbstractServerTest {
                 b.append(s.next());
                 b.append("\n");
             }
-            Assert.fail("LUT not read:"+b.toString());
+            Assert.fail("LUTs not read:"+b.toString());
         }
     }
 
