@@ -1834,9 +1834,6 @@ CREATE INDEX i_projectiondef_type ON projectiondef(type);
 
 -- ... up to patch 8:
 
-INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  8,            'OMERO5.3DEV',   7);
-
 ALTER TABLE session ALTER COLUMN userip TYPE VARCHAR(45);
 
 CREATE TABLE experimenter_config (
