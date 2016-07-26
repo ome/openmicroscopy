@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.IconManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -61,12 +61,6 @@ public class IconManager
 
     /** The pathname, relative to this class, of the OME screen. */
     private static final String OME_ICON = "graphx/omero16.png";
-
-    /** ID of the <code>Colour slider</code> icon. */
-    public static final int COLOUR_SLIDER_24 = 0;
-
-    /** ID of the <code>Colour watch</code> icon. */
-    public static final int COLOUR_SWATCH_24 = 1;
 
     /** ID of the <code>Colour wheel</code> icon. */
     public static final int COLOUR_WHEEL_24 = 2;
@@ -557,8 +551,6 @@ public class IconManager
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
     static {
-        relPaths[COLOUR_SLIDER_24] = "coloursliders24.png";
-        relPaths[COLOUR_SWATCH_24] = "colourswatch24.png";
         relPaths[COLOUR_WHEEL_24] = "colourwheel24.png";
         relPaths[CANCEL_22] = "nuvola_cancel22.png";
         relPaths[OK_22] = "nuvola_button_accept22.png";

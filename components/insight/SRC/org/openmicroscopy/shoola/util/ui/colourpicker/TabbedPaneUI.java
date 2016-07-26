@@ -117,12 +117,6 @@ class TabbedPaneUI
 	/** Button to choose HSVColourWheelPanel. */
 	private JToggleButton 		colourWheelButton;
 	
-	/** Button to choose RGB Sliders panel. */
-	private JToggleButton		RGBSlidersButton;
-	
-	/** Button to choose colour swatch panel. */
-	private JToggleButton		colourSwatchButton;
-	
 	/** Button to choose lookup table panel. */
     private JToggleButton       lutButton;
     
@@ -143,13 +137,7 @@ class TabbedPaneUI
 	
 	/** ColourWheel panel, containing the HSVPickerUI. */
 	private HSVColourWheelUI	colourWheelPane;
-	
-	/** RGBPanel containing the ColourSlider UI. */
-	private RGBSliderUI 		RGBSliderPane;
-	
-	/** Containing the Swatch UI. */
-	private ColourSwatchUI 		swatchPane;
-	
+
 	/** Containing the LUT UI. */
     private LUTUI      lutPane;
 	
@@ -204,36 +192,6 @@ class TabbedPaneUI
         };
         
         colourWheelButton.addActionListener(action);
-        RGBSlidersButton = new JToggleButton(
-        icons.getIcon(IconManager.COLOUR_SLIDER_24));
-        UIUtilities.unifiedButtonLookAndFeel(RGBSlidersButton);
-        RGBSlidersButton.setBorderPainted(true);
-        RGBSlidersButton.setToolTipText("Show RGB Color Sliders.");
-        
-        action = new AbstractAction("RGB Slider Button") 
-        {
-            public void actionPerformed(ActionEvent evt) 
-            {
-            	clearToggleButtons();
-                pickRGBSliderPane();
-            }
-        };
-        RGBSlidersButton.addActionListener(action);
-        colourSwatchButton = new JToggleButton(
-        icons.getIcon(IconManager.COLOUR_SWATCH_24));
-        colourSwatchButton.setToolTipText("Show Color List.");
-        UIUtilities.unifiedButtonLookAndFeel(colourSwatchButton);
-        colourSwatchButton.setBorderPainted(true);
-        
-        action = new AbstractAction("Color Swatch Button")
-        {
-            public void actionPerformed(ActionEvent evt) 
-            {
-                clearToggleButtons();
-                pickSwatchPane();
-            }
-        };
-        colourSwatchButton.addActionListener(action);
         
         lutButton = new JToggleButton(icons.getIcon(IconManager.LOOKUP_TABLE_24));
         lutButton.setToolTipText("Show Lookup Tables List.");
@@ -251,8 +209,6 @@ class TabbedPaneUI
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
         toolbar.add(colourWheelButton);
-        toolbar.add(RGBSlidersButton);
-        toolbar.add(colourSwatchButton);
         toolbar.add(lutButton);
     }
     
@@ -310,8 +266,6 @@ class TabbedPaneUI
     {
         colourWheelPane = new HSVColourWheelUI(control);
         paintPotPane = new PaintPotUI(control.getColour(), control);
-        RGBSliderPane = new RGBSliderUI(control);
-        swatchPane = new ColourSwatchUI(control);
         lutPane = new LUTUI(control);
     }
     
@@ -341,8 +295,6 @@ class TabbedPaneUI
         tabPaneLayout = new CardLayout();
         tabPanel.setLayout(tabPaneLayout);
         tabPanel.add(colourWheelPane, COLOURWHEELPANE);
-        tabPanel.add(RGBSliderPane, RGBSLIDERPANE);
-        tabPanel.add(swatchPane, SWATCHPANE);
         tabPanel.add(lutPane, LUTPANE);
         add(tabPanel);
         if (field) {
@@ -358,15 +310,13 @@ class TabbedPaneUI
         	add(p);
         }
         add(userActionPanel);
-        pickSwatchPane();
+        pickWheelPane();
     }
     
     /** Clears all buttons. */
     private void clearToggleButtons()
     {
         colourWheelButton.setSelected(false);
-        RGBSlidersButton.setSelected(false);
-        colourSwatchButton.setSelected(false);
         lutButton.setSelected(false);
     }
     
@@ -377,51 +327,20 @@ class TabbedPaneUI
         colourWheelPane.setActive(true);
 
         tabPaneLayout.show(tabPanel,COLOURWHEELPANE);
-        RGBSliderPane.setActive(false);
-        swatchPane.setActive(false);
         lutPane.setActive(false);
         colourWheelPane.findPuck();
         colourWheelPane.refresh();
         colourWheelPane.repaint();
     }
     
-    /** Sets swatch as picked and makes it visible. */
-    private void pickSwatchPane()
-    {   
-        tabPaneLayout.show(tabPanel,SWATCHPANE);
-        colourSwatchButton.setSelected(true);
-        swatchPane.setActive(true);
-        RGBSliderPane.setActive(false);
-        colourWheelPane.setActive(false);
-        lutPane.setActive(false);
-        this.doLayout();
-        swatchPane.refresh();
-    }
-    
     /** Sets lut as picked and makes it visible. */
     private void pickLUTPane()
     {   
         tabPaneLayout.show(tabPanel,LUTPANE);
-        colourSwatchButton.setSelected(true);
         lutPane.setActive(true);
-        swatchPane.setActive(false);
-        RGBSliderPane.setActive(false);
         colourWheelPane.setActive(false);
         this.doLayout();
         lutPane.refresh();
-    }
-    
-    /** Sets RGBSlider as picked and makes it visible. */
-    private void pickRGBSliderPane()
-    {
-        tabPaneLayout.show(tabPanel,RGBSLIDERPANE);
-        RGBSlidersButton.setSelected(true);
-        RGBSliderPane.setActive(true);
-        colourWheelPane.setActive(false);
-        swatchPane.setActive(false);
-        lutPane.setActive(false);
-        this.doLayout();
-        RGBSliderPane.refresh();
     }
     
 	/**
@@ -468,7 +387,6 @@ class TabbedPaneUI
 	void revertAction()
 	{ 
 		control.revert(); 
-		swatchPane.revert();
 		lutPane.revert();
 		//Check if preview was 
 		if (preview) {
@@ -520,12 +438,8 @@ class TabbedPaneUI
 	 */
 	public void stateChanged(ChangeEvent evt) 
 	{
-		if (RGBSliderPane != null && RGBSliderPane.isVisible())
-			RGBSliderPane.refresh();
 		if (colourWheelPane != null && colourWheelPane.isVisible())
 			colourWheelPane.refresh();
-		if (swatchPane != null && swatchPane.isVisible())
-			swatchPane.refresh();
 		if (lutPane != null && lutPane.isVisible())
 		    lutPane.refresh();
 		if (fieldDescription == null)

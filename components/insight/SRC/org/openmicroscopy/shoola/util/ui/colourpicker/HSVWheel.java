@@ -117,18 +117,20 @@ class HSVWheel
 	 */
 	private void createColourWheelFromLUT()
 	{
-		int sz = (int) radius;
-		float szsz = sz*sz;
-		float value  = control.getValue(); 
-		for (int x =  sz ; x > -sz ; x--)
-			for (int y =  sz ; y > -sz ; y--)
-				if (x*x+y*y < szsz) {
-					img.setRGB(sz+x, sz+y, Factory.makeARGB((
-							(int) (control.getAlpha()*255)),
-							(int) (lut[x+sz][y+sz][0]*value),
-							(int) (lut[x+sz][y+sz][1]*value),
-							(int) (lut[x+sz][y+sz][2]*value)));	
-				}		
+	    if (img != null) {
+    		int sz = (int) radius;
+    		float szsz = sz*sz;
+    		float value  = control.getValue(); 
+    		for (int x =  sz ; x > -sz ; x--)
+    			for (int y =  sz ; y > -sz ; y--)
+    				if (x*x+y*y < szsz) {
+    					img.setRGB(sz+x, sz+y, Factory.makeARGB((
+    							(int) (control.getAlpha()*255)),
+    							(int) (lut[x+sz][y+sz][0]*value),
+    							(int) (lut[x+sz][y+sz][1]*value),
+    							(int) (lut[x+sz][y+sz][2]*value)));	
+    				}		
+	    }
 	}
 	
 	/**
