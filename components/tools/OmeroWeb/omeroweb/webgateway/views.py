@@ -2668,13 +2668,12 @@ class ProjectView(View):
         return super(ProjectView, self).dispatch(*args, **kwargs)
 
     def get(self, request, pid, conn=None, **kwargs):
-        try:
-            project = conn.getQueryService().get('Project', long(pid))
-        except ValidationException:
+        project = conn.getObject("Project", pid)
+        if project is None:
             return JsonResponseNotFound(
                 {'message': 'Project %s not found' % pid})
-        encoder = get_encoder(project.__class__)
-        return encoder.encode(project)
+        encoder = get_encoder(project._obj.__class__)
+        return encoder.encode(project._obj)
 
     def put(self, request, pid, conn=None, **kwargs):
         try:
