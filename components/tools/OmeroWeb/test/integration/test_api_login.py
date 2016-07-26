@@ -56,6 +56,17 @@ class TestLogin(IWebTest):
         assert 'login_url' in rsp
         assert 'projects_url' in rsp
 
+    def test_login_get(self):
+        """
+        Tests that we get a suitable message if we try to GET login_url
+        """
+        django_client = self.django_root_client
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_login', kwargs={'api_version': version})
+        rsp = _get_response_json(django_client, request_url, {})
+        assert (rsp['message'] ==
+                "POST only with username, password and csrftoken")
+
     def test_login_csrf(self):
         """
         Tests that we can only login with CSRF
