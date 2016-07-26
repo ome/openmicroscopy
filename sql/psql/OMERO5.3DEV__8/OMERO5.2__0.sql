@@ -1834,7 +1834,35 @@ CREATE INDEX i_projectiondef_type ON projectiondef(type);
 
 -- ... up to patch 8:
 
--- TODO
+INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
+             VALUES ('OMERO5.3DEV',  8,            'OMERO5.3DEV',   7);
+
+ALTER TABLE session ALTER COLUMN userip TYPE VARCHAR(45);
+
+CREATE TABLE experimenter_config (
+    experimenter_id BIGINT NOT NULL,
+    name TEXT NOT NULL,
+    value TEXT NOT NULL,
+    index INTEGER NOT NULL,
+    PRIMARY KEY (experimenter_id, index),
+    CONSTRAINT FKexperimenter_config_map
+        FOREIGN KEY (experimenter_id) REFERENCES experimenter);
+
+CREATE FUNCTION experimenter_config_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM experimenter_config
+        WHERE experimenter_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER experimenter_config_map_entry_delete_trigger
+    BEFORE DELETE ON experimenter
+    FOR EACH ROW
+    EXECUTE PROCEDURE experimenter_config_map_entry_delete_trigger_function();
+
+CREATE INDEX experimenter_config_name ON experimenter_config(name);
+CREATE INDEX experimenter_config_value ON experimenter_config(value);
 
 
 --
