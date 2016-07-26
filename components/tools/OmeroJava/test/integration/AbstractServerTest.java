@@ -915,10 +915,9 @@ public class AbstractServerTest extends AbstractTest {
     protected void assertExists(IObject obj) throws Exception {
         IObject copy = iQuery.find(obj.getClass().getSimpleName(), obj.getId()
                 .getValue());
-        Assert.assertNotNull(
+        Assert.assertNotNull(copy,
                 String.format("%s:%s", obj.getClass().getName(), obj.getId()
-                        .getValue())
-                        + " is missing!", copy.toString());
+                        .getValue())+ " is missing!");
     }
 
     protected void assertAllExist(IObject... obj) throws Exception {
@@ -955,10 +954,9 @@ public class AbstractServerTest extends AbstractTest {
     protected void assertDoesNotExist(IObject obj) throws Exception {
         IObject copy = iQuery.find(obj.getClass().getSimpleName(), obj.getId()
                 .getValue());
-        Assert.assertNull(
+        Assert.assertNull(copy,
                 String.format("%s:%s", obj.getClass().getName(), obj.getId()
-                        .getValue())
-                        + " still exists!", copy.toString());
+                        .getValue())+ " still exists!");
     }
 
     protected void assertNoneExist(IObject... obj) throws Exception {
