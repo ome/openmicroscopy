@@ -23,15 +23,10 @@
 
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.Color;
 import java.util.Collection;
-
+import org.apache.commons.lang.ObjectUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * The model of the RGB slider.
@@ -538,11 +533,7 @@ class RGBModel
      * @return <code>true</code> if it is, <code>false</code> if it is not
      */
     boolean isOriginalLut(String lut) {
-        if (originalLut == null ^ lut == null)
-            return false;
-        if (originalLut == null && lut == null)
-            return true;
-        return originalLut.equals(lut);
+        return ObjectUtils.equals(lut, originalLut);
     }
 
     /**
