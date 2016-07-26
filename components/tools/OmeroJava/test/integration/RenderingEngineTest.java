@@ -5,10 +5,6 @@
 
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -48,6 +44,7 @@ import omero.romio.RegionDef;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
+import org.testng.Assert;
 
 import sun.awt.image.IntegerInterleavedRaster;
 
@@ -142,9 +139,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         int v = t + 1;
         re.setDefaultT(v);
         re.saveCurrentSettings();
-        assertEquals(re.getDefaultT(), v);
+        Assert.assertEquals(re.getDefaultT(), v);
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-        assertEquals(def.getDefaultT().getValue(), v);
+        Assert.assertEquals(def.getDefaultT().getValue(), v);
         re.close();
     }
 
@@ -208,7 +205,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         int k = 0;
         for (int i = 0; i < region.length; i++) {
             j = w * k + i;
-            assertEquals(region[i], plane[j]);
+            Assert.assertEquals(region[i], plane[j]);
             if (i % rWidth == rWidth - 1)
                 k++;
         }
@@ -231,7 +228,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         int k = 0;
         for (int i = 0; i < region.length; i++) {
             j = w * k + i;
-            assertEquals(region[i], plane[j]);
+            Assert.assertEquals(region[i], plane[j]);
             if (i % rWidth == rWidth - 1)
                 k++;
         }
@@ -253,7 +250,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         try {
             svc.lookupPixels(pixels.getId().getValue());
             svc.load();
-            fail("We should not have been able to load it.");
+            Assert.fail("We should not have been able to load it.");
         } catch (Exception e) {
 
         }
@@ -324,20 +321,20 @@ public class RenderingEngineTest extends AbstractServerTest {
         re.load();
         // retrieve the rendering def
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-        assertEquals(def.getDefaultZ().getValue(), re.getDefaultZ());
-        assertEquals(def.getDefaultT().getValue(), re.getDefaultT());
-        assertEquals(def.getModel().getValue().getValue(), re.getModel()
+        Assert.assertEquals(def.getDefaultZ().getValue(), re.getDefaultZ());
+        Assert.assertEquals(def.getDefaultT().getValue(), re.getDefaultT());
+        Assert.assertEquals(def.getModel().getValue().getValue(), re.getModel()
                 .getValue().getValue());
         QuantumDef q1 = def.getQuantization();
         QuantumDef q2 = re.getQuantumDef();
-        assertNotNull(q1);
-        assertNotNull(q2);
-        assertEquals(q1.getBitResolution().getValue(), q2.getBitResolution()
+        Assert.assertNotNull(q1);
+        Assert.assertNotNull(q2);
+        Assert.assertEquals(q1.getBitResolution().getValue(), q2.getBitResolution()
                 .getValue());
-        assertEquals(q1.getCdStart().getValue(), q2.getCdStart().getValue());
-        assertEquals(q1.getCdEnd().getValue(), q2.getCdEnd().getValue());
+        Assert.assertEquals(q1.getCdStart().getValue(), q2.getCdStart().getValue());
+        Assert.assertEquals(q1.getCdEnd().getValue(), q2.getCdEnd().getValue());
         List<ChannelBinding> channels1 = def.copyWaveRendering();
-        assertNotNull(channels1);
+        Assert.assertNotNull(channels1);
         Iterator<ChannelBinding> i = channels1.iterator();
         ChannelBinding c1;
         int index = 0;
@@ -345,24 +342,24 @@ public class RenderingEngineTest extends AbstractServerTest {
         while (i.hasNext()) {
             c1 = i.next();
             rgba = re.getRGBA(index);
-            assertEquals(c1.getRed().getValue(), rgba[0]);
-            assertEquals(c1.getGreen().getValue(), rgba[1]);
-            assertEquals(c1.getBlue().getValue(), rgba[2]);
-            assertEquals(c1.getAlpha().getValue(), rgba[3]);
-            assertEquals(c1.getCoefficient().getValue(),
+            Assert.assertEquals(c1.getRed().getValue(), rgba[0]);
+            Assert.assertEquals(c1.getGreen().getValue(), rgba[1]);
+            Assert.assertEquals(c1.getBlue().getValue(), rgba[2]);
+            Assert.assertEquals(c1.getAlpha().getValue(), rgba[3]);
+            Assert.assertEquals(c1.getCoefficient().getValue(),
                     re.getChannelCurveCoefficient(index));
-            assertEquals(c1.getFamily().getValue().getValue(), re
+            Assert.assertEquals(c1.getFamily().getValue().getValue(), re
                     .getChannelFamily(index).getValue().getValue());
-            assertEquals(c1.getInputStart().getValue(),
+            Assert.assertEquals(c1.getInputStart().getValue(),
                     re.getChannelWindowStart(index));
-            assertEquals(c1.getInputEnd().getValue(),
+            Assert.assertEquals(c1.getInputEnd().getValue(),
                     re.getChannelWindowEnd(index));
             Boolean b1 = Boolean.valueOf(c1.getActive().getValue());
             Boolean b2 = Boolean.valueOf(re.isActive(index));
-            assertTrue(b1.equals(b2));
+            Assert.assertTrue(b1.equals(b2));
             b1 = Boolean.valueOf(c1.getNoiseReduction().getValue());
             b2 = Boolean.valueOf(re.getChannelNoiseReduction(index));
-            assertTrue(b1.equals(b2));
+            Assert.assertTrue(b1.equals(b2));
             index++;
         }
         re.close();
@@ -401,10 +398,10 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         int v = def.getDefaultT().getValue() + 1;
         re.setDefaultT(v);
-        assertEquals(re.getDefaultT(), v);
+        Assert.assertEquals(re.getDefaultT(), v);
         v = def.getDefaultZ().getValue() + 1;
         re.setDefaultZ(v);
-        assertEquals(re.getDefaultZ(), v);
+        Assert.assertEquals(re.getDefaultZ(), v);
 
         // tested in PixelsService
         IPixelsPrx svc = factory.getPixelsService();
@@ -423,15 +420,15 @@ public class RenderingEngineTest extends AbstractServerTest {
             }
         }
         re.setModel(model);
-        assertEquals(re.getModel().getId().getValue(), model.getId().getValue());
+        Assert.assertEquals(re.getModel().getId().getValue(), model.getId().getValue());
         QuantumDef qdef = def.getQuantization();
         int start = qdef.getCdStart().getValue() + 10;
         int end = qdef.getCdEnd().getValue() - 10;
         re.setCodomainInterval(start, end);
-        assertEquals(re.getQuantumDef().getCdStart().getValue(), start);
-        assertEquals(re.getQuantumDef().getCdEnd().getValue(), end);
+        Assert.assertEquals(re.getQuantumDef().getCdStart().getValue(), start);
+        Assert.assertEquals(re.getQuantumDef().getCdEnd().getValue(), end);
         List<ChannelBinding> channels1 = def.copyWaveRendering();
-        assertNotNull(channels1);
+        Assert.assertNotNull(channels1);
         Iterator<ChannelBinding> j = channels1.iterator();
         ChannelBinding c1;
         int index = 0;
@@ -445,25 +442,25 @@ public class RenderingEngineTest extends AbstractServerTest {
             c1 = j.next();
             b = !c1.getActive().getValue();
             re.setActive(index, b);
-            assertTrue(Boolean.valueOf(b).equals(
+            Assert.assertTrue(Boolean.valueOf(b).equals(
                     Boolean.valueOf(re.isActive(index))));
             s = c1.getInputStart().getValue() + 1;
             e = c1.getInputEnd().getValue() + 1;
             re.setChannelWindow(index, s, e);
-            assertEquals(re.getChannelWindowStart(index), s);
-            assertEquals(re.getChannelWindowEnd(index), e);
+            Assert.assertEquals(re.getChannelWindowStart(index), s);
+            Assert.assertEquals(re.getChannelWindowEnd(index), e);
             b = !c1.getNoiseReduction().getValue();
             re.setRGBA(index, RGBA[0], RGBA[1], RGBA[2], RGBA[3]);
             rgba = re.getRGBA(index);
             for (int k = 0; k < rgba.length; k++) {
-                assertTrue(rgba[k] == RGBA[k]);
+                Assert.assertTrue(rgba[k] == RGBA[k]);
             }
             b = !c1.getNoiseReduction().getValue();
             re.setQuantizationMap(index, f, coefficient, b);
-            assertTrue(Boolean.valueOf(re.getChannelNoiseReduction(index))
+            Assert.assertTrue(Boolean.valueOf(re.getChannelNoiseReduction(index))
                     .equals(Boolean.valueOf(b)));
-            assertEquals(re.getChannelCurveCoefficient(index), coefficient);
-            assertEquals(re.getChannelFamily(index).getId().getValue(), f
+            Assert.assertEquals(re.getChannelCurveCoefficient(index), coefficient);
+            Assert.assertEquals(re.getChannelFamily(index).getId().getValue(), f
                     .getId().getValue());
         }
         re.close();
@@ -508,12 +505,12 @@ public class RenderingEngineTest extends AbstractServerTest {
             re.lookupRenderingDef(id);
         }
         re.load();
-        assertEquals(re.getDefaultT(), def.getDefaultT().getValue());
+        Assert.assertEquals(re.getDefaultT(), def.getDefaultT().getValue());
         re.resetDefaultSettings(false);
-        assertEquals(re.getDefaultT(), t);
+        Assert.assertEquals(re.getDefaultT(), t);
         // reload from db
         def = factory.getPixelsService().retrieveRndSettings(id);
-        assertEquals(def.getDefaultT().getValue(), v);
+        Assert.assertEquals(def.getDefaultT().getValue(), v);
     }
 
     /**
@@ -554,9 +551,9 @@ public class RenderingEngineTest extends AbstractServerTest {
             re.lookupRenderingDef(id);
         }
         re.load();
-        assertEquals(re.getDefaultT(), def.getDefaultT().getValue());
+        Assert.assertEquals(re.getDefaultT(), def.getDefaultT().getValue());
         re.resetDefaultSettings(true);
-        assertEquals(re.getDefaultT(), t);
+        Assert.assertEquals(re.getDefaultT(), t);
     }
 
     /**
@@ -593,9 +590,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         int v = t + 1;
         re.setDefaultT(v);
         re.saveCurrentSettings();
-        assertTrue(re.getDefaultT() == v);
+        Assert.assertTrue(re.getDefaultT() == v);
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-        assertEquals(def.getDefaultT().getValue(), v);
+        Assert.assertEquals(def.getDefaultT().getValue(), v);
         re.close();
     }
 
@@ -632,9 +629,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.slice = omero.romio.XY.value;
         // delete the file.
         RGBBuffer buffer = re.render(pDef);
-        assertNotNull(buffer);
-        assertEquals(p.getSizeX().getValue(), buffer.sizeX1);
-        assertEquals(p.getSizeY().getValue(), buffer.sizeX2);
+        Assert.assertNotNull(buffer);
+        Assert.assertEquals(p.getSizeX().getValue(), buffer.sizeX1);
+        Assert.assertEquals(p.getSizeY().getValue(), buffer.sizeX2);
         IPixelsPrx svc = factory.getPixelsService();
         List<IObject> models = svc.getAllEnumerations(RenderingModel.class
                 .getName());
@@ -648,7 +645,7 @@ public class RenderingEngineTest extends AbstractServerTest {
                 re.setModel(m);
         }
         buffer = re.render(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         f.delete();
         re.close();
     }
@@ -701,33 +698,33 @@ public class RenderingEngineTest extends AbstractServerTest {
             r.height = sizeY / v;
             pDef.region = r;
             bufferRegion = re.render(pDef);
-            assertNotNull(bufferRegion);
-            assertEquals(r.width, bufferRegion.sizeX1);
-            assertEquals(r.height, bufferRegion.sizeX2);
+            Assert.assertNotNull(bufferRegion);
+            Assert.assertEquals(r.width, bufferRegion.sizeX1);
+            Assert.assertEquals(r.height, bufferRegion.sizeX2);
             // now render a plane and compare the renderer value.
             pDef = new PlaneDef();
             pDef.t = re.getDefaultT();
             pDef.z = re.getDefaultZ();
             pDef.slice = omero.romio.XY.value;
             bufferPlane = re.render(pDef);
-            assertNotNull(bufferPlane);
+            Assert.assertNotNull(bufferPlane);
             // red band
             region = bufferRegion.bands[0];
             plane = bufferPlane.bands[0];
-            assertNotNull(region);
-            assertNotNull(plane);
+            Assert.assertNotNull(region);
+            Assert.assertNotNull(plane);
             checkBuffer(region, plane, sizeX - r.width, r.width);
             // green band
             region = bufferRegion.bands[1];
             plane = bufferPlane.bands[1];
-            assertNotNull(region);
-            assertNotNull(plane);
+            Assert.assertNotNull(region);
+            Assert.assertNotNull(plane);
             checkBuffer(region, plane, sizeX - r.width, r.width);
             // blue band
             region = bufferRegion.bands[2];
             plane = bufferPlane.bands[2];
-            assertNotNull(region);
-            assertNotNull(plane);
+            Assert.assertNotNull(region);
+            Assert.assertNotNull(plane);
             checkBuffer(region, plane, sizeX - r.width, r.width);
         }
         f.delete();
@@ -779,7 +776,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         r.height = sizeY / v;
         pDef.region = r;
         bufferRegion = re.render(pDef);
-        assertNotNull(bufferRegion);
+        Assert.assertNotNull(bufferRegion);
         IPixelsPrx svc = factory.getPixelsService();
         List<IObject> models = svc.getAllEnumerations(RenderingModel.class
                 .getName());
@@ -793,7 +790,7 @@ public class RenderingEngineTest extends AbstractServerTest {
                 re.setModel(m);
         }
         bufferRegion = re.render(pDef);
-        assertNotNull(bufferRegion);
+        Assert.assertNotNull(bufferRegion);
         f.delete();
         re.close();
     }
@@ -833,12 +830,12 @@ public class RenderingEngineTest extends AbstractServerTest {
         // delete the file.
         byte[] values = re.renderCompressed(pDef);
 
-        assertNotNull(values);
+        Assert.assertNotNull(values);
         // Create a buffered image.
         BufferedImage image = createImage(values);
-        assertNotNull(image);
-        assertEquals(image.getWidth(), p.getSizeX().getValue());
-        assertEquals(image.getHeight(), p.getSizeY().getValue());
+        Assert.assertNotNull(image);
+        Assert.assertEquals(image.getWidth(), p.getSizeX().getValue());
+        Assert.assertEquals(image.getHeight(), p.getSizeY().getValue());
         f.delete();
         re.close();
     }
@@ -892,11 +889,11 @@ public class RenderingEngineTest extends AbstractServerTest {
         r.height = sizeY / v;
         pDef.region = r;
         region = re.renderCompressed(pDef);
-        assertNotNull(region);
+        Assert.assertNotNull(region);
         imageRegion = createImage(region);
-        assertNotNull(imageRegion);
-        assertEquals(r.width, imageRegion.getWidth());
-        assertEquals(r.height, imageRegion.getHeight());
+        Assert.assertNotNull(imageRegion);
+        Assert.assertEquals(r.width, imageRegion.getWidth());
+        Assert.assertEquals(r.height, imageRegion.getHeight());
         f.delete();
         re.close();
     }
@@ -935,10 +932,10 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.slice = omero.romio.XY.value;
         // delete the file.
         int[] buffer = re.renderAsPackedInt(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         BufferedImage image = createImage(buffer, 32, p.getSizeX().getValue(),
                 p.getSizeY().getValue());
-        assertNotNull(image);
+        Assert.assertNotNull(image);
 
         // now change the model
         IPixelsPrx svc = factory.getPixelsService();
@@ -954,10 +951,10 @@ public class RenderingEngineTest extends AbstractServerTest {
                 re.setModel(m);
         }
         buffer = re.renderAsPackedInt(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         image = createImage(buffer, 32, p.getSizeX().getValue(), p.getSizeY()
                 .getValue());
-        assertNotNull(image);
+        Assert.assertNotNull(image);
         f.delete();
         re.close();
     }
@@ -1011,18 +1008,18 @@ public class RenderingEngineTest extends AbstractServerTest {
             r.height = sizeY / v;
             pDef.region = r;
             region = re.renderAsPackedInt(pDef);
-            assertNotNull(region);
+            Assert.assertNotNull(region);
             imageRegion = createImage(region, 32, r.width, r.height);
-            assertNotNull(imageRegion);
-            assertEquals(r.width, imageRegion.getWidth());
-            assertEquals(r.height, imageRegion.getHeight());
+            Assert.assertNotNull(imageRegion);
+            Assert.assertEquals(r.width, imageRegion.getWidth());
+            Assert.assertEquals(r.height, imageRegion.getHeight());
             // now render a plane and compare the renderer value.
             pDef = new PlaneDef();
             pDef.t = re.getDefaultT();
             pDef.z = re.getDefaultZ();
             pDef.slice = omero.romio.XY.value;
             plane = re.renderAsPackedInt(pDef);
-            assertNotNull(plane);
+            Assert.assertNotNull(plane);
             checkIntBuffer(region, plane, sizeX - r.width, r.width);
         }
         f.delete();
@@ -1075,9 +1072,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         r.height = sizeY / v;
         pDef.region = r;
         region = re.renderAsPackedInt(pDef);
-        assertNotNull(region);
+        Assert.assertNotNull(region);
         imageRegion = createImage(region, 32, r.width, r.height);
-        assertNotNull(imageRegion);
+        Assert.assertNotNull(imageRegion);
         IPixelsPrx svc = factory.getPixelsService();
         List<IObject> models = svc.getAllEnumerations(RenderingModel.class
                 .getName());
@@ -1091,9 +1088,9 @@ public class RenderingEngineTest extends AbstractServerTest {
                 re.setModel(m);
         }
         region = re.renderAsPackedInt(pDef);
-        assertNotNull(region);
+        Assert.assertNotNull(region);
         imageRegion = createImage(region, 32, r.width, r.height);
-        assertNotNull(imageRegion);
+        Assert.assertNotNull(imageRegion);
         f.delete();
         re.close();
     }
@@ -1138,9 +1135,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         sizeX = sizeX / (pDef.stride + 1);
         sizeY = sizeY / (pDef.stride + 1);
         int[] buffer = re.renderAsPackedInt(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         BufferedImage image = createImage(buffer, 32, sizeX, sizeY);
-        assertNotNull(image);
+        Assert.assertNotNull(image);
         f.delete();
         re.close();
     }
@@ -1190,9 +1187,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         sizeX = regionDef.width / (pDef.stride + 1);
         sizeY = regionDef.height / (pDef.stride + 1);
         int[] buffer = re.renderAsPackedInt(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         BufferedImage image = createImage(buffer, 32, sizeX, sizeY);
-        assertNotNull(image);
+        Assert.assertNotNull(image);
         f.delete();
         re.close();
     }
@@ -1237,11 +1234,11 @@ public class RenderingEngineTest extends AbstractServerTest {
         sizeX = sizeX / (pDef.stride + 1);
         sizeY = sizeY / (pDef.stride + 1);
         byte[] buffer = re.renderCompressed(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         BufferedImage image = createImage(buffer);
-        assertNotNull(image);
-        assertEquals(image.getWidth(), sizeX);
-        assertEquals(image.getHeight(), sizeY);
+        Assert.assertNotNull(image);
+        Assert.assertEquals(image.getWidth(), sizeX);
+        Assert.assertEquals(image.getHeight(), sizeY);
         f.delete();
         re.close();
     }
@@ -1294,11 +1291,11 @@ public class RenderingEngineTest extends AbstractServerTest {
         sizeX = regionDef.width / (pDef.stride + 1);
         sizeY = regionDef.height / (pDef.stride + 1);
         byte[] buffer = re.renderCompressed(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         BufferedImage image = createImage(buffer);
-        assertNotNull(image);
-        assertEquals(image.getWidth(), sizeX);
-        assertEquals(image.getHeight(), sizeY);
+        Assert.assertNotNull(image);
+        Assert.assertEquals(image.getWidth(), sizeX);
+        Assert.assertEquals(image.getHeight(), sizeY);
         f.delete();
         re.close();
     }
@@ -1344,9 +1341,9 @@ public class RenderingEngineTest extends AbstractServerTest {
 
         // hsb
         RGBBuffer buffer = re.render(pDef);
-        assertNotNull(buffer);
-        assertEquals(sizeX, buffer.sizeX1);
-        assertEquals(sizeY, buffer.sizeX2);
+        Assert.assertNotNull(buffer);
+        Assert.assertEquals(sizeX, buffer.sizeX1);
+        Assert.assertEquals(sizeY, buffer.sizeX2);
 
         // greyscale
         RenderingModel model = re.getModel();
@@ -1362,7 +1359,7 @@ public class RenderingEngineTest extends AbstractServerTest {
                 re.setModel(m);
         }
         buffer = re.render(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         f.delete();
         re.close();
     }
@@ -1414,9 +1411,9 @@ public class RenderingEngineTest extends AbstractServerTest {
 
         // hsb model
         RGBBuffer buffer = re.render(pDef);
-        assertNotNull(buffer);
-        assertEquals(sizeX, buffer.sizeX1);
-        assertEquals(sizeY, buffer.sizeX2);
+        Assert.assertNotNull(buffer);
+        Assert.assertEquals(sizeX, buffer.sizeX1);
+        Assert.assertEquals(sizeY, buffer.sizeX2);
 
         // grey scale.
         RenderingModel model = re.getModel();
@@ -1432,7 +1429,7 @@ public class RenderingEngineTest extends AbstractServerTest {
                 re.setModel(m);
         }
         buffer = re.render(pDef);
-        assertNotNull(buffer);
+        Assert.assertNotNull(buffer);
         f.delete();
         re.close();
     }
@@ -1483,9 +1480,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         r.height = 2 * h;
         pDef.region = r;
         bufferRegion = re.render(pDef);
-        assertNotNull(bufferRegion);
-        assertEquals(w, bufferRegion.sizeX1);
-        assertEquals(h, bufferRegion.sizeX2);
+        Assert.assertNotNull(bufferRegion);
+        Assert.assertEquals(w, bufferRegion.sizeX1);
+        Assert.assertEquals(h, bufferRegion.sizeX2);
         f.delete();
         re.close();
     }
@@ -1537,9 +1534,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         r.height = 2 * h;
         pDef.region = r;
         bufferRegion = re.renderAsPackedInt(pDef);
-        assertNotNull(bufferRegion);
+        Assert.assertNotNull(bufferRegion);
         BufferedImage image = createImage(bufferRegion, 32, w, h);
-        assertNotNull(image);
+        Assert.assertNotNull(image);
         f.delete();
         re.close();
     }
@@ -1581,7 +1578,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         /*
          * for (int i = 0; i < n; i++) { start = System.currentTimeMillis();
          * re.saveCurrentSettings(); end = System.currentTimeMillis()-start; if
-         * (i == 0) time = end; else assertTrue(end >= (time-diff) & end <=
+         * (i == 0) time = end; else Assert.assertTrue(end >= (time-diff) & end <=
          * (time+diff)); }
          */
         re.close();
@@ -1621,12 +1618,12 @@ public class RenderingEngineTest extends AbstractServerTest {
         int z = 0;
         re.setDefaultZ(z);
         re.saveCurrentSettings();
-        assertEquals(re.getDefaultZ(), z);
+        Assert.assertEquals(re.getDefaultZ(), z);
         // t
         int t = 1;
         re.setDefaultT(t);
         re.saveCurrentSettings();
-        assertEquals(re.getDefaultT(), t);
+        Assert.assertEquals(re.getDefaultT(), t);
         // tested in PixelsService
         IPixelsPrx svc = factory.getPixelsService();
         List<IObject> families = svc.getAllEnumerations(Family.class.getName());
@@ -1645,17 +1642,17 @@ public class RenderingEngineTest extends AbstractServerTest {
         }
         re.setModel(rm);
         re.saveCurrentSettings();
-        assertEquals(re.getModel().getId().getValue(), rm.getId().getValue());
+        Assert.assertEquals(re.getModel().getId().getValue(), rm.getId().getValue());
 
         int start = re.getQuantumDef().getCdStart().getValue() + 10;
         int end = re.getQuantumDef().getCdEnd().getValue() - 10;
         re.setCodomainInterval(start, end);
         re.saveCurrentSettings();
-        assertEquals(re.getQuantumDef().getCdStart().getValue(), start);
+        Assert.assertEquals(re.getQuantumDef().getCdStart().getValue(), start);
         int DEPTH_7BIT = 127;
         re.setQuantumStrategy(DEPTH_7BIT);
         re.saveCurrentSettings();
-        assertEquals(re.getQuantumDef().getBitResolution().getValue(),
+        Assert.assertEquals(re.getQuantumDef().getBitResolution().getValue(),
                 DEPTH_7BIT);
 
         // channels now
@@ -1669,24 +1666,24 @@ public class RenderingEngineTest extends AbstractServerTest {
         for (int j = 0; j < XMLMockObjects.SIZE_C; j++) {
             re.setActive(j, j == 0);
             re.saveCurrentSettings();
-            assertEquals(j == 0, re.isActive(j));
+            Assert.assertEquals(j == 0, re.isActive(j));
             re.setChannelWindow(j, min, max);
             re.saveCurrentSettings();
-            assertEquals(re.getChannelWindowStart(j), min);
-            assertEquals(re.getChannelWindowEnd(j), max);
+            Assert.assertEquals(re.getChannelWindowStart(j), min);
+            Assert.assertEquals(re.getChannelWindowEnd(j), max);
             // color
             re.setRGBA(j, RGBA[0], RGBA[1], RGBA[2], RGBA[3]);
             re.saveCurrentSettings();
             rgba = re.getRGBA(j);
             for (int k = 0; k < rgba.length; k++) {
-                assertEquals(rgba[k], RGBA[k]);
+                Assert.assertEquals(rgba[k], RGBA[k]);
             }
             b = !re.getChannelNoiseReduction(j);
             re.setQuantizationMap(j, f, coefficient, b);
             re.saveCurrentSettings();
-            assertEquals(re.getChannelCurveCoefficient(j), coefficient);
-            assertEquals(re.getChannelNoiseReduction(j), b);
-            assertEquals(re.getChannelFamily(j).getId().getValue(), f.getId()
+            Assert.assertEquals(re.getChannelCurveCoefficient(j), coefficient);
+            Assert.assertEquals(re.getChannelNoiseReduction(j), b);
+            Assert.assertEquals(re.getChannelFamily(j).getId().getValue(), f.getId()
                     .getValue());
         }
         re.close();
@@ -1804,9 +1801,9 @@ public class RenderingEngineTest extends AbstractServerTest {
         // retrieve the rendering def
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         QuantumDef q1 = def.getQuantization();
-        assertNotNull(q1);
+        Assert.assertNotNull(q1);
         List<ChannelBinding> channels1 = def.copyWaveRendering();
-        assertNotNull(channels1);
+        Assert.assertNotNull(channels1);
         Iterator<ChannelBinding> i = channels1.iterator();
         ChannelBinding c1;
         int index = 0;
@@ -1817,8 +1814,8 @@ public class RenderingEngineTest extends AbstractServerTest {
             e = c1.getInputEnd().getValue()+0.21;
             s = c1.getInputStart().getValue()+0.11;
             re.setChannelWindow(index, s, e);
-            assertEquals(s, re.getChannelWindowStart(index));
-            assertEquals(e, re.getChannelWindowEnd(index));
+            Assert.assertEquals(s, re.getChannelWindowStart(index));
+            Assert.assertEquals(e, re.getChannelWindowEnd(index));
             index++;
         }
         re.close();
@@ -1858,15 +1855,15 @@ public class RenderingEngineTest extends AbstractServerTest {
         // retrieve the rendering def
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         List<ChannelBinding> channels1 = def.copyWaveRendering();
-        assertNotNull(channels1);
+        Assert.assertNotNull(channels1);
         Iterator<ChannelBinding> i = channels1.iterator();
         ChannelBinding c1;
         int index = 0;
         while (i.hasNext()) {
             c1 = i.next();
-            assertEquals(null, c1.getLookupTable());
+            Assert.assertEquals(null, c1.getLookupTable());
             re.setChannelLookupTable(index, "foo");
-            assertEquals("foo", re.getChannelLookupTable(index));
+            Assert.assertEquals("foo", re.getChannelLookupTable(index));
             index++;
         }
         re.saveCurrentSettings();
@@ -1918,18 +1915,18 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.setType(type);
         // retrieve the rendering def
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-        assertNotNull(def);
+        Assert.assertNotNull(def);
         def.addProjectionDef(pDef);
         factory.getUpdateService().saveAndReturnObject(def);
         def = factory.getPixelsService().retrieveRndSettings(id);
         List<ProjectionDef> list = def.copyProjections();
-        assertNotNull(list);
-        assertEquals(1, list.size());
+        Assert.assertNotNull(list);
+        Assert.assertEquals(1, list.size());
         ProjectionDef savedDef = def.getProjectionDef(0);
-        assertEquals(true, savedDef.getActive().getValue());
-        assertEquals(0, savedDef.getStartPlane().getValue());
-        assertEquals(1, savedDef.getEndPlane().getValue());
-        assertEquals("Z", savedDef.getAxis().getValue().getValue());
-        assertEquals("maximum", savedDef.getType().getValue().getValue());
+        Assert.assertEquals(true, savedDef.getActive().getValue());
+        Assert.assertEquals(0, savedDef.getStartPlane().getValue());
+        Assert.assertEquals(1, savedDef.getEndPlane().getValue());
+        Assert.assertEquals("Z", savedDef.getAxis().getValue().getValue());
+        Assert.assertEquals("maximum", savedDef.getType().getValue().getValue());
     }
 }
