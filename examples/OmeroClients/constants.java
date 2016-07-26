@@ -1,4 +1,4 @@
-import static omero.rtypes.*;
+
 
 public class constants {
     public static void main(String[] args) {
