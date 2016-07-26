@@ -6,9 +6,6 @@
 package integration;
 
 
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -2024,8 +2021,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScriptsByMimetype(
                 ScriptServiceTest.LUT_MIMETYPE);
-        assertNotNull(scripts);
-        assertTrue(scripts.size() > 0);
+        Assert.assertNotNull(scripts);
+        Assert.assertTrue(scripts.size() > 0);
         Iterator<OriginalFile> i = scripts.iterator();
         OriginalFile of;
         PlaneDef pDef = new PlaneDef();
