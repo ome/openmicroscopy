@@ -21,7 +21,7 @@
 Tests querying & editing Projects with webgateway json api
 """
 
-from weblibrary import IWebTest, _get_response_json   # _post_response_json
+from weblibrary import IWebTest, _get_response_json, _get_response
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
@@ -430,3 +430,10 @@ class TestProjects(IWebTest):
             rsp_groups[g['@id']] = g
         assert owners == rsp_owners
         assert groups == rsp_groups
+
+        # Test 'callback' parameter
+        payload = {'callback': 'callback'}
+        rsp = _get_response(django_client, request_url, payload,
+                            status_code=200)
+        assert rsp.get('Content-Type') == 'application/javascript'
+        assert rsp.content.startswith('callback(')
