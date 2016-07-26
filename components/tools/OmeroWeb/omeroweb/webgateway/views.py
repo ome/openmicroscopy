@@ -19,7 +19,7 @@ import omero
 import omero.clients
 
 from Ice import Exception as IceException
-from django.http import HttpResponse, HttpResponseServerError, JsonResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.http import HttpResponseBadRequest
 from django.template import loader as template_loader
@@ -1244,7 +1244,7 @@ def jsonp(f):
                 return rv
             # mimetype for JSON is application/json
             # NB: rv must be a dict.
-            return JsonResponse(rv)
+            return HttpJsonResponse(rv)
         except omero.ServerError:
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise

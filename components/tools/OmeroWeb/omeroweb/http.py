@@ -21,31 +21,7 @@
 
 import json
 
-from django.http import HttpResponse, HttpResponseServerError, JsonResponse
-
-
-class JsonResponseForbidden(JsonResponse):
-    """ Response 403 when for unauthorised """
-    status_code = 403
-
-    def __init__(self, *args, **kwargs):
-        JsonResponse.__init__(self, *args, **kwargs)
-
-
-class JsonResponseNotFound(JsonResponse):
-    """ Response 404 when for unauthorised """
-    status_code = 404
-
-    def __init__(self, *args, **kwargs):
-        JsonResponse.__init__(self, *args, **kwargs)
-
-
-class JsonResponseUnprocessable(JsonResponse):
-    """ Response 422 when client submits invalid data """
-    status_code = 422
-
-    def __init__(self, *args, **kwargs):
-        JsonResponse.__init__(self, *args, **kwargs)
+from django.http import HttpResponse, HttpResponseServerError
 
 
 class HttpJavascriptResponse(HttpResponse):
@@ -75,3 +51,27 @@ class HttpJNLPResponse(HttpResponse):
 class HttpJPEGResponse(HttpResponse):
     def __init__(self, content):
         HttpResponse.__init__(self, content, content_type="image/jpeg")
+
+
+class JsonResponseForbidden(HttpJsonResponse):
+    """ Response 403 when for unauthorised """
+    status_code = 403
+
+    def __init__(self, *args, **kwargs):
+        HttpJsonResponse.__init__(self, *args, **kwargs)
+
+
+class JsonResponseNotFound(HttpJsonResponse):
+    """ Response 404 when for unauthorised """
+    status_code = 404
+
+    def __init__(self, *args, **kwargs):
+        HttpJsonResponse.__init__(self, *args, **kwargs)
+
+
+class JsonResponseUnprocessable(HttpJsonResponse):
+    """ Response 422 when client submits invalid data """
+    status_code = 422
+
+    def __init__(self, *args, **kwargs):
+        HttpJsonResponse.__init__(self, *args, **kwargs)
