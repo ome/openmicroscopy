@@ -1776,7 +1776,7 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineChannelWindowGetter() throws Exception {
-        File f = File.createTempFile("testRenderingEngineGetters", "."
+        File f = File.createTempFile("testRenderingEngineChannelWindowGetter", "."
                 + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
@@ -1830,7 +1830,7 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineChannelLookupTable() throws Exception {
-        File f = File.createTempFile("testRenderingEngineGetters", "."
+        File f = File.createTempFile("testRenderingEngineChannelLookupTable", "."
                 + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
@@ -1878,7 +1878,7 @@ public class RenderingEngineTest extends AbstractServerTest {
      */
     @Test
     public void testRenderingEngineProjectionDef() throws Exception {
-        File f = File.createTempFile("testRenderingEngineGetters", "."
+        File f = File.createTempFile("testRenderingEngineProjectionDef", "."
                 + OME_FORMAT);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
