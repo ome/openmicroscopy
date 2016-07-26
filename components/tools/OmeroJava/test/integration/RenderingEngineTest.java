@@ -1929,4 +1929,60 @@ public class RenderingEngineTest extends AbstractServerTest {
         Assert.assertEquals("Z", savedDef.getAxis().getValue().getValue());
         Assert.assertEquals("maximum", savedDef.getType().getValue().getValue());
     }
+
+    /**
+     * Tests the retrieval of the lookup table info using the rendering
+     * engine.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderingEngineSaveChannelLookupTable() throws Exception {
+        File f = File.createTempFile("testRenderingEngineSaveChannelLookupTable", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        // retrieve the rendering def
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels1 = def.copyWaveRendering();
+        Assert.assertNotNull(channels1);
+        Iterator<ChannelBinding> i = channels1.iterator();
+        ChannelBinding c1;
+        int index = 0;
+        String lut = "cool.lut";
+        while (i.hasNext()) {
+            c1 = i.next();
+            Assert.assertEquals(null, c1.getLookupTable());
+            re.setChannelLookupTable(index, lut);
+            index++;
+        }
+        re.saveCurrentSettings();
+        re.close();
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels1 = def.copyWaveRendering();
+        i = channels1.iterator();
+        while (i.hasNext()) {
+            c1 = i.next();
+            Assert.assertEquals(lut, c1.getLookupTable());
+        }
+    }
 }
