@@ -22,7 +22,8 @@ Tests querying & editing Projects with webgateway json api
 """
 
 from weblibrary import IWebTest, _get_response_json, _get_response, \
-    _csrf_post_response_json, _csrf_put_response_json
+    _csrf_post_response_json, _csrf_put_response_json, \
+    _csrf_delete_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
@@ -475,8 +476,8 @@ class TestProjects(IWebTest):
         django_client = self.new_django_client(userName, userName)
 
         project = ProjectI()
-        project.name = rstring('test_project_update_delete')
-        project.description = rstring('Test update and delete')
+        project.name = rstring('test_project_update')
+        project.description = rstring('Test update')
         project = get_update_service(userA).saveAndReturnObject(project)
 
         # Update Project in 2 ways...
@@ -485,12 +486,12 @@ class TestProjects(IWebTest):
                                                      'pid': project.id.val})
         # 1) Get Project, update and save back
         prJson = _get_response_json(django_client, project_url, {})
-        assert prJson['Name'] == 'test_project_update_delete'
+        assert prJson['Name'] == 'test_project_update'
         prJson['Name'] = 'new name'
         rsp = _csrf_put_response_json(django_client, project_url, prJson)
         assert rsp['@id'] == project.id.val
         assert rsp['Name'] == 'new name'    # Name has changed
-        assert rsp['Description'] == 'Test update and delete'  # No change
+        assert rsp['Description'] == 'Test update'  # No change
         # 2) Put from scratch (will delete empty fields, E.g. Description)
         payload = {'Name': 'updated name'}
         rsp = _csrf_put_response_json(django_client, project_url, payload)
@@ -505,3 +506,29 @@ class TestProjects(IWebTest):
         assert prJson['Name'] == 'updated name'
         # assert 'Description' not in prJson
         assert prJson['Description'] == ''
+
+    def test_project_delete(self, userA):
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+
+        project = ProjectI()
+        project.name = rstring('test_project_delete')
+        project.description = rstring('Test update')
+        project = get_update_service(userA).saveAndReturnObject(project)
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        project_url = reverse('api_project', kwargs={'api_version': version,
+                                                     'pid': project.id.val})
+        # Before delete, we can read
+        prJson = _get_response_json(django_client, project_url, {})
+        assert prJson['Name'] == 'test_project_delete'
+        # Delete
+        _csrf_delete_response_json(django_client, project_url, {})
+        # Get should now return 404
+        rsp = _get_response_json(django_client, project_url, {},
+                                 status_code=404)
+        assert rsp['message'] == 'Project %s not found' % project.id.val
+        # Delete (again) should return 404
+        rsp = _csrf_delete_response_json(django_client, project_url, {},
+                                         status_code=404)
+        assert rsp['message'] == 'Project %s not found' % project.id.val

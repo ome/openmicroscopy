@@ -151,6 +151,13 @@ def _csrf_delete_response(django_client, request_url, data, status_code=200,
                             **extra)
 
 
+def _csrf_delete_response_json(django_client, request_url,
+                               data, status_code=200):
+    rsp = _csrf_delete_response(django_client, request_url, data, status_code)
+    assert rsp.get('Content-Type') == 'application/json'
+    return json.loads(rsp.content)
+
+
 # GET
 def _get_response(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
