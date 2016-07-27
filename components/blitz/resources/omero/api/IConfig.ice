@@ -150,7 +150,7 @@ module omero {
                 idempotent string getDatabaseUuid() throws ServerError;
 
                 /**
-                 * Checks the database for it's time using a SELECT statement.
+                 * Checks the database for its time using a SELECT statement.
                  *
                  * @return Non-null {@link RTime} representation of the
                  *         database time.
