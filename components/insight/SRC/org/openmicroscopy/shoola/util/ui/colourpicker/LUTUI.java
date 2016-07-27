@@ -76,6 +76,8 @@ public class LUTUI extends JPanel {
         else
             lutList = new JList();
 
+        lutList.setCellRenderer(new LookupTableListRenderer());
+        
         int index = 0;
         if (c.getLUT() != null && lutsArray != null) {
             for (int i = 0; i < lutsArray.length; i++) {
