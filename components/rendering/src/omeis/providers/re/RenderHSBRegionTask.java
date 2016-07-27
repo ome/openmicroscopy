@@ -245,7 +245,7 @@ class RenderHSBRegionTask implements RenderingTask {
                     else
                         discreteValue =
                             qs.quantize(plane.getPixelValue(x1, x2));
-
+                    
                     // Right now we have no transforms being used so it's safe to
                     // comment this out for the time being.
                     //discreteValue = cc.transform(discreteValue);
@@ -262,9 +262,9 @@ class RenderHSBRegionTask implements RenderingTask {
                     }
                     if (reader != null) {
                         buf[pix] = 0xFF000000 |
-                                reader.getRed(discreteValue) << 16 |
-                                reader.getGreen(discreteValue) << 8 |
-                                reader.getBlue(discreteValue);
+                                (reader.getRed(discreteValue)&0xFF) << 16 |
+                                (reader.getGreen(discreteValue)&0xFF) << 8 |
+                                (reader.getBlue(discreteValue)&0xFF);
                         continue;
                     }
                     newRValue = (int) (redRatio * discreteValue);
