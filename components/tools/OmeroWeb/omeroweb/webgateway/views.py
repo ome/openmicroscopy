@@ -1655,6 +1655,24 @@ def save_image_rdef_json(request, iid, conn=None, **kwargs):
 
 
 @login_required()
+@jsonp
+def listLuts_json(request, conn=None, **kwargs):
+    """
+    Lists lookup tables 'LUTs' availble for rendering
+    """
+    scriptService = conn.getScriptService()
+    luts = scriptService.getScriptsByMimetype("text/x-lut")
+    rv = []
+    for l in luts:
+        rv.append({'id': l.id.val,
+                   'path': l.path.val,
+                   'name': l.name.val,
+                   'size': unwrap(l.size)
+                   })
+    return {"luts": rv}
+
+
+@login_required()
 def list_compatible_imgs_json(request, iid, conn=None, **kwargs):
     """
     Lists the images on the same project that would be viable targets for
