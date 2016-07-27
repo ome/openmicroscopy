@@ -22,7 +22,7 @@ Tests querying & editing Projects with webgateway json api
 """
 
 from weblibrary import IWebTest, _get_response_json, _get_response, \
-    _csrf_post_response_json
+    _csrf_post_response_json, _csrf_put_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 import pytest
@@ -468,3 +468,40 @@ class TestProjects(IWebTest):
         assert rsp['@id'] == projectId
         conn = BlitzGateway(client_obj=self.root)
         assert_objects(conn, [rsp], [projectId])
+
+    def test_project_update(self, userA):
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+
+        project = ProjectI()
+        project.name = rstring('test_project_update_delete')
+        project.description = rstring('Test update and delete')
+        project = get_update_service(userA).saveAndReturnObject(project)
+
+        # Update Project in 2 ways...
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        project_url = reverse('api_project', kwargs={'api_version': version,
+                                                     'pid': project.id.val})
+        # 1) Get Project, update and save back
+        prJson = _get_response_json(django_client, project_url, {})
+        assert prJson['Name'] == 'test_project_update_delete'
+        prJson['Name'] = 'new name'
+        rsp = _csrf_put_response_json(django_client, project_url, prJson)
+        assert rsp['@id'] == project.id.val
+        assert rsp['Name'] == 'new name'    # Name has changed
+        assert rsp['Description'] == 'Test update and delete'  # No change
+        # 2) Put from scratch (will delete empty fields, E.g. Description)
+        payload = {'Name': 'updated name'}
+        rsp = _csrf_put_response_json(django_client, project_url, payload)
+        assert rsp['@id'] == project.id.val
+        assert rsp['Name'] == 'updated name'
+        # Description should be None, but is an empty string
+        # See https://github.com/openmicroscopy/omero-marshal/issues/18
+        # assert 'Description' not in rsp
+        assert rsp['Description'] == ''
+        # Get project again to check update
+        prJson = _get_response_json(django_client, project_url, {})
+        assert prJson['Name'] == 'updated name'
+        # assert 'Description' not in prJson
+        assert prJson['Description'] == ''
