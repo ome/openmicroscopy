@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
-import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
