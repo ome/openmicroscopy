@@ -667,7 +667,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         param.addId(id);
         List<IObject> objects = iQuery.findAllByQuery(sql, param);
         Assert.assertNotNull(objects);
-        Assert.assertTrue(objects.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(objects));
 
         List<Long> thumbIds = new ArrayList<Long>();
         Iterator<IObject> i = objects.iterator();
@@ -731,7 +731,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         param.addId(id);
         List<IObject> objects = iQuery.findAllByQuery(sql, param);
         Assert.assertNotNull(objects);
-        Assert.assertTrue(objects.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(objects));
 
         List<Long> thumbIds = new ArrayList<Long>();
         Iterator<IObject> i = objects.iterator();
@@ -746,7 +746,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         Assert.assertNotNull(thumbnails.get(id));
 
         objects = iQuery.findAllByQuery(sql, param);
-        Assert.assertTrue(objects.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(objects));
         i = objects.iterator();
         long thumbId;
         while (i.hasNext()) {

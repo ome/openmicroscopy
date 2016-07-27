@@ -282,7 +282,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.exp(omero.rtypes.rlong(self));
         List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
-        Assert.assertNotEquals(results.size(), 0);
+        Assert.assertFalse(results.isEmpty());
         Iterator i = results.iterator();
         int count = 0;
         IObject object;
@@ -315,7 +315,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.exp(omero.rtypes.rlong(self));
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
-        Assert.assertNotEquals(results.size(), 0);
+        Assert.assertFalse(results.isEmpty());
         Iterator i = results.iterator();
         int count = 0;
         IObject object;
@@ -352,7 +352,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.orphan();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Project.class.getName(), new ArrayList(), param);
-        Assert.assertNotEquals(results.size(), 0);
+        Assert.assertFalse(results.isEmpty());
         Iterator i = results.iterator();
         IObject object;
         int value = 0;
@@ -389,7 +389,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.orphan();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Screen.class.getName(), new ArrayList(), param);
-        Assert.assertNotEquals(results.size(), 0);
+        Assert.assertFalse(results.isEmpty());
         Iterator i = results.iterator();
         IObject object;
         int value = 0;
@@ -550,7 +550,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d.getId().getValue());
         List<Image> images = factory.getContainerService().getImages(Dataset.class.getName(), ids,
                 param);
-        Assert.assertNotEquals(images.size(), 0);
+        Assert.assertFalse(images.isEmpty());
         Iterator<Image> i = images.iterator();
         Image img;
         int count = 0;
@@ -589,7 +589,7 @@ public class PojosServiceTest extends AbstractServerTest {
         ids.add(d.getId().getValue());
         List<Image> images = factory.getContainerService().getImages(
                 Dataset.class.getName(), ids, param);
-        Assert.assertNotEquals(images.size(), 0);
+        Assert.assertFalse(images.isEmpty());
         Iterator<Image> i = images.iterator();
         Image img;
         int count = 0;
@@ -939,7 +939,7 @@ public class PojosServiceTest extends AbstractServerTest {
         i = (Image) iUpdate.saveAndReturnObject(i);
 
         List result = factory.getContainerService().getImagesByOptions(po);
-        Assert.assertNotEquals(result.size(), 0);
+        Assert.assertFalse(result.isEmpty());
         Iterator j = result.iterator();
         int count = 0;
         IObject object;
@@ -993,7 +993,7 @@ public class PojosServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         List results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(), ids, param);
-        Assert.assertNotEquals(results.size(), 0);
+        Assert.assertFalse(results.isEmpty());
         Iterator i = results.iterator();
         DatasetData dataset;
         Set<ImageData> images;
@@ -1013,13 +1013,13 @@ public class PojosServiceTest extends AbstractServerTest {
         results = factory.getContainerService().loadContainerHierarchy(
                 Dataset.class.getName(),
                 ids, param);
-        Assert.assertNotEquals(results.size(), 0);
+        Assert.assertFalse(results.isEmpty());
         i = results.iterator();
         while (i.hasNext()) {
             dataset = new DatasetData((Dataset) i.next());
             if (dataset.getId() == d.getId().getValue()) {
                 images = dataset.getImages();
-                Assert.assertNotEquals(images.size(), 0);
+                Assert.assertFalse(images.isEmpty());
             }
         }
     }
@@ -1418,7 +1418,7 @@ public class PojosServiceTest extends AbstractServerTest {
         param.exp(omero.rtypes.rlong(self));
         List results = factory.getContainerService().loadContainerHierarchy(
                 Plate.class.getName(), new ArrayList(), param);
-        Assert.assertNotEquals(results.size(), 0);
+        Assert.assertFalse(results.isEmpty());
         Iterator i = results.iterator();
         int count = 0;
         IObject object;

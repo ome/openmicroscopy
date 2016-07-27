@@ -120,6 +120,7 @@ import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -1124,7 +1125,7 @@ public class AbstractServerTest extends AbstractTest {
         // ic = library.uploadFilesToRepository(ic);
         List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
         Assert.assertNotNull(pixels);
-        Assert.assertTrue(pixels.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(pixels));
         return pixels;
     }
 

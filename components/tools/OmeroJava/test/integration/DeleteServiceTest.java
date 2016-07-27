@@ -107,6 +107,7 @@ import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -1028,7 +1029,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 + "where rdef.pixels.id = :pid";
         List<IObject> settings = iQuery.findAllByQuery(sql, param);
         // now delete the image
-        Assert.assertTrue(settings.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(settings));
         Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
 
@@ -1068,7 +1069,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 + "where rdef.pixels.id = :pid";
         List<IObject> settings = iQuery.findAllByQuery(sql, param);
         // now delete the image
-        Assert.assertTrue(settings.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(settings));
         Delete2 dc = Requests.delete().target(img).build();
         callback(true, client, dc);
         // check if the settings have been deleted.
@@ -1355,7 +1356,7 @@ public class DeleteServiceTest extends AbstractServerTest {
 
             param = new ParametersI();
             param.addIds(annotationIds);
-            Assert.assertTrue(annotationIds.size() > 0);
+            Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIds));
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
             Assert.assertEquals(0, l.size(), obj + "-->" + l.toString());
@@ -1403,7 +1404,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 // annotations should be deleted to
                 param = new ParametersI();
                 param.addIds(annotationIds);
-                Assert.assertTrue(annotationIds.size() > 0);
+                Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIds));
                 sql = "select i from Annotation as i where i.id in (:ids)";
                 l = iQuery.findAllByQuery(sql, param);
                 if (values[j]) {
@@ -1506,7 +1507,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         // Check if annotations have been deleted.
         param = new ParametersI();
         param.addIds(annotationIds);
-        Assert.assertTrue(annotationIds.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIds));
         sb = new StringBuilder();
         sb.append("select i from Annotation as i where i.id in (:ids)");
         l = iQuery.findAllByQuery(sb.toString(), param);
@@ -1698,7 +1699,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 // Check if annotations have been deleted.
                 param = new ParametersI();
                 param.addIds(annotationIds);
-                Assert.assertTrue(annotationIds.size() > 0);
+                Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIds));
                 sb = new StringBuilder();
                 sb.append("select i from Annotation as i where i.id in (:ids)");
                 l = iQuery.findAllByQuery(sb.toString(), param);
@@ -2416,13 +2417,13 @@ public class DeleteServiceTest extends AbstractServerTest {
 
             param = new ParametersI();
             param.addIds(annotationIds);
-            Assert.assertTrue(annotationIds.size() > 0);
+            Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIds));
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
             Assert.assertEquals(0, l.size(), obj + "-->" + l.toString());
             param = new ParametersI();
             param.addIds(annotationIdsNS);
-            Assert.assertTrue(annotationIdsNS.size() > 0);
+            Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIdsNS));
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
             Assert.assertEquals(annotationIdsNS.size(),
@@ -2468,13 +2469,13 @@ public class DeleteServiceTest extends AbstractServerTest {
 
             param = new ParametersI();
             param.addIds(annotationIds);
-            Assert.assertTrue(annotationIds.size() > 0);
+            Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIds));
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
             Assert.assertEquals(0, l.size(), obj + "-->" + l.toString());
             param = new ParametersI();
             param.addIds(annotationIdsNS);
-            Assert.assertTrue(annotationIdsNS.size() > 0);
+            Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIdsNS));
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
             Assert.assertEquals(annotationIdsNS.size(),
@@ -2846,7 +2847,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             annotationIds.addAll(createNonSharableAnnotation(ws.getImage(), null));
         }
         Assert.assertEquals(fields, imageIds.size());
-        Assert.assertTrue(annotationIds.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(annotationIds));
         // now delete the plate acquisition
         dc = Requests.delete().target(pa).build();
         callback(true, client, dc);
@@ -2991,10 +2992,10 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<FilterSet> filterSets = instrument.copyFilterSet();
         List<Dichroic> dichroics = instrument.copyDichroic();
 
-        Assert.assertTrue(detectors.size() > 0);
-        Assert.assertTrue(objectives.size() > 0);
-        Assert.assertTrue(lights.size() > 0);
-        Assert.assertTrue(filterSets.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(detectors));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(objectives));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(lights));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(filterSets));
         // Objective objective = instrument.c
         img1.setInstrument(instrument);
         img1.setObjectiveSettings(mmFactory.createObjectiveSettings(objectives
@@ -3149,10 +3150,10 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<FilterSet> filterSets = instrument.copyFilterSet();
         List<Dichroic> dichroics = instrument.copyDichroic();
 
-        Assert.assertTrue(detectors.size() > 0);
-        Assert.assertTrue(objectives.size() > 0);
-        Assert.assertTrue(lights.size() > 0);
-        Assert.assertTrue(filterSets.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(detectors));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(objectives));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(lights));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(filterSets));
         // Objective objective = instrument.
         ObjectiveSettings os = mmFactory.createObjectiveSettings(objectives
                 .get(0));
@@ -3354,7 +3355,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 images.add(ws.getImage());
             }
         }
-        Assert.assertTrue(images.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(images));
         try {
             Delete2 dc = Requests.delete().target(images.get(0)).build();
             callback(true, client, dc);
@@ -3441,7 +3442,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .simpleImage());
         List<Long> ids = createSharableAnnotation(img1, img2);
-        Assert.assertTrue(ids.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(ids));
         Delete2 dc = Requests.delete().target(img1).build();
         callback(true, client, dc);
 
@@ -3780,7 +3781,7 @@ public class DeleteServiceTest extends AbstractServerTest {
 
         List<Channel> channels = pixels.copyChannels();
 
-        Assert.assertTrue(channels.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(channels));
         Channel channel;
         Iterator<Channel> j = channels.iterator();
         long lcID;
@@ -3809,7 +3810,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         param.addId(id);
 
         List<IObject> planes = iQuery.findAllByQuery(sql, param);
-        Assert.assertTrue(planes.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(planes));
 
         long imageID = pixels.getImage().getId().getValue();
         ParametersI po = new ParametersI();

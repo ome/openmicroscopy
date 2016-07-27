@@ -4,7 +4,6 @@
  *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
 
 import java.util.ArrayList;
@@ -844,7 +843,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         List<IObject> result = f
                 .getMetadataService()
                 .loadAnnotationsUsedNotOwned(TagAnnotation.class.getName(), id1);
-        Assert.assertNotEquals(result.size(), 0);
+        Assert.assertFalse(result.isEmpty());
         Iterator<IObject> i = result.iterator();
         IObject o;
         int count = 0;
@@ -955,13 +954,13 @@ public class MetadataServiceTest extends AbstractServerTest {
             instrument = iMetadata
                     .loadInstrument(instrument.getId().getValue());
             data = new InstrumentData(instrument);
-            Assert.assertNotEquals(instrument.sizeOfDetector(), 0);
-            Assert.assertNotEquals(instrument.sizeOfDichroic(), 0);
-            Assert.assertNotEquals(instrument.sizeOfFilter(), 0);
-            Assert.assertNotEquals(instrument.sizeOfFilterSet(), 0);
+            Assert.assertFalse(instrument.copyDetector().isEmpty());
+            Assert.assertFalse(instrument.copyDichroic().isEmpty());
+            Assert.assertFalse(instrument.copyFilter().isEmpty());
+            Assert.assertFalse(instrument.copyFilterSet().isEmpty());
             Assert.assertEquals(instrument.sizeOfLightSource(), 1);
-            Assert.assertNotEquals(instrument.sizeOfObjective(), 0);
-            Assert.assertNotEquals(instrument.sizeOfOtf(), 0);
+            Assert.assertFalse(instrument.copyObjective().isEmpty());
+            Assert.assertFalse(instrument.copyOtf().isEmpty());
 
             Assert.assertEquals(instrument.sizeOfDetector(), data.getDetectors()
                     .size());
