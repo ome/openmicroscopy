@@ -34,7 +34,8 @@ token = session.get(token_url).json()['token']
 print 'CSRF token', token
 # We add this to our session header
 # Needed for all POST, PUT, DELETE requests
-session.headers.update({'X-CSRFToken': token})
+session.headers.update({'X-CSRFToken': token,
+                        'Referer': login_url})
 
 # List the servers available to connect to
 servers = session.get(servers_url).json()['servers']
@@ -54,8 +55,8 @@ server = servers[0]
 payload = {'username': 'will',
            'password': 'ome',
            'server': server['id']}
-r = session.post(login_url, data=payload,
-                 headers={'Referer': login_url})
+           # 'csrfmiddlewaretoken': token}
+r = session.post(login_url, data=payload)
 login_rsp = r.json()
 assert r.status_code == 200
 assert login_rsp['success']
@@ -76,8 +77,7 @@ for p in data['projects']:
     print '  ', p['@id'], p['Name']
 
 # Create a project:
-r = session.post(projects_url, {'name': 'API TEST'},
-                 headers={'Referer': login_url})
+r = session.post(projects_url, {'name': 'API TEST'})
 assert r.status_code == 200
 project = r.json()
 project_id = project['@id']
@@ -91,7 +91,7 @@ print project
 
 # Update a project
 project['Name'] = 'API test updated'
-r = session.put(project_url, json=project, headers={'Referer': login_url})
+r = session.put(project_url, json=project)
 
 # Delete a project:
-r = session.delete(project_url, headers={'Referer': login_url})
+r = session.delete(project_url)
