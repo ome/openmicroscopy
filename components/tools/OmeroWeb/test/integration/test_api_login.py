@@ -57,13 +57,13 @@ class TestLogin(IWebTest):
         assert 'login_url' in rsp
         assert 'projects_url' in rsp
 
-    def test_base_url_404(self):
+    def test_base_url_versions_404(self):
         """
         Tests that the base url gives 404 for invalid versions
         """
         version = '0'
         with pytest.raises(NoReverseMatch):
-            request_url = reverse('api_base', kwargs={'api_version': version})
+            reverse('api_base', kwargs={'api_version': version})
 
     def test_login_get(self):
         """
