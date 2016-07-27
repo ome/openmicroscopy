@@ -436,6 +436,7 @@ class RendererControl
         } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) { 
 			Color c = (Color) evt.getNewValue();
 			if (colorPickerIndex != -1) {
+			    model.setLookupTable(colorPickerIndex, "", false);
 				model.setChannelColor(colorPickerIndex, c, false);
 			}
         } else if (ColourPicker.LUT_PROPERTY.equals(name)) { 
