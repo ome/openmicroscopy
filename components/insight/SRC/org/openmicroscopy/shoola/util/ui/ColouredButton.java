@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.ColouredButton
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -114,8 +114,11 @@ public class ColouredButton
 	public void setGrayedOut(boolean greyedOut)
 	{
 		this.greyedOut = greyedOut;
-		if (greyedOut) setButtonColour(Color.LIGHT_GRAY);
-		else setButtonColour(color);
+		if (greyedOut) 
+		    setButtonColour(Color.LIGHT_GRAY);
+		else
+		    setButtonColour(color);
+		colourButtonUI.setGrayedOut(greyedOut);
 		repaint();
 	}
 
@@ -128,10 +131,8 @@ public class ColouredButton
 	 */
 	public void setColor(Color color) 
 	{ 
-		if (color == null) return;
 		this.color = color;
-		setGrayedOut(greyedOut);
-		//setButtonColour(color);
+		setButtonColour(color);
 		repaint();
 	}
 
