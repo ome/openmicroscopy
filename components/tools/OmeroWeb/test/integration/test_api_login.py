@@ -21,8 +21,9 @@
 Tests logging in with webgateway json api
 """
 
+import pytest
 from weblibrary import IWebTest, _get_response_json, _post_response_json
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
 
 
@@ -55,6 +56,14 @@ class TestLogin(IWebTest):
         assert 'servers_url' in rsp
         assert 'login_url' in rsp
         assert 'projects_url' in rsp
+
+    def test_base_url_404(self):
+        """
+        Tests that the base url gives 404 for invalid versions
+        """
+        version = '0'
+        with pytest.raises(NoReverseMatch):
+            request_url = reverse('api_base', kwargs={'api_version': version})
 
     def test_login_get(self):
         """
