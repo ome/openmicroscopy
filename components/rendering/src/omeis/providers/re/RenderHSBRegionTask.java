@@ -149,8 +149,10 @@ class RenderHSBRegionTask implements RenderingTask {
         byte[] r = dataBuffer.getRedBand();
         byte[] g = dataBuffer.getGreenBand();
         byte[] b = dataBuffer.getBlueBand();
+        LutReader reader;
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
+            reader = readers.get(i);
             QuantumStrategy qs = strategies.get(i);
             int rColor = color[ColorsFactory.RED_INDEX];
             int gColor = color[ColorsFactory.GREEN_INDEX];
@@ -164,6 +166,12 @@ class RenderHSBRegionTask implements RenderingTask {
                     discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
                     discreteValue = cc.transform(discreteValue);
 
+                    if (reader != null) {
+                        r[pix] = (byte) (reader.getRed(discreteValue) & 0xFF);
+                        g[pix] = (byte) (reader.getGreen(discreteValue) & 0xFF);
+                        b[pix] = (byte) (reader.getBlue(discreteValue) & 0xFF);
+                        continue;
+                    }
                     // Pre-multiply the alpha component and add the existing
                     // colour value to the new colour value.
                     v = discreteValue * alpha;
@@ -342,8 +350,10 @@ class RenderHSBRegionTask implements RenderingTask {
         int[] buf = ((RGBAIntBuffer) dataBuffer).getDataBuffer();
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
+        LutReader reader;
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
+            reader = readers.get(i);
             QuantumStrategy qs = strategies.get(i);
             redRatio = color[ColorsFactory.RED_INDEX] > 0 ? 
                     color[ColorsFactory.RED_INDEX] / 255.0 : 0.0;
@@ -385,7 +395,13 @@ class RenderHSBRegionTask implements RenderingTask {
                         buf[pix] |= discreteValue << colorOffset;
                         continue;
                     }
-
+                    if (reader != null) {
+                        buf[pix] = 0x000000FF |
+                                (reader.getRed(discreteValue)&0xFF) << 24 |
+                                (reader.getGreen(discreteValue)&0xFF) << 16 |
+                                (reader.getBlue(discreteValue)&0xFF) << 8;
+                        continue;
+                    }
                     newRValue = (int) (redRatio * discreteValue);
                     newGValue = (int) (greenRatio * discreteValue);
                     newBValue = (int) (blueRatio * discreteValue);
