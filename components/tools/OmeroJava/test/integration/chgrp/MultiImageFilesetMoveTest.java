@@ -302,7 +302,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyFilter()));
     		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyFilterSet()));
     		Assert.assertEquals(instrument.sizeOfLightSource(), 5);
-    		Assert.assertTrueCollectionUtils.isNotEmpty(instrument.copyObjective()));
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyObjective()));
 //    		Assert.assertTrue(instrument.sizeOfOtf() > 0);
     		
     		Assert.assertEquals(instrument.sizeOfDetector(),
