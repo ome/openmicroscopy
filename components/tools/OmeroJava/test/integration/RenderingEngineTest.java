@@ -7,6 +7,7 @@ package integration;
 
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -589,13 +590,113 @@ public class RenderingEngineTest extends AbstractServerTest {
             re.lookupRenderingDef(id);
         }
         re.load();
-        int t = re.getDefaultT();
-        int v = t + 1;
-        re.setDefaultT(v);
+        //change t
+        int new_t = re.getDefaultT() + 1;
+        re.setDefaultT(new_t);
+        Assert.assertEquals(re.getDefaultT(), new_t);
+        //change z
+        int new_z = re.getDefaultZ() + 1;
+        re.setDefaultZ(new_z);
+        Assert.assertEquals(re.getDefaultZ(), new_z);
+        //change compression
+        float new_compression = 0.5f;
+        re.setCompressionLevel(new_compression);
+        Assert.assertEquals(re.getCompressionLevel(), new_compression);
+        //codomain change
+        QuantumDef qdef = re.getQuantumDef();
+        int new_bit = 127;
+        int new_cd_start = qdef.getCdStart().getValue()+1;
+        int new_cd_end = qdef.getCdEnd().getValue()-1;
+        re.setQuantumStrategy(new_bit);
+        re.setCodomainInterval(new_cd_start, new_cd_end);
+        //mode change
+        RenderingModel model = re.getModel();
+        List<IObject> models = factory.getPixelsService().getAllEnumerations(
+                RenderingModel.class
+                .getName());
+        Iterator<IObject> j = models.iterator();
+        RenderingModel m, new_model = null;
+        // Change the color model so it is not grey scale.
+        while (j.hasNext()) {
+            m = (RenderingModel) j.next();
+            if (m.getId().getValue() != model.getId().getValue()) {
+                re.setModel(m);
+                new_model = m;
+            }
+        }
+        int sizeC = p.getSizeC().getValue();
+        List<IObject> families = re.getAvailableFamilies();
+        List<Boolean> active = new ArrayList<Boolean>(sizeC);
+        List<String> lut = new ArrayList<String>(sizeC);
+        List<Double> coeff = new ArrayList<Double>(sizeC);
+        List<Point2D.Double> interval = new ArrayList<Point2D.Double>(sizeC);
+        List<Family> new_families = new ArrayList<Family>(sizeC);
+        List<Boolean> noise = new ArrayList<Boolean>(sizeC);
+        List<int[]> color = new ArrayList<int[]>(sizeC);
+        for (int i = 0; i < sizeC; i++) {
+            //active flag
+            active.add(!re.isActive(i));
+            re.setActive(i, active.get(i));
+            //lut
+            lut.add("new_"+i+".lut");
+            re.setChannelLookupTable(i, lut.get(i));
+            //input interval
+            Point2D.Double point = new Point2D.Double(
+                    re.getChannelWindowStart(i)+0.1,
+                    re.getChannelWindowEnd(i)-0.1);
+            interval.add(point);
+            re.setChannelWindow(i, point.getX(), point.getY());
+            Family family = re.getChannelFamily(i);
+            Iterator<IObject> ff = families.iterator();
+            while (ff.hasNext()) {
+                IObject o = ff.next();
+                if (o.getId().getValue() != family.getId().getValue()) {
+                    new_families.add((Family) o);
+                    break;
+                }
+            }
+            coeff.add(re.getChannelCurveCoefficient(i)+0.1);
+            noise.add(!re.getChannelNoiseReduction(i));
+            re.setQuantizationMap(i, new_families.get(i), coeff.get(i),
+                    noise.get(i));
+            //color
+            int[] rgba = new int[4];
+            for (int k = 0; k < rgba.length; k++) {
+                rgba[k] = i+k;
+            }
+            color.add(rgba);
+            re.setRGBA(i, rgba[0], rgba[1], rgba[2], rgba[3]);
+        }
+        //save settings
         re.saveCurrentSettings();
-        Assert.assertTrue(re.getDefaultT() == v);
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-        Assert.assertEquals(def.getDefaultT().getValue(), v);
+        Assert.assertEquals(def.getDefaultT().getValue(), new_t);
+        Assert.assertEquals(def.getDefaultZ().getValue(), new_z);
+        if (def.getCompression() != null) {
+            Assert.assertEquals(def.getCompression().getValue(), new_compression);
+        }
+        Assert.assertEquals(def.getQuantization().getBitResolution().getValue(),
+                new_bit);
+        Assert.assertEquals(def.getQuantization().getCdStart().getValue(),
+                new_cd_start);
+        Assert.assertEquals(def.getQuantization().getCdEnd().getValue(),
+                new_cd_end);
+        Assert.assertNotNull(new_model);
+        Assert.assertEquals(re.getModel().getValue().getValue(),
+                new_model.getValue().getValue());
+        for (int i = 0; i < sizeC; i++) {
+            Assert.assertEquals(re.isActive(i), active.get(i).booleanValue());
+            Assert.assertEquals(re.getChannelLookupTable(i), lut.get(i));
+            Point2D.Double point = interval.get(i);
+            Assert.assertEquals(re.getChannelWindowStart(i), point.getX());
+            Assert.assertEquals(re.getChannelWindowEnd(i), point.getY());
+            Assert.assertEquals(re.getChannelCurveCoefficient(i), coeff.get(i));
+            Assert.assertEquals(re.getChannelNoiseReduction(i),
+                    noise.get(i).booleanValue());
+            Assert.assertEquals(re.getChannelFamily(i).getId().getValue(),
+                    new_families.get(i).getId().getValue());
+            Assert.assertTrue(Arrays.equals(color.get(i), re.getRGBA(i)));
+        }
         re.close();
     }
 
