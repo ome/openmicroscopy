@@ -1651,7 +1651,7 @@ implements java.io.Serializable, IObject
         @Override
         @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
         @org.hibernate.annotations.Cascade({${cascadeHib}})
-        @javax.persistence.JoinColumn(name = "external_id", nullable = true, unique = true, insertable = true, updatable = false)
+        @javax.persistence.JoinColumn(name = "external_id", nullable = true, unique = true, insertable = true, updatable = true)
 #set($fkvalue = "FK${type.table}_external_id_externalinfo")
 #set($fkvalue = "${type.fk($fkvalue)}")
         @org.hibernate.annotations.ForeignKey(name = "${fkvalue}")
