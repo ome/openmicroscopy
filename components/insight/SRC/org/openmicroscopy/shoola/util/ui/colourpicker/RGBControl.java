@@ -281,7 +281,7 @@ class RGBControl
      */
     void setLUT(String lut) {
         model.setLUT(lut);
-        fireChangeEvent();
+        fireChangeEvent(true);
     }
 
     /**
@@ -318,17 +318,29 @@ class RGBControl
 	 */
 	void addListener(ChangeListener e) { listeners.add(e); }
 	
-	/** Fires Changed event to all listeners stating the model has changed. */
-	void fireChangeEvent()
-	{
+    /** Fires Changed event to all listeners stating the model has changed. */
+    void fireChangeEvent() {
+        fireChangeEvent(false);
+    }
+
+    /**
+     * Fires Changed event to all listeners stating the model has changed.
+     * 
+     * @param lut
+     *            Pass <code>true</code> if only the lookup table has changed
+     */
+    void fireChangeEvent(boolean lut) {
         ChangeListener e;
-		for (int i = 0 ; i < listeners.size(); i++)
-		{
-			e = listeners.get(i);
-			e.stateChanged(new ColourChangedEvent(this));
-		}
-		firePropertyChange(PaintPotUI.COLOUR_CHANGED_PROPERTY, null, 
-							model.getColour());
-	}
+        for (int i = 0; i < listeners.size(); i++) {
+            e = listeners.get(i);
+            e.stateChanged(new ColourChangedEvent(this));
+        }
+        if (lut)
+            firePropertyChange(PaintPotUI.LUT_PROPERTY, null, model.getLUT());
+
+        else
+            firePropertyChange(PaintPotUI.COLOUR_CHANGED_PROPERTY, null,
+                    model.getColour());
+    }
     
 }

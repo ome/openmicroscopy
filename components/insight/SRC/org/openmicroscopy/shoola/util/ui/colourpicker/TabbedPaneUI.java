@@ -52,6 +52,7 @@ import info.clearthought.layout.TableLayout;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -80,12 +81,6 @@ class TabbedPaneUI
 	
 	/** Used by card layout to select colour wheel panel. */
 	private static final String COLOURWHEELPANE = "Color Wheel Pane";
-	
-	/** Used by card layout to select RGB Slider panel. */
-	private static final String RGBSLIDERPANE = "RGB Slider Pane"; 
-	
-	/** Used by card layout to select swatch panel. */
-	private static final String SWATCHPANE = "Swatch Pane";
 	
 	/** Used by card layout to select lut panel. */
     private static final String LUTPANE = "LUT Pane";
@@ -265,7 +260,9 @@ class TabbedPaneUI
     private void createPanels()
     {
         colourWheelPane = new HSVColourWheelUI(control);
-        paintPotPane = new PaintPotUI(control.getColour(), control);
+        paintPotPane = new PaintPotUI(
+                CommonsLangUtils.isEmpty(control.getLUT()) ? control.getColour()
+                        : UIUtilities.BACKGROUND, control);
         lutPane = new LUTUI(control);
     }
     
@@ -310,7 +307,11 @@ class TabbedPaneUI
         	add(p);
         }
         add(userActionPanel);
-        pickWheelPane();
+        
+        if (CommonsLangUtils.isEmpty(control.getLUT()))
+            pickWheelPane();
+        else
+            pickLUTPane();
     }
     
     /** Clears all buttons. */
