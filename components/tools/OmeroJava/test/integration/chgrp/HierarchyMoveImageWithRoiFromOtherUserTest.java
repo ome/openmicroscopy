@@ -19,7 +19,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration.chgrp;
 
 import integration.AbstractServerTest;

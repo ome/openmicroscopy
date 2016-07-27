@@ -1,6 +1,4 @@
 /*
- * integration.chgrp.HierarchyMoveCombinedDataTest
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -21,7 +19,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration.chgrp;
 
 import integration.AbstractServerTest;

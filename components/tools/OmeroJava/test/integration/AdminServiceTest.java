@@ -2,9 +2,7 @@
  *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -2,7 +2,6 @@
  *   Copyright 2010-2015 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
 
 import java.io.File;
@@ -917,7 +916,7 @@ public class AbstractServerTest extends AbstractTest {
                 .getValue());
         Assert.assertNotNull(copy,
                 String.format("%s:%s", obj.getClass().getName(), obj.getId()
-                        .getValue())+ " is missing!");
+                        .getValue()) + " is missing!");
     }
 
     protected void assertAllExist(IObject... obj) throws Exception {
