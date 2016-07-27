@@ -235,23 +235,23 @@ public class PixelsServiceTest extends AbstractServerTest {
         long id = pixels.getId().getValue();
         Pixels p = factory.getPixelsService().retrievePixDescription(id);
         Assert.assertNotNull(p);
-        Assert.assertTrue(pixels.getSizeX().getValue() == p.getSizeX().getValue());
-        Assert.assertTrue(pixels.getSizeY().getValue() == p.getSizeY().getValue());
-        Assert.assertTrue(pixels.getSizeT().getValue() == p.getSizeT().getValue());
-        Assert.assertTrue(pixels.getSizeZ().getValue() == p.getSizeZ().getValue());
-        Assert.assertTrue(pixels.getSizeC().getValue() == p.getSizeC().getValue());
-        Assert.assertTrue(pixels.sizeOfChannels() == ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
-        Assert.assertTrue(p.sizeOfChannels() == pixels.sizeOfChannels());
-        Assert.assertTrue(pixels.getPhysicalSizeX().getValue() == p.getPhysicalSizeX()
+        Assert.assertEquals(pixels.getSizeX().getValue(), p.getSizeX().getValue());
+        Assert.assertEquals(pixels.getSizeY().getValue(), p.getSizeY().getValue());
+        Assert.assertEquals(pixels.getSizeT().getValue(),p.getSizeT().getValue());
+        Assert.assertEquals(pixels.getSizeZ().getValue(), p.getSizeZ().getValue());
+        Assert.assertEquals(pixels.getSizeC().getValue(), p.getSizeC().getValue());
+        Assert.assertEquals(pixels.sizeOfChannels(), ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+        Assert.assertEquals(p.sizeOfChannels(), pixels.sizeOfChannels());
+        Assert.assertEquals(pixels.getPhysicalSizeX().getValue(), p.getPhysicalSizeX()
                 .getValue());
-        Assert.assertTrue(pixels.getPhysicalSizeY().getValue() == p.getPhysicalSizeY()
+        Assert.assertEquals(pixels.getPhysicalSizeY().getValue(), p.getPhysicalSizeY()
                 .getValue());
-        Assert.assertTrue(pixels.getPhysicalSizeZ().getValue() == p.getPhysicalSizeZ()
+        Assert.assertEquals(pixels.getPhysicalSizeZ().getValue(), p.getPhysicalSizeZ()
                 .getValue());
         Assert.assertNotNull(pixels.getPixelsType());
         Assert.assertNotNull(p.getPixelsType());
-        Assert.assertTrue(pixels.getPixelsType().getValue().getValue()
-                .equals(p.getPixelsType().getValue().getValue()));
+        Assert.assertEquals(pixels.getPixelsType().getValue().getValue(),
+                p.getPixelsType().getValue().getValue());
         Channel channel;
         LogicalChannel lc;
         List<Long> ids = new ArrayList<Long>();
@@ -338,7 +338,7 @@ public class PixelsServiceTest extends AbstractServerTest {
         RenderingDef def1 = svc.retrieveRndSettingsFor(pixels.getId()
                 .getValue(), id);
         Assert.assertNotNull(def1);
-        Assert.assertTrue(def1.getId().getValue() == def.getId().getValue());
+        Assert.assertEquals(def1.getId().getValue(), def.getId().getValue());
         def1 = svc.retrieveRndSettingsFor(pixels.getId().getValue(), id + 1);
         Assert.assertNull(def1);
     }
