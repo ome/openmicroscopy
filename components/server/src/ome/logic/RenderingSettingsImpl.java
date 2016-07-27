@@ -804,6 +804,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             channelBinding.setAlpha(defaultColor[ColorsFactory.ALPHA_INDEX]);
 
             channelBinding.setNoiseReduction(false);
+            //Set the lookuptable if set during import
+            channelBinding.setLookupTable(channel.getLookupTable());
             i++;
         }
         if (count > 0 && count != m.size()) {
