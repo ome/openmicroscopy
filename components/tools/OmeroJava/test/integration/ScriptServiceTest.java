@@ -32,6 +32,7 @@ import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -82,7 +83,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScripts();
         Assert.assertNotNull(scripts);
-        Assert.assertTrue(scripts.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
         Iterator<OriginalFile> i = scripts.iterator();
         OriginalFile f;
         while (i.hasNext()) {
@@ -94,7 +95,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         }
         scripts = svc.getScripts();
         Assert.assertNotNull(scripts);
-        Assert.assertTrue(scripts.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
         i = scripts.iterator();
         while (i.hasNext()) {
             f = i.next();
@@ -117,7 +118,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
         Assert.assertNotNull(scripts);
-        Assert.assertTrue(scripts.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
         Iterator<OriginalFile> i = scripts.iterator();
         OriginalFile f;
         while (i.hasNext()) {

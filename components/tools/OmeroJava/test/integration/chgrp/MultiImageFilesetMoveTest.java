@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -296,12 +297,12 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         			img.getInstrument().getId().getValue());
         	InstrumentData data = new InstrumentData(instrument);
         	Assert.assertEquals(data.asIObject().getDetails().getGroup().getId().getValue(), gid2);
-    		Assert.assertTrue(instrument.sizeOfDetector() > 0);
-    		Assert.assertTrue(instrument.sizeOfDichroic() > 0);
-    		Assert.assertTrue(instrument.sizeOfFilter() > 0);
-    		Assert.assertTrue(instrument.sizeOfFilterSet() > 0);
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyDetector()));
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyDichroic()));
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyFilter()));
+    		Assert.assertTrue(CollectionUtils.isNotEmpty(instrument.copyFilterSet()));
     		Assert.assertEquals(instrument.sizeOfLightSource(), 5);
-    		Assert.assertTrue(instrument.sizeOfObjective() > 0);
+    		Assert.assertTrueCollectionUtils.isNotEmpty(instrument.copyObjective()));
 //    		Assert.assertTrue(instrument.sizeOfOtf() > 0);
     		
     		Assert.assertEquals(instrument.sizeOfDetector(),

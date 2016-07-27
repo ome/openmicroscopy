@@ -64,6 +64,7 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -314,7 +315,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(shapeIds);
         sql = "select d from Shape as d where d.id in (:ids)";
         results = iQuery.findAllByQuery(sql, param);
-        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
     }
 
     /**
@@ -416,7 +417,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb.append("left outer join fetch well.plate as pt ");
         sb.append("where pt.id = :plateID");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         // check the well samples.
         sb = new StringBuilder();
@@ -424,7 +425,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(wellSampleIds);
         sb.append("select p from WellSample as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         // check the image.
         sb = new StringBuilder();
@@ -432,7 +433,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(imageIds);
         sb.append("select p from Image as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
         if (pa != null) {
             param = new ParametersI();
             param.addId(pa.getId().getValue());
@@ -530,7 +531,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb.append("left outer join fetch well.plate as pt ");
         sb.append("where pt.id = :plateID");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         // check the well samples.
         sb = new StringBuilder();
@@ -538,7 +539,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(wellSampleIds);
         sb.append("select p from WellSample as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         // check the image.
         sb = new StringBuilder();
@@ -546,7 +547,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(imageIds);
         sb.append("select p from Image as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
     }
 
     /**
@@ -607,7 +608,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(ids);
         sql = "select i from Plate as i where i.id in (:ids)";
         results = iQuery.findAllByQuery(sql, param);
-        Assert.assertTrue(results.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(results));
 
         param = new ParametersI();
         param.addId(screen.getId().getValue());
@@ -847,7 +848,8 @@ public class HierarchyMoveTest extends AbstractServerTest {
         Assert.assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         loginUser(g);
-        Assert.assertTrue(iQuery.findAllByQuery(sb.toString(), param).size() > 0);
+        List<IObject> l = iQuery.findAllByQuery(sb.toString(), param);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(l));
     }
 
     /**

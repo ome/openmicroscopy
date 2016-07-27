@@ -93,6 +93,7 @@ import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -1191,7 +1192,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         param.addId(pixels.getId());
         List<IObject> test = (List<IObject>) iQuery.findAllByQuery(
                 "select pi from PlaneInfo pi where pi.pixels.id = :id", param);
-        Assert.assertTrue(test.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(test));
     }
 
     /**
