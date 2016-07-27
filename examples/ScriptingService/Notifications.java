@@ -1,4 +1,3 @@
-
 import omero.api.*;
 import omero.model.*;
 import omero.grid.*;

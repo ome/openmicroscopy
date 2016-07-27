@@ -1,6 +1,5 @@
 import java.util.List;
 
-
 import omero.api.ServiceFactoryPrx;
 import omero.api.IQueryPrx;
 import omero.model.IObject;

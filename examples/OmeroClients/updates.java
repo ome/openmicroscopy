@@ -1,5 +1,3 @@
-
-
 import omero.api.ServiceFactoryPrx;
 import omero.api.IUpdatePrx;
 import omero.model.Image;

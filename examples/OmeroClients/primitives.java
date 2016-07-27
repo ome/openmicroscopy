@@ -1,4 +1,3 @@
-
 public class primitives {
     public static void main(String[] args) {
         omero.RString a = omero.rtypes.rstring("value");

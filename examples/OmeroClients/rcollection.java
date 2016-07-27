@@ -1,5 +1,3 @@
-
-
 public class rcollection {
     public static void main(String[] args) {
         // Sets and Lists may be interpreted differently on the server
