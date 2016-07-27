@@ -97,7 +97,7 @@ public class RawFileStoreTest extends AbstractServerTest {
         RawFileStorePrx store;
         byte[] values;
         int size;
-        Assert.assertTrue(scripts.size() > 0);
+        Assert.assertNotEquals(scripts.size(), 0);
         while (i.hasNext()) {
             f = i.next();
             store = factory.createRawFileStore();
@@ -105,7 +105,7 @@ public class RawFileStoreTest extends AbstractServerTest {
             size = (int) f.getSize().getValue();
             values = store.read(0, size);
             Assert.assertNotNull(values);
-            Assert.assertTrue(values.length > 0);
+            Assert.assertNotEquals(values.length, 0);
             store.close();
         }
     }

@@ -130,7 +130,7 @@ public class ConfigurationServiceTest extends AbstractServerTest {
         IConfigPrx svc = root.getSession().getConfigService();
         svc.setConfigValue(key, value);
         Assert.assertNotNull(svc.getConfigValue(key));
-        Assert.assertTrue(svc.getConfigValue(key).equals(value));
+        Assert.assertEquals(svc.getConfigValue(key), value);
     }
 
     /**

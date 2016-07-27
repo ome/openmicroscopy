@@ -400,8 +400,8 @@ public class MetadataServiceTest extends AbstractServerTest {
                 }
             }
         }
-        Assert.assertTrue(count > 0);
-        Assert.assertEquals(count, result.size());
+        Assert.assertNotEquals(count, 0);
+        Assert.assertEquals(result.size(), count);
         // Same thing but this time passing ome.model.annotations.FileAnnotation
         result = iMetadata.loadSpecifiedAnnotations(FILE_ANNOTATION, include,
                 exclude, param);
@@ -424,8 +424,8 @@ public class MetadataServiceTest extends AbstractServerTest {
                 }
             }
         }
-        Assert.assertTrue(count > 0);
-        Assert.assertEquals(count, result.size());
+        Assert.assertNotEquals(count, 0);
+        Assert.assertEquals(result.size(), count);
     }
 
     /**
@@ -720,7 +720,7 @@ public class MetadataServiceTest extends AbstractServerTest {
             }
         }
         Assert.assertEquals(orphan, tagsIds.size());
-        Assert.assertTrue(count > 0);
+        Assert.assertNotEquals(count, 0);
     }
 
     /**
@@ -844,7 +844,7 @@ public class MetadataServiceTest extends AbstractServerTest {
         List<IObject> result = f
                 .getMetadataService()
                 .loadAnnotationsUsedNotOwned(TagAnnotation.class.getName(), id1);
-        Assert.assertTrue(result.size() > 0);
+        Assert.assertNotEquals(result.size(), 0);
         Iterator<IObject> i = result.iterator();
         IObject o;
         int count = 0;
@@ -955,13 +955,13 @@ public class MetadataServiceTest extends AbstractServerTest {
             instrument = iMetadata
                     .loadInstrument(instrument.getId().getValue());
             data = new InstrumentData(instrument);
-            Assert.assertTrue(instrument.sizeOfDetector() > 0);
-            Assert.assertTrue(instrument.sizeOfDichroic() > 0);
-            Assert.assertTrue(instrument.sizeOfFilter() > 0);
-            Assert.assertTrue(instrument.sizeOfFilterSet() > 0);
+            Assert.assertNotEquals(instrument.sizeOfDetector(), 0);
+            Assert.assertNotEquals(instrument.sizeOfDichroic(), 0);
+            Assert.assertNotEquals(instrument.sizeOfFilter(), 0);
+            Assert.assertNotEquals(instrument.sizeOfFilterSet(), 0);
             Assert.assertEquals(instrument.sizeOfLightSource(), 1);
-            Assert.assertTrue(instrument.sizeOfObjective() > 0);
-            Assert.assertTrue(instrument.sizeOfOtf() > 0);
+            Assert.assertNotEquals(instrument.sizeOfObjective(), 0);
+            Assert.assertNotEquals(instrument.sizeOfOtf(), 0);
 
             Assert.assertEquals(instrument.sizeOfDetector(), data.getDetectors()
                     .size());
@@ -1367,7 +1367,7 @@ public class MetadataServiceTest extends AbstractServerTest {
                 }
             }
         }
-        Assert.assertTrue(count > 0);
+        Assert.assertNotEquals(count, 0);
         Assert.assertEquals(count, result.size());
     }
 
@@ -2053,15 +2053,15 @@ public class MetadataServiceTest extends AbstractServerTest {
         Assert.assertTrue(logFiles.isEmpty());
 
         logFiles = iMetadata.loadLogFiles(Fileset.class.getName(), ImmutableList.of(fileset1Id));
-        Assert.assertTrue(logFiles.size() == 1);
+        Assert.assertEquals(logFiles.size(), 1);
         assertOriginalFileIds(logFiles.get(fileset1Id), importLog1Id);
 
         logFiles = iMetadata.loadLogFiles(Fileset.class.getName(), ImmutableList.of(fileset2Id));
-        Assert.assertTrue(logFiles.size() == 1);
+        Assert.assertEquals(logFiles.size(), 1);
         assertOriginalFileIds(logFiles.get(fileset2Id), importLog2Id);
 
         logFiles = iMetadata.loadLogFiles(Fileset.class.getName(), ImmutableList.of(fileset1Id, fileset2Id));
-        Assert.assertTrue(logFiles.size() == 2);
+        Assert.assertEquals(logFiles.size(), 2);
         assertOriginalFileIds(logFiles.get(fileset1Id), importLog1Id);
         assertOriginalFileIds(logFiles.get(fileset2Id), importLog2Id);
 
@@ -2071,34 +2071,34 @@ public class MetadataServiceTest extends AbstractServerTest {
         Assert.assertTrue(logFiles.isEmpty());
 
         logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image1Id));
-        Assert.assertTrue(logFiles.size() == 1);
+        Assert.assertEquals(logFiles.size(), 1);
         assertOriginalFileIds(logFiles.get(image1Id), importLog1Id);
 
         logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image2Id));
-        Assert.assertTrue(logFiles.size() == 1);
+        Assert.assertEquals(logFiles.size(), 1);
         assertOriginalFileIds(logFiles.get(image2Id), importLog2Id);
 
         logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image3Id));
-        Assert.assertTrue(logFiles.size() == 1);
+        Assert.assertEquals(logFiles.size(), 1);
         assertOriginalFileIds(logFiles.get(image3Id), importLog2Id);
 
         logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image1Id, image2Id));
-        Assert.assertTrue(logFiles.size() == 2);
+        Assert.assertEquals(logFiles.size(), 2);
         assertOriginalFileIds(logFiles.get(image1Id), importLog1Id);
         assertOriginalFileIds(logFiles.get(image2Id), importLog2Id);
 
         logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image1Id, image3Id));
-        Assert.assertTrue(logFiles.size() == 2);
+        Assert.assertEquals(logFiles.size(), 2);
         assertOriginalFileIds(logFiles.get(image1Id), importLog1Id);
         assertOriginalFileIds(logFiles.get(image3Id), importLog2Id);
 
         logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image2Id, image3Id));
-        Assert.assertTrue(logFiles.size() == 2);
+        Assert.assertEquals(logFiles.size(), 2);
         assertOriginalFileIds(logFiles.get(image2Id), importLog2Id);
         assertOriginalFileIds(logFiles.get(image3Id), importLog2Id);
 
         logFiles = iMetadata.loadLogFiles(Image.class.getName(), ImmutableList.of(image1Id, image2Id, image3Id));
-        Assert.assertTrue(logFiles.size() == 3);
+        Assert.assertEquals(logFiles.size(), 3);
         assertOriginalFileIds(logFiles.get(image1Id), importLog1Id);
         assertOriginalFileIds(logFiles.get(image2Id), importLog2Id);
         assertOriginalFileIds(logFiles.get(image3Id), importLog2Id);

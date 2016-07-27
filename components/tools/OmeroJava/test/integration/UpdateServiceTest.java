@@ -146,7 +146,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         // Update event should be created
         Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
         long version2 = sent2.getDetails().getUpdateEvent().getId().getValue();
-        Assert.assertTrue(version != version2);
+        Assert.assertNotEquals(version, version2);
     }
 
     /**
@@ -176,7 +176,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         img = (Image) iQuery.get(Image.class.getName(), img.getId().getValue());
 
         long newId = img.getDetails().getUpdateEvent().getId().getValue();
-        Assert.assertTrue(newId == oldId);
+        Assert.assertEquals(newId, oldId);
     }
 
     /**
@@ -194,7 +194,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         long id = img.getDetails().getUpdateEvent().getId().getValue();
         Image test = (Image) iUpdate.saveAndReturnObject(img);
         Assert.assertNotNull(test.getDetails().getUpdateEvent());
-        Assert.assertTrue(id == test.getDetails().getUpdateEvent().getId().getValue());
+        Assert.assertEquals(id, test.getDetails().getUpdateEvent().getId().getValue());
     }
 
     /**
@@ -210,9 +210,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         Assert.assertNotNull(p);
         ProjectData pd = new ProjectData(p);
         Assert.assertTrue(p.getId().getValue() > 0);
-        Assert.assertTrue(p.getId().getValue() == pd.getId());
-        Assert.assertTrue(p.getName().getValue() == pd.getName());
-        Assert.assertTrue(p.getDescription().getValue() == pd.getDescription());
+        Assert.assertEquals(p.getId().getValue(), pd.getId());
+        Assert.assertEquals(p.getName().getValue(), pd.getName());
+        Assert.assertEquals(p.getDescription().getValue(), pd.getDescription());
     }
 
     /**
@@ -228,9 +228,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         Assert.assertNotNull(p);
         DatasetData d = new DatasetData(p);
         Assert.assertTrue(p.getId().getValue() > 0);
-        Assert.assertTrue(p.getId().getValue() == d.getId());
-        Assert.assertTrue(p.getName().getValue() == d.getName());
-        Assert.assertTrue(p.getDescription().getValue() == d.getDescription());
+        Assert.assertEquals(p.getId().getValue(), d.getId());
+        Assert.assertEquals(p.getName().getValue(), d.getName());
+        Assert.assertEquals(p.getDescription().getValue(), d.getDescription());
     }
 
     /**
@@ -245,9 +245,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         ImageData img = new ImageData(p);
         Assert.assertNotNull(p);
         Assert.assertTrue(p.getId().getValue() > 0);
-        Assert.assertTrue(p.getId().getValue() == img.getId());
-        Assert.assertTrue(p.getName().getValue() == img.getName());
-        Assert.assertTrue(p.getDescription().getValue() == img.getDescription());
+        Assert.assertEquals(p.getId().getValue(), img.getId());
+        Assert.assertEquals(p.getName().getValue(), img.getName());
+        Assert.assertEquals(p.getDescription().getValue(), img.getDescription());
     }
 
     /**
@@ -293,9 +293,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         ScreenData data = new ScreenData(p);
         Assert.assertNotNull(p);
         Assert.assertTrue(p.getId().getValue() > 0);
-        Assert.assertTrue(p.getId().getValue() == data.getId());
-        Assert.assertTrue(p.getName().getValue() == data.getName());
-        Assert.assertTrue(p.getDescription().getValue() == data.getDescription());
+        Assert.assertEquals(p.getId().getValue(), data.getId());
+        Assert.assertEquals(p.getName().getValue(), data.getName());
+        Assert.assertEquals(p.getDescription().getValue(), data.getDescription());
     }
 
     /**
@@ -311,9 +311,9 @@ public class UpdateServiceTest extends AbstractServerTest {
         PlateData data = new PlateData(p);
         Assert.assertNotNull(p);
         Assert.assertTrue(p.getId().getValue() > 0);
-        Assert.assertTrue(p.getId().getValue() == data.getId());
-        Assert.assertTrue(p.getName().getValue() == data.getName());
-        Assert.assertTrue(p.getDescription().getValue() == data.getDescription());
+        Assert.assertEquals(p.getId().getValue(), data.getId());
+        Assert.assertEquals(p.getName().getValue(), data.getName());
+        Assert.assertEquals(p.getDescription().getValue(), data.getDescription());
     }
 
     /**
@@ -396,7 +396,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         ProjectData pData = new ProjectData(p);
         Set<DatasetData> datasets = pData.getDatasets();
         // We should have 2 datasets
-        Assert.assertTrue(datasets.size() == 2);
+        Assert.assertEquals(datasets.size(), 2);
         int count = 0;
         Iterator<DatasetData> i = datasets.iterator();
         DatasetData dataset;
@@ -406,7 +406,7 @@ public class UpdateServiceTest extends AbstractServerTest {
                     || dataset.getId() == d2.getId().getValue())
                 count++;
         }
-        Assert.assertTrue(count == 2);
+        Assert.assertEquals(count, 2);
     }
 
     /**
@@ -458,7 +458,7 @@ public class UpdateServiceTest extends AbstractServerTest {
         DatasetData pData = new DatasetData(p);
         Set<ImageData> images = pData.getImages();
         // We should have 2 datasets
-        Assert.assertTrue(images.size() == 2);
+        Assert.assertEquals(images.size(), 2);
         int count = 0;
         Iterator<ImageData> i = images.iterator();
         ImageData image;
@@ -468,7 +468,7 @@ public class UpdateServiceTest extends AbstractServerTest {
                     || image.getId() == d2.getId().getValue())
                 count++;
         }
-        Assert.assertTrue(count == 2);
+        Assert.assertEquals(count, 2);
     }
 
     /**
@@ -921,9 +921,9 @@ public class UpdateServiceTest extends AbstractServerTest {
                 .saveAndReturnObject(data);
         Assert.assertNotNull(update);
 
-        Assert.assertTrue(data.getId().getValue() == update.getId().getValue());
+        Assert.assertEquals(data.getId().getValue(), update.getId().getValue());
 
-        Assert.assertTrue(newText.equals(update.getTextValue().getValue()));
+        Assert.assertEquals(newText, update.getTextValue().getValue());
     }
 
     /**
@@ -965,9 +965,9 @@ public class UpdateServiceTest extends AbstractServerTest {
 
         long self = factory.getAdminService().getEventContext().userId;
 
-        Assert.assertTrue(o1.getId().getValue() != o2.getId().getValue());
-        Assert.assertTrue(o1.getDetails().getOwner().getId().getValue() == self);
-        Assert.assertTrue(o2.getDetails().getOwner().getId().getValue() == fixture.e
+        Assert.assertNotEquals(o1.getId().getValue(), o2.getId().getValue());
+        Assert.assertEquals(o1.getDetails().getOwner().getId().getValue(), self);
+        Assert.assertEquals(o2.getDetails().getOwner().getId().getValue(), fixture.e
                 .getId().getValue());
     }
 
@@ -1011,9 +1011,9 @@ public class UpdateServiceTest extends AbstractServerTest {
                 .findByQuery(sb.toString(), param);
         Assert.assertNotNull(lReturned.getChild());
         Assert.assertNotNull(lReturned.getParent());
-        Assert.assertTrue(lReturned.getChild().getId().getValue() == tagReturned
+        Assert.assertEquals(lReturned.getChild().getId().getValue(), tagReturned
                 .getId().getValue());
-        Assert.assertTrue(lReturned.getParent().getId().getValue() == tagSetReturned
+        Assert.assertEquals(lReturned.getParent().getId().getValue(), tagSetReturned
                 .getId().getValue());
     }
 
@@ -1226,23 +1226,23 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         EllipseData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (EllipseData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getX() == v);
-            Assert.assertTrue(shape.getY() == v);
-            Assert.assertTrue(shape.getRadiusX() == v);
-            Assert.assertTrue(shape.getRadiusY() == v);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX(), v);
+            Assert.assertEquals(shape.getY(), v);
+            Assert.assertEquals(shape.getRadiusX(), v);
+            Assert.assertEquals(shape.getRadiusY(), v);
         }
     }
 
@@ -1276,21 +1276,21 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         PointData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PointData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getX() == v);
-            Assert.assertTrue(shape.getY() == v);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX(), v);
+            Assert.assertEquals(shape.getY(), v);
         }
     }
 
@@ -1326,23 +1326,23 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         RectangleData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (RectangleData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getX() == v);
-            Assert.assertTrue(shape.getY() == v);
-            Assert.assertTrue(shape.getWidth() == v);
-            Assert.assertTrue(shape.getHeight() == v);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX(), v);
+            Assert.assertEquals(shape.getY(), v);
+            Assert.assertEquals(shape.getWidth(), v);
+            Assert.assertEquals(shape.getHeight(), v);
         }
     }
 
@@ -1390,22 +1390,20 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         PolygonData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PolygonData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getPoints().size() == 1);
-            Assert.assertTrue(shape.getPoints1().size() == 1);
-            Assert.assertTrue(shape.getPoints2().size() == 1);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getPoints().size(), 1);
         }
     }
 
@@ -1439,22 +1437,20 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         PolylineData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PolylineData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getPoints().size() == 1);
-            Assert.assertTrue(shape.getPoints1().size() == 1);
-            Assert.assertTrue(shape.getPoints2().size() == 1);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getPoints().size(), 1);
         }
     }
 
@@ -1491,23 +1487,23 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         LineData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (LineData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getX1() == v);
-            Assert.assertTrue(shape.getY1() == v);
-            Assert.assertTrue(shape.getX2() == w);
-            Assert.assertTrue(shape.getY2() == w);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX1(), v);
+            Assert.assertEquals(shape.getY1(), v);
+            Assert.assertEquals(shape.getX2(), w);
+            Assert.assertEquals(shape.getY2(), w);
         }
     }
 
@@ -1543,23 +1539,23 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         MaskData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (MaskData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getX() == v);
-            Assert.assertTrue(shape.getY() == v);
-            Assert.assertTrue(shape.getWidth() == v);
-            Assert.assertTrue(shape.getHeight() == v);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getX(), v);
+            Assert.assertEquals(shape.getY(), v);
+            Assert.assertEquals(shape.getWidth(), v);
+            Assert.assertEquals(shape.getHeight(), v);
         }
     }
 
@@ -1855,22 +1851,20 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         PolylineData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PolylineData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getPoints().size() == 2);
-            Assert.assertTrue(shape.getPoints1().size() == 2);
-            Assert.assertTrue(shape.getPoints2().size() == 2);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getPoints().size(), 2);
         }
     }
 
@@ -1905,22 +1899,20 @@ public class UpdateServiceTest extends AbstractServerTest {
         serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
 
         ROIData data = new ROIData(serverROI);
-        Assert.assertTrue(data.getId() == serverROI.getId().getValue());
-        Assert.assertTrue(data.getShapeCount() == 1);
+        Assert.assertEquals(data.getId(), serverROI.getId().getValue());
+        Assert.assertEquals(data.getShapeCount(), 1);
 
         List<ShapeData> shapes = data.getShapes(z, t);
         Assert.assertNotNull(shapes);
-        Assert.assertTrue(shapes.size() == 1);
+        Assert.assertEquals(shapes.size(), 1);
         PolygonData shape;
         Iterator<ShapeData> i = shapes.iterator();
         while (i.hasNext()) {
             shape = (PolygonData) i.next();
-            Assert.assertTrue(shape.getT() == t);
-            Assert.assertTrue(shape.getZ() == z);
-            Assert.assertTrue(shape.getC() == c);
-            Assert.assertTrue(shape.getPoints().size() == 2);
-            Assert.assertTrue(shape.getPoints1().size() == 2);
-            Assert.assertTrue(shape.getPoints2().size() == 2);
+            Assert.assertEquals(shape.getT(), t);
+            Assert.assertEquals(shape.getZ(), z);
+            Assert.assertEquals(shape.getC(), c);
+            Assert.assertEquals(shape.getPoints().size(), 2);
         }
     }
 

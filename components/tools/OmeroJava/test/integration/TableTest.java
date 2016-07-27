@@ -496,7 +496,7 @@ public class TableTest extends AbstractServerTest {
             // Row's time string and value should be the same
             Assert.assertEquals(newTime.toString(),
                     myStrings.values[(int) ids[0]]);
-            Assert.assertTrue(newTime == myLongs.values[(int) ids[0]]);
+            Assert.assertEquals(newTime.longValue(), myLongs.values[(int) ids[0]]);
         }
 
     } // updateTableRow()
@@ -558,7 +558,7 @@ public class TableTest extends AbstractServerTest {
             // Row's time string and value should be the same
             Assert.assertEquals(newTime.toString(),
                     myStrings.values[(int) ids[0]]);
-            Assert.assertTrue(newTime == myLongs.values[(int) ids[0]]);
+            Assert.assertEquals(newTime.longValue(), myLongs.values[(int) ids[0]]);
         }
     }
 

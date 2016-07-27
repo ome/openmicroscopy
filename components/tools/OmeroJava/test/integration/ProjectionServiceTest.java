@@ -112,7 +112,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         long imageID = svc.projectPixels(pixels.getId().getValue(), pixelsType,
                 prjType, startT, endT, channels, stepping, startZ, endZ,
                 "projectedImage");
-        Assert.assertTrue(imageID > 0);
+        Assert.assertNotEquals(imageID, 0);
         List<Image> images =
                 factory.getContainerService().getImages(Image.class.getName(),
                 Arrays.asList(imageID), new ParametersI());
@@ -120,7 +120,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         Pixels p = images.get(0).getPixels(0);
         Assert.assertEquals(channels.size(), p.getSizeC().getValue());
         Assert.assertEquals(Math.abs(startT-endT)+1, p.getSizeT().getValue());
-        Assert.assertEquals(1, p.getSizeZ().getValue());
+        Assert.assertEquals(p.getSizeZ().getValue(), 1);
         if (pixelsType == null) pixelsType = pixels.getPixelsType();
         Assert.assertEquals(pixelsType.getValue().getValue(),
                 p.getPixelsType().getValue().getValue());
@@ -148,7 +148,7 @@ public class ProjectionServiceTest extends AbstractServerTest
         IProjectionPrx svc = factory.getProjectionService();
         byte[] value = svc.projectStack(pixelsID, pixelsType, prjType,
                 timepoint, channelIndex, stepping, startZ, endZ);
-        Assert.assertTrue(value.length > 0);
+        Assert.assertNotEquals(value.length, 0);
         //TODO: more check to be added
     }
     

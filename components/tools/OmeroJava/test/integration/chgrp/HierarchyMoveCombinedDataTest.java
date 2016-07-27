@@ -105,7 +105,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         long user2 = d.getDetails().getOwner().getId().getValue();
-        Assert.assertTrue(user1 != user2);
+        Assert.assertNotEquals(user1, user2);
         
         // Step 3
         // Create a new group, the user is now a member of the new group.

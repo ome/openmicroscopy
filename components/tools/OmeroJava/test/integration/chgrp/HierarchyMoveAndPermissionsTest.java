@@ -78,7 +78,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -120,7 +120,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -160,7 +160,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -201,7 +201,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -244,7 +244,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != oldGroupOwner.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), oldGroupOwner.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -285,7 +285,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -326,7 +326,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -367,7 +367,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");
@@ -408,7 +408,7 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(id);
 
-        Assert.assertTrue(g.getId().getValue() != ctx.groupId);
+        Assert.assertNotEquals(g.getId().getValue(), ctx.groupId);
         StringBuilder sb = new StringBuilder();
         sb.append("select i from Image i ");
         sb.append("where i.id = :id");

@@ -1537,7 +1537,7 @@ public class ImporterTest extends AbstractServerTest {
         disconnect();
         // First create a dataset
         ExperimenterGroup group = newGroupAddUser("rw----", ownerEc.userId);
-        Assert.assertTrue(group.getId().getValue() != ownerEc.groupId);
+        Assert.assertNotEquals(group.getId().getValue(), ownerEc.groupId);
         loginUser(ownerEc);
         // newUserInGroup(ownerEc);
 
@@ -1581,7 +1581,7 @@ public class ImporterTest extends AbstractServerTest {
         disconnect();
         // First create a dataset
         ExperimenterGroup group = newGroupAddUser("rw----", ownerEc.userId);
-        Assert.assertTrue(group.getId().getValue() != ownerEc.groupId);
+        Assert.assertNotEquals(group.getId().getValue(), ownerEc.groupId);
         // newUserInGroup(ownerEc);
 
         File f = File.createTempFile("testImportImageIntoDataset", "."
