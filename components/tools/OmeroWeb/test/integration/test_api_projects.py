@@ -528,6 +528,10 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, project_url, {},
                                  status_code=404)
         assert rsp['message'] == 'Project %s not found' % project.id.val
+        # Put should also return 404
+        rsp = _csrf_put_response_json(django_client, project_url, {},
+                                      status_code=404)
+        assert rsp['message'] == 'Project %s not found' % project.id.val
         # Delete (again) should return 404
         rsp = _csrf_delete_response_json(django_client, project_url, {},
                                          status_code=404)
