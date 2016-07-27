@@ -47,6 +47,7 @@ import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
 import omero.sys.EventContext;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -360,10 +361,10 @@ public class RenderingEngineTest extends AbstractServerTest {
                     re.getChannelWindowEnd(index));
             Boolean b1 = Boolean.valueOf(c1.getActive().getValue());
             Boolean b2 = Boolean.valueOf(re.isActive(index));
-            Assert.assertTrue(b1.equals(b2));
+            Assert.assertEquals(b1.booleanValue(), b2.booleanValue());
             b1 = Boolean.valueOf(c1.getNoiseReduction().getValue());
             b2 = Boolean.valueOf(re.getChannelNoiseReduction(index));
-            Assert.assertTrue(b1.equals(b2));
+            Assert.assertEquals(b1.booleanValue(), b2.booleanValue());
             index++;
         }
         re.close();
@@ -446,8 +447,7 @@ public class RenderingEngineTest extends AbstractServerTest {
             c1 = j.next();
             b = !c1.getActive().getValue();
             re.setActive(index, b);
-            Assert.assertTrue(Boolean.valueOf(b).equals(
-                    Boolean.valueOf(re.isActive(index))));
+            Assert.assertEquals(b, re.isActive(index));
             s = c1.getInputStart().getValue() + 1;
             e = c1.getInputEnd().getValue() + 1;
             re.setChannelWindow(index, s, e);
@@ -456,13 +456,10 @@ public class RenderingEngineTest extends AbstractServerTest {
             b = !c1.getNoiseReduction().getValue();
             re.setRGBA(index, RGBA[0], RGBA[1], RGBA[2], RGBA[3]);
             rgba = re.getRGBA(index);
-            for (int k = 0; k < rgba.length; k++) {
-                Assert.assertTrue(rgba[k] == RGBA[k]);
-            }
+            Assert.assertTrue(Arrays.equals(rgba, RGBA));
             b = !c1.getNoiseReduction().getValue();
             re.setQuantizationMap(index, f, coefficient, b);
-            Assert.assertTrue(Boolean.valueOf(re.getChannelNoiseReduction(index))
-                    .equals(Boolean.valueOf(b)));
+            Assert.assertEquals(b, re.getChannelNoiseReduction(index));
             Assert.assertEquals(re.getChannelCurveCoefficient(index), coefficient);
             Assert.assertEquals(re.getChannelFamily(index).getId().getValue(), f
                     .getId().getValue());
@@ -2123,7 +2120,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         List<OriginalFile> scripts = svc.getScriptsByMimetype(
                 ScriptServiceTest.LUT_MIMETYPE);
         Assert.assertNotNull(scripts);
-        Assert.assertTrue(scripts.size() > 0);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
         Iterator<OriginalFile> i = scripts.iterator();
         OriginalFile of;
         PlaneDef pDef = new PlaneDef();
@@ -2156,7 +2153,7 @@ public class RenderingEngineTest extends AbstractServerTest {
             }
         }
         if (failures.isEmpty()) {
-            Assert.assertTrue(failures.size() == 0, "All LUTs read");
+            Assert.assertEquals(failures.size(), 0, "All LUTs read");
         } else {
             Iterator<String> s = failures.iterator();
             StringBuffer b = new StringBuffer();
