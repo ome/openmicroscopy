@@ -294,7 +294,8 @@ public class Gateway {
         }
         Facility.clear();
         groupConnectorMap.clear();
-        keepAliveExecutor.shutdown();
+        if (keepAliveExecutor != null)
+            keepAliveExecutor.shutdown();
         connected = false;
         if (cacheService != null)
             cacheService.shutDown();
