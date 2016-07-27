@@ -120,9 +120,6 @@ public class IconManager
 
 	/** The <code>Text</code> icon. */
 	public static final int		TEXT = 23;
-	
-	/** The <code>Point Icon 22</code> icon. */
-	public static final int		POINTICON_22 = 24;
 
 	 /** The <code>Progress</code> icon. */
     public static final int     PROGRESS = 25;
@@ -238,7 +235,6 @@ public class IconManager
         relPaths[POLYGON] = "polygon.png";
         relPaths[POINT] = "point.png";
         relPaths[TEXT] = "text.png";
-        relPaths[POINTICON_22] = "point22.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
         relPaths[GRAPHPANE] = "nuvola_kmplot16.png";
         relPaths[INTENSITYVIEW] = "nuvola_kig16.png";
