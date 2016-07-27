@@ -2688,7 +2688,16 @@ class ProjectView(View):
         # Therefore we ignore any details for now:
         if 'omero:details' in project_json:
             del project_json['omero:details']
-        decoder = get_decoder(project_json['@type'])
+        decoder = None
+        if '@type' in project_json:
+            decoder = get_decoder(project_json['@type'])
+        # If we are passed incomplete object, or decoder couldn't be found...
+        if decoder is None:
+            encoder = get_encoder(project.__class__)
+            decoder = get_decoder(encoder.TYPE)
+        # If we are passed incomplete object, we need to populate @id
+        if '@id' not in project_json:
+            project_json['@id'] = long(pid)
         project = decoder.decode(project_json)
         project = conn.getUpdateService().saveAndReturnObject(project)
         encoder = get_encoder(project.__class__)
