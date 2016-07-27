@@ -955,7 +955,7 @@ public class AbstractServerTest extends AbstractTest {
                 .getValue());
         Assert.assertNull(copy,
                 String.format("%s:%s", obj.getClass().getName(), obj.getId()
-                        .getValue())+ " still exists!");
+                        .getValue()) + " still exists!");
     }
 
     protected void assertNoneExist(IObject... obj) throws Exception {
