@@ -12,7 +12,7 @@ See :secvuln:`2016-SV2-share` for details. Shares will now respect user
 privileges as set by the group permission level. Note that Shares now
 **only** support images even when used via the API.
 
-It is highly suggested that you upgrade your server. For those not in a
+It is highly recommended that you upgrade your server. For those not in a
 position to do so as a matter of urgency, a workaround is provided which
 deletes all shares and disables their creation.
 
