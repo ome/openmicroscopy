@@ -52,6 +52,7 @@ import info.clearthought.layout.TableLayout;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -309,9 +310,11 @@ class TabbedPaneUI
     private void createPanels()
     {
         colourWheelPane = new HSVColourWheelUI(control);
-        paintPotPane = new PaintPotUI(control.getColour(), control);
         RGBSliderPane = new RGBSliderUI(control);
         swatchPane = new ColourSwatchUI(control);
+        paintPotPane = new PaintPotUI(
+                CommonsLangUtils.isEmpty(control.getLUT()) ? control.getColour()
+                        : UIUtilities.BACKGROUND, control);
         lutPane = new LUTUI(control);
     }
     
@@ -358,7 +361,11 @@ class TabbedPaneUI
         	add(p);
         }
         add(userActionPanel);
-        pickSwatchPane();
+        
+        if (CommonsLangUtils.isEmpty(control.getLUT()))
+            pickSwatchPane();
+        else
+            pickLUTPane();
     }
     
     /** Clears all buttons. */
