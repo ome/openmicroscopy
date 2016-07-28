@@ -1027,6 +1027,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             bindingTo.setBlue(binding.getBlue());
             bindingTo.setGreen(binding.getGreen());
             bindingTo.setRed(binding.getRed());
+            // lut used
+            bindingTo.setLookupTable(binding.getLookupTable());
         }
         
         // Increment the version of the rendering settings so that we 
