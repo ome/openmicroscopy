@@ -2,7 +2,6 @@
  * Copyright 2006-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
 
 import java.io.File;
@@ -1410,7 +1409,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 if (values[j]) {
                     Assert.assertEquals(l.size(), annotationIds.size(), l.size());
                 } else {
-                    Assert.assertEquals(0, l.size(),l.toString());
+                    Assert.assertEquals(0, l.size(), l.toString());
                 }
             }
         }

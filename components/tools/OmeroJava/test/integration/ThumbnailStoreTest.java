@@ -1,6 +1,4 @@
 /*
- * integration.ThumbnailStoreTest
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
