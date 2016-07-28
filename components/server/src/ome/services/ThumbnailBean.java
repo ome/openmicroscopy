@@ -181,15 +181,17 @@ public class ThumbnailBean extends AbstractLevel2Service
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
 
+    private final ScriptRepoHelper helper;
     /** default constructor */
-    public ThumbnailBean() {}
+    //public ThumbnailBean() {}
 
     /**
      * overridden to allow Spring to set boolean
      * @param checking
      */
-    public ThumbnailBean(boolean checking) {
+    public ThumbnailBean(boolean checking, ScriptRepoHelper helper) {
         this.diskSpaceChecking = checking;
+        this.helper = helper;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
