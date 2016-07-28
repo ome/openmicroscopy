@@ -257,7 +257,13 @@ class RenderHSBRegionTask implements RenderingTask {
                     // Right now we have no transforms being used so it's safe to
                     // comment this out for the time being.
                     //discreteValue = cc.transform(discreteValue);
-
+                    if (reader != null) {
+                        buf[pix] = 0xFF000000 |
+                                (reader.getRed(discreteValue)&0xFF) << 16 |
+                                (reader.getGreen(discreteValue)&0xFF) << 8 |
+                                (reader.getBlue(discreteValue)&0xFF);
+                        continue;
+                    }
                     // Primary colour optimization is in effect, we don't need
                     // to do any of the sillyness below just shift the value
                     // into the correct colour component slot and move on to
@@ -266,13 +272,6 @@ class RenderHSBRegionTask implements RenderingTask {
                     {
                         buf[pix] |= 0xFF000000;  // Alpha.
                         buf[pix] |= discreteValue << colorOffset;
-                        continue;
-                    }
-                    if (reader != null) {
-                        buf[pix] = 0xFF000000 |
-                                (reader.getRed(discreteValue)&0xFF) << 16 |
-                                (reader.getGreen(discreteValue)&0xFF) << 8 |
-                                (reader.getBlue(discreteValue)&0xFF);
                         continue;
                     }
                     newRValue = (int) (redRatio * discreteValue);
@@ -385,6 +384,13 @@ class RenderHSBRegionTask implements RenderingTask {
                     // comment this out for the time being.
                     //discreteValue = cc.transform(discreteValue);
 
+                    if (reader != null) {
+                        buf[pix] = 0x000000FF |
+                                (reader.getRed(discreteValue)&0xFF) << 24 |
+                                (reader.getGreen(discreteValue)&0xFF) << 16 |
+                                (reader.getBlue(discreteValue)&0xFF) << 8;
+                        continue;
+                    }
                     // Primary colour optimization is in effect, we don't need
                     // to do any of the sillyness below just shift the value
                     // into the correct colour component slot and move on to
@@ -393,13 +399,6 @@ class RenderHSBRegionTask implements RenderingTask {
                     {
                         buf[pix] |= 0x000000FF;  // Alpha.
                         buf[pix] |= discreteValue << colorOffset;
-                        continue;
-                    }
-                    if (reader != null) {
-                        buf[pix] = 0x000000FF |
-                                (reader.getRed(discreteValue)&0xFF) << 24 |
-                                (reader.getGreen(discreteValue)&0xFF) << 16 |
-                                (reader.getBlue(discreteValue)&0xFF) << 8;
                         continue;
                     }
                     newRValue = (int) (redRatio * discreteValue);
