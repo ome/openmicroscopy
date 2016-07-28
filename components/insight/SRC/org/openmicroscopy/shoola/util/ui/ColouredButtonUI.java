@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.ColouredButtonUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -380,6 +380,26 @@ class ColouredButtonUI
     private void paintSquareButton(Graphics2D g)
     {
         
+        if (this.colour == null) {
+            int height = (int) buttonRect.getHeight();
+            int width = (int) buttonRect.getWidth();
+            
+            // Fill
+            g.setColor(UIUtilities.BACKGROUND_COLOR);
+            g.fillRect(INSETS.left, INSETS.top, width-INSETS.right, height-INSETS.bottom);
+            
+            // Text
+            final FontMetrics fm = g.getFontMetrics();
+            final int x = (int) ((buttonRect.width/2.0f)-
+                    fm.stringWidth(button.getText())/2.0f);
+            final int y = (int) ((buttonRect.height/2.0f) + 
+                    (fm.getHeight()-fm.getDescent())/2.0f);
+            g.setPaint(Color.BLACK);
+            g.drawString(button.getText(), x, y);
+            
+            return;
+        }
+        
         // If the button is selected draw selected button face.  
         // Check to see if it's greyed out, if not draw border else
         // draw mask and draw the grey mask selected border. 
@@ -551,14 +571,21 @@ class ColouredButtonUI
     /**
      * Sets the colour of the button. 
      * 
-     * @param c Color to set. Mustn't be <code>null</code>.
+     * @param c Color to set (can be <code>null</code>, in which case
+     * the default background color will be used)
      */
     void setColor(Color c) 
     { 
-    	if (c == null) throw new IllegalArgumentException("No color.");
-    	this.colour = c; 
-    	setGradientColours();
-    	createPainters();
+        this.colour = c; 
+        
+    	if (c == null) {
+    	    return;
+    	}
+    	    
+    	if(c != null) {
+    	    setGradientColours();
+    	    createPainters();
+    	}
     }
    
     /**

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.RGBControl.java
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 //Java imports
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
@@ -272,6 +273,44 @@ class RGBControl
 	 */
 	float getValue() { return model.getValue(); }
 	
+    /**
+     * Set the lookup table
+     * 
+     * @param lut
+     *            The lookup table
+     */
+    void setLUT(String lut) {
+        model.setLUT(lut);
+        fireChangeEvent(true);
+    }
+
+    /**
+     * Get the lookup table
+     * 
+     * @return See above
+     */
+    String getLUT() {
+        return model.getLUT();
+    }
+
+    /**
+     * Check if the lookup table has been changed
+     * 
+     * @return <code>true</code> if it has not, <code>false</code> if it has
+     */
+    boolean isOriginalLut() {
+        return model.isOriginalLut(getLUT());
+    }
+
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables() {
+        return model.getAvailableLookupTables();
+    }
+	
 	/**
 	 * Adds listener e to the list of listeners.
 	 * 
@@ -279,17 +318,29 @@ class RGBControl
 	 */
 	void addListener(ChangeListener e) { listeners.add(e); }
 	
-	/** Fires Changed event to all listeners stating the model has changed. */
-	void fireChangeEvent()
-	{
+    /** Fires Changed event to all listeners stating the model has changed. */
+    void fireChangeEvent() {
+        fireChangeEvent(false);
+    }
+
+    /**
+     * Fires Changed event to all listeners stating the model has changed.
+     * 
+     * @param lut
+     *            Pass <code>true</code> if only the lookup table has changed
+     */
+    void fireChangeEvent(boolean lut) {
         ChangeListener e;
-		for (int i = 0 ; i < listeners.size(); i++)
-		{
-			e = listeners.get(i);
-			e.stateChanged(new ColourChangedEvent(this));
-		}
-		firePropertyChange(PaintPotUI.COLOUR_CHANGED_PROPERTY, null, 
-							model.getColour());
-	}
+        for (int i = 0; i < listeners.size(); i++) {
+            e = listeners.get(i);
+            e.stateChanged(new ColourChangedEvent(this));
+        }
+        if (lut)
+            firePropertyChange(PaintPotUI.LUT_PROPERTY, null, model.getLUT());
+
+        else
+            firePropertyChange(PaintPotUI.COLOUR_CHANGED_PROPERTY, null,
+                    model.getColour());
+    }
     
 }

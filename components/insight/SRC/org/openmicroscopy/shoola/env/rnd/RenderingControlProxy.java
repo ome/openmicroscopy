@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,8 @@ import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -168,6 +170,9 @@ class RenderingControlProxy
 	
 	/** The number of retry.*/
 	private int retry;
+	
+	/** The lookup tables */
+	private Collection<String> lookupTables;
 	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
@@ -475,6 +480,7 @@ class RenderingControlProxy
     			cb.setRGBA(servant.getRGBA(i));
     			cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
     			cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+    			cb.setLookupTable(servant.getChannelLookupTable(i));
     		}
     		tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
@@ -748,6 +754,7 @@ class RenderingControlProxy
                     cb = rndDef.getChannel(i);
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+                    cb.setLookupTable(servant.getChannelLookupTable(i));
                 }
             }
             tmpSolutionForNoiseReduction();
@@ -831,6 +838,7 @@ class RenderingControlProxy
                     cb = rndDef.getChannel(i);
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+                    cb.setLookupTable(servant.getChannelLookupTable(i));
                 }
             }
 		} catch (Exception e) {
@@ -1848,6 +1856,8 @@ class RenderingControlProxy
 				return false;
 			if (channel.isNoiseReduction() != getChannelNoiseReduction(i))
 				return false;
+			if (channel.getLookupTable() != getLookupTable(i))
+			    return false;
 			rgba = channel.getRGBA();
 			color = getRGBA(i);
 			if (rgba[0] != color.getRed()) return false;
@@ -2038,5 +2048,63 @@ class RenderingControlProxy
 		}
     	return levels;
     }
+    
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#setAvailableLookupTables(Collection)
+     */
+    @Override
+    public void setAvailableLookupTables(Collection<String> lookupTables) {
+        this.lookupTables = lookupTables;
+    }
 
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#getAvailableLookupTables()
+     */
+    @Override
+    public Collection<String> getAvailableLookupTables() {
+        if (lookupTables == null)
+            return Collections.EMPTY_LIST;
+        return lookupTables;
+    }
+
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#getLookupTable(int)
+     */
+    @Override
+    public String getLookupTable(int w) {
+        ChannelBindingsProxy channel = rndDef.getChannel(w);
+        if (channel == null)
+            return null;
+        return channel.getLookupTable();
+    }
+
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#setLookupTable(int, String)
+     */
+    @Override
+    public void setLookupTable(int w, String lut)
+            throws RenderingServiceException, DSOutOfServiceException {
+        isSessionAlive();
+        try {
+            servant.setChannelLookupTable(w, lut);
+            Iterator<RenderingControl> i = slaves.iterator();
+            while (i.hasNext())
+                i.next().setLookupTable(w, lut);
+            invalidateCache();
+            ChannelBindingsProxy channel = rndDef.getChannel(w);
+            if (channel != null)
+                channel.setLookupTable(lut);
+        } catch (Exception e) {
+            handleException(e, ERROR + " lookup up table for channel: " + w
+                    + ".");
+        }
+    }
 }
