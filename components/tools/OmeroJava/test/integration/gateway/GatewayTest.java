@@ -38,6 +38,7 @@ import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.Facility;
 import omero.gateway.facility.RawDataFacility;
+import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.SearchFacility;
 import omero.gateway.facility.TablesFacility;
 import omero.gateway.facility.TransferFacility;
