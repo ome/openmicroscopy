@@ -1776,9 +1776,7 @@ public class RenderingEngineTest extends AbstractServerTest {
             re.setRGBA(j, RGBA[0], RGBA[1], RGBA[2], RGBA[3]);
             re.saveCurrentSettings();
             rgba = re.getRGBA(j);
-            for (int k = 0; k < rgba.length; k++) {
-                Assert.assertEquals(rgba[k], RGBA[k]);
-            }
+            Assert.assertTrue(Arrays.equals(rgba, RGBA));
             b = !re.getChannelNoiseReduction(j);
             re.setQuantizationMap(j, f, coefficient, b);
             re.saveCurrentSettings();
