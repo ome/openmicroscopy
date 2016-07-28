@@ -277,6 +277,9 @@ class ValueResolver(object):
     """
 
     AS_ALPHA = [chr(v) for v in range(97, 122 + 1)]  # a-z
+    # Support more than 26 rows
+    for v in range(97, 122 + 1):
+        AS_ALPHA.append('a' + chr(v))
     WELL_REGEX = re.compile(r'^([a-zA-Z]+)(\d+)$')
 
     def __init__(self, client, target_object):
