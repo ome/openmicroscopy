@@ -38,7 +38,9 @@ import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.DataManagerFacility;
 import omero.gateway.facility.Facility;
 import omero.gateway.facility.RawDataFacility;
+import omero.gateway.facility.ROIFacility;
 import omero.gateway.facility.SearchFacility;
+import omero.gateway.facility.TablesFacility;
 import omero.gateway.facility.TransferFacility;
 import omero.log.SimpleLogger;
 import omero.model.IObject;
@@ -79,13 +81,15 @@ public class GatewayTest {
     SearchFacility searchFacility = null;
     TransferFacility transferFacility = null;
     DataManagerFacility datamanagerFacility = null;
+    ROIFacility roiFacility = null;
+    TablesFacility tablesFacility = null;
 
     @Test
     public void testConnected() throws DSOutOfServiceException {
         String version = gw.getServerVersion();
         Assert.assertTrue(version != null && version.trim().length() > 0);
     }
-    
+
     /**
      * Initializes the Gateway.
      *
@@ -99,7 +103,7 @@ public class GatewayTest {
         String pass = client.getProperty("omero.rootpass");
         String host = client.getProperty("omero.host");
         String port = client.getProperty("omero.port");
-        
+
         LoginCredentials c = new LoginCredentials();
         c.getServer().setHostname(host);
         c.getServer().setPort(Integer.parseInt(port));
@@ -119,6 +123,9 @@ public class GatewayTest {
         transferFacility = Facility.getFacility(TransferFacility.class, gw);
         datamanagerFacility = Facility.getFacility(DataManagerFacility.class,
                 gw);
+        roiFacility = Facility.getFacility(ROIFacility.class,
+                gw);
+        tablesFacility = Facility.getFacility(TablesFacility.class, gw);
     }
 
     @AfterClass(alwaysRun = true)
@@ -202,7 +209,7 @@ public class GatewayTest {
             ids.add(ds.getId());
             ds = browseFacility.getDatasets(ctx, ids).iterator().next();
         }
-        
+
         return img;
     }
 
