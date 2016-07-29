@@ -109,7 +109,8 @@ class CommandArguments(object):
             "javahelp", "skip", "file", "errs", "logback",
             "port", "password", "group", "create", "func",
             "bulk", "prog", "user", "key", "path", "logprefix",
-            "JAVA_DEBUG", "quiet", "server", "depth", "clientdir")
+            "JAVA_DEBUG", "quiet", "server", "depth", "clientdir",
+            "sudo")
         self.set_login_arguments(ctx, args)
         self.set_skip_arguments(args)
 
@@ -166,6 +167,11 @@ class CommandArguments(object):
         rv.extend(self.__java_initial)
         rv.extend(self.__java_additional)
         rv.extend(self.path)
+        if self.JAVA_DEBUG:
+            # Since "args.debug" is used by omero/cli.py itself,
+            # uses of "--debug" *after* the `import` command are
+            # handled by placing them in this special variable.
+            rv.append("--debug=%s" % self.JAVA_DEBUG)
         return rv
 
     def initial_args(self):
@@ -221,9 +227,12 @@ class CommandArguments(object):
                                not args.advanced_help)
         if connection_required:
             client = ctx.conn(args)
-            self.__java_initial.extend(["-s", client.getProperty("omero.host")])
-            self.__java_initial.extend(["-p", client.getProperty("omero.port")])
-            self.__java_initial.extend(["-k", client.getSessionId()])
+            host = client.getProperty("omero.host")
+            port = client.getProperty("omero.port")
+            session = client.getSessionId()
+            self.__java_initial.extend(["-s", host])
+            self.__java_initial.extend(["-p", port])
+            self.__java_initial.extend(["-k", session])
 
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
@@ -522,8 +531,8 @@ class ImportControl(BaseControl):
                     contents.append((bulkfile, parent, data))
                     bulkfile = data.get("include")
                     os.chdir(parent)
-                    # TODO: include file are updated based on the including file
-                    # but other file paths aren't!
+                    # TODO: included files are updated based on the including
+                    # file but other file paths aren't!
 
             bulk = dict()
             for bulkfile, parent, data in reversed(contents):

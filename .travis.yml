@@ -23,6 +23,7 @@ addons:
     - python-imaging
     - python-numpy
     - python-tables
+    - python-yaml
     - cmake
     - libgtest-dev
 
