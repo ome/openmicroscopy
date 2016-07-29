@@ -236,6 +236,17 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
                 throw new omero.ApiUsageException(null, null,
                         "'checksum' requires HASHER HASH FILEPATH, not: " + args.toString());
             }
+        } else if ("read-only".equals(command)) {
+            if (args.size() == 1) {
+                final CheckedPath checked = servant.checkPath(parse(args.get(0)), null, __current);
+                if (!checked.setReadOnly()) {
+                    throw new omero.ResourceError(null, null,
+                            "setReadOnly failed: " + args.get(0));
+                }
+            } else {
+                throw new omero.ApiUsageException(null, null,
+                        "Command: " + command + " takes just one argument");
+            }
         } else {
             throw new omero.ApiUsageException(null, null,
                     "Unknown command: " + command);
