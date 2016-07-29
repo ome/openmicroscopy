@@ -80,8 +80,11 @@ public class ColourPicker
     /** Bounds property indicating that a new color is selected. */
     public static final String COLOUR_PREVIEW_PROPERTY = "colourPreview";
     
+    /** Bounds property indicating to cancel the dialog. */
+    public static final String CANCEL_PROPERTY = "cancelColourPicker";
+    
     /** Bounds property indicating to close the dialog. */
-    public static final String CANCEL_PROPERTY = "closeColourPicker";
+    public static final String CLOSE = "closeColourPicker";
     
     /** The title of the window. */
     private static final String TITLE = "Color Picker Window";
@@ -130,7 +133,6 @@ public class ColourPicker
     void cancel()
     {
         setVisible(false);
-        dispose();
         firePropertyChange(CANCEL_PROPERTY, Boolean.valueOf(false),
         		Boolean.valueOf(true));
     }
@@ -145,14 +147,15 @@ public class ColourPicker
         if (!model.isOriginalLut(model.getLUT())) 
             firePropertyChange(LUT_PROPERTY, model.getOriginalLUT(),
                     model.getLUT());
-        else if (description == null)
+        
+        if (description == null)
             firePropertyChange(COLOUR_PROPERTY, model.getOriginalColor(), c);
         else
             firePropertyChange(COLOUR_PROPERTY, null, new ColourObject(c,
                     description));
         
         setVisible(false);
-        dispose();
+        firePropertyChange(CLOSE, false, true);
     }
     
     /** Returns the current colour to the user. */

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 import java.awt.Color;
 import java.util.Collection;
-import org.apache.commons.lang.ObjectUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -533,7 +532,12 @@ class RGBModel
      * @return <code>true</code> if it is, <code>false</code> if it is not
      */
     boolean isOriginalLut(String lut) {
-        return ObjectUtils.equals(lut, originalLut);
+        // treat null and empty Strings the same
+        if (lut == null)
+            lut = "";
+        if (originalLut == null)
+            originalLut = "";
+        return lut.equals(originalLut);
     }
 
     /**

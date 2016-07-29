@@ -1,49 +1,49 @@
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
+import java.awt.Color;
+
 /**
- * Item for the Lookup Table list, which shows a nicely formatted name for the
- * lookup table, based on the file name.
+ * Item for the Lookup Table list
  */
 public class LookupTableItem implements Comparable<LookupTableItem> {
 
-    /** Item for representing "None" selection */
-    public static final LookupTableItem NONE = new LookupTableItem("None",
-            false);
-
     /** Item for being used as Separator */
-    public static final LookupTableItem SEPARATOR = new LookupTableItem("---",
-            false);
+    public static final LookupTableItem SEPARATOR = new LookupTableItem("---");
 
-    /** The file name **/
+    /** The file name */
     private String filename;
 
-    /** More readable name generated from the filename */
-    private String readableName;
+    /** The color */
+    private Color color;
 
     /**
-     * Create new instance
+     * More readable name (in case of lookup table it's generated from the
+     * filename)
+     */
+    private String label;
+
+    /**
+     * Create new instance for a lookup table
      * 
      * @param filename
      *            The lut file name
      */
     public LookupTableItem(String filename) {
-        this(filename, true);
+        this.filename = filename;
+        this.label = generateLabel(filename);
     }
 
     /**
-     * Creates a new instance
+     * Create new instance for defined color
      * 
-     * @param filename
-     *            The file name
-     * @param generateReadableName
-     *            Pass <code>true</code> if a readable name should be generated
+     * @param color
+     *            The color
+     * @param label
+     *            The label
      */
-    private LookupTableItem(String filename, boolean generateReadableName) {
-        this.filename = filename;
-        if (generateReadableName)
-            this.readableName = generateReadableName(filename);
-        else
-            this.readableName = filename;
+    public LookupTableItem(Color color, String label) {
+        this.color = color;
+        this.label = label;
     }
 
     /**
@@ -55,7 +55,7 @@ public class LookupTableItem implements Comparable<LookupTableItem> {
      *            The filename
      * @return See above
      */
-    private String generateReadableName(String filename) {
+    private String generateLabel(String filename) {
         filename = filename.replace(".lut", "");
         String[] parts = filename.replace(".lut", "").split("_");
         StringBuilder sb = new StringBuilder();
@@ -73,9 +73,26 @@ public class LookupTableItem implements Comparable<LookupTableItem> {
         return sb.toString();
     }
 
+    /**
+     * Checks if this {@link LookupTableItem} represents a
+     * lookup table file
+     * @return See above
+     */
+    public boolean hasLookupTable() {
+        return this.filename != null;
+    }
+
+    /**
+     * Get the label text 
+     * @return See above
+     */
+    public String getLabel() {
+        return label;
+    }
+    
     @Override
     public String toString() {
-        return readableName;
+        return getLabel();
     }
 
     /**
@@ -85,6 +102,15 @@ public class LookupTableItem implements Comparable<LookupTableItem> {
      */
     public String getFilename() {
         return this.filename;
+    }
+
+    /**
+     * Get the color
+     * 
+     * @return See above
+     */
+    public Color getColor() {
+        return this.color;
     }
 
     /**
@@ -99,6 +125,46 @@ public class LookupTableItem implements Comparable<LookupTableItem> {
 
     @Override
     public int compareTo(LookupTableItem o) {
-        return this.readableName.compareTo(o.readableName);
+        return this.label.compareTo(o.label);
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((color == null) ? 0 : color.hashCode());
+        result = prime * result
+                + ((filename == null) ? 0 : filename.hashCode());
+        result = prime * result + ((label == null) ? 0 : label.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        LookupTableItem other = (LookupTableItem) obj;
+        if (color == null) {
+            if (other.color != null)
+                return false;
+        } else if (!color.equals(other.color))
+            return false;
+        if (filename == null) {
+            if (other.filename != null)
+                return false;
+        } else if (!filename.equals(other.filename))
+            return false;
+        if (label == null) {
+            if (other.label != null)
+                return false;
+        } else if (!label.equals(other.label))
+            return false;
+        return true;
+    }
+    
+    
 }

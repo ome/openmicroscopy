@@ -26,9 +26,14 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 
 //Third-party libraries
@@ -53,6 +58,25 @@ class RGBControl
 	extends JComponent
 {
     
+    /** Some predefined colors */
+    public static Map<String, Color> PREDEFINED_COLORS;
+    
+    static {
+        PREDEFINED_COLORS = new LinkedHashMap<String, Color>();
+        PREDEFINED_COLORS.put("Red", Color.red);
+        PREDEFINED_COLORS.put("Green", Color.green);
+        PREDEFINED_COLORS.put("Blue", Color.blue);
+        PREDEFINED_COLORS.put("White", Color.white);
+        PREDEFINED_COLORS.put("Black", Color.black);
+        PREDEFINED_COLORS.put("Gray", Color.gray);
+        PREDEFINED_COLORS.put("Orange", Color.orange);
+        PREDEFINED_COLORS.put("Yellow", Color.yellow);
+        PREDEFINED_COLORS.put("Indigo", new Color(75, 0, 130));
+        PREDEFINED_COLORS.put("Violet", new Color(238, 130, 238));
+        PREDEFINED_COLORS.put("Cyan", Color.cyan);
+        PREDEFINED_COLORS.put("Magenta", Color.magenta);
+    }
+    
 	/**
 	 * RGB Model, this holds the current value of the R, G, B and alpha 
 	 * channels.
@@ -74,6 +98,21 @@ class RGBControl
 		model = m;
 		listeners = new ArrayList<ChangeListener>();
 	}
+	
+    /**
+     * @return <code>true</code> if this control neither represents a Lookup
+     *         Table nor one of the {@link RGBControl#PREDEFINED_COLORS}
+     */
+    boolean isCustomColor() {
+        if (CommonsLangUtils.isNotEmpty(getLUT()))
+            return false;
+        Color c = getColour();
+        for (Color c2 : PREDEFINED_COLORS.values()) {
+            if (c2.getRGB() == c.getRGB())
+                return false;
+        }
+        return true;
+    }
 	
 	/**
 	 * Sets the Red channel to the parameter [0..1] and fire change event to 

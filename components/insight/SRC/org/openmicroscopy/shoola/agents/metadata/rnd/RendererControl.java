@@ -147,6 +147,9 @@ class RendererControl
     /** Index of the channel invoking the color picker. */
 	private int         			colorPickerIndex;
 	
+	/** Reference to the color picker dialog */
+	private ColourPicker colorPicker;
+	
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
@@ -225,13 +228,17 @@ class RendererControl
 		Collection<String> luts = view.getAvailableLookupTables();
 		MetadataViewerAgent.getAvailableUserGroups();
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		ColourPicker dialog = new ColourPicker(f, c, luts, lut);
-		dialog.setPreviewVisible(true);
-		dialog.addPropertyChangeListener(this);
-		if (location == null)
-		    UIUtilities.centerAndShow(dialog);
-		else
-		    UIUtilities.showOnScreen(dialog, location);
+		if(colorPicker == null) {
+    		colorPicker = new ColourPicker(f, c, luts, lut);
+    		colorPicker.setPreviewVisible(true);
+    		colorPicker.addPropertyChangeListener(this);
+		}
+		if (!colorPicker.isShowing()) {
+    		if (location == null)
+    		    UIUtilities.centerAndShow(colorPicker);
+    		else
+    		    UIUtilities.showOnScreen(colorPicker, location);
+		}
     }
     
     /** 
@@ -438,11 +445,14 @@ class RendererControl
 			if (colorPickerIndex != -1) {
 			    model.setLookupTable(colorPickerIndex, "", false);
 				model.setChannelColor(colorPickerIndex, c, false);
+				System.out.println("setLookupTable ");
+				System.out.println("setChannelColor "+c);
 			}
         } else if (ColourPicker.LUT_PROPERTY.equals(name)) { 
             String lut = (String) evt.getNewValue();
             if (colorPickerIndex != -1) {
                 model.setLookupTable(colorPickerIndex, lut, false);
+                System.out.println("setLookupTable "+lut);
             }
         } else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) { 
 			Color c = (Color) evt.getNewValue();
@@ -457,7 +467,12 @@ class RendererControl
         } else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
 			model.setChannelColor(colorPickerIndex, null, true);
 			model.resetLookupTable(colorPickerIndex);
-		} else if (Renderer.Z_SELECTED_PROPERTY.equals(name)) {
+			colorPicker.dispose();
+			colorPicker = null;
+		} else if (ColourPicker.CLOSE.equals(name)) {
+            colorPicker.dispose();
+            colorPicker = null;
+        } else if (Renderer.Z_SELECTED_PROPERTY.equals(name)) {
 			view.setZSection(((Integer) evt.getNewValue()).intValue());
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
 			view.setTimepoint(((Integer) evt.getNewValue()).intValue());

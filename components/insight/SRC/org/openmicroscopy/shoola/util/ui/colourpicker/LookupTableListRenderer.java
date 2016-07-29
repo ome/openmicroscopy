@@ -22,32 +22,81 @@
  */
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
+import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JSeparator;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 
 /**
- * Simple DefaultListCellRenderer which returns a {@link JSeparator} to 
- * show the {@link LookupTableItem#SEPARATOR}
+ * Simple DefaultListCellRenderer which returns a {@link JSeparator} to show the
+ * {@link LookupTableItem#SEPARATOR}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-public class LookupTableListRenderer implements ListCellRenderer {
+public class LookupTableListRenderer extends JLabel implements ListCellRenderer {
+
+    /** Create the colouricon which will hold the colours. */
+    private static ColourIcon icon = new ColourIcon(32, 24);
+
+    /** Border colour of the cell when the icon is selected. */
+    private Border lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
+
+    /** Border colour of the cell when the icon is not selected. */
+    private Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 
     protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
         
-        if (value == LookupTableItem.SEPARATOR)
-            return new JSeparator(JSeparator.HORIZONTAL);
-        else
+        if (!(value instanceof LookupTableItem))
             return defaultRenderer.getListCellRendererComponent(list, value,
                     index, isSelected, cellHasFocus);
+        
+        setOpaque(true);
+        
+        LookupTableItem item = (LookupTableItem) value;
 
+        if (value == LookupTableItem.SEPARATOR)
+            return new JSeparator(JSeparator.HORIZONTAL);
+
+        if (isSelected) {
+            setForeground(list.getSelectionForeground());
+            setBackground(list.getSelectionBackground());
+        } else {
+            setForeground(list.getForeground());
+            setBackground(list.getBackground());
+        }
+        
+        if (cellHasFocus) {
+            setBorder(lineBorder);
+        }
+        else {
+            setBorder(emptyBorder);
+        }
+        
+        if (item.hasLookupTable()) {
+            setIcon(null);
+            setText(item.getLabel());
+        } else {
+            Color newCol = new Color(item.getColor().getRed(),
+                    item.getColor().getGreen(), item.getColor().getBlue());
+
+            icon.setColour(newCol);
+            setIcon(icon);
+            setVerticalAlignment(SwingConstants.CENTER);
+            setIconTextGap(40);
+            setText(item.getLabel());
+        }
+
+        return this;
     }
 }
