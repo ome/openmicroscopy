@@ -1,6 +1,21 @@
 OMERO version history
 =====================
 
+5.2.5 (August 2016)
+-------------------
+
+This is a security release to fix the access privileges of the share function,
+which were potentially allowing users to access private data belonging to
+other users via the API.
+
+See :secvuln:`2016-SV2-share` for details. Shares will now respect user
+privileges as set by the group permission level. Note that Shares now
+**only** support images even when used via the API.
+
+It is highly recommended that you upgrade your server. For those not in a
+position to do so as a matter of urgency, a workaround is provided which
+deletes all shares and disables their creation.
+
 5.2.4 (May 2016)
 ----------------
 
