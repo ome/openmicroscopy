@@ -30,7 +30,7 @@
 }
 
 .lutpicker {
-	max-height: 150px;
+	max-height: 350px;
 	overflow: scroll;
 }
 .lutpicker input {
@@ -42,9 +42,14 @@
 }
 .lutpicker label span {
 	display: inline-block;
-	width: 40px;
+	width: 50px;
 	margin: 4px;
 }
 .lutpicker input {
 	width: 10px;
+}
+.lutPreview {
+	background-image: url('../img/luts_10.png');
+	background-size: 50px 640px;
+	background-repeat: no-repeat;
 }

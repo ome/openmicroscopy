@@ -26,6 +26,39 @@ $.fn.colorbtn = function(cfg) {
 
     var colors = ["FF0000", "00FF00", "0000FF", "FFFFFF", "FFFF00", "EE82EE"];
     var colorNames = ["red", "green", "blue", "white", "yellow", "magenta"];
+    // these are the lutNames we know about and are included in the lut preview
+    var lutNames = ["16_colors.lut",
+        "3-3-2_rgb.lut",
+        "5_ramps.lut",
+        "6_shades.lut",
+        "blue_orange_icb.lut",
+        "brgbcmyw.lut",
+        "cool.lut",
+        "cyan_hot.lut",
+        "edges.lut",
+        "fire.lut",
+        "gem.lut",
+        "grays.lut",
+        "green_fire_blue.lut",
+        "hilo.lut",
+        "ica.lut",
+        "ica2.lut",
+        "ica3.lut",
+        "ice.lut",
+        "magenta_hot.lut",
+        "orange_hot.lut",
+        "phase.lut",
+        "rainbow_rgb.lut",
+        "red-green.lut",
+        "red_hot.lut",
+        "royal.lut",
+        "sepia.lut",
+        "smart.lut",
+        "spectrum.lut",
+        "thal.lut",
+        "thallium.lut",
+        "unionjack.lut",
+        "yellow_hot.lut"];
     var picker = null;
 
     /* The basic setup */
@@ -49,35 +82,28 @@ $.fn.colorbtn = function(cfg) {
 
     this._prepare_picker = function () {
       jQuery("body").prepend('<div class="'+this.cfg.prefix+'" id="'+this.cfg.prefix+'-box"></div>');
-      var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1><div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div><div id="'+this.cfg.prefix+'"></div>');
-      box.postit().append('<div style="text-align: center;">Hex RGB <input type="text" id="'+this.cfg.prefix+'-tb" /></div><div style="text-align: center;"></div>');
-      var btns = box.find('div:last');
-      btns.append('<div class="postit-resize-bar"></div>');
-      // var btn_click = function () {
-      //   picker.setColor('#' + OME.rgbToHex(jQuery(this).css("background-color")));
-      // };
-      // btns.append('<span>Preset</span>');
-      // for (var e=0; e<colors.length; e++) {
-      //   if (colors[e] === "") {
-      //     btns.append('<br />');
-      //     btns.append('<span>Colors</span>');
-      //   } else {
-      //     btns.append('<button class="preset-color-btn" style="background-color: #'+colors[e]+'">&nbsp;</button>');
-      //     btns.find('button:last').click(btn_click);
-      //   }
-      // }
-      //btns.append('<br /><button style="width: 5em;" id="'+this.cfg.prefix+'-defc">&nbsp;</button>');
-      //btns.find('button:last').click(btn_click);
-      btns.append('<div class="postit-resize-bar"></div>');
-      $('<button id="cbpicker-OK-btn" style="float:right">OK</button>').appendTo(box);
-      $('<button style="float:right">Cancel</button>').appendTo(box).click(function(){
+      var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1>');
+      box.postit();
+
+      // Add Lookup Table list - gets populated in show_picker() below.
+      $('<div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div>').appendTo(box);
+
+      // Colorpicker - uses farbtastic.js
+      var $cpickerPane = $("<div class='cpickerPane'></div>").appendTo(box);
+      $('<div id="'+this.cfg.prefix+'"></div>').appendTo($cpickerPane);
+      $cpickerPane.append('<div style="text-align: center;">Hex RGB <input type="text" id="'+this.cfg.prefix+'-tb" /></div>');
+      $('<button id="cbpicker-OK-btn" style="float:right">OK</button>').appendTo($cpickerPane);
+      $('<button style="float:right">Cancel</button>').appendTo($cpickerPane).click(function(){
         jQuery("#"+that.cfg.prefix+"-box").hide();
       });
+      // Don't show Color-picker initially
+      $cpickerPane.hide();
+
       self.trigger('prepared');
       picker = jQuery.farbtastic("#"+this.cfg.prefix);
       jQuery('input#'+this.cfg.prefix+'-tb').bind('change', function () {
           var new_color = sanitizeHexColor(jQuery('input#'+self[0].cfg.prefix+'-tb').attr('value'));
-          if (new_color != null) {
+          if (new_color !== null) {
             picker.setColor(new_color);
             jQuery(this).attr('value', new_color.substring(1).toUpperCase());
           } else {
@@ -88,7 +114,7 @@ $.fn.colorbtn = function(cfg) {
 
     this.show_picker = function () {
       if (!picker) {
-        if (jQuery('#'+this.cfg.prefix+'-box').length == 0) {
+        if (jQuery('#'+this.cfg.prefix+'-box').length === 0) {
           this._prepare_picker();
         } else {
           picker = jQuery.farbtastic("#"+this.cfg.prefix);
@@ -106,7 +132,17 @@ $.fn.colorbtn = function(cfg) {
             colorRows.push('<div><input id="' + c + '" type="radio" name="lut" value="' + c + '"><label for="' + c + '"><span style="background: #' + c + '"> &nbsp</span>' + n + '</label></div>');
           }
           var lutRows = data.luts.map(function(lut){
-            return '<div><input id="' + lut.name + '" type="radio" name="lut" value="' + lut.name + '"><label for="' + lut.name + '">' + (lut.name.replace('.lut', '')) + '</label></div>';
+            var idx = lutNames.indexOf(lut.name);
+            var preview = '';
+            // background image is luts_10.png which is 10 pixels per lut(row) but size is set to 200% so each row is 20 pixels
+            if (idx > -1) {
+              preview = 'class="lutPreview" style="background-position: 0 -' + (idx * 20) + 'px"';
+            }
+            var lutHtml = '<div><input id="' + lut.name + '" type="radio" name="lut" value="' + lut.name + '">';
+            lutHtml += '<label for="' + lut.name + '">';
+            lutHtml += '<span ' + preview + '> &nbsp</span>';
+            lutHtml += (lut.name.replace('.lut', '')) + '</label></div>';
+            return lutHtml;
           });
           var html = '<div>' + colorRows.join("") + lutRows.join("") + '</div>';
           $luts.html(html);
@@ -128,14 +164,14 @@ $.fn.colorbtn = function(cfg) {
       jQuery("#"+this.cfg.prefix+"-box").unbind('closed').bind('closed', function () {self.trigger('hiding');});
       self.trigger('showing');
       //self.addClass('picking');
-    }
+    };
 
     this.hide_picker = function () {
       jQuery("#"+this.cfg.prefix+"-box").hide();
       //self.removeClass('picking');
-    }
+    };
 
     /* Event handlers */
     self.click(this.show_picker);
   });
-}
+};
