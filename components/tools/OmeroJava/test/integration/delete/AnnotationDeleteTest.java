@@ -2,11 +2,8 @@
  *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration.delete;
 
-import static omero.rtypes.rlong;
-import static omero.rtypes.rstring;
 import integration.AbstractServerTest;
 
 import java.util.ArrayList;
@@ -63,7 +60,7 @@ import com.google.common.collect.SetMultimap;
 public class AnnotationDeleteTest extends AbstractServerTest {
 
     /** Reference to the <code>Rating</code> name space. */
-    public final static RString RATING = rstring(omero.constants.metadata.NSINSIGHTRATING.value);
+    public final static RString RATING = omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTRATING.value);
 
     /**
      * Tests that the object, an annotation, and the link are all deleted.
@@ -156,7 +153,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         newUserInGroup(owner);
         LongAnnotation rating = new LongAnnotationI();
         rating.setNs(RATING);
-        rating.setLongValue(rlong(1L));
+        rating.setLongValue(omero.rtypes.rlong(1L));
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.link((Image) i1.proxy(), rating);
         link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
@@ -275,8 +272,8 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         final List<TagAnnotation> tagsets = new ArrayList<TagAnnotation>();
         for (int i = 1; i <= 2; i++) {
             final TagAnnotation tagset = new TagAnnotationI();
-            tagset.setName(rstring("tagset #" + i));
-            tagset.setNs(rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
+            tagset.setName(omero.rtypes.rstring("tagset #" + i));
+            tagset.setNs(omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET.value));
             tagsets.add((TagAnnotation) iUpdate.saveAndReturnObject(tagset).proxy());
         }
 
@@ -284,7 +281,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         final List<TagAnnotation> tags = new ArrayList<TagAnnotation>();
         for (int i = 1; i <= 3; i++) {
             final TagAnnotation tag = new TagAnnotationI();
-            tag.setName(rstring("tag #" + i));
+            tag.setName(omero.rtypes.rstring("tag #" + i));
             tags.add((TagAnnotation) iUpdate.saveAndReturnObject(tag).proxy());
         }
 
