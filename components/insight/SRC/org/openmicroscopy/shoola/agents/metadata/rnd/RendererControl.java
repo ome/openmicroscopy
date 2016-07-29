@@ -445,14 +445,11 @@ class RendererControl
 			if (colorPickerIndex != -1) {
 			    model.setLookupTable(colorPickerIndex, "", false);
 				model.setChannelColor(colorPickerIndex, c, false);
-				System.out.println("setLookupTable ");
-				System.out.println("setChannelColor "+c);
 			}
         } else if (ColourPicker.LUT_PROPERTY.equals(name)) { 
             String lut = (String) evt.getNewValue();
             if (colorPickerIndex != -1) {
                 model.setLookupTable(colorPickerIndex, lut, false);
-                System.out.println("setLookupTable "+lut);
             }
         } else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) { 
 			Color c = (Color) evt.getNewValue();
