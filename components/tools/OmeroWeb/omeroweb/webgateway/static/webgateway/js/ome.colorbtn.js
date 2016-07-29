@@ -24,7 +24,8 @@ $.fn.colorbtn = function(cfg) {
     };
     var that = this;
 
-    var colors = ["f00", "0f0", "00f", "fff", "000", "", "808080", "ffc800", "ff0", "4b0082", "ee82ee"];
+    var colors = ["FF0000", "00FF00", "0000FF", "FFFFFF", "FFFF00", "EE82EE"];
+    var colorNames = ["red", "green", "blue", "white", "yellow", "magenta"];
     var picker = null;
 
     /* The basic setup */
@@ -48,23 +49,23 @@ $.fn.colorbtn = function(cfg) {
 
     this._prepare_picker = function () {
       jQuery("body").prepend('<div class="'+this.cfg.prefix+'" id="'+this.cfg.prefix+'-box"></div>');
-      var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1><div id="'+this.cfg.prefix+'"></div>');
+      var box = jQuery("#"+this.cfg.prefix+"-box").append('<h1>Choose color</h1><div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div><div id="'+this.cfg.prefix+'"></div>');
       box.postit().append('<div style="text-align: center;">Hex RGB <input type="text" id="'+this.cfg.prefix+'-tb" /></div><div style="text-align: center;"></div>');
       var btns = box.find('div:last');
       btns.append('<div class="postit-resize-bar"></div>');
-      var btn_click = function () {
-        picker.setColor('#' + OME.rgbToHex(jQuery(this).css("background-color")));
-      };
-      btns.append('<span>Preset</span>');
-      for (var e=0; e<colors.length; e++) {
-        if (colors[e] === "") {
-          btns.append('<br />');
-          btns.append('<span>Colors</span>');
-	} else {
-          btns.append('<button class="preset-color-btn" style="background-color: #'+colors[e]+'">&nbsp;</button>');
-          btns.find('button:last').click(btn_click);
-        }
-      }
+      // var btn_click = function () {
+      //   picker.setColor('#' + OME.rgbToHex(jQuery(this).css("background-color")));
+      // };
+      // btns.append('<span>Preset</span>');
+      // for (var e=0; e<colors.length; e++) {
+      //   if (colors[e] === "") {
+      //     btns.append('<br />');
+      //     btns.append('<span>Colors</span>');
+      //   } else {
+      //     btns.append('<button class="preset-color-btn" style="background-color: #'+colors[e]+'">&nbsp;</button>');
+      //     btns.find('button:last').click(btn_click);
+      //   }
+      // }
       //btns.append('<br /><button style="width: 5em;" id="'+this.cfg.prefix+'-defc">&nbsp;</button>');
       //btns.find('button:last').click(btn_click);
       btns.append('<div class="postit-resize-bar"></div>');
@@ -83,7 +84,7 @@ $.fn.colorbtn = function(cfg) {
             jQuery(this).attr('value', picker.pack(picker.rgb).substring(1).toUpperCase());
           }
         });
-    }
+    };
 
     this.show_picker = function () {
       if (!picker) {
@@ -92,6 +93,24 @@ $.fn.colorbtn = function(cfg) {
         } else {
           picker = jQuery.farbtastic("#"+this.cfg.prefix);
         }
+      }
+
+      // lookup LUTs
+      var $luts = $("#" + this.cfg.prefix + "-luts");
+      if ($luts.is(':empty')) {
+        $.getJSON(cfg.server + '/luts/', function(data){
+          var colorRows = [];
+          for (var e=0; e<colors.length; e++) {
+            var c = colors[e],
+              n = colorNames[e];
+            colorRows.push('<div><input id="' + c + '" type="radio" name="lut" value="' + c + '"><label for="' + c + '"><span style="background: #' + c + '"> &nbsp</span>' + n + '</label></div>');
+          }
+          var lutRows = data.luts.map(function(lut){
+            return '<div><input id="' + lut.name + '" type="radio" name="lut" value="' + lut.name + '"><label for="' + lut.name + '">' + (lut.name.replace('.lut', '')) + '</label></div>';
+          });
+          var html = '<div>' + colorRows.join("") + lutRows.join("") + '</div>';
+          $luts.html(html);
+        });
       }
 
       // bind appropriate handler (wraps ref to button)

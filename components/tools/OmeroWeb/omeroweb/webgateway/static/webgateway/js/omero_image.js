@@ -492,7 +492,7 @@
 
         /* Prepare color picker buttons */
         $(".picker")
-            .colorbtn()
+            .colorbtn({'server': viewport.viewport_server})
             .bind('showing', function () {
                 var t = $(this).parents('.postit'),
                     offset;

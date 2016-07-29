@@ -16,9 +16,9 @@
   font-size: 1.2em;
 }
 
-.cbpicker {
-  font-size: 0.7em !important;
-}
+/*.cbpicker {
+    font-size: 0.7em !important;
+}*/
 
 .picker {
 	background: url('../img/colorpicker_16.png') center center no-repeat;
@@ -27,4 +27,24 @@
 	height: 18px;
 	border-radius: 3px;
 	margin-left: 5px;
+}
+
+.lutpicker {
+	max-height: 150px;
+	overflow: scroll;
+}
+.lutpicker input {
+	display: none;
+}
+.lutpicker label {
+	font-size: 12px;
+	font-weight: normal;
+}
+.lutpicker label span {
+	display: inline-block;
+	width: 40px;
+	margin: 4px;
+}
+.lutpicker input {
+	width: 10px;
 }
