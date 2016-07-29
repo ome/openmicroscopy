@@ -1,6 +1,29 @@
+/*
+ * org.openmicroscopy.shoola.util.ui.colourpicker.ColourListRenderer
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2016 University of Dundee. All rights reserved.
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 import java.awt.Color;
+import java.util.Objects;
 
 /**
  * Item for the Lookup Table list
@@ -74,8 +97,8 @@ public class LookupTableItem implements Comparable<LookupTableItem> {
     }
 
     /**
-     * Checks if this {@link LookupTableItem} represents a
-     * lookup table file
+     * Checks if this {@link LookupTableItem} represents a lookup table file
+     * 
      * @return See above
      */
     public boolean hasLookupTable() {
@@ -83,13 +106,14 @@ public class LookupTableItem implements Comparable<LookupTableItem> {
     }
 
     /**
-     * Get the label text 
+     * Get the label text
+     * 
      * @return See above
      */
     public String getLabel() {
         return label;
     }
-    
+
     @Override
     public String toString() {
         return getLabel();
@@ -120,7 +144,7 @@ public class LookupTableItem implements Comparable<LookupTableItem> {
      *         this {@link LookupTableItem}
      */
     public boolean matchesFilename(String filename) {
-        return this.filename.equals(filename);
+        return this.filename == null ? false : this.filename.equals(filename);
     }
 
     @Override
@@ -130,41 +154,12 @@ public class LookupTableItem implements Comparable<LookupTableItem> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((color == null) ? 0 : color.hashCode());
-        result = prime * result
-                + ((filename == null) ? 0 : filename.hashCode());
-        result = prime * result + ((label == null) ? 0 : label.hashCode());
-        return result;
+        return Objects.hashCode(this);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        LookupTableItem other = (LookupTableItem) obj;
-        if (color == null) {
-            if (other.color != null)
-                return false;
-        } else if (!color.equals(other.color))
-            return false;
-        if (filename == null) {
-            if (other.filename != null)
-                return false;
-        } else if (!filename.equals(other.filename))
-            return false;
-        if (label == null) {
-            if (other.label != null)
-                return false;
-        } else if (!label.equals(other.label))
-            return false;
-        return true;
+        return Objects.equals(this, obj);
     }
-    
-    
+
 }

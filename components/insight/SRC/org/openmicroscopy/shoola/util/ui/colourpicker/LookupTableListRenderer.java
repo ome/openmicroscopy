@@ -68,20 +68,9 @@ public class LookupTableListRenderer extends JLabel implements ListCellRenderer 
         if (value == LookupTableItem.SEPARATOR)
             return new JSeparator(JSeparator.HORIZONTAL);
 
-        if (isSelected) {
-            setForeground(list.getSelectionForeground());
-            setBackground(list.getSelectionBackground());
-        } else {
-            setForeground(list.getForeground());
-            setBackground(list.getBackground());
-        }
-        
-        if (cellHasFocus) {
-            setBorder(lineBorder);
-        }
-        else {
-            setBorder(emptyBorder);
-        }
+        setForeground( isSelected ? list.getSelectionForeground() : list.getForeground());
+        setBackground( isSelected ? list.getSelectionBackground() : list.getBackground());
+        setBorder(cellHasFocus ? lineBorder : emptyBorder);
         
         if (item.hasLookupTable()) {
             setIcon(null);
