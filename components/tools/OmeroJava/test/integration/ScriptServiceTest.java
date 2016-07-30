@@ -209,6 +209,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         String folder = f.getName().getValue();
         long id = svc.uploadOfficialScript(folder, str);
         Assert.assertTrue(id > 0);
+        Assert.assertEquals(svc.getScripts().size(), scripts.size()+1);
         deleteScript(id);
     }
 
