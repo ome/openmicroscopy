@@ -66,7 +66,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         String sql = "select f from OriginalFile as f "
                 + "where f.mimetype = :m";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        Assert.assertEquals(n, values.size());
+        Assert.assertEquals(values.size(), n);
     }
 
     /**
@@ -123,7 +123,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             f = i.next();
             Assert.assertNotNull(f);
             String mimetype = f.getMimetype().getValue();
-            Assert.assertEquals(LUT_MIMETYPE, mimetype);
+            Assert.assertEquals(mimetype, LUT_MIMETYPE);
         }
         scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
         i = scripts.iterator();
@@ -131,7 +131,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             f = i.next();
             Assert.assertNotNull(f);
             String mimetype = f.getMimetype().getValue();
-            Assert.assertEquals(LUT_MIMETYPE, mimetype);
+            Assert.assertEquals(mimetype, LUT_MIMETYPE);
         }
     }
     
@@ -179,7 +179,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             Assert.fail("Only administrators can upload official script.");
         } catch (Exception e) {
         }
-        Assert.assertEquals(n, svc.getScripts().size());
+        Assert.assertEquals(svc.getScripts().size(), n);
     }
 
     /**
@@ -224,6 +224,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         long id = svc.uploadScript(folder, buf.toString());
         Assert.assertTrue(id > 0);
+        deleteScript(id);
     }
 
     /**
@@ -249,7 +250,8 @@ public class ScriptServiceTest extends AbstractServerTest {
         try {
             long id = svc.uploadOfficialScript(folder, buf.toString());
             Assert.assertTrue(id > 0);
-            Assert.assertEquals(n+1, svc.getScriptsByMimetype(LUT_MIMETYPE).size());
+            Assert.assertEquals(svc.getScriptsByMimetype(LUT_MIMETYPE).size(),
+                    n+1);
             deleteScript(id);
         } catch (Exception e) {
         }
