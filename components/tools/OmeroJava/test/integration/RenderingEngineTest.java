@@ -1958,11 +1958,12 @@ public class RenderingEngineTest extends AbstractServerTest {
         Iterator<ChannelBinding> i = channels1.iterator();
         ChannelBinding c1;
         int index = 0;
+        String new_value = "cool.lut";
         while (i.hasNext()) {
             c1 = i.next();
-            Assert.assertEquals(null, c1.getLookupTable());
-            re.setChannelLookupTable(index, "foo");
-            Assert.assertEquals("foo", re.getChannelLookupTable(index));
+            Assert.assertNull(c1.getLookupTable());
+            re.setChannelLookupTable(index, new_value);
+            Assert.assertEquals(re.getChannelLookupTable(index), new_value);
             index++;
         }
         re.saveCurrentSettings();
@@ -2070,7 +2071,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         String lut = "cool.lut";
         while (i.hasNext()) {
             c1 = i.next();
-            Assert.assertEquals(null, c1.getLookupTable());
+            Assert.assertNull(c1.getLookupTable());
             re.setChannelLookupTable(index, lut);
             index++;
         }
@@ -2081,7 +2082,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         i = channels1.iterator();
         while (i.hasNext()) {
             c1 = i.next();
-            Assert.assertEquals(lut, c1.getLookupTable());
+            Assert.assertEquals(c1.getLookupTable().getValue(), lut);
         }
     }
 
