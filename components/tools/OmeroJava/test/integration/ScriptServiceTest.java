@@ -20,11 +20,13 @@
  */
 package integration;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import omero.api.IScriptPrx;
+import omero.api.RawFileStorePrx;
 import omero.grid.JobParams;
 import omero.model.IObject;
 import omero.model.OriginalFile;
@@ -193,19 +195,21 @@ public class ScriptServiceTest extends AbstractServerTest {
     @Test
     public void testUploadOfficialScriptAsRoot() throws Exception {
         logRootIntoGroup();
-        StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
-        for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
-        }
-        String folder = "officialTestFolder";
         IScriptPrx svc = factory.getScriptService();
-        try {
-            long id = svc.uploadOfficialScript(folder, buf.toString());
-            Assert.assertTrue(id > 0);
-            deleteScript(id);
-        } catch (Exception e) {
-        }
+        List<OriginalFile> scripts = svc.getScripts();
+        OriginalFile f = scripts.get(0);
+        //read the script. This is tested elsewhere
+        RawFileStorePrx store;
+        byte[] values;
+        store = factory.createRawFileStore();
+        store.setFileId(f.getId().getValue());
+        values = store.read(0, (int) f.getSize().getValue());
+        store.close();
+        String str = new String(values, StandardCharsets.UTF_8);
+        String folder = f.getName().getValue();
+        long id = svc.uploadOfficialScript(folder, str);
+        Assert.assertTrue(id > 0);
+        deleteScript(id);
     }
 
     /**
@@ -248,14 +252,11 @@ public class ScriptServiceTest extends AbstractServerTest {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
         int n = scripts.size();
-        try {
-            long id = svc.uploadOfficialScript(folder, buf.toString());
-            Assert.assertTrue(id > 0);
-            Assert.assertEquals(svc.getScriptsByMimetype(LUT_MIMETYPE).size(),
-                    n+1);
-            deleteScript(id);
-        } catch (Exception e) {
-        }
+        long id = svc.uploadOfficialScript(folder, buf.toString());
+        Assert.assertTrue(id > 0);
+        Assert.assertEquals(svc.getScriptsByMimetype(LUT_MIMETYPE).size(),
+                n+1);
+        deleteScript(id);
     }
 
     /**
