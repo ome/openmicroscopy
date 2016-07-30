@@ -202,6 +202,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         try {
             long id = svc.uploadOfficialScript(folder, buf.toString());
             Assert.assertTrue(id > 0);
+            deleteScript(id);
         } catch (Exception e) {
         }
     }
@@ -248,9 +249,22 @@ public class ScriptServiceTest extends AbstractServerTest {
         try {
             long id = svc.uploadOfficialScript(folder, buf.toString());
             Assert.assertTrue(id > 0);
+            Assert.assertEquals(n+1, svc.getScriptsByMimetype(LUT_MIMETYPE).size());
+            deleteScript(id);
         } catch (Exception e) {
         }
-        Assert.assertEquals(n+1, svc.getScriptsByMimetype(LUT_MIMETYPE).size());
+    }
+
+    /**
+     * Delete the uploaded script.
+     *
+     * @param id The identifier of the script.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void deleteScript(long id) throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        //currently the deleteScript does not delete the entry in the DB.
+        svc.deleteScript(id);
     }
 
 }
