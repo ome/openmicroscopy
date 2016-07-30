@@ -199,18 +199,40 @@ public class ScriptServiceTest extends AbstractServerTest {
         List<OriginalFile> scripts = svc.getScripts();
         OriginalFile f = scripts.get(0);
         //read the script. This is tested elsewhere
-        RawFileStorePrx store;
-        byte[] values;
-        store = factory.createRawFileStore();
-        store.setFileId(f.getId().getValue());
-        values = store.read(0, (int) f.getSize().getValue());
-        store.close();
-        String str = new String(values, StandardCharsets.UTF_8);
+        String str = readScript(f);
         String folder = f.getName().getValue();
         long id = svc.uploadOfficialScript(folder, str);
         Assert.assertTrue(id > 0);
         Assert.assertEquals(svc.getScripts().size(), scripts.size()+1);
         deleteScript(id);
+    }
+
+    /**
+     * Tests to upload an official script by a user who is an administrator,
+     * this method uses the <code>deleteScript</code>.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteScriptAsRoot() throws Exception {
+        logRootIntoGroup();
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScripts();
+        OriginalFile f = scripts.get(0);
+        //read the script. This is tested elsewhere
+        String str = readScript(f);
+        String folder = f.getName().getValue();
+        long id = svc.uploadOfficialScript(folder, str);
+        deleteScript(id);
+        Assert.assertEquals(svc.getScripts().size(), scripts.size());
+        //Check that the entry has been removed from DB
+        ParametersI param = new ParametersI();
+        param.map.put("id", omero.rtypes.rlong(id));
+        f = (OriginalFile) factory.getQueryService().findByQuery(
+                "select p from OriginalFile as p " +
+                "where p.id = :id", param);
+        Assert.assertNull(f);
     }
 
     /**
@@ -272,4 +294,21 @@ public class ScriptServiceTest extends AbstractServerTest {
         svc.deleteScript(id);
     }
 
+
+    /**
+     * Reads the specified script as a string.
+     *
+     * @param f The script to read.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private String readScript(OriginalFile f) throws Exception {
+        RawFileStorePrx store;
+        byte[] values;
+        store = factory.createRawFileStore();
+        store.setFileId(f.getId().getValue());
+        values = store.read(0, (int) f.getSize().getValue());
+        store.close();
+        return new String(values, StandardCharsets.UTF_8);
+    }
 }
