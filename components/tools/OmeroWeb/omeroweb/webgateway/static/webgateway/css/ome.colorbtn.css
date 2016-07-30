@@ -30,7 +30,7 @@
 }
 
 .lutpicker {
-	max-height: 350px;
+	max-height: 250px;
 	overflow: scroll;
 }
 .lutpicker input {

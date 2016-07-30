@@ -86,15 +86,26 @@ $.fn.colorbtn = function(cfg) {
       box.postit();
 
       // Add Lookup Table list - gets populated in show_picker() below.
-      $('<div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div>').appendTo(box);
+      var $luts = $('<div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div>').appendTo(box);
 
       // Colorpicker - uses farbtastic.js
+      var $showColorPicker = $("<h1 style='font-size:1.5em' class='showColorPicker'><a href='#'>Show Color Picker</a></h1>").appendTo(box);
       var $cpickerPane = $("<div class='cpickerPane'></div>").appendTo(box);
       $('<div id="'+this.cfg.prefix+'"></div>').appendTo($cpickerPane);
       $cpickerPane.append('<div style="text-align: center;">Hex RGB <input type="text" id="'+this.cfg.prefix+'-tb" /></div>');
       $('<button id="cbpicker-OK-btn" style="float:right">OK</button>').appendTo($cpickerPane);
       $('<button style="float:right">Cancel</button>').appendTo($cpickerPane).click(function(){
         jQuery("#"+that.cfg.prefix+"-box").hide();
+      });
+      $('a', $showColorPicker).click(function(event){
+        event.preventDefault();
+        $cpickerPane.toggle();
+        $luts.toggle();
+        if ($cpickerPane.is(':visible')) {
+          $(this).html('Hide Color Picker');
+        } else {
+          $(this).html('Show Color Picker');
+        }
       });
       // Don't show Color-picker initially
       $cpickerPane.hide();
