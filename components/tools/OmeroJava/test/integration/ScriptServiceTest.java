@@ -166,6 +166,7 @@ public class ScriptServiceTest extends AbstractServerTest {
      */
     @Test
     public void testUploadOfficialScript() throws Exception {
+        newUserAndGroup("rwr---");
         StringBuffer buf = new StringBuffer("");
         String[] values = { "a", "b", "c" };
         for (int i = 0; i < values.length; i++) {
