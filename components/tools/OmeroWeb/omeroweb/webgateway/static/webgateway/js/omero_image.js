@@ -146,7 +146,13 @@
             $('#wblitz-ch'+idx).removeClass('pressed');
             $('#rd-wblitz-ch'+idx).removeClass('pressed');
         }
-        $('#wblitz-ch'+idx).css('background-color', '#' + ch.color).attr('title', ch.label);
+        var color = '#' + ch.color;
+        if (ch.color.indexOf('.lut') > -1) {
+            // TODO: pick a nice default color for LUT OR use lut_10.png to provide background
+            color = '#FF00FF';
+        }
+ 
+        $('#wblitz-ch'+idx).css('background-color', color).attr('title', ch.label);
     };
 
 
@@ -222,6 +228,7 @@
         }
         for (var i=0; i<viewport.getCCount(); i++) {
             viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
+            // color could be 'FF0000' OR lookup table 'cool.lut'
             viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').attr('data-color'), true);
             var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
             viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);

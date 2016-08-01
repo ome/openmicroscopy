@@ -72,6 +72,7 @@ $.fn.colorbtn = function(cfg) {
     var ok_callback = function () {
       // On 'OK' we get the color saved by 'callback' above and apply it to the color-btn, then trigger
       var data_color = self.attr('data-picked-color');
+      // data_color could be 'FF0000' or 'cool.lut'
       if (data_color) {
         self.attr('data-color', data_color);
         self.trigger('changed');
@@ -87,6 +88,10 @@ $.fn.colorbtn = function(cfg) {
 
       // Add Lookup Table list - gets populated in show_picker() below.
       var $luts = $('<div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div>').appendTo(box);
+      $luts.on( "click", "input", function() {
+        self.attr('data-picked-color', this.value);
+        ok_callback();
+      });
 
       // Colorpicker - uses farbtastic.js
       var $showColorPicker = $("<h1 style='font-size:1.5em' class='showColorPicker'><a href='#'>Show Color Picker</a></h1>").appendTo(box);
