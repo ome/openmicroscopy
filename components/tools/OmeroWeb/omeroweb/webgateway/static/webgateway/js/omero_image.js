@@ -146,7 +146,10 @@
             $('#wblitz-ch'+idx).removeClass('pressed');
             $('#rd-wblitz-ch'+idx).removeClass('pressed');
         }
-        $('#wblitz-ch'+idx).css('background-color', '#' + ch.color).attr('title', ch.label);
+        //var t = $('#rd-wblitz-ch'+idx).get(0);
+        //if (t != undefined) t.checked=ch.active;
+        var rgb = OME.hexToRgb(ch.color)
+        $('#wblitz-ch'+idx).css('background-color', 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')').attr('title', ch.label);
     };
 
 
@@ -183,7 +186,7 @@
             $('#wblitz-ch'+i+'-cwslider')
                 .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
                 .slider( "option", "max", Math.max(w.max, w.end) );
-                $('#wblitz-ch'+i+'-color').attr('data-color', channels[i].color);
+                $('#wblitz-ch'+i+'-color').attr('data-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
                 $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
                 $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
         }
@@ -323,11 +326,11 @@
             };
         };
         for (i=0; i<channels.length; i++) {
-            color = channels[i].color;
+            var rgb = OME.hexToRgb(channels[i].color)
             $('<button id="wblitz-ch'+i+
-                '" class="squared' + (channels[i].active?' pressed':'') +
-                '" style="background-color: #'+ channels[i].color +
-                '" title="' + channels[i].label +
+                '"class="squared' + (channels[i].active?' pressed':'') +
+                '"style="background-color: rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')' +
+                '"title="' + channels[i].label +
                 '">'+channels[i].label+'</button>')
             .appendTo(box)
             .bind('click', doToggle(i));
@@ -467,9 +470,10 @@
             if (lbl.length > 7) {
                 lbl = lbl.slice(0, 5) + "...";
             }
+            var rgb = OME.hexToRgb(channels[i].color)
             tmp.after(template
                 .replace(/\$class/g, btnClass)
-                .replace(/\$col/g, '#' + channels[i].color)
+                .replace(/\$col/g, 'rgb('+rgb.r+', '+rgb.g+', '+rgb.b+')')
                 .replace(/\$label/g, channels[i].label)
                 .replace(/\$l/g, lbl)
                 .replace(/\$idx0/g, i) // Channel Index, 0 based
