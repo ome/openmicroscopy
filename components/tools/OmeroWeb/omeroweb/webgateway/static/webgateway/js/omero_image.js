@@ -146,12 +146,12 @@
             $('#wblitz-ch'+idx).removeClass('pressed');
             $('#rd-wblitz-ch'+idx).removeClass('pressed');
         }
+        // Update channel button beside full image viewer
         var color = '#' + ch.color;
         if (ch.color.indexOf('.lut') > -1) {
             // TODO: pick a nice default color for LUT OR use lut_10.png to provide background
             color = '#FF00FF';
         }
- 
         $('#wblitz-ch'+idx).css('background-color', color).attr('title', ch.label);
     };
 
@@ -180,11 +180,26 @@
     };
 
     window.syncRDCW = function(viewport) {
-        var cb;
+        var cb, color;
         var channels = viewport.getChannels();
+        var lutIndex;
         for (i=0; i<channels.length; i++) {
             $('#rd-wblitz-ch'+i).css('background-color', toRGB(channels[i].color));
-            $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
+            color = channels[i].color;
+            lutIndex = -1;
+            if (color.indexOf('.lut') > -1) {
+                lutIndex = OME.LUT_NAMES.indexOf(color);
+                if (lutIndex === -1) {
+                    color = 'FF00FF';
+                }
+            }
+            if (lutIndex > -1) {
+                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').addClass('lutslider')
+                    .css('background-position', '0 -' + (lutIndex * 20) + 'px');
+            } else {
+                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').removeClass('lutslider')
+                    .css('background-color', '#' + color);
+            }
             var w = channels[i].window;
             $('#wblitz-ch'+i+'-cwslider')
                 .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed

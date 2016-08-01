@@ -20,6 +20,43 @@
 
 /* Public constructors */
 
+if (!OME) {
+  OME = {};
+}
+// these are the LUT Names we know about and are included in the lut preview
+OME.LUT_NAMES = ["16_colors.lut",
+  "3-3-2_rgb.lut",
+  "5_ramps.lut",
+  "6_shades.lut",
+  "blue_orange_icb.lut",
+  "brgbcmyw.lut",
+  "cool.lut",
+  "cyan_hot.lut",
+  "edges.lut",
+  "fire.lut",
+  "gem.lut",
+  "grays.lut",
+  "green_fire_blue.lut",
+  "hilo.lut",
+  "ica.lut",
+  "ica2.lut",
+  "ica3.lut",
+  "ice.lut",
+  "magenta_hot.lut",
+  "orange_hot.lut",
+  "phase.lut",
+  "rainbow_rgb.lut",
+  "red-green.lut",
+  "red_hot.lut",
+  "royal.lut",
+  "sepia.lut",
+  "smart.lut",
+  "spectrum.lut",
+  "thal.lut",
+  "thallium.lut",
+  "unionjack.lut",
+  "yellow_hot.lut"];
+
 jQuery.fn.WeblitzViewport = function (server, options) {
   return this.each
   (
@@ -55,6 +92,13 @@ var Metadata = function () {
         this[i][j] = cached[i][j];
       }
     }
+    // If a channel has 'lut', overwrite color
+    this.channels = this.channels.map(function(ch){
+      if (ch.lut) {
+        ch.color = ch.lut;
+      }
+      return ch;
+    });
     this.defaultZ = this.rdefs.defaultZ;
     this.current.z = this.rdefs.defaultZ;
     this.defaultT = this.rdefs.defaultT;

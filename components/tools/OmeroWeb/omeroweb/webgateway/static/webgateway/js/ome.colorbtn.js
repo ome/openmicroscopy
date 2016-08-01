@@ -26,39 +26,6 @@ $.fn.colorbtn = function(cfg) {
 
     var colors = ["FF0000", "00FF00", "0000FF", "FFFFFF", "FFFF00", "EE82EE"];
     var colorNames = ["red", "green", "blue", "white", "yellow", "magenta"];
-    // these are the lutNames we know about and are included in the lut preview
-    var lutNames = ["16_colors.lut",
-        "3-3-2_rgb.lut",
-        "5_ramps.lut",
-        "6_shades.lut",
-        "blue_orange_icb.lut",
-        "brgbcmyw.lut",
-        "cool.lut",
-        "cyan_hot.lut",
-        "edges.lut",
-        "fire.lut",
-        "gem.lut",
-        "grays.lut",
-        "green_fire_blue.lut",
-        "hilo.lut",
-        "ica.lut",
-        "ica2.lut",
-        "ica3.lut",
-        "ice.lut",
-        "magenta_hot.lut",
-        "orange_hot.lut",
-        "phase.lut",
-        "rainbow_rgb.lut",
-        "red-green.lut",
-        "red_hot.lut",
-        "royal.lut",
-        "sepia.lut",
-        "smart.lut",
-        "spectrum.lut",
-        "thal.lut",
-        "thallium.lut",
-        "unionjack.lut",
-        "yellow_hot.lut"];
     var picker = null;
 
     /* The basic setup */
@@ -88,10 +55,6 @@ $.fn.colorbtn = function(cfg) {
 
       // Add Lookup Table list - gets populated in show_picker() below.
       var $luts = $('<div id="' + this.cfg.prefix + '-luts" class="lutpicker"></div>').appendTo(box);
-      $luts.on( "click", "input", function() {
-        self.attr('data-picked-color', this.value);
-        ok_callback();
-      });
 
       // Colorpicker - uses farbtastic.js
       var $showColorPicker = $("<h1 style='font-size:1.5em' class='showColorPicker'><a href='#'>Show Color Picker</a></h1>").appendTo(box);
@@ -128,6 +91,13 @@ $.fn.colorbtn = function(cfg) {
         });
     };
 
+    function getLutIndex(lutName) {
+      if (OME && OME.LUT_NAMES) {
+        return OME.LUT_NAMES.indexOf(lutName);
+      }
+      return -1;
+    }
+
     this.show_picker = function () {
       if (!picker) {
         if (jQuery('#'+this.cfg.prefix+'-box').length === 0) {
@@ -148,7 +118,7 @@ $.fn.colorbtn = function(cfg) {
             colorRows.push('<div><input id="' + c + '" type="radio" name="lut" value="' + c + '"><label for="' + c + '"><span style="background: #' + c + '"> &nbsp</span>' + n + '</label></div>');
           }
           var lutRows = data.luts.map(function(lut){
-            var idx = lutNames.indexOf(lut.name);
+            var idx = getLutIndex(lut.name);
             var preview = '';
             // background image is luts_10.png which is 10 pixels per lut(row) but size is set to 200% so each row is 20 pixels
             if (idx > -1) {
@@ -170,6 +140,10 @@ $.fn.colorbtn = function(cfg) {
         .bind('click',function(){
           jQuery("#"+that.cfg.prefix+"-box").hide();
         });
+      $('#' + this.cfg.prefix + '-luts').off("click").on( "click", "input", function() {
+        self.attr('data-picked-color', this.value);
+        ok_callback();
+      });
       self.removeAttr('data-picked-color');
 
       var color = '#' + OME.rgbToHex(self.attr("data-color"));
