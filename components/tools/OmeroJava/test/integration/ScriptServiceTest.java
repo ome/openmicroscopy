@@ -30,6 +30,7 @@ import omero.api.RawFileStorePrx;
 import omero.grid.JobParams;
 import omero.model.IObject;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -227,12 +228,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         deleteScript(id);
         Assert.assertEquals(svc.getScripts().size(), scripts.size());
         //Check that the entry has been removed from DB
-        ParametersI param = new ParametersI();
-        param.map.put("id", omero.rtypes.rlong(id));
-        f = (OriginalFile) factory.getQueryService().findByQuery(
-                "select p from OriginalFile as p " +
-                "where p.id = :id", param);
-        Assert.assertNull(f);
+        assertDoesNotExist(new OriginalFileI(id, false));
     }
 
     /**
