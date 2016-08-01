@@ -10,7 +10,7 @@ Suite Teardown      Close all browsers
 
 *** Variables ***
 
-${importedChColor}                  808080
+${importedChColor}                  rgb(128, 128, 128)
 ${importedMax}                      255
 ${sizeZ}                            3
 ${defaultZ}                         2
@@ -19,7 +19,7 @@ ${currZ}                            3
 *** Keywords ***
 
 Pick Color
-    [Arguments]          ${btnColor}        ${hexColor}
+    [Arguments]          ${btnColor}        ${hexColor}       ${rgbColor}
     Click Element                           xpath=//button[@id="wblitz-ch0-color"]
     Wait Until Element Is Visible           id=cbpicker-box
     # Click yellow color-picker button
@@ -27,13 +27,11 @@ Pick Color
     Textfield Value Should Be               cbpicker-tb         ${hexColor}
     Click Element                           cbpicker-OK-btn
     # Wait for the channel toggle button to turn yellow
-    Wait For Channel Color                  ${hexColor}
+    Wait For Channel Color                  ${rgbColor}
 
 Wait For Channel Color
-    [Arguments]          ${hexColor}
-    # Can't use @style to check color since Firefox will auto convert hex to rgb() in the DOM but Chrome won't.
-    # Wait Until Element Is Visible           xpath=//button[@id="rd-wblitz-ch0"][contains(@style, "background-color: ${rgbColor}")]      ${WAIT}
-    Wait Until Element Is Visible           xpath=//button[@id="wblitz-ch0-color"][@data-color="${hexColor}"]
+    [Arguments]          ${rgbColor}
+    Wait Until Element Is Visible           xpath=//button[@id="rd-wblitz-ch0"][contains(@style, "background-color: ${rgbColor}")]      ${WAIT}
 
 Wait For BlockUI
     # Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
@@ -111,8 +109,8 @@ Test Rdef Copy Paste Save
     Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
 
     # Color-picker, Yellow then Blue.
-    Pick Color          ff0       FFFF00
-    Pick Color          00f       0000FF
+    Pick Color          ff0       FFFF00        rgb(255, 255, 0)
+    Pick Color          00f       0000FF        rgb(0, 0, 255)
 
     # ONLY Redo should be disabled
     Element Should Be Enabled               id=rdef-undo-btn
@@ -120,7 +118,7 @@ Test Rdef Copy Paste Save
     Element Should Be Enabled               id=rdef-setdef-btn
     # Click Undo - Channel should be Yellow
     Click Element                           id=rdef-undo-btn
-    Wait For Channel Color                  FFFF00
+    Wait For Channel Color                  rgb(255, 255, 0)
 
     # And all buttons Undo, Redo & Save enabled
     Element Should Be Enabled               id=rdef-undo-btn
@@ -134,7 +132,7 @@ Test Rdef Copy Paste Save
     Wait Until Page Contains Element        xpath=//button[@class="rdef clicked"]/img[@src!='${thumbSrc}']
     # Redo (to Blue channel)
     Click Element                           id=rdef-redo-btn
-    Wait For Channel Color                  0000FF
+    Wait For Channel Color                  rgb(0, 0, 255)
     # Copy (paste button is enabled)
     Click Element                           id=rdef-copy-btn
     Wait For Toolbar Button Enabled         rdef-paste-btn
@@ -144,7 +142,7 @@ Test Rdef Copy Paste Save
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
     Wait For Toolbar Button Enabled         rdef-paste-btn
     # Channel should be Yellow
-    Wait For Channel Color                  FFFF00
+    Wait For Channel Color                  rgb(255, 255, 0)
 
     # Select Next Image
     Click Next Thumbnail
@@ -155,7 +153,7 @@ Test Rdef Copy Paste Save
 
     # Paste (Blue channel)
     Click Element                           xpath=//button[@id='rdef-paste-btn']
-    Wait For Channel Color                  0000FF
+    Wait For Channel Color                  rgb(0, 0, 255)
 
     # Save to all (Blue channel)
     Click Element                           id=rdef-save-all
@@ -163,7 +161,7 @@ Test Rdef Copy Paste Save
     # Return to Previous Image (now Blue)
     Select Image By Id                      ${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
-    Wait For Channel Color                  0000FF
+    Wait For Channel Color                  rgb(0, 0, 255)
 
 
 Test Owners Rdef
@@ -184,7 +182,7 @@ Test Owners Rdef
     # Need user to save an Rdef that is different from 'Imported'
     # Save Channel 'Green' and Window End: 100
     Unselect Checkbox                       rd-wblitz-rmodel
-    Pick Color                              0f0         00FF00
+    Pick Color                              0f0         00FF00          rgb(0, 255, 0)
     Input Text                              id=wblitz-ch0-cw-end        100
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
@@ -212,30 +210,30 @@ Test Owners Rdef
 
     # Set to Owner's (click on thumbnail)
     Click Element                           xpath=//button[contains(@class, 'rdef')][descendant::span[contains(@class, 'owner')]]
-    Wait For Channel Color                  00FF00
+    Wait For Channel Color                  rgb(0, 255, 0)
     Textfield Value Should Be               wblitz-ch0-cw-end           100
     Checkbox Should Not Be Selected         rd-wblitz-rmodel
 
     # Set to Full Range
     Click Element                           id=rdef-fullrange-btn
-    Wait For Channel Color                  00FF00
+    Wait For Channel Color                  rgb(0, 255, 0)
     Textfield Value Should Be               wblitz-ch0-cw-end           255
     Checkbox Should Not Be Selected         rd-wblitz-rmodel
 
     # 'Save All' with some different settings (Red channel)
     Unselect Checkbox                       rd-wblitz-rmodel
-    Pick Color                              f00         FF0000
+    Pick Color                              f00         FF0000          rgb(255, 0, 0)
     Click Element                           id=rdef-save-all
     Wait For BlockUI
 
     # Min/Max
     Click Element                           id=rdef-minmax-btn
-    Wait For Channel Color                  FF0000
+    Wait For Channel Color                  rgb(255, 0, 0)
     Textfield Value Should Be               wblitz-ch0-cw-end           255
 
     # New settings (White channel, max 200) and 'Copy'
     Input Text                              id=wblitz-ch0-cw-end        200
-    Pick Color                              fff         FFFFFF
+    Pick Color                              fff         FFFFFF          rgb(255, 255, 255)
     Click Element                           xpath=//button[@id='rdef-copy-btn']
     Wait For Toolbar Button Enabled         rdef-paste-btn
     
@@ -247,7 +245,7 @@ Test Owners Rdef
     # Check applied by refresh right panel
     Select Image By Id                      ${imageId_2}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
-    Wait For Channel Color                  FFFFFF
+    Wait For Channel Color                  rgb(255, 255, 255)
     Textfield Value Should Be               wblitz-ch0-cw-end           200
 
     # Test Set Owner's in same way on first Image
@@ -257,7 +255,7 @@ Test Owners Rdef
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
     ${status}    ${oldId}                   Wait For Preview Load   ${status}   ${oldId}
-    Wait For Channel Color                  00FF00
+    Wait For Channel Color                  rgb(0, 255, 0)
     Textfield Value Should Be               wblitz-ch0-cw-end           100
 
     # Test "Set Imported" on first Image
