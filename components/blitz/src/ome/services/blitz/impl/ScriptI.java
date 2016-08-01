@@ -689,7 +689,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         if (file == null) {
             return;
         }
-       if (scripts.delete(file.getId())) {
+        if (scripts.delete(file.getId())) {
             return;
         }
         scripts.simpleDelete(current.ctx, factory.executor, factory.principal,
