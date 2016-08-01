@@ -6694,6 +6694,19 @@ class _ChannelWrapper (BlitzObjectWrapper):
         return ColorHolder.fromRGBA(
             *self._re.getRGBA(self._idx, self._conn.SERVICE_OPTS))
 
+    def getLut(self):
+        """
+        Returns the Lookup Table name for the Channel.
+        E.g. "cool.lut"
+
+        :return:    Lut name.
+        :rtype:     String
+        """
+
+        if self._re is None:
+            return None
+        return self._re.getChannelLookupTable(self._idx)
+
     def getWindowStart(self):
         """
         Returns the rendering settings window-start of this channel
