@@ -7642,10 +7642,15 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                         c, float(windows[idx][0]), float(windows[idx][1]),
                         self._conn.SERVICE_OPTS)
                 if colors is not None and colors[idx]:
-                    rgba = splitHTMLColor(colors[idx])
-                    if rgba:
-                        self._re.setRGBA(
-                            c, *(rgba + [self._conn.SERVICE_OPTS]))
+                    if colors[idx].endswith('.lut'):
+                        self._re.setChannelLookupTable(c, colors[idx])
+                    else:
+                        rgba = splitHTMLColor(colors[idx])
+                        if rgba:
+                            self._re.setRGBA(
+                                c, *(rgba + [self._conn.SERVICE_OPTS]))
+                            # disable LUT
+                            self._re.setChannelLookupTable(c, None)
             if (c+1 in abs_channels):
                 idx += 1
         return True
