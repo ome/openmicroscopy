@@ -264,9 +264,7 @@ class TabbedPaneUI
     {
         colourWheelPane = new HSVColourWheelUI(control);
         swatchPane = new ColourSwatchUI(control);
-        paintPotPane = new PaintPotUI(
-                CommonsLangUtils.isEmpty(control.getLUT()) ? control.getColour()
-                        : UIUtilities.BACKGROUND, control);
+        paintPotPane = new PaintPotUI(control.getColour(), control.getLUT(), control);
     }
     
     /** 

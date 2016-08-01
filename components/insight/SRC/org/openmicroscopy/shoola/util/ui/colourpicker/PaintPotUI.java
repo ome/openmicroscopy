@@ -69,13 +69,19 @@ class PaintPotUI
 	/**
 	 * Creates the UI and attach the component to the control.
 	 * 
-	 * @param col The color to paint. Mustn't be <code>null</code>.
+	 * @param col The color to paint.
+	 * @param lut The lookup table 
 	 * @param c Reference to the control. Mustn't be <code>null</code>.
 	 */
-	PaintPotUI(Color col, JComponent c)
+	PaintPotUI(Color col, String lut, JComponent c)
 	{
-		super(col);
-        if (c == null) throw new NullPointerException("No control.");
+	    super(col);
+	    
+	    if (c == null)
+	        throw new NullPointerException("No control.");
+		
+        image = LookupTableIconUtil.getLUTIconImage(lut);
+		
 		control = c;
 		control.addPropertyChangeListener(COLOUR_CHANGED_PROPERTY, this);
 		control.addPropertyChangeListener(LUT_PROPERTY, this);
@@ -99,7 +105,10 @@ class PaintPotUI
 	{
         if (event.getPropertyName().equals(COLOUR_CHANGED_PROPERTY)) {
             colour = (Color) event.getNewValue();
+            image = null;
         } else if (event.getPropertyName().equals(LUT_PROPERTY)) {
+            String lut = (String) event.getNewValue();
+            image = LookupTableIconUtil.getLUTIconImage(lut);
             colour = UIUtilities.BACKGROUND_COLOR;
         }
 		invalidate();

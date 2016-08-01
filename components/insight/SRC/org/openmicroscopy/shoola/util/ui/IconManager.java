@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.IconManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.awt.Image;
 import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 
 //Third-party libraries
 
@@ -548,11 +549,14 @@ public class IconManager
     /** The lookup table icon */
     public static final int LOOKUP_TABLE_24 = 161;
     
+    /** Concatenated lookup table icons, see {@link LookupTableIconUtil} */
+    public static final int        LUTS = 162;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing.
      */
-    private static int MAX_ID = 161;
+    private static int MAX_ID = 162;
 
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
@@ -722,6 +726,7 @@ public class IconManager
         relPaths[ROI_FOLDER] = "roi_folder_icon.png";
         relPaths[ROI_FOLDER_NOT_OWNER] = "roi_folder_user_icon.png";
         relPaths[LOOKUP_TABLE_24] = "lookuptable24.png";
+        relPaths[LUTS] = "lookuptables.png";
     }
 
     /**

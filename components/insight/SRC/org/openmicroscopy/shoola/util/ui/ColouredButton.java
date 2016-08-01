@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultButtonModel;
 import javax.swing.JButton;
@@ -59,9 +60,6 @@ public class ColouredButton
 	/** The background color. */
 	private Color	color;
 
-	/** Flag indicating if the button is greyed out or not. */
-	private boolean greyedOut;
-	
 	/**
 	 * Sets the color of the button.
 	 * 
@@ -72,6 +70,13 @@ public class ColouredButton
 	{
 		colourButtonUI.setColor(color);
 	}
+	
+    /**
+     * Set the background image (takes precedence over color!)
+     */
+    private void setButtonImage(BufferedImage img) {
+        colourButtonUI.setImage(img);
+    }
 
 	/**
 	 * Creates a new instance.
@@ -91,10 +96,29 @@ public class ColouredButton
 		setBorder(BorderFactory.createBevelBorder(3));
 		setBorderPainted(true);
 		this.color = color;
-		greyedOut = false;
 		setButtonColour(color);
 	}
 
+	/**
+     * Creates a new instance.
+     * 
+     * @param text      The text of the button. 
+     * @param img     The background image of the button. Corresponds to the
+     *                  LUT associated to the channel.
+     */
+    public ColouredButton(String text, BufferedImage img)
+    {
+        this.color = Color.GRAY;
+        setModel(new DefaultButtonModel());
+        init(text, null);
+        colourButtonUI = new ColouredButtonUI(this, color);
+        setUI(colourButtonUI);
+        setRolloverEnabled(false);
+        setBorder(BorderFactory.createBevelBorder(3));
+        setBorderPainted(true);
+        setButtonImage(img);
+    }
+    
 	/**
 	 * Changes to size need to be reflected in changes in painters. 
 	 * @see JButton#setSize(Dimension)
@@ -113,7 +137,6 @@ public class ColouredButton
 	 */
 	public void setGrayedOut(boolean greyedOut)
 	{
-		this.greyedOut = greyedOut;
 		if (greyedOut) 
 		    setButtonColour(Color.LIGHT_GRAY);
 		else
@@ -136,6 +159,17 @@ public class ColouredButton
 		repaint();
 	}
 
+    /**
+     * Set the background image (takes precedence over color!)
+     * 
+     * @param img
+     *            The image
+     */
+    public void setImage(BufferedImage img) {
+        setButtonImage(img);
+        repaint();
+    }
+	
 	/**
 	 * Returns the color.
 	 * 

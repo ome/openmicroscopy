@@ -38,6 +38,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 
@@ -84,6 +86,9 @@ class ColouredButtonUI
 	
     /** Current Colour of the button. */
     private Color           colour;
+    
+    /** The background image */
+    private BufferedImage image;
 
     /** Reference to parent button. */
     private final ColouredButton  button;
@@ -400,6 +405,23 @@ class ColouredButtonUI
             return;
         }
         
+        if (this.image != null) {
+            int height = (int) buttonRect.getHeight();
+            int width = (int) buttonRect.getWidth();
+            g.drawImage(image, 0, 0, width, height, null);
+
+            // Text
+            final FontMetrics fm = g.getFontMetrics();
+            final int x = (int) ((buttonRect.width / 2.0f) - fm
+                    .stringWidth(button.getText()) / 2.0f);
+            final int y = (int) ((buttonRect.height / 2.0f) + (fm.getHeight() - fm
+                    .getDescent()) / 2.0f);
+            g.setPaint(Color.BLACK);
+            g.drawString(button.getText(), x, y);
+
+            return;
+        }
+        
         // If the button is selected draw selected button face.  
         // Check to see if it's greyed out, if not draw border else
         // draw mask and draw the grey mask selected border. 
@@ -586,6 +608,16 @@ class ColouredButtonUI
     	    setGradientColours();
     	    createPainters();
     	}
+    }
+    
+    /**
+     * Set the background image (takes precedence over color!)
+     * 
+     * @param img
+     *            The image
+     */
+    void setImage(BufferedImage img) {
+        this.image = img;
     }
    
     /**

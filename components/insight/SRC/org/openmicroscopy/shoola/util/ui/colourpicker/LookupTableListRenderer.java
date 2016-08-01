@@ -24,9 +24,11 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JSeparator;
@@ -43,8 +45,11 @@ import javax.swing.border.Border;
  */
 public class LookupTableListRenderer extends JLabel implements ListCellRenderer {
 
+    private static final Dimension ICON_DIM = new Dimension(96, 24);
+
     /** Create the colouricon which will hold the colours. */
-    private static ColourIcon icon = new ColourIcon(32, 24);
+    private static ColourIcon icon = new ColourIcon(ICON_DIM.width,
+            ICON_DIM.height);
 
     /** Border colour of the cell when the icon is selected. */
     private Border lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
@@ -56,28 +61,32 @@ public class LookupTableListRenderer extends JLabel implements ListCellRenderer 
 
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
-        
+
         if (!(value instanceof LookupTableItem))
             return defaultRenderer.getListCellRendererComponent(list, value,
                     index, isSelected, cellHasFocus);
-        
+
         setOpaque(true);
-        
+
         LookupTableItem item = (LookupTableItem) value;
 
         if (value == LookupTableItem.SEPARATOR)
             return new JSeparator(JSeparator.HORIZONTAL);
 
-        setForeground( isSelected ? list.getSelectionForeground() : list.getForeground());
-        setBackground( isSelected ? list.getSelectionBackground() : list.getBackground());
+        setForeground(isSelected ? list.getSelectionForeground() : list
+                .getForeground());
+        setBackground(isSelected ? list.getSelectionBackground() : list
+                .getBackground());
         setBorder(cellHasFocus ? lineBorder : emptyBorder);
-        
+
         if (item.hasLookupTable()) {
-            setIcon(null);
+            Icon icon = LookupTableIconUtil.getLUTIcon(item.getFilename(),
+                    ICON_DIM);
+            setIcon(icon);
             setText(item.getLabel());
         } else {
-            Color newCol = new Color(item.getColor().getRed(),
-                    item.getColor().getGreen(), item.getColor().getBlue());
+            Color newCol = new Color(item.getColor().getRed(), item.getColor()
+                    .getGreen(), item.getColor().getBlue());
 
             icon.setColour(newCol);
             setIcon(icon);
@@ -88,4 +97,5 @@ public class LookupTableListRenderer extends JLabel implements ListCellRenderer 
 
         return this;
     }
+
 }
