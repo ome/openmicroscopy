@@ -228,7 +228,7 @@ public class ColourSwatchUI
             }
         }
 
-        return 0;
+        return -1;
     }
     
 	/**
@@ -250,7 +250,11 @@ public class ColourSwatchUI
 		colourlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		colourlist.setLayoutOrientation(JList.VERTICAL);
 		colourlist.setVisibleRowCount(-1);
-		colourlist.setSelectedIndex(findIndex());
+		int index = findIndex();
+		if (index >= 0) {
+		    colourlist.setSelectedIndex(index);
+		    colourlist.ensureIndexIsVisible(index);
+		}
 		selectionListener = new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e)
 			{
@@ -315,7 +319,11 @@ public class ColourSwatchUI
 	{
 		colourlist.removeListSelectionListener(selectionListener);
 		colourlist.clearSelection();
-		colourlist.setSelectedIndex(findIndex());
+		int index = findIndex();
+		if(index >= 0) {
+		    colourlist.setSelectedIndex(index);
+		    colourlist.ensureIndexIsVisible(index);
+		}
 		colourlist.addListSelectionListener(selectionListener);
 	}
 	
