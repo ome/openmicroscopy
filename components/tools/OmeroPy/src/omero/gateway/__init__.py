@@ -6697,7 +6697,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
     def getLut(self):
         """
         Returns the Lookup Table name for the Channel.
-        E.g. "cool.lut"
+        E.g. "cool.lut" or None if no LUT.
 
         :return:    Lut name.
         :rtype:     String
@@ -6705,7 +6705,10 @@ class _ChannelWrapper (BlitzObjectWrapper):
 
         if self._re is None:
             return None
-        return self._re.getChannelLookupTable(self._idx)
+        lut = self._re.getChannelLookupTable(self._idx)
+        if not lut or len(lut) == 0:
+            return None
+        return lut
 
     def getWindowStart(self):
         """
