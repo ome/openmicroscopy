@@ -93,6 +93,9 @@ public class CommandLineImporter {
     /** If true, then only a report on used files will be produced */
     private final boolean getUsedFiles;
 
+    /** Format which should be preferred for stdandard out messages */
+    private ImportOutput importOutput = ImportOutput.legacy;
+
     /**
      * Legacy constructor which uses a {@link UploadFileTransfer}.
      * @param config the import configuration
@@ -234,13 +237,35 @@ public class CommandLineImporter {
         }
     }
 
+    /**
+     * Set the current {@link ImportOutput} (defaulting to null if
+     * a null value is passed).
+     *
+     * @param importOutput possibly null enumeration value.
+     * @return previous value.
+     */
+    public ImportOutput setImportOutput(ImportOutput importOutput) {
+        ImportOutput old = importOutput;
+        if (importOutput == null) {
+            this.importOutput = ImportOutput.legacy;
+        }
+        this.importOutput = importOutput;
+        return old;
+    }
+
     public int start() {
         boolean successful = true;
 
         if (getUsedFiles) {
             try {
-                candidates.print();
-                return 0;
+                switch (importOutput) {
+                    case yaml:
+                        candidates.printYaml();
+                        break;
+                    default:
+                        candidates.print();
+                }
+                return candidates.size() == 0 ? 125 : 0;
             } catch (Throwable t) {
                 log.error("Error retrieving used files.", t);
                 return 1;
@@ -259,7 +284,9 @@ public class CommandLineImporter {
             }
         } else {
             sw.start();
-            library.addObserver(new LoggingImportMonitor());
+            LoggingImportMonitor lim = new LoggingImportMonitor();
+            lim.setImportOutput(importOutput);
+            library.addObserver(lim);
             // error handler has been configured in constructor from main args
             library.addObserver(this.handler);
 
@@ -402,17 +429,17 @@ public class CommandLineImporter {
             + "\n"
             + "  Background imports:\n"
             + "  -------------------\n\n"
-            + "    --auto_close            \tClose completed imports immediately.\n\n"
-            + "    --minutes_wait=ARG      \tChoose how long the importer will wait on server-side processing.\n"
+            + "    --auto-close            \tClose completed imports immediately.\n\n"
+            + "    --minutes-wait=ARG      \tChoose how long the importer will wait on server-side processing.\n"
             + "                            \tARG > 0 implies the number of minutes to wait.\n"
-            + "                            \tARG = 0 exits immediately. Use a *_completed option to clean up.\n"
+            + "                            \tARG = 0 exits immediately. Use a *-completed option to clean up.\n"
             + "                            \tARG < 0 waits indefinitely. This is the default.\n\n"
-            + "    --close_completed       \tClose completed imports.\n\n"
-            + "    --wait_completed        \tWait for all background imports to complete.\n\n"
+            + "    --close-completed       \tClose completed imports.\n\n"
+            + "    --wait-completed        \tWait for all background imports to complete.\n\n"
             + "\n"
-            + "  e.g. $ bin/omero import -- --minutes_wait=0 file1.tiff file2.tiff file3.tiff\n"
-            + "       $ ./importer-cli --minutes_wait=0 some_directory/\n"
-            + "       $ ./importer-cli --wait_completed # Waits on all 3 imports.\n"
+            + "  e.g. $ bin/omero import -- --minutes-wait=0 file1.tiff file2.tiff file3.tiff\n"
+            + "       $ ./importer-cli --minutes-wait=0 some_directory/\n"
+            + "       $ ./importer-cli --wait-completed # Waits on all 3 imports.\n"
             + "\n"
             + "  File exclusion:\n"
             + "  ---------------\n\n"
@@ -515,6 +542,8 @@ public class CommandLineImporter {
         config.debug.set(false);
         config.encryptedConnection.set(false);
 
+        // PLEASE KEEP THIS IN SYNC WITH omero/plugins/import.py
+
         LongOpt debug = new LongOpt(
                 "debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
@@ -547,13 +576,13 @@ public class CommandLineImporter {
         LongOpt checksumAlgorithm =
                 new LongOpt("checksum-algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
         LongOpt minutesWait =
-                new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
+                new LongOpt("minutes-wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
         LongOpt closeCompleted =
-                new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 17);
+                new LongOpt("close-completed", LongOpt.NO_ARGUMENT, null, 17);
         LongOpt waitCompleted =
-                new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 18);
+                new LongOpt("wait-completed", LongOpt.NO_ARGUMENT, null, 18);
         LongOpt autoClose =
-                new LongOpt("auto_close", LongOpt.NO_ARGUMENT, null, 19);
+                new LongOpt("auto-close", LongOpt.NO_ARGUMENT, null, 19);
         LongOpt exclude =
                 new LongOpt("exclude", LongOpt.REQUIRED_ARGUMENT, null, 20);
 
@@ -568,7 +597,18 @@ public class CommandLineImporter {
         LongOpt noUpgradeCheck =
                 new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
 
+        LongOpt outputFormat =
+                new LongOpt("output", LongOpt.REQUIRED_ARGUMENT, null, 25);
+
         // DEPRECATED OPTIONS
+        LongOpt minutesWaitDeprecated =
+                new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 86);
+        LongOpt closeCompletedDeprecated =
+                new LongOpt("close_completed", LongOpt.NO_ARGUMENT, null, 87);
+        LongOpt waitCompletedDeprecated =
+                new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 88);
+        LongOpt autoCloseDeprecated =
+                new LongOpt("auto_close", LongOpt.NO_ARGUMENT, null, 89);
         LongOpt plateName = new LongOpt(
                 "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 90);
         LongOpt plateDescription = new LongOpt(
@@ -583,6 +623,10 @@ public class CommandLineImporter {
             new LongOpt("annotation_text", LongOpt.REQUIRED_ARGUMENT, null, 95);
         LongOpt annotationLinkDeprecated =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT, null, 96);
+        LongOpt plateDescription2 = new LongOpt(
+                "plate-description", LongOpt.REQUIRED_ARGUMENT, null, 97);
+        LongOpt plateName2= new LongOpt(
+                "plate-name", LongOpt.REQUIRED_ARGUMENT, null, 98);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:T:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
@@ -593,14 +637,21 @@ public class CommandLineImporter {
                                 closeCompleted, waitCompleted, autoClose,
                                 exclude, target, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
-                                plateName, plateDescription,
+                                outputFormat,
+                                plateName, plateName2,
+                                plateDescription, plateDescription2,
                                 noThumbnailsDeprecated,
                                 checksumAlgorithmDeprecated,
                                 annotationNamespaceDeprecated,
                                 annotationTextDeprecated,
-                                annotationLinkDeprecated
+                                annotationLinkDeprecated,
+                                minutesWaitDeprecated,
+                                closeCompletedDeprecated,
+                                waitCompletedDeprecated,
+                                autoCloseDeprecated
                                 });
         int a;
+        ImportOutput outputChoice = ImportOutput.legacy;
 
         boolean doCloseCompleted = false;
         boolean doWaitCompleted = false;
@@ -689,20 +740,24 @@ public class CommandLineImporter {
                 config.checksumAlgorithm.set(arg);
                 break;
             }
-            case 16: {
+            case 16:
+            case 86: {
                 minutesToWait = Integer.parseInt(g.getOptarg());
                 log.info("Setting minutes to wait to {}", minutesToWait);
                 break;
             }
-            case 17: {
+            case 17:
+            case 87: {
                 doCloseCompleted = true;
                 break;
             }
-            case 18: {
+            case 18:
+            case 88: {
                 doWaitCompleted = true;
                 break;
             }
-            case 19: {
+            case 19:
+            case 89: {
                 minutesToWait = 0;
                 config.autoClose.set(true);
                 break;
@@ -735,14 +790,22 @@ public class CommandLineImporter {
                 config.checkUpgrade.set(false);
                 break;
             }
+            case 25: {
+                String outputArg = g.getOptarg();
+                log.info("Setting output format: {}", outputArg);
+                outputChoice = ImportOutput.valueOf(outputArg);
+                break;
+            }
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
-            case 90: {
+            case 90:
+            case 98: {
                 setArgument(conflictingArguments, "userSpecifiedName");
                 config.userSpecifiedName.set(g.getOptarg());
                 break;
             }
-            case 91: {
+            case 91:
+            case 97: {
                 setArgument(conflictingArguments, "userSpecifiedDescription");
                 config.userSpecifiedDescription.set(g.getOptarg());
                 break;
@@ -883,6 +946,7 @@ public class CommandLineImporter {
             }
             c = new CommandLineImporter(config, rest, getUsedFiles,
                     transfer, exclusions, minutesToWait);
+            c.setImportOutput(outputChoice);
             rc = c.start();
         } catch (Throwable t) {
             log.error("Error during import process.", t);
@@ -931,77 +995,4 @@ public class CommandLineImporter {
         return files.toArray(new String[0]);
     }
 
-}
-
-
-class ImportCloser {
-
-    private final static Logger log = LoggerFactory.getLogger(ImportCloser.class);
-
-    List<ImportProcessPrx> imports;
-    int closed = 0;
-    int errors = 0;
-    int processed = 0;
-
-    ImportCloser(OMEROMetadataStoreClient client) throws Exception {
-        this.imports = getImports(client);
-    }
-
-    void closeCompleted() {
-        for (ImportProcessPrx imPrx : imports) {
-            try {
-                processed++;
-                String logName = imPrx.toString().split("\\s")[0];
-                HandlePrx handle = imPrx.getHandle();
-                if (handle != null) {
-                    Response rsp = handle.getResponse();
-                    if (rsp != null) {
-                        log.info("Done: {}", logName);
-                        imPrx.close();
-                        closed++;
-                        continue;
-                    }
-                }
-                log.info("Running: {}", logName);
-            } catch (Exception e) {
-                errors++;
-                log.warn("Failure accessing service", e);
-            }
-        }
-    }
-
-    int getClosed() {
-        return closed;
-    }
-
-    int getErrors() {
-        return errors;
-    }
-
-    int getProcessed() {
-        return processed;
-    }
-
-    private static List<ImportProcessPrx> getImports(OMEROMetadataStoreClient client) throws Exception {
-        final List<ImportProcessPrx> rv = new ArrayList<ImportProcessPrx>();
-        final ServiceFactoryPrx sf = client.getServiceFactory();
-        final List<String> active = sf.activeServices();
-        for (String service : active) {
-            try {
-                final ServiceInterfacePrx prx = sf.getByName(service);
-                final ImportProcessPrx imPrx = ImportProcessPrxHelper.checkedCast(prx);
-                if (imPrx != null) {
-                    try {
-                        imPrx.ice_ping();
-                        rv.add(imPrx);
-                    } catch (Ice.ObjectNotExistException onee) {
-                        // ignore
-                    }
-                }
-            } catch (Exception e) {
-                log.warn("Failure accessing active service", e);
-            }
-        }
-        return rv;
-    }
 }

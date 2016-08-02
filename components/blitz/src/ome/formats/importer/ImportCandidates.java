@@ -247,7 +247,7 @@ public class ImportCandidates extends DirectoryWalker
      * other software layers. The format is: 1) any empty lines are ignored, 2)
      * any blocks of comments separate groups, 3) each group is begun by the
      * "key", 4) all other files in a group will also be imported.
-     * 
+     *
      * The ordering of the used files is taken into account.
      */
     /*
@@ -269,6 +269,23 @@ public class ImportCandidates extends DirectoryWalker
             for (String file : container.getUsedFiles())
             {
                 System.out.println(file);
+            }
+        }
+    }
+
+    public void printYaml() {
+        if (containers == null) {
+            return;
+        }
+        System.out.println("---");
+        for (ImportContainer container : containers) {
+            System.out.println("- group: " + container.getFile());
+            System.out.println("  spw: " + container.getIsSPW());
+            System.out.println("  reader: " + container.getReader());
+            System.out.println("  files:");
+            for (String file : container.getUsedFiles())
+            {
+                System.out.println("   - " + file);
             }
         }
     }
