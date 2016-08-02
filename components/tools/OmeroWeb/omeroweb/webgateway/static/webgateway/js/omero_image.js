@@ -181,9 +181,8 @@
             lutIndex = -1;
             if (color.indexOf('.lut') > -1) {
                 lutIndex = OME.LUT_NAMES.indexOf(color);
-                if (lutIndex === -1) {
-                    color = 'EEEEEE';
-                }
+                // default color for LUT if we don't show LUT background (E.g. not known)
+                color = 'EEEEEE';
             }
             if (lutIndex > -1) {
                 // Button beside image in full viewer (not in Preview panel):
