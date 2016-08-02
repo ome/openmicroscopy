@@ -185,12 +185,17 @@ class TestWeb(object):
         csout = "Clearing expired sessions. This may take some time... [OK]"
         assert csout == o.split(os.linesep)[0]
         if app_server in ('wsgi',):
-            stderr = (
-                ("You are deploying OMERO.web using apache and mod_wsgi. "
-                 "Generate apache config using 'omero web config apache' "
-                 "and reload web server."))
-            assert stderr == e.split(os.linesep)[0]
-            assert 1 == len(e.split(os.linesep))-1
+            stderr0 = ("[ERROR] You are deploying OMERO.web using Apache and"
+                       " mod_wsgi. OMERO.web does not provide any management"
+                       " for the daemon process which communicates"
+                       " with Apache child processes using UNIX sockets"
+                       " to handle a request.")
+            stderr1 = ("Generate apache config using"
+                       " 'omero web config apache' or"
+                       " 'omero web config apache24' and reload web server.")
+            assert stderr0 == e.split(os.linesep)[0]
+            assert stderr1 == e.split(os.linesep)[1]
+            assert 2 == len(e.split(os.linesep))-1
         elif app_server in ('wsgi-tcp',):
             startout = "Starting OMERO.web... [OK]"
             assert startout == o.split(os.linesep)[1]
@@ -361,13 +366,14 @@ class TestWeb(object):
     @pytest.mark.parametrize('server_type', [
         "nginx", "nginx-development"])
     @pytest.mark.parametrize('http', [False, 8081])
+    @pytest.mark.parametrize('servername', [False, "omeroweb.host"])
     @pytest.mark.parametrize('prefix', [None, '/test'])
     @pytest.mark.parametrize('app_server', ['wsgi-tcp'])
     @pytest.mark.parametrize('cgihost', [None, '0.0.0.0'])
     @pytest.mark.parametrize('cgiport', [None, '12345'])
-    def testNginxGunicornConfig(self, server_type, http, prefix, app_server,
-                                cgihost, cgiport, max_body_size, capsys,
-                                monkeypatch):
+    def testNginxGunicornConfig(self, server_type, http, servername, prefix,
+                                app_server, cgihost, cgiport, max_body_size,
+                                capsys, monkeypatch):
 
         self.mock_django_setting('APPLICATION_SERVER', app_server, monkeypatch)
         static_prefix = self.add_prefix(prefix, monkeypatch)
@@ -378,6 +384,8 @@ class TestWeb(object):
         self.args += server_type.split()
         if http:
             self.args += ["--http", str(http)]
+        if servername:
+            self.args += ["--servername", str(servername)]
         if max_body_size:
             self.args += ["--max-body-size", max_body_size]
         self.set_templates_dir(monkeypatch)
@@ -391,6 +399,7 @@ class TestWeb(object):
                 "server %s fail_timeout=0;" % expected_cgi,
                 "server {",
                 "listen %s;" % (http or 8080),
+                "server_name _;",
                 "client_max_body_size %s;" % (max_body_size or '0'),
                 "location %s {" % static_prefix[:-1],
                 "location %s {" % (prefix or "/"),
@@ -401,6 +410,7 @@ class TestWeb(object):
                 "server %s fail_timeout=0;" % expected_cgi,
                 "server {",
                 "listen %s;" % (http or 80),
+                "server_name %s;" % (servername or "$hostname"),
                 "client_max_body_size %s;" % (max_body_size or '0'),
                 "location %s {" % static_prefix[:-1],
                 "location %s {" % (prefix or "/"),
@@ -552,9 +562,12 @@ class TestWeb(object):
         assert not d, 'Files are different:\n' + d
 
     @pytest.mark.parametrize('server_type', [
-        ['nginx', '--http', '1234', '--max-body-size', '2m', 'wsgi-tcp'],
-        ['nginx-development', '--http', '1234', '--max-body-size', '2m',
-         'wsgi-tcp'],
+        ['nginx', '--http', '1234',
+         '--servername', 'omeroweb.host',
+         '--max-body-size', '2m', 'wsgi-tcp'],
+        ['nginx-development', '--http', '1234',
+         '--servername', 'omeroweb.host',
+         '--max-body-size', '2m', 'wsgi-tcp'],
         ['apache22', '--http', '1234', 'wsgi'],
         ['apache24', '--http', '1234', 'wsgi']])
     @pytest.mark.parametrize('static_root', [

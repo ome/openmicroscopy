@@ -150,6 +150,48 @@ class TestLinks(IWebTest):
         assert rsp['images'][0]['id'] == iids[0]
         assert rsp['images'][1]['id'] == iids[1]
 
+    def test_link_unlink_tagset_tags(self):
+        """
+        Tests linking of tagset to tag, then unlinking
+        """
+        tag = self.make_tag()
+        tagset = self.make_tag(ns=omero.constants.metadata.NSINSIGHTTAGSET)
+        tagId = tag.id.val
+        tagsetId = tagset.id.val
+
+        links_url = reverse("api_links")
+        # Link tagset to tag
+        data = {
+            'tagset': {tagsetId: {'tag': [tagId]}}
+        }
+        rsp = _csrf_post_response_json(self.django_client, links_url, data)
+        assert rsp == {"success": True}
+
+        # Check that tag is listed under tagset...
+        tags_url = reverse("api_tags_and_tagged")
+        r = _get_response_json(self.django_client, tags_url, {'id': tagsetId})
+        assert len(r['tags']) == 1
+        assert r['tags'][0]['id'] == tagId
+
+        # Unlink first Tag from Tagset
+        # data {} is same as for creating link above
+        response = _csrf_delete_response(self.django_client,
+                                         links_url,
+                                         json.dumps(data),
+                                         content_type="application/json")
+        response = json.loads(response.content)
+        assert response["success"]
+
+        # Since the Delete is ansync - need to check repeatedly for deletion
+        for i in range(10):
+            rsp = _get_response_json(self.django_client,
+                                     tags_url, {'id': tagsetId})
+            if len(rsp['tags']) == 0:
+                break
+            sleep(0.5)
+        # Check that link has been deleted
+        assert len(rsp['tags']) == 0
+
     def test_unlink_screen_plate(self, screens, plates):
         # Link both plates to both screens
         request_url = reverse("api_links")

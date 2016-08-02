@@ -77,7 +77,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
         long originalImageId = image.getId().getValue();
 
         // change to another user in source group
-        EventContext roiUserContext = newUserInGroup();
+        EventContext roiUserContext = newUserInGroup(imageOwnerContext);
 
         // get the image from the roi user's perspective
         Image roiUserImage = getImageWithId(image.getId().getValue());
@@ -92,20 +92,17 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
             Shape shape = serverROI.getShape(i);
             shapeIds.add(shape.getId().getValue());
         }
-
-        disconnect();
-
+        // switch back to the original user
+        loginUser(imageOwnerContext);
         // create the target group
         ExperimenterGroup targetGroup = newGroupAddUser(targetGroupPermissions,
-                imageOwnerContext.userId, false);
+                imageOwnerContext.userId);
+        iAdmin.getEventContext();
 
         if (roiOwnerInTargetGroup) {
             addUserToGroup(roiUserContext.userId, targetGroup);
         }
-
-        // switch back to the original user
-        loginUser(imageOwnerContext);
-
+        iAdmin.getEventContext();
         // Perform the move operation as original user
         final Chgrp2 dc = Requests.chgrp("Image", originalImageId, targetGroup.getId().getValue());
         callback(true, client, dc);
@@ -117,8 +114,6 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
         // check the shapes have moved to target group
         List<IObject> orginalShapes = getShapesWithIds(shapeIds);
         assertEquals(0, orginalShapes.size());
-
-        disconnect();
 
         // Move the user into the target group!
         loginUser(targetGroup);
@@ -285,7 +280,7 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
      */
     private void addUserToGroup(long userId, ExperimenterGroup targetGroup)
             throws Exception {
-        addUsers(targetGroup, Arrays.asList(userId), false);
+        addUsers(targetGroup, Arrays.asList(userId), true);
     }
 
     /**

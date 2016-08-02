@@ -45,7 +45,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
      * @param dest The permissions of the target group.
      * @param secondUserMemberOfTarget Indicates if the second user is a member
      * of the target group.
-     * @throws Exception Thrown if an error occured.
+     * @throws Exception Thrown if an error occurred.
      */
     private void moveImageWithNonSharedAnnotation(String src, String dest,
             boolean secondUserMemberOfTarget)
@@ -58,7 +58,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         long id = img.getId().getValue();
         List<Long> annotationIdsUser1 = createNonSharableAnnotation(img, null);
 
-        omero.client clientUser1 = disconnect();
+        disconnect();
         // Add a user to that group
         EventContext ctx2 = newUserInGroup(ctx);
         init(ctx2);
@@ -72,7 +72,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(dest, users);
 
         // reconnect as user1
-        init(clientUser1);
+        init(ctx);
         // now move the image.
         final Chgrp2 dc = Requests.chgrp("Image", id, g.getId().getValue());
         callback(true, client, dc);

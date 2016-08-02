@@ -30,6 +30,7 @@ import re
 from omero.rtypes import rint, rlong
 from django.core.urlresolvers import reverse
 from copy import deepcopy
+from django.conf import settings
 
 
 class IncorrectMenuError(Exception):
@@ -55,12 +56,12 @@ class Show(object):
     """
 
     # List of prefixes that are at the top level of the tree
-    TOP_LEVEL_PREFIXES = ('project', 'screen')
+    TOP_LEVEL_PREFIXES = ('project', 'screen', 'tagset')
 
     # List of supported object types
     SUPPORTED_OBJECT_TYPES = (
         'project', 'dataset', 'image', 'screen', 'plate', 'tag',
-        'acquisition', 'run', 'well'
+        'acquisition', 'run', 'well', 'tagset'
     )
 
     # Regular expression which declares the format for a "path" used either
@@ -259,7 +260,7 @@ class Show(object):
         @type attributes L{dict}
         """
         first_selected = None
-        if first_obj == "tag":
+        if first_obj in ["tag", "tagset"]:
             first_selected = self._load_tag(attributes)
         elif first_obj == "well":
             first_selected = self._load_well(attributes)
@@ -298,22 +299,20 @@ class Show(object):
                 "%s-%s" % (first_obj, first_selected.getId())
             ]
             first_selected = parent_node
-            self._initially_select = self._initially_open[:]
         else:
             # Tree hierarchy open to first selected object.
             self._initially_open = [
                 '%s-%s' % (first_obj, first_selected.getId())
             ]
-            # support for multiple objects selected by ID,
-            # E.g. show=image-1|image-2
-            if 'id' in attributes.keys() and len(self._initially_select) > 1:
-                # 'image.id-1' -> 'image-1'
-                self._initially_select = [
-                    i.replace(".id", "") for i in self._initially_select]
-            else:
-                # Only select a single object
-                self._initially_select = self._initially_open[:]
-
+        # support for multiple objects selected by ID,
+        # E.g. show=image-1|image-2
+        if 'id' in attributes.keys() and len(self._initially_select) > 1:
+            # 'image.id-1' -> 'image-1'
+            self._initially_select = [
+                i.replace(".id", "") for i in self._initially_select]
+        else:
+            # Only select a single object
+            self._initially_select = self._initially_open[:]
         self._initially_open_owner = first_selected.details.owner.id.val
         return first_selected
 
@@ -328,7 +327,7 @@ class Show(object):
             return None
         first_obj = m.group('object_type')
         # if we're showing a tag, make sure we're on the tags page...
-        if first_obj == "tag" and self.menu != "usertags":
+        if first_obj in ["tag", "tagset"] and self.menu != "usertags":
             # redirect to usertags/?show=tag-123
             raise IncorrectMenuError(
                 reverse(viewname="load_template", args=['usertags']) +
@@ -357,13 +356,13 @@ class Show(object):
                         self._initially_select = ['well.id-%s' % p.getId()]
                         return self._find_first_selected()
                     if first_obj == "tag":
-                        # Parents of tags must be tags (no OMERO_CLASS)
-                        self._initially_open.insert(0, "tag-%s" % p.getId())
+                        # Parents of tags must be tagset (no OMERO_CLASS)
+                        self._initially_open.insert(0, "tagset-%s" % p.getId())
                     else:
                         self._initially_open.insert(
                             0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId())
                         )
-                        self._initially_open_owner = p.details.owner.id.val
+                    self._initially_open_owner = p.details.owner.id.val
                 m = self.PATH_REGEX.match(self._initially_open[0])
                 if m.group('object_type') == 'image':
                     self._initially_open.insert(0, "orphaned-0")
@@ -412,21 +411,65 @@ class Show(object):
         return self._initially_open_owner
 
 
+def get_image_ids(conn, datasetId=None, groupId=-1, ownerId=None):
+    """
+    Retrieves a list of all image IDs in a Dataset or Orphaned
+    (with owner specified by ownerId). The groupId can be specified
+    as needed, particuarly when querying orphaned images.
+    """
+    qs = conn.getQueryService()
+    p = omero.sys.ParametersI()
+    so = deepcopy(conn.SERVICE_OPTS)
+    so.setOmeroGroup(groupId)
+    if datasetId is not None:
+        p.add('did', rlong(datasetId))
+        q = """select image.id from Image image
+            join image.datasetLinks dlink where dlink.parent.id = :did
+            order by lower(image.name), image.id"""
+    else:
+        p.add('ownerId', rlong(ownerId))
+        q = """select image.id from Image image where
+            image.details.owner.id = :ownerId and
+            not exists (
+                select dilink from DatasetImageLink as dilink
+                where dilink.child = image.id
+
+            )  and
+            not exists (
+                select ws from WellSample ws
+                where ws.image.id = image.id
+            )
+            order by lower(image.name), image.id"""
+    iids = [i[0].val for i in qs.projection(q, p, so)]
+    return iids
+
+
 def paths_to_object(conn, experimenter_id=None, project_id=None,
                     dataset_id=None, image_id=None, screen_id=None,
                     plate_id=None, acquisition_id=None, well_id=None,
-                    group_id=None):
+                    group_id=None, page_size=None):
+    """
+    Retrieves the parents of an object (E.g. P/D/I for image) as a list
+    of paths.
+    Lowest object in hierarchy is found by checking parameter ids in order:
+    image->dataset->project->well->acquisition->plate->screen->experimenter
+    If object has multiple paths, these can also be filtered by parent_ids.
+    E.g. paths to image_id filtered by dataset_id.
 
-    # Set any of the parameters present and find the lowest type to find
-    # If path components are specified for incompatible paths, e.g. a dataset
-    # id and a screen id then the following priority is enforced for the
-    # object to find:
-    # image->dataset->project->well->acquisition->plate->screen->experimenter
+    If image is in a Dataset or Orphaned collection that is paginated
+    (imageCount > page_size) then we include 'childPage', 'childCount'
+    and 'childIndex' in the dataset or orphaned dict.
+    The page_size default is settings.PAGE (omero.web.page_size)
 
-    # Note on wells:
-    # Selecting a 'well' is really for selecting well_sample paths
-    # if a well is specified on its own, we return all the well_sample paths
-    # than match
+    Note on wells:
+    Selecting a 'well' is really for selecting well_sample paths
+    if a well is specified on its own, we return all the well_sample paths
+    than match
+    """
+
+    qs = conn.getQueryService()
+    if page_size is None:
+        page_size = settings.PAGE
 
     params = omero.sys.ParametersI()
     service_opts = deepcopy(conn.SERVICE_OPTS)
@@ -463,8 +506,6 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
     if group_id is not None:
         service_opts.setOmeroGroup(group_id)
 
-    qs = conn.getQueryService()
-
     # Hierarchies for this object
     paths = []
     orphanedImage = False
@@ -478,7 +519,10 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             select coalesce(powner.id, downer.id, iowner.id),
                    pdlink.parent.id,
                    dilink.parent.id,
-                   image.id
+                   (select count(id) from DatasetImageLink dil
+                    where dil.parent=dilink.parent.id),
+                   image.id,
+                   image.details.group.id as groupId
             from Image image
             left outer join image.details.owner iowner
             left outer join image.datasetLinks dilink
@@ -507,6 +551,7 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
 
         for e in qs.projection(q, params, service_opts):
             path = []
+            imageId = e[4].val
 
             # Experimenter is always found
             path.append({
@@ -524,23 +569,42 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
             # If it is experimenter->dataset->image or
             # experimenter->project->dataset->image
             if e[2] is not None:
-                path.append({
+                imgCount = e[3].val
+                datasetId = e[2].val
+                ds = {
                     'type': 'dataset',
-                    'id': e[2].val
-                })
+                    'id': datasetId,
+                }
+                if imgCount > page_size:
+                    # Need to know which page image is on
+                    iids = get_image_ids(conn, datasetId)
+                    index = iids.index(imageId)
+                    page = (index / page_size) + 1  # 1-based index
+                    ds['childCount'] = imgCount
+                    ds['childIndex'] = index
+                    ds['childPage'] = page
+                path.append(ds)
 
             # If it is orphaned->image
             if e[2] is None:
                 orphanedImage = True
-                path.append({
+                orph = {
                     'type': 'orphaned',
                     'id': e[0].val
-                })
+                }
+                iids = get_image_ids(conn, groupId=e[5].val, ownerId=e[0].val)
+                if len(iids) > page_size:
+                    index = iids.index(imageId)
+                    page = (index / page_size) + 1  # 1-based index
+                    orph['childCount'] = len(iids)
+                    orph['childIndex'] = index
+                    orph['childPage'] = page
+                path.append(orph)
 
             # Image always present
             path.append({
                 'type': 'image',
-                'id': e[3].val
+                'id': imageId
             })
             paths.append(path)
 
@@ -820,5 +884,115 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
         })
 
         paths.append(path)
+
+    return paths
+
+
+def paths_to_tag(conn, experimenter_id=None, tagset_id=None, tag_id=None):
+    """
+    Finds tag for tag_id, also looks for parent tagset in path.
+    If tag_id and tagset_id are given, only return paths that have both.
+    If no tagset/tag paths are found, simply look for tags with tag_id.
+    """
+    params = omero.sys.ParametersI()
+    service_opts = deepcopy(conn.SERVICE_OPTS)
+    where_clause = []
+
+    if experimenter_id is not None:
+        params.add('eid', rlong(experimenter_id))
+        where_clause.append(
+            'coalesce(tsowner.id, towner.id) = :eid')
+
+    if tag_id is not None:
+        params.add('tid', rlong(tag_id))
+        where_clause.append(
+            'ttlink.child.id = :tid')
+
+    if tagset_id is not None:
+        params.add('tsid', rlong(tagset_id))
+        where_clause.append(
+            'tagset.id = :tsid')
+
+    if tag_id is None and tagset_id is None:
+        return []
+
+    qs = conn.getQueryService()
+    paths = []
+
+    # Look for tag in a tagset...
+    if tag_id is not None:
+        q = '''
+            select coalesce(tsowner.id, towner.id),
+                   tagset.id,
+                   ttlink.child.id
+            from TagAnnotation tagset
+            left outer join tagset.details.owner tsowner
+            left outer join tagset.annotationLinks ttlink
+            left outer join ttlink.child.details.owner towner
+            where %s
+        ''' % ' and '.join(where_clause)
+
+        tagsets = qs.projection(q, params, service_opts)
+        for e in tagsets:
+            path = []
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+            path.append({
+                'type': 'tagset',
+                'id': e[1].val
+            })
+            path.append({
+                'type': 'tag',
+                'id': e[2].val
+            })
+            paths.append(path)
+
+    # If we haven't found tag in tagset, just look for tags with matching IDs
+    if len(paths) == 0:
+
+        where_clause = []
+
+        if experimenter_id is not None:
+            # params.add('eid', rlong(experimenter_id))
+            where_clause.append(
+                'coalesce(tsowner.id, towner.id) = :eid')
+
+        if tag_id is not None:
+            # params.add('tid', rlong(tag_id))
+            where_clause.append(
+                'tag.id = :tid')
+
+        elif tagset_id is not None:
+            # params.add('tsid', rlong(tagset_id))
+            where_clause.append(
+                'tag.id = :tsid')
+
+        q = '''
+            select towner.id, tag.id
+            from TagAnnotation tag
+            left outer join tag.details.owner towner
+            where %s
+        ''' % ' and '.join(where_clause)
+
+        tagsets = qs.projection(q, params, service_opts)
+        for e in tagsets:
+            path = []
+            # Experimenter is always found
+            path.append({
+                'type': 'experimenter',
+                'id': e[0].val
+            })
+            if tag_id is not None:
+                t = 'tag'
+            else:
+                t = 'tagset'
+            path.append({
+                'type': t,
+                'id': e[1].val
+            })
+            paths.append(path)
 
     return paths

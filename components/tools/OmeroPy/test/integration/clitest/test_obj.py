@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -23,9 +23,11 @@
 import pytest
 
 from test.integration.clitest.cli import CLITest
+from omero_model_NamespaceI import NamespaceI
 from omero.plugins.obj import ObjControl
 from omero.util.temp_files import create_path
 from omero.cli import NonZeroReturnCode
+from omero.rtypes import rstring
 
 
 class TestObj(CLITest):
@@ -144,6 +146,171 @@ class TestObj(CLITest):
             "obj", "get", project, "description"]
         state = self.go()
         assert state.get_row(0) == desc
+
+    def test_new_and_get_obj(self):
+        pname = "foo"
+        dname = "bar"
+        self.args = self.login_args() + [
+            "obj", "new", "Project", "name=%s" % pname]
+        state = self.go()
+        project = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "new", "Dataset", "name=%s" % dname]
+        state = self.go()
+        dataset = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "new", "ProjectDatasetLink",
+            "parent=%s" % project, "child=%s" % dataset]
+        state = self.go()
+        link = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "get", link, "parent"]
+        state = self.go()
+        assert state.get_row(0) == project
+        self.args = self.login_args() + [
+            "obj", "get", link, "child"]
+        state = self.go()
+        assert state.get_row(0) == dataset
+
+    def test_get_unit_and_value(self):
+        # units defaults to MICROMETER
+        fake = create_path("image", "&physicalSizeX=1.0.fake")
+        pixIds = self.import_image(filename=fake.abspath())
+        self.args = self.login_args() + [
+            "obj", "get", "Pixels:%s" % pixIds[0], "physicalSizeX"]
+        state = self.go()
+        assert state.get_row(0) == "1.0 MICROMETER"
+
+    def test_get_unknown_and_empty_field(self):
+        name = "foo"
+        self.args = self.login_args() + [
+            "obj", "new", "Project", "name=%s" % name]
+        state = self.go()
+        project = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "get", project, "description"]
+        state = self.go()
+        assert state.get_row(0) == ""
+        self.args = self.login_args() + [
+            "obj", "get", project, "bar"]
+        with pytest.raises(NonZeroReturnCode):
+                state = self.go()
+
+    def test_get_fields(self):
+        name = "foo"
+        desc = "bar"
+        self.args = self.login_args() + [
+            "obj", "new", "Project", "name=%s" % name,
+            "description=%s" % desc]
+        state = self.go()
+        project = state.get_row(0)
+        self.args = self.login_args() + [
+            "obj", "get", project]
+        state = self.go()
+        lines = state.get_row(0).split("\n")
+        assert "id=%s" % project.split(":")[1] in lines
+        assert "name=%s" % name in lines
+        assert "description=%s" % desc in lines
+
+    def test_get_list_field(self):
+        updateService = self.root.getSession().getUpdateService()
+
+        # Test for a list of NamedValue objects
+        self.args = self.login_args() + [
+            "obj", "new", "MapAnnotation", "ns=test"]
+        state = self.go()
+        ann = state.get_row(0)
+        self.args = self.login_args() + ["obj", "get", ann, "mapValue"]
+        state = self.go()
+        assert state.get_row(0) == ""
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "name1", "value1"]
+        self.go()
+        self.args = self.login_args() + ["obj", "get", ann, "mapValue"]
+        state = self.go()
+        assert state.get_row(0) == "(name1,value1)"
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "name2", "value2"]
+        self.go()
+        self.args = self.login_args() + ["obj", "get", ann, "mapValue"]
+        state = self.go()
+        assert state.get_row(0) == "(name1,value1),(name2,value2)"
+
+        # Test for a list of strings
+        n = NamespaceI()
+        n.setName(rstring(self.uuid()))
+        n = updateService.saveAndReturnObject(n)
+        self.args = self.login_args() + [
+            "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
+        state = self.go()
+        assert state.get_row(0) == ""
+        n.setKeywords(["keyword1"])
+        n = updateService.saveAndReturnObject(n)
+        self.args = self.login_args() + [
+            "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
+        state = self.go()
+        assert state.get_row(0) == "keyword1"
+        n.setKeywords(["keyword1", "keyword2"])
+        n = updateService.saveAndReturnObject(n)
+        self.args = self.login_args() + [
+            "obj", "get", "Namespace:%s" % n.id.val, "keywords"]
+        state = self.go()
+        assert state.get_row(0) == "keyword1,keyword2"
+
+    def test_list_get(self):
+        # Test for a list of NamedValue objects
+        self.args = self.login_args() + [
+            "obj", "new", "MapAnnotation", "ns=test"]
+        state = self.go()
+        ann = state.get_row(0)
+        # An empty list
+        self.args = self.login_args() + [
+            "obj", "list-get", ann, "mapValue", "0"]
+        with pytest.raises(NonZeroReturnCode):
+                state = self.go()
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "name1", "value1"]
+        self.go()
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "name2", "value2"]
+        self.go()
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "name3", "value3"]
+        self.go()
+        self.args = self.login_args() + [
+            "obj", "list-get", ann, "mapValue", "0"]
+        state = self.go()
+        assert state.get_row(0) == "(name1,value1)"
+        self.args = self.login_args() + [
+            "obj", "list-get", ann, "mapValue", "2"]
+        state = self.go()
+        assert state.get_row(0) == "(name3,value3)"
+        # Python indices so negative values can be used
+        self.args = self.login_args() + [
+            "obj", "list-get", ann, "mapValue", "-1"]
+        state = self.go()
+        assert state.get_row(0) == "(name3,value3)"
+        # Out of bounds
+        self.args = self.login_args() + [
+            "obj", "list-get", ann, "mapValue", "3"]
+        with pytest.raises(NonZeroReturnCode):
+                state = self.go()
+
+        # Test for a list of strings
+        updateService = self.root.getSession().getUpdateService()
+        n = NamespaceI()
+        n.setName(rstring(self.uuid()))
+        n.setKeywords(["keyword1", "keyword2"])
+        n = updateService.saveAndReturnObject(n)
+        self.args = self.login_args() + [
+            "obj", "list-get", "Namespace:%s" % n.id.val, "keywords", "0"]
+        state = self.go()
+        assert state.get_row(0) == "keyword1"
+        # Query a non-list field
+        self.args = self.login_args() + [
+            "obj", "list-get", "Namespace:%s" % n.id.val, "name", "0"]
+        with pytest.raises(NonZeroReturnCode):
+                state = self.go()
 
     def test_map_mods(self):
         self.args = self.login_args() + [

@@ -17,15 +17,18 @@ from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
 from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 
+"""
+start-code
+"""
 
 # Create a connection
-# =================================================================
+# ===================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Create new Projects
-# =================================================================
+# Create new Project
+# ==================
 def createProject():
     project = omero.model.ProjectI()
     project.setName(rstring("New Project"))
@@ -39,7 +42,7 @@ projectId2 = createProject()
 
 
 # Delete Project
-# =================================================================
+# ==============
 # You can delete a number of objects of the same type at the same
 # time. In this case 'Project'. Use deleteChildren=True if you are
 # deleting a Project and you want to delete Datasets and Images.
@@ -52,7 +55,7 @@ conn.deleteObjects(
 
 
 # Delete Project, handling response
-# =================================================================
+# =================================
 # If you want to know when delete is finished or if there were
 # any errors, then we can use a callback to wait for response
 handle = conn.deleteObjects("Project", [projectId2])
@@ -67,7 +70,7 @@ if err:
 cb.close(True)      # close handle too
 
 
-# Close connection:
-# =================================================================
+# Close connection
+# ================
 # When you are done, close the session to free up server resources.
 conn._closeSession()

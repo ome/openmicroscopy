@@ -3154,7 +3154,6 @@ class OMEROGateway
 		    
 			of = entry.getKey();
 			Fileset set = entry.getValue();
-			String repoPath = set.getTemplatePrefix().getValue();
 			
             String path = null;
             if (keepOriginalPaths && set != null && set.sizeOfUsedFiles() > 1) {
@@ -3173,6 +3172,7 @@ class OMEROGateway
                     // already exists
                     filesetPaths.put(set, path);
                 }
+                String repoPath = set.getTemplatePrefix().getValue();
                 path = path +"/"+ (of.getPath().getValue().replace(repoPath, ""));
                 // path should now be in the form
                 // DOWNLOAD_FOLDER/IMAGE_NAME[(N)]/X/Y/Z

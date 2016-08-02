@@ -117,6 +117,8 @@ class BaseContainer(BaseController):
         if tagset is not None:
             self.obj_type = "tagset"
             self.tag = self.conn.getObject("Annotation", tagset)
+            # We need to check if tagset via hasattr(manager, o_type)
+            self.tagset = self.tag
             self.assertNotNone(self.tag, tagset, "Tag")
             self.assertNotNone(self.tag._obj, tagset, "Tag")
         if comment is not None:
@@ -240,7 +242,7 @@ class BaseContainer(BaseController):
         # As used in metadata_general panel
         else:
             return self.image.canDownload() or \
-                self.well.canDownload() or self.plate.canDonwload()
+                self.well.canDownload() or self.plate.canDownload()
 
     def listFigureScripts(self, objDict=None):
         """
@@ -809,6 +811,19 @@ class BaseContainer(BaseController):
     def createScreen(self, name, description=None):
         return self.conn.createScreen(name, description)
 
+    def createTag(self, name, description=None):
+        tId = self.conn.createTag(name, description)
+        if (self.tag and
+                self.tag.getNs() == omero.constants.metadata.NSINSIGHTTAGSET):
+            link = omero.model.AnnotationAnnotationLinkI()
+            link.setParent(omero.model.TagAnnotationI(self.tag.getId(), False))
+            link.setChild(omero.model.TagAnnotationI(tId, False))
+            self.conn.saveObject(link)
+        return tId
+
+    def createTagset(self, name, description=None):
+        return self.conn.createTagset(name, description)
+
     def checkMimetype(self, file_type):
         if file_type is None or len(file_type) == 0:
             file_type = "application/octet-stream"
@@ -1241,25 +1256,7 @@ class BaseContainer(BaseController):
                 for al in self.comment.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
                         self.conn.deleteObject(al._obj)
-                # if comment is orphan, delete it directly
-                orphan = True
-
-                # Use delete Dry Run...
-                cid = self.comment.getId()
-                command = Delete2(targetObjects={"CommentAnnotation": [cid]},
-                                  dryRun=True)
-                cb = self.conn.c.submit(command)
-                # ...to check for any remaining links
-                rsp = cb.getResponse()
-                cb.close(True)
-                for parentType in ["Project", "Dataset", "Image", "Screen",
-                                   "Plate", "PlateAcquisition", "Well"]:
-                    key = 'ome.model.annotations.%sAnnotationLink' % parentType
-                    if key in rsp.deletedObjects:
-                        orphan = False
-                        break
-                if orphan:
-                    self.conn.deleteObject(self.comment._obj)
+                # we delete the comment if orphaned below
 
             elif self.dataset is not None:
                 if dtype == 'project':
@@ -1279,6 +1276,27 @@ class BaseContainer(BaseController):
             else:
                 raise AttributeError(
                     "Attribute not specified. Cannot be removed.")
+
+        # Having removed comment from all parents, we can delete if orphan
+        if self.comment:
+            orphan = True
+
+            # Use delete Dry Run...
+            cid = self.comment.getId()
+            command = Delete2(targetObjects={"CommentAnnotation": [cid]},
+                              dryRun=True)
+            cb = self.conn.c.submit(command)
+            # ...to check for any remaining links
+            rsp = cb.getResponse()
+            cb.close(True)
+            for parentType in ["Project", "Dataset", "Image", "Screen",
+                               "Plate", "PlateAcquisition", "Well"]:
+                key = 'ome.model.annotations.%sAnnotationLink' % parentType
+                if key in rsp.deletedObjects:
+                    orphan = False
+                    break
+            if orphan:
+                self.conn.deleteObject(self.comment._obj)
 
     def removemany(self, images):
         if self.dataset is not None:

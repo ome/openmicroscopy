@@ -55,58 +55,12 @@
 
     <script type="text/javascript">
 
-    // Variables used by static files, particularly ome.tree.js for jstree setup
-    var WEBCLIENT = {};
-
-    WEBCLIENT.active_group_id = {{ active_group.id }};
-    WEBCLIENT.USER = {'id': {{ ome.user.id }} };
-
-    WEBCLIENT.URLS = {};
-    WEBCLIENT.URLS.webindex = "{% url 'webindex' %}";
-    WEBCLIENT.URLS.api_paths_to_object = "{% url 'api_paths_to_object' %}";
-    WEBCLIENT.URLS.api_containers = "{% url 'api_containers' %}";
-    WEBCLIENT.URLS.api_datasets = "{% url 'api_datasets' %}";
-    WEBCLIENT.URLS.api_images = "{% url 'api_images' %}";
-    WEBCLIENT.URLS.api_plates = "{% url 'api_plates' %}";
-    WEBCLIENT.URLS.api_plate_acquisitions = "{% url 'api_plate_acquisitions' %}";
-    WEBCLIENT.URLS.static_webclient = "{% static 'webclient' %}/";
-    WEBCLIENT.URLS.api_tags_and_tagged = "{% url 'api_tags_and_tagged' %}";
-    WEBCLIENT.URLS.fileset_check = "{% url 'fileset_check' 'delete' %}";
-    WEBCLIENT.URLS.deletemany = "{% url 'manage_action_containers' 'deletemany' %}";
-    WEBCLIENT.URLS.copy_image_rdef_json = "{% url 'webgateway.views.copy_image_rdef_json' %}";
-    WEBCLIENT.URLS.reset_owners_rdef_json = "{% url 'reset_owners_rdef_json' %}";
-    WEBCLIENT.URLS.reset_rdef_json = "{% url 'reset_rdef_json' %}";
-
-    {% ifequal menu 'usertags' %}
-        WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_tags_and_tagged;
-    {% else %}
-        WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_containers;
-    {% endifequal %}
-
-    {% if active_user %}
-    WEBCLIENT.active_user = {'id': {{ active_user.id }} };
-    WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' active_user.id %}";
-    {% endif %}
-
 
     // Variable to store selection data when using jstree refresh
     var refreshPathsReverse = [];
 
-    // Variable to enable resetting of the reload central panel timeout
-    // var centreReloadTimeout = false;
-    // function centreReload(event, data) {
 
-    //     if (centreReloadTimeout) {
-    //         window.clearTimeout(centreReloadTimeout);
-    //     }
-
-    //     centreReloadTimeout = window.setTimeout(function() {
-    //         // Update the central panel
-    //         update_thumbnails_panel(event, data);
-    //         centreReloadTimeout = false;
-    //     }, 200);
-    // }
-
+    // Called from ome.tree.js
     var updateParentRemoveNode = function(inst, node, parent) {
         /* Update any other instances of the parent of this node to remove it
          * Also Based on if the parent of this node has any children
@@ -293,6 +247,8 @@
                 "addproject":false,
                 'adddataset':false,
                 'addscreen':false,
+                'addtag': false,
+                'addtagset': false,
                 'copy':false,
                 'cut':false,
                 'paste': false,
@@ -304,11 +260,20 @@
             var userId = {{ ome.user_id }},
                 canCreate = (userId === {{ ome.user.id }} || userId === -1);
 
+            // Also need all selected items to allow linking,
+            // because new objects are sometimes linked under selected items
+            canCreate = selected.reduce(function(prev, n){
+                var canLnk = (n.type === 'experimenter' || n.type === 'orphaned' || OME.nodeHasPermission(n, 'canLink'));
+                return canLnk && prev;
+            }, canCreate);
+
             // These nodes can be Orphans, so creation is not selection-specific
             if (canCreate) {
                 toolbar_config["addproject"] = true;
                 toolbar_config["adddataset"] = true;
                 toolbar_config['addscreen'] = true;
+                toolbar_config["addtag"] = true;
+                toolbar_config["addtagset"] = true;
             }
             if(selected.length > 0) {
 
@@ -339,17 +304,30 @@
                             return false;
                         }
                     });
-
                 }
 
-                // Only allow copy/cut if the selected item(s) are elligible. This uses the slightly
+                // Only allow cut if the selected item(s) are elligible. This uses the slightly
                 // confusingly named 'is_draggable' which is part of the drag'n'drop plugin
                 // which in turn uses a jstree node type property 'draggable'
                 // It also checks it the selected nodes can be linked
                 if(inst.settings.dnd.is_draggable(selected)) {
-                    toolbar_config['copy'] = true;
                     toolbar_config['cut'] = true;
                 }
+
+                // Allow Copy of Dataset/Image/Plate if you 'canLink' all selected nodes
+                var canCopy = selected.reduce(function(prev, n){
+                    var node_type = n.type,
+                        parent_type = inst.get_node(n.parent).type;
+                    // In tag tree, can't copy anything except a tag
+                    var invalidType = (WEBCLIENT.TAG_TREE && node_type !== "tag");
+                    // Can Copy objects under their true parent types (NOT orphaned tag, dataset etc)
+                    var plink = ((node_type === "dataset" && parent_type === "project") ||
+                            (node_type === "image" && parent_type === "dataset") ||
+                            (node_type === "plate" && parent_type === "screen") ||
+                            (node_type === "tag" && parent_type === "tagset"));
+                    return (!invalidType) && plink && OME.nodeHasPermission(n, 'canLink') && prev;
+                }, true);
+                toolbar_config['copy'] = canCopy;
 
                 // Only images can be added to a basket and only if they all are
                 toolbar_config['createshare'] = true;
@@ -465,6 +443,7 @@
 
         // Remove duplicate nodes, normally as a result of copy_node
         // or move_node
+        // Global function, called from omecut_plugin
         function removeDuplicate(inst, node, parentId) {
             var parent = inst.get_node(parentId),
                 found = false;
@@ -543,16 +522,42 @@
                          }
                     });
 
-                    // If a project is selected, create dataset under it
+                    // Default: Create an orphan of "folder_type" ('project', 'dataset', 'screen', 'tag', 'tagset' etc. )
+                    url = '{% url 'manage_action_containers' "addnewcontainer" %}';
+                    // Find the 'experimenter' node as parent
+                    var root = inst.get_node('#');
+                    $.each(root.children, function(index, id) {
+                        var node = inst.get_node(id);
+                        if (node.type === 'experimenter' && node.data.obj.id === {{ ome.user_id }}) {
+                            parent = node;
+                            // Break out of each
+                            return false;
+                        }
+                    });
+
+                    // If a project is selected (or selected is a child of project) create dataset under it
                     var url, position = 0;
                     var parent = false;
-                    if(selected.length == 1 && selected[0].type === 'project' && cont_type == 'dataset') {
-                        url = '{% url 'manage_action_containers' "addnewcontainer" %}project/'+selected[0].data.obj.id+'/';
-                        parent = selected[0];
-                    // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
+                    if(selected.length == 1 && cont_type == 'dataset') {
+                        if (selected[0].type === 'project') {
+                            parent = selected[0];
+                        } else if (inst.get_node(selected[0].parent).type === 'project') {
+                            parent = inst.get_node(selected[0].parent);
+                        }
+                    // If a tagset is selected (or selected is a child of tagset), create tag under it
+                    } else if(selected.length == 1 && cont_type == 'tag') {
+                        if (selected[0].type === 'tagset') {
+                            parent = selected[0];
+                        } else if (inst.get_node(selected[0].parent).type === 'tagset') {
+                            parent = inst.get_node(selected[0].parent);
+                        }
+                    }
+                    if (parent) {
+                        url = '{% url 'manage_action_containers' "addnewcontainer" %}' + parent.type + '/' + parent.data.obj.id + '/';
                     } else {
+                        // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen', 'tag', 'tagset' etc. )
                         url = '{% url 'manage_action_containers' "addnewcontainer" %}';
-                        // Make sure top level objects get added to jsTree root (current selected may be project, dataset, image or screen)
+                        // Find 'experimenter' to be parent
                         var root = inst.get_node('#');
                         $.each(root.children, function(index, id) {
                             var node = inst.get_node(id);
@@ -658,6 +663,14 @@
             OME.handleNewContainer("screen");
         });
 
+        $('#addtagButton').click(function() {
+            OME.handleNewContainer("tag");
+        });
+
+        $('#addtagsetButton').click(function() {
+            OME.handleNewContainer("tagset");
+        });
+
         $('#copyButton').click(function() {
             var objs = inst.get_selected(true)
             inst.copy(objs);
@@ -683,7 +696,7 @@
 
         $('#deleteButton').click(function() {
             var deleteUrl = "{% url 'manage_action_containers' 'deletemany' %}",
-                filesetCheckUrl = "{% url 'fileset_check' 'delete' %}?";
+                filesetCheckUrl = "{% url 'fileset_check' 'delete' %}";
             OME.handleDelete(deleteUrl, filesetCheckUrl, {{ ome.user.id }});
         });
 
@@ -753,23 +766,21 @@
         <!-- toolbar above tree -->
         <div>
 
-            {% ifequal menu 'usertags' %}
-            <!-- Show Tags toolbar for tag page... -->
-            <ul class="toolbar">
-                <li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh" /></li>
-
-                <li class="seperator"></li>
-
-                <li><input id="deleteButton" class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_delete.png" %}" alt="Delete" title="Delete" /></li>
-            </ul>
-
-            {% else %}
             <!-- Show Projects toolbar for main page... -->
             <ul class="toolbar">
+
+            {% ifequal menu 'usertags' %}
+                <li><input id="addtagsetButton" class="button button-disabled" type="image" title="Create new Tag Set"
+                    src="{% static "webclient/image/left_sidebar_icon_tags.png" %}" alt="Create new dataset" /></li>
+                <li><input id="addtagButton" class="button button-disabled" type="image" title="Create new Tag"
+                    src="{% static "webclient/image/left_sidebar_icon_tag.png" %}" alt="Create new project" /></li>
+            {% else %}
 					
 			<li><input id="addprojectButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder16.png" %}" alt="Create new project" title="Create new Project" /></li>
 			<li><input id="adddatasetButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_image16.png" %}" alt="Create new dataset" title="Create new Dataset" /></li>
 			<li><input id="addscreenButton" class="button button-disabled" type="image" src="{% static "webclient/image/folder_screen16.png" %}" alt="Create new screen" title="Create new Screen" /></li>
+
+            {% endifequal %}
 			
 			<li class="seperator"></li>
 			
@@ -791,7 +802,6 @@
 			<li><input id="refreshButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_refresh.png" %}" alt="Refresh" title="Refresh"> </li>
 					
             </ul>
-            {% endifequal %}
             
 
             <div class="clear"></div>

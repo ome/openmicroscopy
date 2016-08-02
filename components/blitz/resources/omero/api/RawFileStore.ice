@@ -20,7 +20,7 @@ module omero {
         /**
          * Raw file gateway which provides access to the OMERO file repository.
          *
-         * Note: methods on this service are protected by a "DOWNLOAD" restriction.
+         * Note: methods on this service are protected by a ""DOWNLOAD"" restriction.
          *
          * See also <a href="http://downloads.openmicroscopy.org/latest/omero5.2/api/ome/api/RawFileStore.html">RawFileStore.html</a>
          **/

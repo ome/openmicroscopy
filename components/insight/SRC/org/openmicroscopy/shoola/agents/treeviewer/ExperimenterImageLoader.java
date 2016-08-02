@@ -20,15 +20,22 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
+import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.GroupData;
 
@@ -108,7 +115,6 @@ public class ExperimenterImageLoader
     	long expID = -1;
     	if (expNode.getUserObject() instanceof ExperimenterData)
     		expID = ((ExperimenterData) expNode.getUserObject()).getId();
-    	
     	if (smartFolderNode instanceof TreeImageTimeSet) {
     		TreeImageTimeSet time = (TreeImageTimeSet) smartFolderNode;
     		handle = dhView.loadImages(ctx, time.getStartTime(),
@@ -116,6 +122,35 @@ public class ExperimenterImageLoader
     	} else if (smartFolderNode instanceof TreeFileSet) {
     		TreeFileSet set = (TreeFileSet) smartFolderNode;
     		if (set.getType() == TreeFileSet.ORPHANED_IMAGES) {
+    		      //Load only the data of the user currently logged in if "enabled" is false
+    	        //Build the node if orphans is enabled
+    	        Boolean v = Boolean.parseBoolean((String) TreeViewerAgent.getRegistry().lookup(
+    	                LookupNames.ORPHANED_IMAGE_ENABLED));
+    	        if (v != null && !v.booleanValue()) {
+    	            //if admin no restriction
+    	            boolean enabled = false;
+
+    	            if (!TreeViewerAgent.isAdministrator()) {
+    	                TreeImageDisplay node = expNode.getParentDisplay();
+    	                long id = node.getUserObjectId();
+    	                if (id == -1) { //only in one group
+    	                    id = TreeViewerAgent.getUserDetails().getGroupId();
+    	                }
+    	                Set leaders = TreeViewerAgent.getGroupsLeaderOf();
+    	                if (CollectionUtils.isNotEmpty(leaders)) {
+    	                    Iterator i = leaders.iterator();
+    	                    while (i.hasNext()) {
+    	                        GroupData type = (GroupData) i.next();
+    	                        if (id == type.getId()) {
+    	                            enabled = true;
+    	                        }
+    	                    }
+    	                }
+    	            }
+    	            if (!enabled) {
+    	                expID = TreeViewerAgent.getUserDetails().getId();
+    	            }
+    	        }
     			handle = dmView.loadImages(ctx, expID, true, this);
     		} else
     			handle = dhView.loadFiles(ctx, convertType(set.getType()),
