@@ -372,7 +372,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':
-        template = "webclient/data/container_tags.html"
+        template = "webclient/data/containers.html"
     else:
         # E.g. search/search.html
         template = "webclient/%s/%s.html" % (menu, menu)
@@ -462,6 +462,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         myColleagues.sort(key=lambda x: x.getLastName().lower())
 
     context = {
+        'menu': menu,
         'init': init,
         'myGroups': myGroups,
         'new_container_form': new_container_form,
@@ -604,43 +605,60 @@ def api_container_list(request, conn=None, **kwargs):
     # parents), screens and plates (without parents). This is fine for
     # the first page, but the second page may not be what is expected.
 
+    r = dict()
     try:
         # Get the projects
-        projects = tree.marshal_projects(conn=conn,
-                                         group_id=group_id,
-                                         experimenter_id=experimenter_id,
-                                         page=page,
-                                         limit=limit)
+        r['projects'] = tree.marshal_projects(
+            conn=conn,
+            group_id=group_id,
+            experimenter_id=experimenter_id,
+            page=page,
+            limit=limit)
 
         # Get the orphaned datasets (without project parents)
-        datasets = tree.marshal_datasets(conn=conn,
-                                         orphaned=True,
-                                         group_id=group_id,
-                                         experimenter_id=experimenter_id,
-                                         page=page,
-                                         limit=limit)
+        r['datasets'] = tree.marshal_datasets(
+            conn=conn,
+            orphaned=True,
+            group_id=group_id,
+            experimenter_id=experimenter_id,
+            page=page,
+            limit=limit)
 
         # Get the screens for the current user
-        screens = tree.marshal_screens(conn=conn,
-                                       group_id=group_id,
-                                       experimenter_id=experimenter_id,
-                                       page=page,
-                                       limit=limit)
+        r['screens'] = tree.marshal_screens(
+            conn=conn,
+            group_id=group_id,
+            experimenter_id=experimenter_id,
+            page=page,
+            limit=limit)
 
         # Get the orphaned plates (without project parents)
-        plates = tree.marshal_plates(conn=conn,
-                                     orphaned=True,
-                                     group_id=group_id,
-                                     experimenter_id=experimenter_id,
-                                     page=page,
-                                     limit=limit)
-
+        r['plates'] = tree.marshal_plates(
+            conn=conn,
+            orphaned=True,
+            group_id=group_id,
+            experimenter_id=experimenter_id,
+            page=page,
+            limit=limit)
         # Get the orphaned images container
-        orphaned = tree.marshal_orphaned(conn=conn,
-                                         group_id=group_id,
-                                         experimenter_id=experimenter_id,
-                                         page=page,
-                                         limit=limit)
+        try:
+            orph_t = request \
+                .session['server_settings']['ui']['tree']['orphans']
+        except:
+            orph_t = {'enabled': True}
+        if (conn.isAdmin() or
+                conn.isLeader(gid=request.session.get('active_group')) or
+                experimenter_id == conn.getUserId() or
+                orph_t.get('enabled', True)):
+
+            orphaned = tree.marshal_orphaned(
+                conn=conn,
+                group_id=group_id,
+                experimenter_id=experimenter_id,
+                page=page,
+                limit=limit)
+            orphaned['name'] = orph_t.get('name', "Orphaned Images")
+            r['orphaned'] = orphaned
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
@@ -648,11 +666,7 @@ def api_container_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'projects': projects,
-                             'datasets': datasets,
-                             'screens': screens,
-                             'plates': plates,
-                             'orphaned': orphaned})
+    return HttpJsonResponse(r)
 
 
 @login_required()
@@ -1430,142 +1444,6 @@ def load_data_by_tag(request, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
-    """
-    Opens the Open Astex Viewer applet, to display volume masks in a couple of
-    formats:
-    - mrc.map files that are attached to images. obj_type = 'file'
-    - Convert OMERO image to mrc on the fly. obj_type = 'image_8bit' or
-      'image'
-        In this case, we may use 'scipy' to scale the image volume.
-    """
-
-    # can only populate these for 'image'
-    image = None
-    data_storage_mode = ""
-    pixelRange = None       # (min, max) values of the raw data
-    contourSliderInit, contourSliderIncr = None, None
-    # only give user choice if we need to scale down (and we CAN scale with
-    # scipy)
-    sizeOptions = None
-    # If we convert to 8bit map, subtract dataOffset, multiply by
-    # mapPixelFactor add mapOffset. (used for js contour controls)
-    if obj_type == 'file':
-        ann = conn.getObject("Annotation", obj_id)
-        if ann is None:
-            return handlerInternalError(
-                request, "Can't find file Annotation ID %s as data source for"
-                " Open Astex Viewer." % obj_id)
-        # determine mapType by name
-        imageName = ann.getFileName()
-        if imageName.endswith(".bit"):
-            data_url = reverse("open_astex_bit", args=[obj_id])
-        else:
-            data_url = reverse("open_astex_map", args=[obj_id])
-
-    elif obj_type in ('image', 'image_8bit'):
-        image = conn.getObject("Image", obj_id)  # just check the image exists
-        if image is None:
-            return handlerInternalError(
-                request, "Can't find image ID %s as data source for Open"
-                " Astex Viewer." % obj_id)
-        imageName = image.getName()
-        c = image.getChannels()[0]
-        # By default, scale to 120 ^3. Also give option to load 'bigger' map
-        # or full sized
-        DEFAULTMAPSIZE = 120
-        BIGGERMAPSIZE = 160
-        targetSize = DEFAULTMAPSIZE * DEFAULTMAPSIZE * DEFAULTMAPSIZE
-        biggerSize = BIGGERMAPSIZE * BIGGERMAPSIZE * BIGGERMAPSIZE
-        imgSize = image.getSizeX() * image.getSizeY() * image.getSizeZ()
-        if imgSize > targetSize:
-            try:
-                import scipy.ndimage  # keep to raise exception if not available  # noqa
-                sizeOptions = {}
-                factor = float(targetSize) / imgSize
-                f = pow(factor, 1.0/3)
-                sizeOptions["small"] = {
-                    'x': image.getSizeX() * f,
-                    'y': image.getSizeY() * f,
-                    'z': image.getSizeZ() * f,
-                    'size': DEFAULTMAPSIZE}
-                if imgSize > biggerSize:
-                    factor2 = float(biggerSize) / imgSize
-                    f2 = pow(factor2, 1.0/3)
-                    sizeOptions["medium"] = {
-                        'x': image.getSizeX() * f2,
-                        'y': image.getSizeY() * f2,
-                        'z': image.getSizeZ() * f2,
-                        'size': BIGGERMAPSIZE}
-                else:
-                    sizeOptions["full"] = {
-                        'x': image.getSizeX(),
-                        'y': image.getSizeY(),
-                        'z': image.getSizeZ()}
-            except ImportError:
-                # don't try to resize the map (see image_as_map)
-                DEFAULTMAPSIZE = 0
-                pass
-        pixelRange = (c.getWindowMin(), c.getWindowMax())
-        # best guess as starting position for contour slider
-        contourSliderInit = (pixelRange[0] + pixelRange[1])/2
-
-        def calcPrecision(range):
-            dec = 0
-            if (range == 0):
-                dec = 0
-            elif (range < 0.0000001):
-                dec = 10
-            elif (range < 0.000001):
-                dec = 9
-            elif (range < 0.00001):
-                dec = 8
-            elif (range < 0.0001):
-                dec = 7
-            elif (range < 0.001):
-                dec = 6
-            elif (range < 0.01):
-                dec = 5
-            elif (range < 0.1):
-                dec = 4
-            elif (range < 1.0):
-                dec = 3
-            elif (range < 10.0):
-                dec = 2
-            elif (range < 100.0):
-                dec = 1
-            return dec
-        dec = calcPrecision(pixelRange[1]-pixelRange[0])
-        contourSliderIncr = (
-            "%.*f" % (dec, abs((pixelRange[1]-pixelRange[0])/128.0)))
-
-        if obj_type == 'image_8bit':
-            data_storage_mode = 1
-            data_url = reverse("webclient_image_as_map_8bit",
-                               args=[obj_id, DEFAULTMAPSIZE])
-        else:
-            if image.getPrimaryPixels().getPixelsType.value == 'float':
-                data_storage_mode = 2
-            else:
-                # E.g. uint16 image will get served as 8bit map
-                data_storage_mode = 1
-            data_url = reverse("webclient_image_as_map",
-                               args=[obj_id, DEFAULTMAPSIZE])
-
-    context = {
-        'data_url': data_url,
-        "image": image,
-        "sizeOptions": sizeOptions,
-        "contourSliderInit": contourSliderInit,
-        "contourSliderIncr": contourSliderIncr,
-        "data_storage_mode": data_storage_mode,
-        'pixelRange': pixelRange}
-    context['template'] = 'webclient/annotations/open_astex_viewer.html'
-    return context
-
-
-@login_required()
-@render_response()
 def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
                           **kwargs):
     """
@@ -2140,6 +2018,8 @@ def batch_annotate(request, conn=None, **kwargs):
                 'type': key.title(), 'id': o.id, 'name': o.getName()})
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
+    if len(groupIds) == 0:
+        return handlerInternalError(request, "No objects found")
     groupId = list(groupIds)[0]
     conn.SERVICE_OPTS.setOmeroGroup(groupId)
 
@@ -3065,7 +2945,8 @@ def get_original_file(request, fileId, download=False, conn=None, **kwargs):
         return handlerInternalError(
             request, "Original File does not exists (id:%s)." % (fileId))
 
-    rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
+    rsp = ConnCleaningHttpResponse(
+        orig_file.getFileInChunks(buf=settings.CHUNK_SIZE))
     rsp.conn = conn
     mimetype = orig_file.mimetype
     if mimetype == "text/x-python":
@@ -3178,7 +3059,8 @@ def download_annotation(request, annId, conn=None, **kwargs):
         return handlerInternalError(
             request, "Annotation does not exist (id:%s)." % (annId))
 
-    rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
+    rsp = ConnCleaningHttpResponse(
+        ann.getFileInChunks(buf=settings.CHUNK_SIZE))
     rsp.conn = conn
     rsp['Content-Type'] = 'application/force-download'
     rsp['Content-Length'] = ann.getFileSize()
@@ -3780,8 +3662,8 @@ def list_scripts(request, conn=None, **kwargs):
 
     # group scripts into 'folders' (path), named by parent folder name
     scriptMenu = {}
-    scripts_to_ignore = conn.getConfigService().getConfigValue(
-        "omero.client.scripts_to_ignore").split(",")
+    scripts_to_ignore = request.session.get('server_settings') \
+                                       .get('scripts_to_ignore').split(",")
     for s in scripts:
         scriptId = s.id.val
         path = s.path.val
@@ -4191,7 +4073,9 @@ def getAllObjects(conn, project_ids, dataset_ids, image_ids, screen_ids,
             '''
         for e in qs.projection(q, params, conn.SERVICE_OPTS):
             image_ids.add(e[0].val)
-            fileset_ids.add(e[1].val)
+            # Some images in Dataset may not have fileset
+            if e[1] is not None:
+                fileset_ids.add(e[1].val)
 
     # Get any images for plates
     # TODO Seemed no need to add the filesets for plates as it isn't possible

@@ -45,13 +45,7 @@ from omero.conversions import Sym  # nopep8
 
 class FrequencyI(_omero_model.Frequency, UnitBase):
 
-    try:
-        UNIT_VALUES = sorted(UnitsFrequency._enumerators.values())
-    except:
-        # TODO: this occurs on Ice 3.4 and can be removed
-        # once it has been dropped.
-        UNIT_VALUES = [x for x in sorted(UnitsFrequency._names)]
-        UNIT_VALUES = [getattr(UnitsFrequency, x) for x in UNIT_VALUES]
+    UNIT_VALUES = sorted(UnitsFrequency._enumerators.values())
     CONVERSIONS = dict()
     for val in UNIT_VALUES:
         CONVERSIONS[val] = dict()

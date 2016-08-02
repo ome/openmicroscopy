@@ -1,6 +1,48 @@
 OMERO version history
 =====================
 
+5.2.2 (February 2016)
+---------------------
+
+A bug-fix release which also introduces some new client features. Improvements
+include:
+
+-  display of ROI masks in OMERO.web image viewer
+-  display of OMERO.tables data for Wells in the OMERO.web right hand panel
+-  'Populate Metadata' script to enable generation of OMERO.tables for
+   Wells is now usable from both OMERO.web and OMERO.insight (note this is
+   still in development and has some limitations)
+-  measurement tool fixes
+-  fixed pixel size metadata and scalebar in OMERO.web image viewer for images
+   with pixel size units other than micrometer
+-  fixed OMERO.web handling of turning off interpolation of pixels
+-  previous and next buttons fixed in OMERO.web image viewer
+-  delete and change group performance improvements
+-  better handling of dates in search
+-  client support for map annotations in OME-TIFF
+-  disabled orphaned container feature
+-  OMERO.web clean-up to remove obsolete volume viewer
+
+Developer updates include:
+
+-  Python API examples for creating Polygon and Mask shapes
+-  Python API example for "Populate Metadata" to create OMERO.tables for
+   Wells
+-  OMERO.tables documentation extended
+-  updated 'What's New for developers' to clarify that ``pojos`` has been
+   renamed as ``omero.gateway.model``
+-  dynamic scripts functionality documented
+-  dynamic loading of omero.client server settings into HTTP sessions
+
+System administrator updates include:
+
+-  clarification of OMERO.web documentation for nginx deployment, including an
+   experimental solution to resolve download issues
+-  documentation of hard-linking issues for in-place import on linux systems
+
+Note that the OMERO Virtual Appliance has been discontinued and will not be
+updated for version 5.2.2 or any later releases.
+
 5.2.1 (December 2015)
 ---------------------
 

@@ -1,7 +1,6 @@
 language: java
 
-jdk:
-  - openjdk7
+jdk: oraclejdk8
 
 # This (sudo: false) is needed to "run on container-based infrastructure" on
 # which cache: is available
@@ -12,6 +11,7 @@ sudo: false
 cache:
   directories:
   - $HOME/.m2
+  - download
 
 matrix:
       fast_finish: true
@@ -50,3 +50,7 @@ install:
 script:
     - if [[ $BUILD == 'build-python' ]]; then ./components/tools/travis-build py-test; fi
     - if [[ $BUILD == 'build-java' ]]; then ./components/tools/travis-build java-test; fi
+
+notifications:
+  slack:
+    secure: YoCiRg7KuG+jQdW2wD5aBVurfJoKTT+/bKexZD/t5w+WjR4oKi0eoj+La4niUHxmUGHmJAuRYq/7wpP7nq1RBOcXQYpq9S842tmhhQZeC2EGFGw3YlBBEQj9oqMl9JlcI4lTkSo4V/uCnwdrFAGfGaAjICuCnEb9rvBhsXeqYtU=

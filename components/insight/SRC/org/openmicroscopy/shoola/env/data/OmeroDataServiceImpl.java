@@ -275,7 +275,7 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#getExperimenterImages(SecurityContext, long,
 	 * boolean)
 	 */
-	public Set getExperimenterImages(SecurityContext ctx, long userID, boolean
+	public Collection<ImageData> getExperimenterImages(SecurityContext ctx, long userID, boolean
 			orphan)
 		throws DSOutOfServiceException, DSAccessException
 	{

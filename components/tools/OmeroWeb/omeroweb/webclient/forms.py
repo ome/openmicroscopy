@@ -57,8 +57,8 @@ help_enable = (
     '<img src="%s" /></span>') % help_button
 
 help_expire = (
-    '<span class="tooltip" title="Expire date: This date defines'
-    ' when share will stop being available. Date format:'
+    '<span class="tooltip" title="Expiry date: This date defines'
+    ' when the share will stop being available. Date format:'
     ' YYYY-MM-DD."><img src="%s" /></span>') % help_button
 
 
@@ -95,7 +95,7 @@ class ShareForm(NonASCIIForm):
     expiration = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={'size': 10}),
-        label="Expire date",
+        label="Expiry date",
         help_text=help_expire,
         required=False)
     enable = forms.BooleanField(required=False, help_text=help_enable)
@@ -116,7 +116,7 @@ class ShareForm(NonASCIIForm):
                     'Date is in the wrong format. YY-MM-DD')
             if time.mktime(date.timetuple()) <= time.time():
                 raise forms.ValidationError(
-                    'Expire date must be in the future.')
+                    'Expiry date must be in the future.')
         return self.cleaned_data['expiration']
 
 

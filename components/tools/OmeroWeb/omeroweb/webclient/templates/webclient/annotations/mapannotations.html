@@ -144,7 +144,7 @@
                     $td.prev().text("");
                 }
             }
-            $input = $("<input value='" + value + "' />");
+            $input = $("<input />").attr('value', value);
             $td.empty().append($input);
             $input.focus();
             $input.get(0).select();
