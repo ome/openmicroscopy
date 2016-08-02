@@ -1848,7 +1848,9 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
             act = "" if ch.isActive() else "-"
             start = ch.getWindowStart()
             end = ch.getWindowEnd()
-            color = ch.getColor().getHtml()
+            color = ch.getLut()
+            if not color or len(color) == 0:
+                color = ch.getColor().getHtml()
             chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
         rv['c'] = ",".join(chs)
         rv['m'] = "g" if image.isGreyscaleRenderingModel() else "c"
