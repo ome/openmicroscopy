@@ -49,10 +49,6 @@ class UploadControl(BaseControl):
 
     def _configure(self, parser):
         parser.add_argument(
-            "--pytable", action="store_true",
-            help="If set, the following files are interpreted as pytable"
-            " files")
-        parser.add_argument(
             "--annotate", action="store_true",
             help="If set, create FileAnnotations from the uploaded files")
         parser.add_argument("file", nargs="+")
