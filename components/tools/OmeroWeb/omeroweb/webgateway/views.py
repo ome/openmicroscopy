@@ -207,7 +207,7 @@ def _split_channel_info(rchannels):
     windows = []
     colors = []
     for chan in rchannels.split(','):
-        chan = chan.split('|')
+        chan = chan.split('|', 1)
         t = chan[0].strip()
         color = None
         if t.find('$') >= 0:
@@ -218,7 +218,7 @@ def _split_channel_info(rchannels):
             if len(chan) > 1:
                 t = chan[1].strip()
                 if t.find('$') >= 0:
-                    t, color = t.split('$')
+                    t, color = t.split('$', 1)
                 t = t.split(':')
                 if len(t) == 2:
                     try:
