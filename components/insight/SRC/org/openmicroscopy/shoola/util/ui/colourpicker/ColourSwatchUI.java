@@ -223,7 +223,10 @@ public class ColourSwatchUI
                 LookupTableItem item = (LookupTableItem) items[i];
                 if (item.hasLookupTable())
                     continue;
-                if (item.getColor().getRGB() == c.getRGB())
+                
+                if (item.getColor().getRed() == c.getRed()
+                        && item.getColor().getBlue() == c.getBlue()
+                        && item.getColor().getGreen() == c.getGreen())
                     return i;
             }
         }
@@ -374,20 +377,28 @@ public class ColourSwatchUI
 		alphaTextbox.removeActionListener(alphaTextboxActionListener);
 	}
 	
-	/**
-	 * Updates the alpha slider of the UI, including changing the color 
-     * gradient of the slider tracks.
-	 */
-	void updateAlphaSlider()
-	{
-		Color s, s1, e;
-		alphaSlider.setValue((int) (control.getAlpha()*255));
-		s1 = control.getColour();
-		s = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 0);
-		e = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 255);
-		alphaSlider.setRGBStart(s);
-		alphaSlider.setRGBEnd(e);
-	}
+    /**
+     * Updates the alpha slider of the UI, including changing the color gradient
+     * of the slider tracks.
+     */
+    void updateAlphaSlider() {
+        removeListeners();
+        boolean disable = CommonsLangUtils.isNotEmpty(control.getLUT());
+        if (disable) {
+            alphaSlider.setRGBStart(Color.WHITE);
+            alphaSlider.setRGBEnd(Color.WHITE);
+        } else {
+            Color c = control.getColour();
+            Color s = new Color(c.getRed(), c.getGreen(), c.getBlue(), 0);
+            Color e = new Color(c.getRed(), c.getGreen(), c.getBlue(), 255);
+            alphaSlider.setRGBStart(s);
+            alphaSlider.setRGBEnd(e);
+        }
+        alphaLabel.setEnabled(!disable);
+        alphaSlider.setEnabled(!disable);
+        alphaTextbox.setEnabled(!disable);
+        addListeners();
+    }
 	
 	/**
 	 * Updates the sliders of the UI, including changing the color gradient

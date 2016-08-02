@@ -107,8 +107,11 @@ class RGBControl
         if (CommonsLangUtils.isNotEmpty(getLUT()))
             return false;
         Color c = getColour();
+        
         for (Color c2 : PREDEFINED_COLORS.values()) {
-            if (c2.getRGB() == c.getRGB())
+            if (c2.getRed() == c.getRed()
+                    && c2.getBlue() == c.getBlue()
+                    && c2.getGreen() == c.getGreen())
                 return false;
         }
         return true;
