@@ -782,6 +782,14 @@
         primary key (id)
     );;
 
+    create table experimenter_config (
+        experimenter_id int8 not null,
+        name varchar(255) not null,
+        value varchar(255) not null,
+        index int4 not null,
+        primary key (experimenter_id, index)
+    );;
+
     create table experimenterannotationlink (
         id int8 not null,
         permissions int8 not null,
@@ -3350,6 +3358,11 @@
         add constraint FKexperimenter_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
+
+    alter table experimenter_config 
+        add constraint FKexperimenter_config_map 
+        foreign key (experimenter_id) 
+        references experimenter  ;;
 
     alter table experimenterannotationlink 
         add constraint FKexperimenterannotationlink_creation_id_event 

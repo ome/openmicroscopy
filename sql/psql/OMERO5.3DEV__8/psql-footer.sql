@@ -1911,6 +1911,19 @@ CREATE TRIGGER roi_delete_trigger
 -- #12317 -- delete map property values along with their holders
 --
 
+CREATE FUNCTION experimenter_config_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM experimenter_config
+        WHERE experimenter_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER experimenter_config_map_entry_delete_trigger
+    BEFORE DELETE ON experimenter
+    FOR EACH ROW
+    EXECUTE PROCEDURE experimenter_config_map_entry_delete_trigger_function();
+
 CREATE FUNCTION experimentergroup_config_map_entry_delete_trigger_function() RETURNS "trigger" AS '
 BEGIN
     DELETE FROM experimentergroup_config
@@ -2029,7 +2042,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.3DEV',  7,    'OMERO5.3DEV',   0,             'Initializing');
+             values ('OMERO5.3DEV',  8,    'OMERO5.3DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2880,8 +2893,8 @@ create unique index originalfile_repo_path_index on originalfile (repo, path, na
 --
 
 
--- ticket:11591 Shrink the userIP column as IP expected only
-alter table session alter column userIP TYPE varchar(15);
+-- ticket:11591 Shrink the userIP column down to maximum (IPv4-mapped IPv6)
+alter table session alter column userIP TYPE varchar(45);
 
 
 -- Indices. See #1640, #2573, etc.
@@ -2893,6 +2906,8 @@ create index eventlog_action on eventlog(action);
 create index annotation_discriminator on annotation(discriminator);
 create index annotation_ns on annotation(ns);
 
+CREATE INDEX experimenter_config_name ON experimenter_config(name);
+CREATE INDEX experimenter_config_value ON experimenter_config(value);
 CREATE INDEX experimentergroup_config_name ON experimentergroup_config(name);
 CREATE INDEX experimentergroup_config_value ON experimentergroup_config(value);
 CREATE INDEX genericexcitationsource_map_name ON genericexcitationsource_map(name);
@@ -3329,6 +3344,8 @@ ALTER TABLE wellsample ADD CONSTRAINT posY_unitpair
 
 -- Temporary workaround for the width of map types
 
+ALTER TABLE experimenter_config ALTER COLUMN name TYPE TEXT;
+ALTER TABLE experimenter_config ALTER COLUMN value TYPE TEXT;
 ALTER TABLE experimentergroup_config ALTER COLUMN name TYPE TEXT;
 ALTER TABLE experimentergroup_config ALTER COLUMN value TYPE TEXT;
 ALTER TABLE genericexcitationsource_map ALTER COLUMN name TYPE TEXT;
@@ -3371,7 +3388,7 @@ CREATE TRIGGER preserve_folder_tree
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.3DEV' and
-        currentPatch = 7 and
+        currentPatch = 8 and
         previousVersion = 'OMERO5.3DEV' and
         previousPatch = 0;
 

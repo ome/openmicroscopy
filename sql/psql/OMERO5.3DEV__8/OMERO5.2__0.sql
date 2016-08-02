@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__7.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__8.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  7,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  8,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1832,6 +1832,35 @@ CREATE INDEX i_projectiondef_renderingdef ON projectiondef(renderingdef);
 CREATE INDEX i_projectiondef_axis ON projectiondef(axis);
 CREATE INDEX i_projectiondef_type ON projectiondef(type);
 
+-- ... up to patch 8:
+
+ALTER TABLE session ALTER COLUMN userip TYPE VARCHAR(45);
+
+CREATE TABLE experimenter_config (
+    experimenter_id BIGINT NOT NULL,
+    name TEXT NOT NULL,
+    value TEXT NOT NULL,
+    index INTEGER NOT NULL,
+    PRIMARY KEY (experimenter_id, index),
+    CONSTRAINT FKexperimenter_config_map
+        FOREIGN KEY (experimenter_id) REFERENCES experimenter);
+
+CREATE FUNCTION experimenter_config_map_entry_delete_trigger_function() RETURNS "trigger" AS '
+BEGIN
+    DELETE FROM experimenter_config
+        WHERE experimenter_id = OLD.id;
+    RETURN OLD;
+END;'
+LANGUAGE plpgsql;
+
+CREATE TRIGGER experimenter_config_map_entry_delete_trigger
+    BEFORE DELETE ON experimenter
+    FOR EACH ROW
+    EXECUTE PROCEDURE experimenter_config_map_entry_delete_trigger_function();
+
+CREATE INDEX experimenter_config_name ON experimenter_config(name);
+CREATE INDEX experimenter_config_value ON experimenter_config(value);
+
 
 --
 -- FINISHED
@@ -1839,10 +1868,10 @@ CREATE INDEX i_projectiondef_type ON projectiondef(type);
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 7             AND
+          currentPatch    = 8             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__7'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__8'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
