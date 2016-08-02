@@ -142,7 +142,210 @@ class TestPopulateMetadata(BasePopulate):
         was = unwrap(qs.projection(query, None))
         return was
 
-    def testPopulateMetadataPlate(self):
+
+class Dataset2Images(Fixture):
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 2
+        self.csv = self.createCsv(
+            colNames="Image Name,Type,Concentration",
+        )
+        self.dataset = None
+        self.images = None
+        self.names = ("A1", "A2")
+
+    def assert_rows(self, rows):
+        # Hard-coded in createCsv's arguments
+        assert rows == 2
+
+    def get_target(self):
+        if not self.dataset:
+            self.dataset = self.createDataset(self.names)
+            self.images = self.get_dataset_images()
+        return self.dataset
+
+    def get_dataset_images(self):
+        if not self.dataset:
+            return []
+        query = """select i from Image i
+            left outer join fetch i.datasetLinks links
+            left outer join fetch links.parent d
+            where d.id=%s""" % self.dataset.id.val
+        qs = self.test.client.sf.getQueryService()
+        return qs.findAllByQuery(query, None)
+
+    def get_annotations(self):
+        query = """select d from Dataset d
+            left outer join fetch d.annotationLinks links
+            left outer join fetch links.child
+            where d.id=%s""" % self.dataset.id.val
+        qs = self.test.client.sf.getQueryService()
+        ds = qs.findByQuery(query, None)
+        anns = ds.linkedAnnotationList()
+        return anns
+
+    def get_child_annotations(self):
+        if not self.images:
+            return []
+        params = ParametersI()
+        params.addIds([x.id for x in self.images])
+        query = """ select a, i.id, 'NA', 'NA'
+            from Image i
+            left outer join i.annotationLinks links
+            left outer join links.child as a
+            where i.id in (:ids) and a <> null"""
+        qs = self.test.client.sf.getQueryService()
+        return unwrap(qs.projection(query, params))
+
+    def assert_child_annotations(self, oas):
+        for ma, iid, na1, na2 in oas:
+            assert isinstance(ma, MapAnnotationI)
+            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
+            mv = ma.getMapValueAsMap()
+            img = mv['Image Name']
+            con = mv['Concentration']
+            typ = mv['Type']
+            assert img[0] in ("A", "a")
+            which = long(img[1:])
+            if which % 2 == 1:
+                assert con == '0'
+                assert typ == 'Control'
+            elif which % 2 == 0:
+                assert con == '10'
+                assert typ == 'Treatment'
+
+
+class Dataset101Images(Dataset2Images):
+
+    def __init__(self):
+        self.count = 4
+        self.annCount = 102
+        self.names = []
+        rowData = []
+        for x in range(0, 101, 2):
+            name = "A%s" % (x+1)
+            self.names.append(name)
+            rowData.append("%s,Control,0" % name)
+            name = "A%s" % (x+2)
+            self.names.append(name)
+            rowData.append("A%s,Treatment,10" % (x+2))
+        self.csv = self.createCsv(
+            colNames="Image Name,Type,Concentration",
+            rowData=rowData,
+        )
+        self.dataset = None
+        self.images = None
+
+    def assert_rows(self, rows):
+        assert rows == 102
+
+
+class GZIP(Dataset2Images):
+
+    def createCsv(self, *args, **kwargs):
+        csvFileName = super(GZIP, self).createCsv(*args, **kwargs)
+        gzipFileName = "%s.gz" % csvFileName
+        with open(csvFileName, 'rb') as f_in, \
+                gzip.open(gzipFileName, 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+        return gzipFileName
+
+
+class Project2Datasets(Fixture):
+
+    def __init__(self):
+        self.count = 5
+        self.annCount = 4
+        self.csv = self.createCsv(
+            colNames="Dataset Name,Image Name,Type,Concentration",
+            rowData=("D001,A1,Control,0", "D001,A2,Treatment,10",
+                     "D002,A1,Control,0", "D002,A2,Treatment,10"))
+        self.project = None
+
+    def assert_rows(self, rows):
+        # Hard-coded in createCsv's arguments
+        assert rows == 4
+
+    def get_target(self):
+        if not self.project:
+            self.project = self.createProject("P123")
+            self.images = self.get_project_images()
+        return self.project
+
+    def get_project_images(self):
+        if not self.project:
+            return []
+        query = """select i from Image i
+            left outer join fetch i.datasetLinks dil
+            left outer join fetch dil.parent d
+            left outer join fetch d.projectLinks pdl
+            left outer join fetch pdl.parent p
+            where p.id=%s""" % self.project.id.val
+        qs = self.test.client.sf.getQueryService()
+        return qs.findAllByQuery(query, None)
+
+    def get_annotations(self):
+        query = """select p from Project p
+            left outer join fetch p.annotationLinks links
+            left outer join fetch links.child
+            where p.id=%s""" % self.project.id.val
+        qs = self.test.client.sf.getQueryService()
+        ds = qs.findByQuery(query, None)
+        anns = ds.linkedAnnotationList()
+        return anns
+
+    def get_child_annotations(self):
+        if not self.images:
+            return []
+        params = ParametersI()
+        params.addIds([x.id for x in self.images])
+        query = """ select a, i.id, 'NA', 'NA'
+            from Image i
+            left outer join i.annotationLinks links
+            left outer join links.child as a
+            where i.id in (:ids) and a <> null"""
+        qs = self.test.client.sf.getQueryService()
+        return unwrap(qs.projection(query, params))
+
+    def assert_child_annotations(self, oas):
+        for ma, iid, na1, na2 in oas:
+            assert isinstance(ma, MapAnnotationI)
+            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
+            mv = ma.getMapValueAsMap()
+            ds = mv['Dataset Name']
+            img = mv['Image Name']
+            con = mv['Concentration']
+            typ = mv['Type']
+            if ds == 'D001' or ds == 'D002':
+                if img == "A1":
+                    assert con == '0'
+                    assert typ == 'Control'
+                elif img == "A2":
+                    assert con == '10'
+                    assert typ == 'Treatment'
+                else:
+                    raise Exception("Unknown img: %s" % img)
+            else:
+                raise Exception("Unknown dataset: %s" % ds)
+
+
+class TestPopulateMetadata(lib.ITest):
+
+    METADATA_FIXTURES = (
+        Screen2Plates(),
+        Plate2Wells(),
+        Dataset2Images(),
+        Dataset101Images(),
+        Project2Datasets(),
+        GZIP(),
+    )
+    METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
+
+    @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
+    @mark.parametrize("batch_size", (None, 10, 1000))
+    def testPopulateMetadata(self, fixture, batch_size):
         """
         We should really test each of the parsing contexts in separate tests
         but in practice each one uses data created by the others, so for
