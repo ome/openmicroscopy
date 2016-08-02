@@ -36,7 +36,6 @@ from collections import defaultdict
 
 import omero.clients
 from omero import CmdError
-from omero.callbacks import CmdCallbackI
 from omero.rtypes import rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
@@ -47,9 +46,8 @@ from omero.model import MapAnnotationI, NamedValue
 from omero.grid import ImageColumn, LongColumn, PlateColumn, RoiColumn
 from omero.grid import StringColumn, WellColumn, DoubleColumn, BoolColumn
 from omero.grid import DatasetColumn
-from omero.util.metadata_utils import KeyValueListPassThrough
-from omero.util.metadata_utils import KeyValueListTransformer
-from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
+from omero.util.metadata_utils import (
+    KeyValueListPassThrough, KeyValueGroupList, NSBULKANNOTATIONSCONFIG)
 from omero import client
 
 from populate_roi import ThreadPool
@@ -1138,14 +1136,14 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         headers = [c.name for c in data.columns]
         if self.default_cfg or self.column_cfgs:
-            tr = KeyValueListTransformer(
+            kvgl = KeyValueGroupList(
                 headers, self.default_cfg, self.column_cfgs)
+            trs = kvgl.create_transformers()
         else:
-            tr = KeyValueListPassThrough(headers)
+            trs = [KeyValueListPassThrough(headers)]
 
         mas = []
         for row in izip(*(c.values for c in data.columns)):
-            rowkvs = tr.transform(row)
             targets = []
             for omerotype, n in idcols:
                 if row[n] > 0:
@@ -1159,14 +1157,19 @@ class BulkToMapAnnotationContext(_QueryContext):
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
             if targets:
-                malinks = self.create_map_annotation(targets, rowkvs)
-                log.debug('Map:\n\t' + ('\n\t'.join("%s=%s" % (
-                    v.name, v.value) for v in
-                    malinks[0].getChild().getMapValue())))
-                log.debug('Targets:\n\t' + ('\n\t'.join("%s:%d" % (
-                    t.ice_staticId().split('::')[-1], t.id._val)
-                    for t in targets)))
-                mas.extend(malinks)
+                for tr in trs:
+                    rowkvs = tr.transform(row)
+                    ns = tr.name
+                    if not ns:
+                        ns = omero.constants.namespaces.NSBULKANNOTATIONS
+                    malinks = self.create_map_annotation(targets, rowkvs, ns)
+                    log.debug('Map:\n\t' + ('\n\t'.join("%s=%s" % (
+                        v.name, v.value) for v in
+                        malinks[0].getChild().getMapValue())))
+                    log.debug('Targets:\n\t' + ('\n\t'.join("%s:%d" % (
+                        t.ice_staticId().split('::')[-1], t.id._val)
+                        for t in targets)))
+                    mas.extend(malinks)
 
         self.mapannotations = mas
 

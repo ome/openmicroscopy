@@ -27,7 +27,7 @@ Test of metadata_utils classes
 import pytest
 
 from omero.util.metadata_utils import (
-    BulkAnnotationConfiguration, KeyValueListPassThrough,
+    BulkAnnotationConfiguration, KeyValueListPassThrough, KeyValueGroupList,
     KeyValueListTransformer)
 
 
@@ -125,43 +125,24 @@ class TestKeyValueListPassThrough(object):
         assert tr.transform((1, 2)) == (1, 2)
 
 
-class TestKeyValueListTransformer(object):
+class TestKeyValueGroupList(object):
 
     # test_init_* methods test get_output_configs
 
     def test_init_col(self):
         headers = ["a1"]
-        tr = KeyValueListTransformer(
+        kvgl = KeyValueGroupList(
             headers, None, [{"name": "a1", "visible": False}])
-        assert tr.default_cfg == expected()
+        assert kvgl.default_cfg == expected()
+        assert kvgl.headerindexmap == {'a1': 0}
 
-        assert len(tr.output_configs) == 1
-        assert tr.output_configs[0] == (expected(name="a1", visible=False), 0)
-
-    def test_init_col_ordered_unordered(self):
-        headers = ["a2", "a1"]
-        tr = KeyValueListTransformer(headers, None, [
-            {"name": "a2", "visible": False},
-            {"name": "a1", "position": 1}])
-        assert tr.default_cfg == expected()
-
-        assert len(tr.output_configs) == 2
-        assert tr.output_configs[0] == (expected(name="a1", position=1), 1)
-        assert tr.output_configs[1] == (expected(name="a2", visible=False), 0)
-
-    def test_init_col_unincluded(self):
-        headers = ["a2", "a1"]
-        tr = KeyValueListTransformer(headers, {
-            "include": False, "includeclient": False},
-            [{"name": "a2", "include": True}])
-        assert tr.default_cfg == expected(include=False, includeclient=False)
-
-        assert len(tr.output_configs) == 1
-        assert tr.output_configs[0] == (expected(
-            name="a2", include=True, includeclient=False), 0)
+        assert len(kvgl.output_configs) == 1
+        assert kvgl.output_configs[0].groupname == ""
+        configs = kvgl.output_configs[0].columns
+        assert configs[0] == (expected(name="a1", visible=False), 0)
 
     def get_complicated_headers(self):
-        # See KeyValueListTransformer.get_output_configs.__doc__
+        # See KeyValueGroupList.get_output_configs.__doc__
         # - a1 and a4 are positioned
         # - a2 is configured but unpositioned, which means it has precedence
         #   over a3 (which precedes it in the list of headers)
@@ -177,20 +158,53 @@ class TestKeyValueListTransformer(object):
         ]
         return headers, column_cfgs
 
+    def test_init_col_ordered_unordered(self):
+        headers = ["a2", "a1"]
+        kvgl = KeyValueGroupList(headers, None, [
+            {"name": "a2", "visible": False},
+            {"name": "a1", "position": 1}])
+        assert kvgl.default_cfg == expected()
+
+        assert len(kvgl.output_configs) == 1
+        assert kvgl.output_configs[0].groupname == ""
+        configs = kvgl.output_configs[0].columns
+        assert len(configs) == 2
+        assert configs[0] == (expected(name="a1", position=1), 1)
+        assert configs[1] == (expected(name="a2", visible=False), 0)
+
+    def test_init_col_unincluded(self):
+        headers = ["a2", "a1"]
+        kvgl = KeyValueGroupList(headers, {
+            "include": False, "includeclient": False},
+            [{"name": "a2", "include": True}])
+        assert kvgl.default_cfg == expected(include=False, includeclient=False)
+
+        assert len(kvgl.output_configs) == 1
+        assert kvgl.output_configs[0].groupname == ""
+        configs = kvgl.output_configs[0].columns
+        assert len(configs) == 1
+        assert configs[0] == (expected(
+            name="a2", include=True, includeclient=False), 0)
+
     def test_init_col_complicated_order(self):
         headers, column_cfgs = self.get_complicated_headers()
-        tr = KeyValueListTransformer(headers, None, column_cfgs)
-        assert tr.default_cfg == expected()
+        kvgl = KeyValueGroupList(headers, None, column_cfgs)
+        assert kvgl.default_cfg == expected()
 
-        assert len(tr.output_configs) == 6
-        assert tr.output_configs[0] == (expected(
-            name="a1", position=1, split="|"), 3)
-        assert tr.output_configs[1] == (expected(name="a2", visible=False), 1)
-        assert tr.output_configs[2] == (expected(name="a3"), 0)
-        assert tr.output_configs[3] == (expected(
+        assert len(kvgl.output_configs) == 1
+        assert kvgl.output_configs[0].groupname == ""
+        configs = kvgl.output_configs[0].columns
+        assert len(configs) == 6
+        assert configs[0] == (expected(name="a1", position=1, split="|"), 3)
+        assert configs[1] == (expected(name="a2", visible=False), 1)
+        assert configs[2] == (expected(name="a3"), 0)
+        assert configs[3] == (expected(
             name="a4", position=4, clientvalue="*-{{ value }}-*"), 2)
-        assert tr.output_configs[4] == (expected(name="a5"), 5)
-        assert tr.output_configs[5] == (expected(name="a6"), 6)
+        assert configs[4] == (expected(name="a5"), 5)
+        assert configs[5] == (expected(name="a6"), 6)
+
+
+class TestKeyValueListTransformer(object):
 
     def test_transform1_default(self):
         cfg = expected(name="a1")
@@ -218,15 +232,18 @@ class TestKeyValueListTransformer(object):
         assert KeyValueListTransformer.transform1(inout[0], cfg) == inout[2]
 
     def test_transform(self):
-        headers, column_cfgs = self.get_complicated_headers()
+        headers = ["a2", "a4", "a3", "a1"]
+        output_configs = [
+            (expected(name="a1", split="|"), 3),
+            (expected(name="a2", visible=False), 0),
+            (expected(name="a4", clientvalue="*-{{ value }}-*"), 1),
+        ]
+        print output_configs
 
-        tr = KeyValueListTransformer(headers, None, column_cfgs)
-        r = tr.transform(("3", "2", "4", "1a|1b", "x", "5", "6"))
+        tr = KeyValueListTransformer(headers, output_configs)
+        r = tr.transform(("2", "4", "x", "1a|1b"))
 
-        assert len(r) == 6
+        assert len(r) == 3
         assert r[0] == ("a1", ["1a", "1b"])
         assert r[1] == ("__a2", ["2"])
-        assert r[2] == ("a3", ["3"])
-        assert r[3] == ("a4", ["*-4-*"])
-        assert r[4] == ("a5", ["5"])
-        assert r[5] == ("a6", ["6"])
+        assert r[2] == ("a4", ["*-4-*"])
