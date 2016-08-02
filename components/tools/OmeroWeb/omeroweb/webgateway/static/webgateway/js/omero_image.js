@@ -146,13 +146,6 @@
             $('#wblitz-ch'+idx).removeClass('pressed');
             $('#rd-wblitz-ch'+idx).removeClass('pressed');
         }
-        // Update channel button beside full image viewer
-        var color = '#' + ch.color;
-        if (ch.color.indexOf('.lut') > -1) {
-            // TODO: pick a nice default color for LUT OR use lut_10.png to provide background
-            color = '#FF00FF';
-        }
-        $('#wblitz-ch'+idx).css('background-color', color).attr('title', ch.label);
     };
 
 
@@ -184,21 +177,30 @@
         var channels = viewport.getChannels();
         var lutIndex;
         for (i=0; i<channels.length; i++) {
-            $('#rd-wblitz-ch'+i).css('background-color', toRGB(channels[i].color));
             color = channels[i].color;
             lutIndex = -1;
             if (color.indexOf('.lut') > -1) {
                 lutIndex = OME.LUT_NAMES.indexOf(color);
                 if (lutIndex === -1) {
-                    color = 'FF00FF';
+                    color = 'EEEEEE';
                 }
             }
             if (lutIndex > -1) {
-                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').addClass('lutslider')
+                // Button beside image in full viewer (not in Preview panel):
+                $('#wblitz-ch' + i).addClass('lutBackground')
+                    .css({'background-position': '-200px -' + (lutIndex * 20) + 'px',
+                        'background-size': '500px 640px'});
+                // Slider background
+                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').addClass('lutBackground')
                     .css('background-position', '0 -' + (lutIndex * 20) + 'px');
+                // Channel button beside slider
+                $('#rd-wblitz-ch'+i).css('background-color', '#' + color);
             } else {
-                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').removeClass('lutslider')
+                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').removeClass('lutBackground')
                     .css('background-color', '#' + color);
+                $('#wblitz-ch' + i).removeClass('lutBackground')
+                    .css('background-color', '#' + color);
+                $('#rd-wblitz-ch'+i).css('background-color', '#' + color);
             }
             var w = channels[i].window;
             $('#wblitz-ch'+i+'-cwslider')

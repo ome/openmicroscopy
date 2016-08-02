@@ -1119,7 +1119,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (query.m) this.setModel(query.m, true);
     if (query.c) {
       var chs = query.c.split(',');
-      for (j=0; j<chs.length; j++) {
+      for (var j=0; j<chs.length; j++) {
         var t = chs[j].split('|');
         var idx;
         if (t[0].substring(0,1) == '-') {
@@ -1131,13 +1131,15 @@ jQuery._WeblitzViewport = function (container, server, options) {
         }
         if (t.length > 1) {
           t = t[1].split('$');
-          var window = t[0].split(':');
-          if (window.length == 2) {
-            this.setChannelWindow(idx, parseFloat(window[0], 10), parseFloat(window[1], 10), true);
+          var range = t[0].split(':');
+          if (range.length == 2) {
+            this.setChannelWindow(idx, parseFloat(range[0], 10), parseFloat(range[1], 10), true);
           }
         }
         if (t.length > 1) {
-          this.setChannelColor(idx, toRGB(t[1]), true);
+          // color can be 'FF0000' or 'cool.lut'
+          var color = t[1];
+          this.setChannelColor(idx, color, true);
         }
       }
     }

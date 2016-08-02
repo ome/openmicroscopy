@@ -169,7 +169,7 @@ div.weblitz-viewport-tiles img {
   -ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
 }
 
-.lutslider {
+.lutBackground {
   background-image: url('../img/luts_10.png');
   background-size: 100% 640px;
   background-repeat: no-repeat;
