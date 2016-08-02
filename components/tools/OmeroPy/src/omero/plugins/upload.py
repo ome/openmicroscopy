@@ -16,6 +16,7 @@ import re
 import path
 
 from omero.cli import BaseControl, CLI
+from omero.model import FileAnnotationI
 
 import omero
 import omero.rtypes
@@ -51,13 +52,17 @@ class UploadControl(BaseControl):
             "--pytable", action="store_true",
             help="If set, the following files are interpreted as pytable"
             " files")
+        parser.add_argument(
+            "--annotate", action="store_true",
+            help="If set, create FileAnnotations from the uploaded files")
         parser.add_argument("file", nargs="+")
         parser.set_defaults(func=self.upload)
         parser.add_login_arguments()
 
     def upload(self, args):
         client = self.ctx.conn(args)
-        objIds = []
+        fileIds = []
+        annIds = []
         for file in args.file:
             if not path.path(file).exists():
                 self.ctx.die(500, "File: %s does not exist" % file)
@@ -69,11 +74,26 @@ class UploadControl(BaseControl):
                              " import")
             else:
                 obj = client.upload(file, type=omero_format)
-                objIds.append(obj.id.val)
+                fileIds.append(obj.id.val)
                 self.ctx.set("last.upload.id", obj.id.val)
 
-        objIds = self._order_and_range_ids(objIds)
-        self.ctx.out("OriginalFile:%s" % objIds)
+        if args.annotate:
+            c = self.ctx.conn(args)
+            update = c.sf.getUpdateService()
+            query = c.sf.getQueryService()
+
+            for fId in fileIds:
+                # obj new FileAnnotation file=OriginalFile:275
+                ann = FileAnnotationI()
+                # f = file get by id
+                ann.file = query.find("OriginalFile", fId)
+                ann = update.saveAndReturnObject(ann)
+                annIds.append(ann.id.val)
+            annIds = self._order_and_range_ids(annIds)
+            self.ctx.out("FileAnnotation:%s" % annIds)
+        else:
+            fileIds = self._order_and_range_ids(fileIds)
+            self.ctx.out("OriginalFile:%s" % fileIds)
 
 try:
     register("upload", UploadControl, HELP)
