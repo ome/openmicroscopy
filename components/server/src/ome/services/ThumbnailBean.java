@@ -338,6 +338,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                 String path = (new File(f.getPath(), f.getName())).getPath();
                 luts.add(new File(dir, path));
             }
+            iQuery.clear();
         }
         return luts;
     }
