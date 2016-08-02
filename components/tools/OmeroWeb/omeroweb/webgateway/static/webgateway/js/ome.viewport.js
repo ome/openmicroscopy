@@ -1137,9 +1137,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
           }
         }
         if (t.length > 1) {
-          // color can be 'FF0000' or 'cool.lut'
-          var color = t[1];
-          this.setChannelColor(idx, color, true);
+          this.setChannelColor(idx, t[1], true);
         }
       }
     }
