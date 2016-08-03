@@ -366,7 +366,7 @@ class ObjGetTxAction(NonFieldTxAction):
                                       + str(self.get_field(field)) + "\n")
                         except AttributeError:
                             pass
-
+            proxy = proxy.strip()
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
     def get_field(self, field):
@@ -468,13 +468,13 @@ class ParentsTxAction(NonFieldTxAction):
 
         rsp = cb.getResponse()
         if isinstance(rsp, omero.cmd.ERR):
-            proxy = "failed: '%s'\n" % rsp.name
+            proxy = "failed: '%s'" % rsp.name
         else:
             proxy = ""
             for kls, ids in rsp.parents.items():
                 proxy += (kls.split(".")[-1] + ":"
                           + ",".join(str(id) for id in ids) + "\n")
-
+            proxy = proxy.strip()
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
@@ -496,13 +496,13 @@ class ChildrenTxAction(NonFieldTxAction):
 
         rsp = cb.getResponse()
         if isinstance(rsp, omero.cmd.ERR):
-            proxy = "failed: '%s'\n" % rsp.name
+            proxy = "failed: '%s'" % rsp.name
         else:
             proxy = ""
             for kls, ids in rsp.children.items():
                 proxy += (kls.split(".")[-1] + ":"
                           + ",".join(str(id) for id in ids) + "\n")
-
+            proxy = proxy.strip()
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
