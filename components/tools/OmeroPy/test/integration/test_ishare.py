@@ -15,7 +15,7 @@ import pytest
 import omero
 import Glacier2
 
-from omero.rtypes import rtime, rlong, rlist
+from omero.rtypes import rtime, rlong, rlist, rint
 from omero.gateway import BlitzGateway
 
 from test.integration.helpers import createTestImage
@@ -369,20 +369,29 @@ class TestIShare(lib.ITest):
         res2 = query1.findByQuery(sql, p)
         assert res2.id.val == img.id.val
 
+    # Test that in a image not in a share, the thumbnail store can be used
+    # to retrieve the thumbnail. The image has been viewed by owner.
     def test1179(self):
         createTestImage(self.root.sf)
         rdefs = self.root.sf.getQueryService().findAll("RenderingDef", None)
         if len(rdefs) == 0:
             raise Exception("Must have at least one rendering def")
+        id = rdefs[0].pixels.id.val
+
         share = self.root.sf.getShareService()
         sid = share.createShare("", None, [], [], [], True)
         share.activate(sid)
+        # Share is active: we are in the security context of the share
         tb = self.root.sf.createThumbnailStore()
         try:
-            tb.setPixelsId(rdefs[0].pixels.id.val)
+            tb.setPixelsId(id)
+            s = tb.getThumbnail(rint(16), rint(16))
+            assert len(s) > 0
         except omero.SecurityViolation:
             assert False, "Pixels was not in share"
-        share.deactivate()
+        finally:
+            tb.close()
+            share.deactivate()
 
     def test1201(self):
         admin = self.client.sf.getAdminService()
@@ -969,9 +978,11 @@ class TestIShare(lib.ITest):
         assert image.id.val == rv.id.val
 
         member_tb = member.sf.createThumbnailStore()
-        member_tb.setPixelsId(rdefs[0].pixels.id.val,
-                              {'omero.share': str(sid)})
-
+        try:
+            member_tb.setPixelsId(rdefs[0].pixels.id.val,
+                                  {'omero.share': str(sid)})
+        finally:
+            member_tb.close()
         # join share
         user_client = self.new_client(session=member_suuid)
         try:
