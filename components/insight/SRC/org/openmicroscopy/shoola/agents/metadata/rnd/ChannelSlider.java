@@ -147,9 +147,8 @@ class ChannelSlider
         slider.getSlider().setToolTipText(UIUtilities.formatToolTipText(list));
         
         if (CommonsLangUtils.isNotEmpty(lut)) {
-            BufferedImage img = LookupTableIconUtil.getLUTIconImage(lut);
             channelSelection = new ChannelButton(channel.getChannelLabeling(),
-                    img, index);
+                   (Color)null, index);
         } else
             channelSelection = new ChannelButton(channel.getChannelLabeling(),
                     c, index);
@@ -309,11 +308,9 @@ class ChannelSlider
 
         if (channelSelection != null) {
             if (lut) {
-                channelSelection.setImage(LookupTableIconUtil
-                        .getLUTIconImage(model.getLookupTable(getIndex())));
+                channelSelection.setColor(null);
             } else {
                 channelSelection.setColor(model.getChannelColor(getIndex()));
-                channelSelection.setImage(null);
             }
         }
     }
@@ -327,10 +324,8 @@ class ChannelSlider
     	
         if (CommonsLangUtils.isEmpty(model.getLookupTable(getIndex()))) {
             channelSelection.setColor(model.getChannelColor(getIndex()));
-            channelSelection.setImage(null);
         } else {
-            channelSelection.setImage(LookupTableIconUtil.getLUTIconImage(model
-                    .getLookupTable(getIndex())));
+            channelSelection.setColor(null);
         }
     }
     
