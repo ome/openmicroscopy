@@ -547,7 +547,7 @@ public class ThumbnailCtx
             }
             else if (thumbnailExists && !isMyMetadata)
             {
-                //we need thumbnail for new settings. User creating his own
+                //we need thumbnail for new settings. User creating their own
                 if (sessionUserId == userId && userId != metadataOwnerId) {
                     return false;
                 }
