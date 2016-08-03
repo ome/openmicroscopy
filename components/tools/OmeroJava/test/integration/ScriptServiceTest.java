@@ -94,6 +94,7 @@ public class ScriptServiceTest extends AbstractServerTest {
                 Assert.fail("Lut should not be returned.");
             }
         }
+        //do it twice since we had initially a bug in loading
         scripts = svc.getScripts();
         Assert.assertNotNull(scripts);
         Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
@@ -170,16 +171,15 @@ public class ScriptServiceTest extends AbstractServerTest {
     @Test
     public void testUploadOfficialScript() throws Exception {
         newUserAndGroup("rwr---");
-        StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
-        for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
-        }
-        String folder = "officialTestFolder";
         IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScripts();
+        OriginalFile f = scripts.get(0);
         int n = svc.getScripts().size();
+        //read the script. This is tested elsewhere
+        String str = readScript(f);
+        String folder = f.getName().getValue();
         try {
-            svc.uploadOfficialScript(folder, buf.toString());
+            svc.uploadOfficialScript(folder, str);
             Assert.fail("Only administrators can upload official script.");
         } catch (Exception e) {
         }
@@ -239,16 +239,14 @@ public class ScriptServiceTest extends AbstractServerTest {
      */
     @Test
     public void testUploadScript() throws Exception {
-        StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
-        for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
-        }
-        String folder = "scriptTestFolder";
         IScriptPrx svc = factory.getScriptService();
-        long id = svc.uploadScript(folder, buf.toString());
+        List<OriginalFile> scripts = svc.getScripts();
+        OriginalFile f = scripts.get(0);
+        //read the script. This is tested elsewhere
+        String str = readScript(f);
+        String folder = f.getName().getValue();
+        long id = svc.uploadScript(folder, str);
         Assert.assertTrue(id > 0);
-        deleteScript(id);
     }
 
     /**
