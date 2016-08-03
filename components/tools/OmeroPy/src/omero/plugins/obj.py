@@ -559,6 +559,11 @@ Examples:
     Dataset:123
     $ bin/omero obj get Dataset:123 description
 
+    $ bin/omero obj children Dataset:123 Image
+    Image:51,52
+    $ bin/omero obj parents Image:51 Dataset Fileset
+    Dataset:123
+    Fileset:51
     $ bin/omero obj new MapAnnotation ns=example.com
     MapAnnotation:456
     $ bin/omero obj map-set MapAnnotation:456 mapValue foo bar
