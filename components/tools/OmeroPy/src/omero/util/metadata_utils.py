@@ -44,6 +44,10 @@ class GroupConfig(object):
         self.groupname = groupname
         self.columns = column_cfg
 
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__)
+                and self.__dict__ == other.__dict__)
+
 
 class BulkAnnotationConfiguration(object):
     """
@@ -190,10 +194,11 @@ class BulkAnnotationConfiguration(object):
         If this is a group return a GroupConfig object
         """
         if 'group' in cfg:
-            self.validate_group_config(cfg)
+            gcfg = cfg['group']
+            self.validate_group_config(gcfg)
             column_cfgs = [
-                self.get_column_config(gc) for gc in cfg['columns']]
-            return GroupConfig(cfg['groupname'], column_cfgs)
+                self.get_column_config(gc) for gc in gcfg['columns']]
+            return GroupConfig(gcfg['groupname'], column_cfgs)
 
         self.validate_column_config(cfg)
         column_cfg = self.default_cfg.copy()
@@ -253,7 +258,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         # columns not explicitly specified
         output_configs = []
         for gcfg in self.group_cfgs:
-            output_cfg = self.get_group_output_configs(gcfg.config, True)
+            output_cfg = self.get_group_output_configs(gcfg.columns, False)
             output_configs.append(GroupConfig(gcfg.groupname, output_cfg))
 
         output_defcfg = self.get_group_output_configs(self.column_cfgs, True)
