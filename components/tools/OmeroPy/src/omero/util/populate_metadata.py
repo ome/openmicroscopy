@@ -1138,7 +1138,7 @@ class BulkToMapAnnotationContext(_QueryContext):
         if self.default_cfg or self.column_cfgs:
             kvgl = KeyValueGroupList(
                 headers, self.default_cfg, self.column_cfgs)
-            trs = kvgl.create_transformers()
+            trs = kvgl.get_transformers()
         else:
             trs = [KeyValueListPassThrough(headers)]
 

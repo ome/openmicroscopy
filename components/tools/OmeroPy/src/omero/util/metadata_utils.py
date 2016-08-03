@@ -326,7 +326,7 @@ class KeyValueGroupList(BulkAnnotationConfiguration):
         Return a set of KeyValueListTransformer objects, one for each group
         """
         transformers = [KeyValueListTransformer(
-            self.headers, gc.configs, gc.groupname)
+            self.headers, gc.columns, gc.groupname)
             for gc in self.output_configs]
         return transformers
 
