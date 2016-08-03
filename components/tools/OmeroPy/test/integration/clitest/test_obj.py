@@ -77,7 +77,7 @@ class TestObj(CLITest):
         assert 1 == len(state)
         assert state.get_row(0).startswith("Dataset")
 
-    def test_linkage(self):
+    def test_linkage_children_and_parents(self):
         path = create_path()
         path.write_text(
             """
@@ -91,6 +91,17 @@ class TestObj(CLITest):
         assert state.get_row(0).startswith("Project")
         assert state.get_row(1).startswith("Dataset")
         assert state.get_row(2).startswith("ProjectDatasetLink")
+        # Now check for children and parents
+        proj = state.get_row(0)
+        dset = state.get_row(1)
+        self.args = self.login_args() + ["obj", "children", proj, "Dataset"]
+        state = self.go()
+        assert 1 == len(state)
+        assert state.get_row(0) == dset
+        self.args = self.login_args() + ["obj", "parents", dset, "Project"]
+        state = self.go()
+        assert 1 == len(state)
+        assert state.get_row(0) == proj
         path.remove()
 
     def test_linkage_via_variables(self):
