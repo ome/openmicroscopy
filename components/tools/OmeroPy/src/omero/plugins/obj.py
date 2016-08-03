@@ -456,12 +456,12 @@ class ParentsTxAction(NonFieldTxAction):
         from omero.cmd import FindParents
         import omero.callbacks
 
-        if len(self.tx_cmd.arg_list) != 3:
-            ctx.die(335, "usage: parents OBJ type")
+        if len(self.tx_cmd.arg_list) < 3:
+            ctx.die(335, "usage: parents OBJ type [type ...]")
 
         req = FindParents()
         req.targetObjects = {self.kls: [self.obj.id.val]}
-        req.typesOfParents = [self.tx_cmd.arg_list[2]]
+        req.typesOfParents = self.tx_cmd.arg_list[2:]
         handle = self.client.sf.submit(req)
         cb = omero.callbacks.CmdCallbackI(self.client, handle)
         cb.loop(8, 500)
@@ -484,12 +484,12 @@ class ChildrenTxAction(NonFieldTxAction):
         from omero.cmd import FindChildren
         import omero.callbacks
 
-        if len(self.tx_cmd.arg_list) != 3:
-            ctx.die(335, "usage: children OBJ type")
+        if len(self.tx_cmd.arg_list) < 3:
+            ctx.die(335, "usage: children OBJ type [type ...]")
 
         req = FindChildren()
         req.targetObjects = {self.kls: [self.obj.id.val]}
-        req.typesOfChildren = [self.tx_cmd.arg_list[2]]
+        req.typesOfChildren = self.tx_cmd.arg_list[2:]
         handle = self.client.sf.submit(req)
         cb = omero.callbacks.CmdCallbackI(self.client, handle)
         cb.loop(8, 500)
