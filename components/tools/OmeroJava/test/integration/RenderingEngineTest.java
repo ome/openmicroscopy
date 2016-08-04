@@ -2,7 +2,6 @@
  *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package integration;
 
 
@@ -2086,6 +2085,10 @@ public class RenderingEngineTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Tests if luts in the repo are currently applied and read.
+     * @throws Exception
+     */
     @Test
     public void testLutReaders() throws Exception {
         //First import an image
@@ -2140,6 +2143,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         }
         List<String> failures = new ArrayList<String>();
         byte[] ref = re.renderCompressed(pDef);
+        //now change settings
         while (i.hasNext()) {
             of = i.next();
             re.setChannelLookupTable(0, of.getName().getValue());
@@ -2164,4 +2168,60 @@ public class RenderingEngineTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Tests that a lut not supported saved in the settings is not applied.
+     * The rendered image should be using color.
+     * @throws Exception
+     */
+    @Test
+    public void testLutNotInlist() throws Exception {
+        //First import an image
+        File f = File.createTempFile("testLutNotInlist", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels1 = def.copyWaveRendering();
+        Assert.assertNotNull(channels1);
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        RenderingModel model = re.getModel();
+        List<IObject> models = factory.getPixelsService().getAllEnumerations(
+                RenderingModel.class
+                .getName());
+        Iterator<IObject> j = models.iterator();
+        RenderingModel m;
+        // Change the color model so it is not grey scale.
+        while (j.hasNext()) {
+            m = (RenderingModel) j.next();
+            if (m.getId().getValue() != model.getId().getValue())
+                re.setModel(m);
+        }
+        byte[] ref = re.renderCompressed(pDef);
+        for (int k = 0; k < channels1.size(); k++) {
+            re.setChannelLookupTable(k, "foo.lut");
+        }
+        byte[] buffer = re.renderCompressed(pDef);
+        Assert.assertTrue(Arrays.equals(ref, buffer));
+    }
 }
