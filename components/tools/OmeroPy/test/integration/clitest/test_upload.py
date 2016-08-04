@@ -46,24 +46,11 @@ class TestUpload(CLITest):
         name = self.cli.get("tx.state").get_row(0)
         assert filename.name == name
 
-    def check_file_name_via_annotation(self, fileAnnotation, filename):
-        args = self.login_args() + ["obj", "get", fileAnnotation]
-        self.cli.invoke(args + ["file"], strict=True)
-        originalFile = self.cli.get("tx.state").get_row(0)
-        self.check_file_name(originalFile, filename)
-
     def testUploadSingleFile(self, capfd):
         f = create_path(suffix=".txt")
         self.args += [str(f)]
         out = self.upload(capfd)
         self.check_file_name(out, f)
-
-    def testUploadSingleFileAnnotation(self, capfd):
-        f = create_path(suffix=".txt")
-        self.args += ["--annotate"]
-        self.args += [str(f)]
-        out = self.upload(capfd)
-        self.check_file_name_via_annotation(out, f)
 
     def testUploadMultipleFiles(self, capfd):
         f1 = create_path(suffix=".txt")
@@ -73,16 +60,6 @@ class TestUpload(CLITest):
         ids = out.split(":")[1].split(",")
         self.check_file_name("OriginalFile:%s" % ids[0], f1)
         self.check_file_name("OriginalFile:%s" % ids[1], f2)
-
-    def testUploadMultipleFileAnnotations(self, capfd):
-        f1 = create_path(suffix=".txt")
-        f2 = create_path(suffix=".txt")
-        self.args += ["--annotate"]
-        self.args += [str(f1), str(f2)]
-        out = self.upload(capfd)
-        ids = out.split(":")[1].split(",")
-        self.check_file_name_via_annotation("FileAnnotation:%s" % ids[0], f1)
-        self.check_file_name_via_annotation("FileAnnotation:%s" % ids[1], f2)
 
     def testUploadBadFile(self, capfd):
         f1 = create_path(suffix=".txt")
