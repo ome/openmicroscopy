@@ -1,0 +1,22 @@
+---
+name: test_bulk_to_map_annotation_context_groups
+version: 2
+
+defaults:
+    include: yes
+
+columns:
+- name: Gene
+- name: Gene Names
+  clientname: Gene name
+  split: ;
+- group:
+    groupname: openmicroscopy.org/mapr/gene
+    columns:
+    # Intentionally duplicate a column in a different group
+    - name: Gene
+    - name: FlyBase
+      clientname: FlyBase URL
+      clientvalue: http://flybase.org/reports/{{ value }}.html
+
+#advanced:
