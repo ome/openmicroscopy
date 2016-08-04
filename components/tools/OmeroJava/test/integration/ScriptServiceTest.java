@@ -259,17 +259,13 @@ public class ScriptServiceTest extends AbstractServerTest {
     @Test
     public void testUploadOfficialLUTAsRoot() throws Exception {
         logRootIntoGroup();
-        StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
-        for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
-        }
-        String uuid = UUID.randomUUID().toString();
-        String folder = "officialTestFolder"+uuid+".lut";
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
         int n = scripts.size();
-        long id = svc.uploadOfficialScript(folder, buf.toString());
+        OriginalFile f = scripts.get(0);
+        String str = readScript(f);
+        String folder = f.getName().getValue();
+        long id = svc.uploadOfficialScript(folder, str);
         Assert.assertTrue(id > 0);
         Assert.assertEquals(svc.getScriptsByMimetype(LUT_MIMETYPE).size(),
                 n+1);
