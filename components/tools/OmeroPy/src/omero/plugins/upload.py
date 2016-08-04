@@ -16,7 +16,7 @@ import re
 import path
 
 from omero.cli import BaseControl, CLI
-from omero.model import FileAnnotationI, OriginalFileI
+from omero.model import FileAnnotationI
 
 import omero
 import omero.rtypes
@@ -76,9 +76,13 @@ class UploadControl(BaseControl):
         if args.annotate:
             c = self.ctx.conn(args)
             update = c.sf.getUpdateService()
+            query = c.sf.getQueryService()
+
             for fId in fileIds:
+                # obj new FileAnnotation file=OriginalFile:275
                 ann = FileAnnotationI()
-                ann.file = omero.model.OriginalFileI(fId, False)
+                # f = file get by id
+                ann.file = query.find("OriginalFile", fId)
                 ann = update.saveAndReturnObject(ann)
                 annIds.append(ann.id.val)
             annIds = self._order_and_range_ids(annIds)
