@@ -167,9 +167,9 @@ class RenderHSBRegionTask implements RenderingTask {
                     discreteValue = cc.transform(discreteValue);
 
                     if (reader != null) {
-                        r[pix] = (byte) (reader.getRed(discreteValue) & 0xFF);
-                        g[pix] = (byte) (reader.getGreen(discreteValue) & 0xFF);
-                        b[pix] = (byte) (reader.getBlue(discreteValue) & 0xFF);
+                        r[pix] = (byte) (((byte) (r[pix]+reader.getRed(discreteValue))) &0xFF);
+                        g[pix] = (byte) (((byte) (r[pix]+reader.getRed(discreteValue))) &0xFF);
+                        b[pix] = (byte) (((byte) (b[pix]+reader.getRed(discreteValue))) &0xFF);
                         continue;
                     }
                     // Pre-multiply the alpha component and add the existing
@@ -259,9 +259,9 @@ class RenderHSBRegionTask implements RenderingTask {
                     //discreteValue = cc.transform(discreteValue);
                     if (reader != null) {
                         buf[pix] = 0xFF000000 |
-                                (reader.getRed(discreteValue)&0xFF) << 16 |
-                                (reader.getGreen(discreteValue)&0xFF) << 8 |
-                                (reader.getBlue(discreteValue)&0xFF);
+                                (((byte) (buf[pix]+reader.getRed(discreteValue))) &0xFF) << 16 |
+                                (((byte) (buf[pix]+reader.getGreen(discreteValue)))&0xFF) << 8 |
+                                (((byte) (buf[pix]+reader.getBlue(discreteValue)))&0xFF);
                         continue;
                     }
                     // Primary colour optimization is in effect, we don't need
@@ -386,9 +386,9 @@ class RenderHSBRegionTask implements RenderingTask {
 
                     if (reader != null) {
                         buf[pix] = 0x000000FF |
-                                (reader.getRed(discreteValue)&0xFF) << 24 |
-                                (reader.getGreen(discreteValue)&0xFF) << 16 |
-                                (reader.getBlue(discreteValue)&0xFF) << 8;
+                                (((byte) (buf[pix]+reader.getRed(discreteValue))) &0xFF) << 24 |
+                                (((byte) (buf[pix]+reader.getGreen(discreteValue))) &0xFF) << 16 |
+                                (((byte) (buf[pix]+reader.getBlue(discreteValue))) &0xFF) << 8;
                         continue;
                     }
                     // Primary colour optimization is in effect, we don't need
