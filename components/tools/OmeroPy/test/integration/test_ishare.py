@@ -377,7 +377,15 @@ class TestIShare(lib.ITest):
         if len(rdefs) == 0:
             raise Exception("Must have at least one rendering def")
         id = rdefs[0].pixels.id.val
-
+        # make sure thumbnail is viewed by owner
+        tb = self.root.sf.createThumbnailStore()
+        try:
+            tb.setPixelsId(id)
+            s = tb.getThumbnail(rint(16), rint(16))
+            assert len(s) > 0
+        finally:
+            tb.close()
+        
         share = self.root.sf.getShareService()
         sid = share.createShare("", None, [], [], [], True)
         share.activate(sid)
