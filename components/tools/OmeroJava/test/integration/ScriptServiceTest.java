@@ -280,7 +280,6 @@ public class ScriptServiceTest extends AbstractServerTest {
      */
     private void deleteScript(long id) throws Exception {
         IScriptPrx svc = factory.getScriptService();
-        //currently the deleteScript does not delete the entry in the DB.
         svc.deleteScript(id);
     }
 
