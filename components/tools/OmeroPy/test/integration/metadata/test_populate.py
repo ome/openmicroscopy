@@ -145,6 +145,10 @@ class Fixture(object):
     def get_csv(self):
         return self.csv
 
+    def get_cfg(self):
+        return os.path.join(
+            os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
+
     def assert_rows(self, rows):
         assert rows == self.rowCount * self.colCount
 
@@ -241,6 +245,91 @@ class Plate2Wells(Fixture):
         qs = self.test.client.sf.getQueryService()
         was = unwrap(qs.projection(query, None))
         return was
+
+
+class Plate2WellsGroups(Plate2Wells):
+    # For this test use explicit files instead of generating them as an
+    # additional safeguard against changes in the test code
+
+    def __init__(self):
+        self.count = 3
+        self.annCount = 6  # Two groups
+        self.rowCount = 1
+        self.colCount = 3
+        d = os.path.dirname(__file__)
+        self.csv = os.path.join(d, 'bulk_to_map_annotation_context_groups.csv')
+        self.plate = None
+
+    def get_cfg(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context_groups.yml')
+
+    def get_wells_by_rc(self):
+        query = "SELECT row, column, id FROM Well WHERE plate.id=%s" % \
+                 self.plate.id.val
+        qs = self.test.client.sf.getQueryService()
+        rcis = unwrap(qs.projection(query, None))
+        return dict(((rci[0], rci[1]), str(rci[2])) for rci in rcis)
+
+    def assert_child_annotations(self, oas):
+        wellrcs = [coord2offset(c) for c in ('a1', 'a2', 'a3')]
+        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
+        check = dict((k, None) for k in wellrc_ns)
+        well_ids = self.get_wells_by_rc()
+
+        for ma, wid, wr, wc in oas:
+            assert isinstance(ma, MapAnnotationI)
+            ns = unwrap(ma.getNs())
+            mv = ma.getMapValueAsMap()
+            wrc = (wr, wc)
+            if ns == NSBULKANNOTATIONS:
+                assert mv['Well'] == str(wid)
+                assert coord2offset(mv['Well Name']) == wrc
+
+            assert (wrc, ns) in check, 'Unexpected well/namespace'
+            assert check[(wrc, ns)] is None, 'Duplicate annotation'
+
+            # Use getMapValue to check ordering and duplicates
+            check[(wrc, ns)] = [(p.name, p.value) for p in ma.getMapValue()]
+
+        assert check[(wellrcs[0], nss[0])] == [
+            ('Gene', 'hh'),
+            ('Gene name', 'hedgehog'),
+            ('Gene name', 'bar-3'),
+            ('Gene name', 'CG4637'),
+            ('Well Name', 'a1'),
+            ('Well', well_ids[wellrcs[0]]),
+        ]
+        assert check[(wellrcs[0], nss[1])] == [
+            ('Gene', 'hh'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0004644.html'),
+        ]
+
+        assert check[(wellrcs[1], nss[0])] == [
+            ('Gene', 'sws'),
+            ('Gene name', 'swiss cheese'),
+            ('Gene name', 'olfE'),
+            ('Gene name', 'CG2212'),
+            ('Well Name', 'a2'),
+            ('Well', well_ids[wellrcs[1]]),
+        ]
+        assert check[(wellrcs[1], nss[1])] == [
+            ('Gene', 'sws'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
+        ]
+
+        assert check[(wellrcs[2], nss[0])] == [
+            ('Gene', 'ken'),
+            ('Gene name', 'ken and barbie'),
+            ('Gene name', 'CG5575'),
+            ('Well Name', 'a3'),
+            ('Well', well_ids[wellrcs[2]]),
+        ]
+        assert check[(wellrcs[2], nss[1])] == [
+            ('Gene', 'ken'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
+        ]
 
 
 class Dataset2Images(Fixture):
@@ -458,9 +547,43 @@ class TestPopulateMetadata(lib.ITest):
             skip("PyYAML not installed.")
 
         fixture.init(self)
-        self._test_parsing_context(fixture, batch_size)
+        t = self._test_parsing_context(fixture, batch_size)
+        self._assert_parsing_context_values(t, fixture)
         self._test_bulk_to_map_annotation_context(fixture, batch_size)
         self._test_delete_map_annotation_context(fixture, batch_size)
+
+    def testPopulateMetadataGroupAnns(self):
+        """
+        Test complicated annotations (multiple groups) on a single OMERO
+        data type, as opposed to testPopulateMetadata which tests simple
+        annotations on multiple OMERO data types
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture = Plate2WellsGroups()
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, 2)
+
+        cols = t.getHeaders()
+        rows = t.getNumberOfRows()
+        fixture.assert_rows(rows)
+        data = [c.values for c in t.read(range(len(cols)), 0, rows).columns]
+        rowValues = zip(*data)
+        assert len(rowValues) == fixture.count
+        # First column is the WellID
+        assert rowValues[0][1:] == (
+            "FBgn0004644", "hh", "hedgehog;bar-3;CG4637", "a1")
+        assert rowValues[1][1:] == (
+            "FBgn0003656", "sws", "swiss cheese;olfE;CG2212", "a2")
+        assert rowValues[2][1:] == (
+            "FBgn0011236", "ken", "ken and barbie;CG5575", "a3")
+
+        self._test_bulk_to_map_annotation_context(fixture, 2)
+        self._test_delete_map_annotation_context(fixture, 2)
 
     def _test_parsing_context(self, fixture, batch_size):
         """
@@ -494,6 +617,9 @@ class TestPopulateMetadata(lib.ITest):
         # Open table to check contents
         r = self.client.sf.sharedResources()
         t = r.openTable(OriginalFileI(fileid), None)
+        return t
+
+    def _assert_parsing_context_values(self, t, fixture):
         cols = t.getHeaders()
         rows = t.getNumberOfRows()
         fixture.assert_rows(rows)
@@ -511,8 +637,7 @@ class TestPopulateMetadata(lib.ITest):
         # self._testPopulateMetadataPlate()
         assert len(fixture.get_child_annotations()) == 0
 
-        cfg = os.path.join(
-            os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
+        cfg = fixture.get_cfg()
 
         target = fixture.get_target()
         anns = fixture.get_annotations()
@@ -534,8 +659,10 @@ class TestPopulateMetadata(lib.ITest):
         # self._test_bulk_to_map_annotation_context()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
+        cfg = fixture.get_cfg()
+
         target = fixture.get_target()
-        ctx = DeleteMapAnnotationContext(self.client, target)
+        ctx = DeleteMapAnnotationContext(self.client, target, cfg=cfg)
         ctx.parse()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 

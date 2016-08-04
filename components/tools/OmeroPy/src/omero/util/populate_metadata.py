@@ -36,7 +36,7 @@ from collections import defaultdict
 
 import omero.clients
 from omero import CmdError
-from omero.rtypes import rstring, unwrap
+from omero.rtypes import rlist, rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
 from omero.model import PlateAcquisitionI, WellI, WellSampleI, ImageI
@@ -950,14 +950,16 @@ class _QueryContext(object):
         for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
             yield batch
 
-    def projection(self, q, ids, ns=None, batch_size=None):
+    def projection(self, q, ids, nss=None, batch_size=None):
         """
         Run a projection query designed to return scalars only
         :param q: The query to be projected, should contain either `:ids`
                or `:id` as a parameter
         :param: ids: Either a list of IDs to be passed as `:ids` parameter or
                 a single scalar id to be passed as `:id` parameter in query
-        :ns: Optional namespace to be passed as `:ns` parameter in query
+        :nss: Optional, Either a list of namespaces to be passed as `:nss`
+                parameter or a single string to be passed as `:ns` parameter
+                in query
         :batch_size: Optional batch_size (default: all) defining the number
                 of IDs that will be queried at once. Methods that expect to
                 have more than several thousand input IDs should consider an
@@ -975,10 +977,12 @@ class _QueryContext(object):
             nids = 1
             single_id = ids
 
-        if ns:
-            params.addString("ns", ns)
+        if isinstance(nss, basestring):
+            params.addString("ns", nss)
+        elif nss:
+            params.map['nss'] = rlist(rstring(s) for s in nss)
 
-        log.debug("Query: %s len(IDs): %d", q, nids)
+        log.debug("Query: %s len(IDs): %d namespace(s): %s", q, nids, nss)
 
         if single_id is not None:
             params.addId(single_id)
@@ -993,6 +997,38 @@ class _QueryContext(object):
                 rss.extend(unwrap(qs.projection(q, params)))
 
         return [r for rs in rss for r in rs]
+
+
+def get_config(session, cfg=None, cfgid=None):
+    if not YAML_ENABLED:
+        raise ImportError("yaml (PyYAML) module required")
+
+    if cfgid:
+        try:
+            rfs = session.createRawFileStore()
+            rfs.setFileId(cfgid)
+            rawdata = rfs.read(0, rfs.size())
+        finally:
+            rfs.close()
+    elif cfg:
+        with open(cfg, 'r') as f:
+            rawdata = f.read()
+    else:
+        raise Exception("Configuration file required")
+
+    cfg = list(yaml.load_all(rawdata))
+    if len(cfg) != 1:
+        raise Exception(
+            "Expected YAML file with one document, found %d" % len(cfg))
+    cfg = cfg[0]
+
+    default_cfg = cfg.get("defaults")
+    column_cfgs = cfg.get("columns")
+    advanced_cfgs = cfg.get("advanced", {})
+    if not default_cfg and not column_cfgs:
+        raise Exception(
+            "Configuration defaults and columns were both empty")
+    return default_cfg, column_cfgs, advanced_cfgs
 
 
 class BulkToMapAnnotationContext(_QueryContext):
@@ -1028,43 +1064,12 @@ class BulkToMapAnnotationContext(_QueryContext):
             raise MetadataError("Unable to find bulk-annotations file")
 
         self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
-            self.get_config(cfg=cfg, cfgid=cfgid)
+            get_config(self.client.getSession(), cfg=cfg, cfgid=cfgid)
 
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
         return qs.find(target_object.ice_staticId().split('::')[-1],
                        target_object.id.val)
-
-    def get_config(self, cfg=None, cfgid=None):
-        if not YAML_ENABLED:
-            raise ImportError("yaml (PyYAML) module required")
-
-        if cfgid:
-            try:
-                rfs = self.client.getSession().createRawFileStore()
-                rfs.setFileId(cfgid)
-                rawdata = rfs.read(0, rfs.size())
-            finally:
-                rfs.close()
-        elif cfg:
-            with open(cfg, 'r') as f:
-                rawdata = f.read()
-        else:
-            raise Exception("Configuration file required")
-
-        cfg = list(yaml.load_all(rawdata))
-        if len(cfg) != 1:
-            raise Exception(
-                "Expected YAML file with one document, found %d" % len(cfg))
-        cfg = cfg[0]
-
-        default_cfg = cfg.get("defaults")
-        column_cfgs = cfg.get("columns")
-        advanced_cfgs = cfg.get("advanced", {})
-        if not default_cfg and not column_cfgs:
-            raise Exception(
-                "Configuration defaults and columns were both empty")
-        return default_cfg, column_cfgs, advanced_cfgs
 
     def get_bulk_annotation_file(self):
         otype = self.target_object.ice_staticId().split('::')[-1]
@@ -1204,19 +1209,38 @@ class DeleteMapAnnotationContext(_QueryContext):
         self.target_object = target_object
         self.attach = attach
 
+        if cfg or cfgid:
+            self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
+                get_config(self.client.getSession(), cfg=cfg, cfgid=cfgid)
+        else:
+            self.default_cfg = None
+            self.column_cfgs = None
+            self.advanced_cfgs = None
+
     def parse(self):
         return self.populate()
 
-    def _get_annotations_for_deletion(self, objtype, objids, anntype, ns):
+    def _get_annotations_for_deletion(self, objtype, objids, anntype, nss):
         r = []
         if objids:
             q = ("SELECT child.id FROM %sAnnotationLink WHERE "
                  "child.class=%s AND parent.id in (:ids) "
-                 "AND child.ns=:ns")
-            r = self.projection(q % (objtype, anntype), objids, ns,
+                 "AND child.ns in (:nss)")
+            r = self.projection(q % (objtype, anntype), objids, nss,
                                 batch_size=10000)
             log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
         return r
+
+    def _get_configured_namespaces(self):
+        nss = set([omero.constants.namespaces.NSBULKANNOTATIONS])
+        if self.column_cfgs:
+            for c in self.column_cfgs:
+                try:
+                    ns = c['group']['groupname']
+                    nss.add(ns)
+                except KeyError:
+                    continue
+        return list(nss)
 
     def populate(self):
         # Hierarchy: Screen, Plate, {PlateAcquistion, Well}, WellSample, Image
@@ -1306,28 +1330,28 @@ class DeleteMapAnnotationContext(_QueryContext):
         self.fileannids = set()
         not_annotatable = ('WellSample',)
 
-        ns = omero.constants.namespaces.NSBULKANNOTATIONS
+        nss = self._get_configured_namespaces()
         for objtype, objids in parentids.iteritems():
             if objtype in not_annotatable:
                 continue
             r = self._get_annotations_for_deletion(
-                objtype, objids, 'MapAnnotation', ns)
+                objtype, objids, 'MapAnnotation', nss)
             self.mapannids.update(r)
 
         log.info("Total: %d MapAnnotation(s) in %s",
-                 len(set(self.mapannids)), ns)
+                 len(set(self.mapannids)), nss)
 
         if self.attach:
-            ns = NSBULKANNOTATIONSCONFIG
+            nss = [NSBULKANNOTATIONSCONFIG]
             for objtype, objids in parentids.iteritems():
                 if objtype in not_annotatable:
                     continue
                 r = self._get_annotations_for_deletion(
-                    objtype, objids, 'FileAnnotation', ns)
+                    objtype, objids, 'FileAnnotation', nss)
                 self.fileannids.update(r)
 
             log.info("Total: %d FileAnnotation(s) in %s",
-                     len(set(self.fileannids)), ns)
+                     len(set(self.fileannids)), nss)
 
     def write_to_omero(self, batch_size=1000):
         for batch in self._batch(self.mapannids, sz=batch_size):
