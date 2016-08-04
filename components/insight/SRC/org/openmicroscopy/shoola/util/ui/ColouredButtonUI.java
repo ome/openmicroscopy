@@ -571,7 +571,6 @@ class ColouredButtonUI
     ColouredButtonUI(ColouredButton b, Color c)
     {
     	if (b == null) throw new IllegalArgumentException("No button.");
-        if (c == null) throw new IllegalArgumentException("No color.");
         button = b;
         greyedOut = false;
         fontIndex = Font.PLAIN;

@@ -87,7 +87,6 @@ public class ColouredButton
 	 */
 	public ColouredButton(String text, Color color)
 	{
-		if (color == null) color = Color.GRAY;
 		setModel(new DefaultButtonModel());
 		init(text, null);
 		colourButtonUI = new ColouredButtonUI(this, color);

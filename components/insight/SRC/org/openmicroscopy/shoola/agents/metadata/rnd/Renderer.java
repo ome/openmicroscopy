@@ -405,6 +405,13 @@ public interface Renderer
     Color getChannelColor(int index);
 
     /**
+     * Return the lookup table for the given channel
+     * @param index The channel index
+     * @return See above
+     */
+    String getLookupTable(int index);
+    
+    /**
      * Returns <code>true</code> if the channel is mapped, <code>false</code>
      * otherwise.
      * 

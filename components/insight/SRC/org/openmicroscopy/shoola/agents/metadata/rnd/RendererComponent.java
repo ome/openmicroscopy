@@ -811,6 +811,15 @@ class RendererComponent
 		return model.getChannelColor(index);
 	}
 
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getLookupTable(int)
+     */
+    public String getLookupTable(int index)
+    {
+        return model.getLookupTable(index);
+    }
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getCompressionLevel()

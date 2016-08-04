@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -932,8 +933,9 @@ class ControlPane
         while (i.hasNext()) {
             d = i.next();
             k = d.getIndex();
+            boolean lut = CommonsLangUtils.isNotEmpty(model.getLookupTable(k));
             button = new ChannelButton(d.getChannelLabeling(),
-                    model.getChannelColor(k), k, model.isChannelActive(k));
+                    lut ? null : model.getChannelColor(k), k, model.isChannelActive(k));
             channelButtons.add(button);
             dim = button.getPreferredSize();
             if (dim.width > dimMax.width) 
@@ -1272,25 +1274,32 @@ class ControlPane
         Iterator<ChannelButton> i = channelButtons.iterator();
         ChannelButton button;
         int index;
+        boolean lut;
         while (i.hasNext()) {
             button = i.next();
             index = button.getChannelIndex();
+            lut = CommonsLangUtils.isNotEmpty(model
+                    .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(model.getChannelColor(index));
+            button.setColor(lut ? null :  model.getChannelColor(index));
         }
         i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
             button = i.next();
             index = button.getChannelIndex();
+            lut = CommonsLangUtils.isNotEmpty(model
+                    .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(model.getChannelColor(index));
+            button.setColor(lut ? null : model.getChannelColor(index));
         }
         i = channelButtonsProjection.iterator();
         while (i.hasNext()) {
             button = i.next();
             index = button.getChannelIndex();
+            lut = CommonsLangUtils.isNotEmpty(model
+                    .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(model.getChannelColor(index));
+            button.setColor(lut ? null : model.getChannelColor(index));
         }
         Icon icon = getColorModelIcon(model.getColorModel());
         String tip = getColorModelDescription(model.getColorModel());

@@ -990,6 +990,17 @@ class ImViewerModel
 	}
 
 	/**
+     * Return the lookup table for the given channel
+     * @param index The channel index
+     * @return See above
+     */
+	String getLookupTable(int index) {
+	    Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return null;
+        return rnd.getLookupTable(index);
+	}
+	
+	/**
 	 * Returns <code>true</code> if the channel is mapped, <code>false</code>
 	 * otherwise.
 	 * 

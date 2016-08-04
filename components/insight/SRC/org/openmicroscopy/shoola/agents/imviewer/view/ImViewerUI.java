@@ -1144,7 +1144,8 @@ class ImViewerUI
 		while (i.hasNext()) {
 			d = i.next();
 			index = d.getIndex();
-			comp = new PlaneInfoComponent(model.getChannelColor(index));
+			boolean lut = CommonsLangUtils.isNotEmpty(model.getLookupTable(index));
+			comp = new PlaneInfoComponent(lut ? null : model.getChannelColor(index));
 			comp.addPropertyChangeListener(
 					PlaneInfoComponent.PLANE_INFO_PROPERTY, controller);
 			planes.put(index, comp);
@@ -1423,7 +1424,10 @@ class ImViewerUI
 	        if (info != null) {
 	            details = EditorUtil.transformPlaneInfo(info);
 	            notSet = (List<String>) details.get(EditorUtil.NOT_SET);
-	            comp.setColor(colors.get(index));
+	            if(CommonsLangUtils.isEmpty(model.getLookupTable(index)))
+	                    comp.setColor(colors.get(index));
+	            else
+	                comp.setColor(null);
 	            if (!notSet.contains(EditorUtil.DELTA_T)) {
 	                if(details.get(EditorUtil.DELTA_T) instanceof BigResult) {
 	                    ImViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T), EditorUtil.DELTA_T);
