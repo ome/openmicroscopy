@@ -78,7 +78,7 @@ class UploadControl(BaseControl):
             update = c.sf.getUpdateService()
             for fId in fileIds:
                 ann = FileAnnotationI()
-                ann.file = OriginalFileI(fId, False)
+                ann.file = omero.model.OriginalFileI(fId, False)
                 ann = update.saveAndReturnObject(ann)
                 annIds.append(ann.id.val)
             annIds = self._order_and_range_ids(annIds)
