@@ -385,7 +385,7 @@ class TestIShare(lib.ITest):
             assert len(s) > 0
         finally:
             tb.close()
-        
+
         share = self.root.sf.getShareService()
         sid = share.createShare("", None, [], [], [], True)
         share.activate(sid)
