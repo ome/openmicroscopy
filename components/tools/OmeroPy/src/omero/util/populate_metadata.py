@@ -46,6 +46,8 @@ from omero.model import MapAnnotationI, NamedValue
 from omero.grid import ImageColumn, LongColumn, PlateColumn, RoiColumn
 from omero.grid import StringColumn, WellColumn, DoubleColumn, BoolColumn
 from omero.grid import DatasetColumn
+from omero.util.metadata_mapannotations import (
+    CanonicalMapAnnotation, MapAnnotationManager)
 from omero.util.metadata_utils import (
     KeyValueListPassThrough, KeyValueGroupList, NSBULKANNOTATIONSCONFIG)
 from omero import client
@@ -1066,6 +1068,9 @@ class BulkToMapAnnotationContext(_QueryContext):
         self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
             get_config(self.client.getSession(), cfg=cfg, cfgid=cfgid)
 
+        self.pkmap = None
+        self.mapannotations = MapAnnotationManager()
+
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
         return qs.find(target_object.ice_staticId().split('::')[-1],
@@ -1080,9 +1085,34 @@ class BulkToMapAnnotationContext(_QueryContext):
         if r:
             return r[-1]
 
-    @staticmethod
-    def create_map_annotation(
-            targets, rowkvs, ns=omero.constants.namespaces.NSBULKANNOTATIONS):
+    def _get_ns_primary_keys(self, ns):
+        if self.pkmap is not None:
+            return self.pkmap.get(ns, None)
+
+        self.pkmap = {}
+        try:
+            pkcfg = self.advanced_cfgs['primary_group_keys']
+        except (TypeError, KeyError):
+            return None
+
+        for pk in pkcfg:
+            try:
+                ns = pk['groupname']
+                keys = pk['keys']
+            except KeyError:
+                raise Exception('Invalid primary_group_keys: %s' % pk)
+            if keys:
+                if not isinstance(keys, list):
+                    raise Exception('keys must be a list')
+                if ns in self.pkmap:
+                    raise Exception('Duplicate namespace in keys: %s' % ns)
+                self.pkmap[ns] = keys
+
+        return self.pkmap[ns]
+
+    def _create_cmap_annotation(self, targets, rowkvs, ns):
+        pks = self._get_ns_primary_keys(ns)
+
         ma = MapAnnotationI()
         ma.setNs(rstring(ns))
         mv = []
@@ -1092,12 +1122,17 @@ class BulkToMapAnnotationContext(_QueryContext):
             mv.extend(NamedValue(k, str(v)) for v in vs)
         ma.setMapValue(mv)
 
+        cma = CanonicalMapAnnotation(ma, primary_keys=pks, unique_keys=False)
+        for (otype, oid) in targets:
+            cma.add_parent(otype, oid)
+        return cma
+
+    def _create_map_annotation_links(self, cma):
         links = []
-        for target in targets:
-            otype = target.ice_staticId().split('::')[-1]
+        for (otype, oid) in cma.get_parents():
             link = getattr(omero.model, '%sAnnotationLinkI' % otype)()
-            link.setParent(target)
-            link.setChild(ma)
+            link.setParent(getattr(omero.model, '%sI' % otype)(oid, False))
+            link.setChild(cma.get_mapann())
             links.append(link)
         return links
 
@@ -1115,16 +1150,15 @@ class BulkToMapAnnotationContext(_QueryContext):
 
     def _get_additional_targets(self, target):
         iids = []
-        if self.advanced_cfgs.get('well_to_images') and isinstance(
-                target, omero.model.Well):
+        if self.advanced_cfgs.get('well_to_images') and target[0] == 'Well':
             q = 'SELECT image.id FROM WellSample WHERE well.id=:id'
-            iids = self.projection(q, unwrap(target.getId()))
-        return [omero.model.ImageI(i, False) for i in iids]
+            iids = self.projection(q, target[1])
+        return [('Image', i) for i in iids]
 
     def populate(self, table):
         def idcolumn_to_omeroclass(col):
             clsname = re.search('::(\w+)Column$', col.ice_staticId()).group(1)
-            return getattr(omero.model, '%sI' % clsname)
+            return clsname
 
         nrows = table.getNumberOfRows()
         data = table.readCoordinates(range(nrows))
@@ -1147,15 +1181,14 @@ class BulkToMapAnnotationContext(_QueryContext):
         else:
             trs = [KeyValueListPassThrough(headers)]
 
-        mas = []
         for row in izip(*(c.values for c in data.columns)):
             targets = []
             for omerotype, n in idcols:
                 if row[n] > 0:
-                    obj = omerotype(row[n], False)
                     # Be aware this has implications for client UIs, since
                     # Wells and Images may be treated as one when it comes
                     # to annotations
+                    obj = (omerotype, row[n])
                     targets.append(obj)
                     targets.extend(self._get_additional_targets(obj))
                 else:
@@ -1166,23 +1199,19 @@ class BulkToMapAnnotationContext(_QueryContext):
                     ns = tr.name
                     if not ns:
                         ns = omero.constants.namespaces.NSBULKANNOTATIONS
-                    malinks = self.create_map_annotation(targets, rowkvs, ns)
-                    log.debug('Map:\n\t' + ('\n\t'.join("%s=%s" % (
-                        v.name, v.value) for v in
-                        malinks[0].getChild().getMapValue())))
-                    log.debug('Targets:\n\t' + ('\n\t'.join("%s:%d" % (
-                        t.ice_staticId().split('::')[-1], t.id._val)
-                        for t in targets)))
-                    mas.extend(malinks)
-
-        self.mapannotations = mas
+                    cma = self._create_cmap_annotation(targets, rowkvs, ns)
+                    self.mapannotations.add(cma)
+                    log.debug('MapAnnotation: %s', cma)
 
     def write_to_omero(self, batch_size=1000):
         sf = self.client.getSession()
         group = str(self.target_object.details.group.id)
         update_service = sf.getUpdateService()
         i = 0
-        for batch in self._batch(self.mapannotations, sz=batch_size):
+        links = []
+        for cma in self.mapannotations.get_map_annotations():
+            links.extend(self._create_map_annotation_links(cma))
+        for batch in self._batch(links, sz=batch_size):
             i += 1
             ids = update_service.saveAndReturnIds(
                 batch, {'omero.group': group})

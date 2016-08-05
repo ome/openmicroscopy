@@ -281,12 +281,10 @@ class Plate2WellsGroups(Plate2Wells):
         for ma, wid, wr, wc in oas:
             assert isinstance(ma, MapAnnotationI)
             ns = unwrap(ma.getNs())
-            mv = ma.getMapValueAsMap()
             wrc = (wr, wc)
-            if ns == NSBULKANNOTATIONS:
-                assert mv['Well'] == str(wid)
-                assert coord2offset(mv['Well Name']) == wrc
 
+            # Well names/ids aren't included in this test, because this also
+            # test that annotations are combined by primary key
             assert (wrc, ns) in check, 'Unexpected well/namespace'
             assert check[(wrc, ns)] is None, 'Duplicate annotation'
 
@@ -298,8 +296,6 @@ class Plate2WellsGroups(Plate2Wells):
             ('Gene name', 'hedgehog'),
             ('Gene name', 'bar-3'),
             ('Gene name', 'CG4637'),
-            ('Well Name', 'a1'),
-            ('Well', well_ids[wellrcs[0]]),
         ]
         assert check[(wellrcs[0], nss[1])] == [
             ('Gene', 'hh'),
@@ -311,8 +307,6 @@ class Plate2WellsGroups(Plate2Wells):
             ('Gene name', 'swiss cheese'),
             ('Gene name', 'olfE'),
             ('Gene name', 'CG2212'),
-            ('Well Name', 'a2'),
-            ('Well', well_ids[wellrcs[1]]),
         ]
         assert check[(wellrcs[1], nss[1])] == [
             ('Gene', 'sws'),
@@ -323,8 +317,6 @@ class Plate2WellsGroups(Plate2Wells):
             ('Gene', 'ken'),
             ('Gene name', 'ken and barbie'),
             ('Gene name', 'CG5575'),
-            ('Well Name', 'a3'),
-            ('Well', well_ids[wellrcs[2]]),
         ]
         assert check[(wellrcs[2], nss[1])] == [
             ('Gene', 'ken'),
