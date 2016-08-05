@@ -23,7 +23,8 @@
 Utilities for manipulating map-annotations used as metadata
 """
 
-from omero.rtypes import unwrap
+from omero.model import NamedValue
+from omero.rtypes import rstring, unwrap
 
 
 class CanonicalMapAnnotation(object):
@@ -44,7 +45,7 @@ class CanonicalMapAnnotation(object):
     def __init__(self, ma, primary_keys=None, unique_keys=True):
         # self.date = unwrap(ma.getDate())
         # self.description = unwrap(ma.getDescription())
-        self.id = unwrap(ma.getId())
+        self.ma = ma
         ns = unwrap(ma.getNs())
         self.ns = ns if ns else ''
         try:
@@ -104,6 +105,16 @@ class CanonicalMapAnnotation(object):
             raise ValueError('Expected parenttype:str parentid:integer')
         self.parents.add((parenttype, parentid))
 
+    def get_mapann(self):
+        """
+        Update and return an omero.model.MapAnnotation with merged/combined
+        fields
+        """
+        mv = [NamedValue(*kv) for kv in self.kvpairs]
+        self.ma.setMapValue(mv)
+        self.ma.setNs(rstring(self.ns))
+        return self.ma
+
     def __str__(self):
         return '%s: %s' % (self.primary, self.kvpairs)
 
@@ -119,33 +130,36 @@ class MapAnnotationManager(object):
         self.mapanns = {}
         self.combine = combine
 
-    def add(self, ma):
+    def add(self, cma):
         """
-        Adds a map-annotation to the managed list.
+        Adds a CanonicalMapAnnotation to the managed list.
 
-        Returns any map-annotations that are no longer required, this may be
-        ma or it may be a previously added annotation. The idea is that this
-        can be used to de-duplicate existing OMERO MapAnnotations by calling
-        add() on all MapAnnotations and deleting those which are returned
+        Returns any CanonicalMapAnnotation that are no longer required,
+        this may be cma or it may be a previously added annotation.
+        The idea is that this can be used to de-duplicate existing OMERO
+        MapAnnotations by calling add() on all MapAnnotations and deleting
+        those which are returned
 
         If MapAnnotations are combined the parents of the unwanted
         MapAnnotations are appended to the one that is kept by the manager.
+
+        :param cma: A CanonicalMapAnnotation
         """
         try:
-            current = self.mapanns[ma.primary]
-            if current is ma:
+            current = self.mapanns[cma.primary]
+            if current.ma is cma.ma:
                 # Don't re-add an identical object
                 return
             if self.combine == self.MA_APPEND:
-                current.merge(ma)
-                return ma
+                current.merge(cma)
+                return cma
             if self.combine == self.MA_NEW:
-                self.mapanns[ma.primary] = ma
-                ma.merge_parents(current)
+                self.mapanns[cma.primary] = cma
+                cma.merge_parents(current)
                 return current
             if self.combine == self.MA_OLD:
-                current.merge_parents(ma)
-                return ma
+                current.merge_parents(cma)
+                return cma
             raise ValueError('Invalid combine policy')
         except KeyError:
-            self.mapanns[ma.primary] = ma
+            self.mapanns[cma.primary] = cma
