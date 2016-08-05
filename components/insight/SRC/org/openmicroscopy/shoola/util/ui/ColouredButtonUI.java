@@ -27,8 +27,10 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -44,6 +46,9 @@ import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 //Third-party libraries
+
+
+
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXButton;
@@ -83,6 +88,8 @@ class ColouredButtonUI
 	
 	/** The default insets for the painter. */
 	private static final Insets INSETS = new Insets(3, 3, 3, 3);
+	
+	private static final double IMAGE_OPACITY = 0.3;
 	
     /** Current Colour of the button. */
     private Color           colour;
@@ -406,10 +413,14 @@ class ColouredButtonUI
         }
         
         if (this.image != null) {
+            Composite prev = g.getComposite();
+            Composite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER , (float) IMAGE_OPACITY );
+            g.setComposite(comp);
             int height = (int) buttonRect.getHeight();
             int width = (int) buttonRect.getWidth();
             g.drawImage(image, 0, 0, width, height, null);
-
+            g.setComposite(prev);
+            
             // Text
             final FontMetrics fm = g.getFontMetrics();
             final int x = (int) ((buttonRect.width / 2.0f) - fm

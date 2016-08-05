@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -56,8 +57,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXBusyLabel;
 
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -68,8 +69,10 @@ import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+
 import omero.gateway.model.ChannelData;
 
 /**
@@ -934,8 +937,14 @@ class ControlPane
             d = i.next();
             k = d.getIndex();
             boolean lut = CommonsLangUtils.isNotEmpty(model.getLookupTable(k));
-            button = new ChannelButton(d.getChannelLabeling(),
-                    lut ? null : model.getChannelColor(k), k, model.isChannelActive(k));
+            if (lut)
+                button = new ChannelButton(d.getChannelLabeling(),
+                        LookupTableIconUtil.getLUTIconImage(model
+                                .getLookupTable(k)), k,
+                        model.isChannelActive(k));
+            else
+                button = new ChannelButton(d.getChannelLabeling(),
+                        model.getChannelColor(k), k, model.isChannelActive(k));
             channelButtons.add(button);
             dim = button.getPreferredSize();
             if (dim.width > dimMax.width) 
@@ -1281,7 +1290,13 @@ class ControlPane
             lut = CommonsLangUtils.isNotEmpty(model
                     .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(lut ? null :  model.getChannelColor(index));
+            if (lut) {
+                button.setColor(model.getChannelColor(index));
+                button.setImage(null);
+            } else {
+                button.setImage(LookupTableIconUtil.getLUTIconImage(model
+                        .getLookupTable(index)));
+            }
         }
         i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
@@ -1290,7 +1305,13 @@ class ControlPane
             lut = CommonsLangUtils.isNotEmpty(model
                     .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(lut ? null : model.getChannelColor(index));
+            if (lut) {
+                button.setColor(model.getChannelColor(index));
+                button.setImage(null);
+            } else {
+                button.setImage(LookupTableIconUtil.getLUTIconImage(model
+                        .getLookupTable(index)));
+            }
         }
         i = channelButtonsProjection.iterator();
         while (i.hasNext()) {
@@ -1299,7 +1320,13 @@ class ControlPane
             lut = CommonsLangUtils.isNotEmpty(model
                     .getLookupTable(index));
             button.setSelected(model.isChannelActive(index));
-            button.setColor(lut ? null : model.getChannelColor(index));
+            if (lut) {
+                button.setColor(model.getChannelColor(index));
+                button.setImage(null);
+            } else {
+                button.setImage(LookupTableIconUtil.getLUTIconImage(model
+                        .getLookupTable(index)));
+            }
         }
         Icon icon = getColorModelIcon(model.getColorModel());
         String tip = getColorModelDescription(model.getColorModel());

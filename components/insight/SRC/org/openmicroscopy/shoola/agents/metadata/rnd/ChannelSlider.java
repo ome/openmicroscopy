@@ -148,10 +148,11 @@ class ChannelSlider
         
         if (CommonsLangUtils.isNotEmpty(lut)) {
             channelSelection = new ChannelButton(channel.getChannelLabeling(),
-                   (Color)null, index);
-        } else
+                   LookupTableIconUtil.getLUTIconImage(lut), index);
+        } else {
             channelSelection = new ChannelButton(channel.getChannelLabeling(),
                     c, index);
+        }
         
     	channelSelection.setPreferredSize(ChannelButton.DEFAULT_MAX_SIZE);
     	channelSelection.setSelected(model.isChannelActive(index));
@@ -308,9 +309,10 @@ class ChannelSlider
 
         if (channelSelection != null) {
             if (lut) {
-                channelSelection.setColor(null);
+                channelSelection.setImage(LookupTableIconUtil.getLUTIconImage(model.getLookupTable(getIndex())));
             } else {
                 channelSelection.setColor(model.getChannelColor(getIndex()));
+                channelSelection.setImage(null);
             }
         }
     }
@@ -324,8 +326,10 @@ class ChannelSlider
     	
         if (CommonsLangUtils.isEmpty(model.getLookupTable(getIndex()))) {
             channelSelection.setColor(model.getChannelColor(getIndex()));
+            channelSelection.setImage(null);
         } else {
-            channelSelection.setColor(null);
+            channelSelection.setImage(LookupTableIconUtil.getLUTIconImage(model
+                    .getLookupTable(getIndex())));
         }
     }
     
