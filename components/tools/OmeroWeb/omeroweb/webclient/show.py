@@ -749,7 +749,8 @@ def paths_to_object(conn, experimenter_id=None, project_id=None,
                     'id': e[3].val
                 })
 
-            if e[4] is not None:
+            # Include Well if path is to image
+            if e[4] is not None and orphanedImage:
                 path.append({
                     'type': 'well',
                     'id': e[4].val
