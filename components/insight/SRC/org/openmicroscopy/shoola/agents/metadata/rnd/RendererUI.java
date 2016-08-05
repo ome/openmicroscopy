@@ -170,6 +170,17 @@ class RendererUI
         pane.setChannelColor(index);
     }
 
+    /**
+     * Sets the lookup table of the specified channel.
+     *
+     * @param index The channel's index.
+     */
+    void setLookUpTable(int index)
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.setLookupTable(index);
+    }
+    
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {

@@ -206,25 +206,5 @@ public class ColouredButton
 	 * @see  javax.swing.JComponent#getMaximumSize()
 	 */
 	public Dimension getMaximumSize() { return getPreferredSize(); }
-
-	/**
-	 * Changes to size need to be reflected in changes in painters. 
-	 * @see JButton#setSize(int, int)
-	 */
-	public void setSize(int x, int y)
-	{
-		super.setSize(x,y);
-		setColor(color);
-	}
-	
-	/**
-	 * Changes to size need to be reflected in changes in painters. 
-	 * @see JButton#setPreferredSize(Dimension)
-	 */
-	public void setPreferredSize(Dimension preferredSize)
-	{
-		super.setPreferredSize(preferredSize);
-		setColor(color);
-	}
 	
 }

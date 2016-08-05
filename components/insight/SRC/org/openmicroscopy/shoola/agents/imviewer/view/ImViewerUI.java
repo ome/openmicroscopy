@@ -1503,18 +1503,35 @@ class ImViewerUI
 	 */
 	void playChannelMovie(boolean enabled) { tabs.setEnabled(enabled); }
 	
-	/** 
-	 * Sets the color of the specified channel. 
-	 * 
-	 * @param index The channel index. 
-	 * @param c     The color to set.
-	 */
-	void setChannelColor(int index, Color c)
-	{
-		PlaneInfoComponent comp = planes.get(index);
-		if (comp != null) comp.setColor(c);
-		controlPane.setChannelColor(index, c);
-	}
+    /**
+     * Sets the color of the specified channel.
+     * 
+     * @param index
+     *            The channel index.
+     * @param c
+     *            The color to set.
+     */
+    void setChannelColor(int index, Color c) {
+        PlaneInfoComponent comp = planes.get(index);
+        if (comp != null)
+            comp.setColor(c);
+        controlPane.setChannelColor(index, c);
+    }
+
+    /**
+     * Sets the lookup table of the specified channel.
+     * 
+     * @param index
+     *            The channel index.
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int index, String lut) {
+        PlaneInfoComponent comp = planes.get(index);
+        if (comp != null)
+            comp.setLookupTable(lut);
+        controlPane.setLookupTable(index, lut);
+    }
 
 	/** Resets the defaults. */
 	void resetDefaults() { controlPane.resetRndSettings(); }

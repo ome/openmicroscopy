@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 import omero.gateway.model.ChannelData;
 
@@ -930,6 +931,27 @@ public class DomainPane
 		}
     	graphicsPane.setChannelColor(index);
     	if (channelsBox != null) populateChannels();
+    }
+    
+    /**
+     * Sets the lookup table of the passed channel.
+     * 
+     * @param index
+     *            The index of the channel.
+     */
+    void setLookupTable(int index) {
+        Iterator<ChannelButton> i = channelList.iterator();
+        ChannelButton btn;
+        while (i.hasNext()) {
+            btn = i.next();
+            if (index == btn.getChannelIndex()) {
+                btn.setImage(LookupTableIconUtil.getLUTIconImage(model
+                        .getLookupTable(index)));
+            }
+        }
+        graphicsPane.setChannelColor(index);
+        if (channelsBox != null)
+            populateChannels();
     }
     
     /** Toggles between color model and Greyscale. */

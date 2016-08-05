@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +55,7 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
+import org.openmicroscopy.shoola.agents.events.metadata.ChannelColorChangedEvent;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
@@ -366,6 +368,9 @@ class ImViewerControl
 
 	/** Reference to the movie player. */
 	private MoviePlayerDialog			moviePlayer;
+	
+	/** Reference to the color picker */
+	private ColourPicker colorPicker;
 	
 	/** Helper method to create all the UI actions. */
 	private void createActions()
@@ -732,10 +737,17 @@ class ImViewerControl
 	{
 		colorPickerIndex = index;
 		Color c = model.getChannelColor(index);
-		ColourPicker dialog = new ColourPicker(view, c);
-		dialog.setPreviewVisible(true);
-		dialog.addPropertyChangeListener(this);
-		UIUtilities.setLocationRelativeToAndShow(view, dialog);
+		String lut = model.getLookupTable(index);
+        Collection<String> luts = model.getAvailableLookupTables();
+        
+		if(colorPicker == null) {
+            colorPicker = new ColourPicker(view, c, luts, lut);
+            colorPicker.setPreviewVisible(true);
+            colorPicker.addPropertyChangeListener(this);
+        }
+        if (!colorPicker.isShowing()) {
+            UIUtilities.setLocationRelativeToAndShow(view, colorPicker);
+        }
 	}
 
 	/** 
@@ -972,19 +984,32 @@ class ImViewerControl
 			ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			if (view.isSourceDisplayed(pce.getSource()))
 				model.showColorPicker(((Integer) pce.getNewValue()).intValue());
-		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) {
-			Color c = (Color) pce.getNewValue();
-			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c, false);
-			}
-		} else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)) { 
-			Color c = (Color) pce.getNewValue();
-			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c, true);
-			}
-		} else if (ColourPicker.CANCEL_PROPERTY.equals(pName)) {
-			model.setChannelColor(colorPickerIndex, null, true);
-		} else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
+		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)
+                || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)
+                || ColourPicker.LUT_PROPERTY.equals(pName)
+                || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName)) {
+            if (colorPickerIndex != -1) {
+                ChannelColorChangedEvent e = new ChannelColorChangedEvent();
+                e.setImageId(model.getImageID());
+                e.setIndex(colorPickerIndex);
+                e.setNewColor(model.getChannelColor(colorPickerIndex));
+                e.setOldColor(model.getChannelColor(colorPickerIndex));
+                e.setNewLut(model.getLookupTable(colorPickerIndex));
+                e.setOldLut(model.getLookupTable(colorPickerIndex));
+                e.setPreview(ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)
+                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName));
+
+                if (ColourPicker.COLOUR_PROPERTY.equals(pName)
+                        || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)) {
+                    e.setNewColor((Color) pce.getNewValue());
+                } else if (ColourPicker.LUT_PROPERTY.equals(pName)
+                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName)) {
+                    e.setNewLut((String) pce.getNewValue());
+                }
+
+                ImViewerAgent.getRegistry().getEventBus().post(e);
+            }
+        } else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
 			double v = ((Double) pce.getNewValue()).doubleValue();
 			model.setUnitBarSize(v);
 		} else if (ImViewer.ICONIFIED_PROPERTY.equals(pName)) {
@@ -1045,11 +1070,8 @@ class ImViewerControl
 				if (pixs != null && pixs.getId() == view.getPixelsID())
 					model.discard();
 			}
-		} else if (MetadataViewer.CHANNEL_COLOR_CHANGED_PROPERTY.equals(
-				pName)) {
-			int index = (Integer) pce.getNewValue();
-			model.onChannelColorChanged(index);
-		} else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(pName)) {
+		}
+		else if (MetadataViewer.HANDLE_SCRIPT_PROPERTY.equals(pName)) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			ScriptActivityParam p = (ScriptActivityParam) pce.getNewValue();
 			int index = p.getIndex();

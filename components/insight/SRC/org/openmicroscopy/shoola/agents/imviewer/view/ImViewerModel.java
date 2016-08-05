@@ -1235,6 +1235,21 @@ class ImViewerModel
 		if (rnd == null) return;
 		rnd.setChannelColor(index, c, false);
 	}
+	
+    /**
+     * Sets the lookup table for the specified channel.
+     * 
+     * @param index
+     *            The channel's index.
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int index, String lut) {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return;
+        rnd.setLookupTable(index, lut, false);
+    }
 
 	/**
 	 * Sets the channel active.
@@ -1942,6 +1957,18 @@ class ImViewerModel
 		return rnd.getCompressionLevel();
 	}
 	
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above.
+     */
+    public Collection<String> getAvailableLookupTables() {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return null;
+        return rnd.getRenderingControls().get(0).getAvailableLookupTables();
+    }
+
 	/**
 	 * Fires an asynchronous retrieval of the rendering settings 
 	 * linked to the currently viewed set of pixels.

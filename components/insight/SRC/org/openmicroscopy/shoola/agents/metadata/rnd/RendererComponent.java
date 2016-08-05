@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -524,6 +524,7 @@ class RendererComponent
         try {
             makeHistorySnapshot();
             model.setLookupTable(index, lut);
+            view.setLookUpTable(index);
             firePropertyChange(CHANNEL_COLOR_PROPERTY, -1, index);
             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.valueOf(false),
                     Boolean.valueOf(true));

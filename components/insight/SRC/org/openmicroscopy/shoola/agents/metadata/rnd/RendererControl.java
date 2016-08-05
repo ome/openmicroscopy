@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.metadata.ChannelColorChangedEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ContrastStretchingAction;
@@ -440,30 +441,33 @@ class RendererControl
         } else if (Renderer.RANGE_INPUT_PROPERTY.equals(name)) {
         	Boolean b = (Boolean) evt.getNewValue();
             view.setInputRange(b.booleanValue());
-        } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) { 
-			Color c = (Color) evt.getNewValue();
-			if (colorPickerIndex != -1) {
-			    model.setLookupTable(colorPickerIndex, "", false);
-				model.setChannelColor(colorPickerIndex, c, false);
-			}
-        } else if (ColourPicker.LUT_PROPERTY.equals(name)) { 
-            String lut = (String) evt.getNewValue();
+        } else if (ColourPicker.COLOUR_PROPERTY.equals(name)
+                || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)
+                || ColourPicker.LUT_PROPERTY.equals(name)
+                || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) {
             if (colorPickerIndex != -1) {
-                model.setLookupTable(colorPickerIndex, lut, false);
-            }
-        } else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) { 
-			Color c = (Color) evt.getNewValue();
-			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c, true);
-			}
-		} else if (ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) { 
-            String lut = (String) evt.getNewValue();
-            if (colorPickerIndex != -1) {
-                model.setLookupTable(colorPickerIndex, lut, true);
+                ChannelColorChangedEvent e = new ChannelColorChangedEvent();
+                e.setImageId(model.getRefImage().getId());
+                e.setIndex(colorPickerIndex);
+                e.setNewColor(model.getChannelColor(colorPickerIndex));
+                e.setOldColor(model.getChannelColor(colorPickerIndex));
+                e.setNewLut(model.getLookupTable(colorPickerIndex));
+                e.setOldLut(model.getLookupTable(colorPickerIndex));
+                e.setPreview(ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)
+                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name));
+
+                if (ColourPicker.COLOUR_PROPERTY.equals(name)
+                        || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) {
+                    e.setNewColor((Color) evt.getNewValue());
+                } else if (ColourPicker.LUT_PROPERTY.equals(name)
+                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) {
+                    e.setNewLut((String) evt.getNewValue());
+                }
+                
+                MetadataViewerAgent.getRegistry().getEventBus().post(e);
             }
         } else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
-			model.setChannelColor(colorPickerIndex, null, true);
-			model.resetLookupTable(colorPickerIndex);
+            MetadataViewerAgent.getRegistry().getEventBus().post(ChannelColorChangedEvent.RESET_EVENT);
 			colorPicker.dispose();
 			colorPicker = null;
 		} else if (ColourPicker.CLOSE.equals(name)) {
