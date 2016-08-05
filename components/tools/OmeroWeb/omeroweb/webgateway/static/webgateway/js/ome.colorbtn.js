@@ -135,6 +135,11 @@ $.fn.colorbtn = function(cfg) {
         });
       }
 
+      // reset showing of LUTs and hiding of colorpicker
+      $('.cpickerPane').hide();
+      $luts.show();
+      $('.showColorPicker a').html('Show Color Picker');
+
       // bind appropriate handler (wraps ref to button)
       $("#cbpicker-OK-btn").unbind('click').bind('click', ok_callback)
         .bind('click',function(){
@@ -146,7 +151,11 @@ $.fn.colorbtn = function(cfg) {
       });
       self.removeAttr('data-picked-color');
 
-      var color = '#' + OME.rgbToHex(self.attr("data-color"));
+      var oldColor = self.attr("data-color"),
+        color = '#' + OME.rgbToHex(oldColor);
+      if (oldColor.endsWith('.lut')){
+        color = '#FF0000';
+      }
       picker.linkTo(null_cb).setColor(color).linkTo(callback);
       jQuery("#"+this.cfg.prefix+"-tb").attr('value', color.substring(1).toUpperCase());
       jQuery("#"+this.cfg.prefix+"-defc").css("background-color", self.css("background-color"));
