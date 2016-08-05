@@ -43,8 +43,7 @@ class CanonicalMapAnnotation(object):
     """
 
     def __init__(self, ma, primary_keys=None, unique_keys=True):
-        # self.date = unwrap(ma.getDate())
-        # self.description = unwrap(ma.getDescription())
+        # TODO: should we consider data and description
         self.ma = ma
         ns = unwrap(ma.getNs())
         self.ns = ns if ns else ''
@@ -67,12 +66,15 @@ class CanonicalMapAnnotation(object):
 
         if primary_keys:
             primary_keys = set(primary_keys)
+            missing = primary_keys.difference(kv[0] for kv in kvpairs)
+            if missing:
+                raise Exception('Missing primary key fields: %s' % missing)
             # ns is always part of the primary key
             primary = (
                 self.ns,
                 frozenset((k, v) for (k, v) in kvpairs if k in primary_keys))
         else:
-            primary = (self.ns, frozenset())
+            primary = None
 
         return kvpairs, primary
 
@@ -115,8 +117,12 @@ class CanonicalMapAnnotation(object):
         self.ma.setNs(rstring(self.ns))
         return self.ma
 
+    def get_parents(self):
+        return self.parents
+
     def __str__(self):
-        return '%s: %s' % (self.primary, self.kvpairs)
+        return 'primary:%s keyvalues:%s parents:%s' % (
+            self.primary, self.kvpairs, self.parents)
 
 
 class MapAnnotationManager(object):
@@ -128,6 +134,7 @@ class MapAnnotationManager(object):
 
     def __init__(self, combine=MA_APPEND):
         self.mapanns = {}
+        self.nokey = []
         self.combine = combine
 
     def add(self, cma):
@@ -145,6 +152,11 @@ class MapAnnotationManager(object):
 
         :param cma: A CanonicalMapAnnotation
         """
+
+        if cma.primary is None:
+            self.nokey.append(cma)
+            return
+
         try:
             current = self.mapanns[cma.primary]
             if current.ma is cma.ma:
@@ -163,3 +175,6 @@ class MapAnnotationManager(object):
             raise ValueError('Invalid combine policy')
         except KeyError:
             self.mapanns[cma.primary] = cma
+
+    def get_map_annotations(self):
+        return self.mapanns.values() + self.nokey
