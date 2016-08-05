@@ -172,35 +172,36 @@
         }
     };
 
+    function getLutBgPos(color) {
+        var css = {};
+        if (color.endsWith('.lut')) {
+            var lutIndex = OME.LUT_NAMES.indexOf(color);
+            return '0px -' + (lutIndex * 20) + 'px';
+        } else {
+            return '0px 100px';  // hide by offsetting
+        }
+    }
+
     window.syncRDCW = function(viewport) {
         var cb, color;
         var channels = viewport.getChannels();
-        var lutIndex;
+        var lutBgPos;
         for (i=0; i<channels.length; i++) {
             color = channels[i].color;
-            lutIndex = -1;
-            if (color.indexOf('.lut') > -1) {
-                lutIndex = OME.LUT_NAMES.indexOf(color);
-                // default color for LUT if we don't show LUT background (E.g. not known)
+            lutBgPos = getLutBgPos(color);
+            if (color.endsWith('.lut')) {
                 color = 'EEEEEE';
             }
-            if (lutIndex > -1) {
-                // Button beside image in full viewer (not in Preview panel):
-                $('#wblitz-ch' + i).addClass('lutBackground')
-                    .css({'background-position': '-200px -' + (lutIndex * 20) + 'px',
-                        'background-size': '500px 640px'});
-                // Slider background
-                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').addClass('lutBackground')
-                    .css('background-position', '0 -' + (lutIndex * 20) + 'px');
-                // Channel button beside slider
-                $('#rd-wblitz-ch'+i).css('background-color', '#' + color);
-            } else {
-                $('#wblitz-ch'+i+'-cwslider .ui-slider-range').removeClass('lutBackground')
-                    .css('background-color', '#' + color);
-                $('#wblitz-ch' + i).removeClass('lutBackground')
-                    .css('background-color', '#' + color);
-                $('#rd-wblitz-ch'+i).css('background-color', '#' + color);
-            }
+            // Button beside image in full viewer (not in Preview panel):
+            $('#wblitz-ch' + i).css('background-color', '#' + color)
+                .find('.lutBackground').css('background-position', lutBgPos);
+            // Slider background
+            $('#wblitz-ch'+i+'-cwslider').addClass('lutBackground')
+                .css({'background-position': lutBgPos, 'background-color': '#' + color});
+            // Channel button beside slider
+            $('#rd-wblitz-ch'+i)
+                .css('background-color', '#' + color)
+                .find('.lutBackground').css('background-position', lutBgPos);
             var w = channels[i].window;
             $('#wblitz-ch'+i+'-cwslider')
                 .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
@@ -349,7 +350,7 @@
                 '" class="squared' + (channels[i].active?' pressed':'') +
                 '" style="background-color: #'+ channels[i].color +
                 '" title="' + channels[i].label +
-                '">'+channels[i].label+'</button>')
+                '"><div class="lutBackground"></div><div class="btnLabel">'+channels[i].label+'</div></button>')
             .appendTo(box)
             .bind('click', doToggle(i));
         }
@@ -385,7 +386,7 @@
         var template = '' +
           '<tr class="$cls rdef-window">' +
           '<td><button id="rd-wblitz-ch$idx0" class="rd-wblitz-ch squared $class" style="background-color: $col" ' +
-            'title="$label">$l</button></td>' +
+            'title="$label"><div class="lutBackground"></div><div class="btnLabel">$l</div></button></td>' +
           '<td><table><tr id="wblitz-ch$idx0-cw" class="rangewidget"></tr></table></td>' +
           '<td><button id="wblitz-ch$idx0-color" class="picker squarred" title="Choose Color">&nbsp;</button></td>' +
           '</tr>';

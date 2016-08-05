@@ -146,11 +146,26 @@ div.weblitz-viewport-tiles img {
 }
 
 .rd-wblitz-ch {
-  width: 49px;
-  height: 19px;
   margin-right: 5px;
   padding: 1px 2px;
   white-space: nowrap;
+}
+
+.squared div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.btnLabel {
+  padding: 1px;
+}
+
+.squared {
+  width: 49px;
+  height: 19px;
+  position: relative;
 }
 
 .fontWhite {
@@ -173,5 +188,8 @@ div.weblitz-viewport-tiles img {
   background-image: url('../img/luts_10.png');
   background-size: 100% 640px;
   background-repeat: no-repeat;
+}
+button>.lutBackground {
+  opacity: 0.3;
 }
 
