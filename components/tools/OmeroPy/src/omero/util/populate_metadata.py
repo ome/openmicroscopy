@@ -860,8 +860,10 @@ class BulkToMapAnnotationContext(_QueryContext):
             for omerotype, n in idcols:
                 if row[n] > 0:
                     obj = omerotype(row[n], False)
-                    # Josh: disabling to prevent duplication in UI
-                    # targets.append(obj)
+                    # Be aware this has implications for client UIs, since
+                    # Wells and Images may be treated as one when it comes
+                    # to annotations
+                    targets.append(obj)
                     targets.extend(self._get_additional_targets(obj))
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
