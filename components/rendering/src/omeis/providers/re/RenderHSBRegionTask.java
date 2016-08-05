@@ -167,9 +167,15 @@ class RenderHSBRegionTask implements RenderingTask {
                     discreteValue = cc.transform(discreteValue);
 
                     if (reader != null) {
-                        r[pix] = (byte) (((byte) (r[pix]+reader.getRed(discreteValue)))&0xFF);
-                        g[pix] = (byte) (((byte) (r[pix]+reader.getRed(discreteValue)))&0xFF);
-                        b[pix] = (byte) (((byte) (b[pix]+reader.getRed(discreteValue)))&0xFF);
+                        int r1 = ((r[pix] & 0x00FF0000) >> 16);
+                        int r2 = reader.getRed(discreteValue) & 0xFF;
+                        int g1 = ((g[pix] & 0x0000FF00) >> 8);
+                        int g2 = reader.getGreen(discreteValue) & 0xFF;
+                        int b1 = (b[pix] & 0x000000FF);
+                        int b2 = reader.getBlue(discreteValue) & 0xFF;
+                        r[pix] = (byte) (r1+r2);
+                        g[pix] = (byte) (g1+g2);
+                        b[pix] = (byte) (b1+b2);
                         continue;
                     }
                     // Pre-multiply the alpha component and add the existing
@@ -258,10 +264,16 @@ class RenderHSBRegionTask implements RenderingTask {
                     // comment this out for the time being.
                     //discreteValue = cc.transform(discreteValue);
                     if (reader != null) {
+                        int r1 = ((buf[pix] & 0x00FF0000) >> 16);
+                        int r2 = reader.getRed(discreteValue) & 0xFF;
+                        int g1 = ((buf[pix] & 0x0000FF00) >> 8);
+                        int g2 = reader.getGreen(discreteValue) & 0xFF;
+                        int b1 = (buf[pix] & 0x000000FF);
+                        int b2 = reader.getBlue(discreteValue) & 0xFF;
                         buf[pix] = 0xFF000000 |
-                                (((byte) (buf[pix]+reader.getRed(discreteValue)))&0xFF) << 16 |
-                                (((byte) (buf[pix]+reader.getGreen(discreteValue)))&0xFF) << 8 |
-                                (((byte) (buf[pix]+reader.getBlue(discreteValue)))&0xFF);
+                                (r1+r2) << 16 |
+                                (g1+g2) << 8 |
+                                (b1+b2);
                         continue;
                     }
                     // Primary colour optimization is in effect, we don't need
@@ -385,10 +397,16 @@ class RenderHSBRegionTask implements RenderingTask {
                     //discreteValue = cc.transform(discreteValue);
 
                     if (reader != null) {
+                        int r1 = ((buf[pix] & 0xFF000000) >> 24);
+                        int r2 = reader.getRed(discreteValue) & 0xFF;
+                        int g1 = ((buf[pix] & 0x00FF0000) >> 16);
+                        int g2 = reader.getGreen(discreteValue) & 0xFF;
+                        int b1 = ((buf[pix] & 0x0000FF00) >> 8);
+                        int b2 = reader.getBlue(discreteValue) & 0xFF;
                         buf[pix] = 0x000000FF |
-                                (((byte) (buf[pix]+reader.getRed(discreteValue)))&0xFF) << 24 |
-                                (((byte) (buf[pix]+reader.getGreen(discreteValue)))&0xFF) << 16 |
-                                (((byte) (buf[pix]+reader.getBlue(discreteValue)))&0xFF) << 8;
+                                (r1+r2) << 24 |
+                                (g1+g2) << 16 |
+                                (b1+b2) << 8;
                         continue;
                     }
                     // Primary colour optimization is in effect, we don't need
@@ -418,7 +436,7 @@ class RenderHSBRegionTask implements RenderingTask {
                     // colour component values.
                     rValue = ((buf[pix] & 0xFF000000) >> 24) + newRValue;
                     gValue = ((buf[pix] & 0x00FF0000) >> 16) + newGValue;
-                    bValue = ((buf[pix] & 0x0000FF00) >>8) + newBValue;
+                    bValue = ((buf[pix] & 0x0000FF00) >> 8) + newBValue;
 
                     // Ensure that each colour component value is between 0 and
                     // 255 (byte). We must make *certain* that values do not
