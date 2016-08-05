@@ -32,6 +32,13 @@ from omero.util.metadata_mapannotations import (
     CanonicalMapAnnotation, MapAnnotationManager)
 
 
+def assert_equal_name_value(a, b):
+    assert isinstance(a, NamedValue)
+    assert isinstance(b, NamedValue)
+    assert a.name == b.name
+    assert a.value == b.value
+
+
 class TestCanonicalMapAnnotation(object):
 
     # test_init_* methods test process_keypairs
@@ -43,7 +50,7 @@ class TestCanonicalMapAnnotation(object):
             ma.setNs(rstring(ns))
 
         cma = CanonicalMapAnnotation(ma)
-        assert cma.id == 1
+        assert cma.ma is ma
         expectedns = ns if ns else ''
         assert cma.ns == expectedns
         assert cma.kvpairs == []
@@ -58,7 +65,7 @@ class TestCanonicalMapAnnotation(object):
             ma.setNs(rstring(ns))
 
         cma = CanonicalMapAnnotation(ma)
-        assert cma.id == 1
+        assert cma.ma is ma
         expectedns = ns if ns else ''
         assert cma.ns == expectedns
         assert cma.kvpairs == [('b', '2'), ('a', '1')]
@@ -93,7 +100,7 @@ class TestCanonicalMapAnnotation(object):
         ma.setMapValue([NamedValue('b', '2'), NamedValue('a', '1')])
 
         cma = CanonicalMapAnnotation(ma, primary_keys=primary_keys)
-        assert cma.id == 1
+        assert cma.ma is ma
         expectedns = ns if ns else ''
         assert cma.ns == expectedns
         assert cma.kvpairs == [('b', '2'), ('a', '1')]
@@ -136,6 +143,20 @@ class TestCanonicalMapAnnotation(object):
 
         with pytest.raises(ValueError):
             cma.add_parent('C', '3')
+
+    def test_get_mapann(self):
+        ma = MapAnnotationI(1)
+        ma.setMapValue([NamedValue('a', '1')])
+        cma = CanonicalMapAnnotation(ma, primary_keys=['a'])
+        cma.add_parent('Parent', 1)
+        cma.kvpairs.append(('b', '2'))
+        newma = cma.get_mapann()
+
+        assert newma is ma
+        mv = newma.getMapValue()
+        assert len(mv) == 2
+        assert_equal_name_value(mv[0], NamedValue('a', '1'))
+        assert_equal_name_value(mv[1], NamedValue('b', '2'))
 
 
 class TestMapAnnotationManager(object):
