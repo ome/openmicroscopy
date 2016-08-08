@@ -953,6 +953,26 @@ class _QueryContext(object):
         for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
             yield batch
 
+    def _grouped_batch(self, groups, sz=1000):
+        """
+        In some cases groups of objects must be kept together.
+        This method attempts to return up to sz objects without breaking
+        up groups. If a single group is greater than sz the whole group
+        is returned.
+
+        :param groups: an iterable of lists/tuples of objects
+        """
+        batch = []
+        for group in groups:
+            if (len(batch) == 0) or (len(batch) + len(group) <= sz):
+                batch.extend(group)
+            else:
+                toyield = batch
+                batch = group
+                yield toyield
+        if batch:
+            yield batch
+
     def projection(self, q, ids, nss=None, batch_size=None):
         """
         Run a projection query designed to return scalars only
@@ -1239,13 +1259,16 @@ class BulkToMapAnnotationContext(_QueryContext):
         update_service = sf.getUpdateService()
         i = 0
         links = []
+        # This may be many-links-to-one-new-mapann so everything must
+        # be kept together to avoid duplication of the mapann
         for cma in self.mapannotations.get_map_annotations():
-            links.extend(self._create_map_annotation_links(cma))
-        for batch in self._batch(links, sz=batch_size):
-            i += 1
+            links.append(self._create_map_annotation_links(cma))
+        for batch in self._grouped_batch(links, sz=batch_size):
             ids = update_service.saveAndReturnIds(
                 batch, {'omero.group': group})
-            log.info('Created %d MapAnnotations (batch %s)', len(ids), i)
+            i += len(ids)
+            log.info('Created/linked %d MapAnnotations (total %s)',
+                     len(ids), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):
