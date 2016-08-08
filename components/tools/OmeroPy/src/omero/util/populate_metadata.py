@@ -47,7 +47,8 @@ from omero.grid import ImageColumn, LongColumn, PlateColumn, RoiColumn
 from omero.grid import StringColumn, WellColumn, DoubleColumn, BoolColumn
 from omero.grid import DatasetColumn
 from omero.util.metadata_mapannotations import (
-    CanonicalMapAnnotation, MapAnnotationManager)
+    CanonicalMapAnnotation, MapAnnotationPrimaryKeyException,
+    MapAnnotationManager)
 from omero.util.metadata_utils import (
     KeyValueListPassThrough, KeyValueGroupList, NSBULKANNOTATIONSCONFIG)
 from omero import client
@@ -1097,15 +1098,15 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         for pk in pkcfg:
             try:
-                ns = pk['groupname']
+                gns = pk['groupname']
                 keys = pk['keys']
             except KeyError:
                 raise Exception('Invalid primary_group_keys: %s' % pk)
             if keys:
                 if not isinstance(keys, list):
                     raise Exception('keys must be a list')
-                if ns in self.pkmap:
-                    raise Exception('Duplicate namespace in keys: %s' % ns)
+                if gns in self.pkmap:
+                    raise Exception('Duplicate namespace in keys: %s' % gns)
                 self.pkmap[ns] = keys
 
         return self.pkmap[ns]
@@ -1120,8 +1121,15 @@ class BulkToMapAnnotationContext(_QueryContext):
             if not isinstance(vs, (tuple, list)):
                 vs = [vs]
             mv.extend(NamedValue(k, str(v)) for v in vs)
+
+        if not mv:
+            log.debug('Empty MapValue, ignoring: %s', rowkvs)
+            return
+
         ma.setMapValue(mv)
 
+        log.debug('Creating CanonicalMapAnnotation ns:%s pks:%s kvs:%s',
+                  ns, pks, rowkvs)
         cma = CanonicalMapAnnotation(ma, primary_keys=pks, unique_keys=False)
         for (otype, oid) in targets:
             cma.add_parent(otype, oid)
@@ -1163,6 +1171,12 @@ class BulkToMapAnnotationContext(_QueryContext):
             clsname = re.search('::(\w+)Column$', col.ice_staticId()).group(1)
             return clsname
 
+        try:
+            ignore_missing_primary_key = self.advanced_cfgs[
+                'ignore_missing_primary_key']
+        except (KeyError, TypeError):
+            ignore_missing_primary_key = False
+
         nrows = table.getNumberOfRows()
         data = table.readCoordinates(range(nrows))
 
@@ -1202,9 +1216,22 @@ class BulkToMapAnnotationContext(_QueryContext):
                     ns = tr.name
                     if not ns:
                         ns = omero.constants.namespaces.NSBULKANNOTATIONS
-                    cma = self._create_cmap_annotation(targets, rowkvs, ns)
-                    self.mapannotations.add(cma)
-                    log.debug('MapAnnotation: %s', cma)
+                    try:
+                        cma = self._create_cmap_annotation(targets, rowkvs, ns)
+                        if cma:
+                            self.mapannotations.add(cma)
+                            print cma
+                            log.debug('Added MapAnnotation: %s', cma)
+                        else:
+                            log.debug(
+                                'Empty MapAnnotation: %s', rowkvs)
+                    except MapAnnotationPrimaryKeyException:
+                        c = ''
+                        if ignore_missing_primary_key:
+                            c = ' (Continuing)'
+                        log.error('Missing primary keys%s: %s ', c, rowkvs)
+                        if not ignore_missing_primary_key:
+                            raise
 
     def write_to_omero(self, batch_size=1000):
         sf = self.client.getSession()

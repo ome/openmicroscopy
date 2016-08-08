@@ -29,7 +29,8 @@ import pytest
 from omero.model import MapAnnotationI, NamedValue
 from omero.rtypes import rstring
 from omero.util.metadata_mapannotations import (
-    CanonicalMapAnnotation, MapAnnotationManager)
+    CanonicalMapAnnotation, MapAnnotationPrimaryKeyException,
+    MapAnnotationManager)
 
 
 def assert_equal_name_value(a, b):
@@ -118,7 +119,7 @@ class TestCanonicalMapAnnotation(object):
         ma = MapAnnotationI(1)
         ma.setMapValue([NamedValue('b', '2')])
 
-        with pytest.raises(Exception) as excinfo:
+        with pytest.raises(MapAnnotationPrimaryKeyException) as excinfo:
             CanonicalMapAnnotation(ma, primary_keys=['a', 'b'])
         assert str(excinfo.value).startswith('Missing ')
 

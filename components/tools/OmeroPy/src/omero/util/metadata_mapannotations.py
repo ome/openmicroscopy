@@ -27,6 +27,12 @@ from omero.model import NamedValue
 from omero.rtypes import rstring, unwrap
 
 
+class MapAnnotationPrimaryKeyException(Exception):
+
+    def __init__(self, message):
+        super(MapAnnotationPrimaryKeyException, self).__init__(message)
+
+
 class CanonicalMapAnnotation(object):
     """
     A canonical representation of a map-annotation for metadata use
@@ -68,7 +74,8 @@ class CanonicalMapAnnotation(object):
             primary_keys = set(primary_keys)
             missing = primary_keys.difference(kv[0] for kv in kvpairs)
             if missing:
-                raise Exception('Missing primary key fields: %s' % missing)
+                raise MapAnnotationPrimaryKeyException(
+                    'Missing primary key fields: %s' % missing)
             # ns is always part of the primary key
             primary = (
                 self.ns,
