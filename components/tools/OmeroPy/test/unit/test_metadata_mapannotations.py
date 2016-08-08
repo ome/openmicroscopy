@@ -54,7 +54,7 @@ class TestCanonicalMapAnnotation(object):
         expectedns = ns if ns else ''
         assert cma.ns == expectedns
         assert cma.kvpairs == []
-        assert cma.primary == (expectedns, frozenset())
+        assert cma.primary == None
         assert cma.parents == set()
 
     @pytest.mark.parametrize('ns', [None, '', 'NS'])
@@ -69,15 +69,16 @@ class TestCanonicalMapAnnotation(object):
         expectedns = ns if ns else ''
         assert cma.ns == expectedns
         assert cma.kvpairs == [('b', '2'), ('a', '1')]
-        assert cma.primary == (expectedns, frozenset())
+        assert cma.primary == None
         assert cma.parents == set()
 
     def test_init_defaults_duplicates(self):
         ma = MapAnnotationI(1)
         ma.setMapValue([NamedValue('a', '1'), NamedValue('a', '1')])
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             CanonicalMapAnnotation(ma)
+        assert str(excinfo.value).startswith('Duplicate ')
 
     @pytest.mark.parametrize('unique_keys', [False, True])
     def test_init_unique_keys(self, unique_keys):
@@ -85,12 +86,13 @@ class TestCanonicalMapAnnotation(object):
         ma.setMapValue([NamedValue('b', '2'), NamedValue('b', '1')])
 
         if unique_keys:
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError) as excinfo:
                 CanonicalMapAnnotation(ma, unique_keys=unique_keys)
+                assert str(excinfo.value).startswith('Duplicate ')
         else:
             cma = CanonicalMapAnnotation(ma, unique_keys=unique_keys)
             assert cma.kvpairs == [('b', '2'), ('b', '1')]
-            assert cma.primary == ('', frozenset())
+            assert cma.primary == None
 
     @pytest.mark.parametrize('ns', [None, '', 'NS'])
     @pytest.mark.parametrize('primary_keys', [[], ['a'], ['a', 'b']])
@@ -105,9 +107,20 @@ class TestCanonicalMapAnnotation(object):
         assert cma.ns == expectedns
         assert cma.kvpairs == [('b', '2'), ('a', '1')]
         expectedpks = [('a', '1'), ('b', '2')][:len(primary_keys)]
-        expectedpri = (expectedns, frozenset(expectedpks))
+        if primary_keys:
+            expectedpri = (expectedns, frozenset(expectedpks))
+        else:
+            expectedpri = None
         assert cma.primary == expectedpri
         assert cma.parents == set()
+
+    def test_init_missing_primary_key(self):
+        ma = MapAnnotationI(1)
+        ma.setMapValue([NamedValue('b', '2')])
+
+        with pytest.raises(Exception) as excinfo:
+            cma = CanonicalMapAnnotation(ma, primary_keys=['a', 'b'])
+        assert str(excinfo.value).startswith('Missing ')
 
     @pytest.mark.parametrize('reverse', [True, False])
     def test_merge(self, reverse):
@@ -141,8 +154,9 @@ class TestCanonicalMapAnnotation(object):
         cma.add_parent('B', 2)
         assert cma.parents == set([('A', 1), ('B', 2)])
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             cma.add_parent('C', '3')
+        assert str(excinfo.value).startswith('Expected parent')
 
     def test_get_mapann(self):
         ma = MapAnnotationI(1)
