@@ -247,22 +247,22 @@ class Plate2Wells(Fixture):
         return was
 
 
-class Plate2WellsGroups(Plate2Wells):
+class Plate2WellsNs(Plate2Wells):
     # For this test use explicit files instead of generating them as an
     # additional safeguard against changes in the test code
 
     def __init__(self):
         self.count = 6
-        self.annCount = 6 * 2  # Two groups
+        self.annCount = 6 * 2  # Two namespaces
         self.rowCount = 2
         self.colCount = 3
         d = os.path.dirname(__file__)
-        self.csv = os.path.join(d, 'bulk_to_map_annotation_context_groups.csv')
+        self.csv = os.path.join(d, 'bulk_to_map_annotation_context_ns.csv')
         self.plate = None
 
     def get_cfg(self):
         return os.path.join(os.path.dirname(__file__),
-                            'bulk_to_map_annotation_context_groups.yml')
+                            'bulk_to_map_annotation_context_ns.yml')
 
     def assert_row_values(self, rowvalues):
         # First column is the WellID
@@ -373,16 +373,16 @@ class Plate2WellsGroups(Plate2Wells):
         assert len(set(annids)) == 12
 
 
-class Plate2WellsGroups2(Plate2WellsGroups):
+class Plate2WellsNs2(Plate2WellsNs):
     # For this test use explicit files instead of generating them as an
     # additional safeguard against changes in the test code
 
     def __init__(self):
-        super(Plate2WellsGroups2, self).__init__()
+        super(Plate2WellsNs2, self).__init__()
 
     def get_cfg(self):
         return os.path.join(os.path.dirname(__file__),
-                            'bulk_to_map_annotation_context_groups2.yml')
+                            'bulk_to_map_annotation_context_ns2.yml')
 
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in (
@@ -671,8 +671,8 @@ class TestPopulateMetadata(lib.ITest):
     METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
 
     METADATA_NS_FIXTURES = (
-        Plate2WellsGroups(),
-        Plate2WellsGroups2(),
+        Plate2WellsNs(),
+        Plate2WellsNs2(),
     )
     METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
 
@@ -697,9 +697,9 @@ class TestPopulateMetadata(lib.ITest):
         self._test_delete_map_annotation_context(fixture, batch_size)
 
     @mark.parametrize("fixture", METADATA_NS_FIXTURES, ids=METADATA_NS_IDS)
-    def testPopulateMetadataGroupAnns(self, fixture):
+    def testPopulateMetadataNsAnns(self, fixture):
         """
-        Test complicated annotations (multiple groups) on a single OMERO
+        Test complicated annotations (multiple ns/groups) on a single OMERO
         data type, as opposed to testPopulateMetadata which tests simple
         annotations on multiple OMERO data types
         """
