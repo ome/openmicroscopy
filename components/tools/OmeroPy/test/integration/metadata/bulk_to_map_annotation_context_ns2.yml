@@ -1,5 +1,5 @@
 ---
-name: test_bulk_to_map_annotation_context_groups2
+name: test_bulk_to_map_annotation_context_ns2
 version: 2
 
 defaults:
