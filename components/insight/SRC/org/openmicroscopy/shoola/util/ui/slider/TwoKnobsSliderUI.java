@@ -351,10 +351,10 @@ class TwoKnobsSliderUI
 		int l = xPositionForValue(model.getStartValue());
 		int r = xPositionForValue(model.getEndValue());
 		if ( component.getImage() != null ){
-            g2D.drawImage(component.getImage(), trackRect.x, trackRect.y+3, trackRect.width, trackRect.height-12, null);
+            g2D.drawImage(component.getImage(), trackRect.x, trackRect.y, trackRect.width, trackRect.height-9, null);
             
-            g2D.drawRect(trackRect.x, trackRect.y+2, trackRect.width,
-                    trackRect.height-11);
+            g2D.drawRect(trackRect.x, trackRect.y, trackRect.width,
+                    trackRect.height-8);
 		}
 		else {
 		    if (!component.getColourGradient())
