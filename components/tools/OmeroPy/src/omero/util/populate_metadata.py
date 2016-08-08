@@ -1150,9 +1150,12 @@ class BulkToMapAnnotationContext(_QueryContext):
 
     def _get_additional_targets(self, target):
         iids = []
-        if self.advanced_cfgs.get('well_to_images') and target[0] == 'Well':
-            q = 'SELECT image.id FROM WellSample WHERE well.id=:id'
-            iids = self.projection(q, target[1])
+        try:
+            if self.advanced_cfgs['well_to_images'] and target[0] == 'Well':
+                q = 'SELECT image.id FROM WellSample WHERE well.id=:id'
+                iids = self.projection(q, target[1])
+        except (KeyError, TypeError):
+            pass
         return [('Image', i) for i in iids]
 
     def populate(self, table):

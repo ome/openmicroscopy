@@ -1,5 +1,5 @@
 ---
-name: test_bulk_to_map_annotation_context_groups
+name: test_bulk_to_map_annotation_context_groups2
 version: 2
 
 defaults:
@@ -28,3 +28,7 @@ columns:
 
 advanced:
 #    well_to_images: yes
+    primary_group_keys:
+    - groupname: openmicroscopy.org/mapr/gene
+      keys:
+      - Gene

@@ -2,3 +2,6 @@ Well,FlyBase,Gene,Gene Names
 a1,FBgn0004644,hh,hedgehog;bar-3;CG4637
 a2,FBgn0003656,sws,swiss cheese;olfE;CG2212
 a3,FBgn0011236,ken,ken and barbie;CG5575
+b1,,hh,DHH;IHH;SHH;Desert hedgehog;Indian hedgehog;Sonic hedgehog
+b2,,sws,PNPLA6;patatin like phospholipase domain containing 6
+b3,,ken,BCL6;B-cell lymphoma 6 protein
