@@ -128,6 +128,42 @@ public class PlaneInfoComponent
 	}
 	
 	/**
+     * Creates a new instance.
+     * 
+     * @param lut The lookup table associated to the channel.
+     */
+	public PlaneInfoComponent(String lut)
+    {
+        content = new JLabel();
+        icon = new ColouredButton("", LookupTableIconUtil.getLUTIconImage(lut));
+        icon.setPreferredSize(ICON_DIMENSION);
+        label = new JLabel();
+        label.setVerticalTextPosition(JLabel.CENTER);
+        label.setHorizontalTextPosition(JLabel.RIGHT);
+        label.addMouseListener(new MouseAdapter() {
+        
+            /**
+             * Shows information
+             * @see MouseAdapter#mousePressed(MouseEvent)
+             */
+            public void mousePressed(MouseEvent e) {
+                showInfo();
+            }
+        });
+        //setBorder(BorderFactory.createEmptyBorder());
+        icon.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(ActionEvent e) {
+                showInfo();
+            }
+        });
+        setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        add(icon);
+        add(Box.createHorizontalStrut(2));
+        add(label);
+    }
+	
+	/**
 	 * Sets the text associated to the component.
 	 * 
 	 * @param text The value to set.

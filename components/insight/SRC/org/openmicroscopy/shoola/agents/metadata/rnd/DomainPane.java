@@ -37,6 +37,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
@@ -61,11 +62,13 @@ import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.LookupTableIconUtil;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
+
 import omero.gateway.model.ChannelData;
 
 /** 
@@ -425,9 +428,14 @@ public class DomainPane
  		int selected = 0;
  		while (i.hasNext()) {
  			data = i.next();
- 			channelCols[index] = new Object[]{
- 					model.getChannelColor(data.getIndex()),
- 					data.getChannelLabeling() };
+            String lut = model.getLookupTable(data.getIndex());
+            if (CommonsLangUtils.isNotEmpty(lut))
+                channelCols[index] = new Object[] { lut,
+                        data.getChannelLabeling() };
+            else
+                channelCols[index] = new Object[] {
+                        model.getChannelColor(data.getIndex()),
+                        data.getChannelLabeling() };
  			if (data.getIndex() == model.getSelectedChannel())
  				selected = index;
  			index++;

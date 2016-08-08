@@ -1144,8 +1144,12 @@ class ImViewerUI
 		while (i.hasNext()) {
 			d = i.next();
 			index = d.getIndex();
-			boolean lut = CommonsLangUtils.isNotEmpty(model.getLookupTable(index));
-			comp = new PlaneInfoComponent(lut ? null : model.getChannelColor(index));
+            boolean lut = CommonsLangUtils.isNotEmpty(model
+                    .getLookupTable(index));
+            if (lut)
+                comp = new PlaneInfoComponent(model.getLookupTable(index));
+            else
+                comp = new PlaneInfoComponent(model.getChannelColor(index));
 			comp.addPropertyChangeListener(
 					PlaneInfoComponent.PLANE_INFO_PROPERTY, controller);
 			planes.put(index, comp);
@@ -1780,9 +1784,13 @@ class ImViewerUI
 				while (i.hasNext()) {
 					d = i.next();
 					index = d.getIndex();
-					item = new ChannelColorMenuItem(
-							d.getChannelLabeling(), 
-							model.getChannelColor(index), index);
+                    String lut = model.getLookupTable(index);
+                    if (CommonsLangUtils.isNotEmpty(lut))
+                        item = new ChannelColorMenuItem(d.getChannelLabeling(),
+                                lut, index);
+                    else
+                        item = new ChannelColorMenuItem(d.getChannelLabeling(),
+                                model.getChannelColor(index), index);
 					menu.add(item);
 					item.addPropertyChangeListener(controller);
 				}

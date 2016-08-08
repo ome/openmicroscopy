@@ -464,6 +464,7 @@ public class MetadataViewerAgent
                             e.getNewLut(), e.isPreview());
                 }
             }
+            viewer.onChannelColorChanged(e.getIndex());
         }
 	}
 	

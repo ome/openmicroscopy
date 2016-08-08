@@ -2062,13 +2062,17 @@ class ImViewerModel
 	{ 
 		if (!metadataLoaded) {
 			metadataLoaded = true;
-			Map<ChannelData, Color> m = new LinkedHashMap<ChannelData, Color>();
+			Map<ChannelData, Object> m = new LinkedHashMap<ChannelData, Object>();
 			List<ChannelData> sorted = getChannelData();
 			Iterator<ChannelData> i = sorted.iterator();
 			ChannelData channel;
 			while (i.hasNext()) {
 				channel = i.next();
-				m.put(channel, getChannelColor(channel.getIndex()));
+                if (CommonsLangUtils.isNotEmpty(getLookupTable(channel
+                        .getIndex())))
+                    m.put(channel, getLookupTable(channel.getIndex()));
+                else
+                    m.put(channel, getChannelColor(channel.getIndex()));
 			}
 			metadataViewer.activate(m); 
 		}
