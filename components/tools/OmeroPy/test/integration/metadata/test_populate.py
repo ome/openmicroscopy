@@ -253,7 +253,7 @@ class Plate2WellsGroups(Plate2Wells):
 
     def __init__(self):
         self.count = 3
-        self.annCount = 6  # Two groups
+        self.annCount = 3 * 2  # Two groups
         self.rowCount = 1
         self.colCount = 3
         d = os.path.dirname(__file__)
@@ -264,19 +264,11 @@ class Plate2WellsGroups(Plate2Wells):
         return os.path.join(os.path.dirname(__file__),
                             'bulk_to_map_annotation_context_groups.yml')
 
-    def get_wells_by_rc(self):
-        query = "SELECT row, column, id FROM Well WHERE plate.id=%s" % \
-                 self.plate.id.val
-        qs = self.test.client.sf.getQueryService()
-        rcis = unwrap(qs.projection(query, None))
-        return dict(((rci[0], rci[1]), str(rci[2])) for rci in rcis)
-
     def assert_child_annotations(self, oas):
         wellrcs = [coord2offset(c) for c in ('a1', 'a2', 'a3')]
         nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
         wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
         check = dict((k, None) for k in wellrc_ns)
-        well_ids = self.get_wells_by_rc()
 
         for ma, wid, wr, wc in oas:
             assert isinstance(ma, MapAnnotationI)

@@ -54,7 +54,7 @@ class TestCanonicalMapAnnotation(object):
         expectedns = ns if ns else ''
         assert cma.ns == expectedns
         assert cma.kvpairs == []
-        assert cma.primary == None
+        assert cma.primary is None
         assert cma.parents == set()
 
     @pytest.mark.parametrize('ns', [None, '', 'NS'])
@@ -69,7 +69,7 @@ class TestCanonicalMapAnnotation(object):
         expectedns = ns if ns else ''
         assert cma.ns == expectedns
         assert cma.kvpairs == [('b', '2'), ('a', '1')]
-        assert cma.primary == None
+        assert cma.primary is None
         assert cma.parents == set()
 
     def test_init_defaults_duplicates(self):
@@ -92,7 +92,7 @@ class TestCanonicalMapAnnotation(object):
         else:
             cma = CanonicalMapAnnotation(ma, unique_keys=unique_keys)
             assert cma.kvpairs == [('b', '2'), ('b', '1')]
-            assert cma.primary == None
+            assert cma.primary is None
 
     @pytest.mark.parametrize('ns', [None, '', 'NS'])
     @pytest.mark.parametrize('primary_keys', [[], ['a'], ['a', 'b']])
@@ -119,7 +119,7 @@ class TestCanonicalMapAnnotation(object):
         ma.setMapValue([NamedValue('b', '2')])
 
         with pytest.raises(Exception) as excinfo:
-            cma = CanonicalMapAnnotation(ma, primary_keys=['a', 'b'])
+            CanonicalMapAnnotation(ma, primary_keys=['a', 'b'])
         assert str(excinfo.value).startswith('Missing ')
 
     @pytest.mark.parametrize('reverse', [True, False])
