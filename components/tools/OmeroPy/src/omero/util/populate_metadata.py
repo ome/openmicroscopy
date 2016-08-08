@@ -834,7 +834,7 @@ class BulkToMapAnnotationContext(_QueryContext):
                     raise Exception('keys must be a list')
                 if gns in self.pkmap:
                     raise Exception('Duplicate namespace in keys: %s' % gns)
-                self.pkmap[ns] = keys
+                self.pkmap[gns] = keys
 
         return self.pkmap[ns]
 
@@ -952,11 +952,12 @@ class BulkToMapAnnotationContext(_QueryContext):
                         else:
                             log.debug(
                                 'Empty MapAnnotation: %s', rowkvs)
-                    except MapAnnotationPrimaryKeyException:
+                    except MapAnnotationPrimaryKeyException as e:
                         c = ''
                         if ignore_missing_primary_key:
                             c = ' (Continuing)'
-                        log.error('Missing primary keys%s: %s ', c, rowkvs)
+                        log.error(
+                            'Missing primary keys%s: %s %s ', c, e, rowkvs)
                         if not ignore_missing_primary_key:
                             raise
 
