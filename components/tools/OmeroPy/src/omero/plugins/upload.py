@@ -14,13 +14,9 @@
 import sys
 import re
 import path
+import mimetypes
 
 from omero.cli import BaseControl, CLI
-
-import omero
-import omero.rtypes
-import omero.util.originalfileutils
-
 
 try:
     import hashlib
@@ -31,6 +27,7 @@ except:
 
 HELP = """Upload local files to the OMERO server"""
 RE = re.compile("\s*upload\s*")
+UNKNOWN = 'type/unknown'
 
 
 class UploadControl(BaseControl):
@@ -58,15 +55,12 @@ class UploadControl(BaseControl):
             if not path.path(file).exists():
                 self.ctx.die(500, "File: %s does not exist" % file)
         for file in args.file:
-            is_importer, omero_format = \
-                omero.util.originalfileutils.getFormat(file)
-            if (is_importer == omero.util.originalfileutils.IMPORTER):
-                self.ctx.dir(493, "This file should be imported using omero"
-                             " import")
-            else:
-                obj = client.upload(file, type=omero_format)
-                objIds.append(obj.id.val)
-                self.ctx.set("last.upload.id", obj.id.val)
+            omero_format = UNKNOWN
+            if(mimetypes.guess_type(file) != (None, None)):
+                omero_format = mimetypes.guess_type(file)[0]
+            obj = client.upload(file, type=omero_format)
+            objIds.append(obj.id.val)
+            self.ctx.set("last.upload.id", obj.id.val)
 
         objIds = self._order_and_range_ids(objIds)
         self.ctx.out("OriginalFile:%s" % objIds)
