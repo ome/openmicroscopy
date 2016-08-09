@@ -38,8 +38,8 @@ class TextLutReader
     extends BasicLutReader
 {
 
-    /** Values used during the reading.*/
-    private int lines, width;
+    /** Number of rows and columns composing the file.*/
+    private int rows, columns;
 
     private String firstTok;
 
@@ -50,7 +50,7 @@ class TextLutReader
      */
     private void countLines(Reader r) throws IOException {
         StreamTokenizer tok = new StreamTokenizer(r);
-        int wordsPerLine=0, wordsInPreviousLine=0;
+        int wordsPerRow = 0, wordsInPreviousRow = 0;
         tok.resetSyntax();
         tok.wordChars(43, 43);
         tok.wordChars(45, 127);
@@ -62,25 +62,25 @@ class TextLutReader
         while (tok.nextToken() != StreamTokenizer.TT_EOF) {
             switch (tok.ttype) {
                 case StreamTokenizer.TT_EOL:
-                    lines++;
-                    if (wordsPerLine == 0)
-                        lines--;  // ignore empty lines
-                    if (lines == 1 && wordsPerLine > 0)
-                        width = wordsPerLine;
-                    if (lines > 1 && wordsPerLine != 0 &&
-                            wordsPerLine != wordsInPreviousLine)
-                        throw new IOException("Line "+lines+ " is not "
-                                + "the same length as the first line.");
-                    if (wordsPerLine != 0)
-                        wordsInPreviousLine = wordsPerLine;
-                    wordsPerLine = 0;
+                    rows++;
+                    if (wordsPerRow == 0)
+                        rows--;  // ignore empty rows
+                    if (rows == 1 && wordsPerRow > 0)
+                        columns = wordsPerRow;
+                    if (rows > 1 && wordsPerRow != 0 &&
+                            wordsPerRow != wordsInPreviousRow)
+                        throw new IOException("Row "+rows+ " is not "
+                                + "the same length as the first row.");
+                    if (wordsPerRow != 0)
+                        wordsInPreviousRow = wordsPerRow;
+                    wordsPerRow = 0;
                     break;
                 case StreamTokenizer.TT_WORD:
-                    wordsPerLine++;
+                    wordsPerRow++;
             }
         }
-        if (wordsPerLine == width) 
-            lines++; // last line does not end with EOL
+        if (wordsPerRow == columns) 
+            rows++; // last row does not end with EOL
     }
 
     /**
@@ -135,8 +135,8 @@ class TextLutReader
     /** Creates a new instance.*/
     TextLutReader()
     {
-        lines = 0;
-        width = 1;
+        rows = 0;
+        columns = 1;
     }
 
     /**
@@ -153,7 +153,7 @@ class TextLutReader
         float[] pixels2 = new float[w*h];
         for (int ys = y; ys < y+h; ys++) {
             int offset1 = (ys-y)*w;
-            int offset2 = ys*w+x;
+            int offset2 = ys*columns+x;
             for (int xs = 0; xs < w; xs++)
                 pixels2[offset1++] = pixels[offset2++];
         }
@@ -170,36 +170,36 @@ class TextLutReader
         countLines(r);
         r.close();
         r = new BufferedReader(new FileReader(path));
-        if (width*lines == 0)
+        if (columns*rows == 0)
             return 0;
-        int height = lines;
-        float[] pixels = new float[width*height];
+        int height = rows;
+        float[] pixels = new float[columns*height];
         read(r, pixels);
         r.close();
         int firstRowNaNCount = 0;
-        for (int i = 0; i < width; i++) {
+        for (int i = 0; i < columns; i++) {
             if (i < pixels.length && Float.isNaN(pixels[i]))
                 firstRowNaNCount++;
         }
 
         float[] values = pixels;
-        if (firstRowNaNCount == width && !("NaN".equals(firstTok)||
+        if (firstRowNaNCount == columns && !("NaN".equals(firstTok)||
                 "nan".equals(firstTok))) { // assume first row is header
-            height = lines-1;
-            values = crop(0, 1, width, height, pixels);
+            height = rows-1;
+            values = crop(0, 1, columns, height, pixels);
         }
 
-        if (width < 3 || width > 4 || height < SIZE|| height > SIZE+2)
+        if (columns < 3 || columns > 4 || height < SIZE|| height > SIZE+2)
             return 0;
-        int x = width == 4 ? 1 : 0;
+        int x = columns == 4 ? 1 : 0;
         int y = height > SIZE ? 1: 0;
         //crop again
         float[] result = crop(x, y, 3, SIZE, values);
-        width = 3;
+        columns = 3;
         for (int i = 0; i< SIZE; i++) {
-            reds[i] = (byte) result[i*width];
-            greens[i] = (byte) result[i*width+1];
-            blues[i] = (byte) result[i*width+2];
+            reds[i] = (byte) result[i*columns];
+            greens[i] = (byte) result[i*columns+1];
+            blues[i] = (byte) result[i*columns+2];
         }
         return SIZE;
     }
