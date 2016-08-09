@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded
 import org.openmicroscopy.shoola.agents.events.measurement.ROIEvent;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
-import org.openmicroscopy.shoola.agents.events.metadata.ChannelColorChangedEvent;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
@@ -622,7 +621,6 @@ public class ImViewerAgent
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, RndSettingsChanged.class);
         bus.register(this, ROIEvent.class);
-        bus.register(this, ChannelColorChangedEvent.class);
     }
 
     /**
@@ -697,29 +695,6 @@ public class ImViewerAgent
             handleRndSettingsChangedEvent((RndSettingsChanged) e);
         else if (e instanceof ROIEvent) 
             handleROIEvent((ROIEvent) e);
-        else if (e instanceof ChannelColorChangedEvent) 
-            handleChannelColorChangedEvent((ChannelColorChangedEvent) e);
-    }
-
-    private void handleChannelColorChangedEvent(ChannelColorChangedEvent e) {
-        ImViewer viewer = ImViewerFactory.getImageViewerFromImage(null, e.getImageId());
-        if (viewer != null) {
-            if(e.isReset()) {
-                viewer.setChannelColor(e.getIndex(), null, true);
-                viewer.resetLookupTable(e.getIndex());
-            }
-            else {
-                if (e.colorChanged()) {
-                    viewer.setLookupTable(e.getIndex(), null, e.isPreview());
-                    viewer.setChannelColor(e.getIndex(),
-                            e.getNewColor(), e.isPreview());
-                }
-                else if (e.lutChanged()) {
-                    viewer.setLookupTable(e.getIndex(),
-                            e.getNewLut(), e.isPreview());
-                }
-            }
-        }
     }
     
     private void handleROIEvent(ROIEvent e) {

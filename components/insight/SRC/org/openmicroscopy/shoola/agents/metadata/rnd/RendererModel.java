@@ -1792,9 +1792,6 @@ class RendererModel
     public void setLookupTable(int index, String lut) {
         try {
             rndControl.setLookupTable(index, lut);
-            RndSettingsChanged evt = new RndSettingsChanged(getRefImage()
-                    .getId());
-            MetadataViewerAgent.getRegistry().getEventBus().post(evt);
         } catch (Exception e) {
             LogMessage msg = new LogMessage();
             msg.append("Error while setting lookup table.");

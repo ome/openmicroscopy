@@ -655,9 +655,6 @@ class RendererComponent
 			if (update)
 				firePropertyChange(RENDER_PLANE_PROPERTY,
 						Boolean.valueOf(false), Boolean.valueOf(true));
-			RndSettingsChanged evt = new RndSettingsChanged(
-                    model.getRefImage().getId());
-            MetadataViewerAgent.getRegistry().getEventBus().post(evt);
 		} catch (Exception e) {
 			handleException(e);
 		}

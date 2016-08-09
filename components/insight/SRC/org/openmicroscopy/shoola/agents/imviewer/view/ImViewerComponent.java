@@ -1053,8 +1053,6 @@ class ImViewerComponent
                             + "NEW or LOADING_RENDERING_CONTROL state.");
         }
         
-        System.out.println("setLookupTable "+lut+" (original "+origLookupTable+")");
-        
         if (preview)
             origLookupTable = model.getLookupTable(index) == null ? "NONE"
                     : model.getLookupTable(index);
@@ -2373,6 +2371,7 @@ class ImViewerComponent
     	try {
     		model.saveRndSettings(true);
     		failureToSave = false;
+    		view.refresh();
 		} catch (Exception e) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Save settings", "Cannot save rendering settings. ");

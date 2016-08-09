@@ -39,7 +39,6 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.metadata.ChannelColorChangedEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.ContrastStretchingAction;
@@ -54,6 +53,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPickerUtil;
 
 /** 
  * The Renderer's controller.
@@ -446,30 +446,34 @@ class RendererControl
                 || ColourPicker.LUT_PROPERTY.equals(name)
                 || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) {
             if (colorPickerIndex != -1) {
-                ChannelColorChangedEvent e = new ChannelColorChangedEvent();
-                e.setImageId(model.getRefImage().getId());
-                e.setIndex(colorPickerIndex);
-                e.setNewColor(model.getChannelColor(colorPickerIndex));
-                e.setOldColor(model.getChannelColor(colorPickerIndex));
-                e.setNewLut(model.getLookupTable(colorPickerIndex));
-                e.setOldLut(model.getLookupTable(colorPickerIndex));
-                e.setPreview(ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)
-                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name));
+                
+                Color newColor = model.getChannelColor(colorPickerIndex);
+                Color oldColor = model.getChannelColor(colorPickerIndex);
+                String newLut = model.getLookupTable(colorPickerIndex);
+                String oldLut = model.getLookupTable(colorPickerIndex);
 
                 if (ColourPicker.COLOUR_PROPERTY.equals(name)
                         || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) {
-                    e.setNewColor((Color) evt.getNewValue());
+                    newColor = (Color) evt.getNewValue();
                 } else if (ColourPicker.LUT_PROPERTY.equals(name)
                         || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) {
-                    e.setNewLut((String) evt.getNewValue());
+                    newLut = (String) evt.getNewValue();
                 }
-                
-                MetadataViewerAgent.getRegistry().getEventBus().post(e);
+
+                boolean preview = ColourPicker.COLOUR_PREVIEW_PROPERTY
+                        .equals(name)
+                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name);
+
+                handleColorPicker(false, preview, colorPickerIndex, newColor,
+                        oldColor, newLut, oldLut);
             }
         } else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
-            MetadataViewerAgent.getRegistry().getEventBus().post(ChannelColorChangedEvent.RESET_EVENT);
-			colorPicker.dispose();
-			colorPicker = null;
+            if (colorPickerIndex != -1) {
+                handleColorPicker(true, false, colorPickerIndex, null, null,
+                        null, null);
+            }
+            colorPicker.dispose();
+            colorPicker = null;
 		} else if (ColourPicker.CLOSE.equals(name)) {
             colorPicker.dispose();
             colorPicker = null;
@@ -491,4 +495,29 @@ class RendererControl
         actionsMap.get(PASTE).setEnabled(pasteEnabled);
     }
 
+    /**
+     * Handle color picker settings
+     * @param reset Flag to indicate to reset the preview settings again
+     * @param preview Flag to indicate to preview the settings 
+     * @param index The channel index
+     * @param newColor The new Color
+     * @param oldColor The previous Color
+     * @param newLut The new lookup table
+     * @param oldLut The previous lookup table
+     */
+    private void handleColorPicker(boolean reset, boolean preview, int index,
+            Color newColor, Color oldColor, String newLut, String oldLut) {
+        if (reset) {
+            model.resetLookupTable(index);
+            model.setChannelColor(index, null, true);
+        } else {
+            if (!ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
+                model.setLookupTable(index, newLut, preview);
+            } else if (!ColourPickerUtil.sameColor(newColor, oldColor)) {
+                model.setLookupTable(index, null, preview);
+                model.setChannelColor(index, newColor, preview);
+            } 
+        }
+    }
+    
 }

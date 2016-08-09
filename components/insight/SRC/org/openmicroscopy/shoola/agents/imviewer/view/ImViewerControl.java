@@ -55,7 +55,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-import org.openmicroscopy.shoola.agents.events.metadata.ChannelColorChangedEvent;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivityImageAction;
@@ -110,6 +109,7 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPickerUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
@@ -989,25 +989,26 @@ class ImViewerControl
                 || ColourPicker.LUT_PROPERTY.equals(pName)
                 || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName)) {
             if (colorPickerIndex != -1) {
-                ChannelColorChangedEvent e = new ChannelColorChangedEvent();
-                e.setImageId(model.getImageID());
-                e.setIndex(colorPickerIndex);
-                e.setNewColor(model.getChannelColor(colorPickerIndex));
-                e.setOldColor(model.getChannelColor(colorPickerIndex));
-                e.setNewLut(model.getLookupTable(colorPickerIndex));
-                e.setOldLut(model.getLookupTable(colorPickerIndex));
-                e.setPreview(ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)
-                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName));
+
+                Color newColor = model.getChannelColor(colorPickerIndex);
+                Color oldColor = model.getChannelColor(colorPickerIndex);
+                String newLut = model.getLookupTable(colorPickerIndex);
+                String oldLut = model.getLookupTable(colorPickerIndex);
 
                 if (ColourPicker.COLOUR_PROPERTY.equals(pName)
                         || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)) {
-                    e.setNewColor((Color) pce.getNewValue());
+                    newColor = (Color) pce.getNewValue();
                 } else if (ColourPicker.LUT_PROPERTY.equals(pName)
                         || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName)) {
-                    e.setNewLut((String) pce.getNewValue());
+                    newLut = (String) pce.getNewValue();
                 }
 
-                ImViewerAgent.getRegistry().getEventBus().post(e);
+                boolean preview = ColourPicker.COLOUR_PREVIEW_PROPERTY
+                        .equals(pName)
+                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName);
+
+                handleColorPicker(false, preview, colorPickerIndex, newColor,
+                        oldColor, newLut, oldLut);
             }
         } else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
 			double v = ((Double) pce.getNewValue()).doubleValue();
@@ -1198,5 +1199,30 @@ class ImViewerControl
     void setInterpolation(boolean interpolation) {
         model.setInterpolation(interpolation);
         ImViewerFactory.setInterpolation(interpolation);
+    }
+    
+    /**
+     * Handle color picker settings
+     * @param reset Flag to indicate to reset the preview settings again
+     * @param preview Flag to indicate to preview the settings 
+     * @param index The channel index
+     * @param newColor The new Color
+     * @param oldColor The previous Color
+     * @param newLut The new lookup table
+     * @param oldLut The previous lookup table
+     */
+    private void handleColorPicker(boolean reset, boolean preview, int index,
+            Color newColor, Color oldColor, String newLut, String oldLut) {
+        if (reset) {
+            model.resetLookupTable(index);
+            model.setChannelColor(index, null, true);
+        } else {
+            if (!ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
+                model.setLookupTable(index, newLut, preview);
+            } else if (!ColourPickerUtil.sameColor(newColor, oldColor)) {
+                model.setLookupTable(index, null, preview);
+                model.setChannelColor(index, newColor, preview);
+            } 
+        }
     }
 }

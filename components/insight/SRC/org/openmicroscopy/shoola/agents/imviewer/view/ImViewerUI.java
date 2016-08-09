@@ -1428,10 +1428,14 @@ class ImViewerUI
 	        if (info != null) {
 	            details = EditorUtil.transformPlaneInfo(info);
 	            notSet = (List<String>) details.get(EditorUtil.NOT_SET);
-	            if(CommonsLangUtils.isEmpty(model.getLookupTable(index)))
+	            String lut = model.getLookupTable(index);
+	            if(CommonsLangUtils.isEmpty(lut)) {
 	                    comp.setColor(colors.get(index));
-	            else
-	                comp.setColor(null);
+	                    comp.setLookupTable(null);
+	            }
+	            else {
+	                comp.setLookupTable(lut);
+	            }
 	            if (!notSet.contains(EditorUtil.DELTA_T)) {
 	                if(details.get(EditorUtil.DELTA_T) instanceof BigResult) {
 	                    ImViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T), EditorUtil.DELTA_T);

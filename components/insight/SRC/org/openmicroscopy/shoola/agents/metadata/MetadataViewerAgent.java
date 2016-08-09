@@ -30,7 +30,6 @@ import ome.model.units.BigResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.measurement.ROIEvent;
-import org.openmicroscopy.shoola.agents.events.metadata.ChannelColorChangedEvent;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -388,7 +387,6 @@ public class MetadataViewerAgent
         bus.register(this, CopyRndSettings.class);
         bus.register(this, RndSettingsPasted.class);
         bus.register(this, ROIEvent.class);
-        bus.register(this, ChannelColorChangedEvent.class);
     }
 
     /**
@@ -439,35 +437,8 @@ public class MetadataViewerAgent
                     	handleRndSettingsPasted((RndSettingsPasted) e);
         else if (e instanceof ROIEvent)
             handleROIEvent((ROIEvent) e);
-        else if (e instanceof ChannelColorChangedEvent) {
-            handleChannelColorChangedEvent((ChannelColorChangedEvent) e);
-        }
 	}
 
-	private void handleChannelColorChangedEvent(ChannelColorChangedEvent e) {
-	    MetadataViewer viewer = MetadataViewerFactory.getViewerFromId(
-                ImageData.class.getName(), e.getImageId());
-        if (viewer != null && viewer.getRenderer() != null) {
-            if(e.isReset()) {
-                viewer.getRenderer().setChannelColor(e.getIndex(), null, true);
-                viewer.getRenderer().resetLookupTable(e.getIndex());
-            }
-            else {
-                if (e.colorChanged()) {
-                    viewer.getRenderer().setLookupTable(e.getIndex(), null,
-                            e.isPreview());
-                    viewer.getRenderer().setChannelColor(e.getIndex(),
-                            e.getNewColor(), e.isPreview());
-                }
-                if (e.lutChanged()) {
-                    viewer.getRenderer().setLookupTable(e.getIndex(),
-                            e.getNewLut(), e.isPreview());
-                }
-            }
-            viewer.onChannelColorChanged(e.getIndex());
-        }
-	}
-	
     private void handleROIEvent(ROIEvent e) {
         MetadataViewer viewer = MetadataViewerFactory.getViewerFromId(
                 ImageData.class.getName(), e.getImageId());
