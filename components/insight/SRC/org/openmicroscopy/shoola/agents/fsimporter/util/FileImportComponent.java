@@ -969,56 +969,63 @@ public class FileImportComponent
 			imageLabel.setData((PlateData) image);
 			fileNameLabel.addMouseListener(adapter);
 			formatResultTooltip();
-		} else if (image instanceof Set) {
-			//Result from the import itself
-			this.image = null;
-			Set set = (Set) image;
-			Iterator i = set.iterator();
-			FileObject f;
-			while (i.hasNext()) {
-                Object object = i.next();
-                if (object instanceof PixelsData) {
-                    PixelsData pix = (PixelsData) object;
-                    if (hasAssociatedFiles()) {
-                        int series = pix.getImage().getSeries();
-                        f = getAssociatedFile(series);
-                        if (f != null) {
-                            f.setImageID(pix.getImage().getId());
-                        }
-                    } else {
-                        f = getOriginalFile();
-                        f.setImageID(pix.getImage().getId());
-                    }
-                }
-            }
-			formatResult();
-		} else if (image instanceof List) {
-			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
-			int m = list.size();
-			ThumbnailData data = list.get(0);
-			imageLabel.setData(data);
-			list.remove(0);
-			if (list.size() > 0) {
-				ThumbnailLabel label = imageLabels.get(0);
-				label.setVisible(true);
-				label.setData(list.get(0));
-				list.remove(0);
-				if (list.size() > 0) {
-					label = imageLabels.get(1);
-					label.setVisible(true);
-					label.setData(list.get(0));
-					list.remove(0);
-					int n = statusLabel.getNumberOfImportedFiles()-m;
-					if (n > 0) {
-						label = imageLabels.get(2);
-						label.setVisible(true);
-						StringBuffer buf = new StringBuffer("... ");
-						buf.append(n);
-						buf.append(" more");
-						label.setText(buf.toString());
-					}
-				}
-			}
+		}
+		else if (image instanceof Collection){
+		    Collection<?> c = (Collection)image;
+		    if(!c.isEmpty()) {
+		        Object obj = c.iterator().next();
+		        if(obj instanceof ThumbnailData) {
+		            List<ThumbnailData> list = new ArrayList<ThumbnailData>((Collection) image);
+		            int m = list.size();
+		            ThumbnailData data = list.get(0);
+		            imageLabel.setData(data);
+		            list.remove(0);
+		            if (list.size() > 0) {
+		                ThumbnailLabel label = imageLabels.get(0);
+		                label.setVisible(true);
+		                label.setData(list.get(0));
+		                list.remove(0);
+		                if (list.size() > 0) {
+		                    label = imageLabels.get(1);
+		                    label.setVisible(true);
+		                    label.setData(list.get(0));
+		                    list.remove(0);
+		                    int n = statusLabel.getNumberOfImportedFiles()-m;
+		                    if (n > 0) {
+		                        label = imageLabels.get(2);
+		                        label.setVisible(true);
+		                        StringBuffer buf = new StringBuffer("... ");
+		                        buf.append(n);
+		                        buf.append(" more");
+		                        label.setText(buf.toString());
+		                    }
+		                }
+		            }
+		        }
+		        else if (obj instanceof PixelsData) {
+		           //Result from the import itself
+		            this.image = null;
+		            Iterator i = c.iterator();
+		            FileObject f;
+		            while (i.hasNext()) {
+		                Object object = i.next();
+		                if (object instanceof PixelsData) {
+		                    PixelsData pix = (PixelsData) object;
+		                    if (hasAssociatedFiles()) {
+		                        int series = pix.getImage().getSeries();
+		                        f = getAssociatedFile(series);
+		                        if (f != null) {
+		                            f.setImageID(pix.getImage().getId());
+		                        }
+		                    } else {
+		                        f = getOriginalFile();
+		                        f.setImageID(pix.getImage().getId());
+		                    }
+		                }
+		            }
+		            formatResult();
+		        }
+		    }
 		} else if (image instanceof ImportException) {
 			if (getFile().isDirectory()) {
 				this.image = null;

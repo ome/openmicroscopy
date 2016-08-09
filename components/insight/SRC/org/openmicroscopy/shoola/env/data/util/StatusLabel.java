@@ -26,11 +26,11 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -218,7 +218,7 @@ public class StatusLabel
     private ImportException exception;
 
     /** The list of pixels' identifiers returned when the import is complete.*/
-    private Set<PixelsData> pixels;
+    private Collection<PixelsData> pixels;
 
     /** The file associated to that import.*/
     private FilesetData fileset;
@@ -648,7 +648,7 @@ public class StatusLabel
             step = 6;
             processingBar.setValue(step);
             processingBar.setString(STEPS.get(step));
-            pixels = (Set<PixelsData>) PojoMapper.asDataObjects(
+            pixels = PojoMapper.<PixelsData>convertToDataObjects(
                     ((ImportEvent.IMPORT_DONE) event).pixels);
             firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
         } else if (event instanceof ImportCandidates.SCANNING) {

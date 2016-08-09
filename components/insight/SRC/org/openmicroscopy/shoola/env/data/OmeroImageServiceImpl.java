@@ -1866,7 +1866,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroImageService#getFileSet(SecurityContext, long)
 	 */
-	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
+	public Collection<DataObject> getFileSet(SecurityContext ctx, long imageId)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		return gateway.getFileSet(ctx, Arrays.asList(imageId));
