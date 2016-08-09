@@ -270,10 +270,19 @@ class RenderHSBRegionTask implements RenderingTask {
                         int g2 = reader.getGreen(discreteValue) & 0xFF;
                         int b1 = (buf[pix] & 0x000000FF);
                         int b2 = reader.getBlue(discreteValue) & 0xFF;
-                        buf[pix] = 0xFF000000 |
-                                (r1+r2) << 16 |
-                                (g1+g2) << 8 |
-                                (b1+b2);
+                        int r = r1+r2;
+                        if (r > 255) {
+                            r = 255;
+                        }
+                        int g = g1+g2;
+                        if (g > 255) {
+                            g = 255;
+                        }
+                        int b = b1+b2;
+                        if (b > 255) {
+                            b = 255;
+                        }
+                        buf[pix] = 0xFF000000 | r << 16 | g << 8 | b;
                         continue;
                     }
                     // Primary colour optimization is in effect, we don't need
@@ -403,10 +412,19 @@ class RenderHSBRegionTask implements RenderingTask {
                         int g2 = reader.getGreen(discreteValue) & 0xFF;
                         int b1 = ((buf[pix] & 0x0000FF00) >> 8);
                         int b2 = reader.getBlue(discreteValue) & 0xFF;
-                        buf[pix] = 0x000000FF |
-                                (r1+r2) << 24 |
-                                (g1+g2) << 16 |
-                                (b1+b2) << 8;
+                        int r = r1+r2;
+                        if (r > 255) {
+                            r = 255;
+                        }
+                        int g = g1+g2;
+                        if (g > 255) {
+                            g = 255;
+                        }
+                        int b = b1+b2;
+                        if (b > 255) {
+                            b = 255;
+                        }
+                        buf[pix] = 0x000000FF | r << 24 | g << 16 | b << 8;
                         continue;
                     }
                     // Primary colour optimization is in effect, we don't need
