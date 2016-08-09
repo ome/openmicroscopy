@@ -1538,6 +1538,7 @@ class RenderingControlProxy
 			c = rndDef.getChannel(i);
 			if (c != null) {
 				setRGBA(i, c.getRGBA());
+				setLookupTable(i, c.getLookupTable());
 				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
 				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(),
 									c.isNoiseReduction());
