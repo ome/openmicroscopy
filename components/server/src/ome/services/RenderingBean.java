@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ome.annotations.RolesAllowed;
+import ome.api.IProjection;
 import ome.api.IRenderingSettings;
 import ome.api.IUpdate;
 import ome.api.ServiceInterface;
@@ -632,8 +633,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
     public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
             int stepping, int start, int end)
     {
-        return renderProjectedAsPackedInt2(algorithm, 0, timepoint, stepping,
-                start, end);
+        return renderProjectedAsPackedInt2(algorithm, IProjection.Z_AXIS,
+                timepoint, stepping, start, end);
     }
 
     /**
@@ -686,8 +687,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public byte[] renderProjectedCompressed(int algorithm, int timepoint,
             int stepping, int start, int end) {
-        return renderProjectedCompressed2(algorithm, 0, timepoint, stepping,
-                start, end);
+        return renderProjectedCompressed2(algorithm, IProjection.Z_AXIS,
+                timepoint, stepping, start, end);
     }
 
     // ~ Settings
