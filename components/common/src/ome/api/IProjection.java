@@ -30,6 +30,18 @@ public interface IProjection extends ServiceInterface
     /** Sum intensity projection */
     public static final int SUM_INTENSITY = 2;
 
+    /** Indicates to project along the T-axis. */
+    public static final int T_AXIS = 0;
+
+    /** Indicates to project along the Z-axis. */
+    public static final int Z_AXIS = 1;
+
+    /** Indicates to project along the modulo T. */
+    public static final int MODULO_T_AXIS = 2;
+
+    /** Indicates to project along the modulo T. */
+    public static final int MODULO_Z_AXIS = 3;
+
     /** Methodology strings */
     public static final String[] METHODOLOGY_STRINGS = 
         new String[] { "MAXIMUM_INTENSITY_PROJECTION",
@@ -71,9 +83,14 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectPixels(long, PixelsType, int, int, int, List, int, int, int, String)
      */
+    @Deprecated
     public byte[] projectStack(long pixelsId, PixelsType pixelsType,
                                int algorithm, int timepoint, int channelIndex,
                                int stepping, int start, int end);
+
+    public byte[] projectPlanes(long pixelsId, PixelsType pixelsType,
+            int algorithm, int axis, int plane, int channelIndex,
+            int stepping, int start, int end);
 
     /**
      * Performs a projection through selected optical sections and optical
@@ -119,8 +136,14 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectStack(long, PixelsType, int, int, int, int, int start, int)
      */
+    @Deprecated
     public long projectPixels(long pixelsId, PixelsType pixelsType,
                               int algorithm, int tStart, int tEnd,
                               @Validate(Integer.class) List<Integer> channels,
                               int stepping, int zStart, int zEnd, String name);
+
+    public long project(long pixelsId, PixelsType pixelsType,
+            int algorithm, int axis, int planeStart, int planeEnd,
+            @Validate(Integer.class) List<Integer> channels,
+            int stepping, int start, int end, String name);
 }
