@@ -577,6 +577,18 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @see RenderingEngine#renderAsPackedInt(PlaneDef)
      */
     @RolesAllowed("user")
+    public int[] renderProjectedAsPackedInt2(int algorithm, int axis,
+            int plane, int stepping, int start, int end)
+    {
+        return null;
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#renderAsPackedInt(PlaneDef)
+     */
+    @RolesAllowed("user")
     public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
             int stepping, int start, int end) {
         rwl.writeLock().lock();
@@ -619,6 +631,18 @@ public class RenderingBean implements RenderingEngine, Serializable {
         } finally {
             rwl.writeLock().unlock();
         }
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see LocalCompress#compressToStream(BufferedImage, java.io.OutputStream)
+     */
+    @RolesAllowed("user")
+    public byte[] renderProjectedCompressed2(int algorithm, int axis, int plane,
+            int stepping, int start, int end)
+    {
+        return null;
     }
 
     /**

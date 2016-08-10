@@ -108,7 +108,42 @@ module omero {
                  * </ul>
                  * @see omero.api.IProjection#projectPixels
                  */
+                 ["deprecated"]
                 idempotent Ice::IntSeq renderProjectedAsPackedInt(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
+
+                /**
+                 * Performs a projection through selected planes of
+                 * a particular timepoint or optical section with the currently
+                 * active channels and renders the data for display.
+                 *
+                 * @param algorithm {@link ome.api.IProjection#MAXIMUM_INTENSITY},
+                 * {@link ome.api.IProjection#MEAN_INTENSITY} or
+                 * {@link ome.api.IProjection#SUM_INTENSITY}.
+                 * @param axis The axis along which to perform the projection.
+                 * @param plane The selected plane.
+                 * @param stepping Stepping value to use while calculating the
+                 *                 projection.
+                 *                 For example, <code>stepping=1</code> will
+                 *                 use every optical section from
+                 *                 <code>start</code> to <code>end</code>
+                 *                 where <code>stepping=2</code> will use every
+                 *                 other section from <code>start</code> to
+                 *                 <code>end</code> to perform the projection.
+                 * @param start Plane to start projecting from.
+                 * @param end Plane to finish projecting.
+                 * @return A packed-integer <i>RGBA</i> rendered image of the
+                 *         projected pixels.
+                 * @throws ValidationException Where:
+                 * <ul>
+                 *   <li><code>algorithm</code> is unknown</li>
+                 *   <li><code>timepoint</code> is out of range</li>
+                 *   <li><code>start</code> is out of range</li>
+                 *   <li><code>end</code> is out of range</li>
+                 *   <li><code>start > end</code></li>
+                 * </ul>
+                 * @see omero.api.IProjection#projectPixels
+                 */
+                idempotent Ice::IntSeq renderProjectedAsPackedInt2(omero::constants::projection::ProjectionType algorithm, omero::constants::projection::ProjectionAxis axis, int plane, int stepping, int start, int end) throws ServerError;
 
                 /**
                  * Renders the data selected by <code>def</code> according to
@@ -156,7 +191,10 @@ module omero {
                  * </ul>
                  * @see omero.api.IProjection#projectPixels
                  */
+                 ["deprecated"]
                 idempotent Ice::ByteSeq renderProjectedCompressed(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
+
+                idempotent Ice::ByteSeq renderProjectedCompressed2(omero::constants::projection::ProjectionType algorithm, omero::constants::projection::ProjectionAxis axis, int plane, int stepping, int start, int end) throws ServerError;
 
                 /**
                  * Returns the id of the {@link omero.model.RenderingDef}
