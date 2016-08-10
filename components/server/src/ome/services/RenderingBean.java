@@ -36,6 +36,7 @@ import ome.model.core.Channel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
+import ome.model.display.ProjectionDef;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 //import ome.model.display.ReverseIntensityContext;
@@ -580,17 +581,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
     public int[] renderProjectedAsPackedInt2(int algorithm, int axis,
             int plane, int stepping, int start, int end)
     {
-        return null;
-    }
-
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#renderAsPackedInt(PlaneDef)
-     */
-    @RolesAllowed("user")
-    public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
-            int stepping, int start, int end) {
         rwl.writeLock().lock();
 
         try {
@@ -605,7 +595,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             int projectedSizeC = 0;
             for (int i = 0; i < channelBindings.length; i++) {
                 if (channelBindings[i].getActive()) {
-                    planes[0][i][0] = projectStack(algorithm, timepoint,
+                    planes[0][i][0] = projectStack(algorithm, plane,
                             stepping, start, end, pixelsId, i);
                     projectedSizeC += 1;
                 }
@@ -636,13 +626,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
-     * @see LocalCompress#compressToStream(BufferedImage, java.io.OutputStream)
+     * @see RenderingEngine#renderAsPackedInt(PlaneDef)
      */
     @RolesAllowed("user")
-    public byte[] renderProjectedCompressed2(int algorithm, int axis, int plane,
+    public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
             int stepping, int start, int end)
     {
-        return null;
+        return renderProjectedAsPackedInt2(algorithm, 0, timepoint, stepping,
+                start, end);
     }
 
     /**
@@ -651,8 +642,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @see LocalCompress#compressToStream(BufferedImage, java.io.OutputStream)
      */
     @RolesAllowed("user")
-    public byte[] renderProjectedCompressed(int algorithm, int timepoint,
-            int stepping, int start, int end) {
+    public byte[] renderProjectedCompressed2(int algorithm, int axis, int plane,
+            int stepping, int start, int end)
+    {
         rwl.writeLock().lock();
 
         ByteArrayOutputStream byteStream = null;
@@ -661,7 +653,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             {
                 renderer.setResolutionLevel(resolutionLevel);
             }
-            int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,
+            int[] buf = renderProjectedAsPackedInt(algorithm, plane,
                     stepping, start, end);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
@@ -684,6 +676,18 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 throw new ResourceError(e.getMessage());
             }
         }
+    }
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see LocalCompress#compressToStream(BufferedImage, java.io.OutputStream)
+     */
+    @RolesAllowed("user")
+    public byte[] renderProjectedCompressed(int algorithm, int timepoint,
+            int stepping, int start, int end) {
+        return renderProjectedCompressed2(algorithm, 0, timepoint, stepping,
+                start, end);
     }
 
     // ~ Settings
