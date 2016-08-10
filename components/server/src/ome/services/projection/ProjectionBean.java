@@ -80,7 +80,18 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         getBeanHelper().throwIfAlreadySet(this.pixelsService, pixelsService);
         this.pixelsService = pixelsService;
     }
-    
+
+    /* (non-Javadoc)
+     * @see ome.api.IProjection#projectStack(long, ome.model.enums.PixelsType, int, int, int, int, int, int, int)
+     */
+    @RolesAllowed("user")
+    public byte[] projectPlanes(long pixelsId, PixelsType pixelsType,
+                               int algorithm, int axis, int plane, int channelIndex,
+                               int stepping, int start, int end)
+    {
+        return null;
+    }
+
     /* (non-Javadoc)
      * @see ome.api.IProjection#projectStack(long, ome.model.enums.PixelsType, int, int, int, int, int, int)
      */
@@ -180,6 +191,19 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                 ctx.from.dispose();
             }
         }
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.IProjection#project(long, ome.model.enums.PixelsType, int, int, int, int, java.util.List, int, int, int, java.lang.String)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public long project(long pixelsId, PixelsType pixelsType,
+                              int algorithm, int axis, int planeStart, int planeEnd,
+                              List<Integer> channels, int stepping,
+                              int start, int end, String name)
+    {
+        return -1;
     }
 
     /* (non-Javadoc)

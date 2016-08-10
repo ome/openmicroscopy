@@ -69,12 +69,19 @@ module omero {
                  * </ul>
                  * @see #projectPixels
                  **/
+                 ["deprecated"]
                 Ice::ByteSeq projectStack(long pixelsId,
                                           omero::model::PixelsType pixelsType,
                                           omero::constants::projection::ProjectionType algorithm,
                                           int timepoint, int channelIndex, int stepping,
                                           int start, int end) throws ServerError;
 
+                Ice::ByteSeq projectPlanes(long pixelsId,
+                                          omero::model::PixelsType pixelsType,
+                                          omero::constants::projection::ProjectionType algorithm,
+                                          omero::constants::projection::ProjectionAxis axis,
+                                          int plane, int channelIndex, int stepping,
+                                          int start, int end) throws ServerError;
                 /**
                  * Performs a projection through selected optical sections and
                  * optical sections for a given set of time points of a Pixels
@@ -135,11 +142,20 @@ module omero {
                  * </ul>
                  * @see #projectStack
                  **/
+                 ["deprecated"]
                 long projectPixels(long pixelsId, omero::model::PixelsType pixelsType,
                                    omero::constants::projection::ProjectionType algorithm,
                                    int tStart, int tEnd,
                                    omero::sys::IntList channelList, int stepping,
                                    int zStart, int zEnd, string name)
+                    throws ServerError;
+
+                 long project(long pixelsId, omero::model::PixelsType pixelsType,
+                                   omero::constants::projection::ProjectionType algorithm,
+                                   omero::constants::projection::ProjectionAxis axis,
+                                   int planeStart, int planeEnd,
+                                   omero::sys::IntList channelList, int stepping,
+                                   int start, int end, string name)
                     throws ServerError;
             };
 
