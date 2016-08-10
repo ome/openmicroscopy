@@ -35,6 +35,7 @@ before_install:
     - git config github.token 3bc7fc530b01081559eb911f59ccfec7f4fb2592
     - git config --global user.email snoopycrimecop@gmail.com
     - git config --global user.name 'Snoopy Crime Cop'
+    - git clone -b metadata git://github.com/openmicroscopy/bioformats $HOME/bioformats
     - pip install --user scc pytest
     - if [[ $BUILD == 'build-python' ]]; then pip install --user -r ./components/tools/OmeroWeb/requirements-py27-nginx.txt; fi
     - export PATH=$PATH:$HOME/.local/bin
@@ -45,6 +46,7 @@ before_install:
 # retries the build due to:
 # https://github.com/travis-ci/travis-ci/issues/2507
 install:
+    - (cd $HOME/bioformats && mvn install -DskipTests)
     - if [[ $BUILD == 'build-python' ]]; then travis_retry ./components/tools/travis-build py-build; fi
     - if [[ $BUILD == 'build-java' ]]; then travis_retry ./components/tools/travis-build java-build; fi
 
