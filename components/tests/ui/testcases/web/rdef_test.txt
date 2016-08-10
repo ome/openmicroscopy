@@ -19,14 +19,12 @@ ${currZ}                            3
 *** Keywords ***
 
 Pick Color
-    [Arguments]          ${btnColor}        ${hexColor}
+    [Arguments]                             ${hexColor}
     Click Element                           xpath=//button[@id="wblitz-ch0-color"]
     Wait Until Element Is Visible           id=cbpicker-box
-    # Click yellow color-picker button
-    Click Element                           xpath=//button[contains(@class, "preset-color-btn")][contains(@style, "background-color: #${btnColor}")]
-    Textfield Value Should Be               cbpicker-tb         ${hexColor}
-    Click Element                           cbpicker-OK-btn
-    # Wait for the channel toggle button to turn yellow
+    # Click color-picker button
+    Click Element                           xpath=//label[@for="${hexColor}"]
+    # Wait for the channel toggle button to update
     Wait For Channel Color                  ${hexColor}
 
 Wait For Channel Color
@@ -111,8 +109,8 @@ Test Rdef Copy Paste Save
     Element Text Should Be                  id=wblitz-z-curr        ${defaultZ}
 
     # Color-picker, Yellow then Blue.
-    Pick Color          ff0       FFFF00
-    Pick Color          00f       0000FF
+    Pick Color          FFFF00
+    Pick Color          0000FF
 
     # ONLY Redo should be disabled
     Element Should Be Enabled               id=rdef-undo-btn
@@ -184,7 +182,7 @@ Test Owners Rdef
     # Need user to save an Rdef that is different from 'Imported'
     # Save Channel 'Green' and Window End: 100
     Unselect Checkbox                       rd-wblitz-rmodel
-    Pick Color                              0f0         00FF00
+    Pick Color                              00FF00
     Input Text                              id=wblitz-ch0-cw-end        100
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
@@ -224,7 +222,7 @@ Test Owners Rdef
 
     # 'Save All' with some different settings (Red channel)
     Unselect Checkbox                       rd-wblitz-rmodel
-    Pick Color                              f00         FF0000
+    Pick Color                              FF0000
     Click Element                           id=rdef-save-all
     Wait For BlockUI
 
@@ -235,7 +233,7 @@ Test Owners Rdef
 
     # New settings (White channel, max 200) and 'Copy'
     Input Text                              id=wblitz-ch0-cw-end        200
-    Pick Color                              fff         FFFFFF
+    Pick Color                              FFFFFF
     Click Element                           xpath=//button[@id='rdef-copy-btn']
     Wait For Toolbar Button Enabled         rdef-paste-btn
     
