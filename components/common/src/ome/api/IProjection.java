@@ -4,7 +4,6 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package ome.api;
 
 import java.util.List;
@@ -24,19 +23,19 @@ public interface IProjection extends ServiceInterface
 {
     /** Maximum intensity projection (MIP) */
     public static final int MAXIMUM_INTENSITY = 0;
-    
+
     /** Mean intensity projection */
     public static final int MEAN_INTENSITY = 1;
-    
+
     /** Sum intensity projection */
     public static final int SUM_INTENSITY = 2;
-    
+
     /** Methodology strings */
     public static final String[] METHODOLOGY_STRINGS = 
         new String[] { "MAXIMUM_INTENSITY_PROJECTION",
                        "MEAN_INTENSITY_PROJECTION",
                        "SUM_INTENSITY_PROJECTION" };
-    
+
     /**
      * Performs a projection through the optical sections of a particular 
      * wavelength at a given time point of a Pixels set.
@@ -120,8 +119,8 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectStack(long, PixelsType, int, int, int, int, int start, int)
      */
-    public long projectPixels(long pixelsId, PixelsType pixelsType, 
+    public long projectPixels(long pixelsId, PixelsType pixelsType,
                               int algorithm, int tStart, int tEnd,
                               @Validate(Integer.class) List<Integer> channels,
-			      int stepping, int zStart, int zEnd, String name);
+                              int stepping, int zStart, int zEnd, String name);
 }
