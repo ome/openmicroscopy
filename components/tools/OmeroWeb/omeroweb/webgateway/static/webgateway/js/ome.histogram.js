@@ -11,6 +11,7 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
     graphHeight = graphHeight || 150;
     var colCount = 256,
         currentImageId,
+        currentColor,
         currentZ,
         currentT,
         currentC,
@@ -79,20 +80,22 @@ window.OME.Histogram = function(element, webgatewayUrl, graphWidth, graphHeight)
             .attr('fill', color);
     };
 
-    var _loadAndPlot = function(imageId, theZ, theC, theT, color, window, proj){
+    var _loadAndPlot = function(imageId, theZ, theC, theT, newColor, window, proj){
         // window is {'min':0, 'max': 1000, 'start': 50, 'end': 250}
-        color = color || "#000000";
+
+        var color = newColor || "#000000";
         if (color[1] !== "#") {
             color = "#" + color;
         }
         proj = (proj === "intmax" || proj === "intmean") ? proj : false;
 
         // If we are already showing the required data
-        if (currentImageId == imageId && theZ === currentZ && theC === currentC && theT === currentT && proj === currentProj) {
+        if (currentColor === newColor && currentImageId == imageId && theZ === currentZ && theC === currentC && theT === currentT && proj === currentProj) {
             // and start/end line markers
             this.plotStartEnd(window, color);
             return;
         }
+        currentColor = newColor;
         currentImageId = imageId;
         currentZ = theZ;
         currentC = theC;
