@@ -596,7 +596,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             int projectedSizeC = 0;
             for (int i = 0; i < channelBindings.length; i++) {
                 if (channelBindings[i].getActive()) {
-                    planes[0][i][0] = projectStack(algorithm, plane,
+                    planes[0][i][0] = projectPlanes(algorithm, axis, plane,
                             stepping, start, end, pixelsId, i);
                     projectedSizeC += 1;
                 }
@@ -2054,9 +2054,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
     
     /**
      * Projects a given stack.
-     * 
+     *
      * @param algorithm The projection algorithm.
-     * @param timepoint The selected time point.
+     * @param axis The axis used for the projection.
+     * @param plane The selected plane.
      * @param stepping  The step between z-section to project.
      * @param start     The lower z-section to project.
      * @param end       The upper z-section to project.
@@ -2064,19 +2065,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @param i         The channel.
      * @return See above.
      */
-    private byte[] projectStack(final int algorithm, final int timepoint, 
-            final int stepping, final int start, final int end, 
+    private byte[] projectPlanes(final int algorithm, final int axis,
+            final int plane, final int stepping, final int start, final int end,
             final long pixelsId, final int i) {
         return (byte[]) ex.execute(/* ex */null/* principal */, 
-        		new Executor.SimpleWork(this,"projectStack") {
+                new Executor.SimpleWork(this,"projectPlanes") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getProjectionService()
-                .projectStack(pixelsId, null, algorithm, timepoint,
+                .projectPlanes(pixelsId, null, algorithm, axis, plane,
                         i, stepping, start, end);
             }});
     }
-    
+
     /**
      * Creates new rendering settings for the passed pixels set.
      * 
