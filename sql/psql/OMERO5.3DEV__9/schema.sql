@@ -1993,6 +1993,7 @@
         permissions int8 not null,
         endPlane nonnegative_int,
         startPlane nonnegative_int,
+        stepping nonnegative_int,
         version int4,
         axis int8 not null,
         creation_id int8 not null,

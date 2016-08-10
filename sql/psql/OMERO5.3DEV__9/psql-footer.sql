@@ -3388,7 +3388,7 @@ CREATE TRIGGER preserve_folder_tree
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.3DEV' and
-        currentPatch = 8 and
+        currentPatch = 9 and
         previousVersion = 'OMERO5.3DEV' and
         previousPatch = 0;
 
