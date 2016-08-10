@@ -120,7 +120,7 @@ public class BrowseFacility extends Facility {
             throws DSOutOfServiceException, DSAccessException {
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
-            return PojoMapper.asDataObjects(service.loadContainerHierarchy(
+            return PojoMapper.convertToDataObjects(service.loadContainerHierarchy(
                     PojoMapper.getModelType(rootType).getName(), rootIDs,
                     options));
         } catch (Throwable t) {
@@ -1157,12 +1157,12 @@ public class BrowseFacility extends Facility {
                 sb.append(" and img.details.owner.id = :userID");
                 param.addLong("userID", userID);
             }
-            return PojoMapper.asDataObjects(svc.findAllByQuery(sb.toString(),
+            return PojoMapper.<ImageData>convertToDataObjects(svc.findAllByQuery(sb.toString(),
                     param));
         } catch (Throwable t) {
             logError(this, "Could not load orphaned images", t);
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     /**

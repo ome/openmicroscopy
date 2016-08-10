@@ -42,12 +42,6 @@ class HttpJsonResponse(HttpResponse):
             self, json.dumps(content), content_type="application/json")
 
 
-class HttpJNLPResponse(HttpResponse):
-    def __init__(self, content):
-        HttpResponse.__init__(
-            self, content, content_type="application/x-java-jnlp-file")
-
-
 class HttpJPEGResponse(HttpResponse):
     def __init__(self, content):
         HttpResponse.__init__(self, content, content_type="image/jpeg")

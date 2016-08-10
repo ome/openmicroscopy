@@ -143,7 +143,7 @@ public class ImageSplitChecker
 					e = i.next();
 					j = e.getValue().iterator();
 					ids = new ArrayList<Long>();
-					Class<?> klass = null;
+					Class<? extends DataObject> klass = null;
 					while (j.hasNext()) {
 						uo = j.next();
 						klass = uo.getClass();
@@ -154,7 +154,7 @@ public class ImageSplitChecker
 						}
 					}
 					r = svc.getImagesBySplitFilesets(e.getKey(),
-							klass, ids);
+							 klass, ids);
 					if (r != null && r.size() > 0) {
 						mif = new MIFResultObject(e.getKey(), r);
 						//load the thumbnails for a limited number of images.

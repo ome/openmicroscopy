@@ -26,7 +26,7 @@ module omero {
          * <p>
          * All the save* methods act recursively on the entire object graph,
          * replacing placeholders and details where necessary, and then
-         * ""merging"" the final graph.
+         * <i>merging</i> the final graph.
          * This means that the objects that are passed into IUpdate.save*
          * methods are copied over to new instances which are then returned.
          * The original objects <b>should be discarded</b>.

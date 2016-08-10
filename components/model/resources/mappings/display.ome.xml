@@ -2,9 +2,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2016 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,6 +35,7 @@
 			<optional name="compression" type="double"/>
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
 			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext" inverse="renderingDef" ordered="true"/>
+			<zeromany name="projections" type="ome.model.display.ProjectionDef" inverse="renderingDef" ordered="true"/>
 		</properties>
 	</type>
 	<type id="ome.model.display.QuantumDef">
@@ -62,6 +61,17 @@
 			<required name="blue" type="int"/>
 			<required name="alpha" type="int"/>
 			<optional name="lookupTable" type="string"/>
+		</properties>
+	</type>
+	<type id="ome.model.display.ProjectionDef">
+		<!-- Note: ProjectionDef is not in model-->
+		<properties>
+			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
+			<required name="axis" type="ome.model.enums.ProjectionAxis"/>
+			<required name="type" type="ome.model.enums.ProjectionType"/>
+			<required name="active" type="boolean"/>
+			<optional name="startPlane" type="NonNegativeInteger"/>
+			<optional name="endPlane" type="NonNegativeInteger"/>
 		</properties>
 	</type>
 
@@ -117,5 +127,18 @@
 		<entry name="polynomial"/>
 		<entry name="exponential"/>
 		<entry name="logarithmic"/>
+	</enum>
+	<enum id="ome.model.enums.ProjectionAxis">
+		<!-- Note: ProjectionAxis is not in model-->
+		<entry name="T"/>
+		<entry name="ModuloT"/>
+		<entry name="Z"/>
+		<entry name="ModuloZ"/>
+	</enum>
+	<enum id="ome.model.enums.ProjectionType">
+		<!-- Note: ProjectionType is not in model-->
+		<entry name="maximum"/>
+		<entry name="mean"/>
+		<entry name="sum"/>
 	</enum>
 </types>

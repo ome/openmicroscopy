@@ -83,7 +83,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 13))), Sym("atm")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Mul(Int(101325), Pow(10, 12)), Sym("atm")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(120625), Pow(10, 9)), Int("8208044396629")), Sym("atm")));
-        c.put(UnitsPressure.Pascal, Mul(Int(101325), Sym("atm")));
+        c.put(UnitsPressure.PASCAL, Mul(Int(101325), Sym("atm")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 10))), Sym("atm")));
         c.put(UnitsPressure.TORR, Mul(Int(760), Sym("atm")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Mul(Int(101325), Pow(10, 24)), Sym("atm")));
@@ -120,7 +120,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 33)), Sym("attopa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("attopa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 7))), Sym("attopa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 18)), Sym("attopa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("attopa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("attopa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 15))), Sym("attopa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 6), Sym("attopa")));
@@ -157,7 +157,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("bar")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 17), Sym("bar")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 14)), Int("172368932329209")), Sym("bar")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 5), Sym("bar")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 5), Sym("bar")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("bar")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 4)), Int(4053)), Sym("bar")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 29), Sym("bar")));
@@ -194,7 +194,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("cbar")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 15), Sym("cbar")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("cbar")));
-        c.put(UnitsPressure.Pascal, Mul(Int(1000), Sym("cbar")));
+        c.put(UnitsPressure.PASCAL, Mul(Int(1000), Sym("cbar")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("cbar")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(30400), Int(4053)), Sym("cbar")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 27), Sym("cbar")));
@@ -231,7 +231,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("centipa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 10), Sym("centipa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 7)), Int("172368932329209")), Sym("centipa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(100)), Sym("centipa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Int(100)), Sym("centipa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("centipa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(38), Int(506625)), Sym("centipa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 22), Sym("centipa")));
@@ -268,7 +268,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("decapa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 13), Sym("decapa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 10)), Int("172368932329209")), Sym("decapa")));
-        c.put(UnitsPressure.Pascal, Mul(Int(10), Sym("decapa")));
+        c.put(UnitsPressure.PASCAL, Mul(Int(10), Sym("decapa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("decapa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(304), Int(4053)), Sym("decapa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 25), Sym("decapa")));
@@ -305,7 +305,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("dbar")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 16), Sym("dbar")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 13)), Int("172368932329209")), Sym("dbar")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 4), Sym("dbar")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 4), Sym("dbar")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 8)), Sym("dbar")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(304000), Int(4053)), Sym("dbar")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 28), Sym("dbar")));
@@ -342,7 +342,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 16)), Sym("decipa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 11), Sym("decipa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 8)), Int("172368932329209")), Sym("decipa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(10)), Sym("decipa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Int(10)), Sym("decipa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("decipa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(76), Int(101325)), Sym("decipa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 23), Sym("decipa")));
@@ -379,7 +379,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Int(1000), Sym("exapa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 30), Sym("exapa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 27)), Int("172368932329209")), Sym("exapa")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 18), Sym("exapa")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 18), Sym("exapa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 6), Sym("exapa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 17)), Int(4053)), Sym("exapa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 42), Sym("exapa")));
@@ -416,7 +416,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("femtopa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("femtopa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 4))), Sym("femtopa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 15)), Sym("femtopa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("femtopa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("femtopa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 12))), Sym("femtopa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 9), Sym("femtopa")));
@@ -453,7 +453,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("gigapa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 21), Sym("gigapa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 18)), Int("172368932329209")), Sym("gigapa")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 9), Sym("gigapa")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 9), Sym("gigapa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("gigapa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 8)), Int(4053)), Sym("gigapa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 33), Sym("gigapa")));
@@ -490,7 +490,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("hectopa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 14), Sym("hectopa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("hectopa")));
-        c.put(UnitsPressure.Pascal, Mul(Int(100), Sym("hectopa")));
+        c.put(UnitsPressure.PASCAL, Mul(Int(100), Sym("hectopa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("hectopa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(3040), Int(4053)), Sym("hectopa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 26), Sym("hectopa")));
@@ -527,7 +527,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("kbar")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 20), Sym("kbar")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 17)), Int("172368932329209")), Sym("kbar")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 8), Sym("kbar")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 8), Sym("kbar")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("kbar")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 7)), Int(4053)), Sym("kbar")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 32), Sym("kbar")));
@@ -564,7 +564,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("kilopa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 15), Sym("kilopa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("kilopa")));
-        c.put(UnitsPressure.Pascal, Mul(Int(1000), Sym("kilopa")));
+        c.put(UnitsPressure.PASCAL, Mul(Int(1000), Sym("kilopa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("kilopa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(30400), Int(4053)), Sym("kilopa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 27), Sym("kilopa")));
@@ -601,7 +601,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("megabar")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 23), Sym("megabar")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 20)), Int("172368932329209")), Sym("megabar")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 11), Sym("megabar")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 11), Sym("megabar")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Int(10)), Sym("megabar")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 10)), Int(4053)), Sym("megabar")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 35), Sym("megabar")));
@@ -638,7 +638,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("megapa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 18), Sym("megapa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 15)), Int("172368932329209")), Sym("megapa")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 6), Sym("megapa")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 6), Sym("megapa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("megapa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 5)), Int(4053)), Sym("megapa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 30), Sym("megapa")));
@@ -675,7 +675,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("micropa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 6), Sym("micropa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Int(25000), Int("172368932329209")), Sym("micropa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 6)), Sym("micropa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("micropa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("micropa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(19), Int("2533125000")), Sym("micropa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 18), Sym("micropa")));
@@ -712,7 +712,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("mbar")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 14), Sym("mbar")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("mbar")));
-        c.put(UnitsPressure.Pascal, Mul(Int(100), Sym("mbar")));
+        c.put(UnitsPressure.PASCAL, Mul(Int(100), Sym("mbar")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("mbar")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(3040), Int(4053)), Sym("mbar")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 26), Sym("mbar")));
@@ -749,7 +749,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("millipa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 9), Sym("millipa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 6)), Int("172368932329209")), Sym("millipa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(1000)), Sym("millipa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Int(1000)), Sym("millipa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("millipa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(19), Int(2533125)), Sym("millipa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 21), Sym("millipa")));
@@ -786,7 +786,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("mtorr")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Mul(Int(2533125), Pow(10, 12)), Int(19)), Sym("mtorr")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(3015625), Pow(10, 9)), Int("155952843535951")), Sym("mtorr")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(2533125), Int(19)), Sym("mtorr")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(2533125), Int(19)), Sym("mtorr")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 8))), Sym("mtorr")));
         c.put(UnitsPressure.TORR, Mul(Int(1000), Sym("mtorr")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Mul(Int(2533125), Pow(10, 24)), Int(19)), Sym("mtorr")));
@@ -823,7 +823,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 23))), Sym("mmhg")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Int("133322387415000"), Sym("mmhg")));
         c.put(UnitsPressure.PSI, Mul(Rat(Int("158717127875"), Int("8208044396629")), Sym("mmhg")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 8))), Sym("mmhg")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 8))), Sym("mmhg")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 20))), Sym("mmhg")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int("24125003437"), Mul(Int(24125), Pow(10, 6))), Sym("mmhg")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Mul(Int("133322387415"), Pow(10, 15)), Sym("mmhg")));
@@ -860,7 +860,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("nanopa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Int(1000), Sym("nanopa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Int(25), Int("172368932329209")), Sym("nanopa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanopa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanopa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("nanopa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 6))), Sym("nanopa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 15), Sym("nanopa")));
@@ -897,7 +897,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.NANOPASCAL, Mul(Pow(10, 24), Sym("petapa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 27), Sym("petapa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 24)), Int("172368932329209")), Sym("petapa")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 15), Sym("petapa")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 15), Sym("petapa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Int(1000), Sym("petapa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 14)), Int(4053)), Sym("petapa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 39), Sym("petapa")));
@@ -934,7 +934,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("picopa")));
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("picopa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Int(1), Int("6894757293168360")), Sym("picopa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 12)), Sym("picopa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("picopa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("picopa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 9))), Sym("picopa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 12), Sym("picopa")));
@@ -971,7 +971,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int("172368932329209"), Int(25)), Sym("psi")));
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 24))), Sym("psi")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Int("6894757293168360"), Sym("psi")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 9))), Sym("psi")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 9))), Sym("psi")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 21))), Sym("psi")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int("155952843535951"), Mul(Int(3015625), Pow(10, 6))), Sym("psi")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Mul(Int("689475729316836"), Pow(10, 13)), Sym("psi")));
@@ -981,7 +981,7 @@ public class PressureI extends Pressure implements ModelBased {
         return Collections.unmodifiableMap(c);
     }
 
-    private static Map<UnitsPressure, Conversion> createMapPascal() {
+    private static Map<UnitsPressure, Conversion> createMapPASCAL() {
         EnumMap<UnitsPressure, Conversion> c =
             new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
         c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(1), Int(101325)), Sym("pa")));
@@ -1046,7 +1046,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("terapa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 24), Sym("terapa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 21)), Int("172368932329209")), Sym("terapa")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 12), Sym("terapa")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 12), Sym("terapa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 11)), Int(4053)), Sym("terapa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 36), Sym("terapa")));
         c.put(UnitsPressure.YOTTAPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("terapa")));
@@ -1083,7 +1083,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 14))), Sym("torr")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Mul(Int(2533125), Pow(10, 9)), Int(19)), Sym("torr")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(3015625), Pow(10, 6)), Int("155952843535951")), Sym("torr")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(20265), Int(152)), Sym("torr")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(20265), Int(152)), Sym("torr")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("torr")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Mul(Int(2533125), Pow(10, 21)), Int(19)), Sym("torr")));
         c.put(UnitsPressure.YOTTAPASCAL, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 23))), Sym("torr")));
@@ -1120,7 +1120,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 39)), Sym("yoctopa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("yoctopa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 13))), Sym("yoctopa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 24)), Sym("yoctopa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("yoctopa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 36)), Sym("yoctopa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 21))), Sym("yoctopa")));
         c.put(UnitsPressure.YOTTAPASCAL, Mul(Rat(Int(1), Pow(10, 48)), Sym("yoctopa")));
@@ -1157,7 +1157,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 9), Sym("yottapa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 36), Sym("yottapa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 33)), Int("172368932329209")), Sym("yottapa")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 24), Sym("yottapa")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 24), Sym("yottapa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 12), Sym("yottapa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 23)), Int(4053)), Sym("yottapa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 48), Sym("yottapa")));
@@ -1194,7 +1194,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 36)), Sym("zeptopa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("zeptopa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 10))), Sym("zeptopa")));
-        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 21)), Sym("zeptopa")));
+        c.put(UnitsPressure.PASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("zeptopa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 33)), Sym("zeptopa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 18))), Sym("zeptopa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Int(1000), Sym("zeptopa")));
@@ -1231,7 +1231,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 6), Sym("zettapa")));
         c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 33), Sym("zettapa")));
         c.put(UnitsPressure.PSI, Mul(Rat(Mul(Int(25), Pow(10, 30)), Int("172368932329209")), Sym("zettapa")));
-        c.put(UnitsPressure.Pascal, Mul(Pow(10, 21), Sym("zettapa")));
+        c.put(UnitsPressure.PASCAL, Mul(Pow(10, 21), Sym("zettapa")));
         c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 9), Sym("zettapa")));
         c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(304), Pow(10, 20)), Int(4053)), Sym("zettapa")));
         c.put(UnitsPressure.YOCTOPASCAL, Mul(Pow(10, 45), Sym("zettapa")));
@@ -1271,7 +1271,7 @@ public class PressureI extends Pressure implements ModelBased {
         c.put(UnitsPressure.PETAPASCAL, createMapPETAPASCAL());
         c.put(UnitsPressure.PICOPASCAL, createMapPICOPASCAL());
         c.put(UnitsPressure.PSI, createMapPSI());
-        c.put(UnitsPressure.Pascal, createMapPascal());
+        c.put(UnitsPressure.PASCAL, createMapPASCAL());
         c.put(UnitsPressure.TERAPASCAL, createMapTERAPASCAL());
         c.put(UnitsPressure.TORR, createMapTORR());
         c.put(UnitsPressure.YOCTOPASCAL, createMapYOCTOPASCAL());
@@ -1309,7 +1309,7 @@ public class PressureI extends Pressure implements ModelBased {
         s.put(UnitsPressure.PETAPASCAL, "PPa");
         s.put(UnitsPressure.PICOPASCAL, "pPa");
         s.put(UnitsPressure.PSI, "psi");
-        s.put(UnitsPressure.Pascal, "Pa");
+        s.put(UnitsPressure.PASCAL, "Pa");
         s.put(UnitsPressure.TERAPASCAL, "TPa");
         s.put(UnitsPressure.TORR, "Torr");
         s.put(UnitsPressure.YOCTOPASCAL, "yPa");

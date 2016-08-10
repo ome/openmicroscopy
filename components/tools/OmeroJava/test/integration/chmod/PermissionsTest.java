@@ -16,7 +16,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 package integration.chmod;
 
 import java.util.ArrayList;
@@ -718,11 +717,11 @@ public class PermissionsTest extends AbstractServerTest {
 
         final List<Object[]> testCases = new ArrayList<Object[]>();
 
-                for (final String groupPerms : permsCases) {
-                    final Object[] testCase = new Object[index];
-                    testCase[GROUP_PERMS] = groupPerms;
-                    // DEBUG: if ("rwr---".equals(groupPerms))
-                    testCases.add(testCase);
+        for (final String groupPerms : permsCases) {
+            final Object[] testCase = new Object[index];
+            testCase[GROUP_PERMS] = groupPerms;
+            // DEBUG: if ("rwr---".equals(groupPerms))
+            testCases.add(testCase);
         }
 
         return testCases.toArray(new Object[testCases.size()][]);

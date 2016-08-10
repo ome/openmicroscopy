@@ -20,7 +20,7 @@ module omero {
         /**
          * Raw file gateway which provides access to the OMERO file repository.
          *
-         * Note: methods on this service are protected by a ""DOWNLOAD""
+         * Note: methods on this service are protected by a <i>DOWNLOAD</i>
          * restriction.
          **/
         ["ami", "amd"] interface RawFileStore extends StatefulServiceInterface

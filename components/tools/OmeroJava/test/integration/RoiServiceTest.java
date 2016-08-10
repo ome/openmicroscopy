@@ -6,9 +6,6 @@
  */
 package integration;
 
-import static omero.rtypes.rdouble;
-import static omero.rtypes.rint;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -70,12 +67,12 @@ public class RoiServiceTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
@@ -107,12 +104,12 @@ public class RoiServiceTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
@@ -151,12 +148,12 @@ public class RoiServiceTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
@@ -241,12 +238,12 @@ public class RoiServiceTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
@@ -323,12 +320,12 @@ public class RoiServiceTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(i));
-            rect.setTheT(rint(0));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(i));
+            rect.setTheT(omero.rtypes.rint(0));
             roi.addShape(rect);
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);
@@ -466,12 +463,12 @@ public class RoiServiceTest extends AbstractServerTest {
         roi = (Roi) iUpdate.saveAndReturnObject(roi);
         for (int i = 0; i < 3; i++) {
             rect = new RectangleI();
-            rect.setX(rdouble(10));
-            rect.setY(rdouble(10));
-            rect.setWidth(rdouble(10));
-            rect.setHeight(rdouble(10));
-            rect.setTheZ(rint(z));
-            rect.setTheT(rint(t));
+            rect.setX(omero.rtypes.rdouble(10));
+            rect.setY(omero.rtypes.rdouble(10));
+            rect.setWidth(omero.rtypes.rdouble(10));
+            rect.setHeight(omero.rtypes.rdouble(10));
+            rect.setTheZ(omero.rtypes.rint(z));
+            rect.setTheT(omero.rtypes.rint(t));
             roi.addShape(rect);
         }
         roi = (RoiI) iUpdate.saveAndReturnObject(roi);

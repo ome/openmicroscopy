@@ -504,7 +504,7 @@ public interface MetadataHandlerView
 	 * @param nsExlcude The annotation's name space to exclude if any.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadAnnotations(SecurityContext ctx, Class<?> rootType,
+	public CallHandle loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 		List<String> nsExlcude, AgentEventListener observer);
 

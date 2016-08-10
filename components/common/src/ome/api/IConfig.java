@@ -58,7 +58,7 @@ public interface IConfig extends ServiceInterface {
      * http://trac.openmicroscopy.org.uk/ome/wiki/ExceptionHandling
      */
     /**
-     * checks the current server for it's time. This value may be variant
+     * checks the current server for its time. This value may be variant
      * depending on whether the service is clustered or not.
      * 
      * @return Non-null {@link Date} representation of the server's own time.
@@ -73,7 +73,7 @@ public interface IConfig extends ServiceInterface {
      * general consumption; readers of the API will want to know why.
      */
     /**
-     * checks the database for it's time using a SELECT statement.
+     * checks the database for its time using a SELECT statement.
      * 
      * @return Non-null {@link Date} representation of the database's time.
      * @throws InternalException

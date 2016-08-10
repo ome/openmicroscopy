@@ -6,11 +6,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +37,7 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -102,24 +98,24 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(pixels.getId().getValue());
         List<Long> v = prx.resetDefaultsInSet(Pixels.class.getName(), ids);
-        assertNotNull(v);
+        Assert.assertNotNull(v);
         // check if we have settings now.
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
 
         // Image
         ids = new ArrayList<Long>();
         ids.add(image.getId().getValue());
         v = prx.resetDefaultsInSet(Image.class.getName(), ids);
-        assertNotNull(v);
+        Assert.assertNotNull(v);
         values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -139,15 +135,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(image.getId().getValue());
         List<Long> v = prx.resetDefaultsInSet(Image.class.getName(), ids);
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -176,15 +172,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         // Dataset
         List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(),
                 Arrays.asList(d.getId().getValue()));
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -234,17 +230,17 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
                 + "join i.datasetLinks as dil " + "join dil.parent as d "
                 + "left outer join d.projectLinks as pdl "
                 + "left outer join pdl.parent as p " + "where p.id in (:ids)";
-        assertEquals(iQuery.findAllByQuery(sql, param).size(), 1);
+        Assert.assertEquals(1, iQuery.findAllByQuery(sql, param).size());
 
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -277,15 +273,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(screen.getId().getValue());
         List<Long> v = prx.resetDefaultsInSet(Screen.class.getName(), ids);
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -308,8 +304,8 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(d.getId().getValue());
         List<Long> v = prx.resetDefaultsInSet(Dataset.class.getName(), ids);
-        assertNotNull(v);
-        assertEquals(v.size(), 0);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(0, v.size());
     }
 
     /**
@@ -336,15 +332,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         Map<Boolean, List<Long>> m = prx
                 .applySettingsToSet(id, Image.class.getName(),
                         Arrays.asList(image2.getId().getValue()));
-        assertNotNull(m);
+        Assert.assertNotNull(m);
         List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
         List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
-        assertNotNull(success);
-        assertNotNull(failure);
-        assertEquals(success.size(), 1);
-        assertEquals(failure.size(), 0);
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(1, success.size());
+        Assert.assertEquals(0, failure.size());
         id = success.get(0); // image id.
-        assertEquals(id, image2.getId().getValue());
+        Assert.assertEquals(id, image2.getId().getValue());
         RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
                 image2.getPrimaryPixels().getId().getValue());
         compareRenderingDef(def, def2);
@@ -383,15 +379,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
 
         Map<Boolean, List<Long>> m = prx.applySettingsToSet(id,
                 Dataset.class.getName(), Arrays.asList(d.getId().getValue()));
-        assertNotNull(m);
+        Assert.assertNotNull(m);
         List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
         List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
-        assertNotNull(success);
-        assertNotNull(failure);
-        assertEquals(success.size(), 1);
-        assertEquals(failure.size(), 0);
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(1, success.size());
+        Assert.assertEquals(0, failure.size());
         id = success.get(0); // image id.
-        assertEquals(id, image2.getId().getValue());
+        Assert.assertEquals(id, image2.getId().getValue());
         RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
                 image2.getPrimaryPixels().getId().getValue());
         compareRenderingDef(def, def2);
@@ -421,7 +417,7 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         // Dataset
         Map<Boolean, List<Long>> m = prx.applySettingsToSet(id,
                 Dataset.class.getName(), Arrays.asList(d.getId().getValue()));
-        assertNotNull(m);
+        Assert.assertNotNull(m);
     }
 
     /**
@@ -464,15 +460,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         Map<Boolean, List<Long>> m = prx.applySettingsToSet(id,
                 Project.class.getName(),
                 Arrays.asList(project.getId().getValue()));
-        assertNotNull(m);
+        Assert.assertNotNull(m);
         List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
         List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
-        assertNotNull(success);
-        assertNotNull(failure);
-        assertEquals(success.size(), 1);
-        assertEquals(failure.size(), 0);
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(1, success.size());
+        Assert.assertEquals(0, failure.size());
         id = success.get(0); // image id.
-        assertEquals(id, image2.getId().getValue());
+        Assert.assertEquals(id, image2.getId().getValue());
         RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
                 image2.getPrimaryPixels().getId().getValue());
         compareRenderingDef(def, def2);
@@ -513,15 +509,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         Image image2 = well.getWellSample(0).getImage();
         Map<Boolean, List<Long>> m = prx.applySettingsToSet(id,
                 Plate.class.getName(), Arrays.asList(p.getId().getValue()));
-        assertNotNull(m);
+        Assert.assertNotNull(m);
         List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
         List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
-        assertNotNull(success);
-        assertNotNull(failure);
-        assertEquals(success.size(), 1);
-        assertEquals(failure.size(), 0);
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(1, success.size());
+        Assert.assertEquals(0, failure.size());
         id = success.get(0); // image id.
-        assertEquals(id, image2.getId().getValue());
+        Assert.assertEquals(id, image2.getId().getValue());
         RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
                 image2.getPrimaryPixels().getId().getValue());
         compareRenderingDef(def, def2);
@@ -564,15 +560,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         Map<Boolean, List<Long>> m = prx.applySettingsToSet(id,
                 PlateAcquisition.class.getName(),
                 Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
-        assertNotNull(m);
+        Assert.assertNotNull(m);
         List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
         List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
-        assertNotNull(success);
-        assertNotNull(failure);
-        assertEquals(success.size(), 1);
-        assertEquals(failure.size(), 0);
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(1, success.size());
+        Assert.assertEquals(0, failure.size());
         id = success.get(0); // image id.
-        assertEquals(id, image2.getId().getValue());
+        Assert.assertEquals(id, image2.getId().getValue());
         RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
                 image2.getPrimaryPixels().getId().getValue());
         compareRenderingDef(def, def2);
@@ -628,15 +624,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         Map<Boolean, List<Long>> m = prx.applySettingsToSet(id,
                 Screen.class.getName(),
                 Arrays.asList(screen.getId().getValue()));
-        assertNotNull(m);
+        Assert.assertNotNull(m);
         List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
         List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
-        assertNotNull(success);
-        assertNotNull(failure);
-        assertEquals(success.size(), 1);
-        assertEquals(failure.size(), 0);
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(1, success.size());
+        Assert.assertEquals(0, failure.size());
         id = success.get(0); // image id.
-        assertEquals(id, image2.getId().getValue());
+        Assert.assertEquals(id, image2.getId().getValue());
         RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
                 image2.getPrimaryPixels().getId().getValue());
         compareRenderingDef(def, def2);
@@ -666,15 +662,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         List<Long> ids = new ArrayList<Long>();
         ids.add(p.getId().getValue());
         List<Long> v = prx.resetDefaultsInSet(Plate.class.getName(), ids);
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -702,15 +698,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         ids.add(ws.getPlateAcquisition().getId().getValue());
         List<Long> v = prx.resetDefaultsInSet(PlateAcquisition.class.getName(),
                 ids);
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -753,14 +749,14 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(toUpdate);
         List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 1);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(1, m.size());
         def = factory.getPixelsService().retrieveRndSettings(id);
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = def.getChannelBinding(i);
             p = list.get(i);
-            assertEquals(channel.getInputStart().getValue(), p.getX());
-            assertEquals(channel.getInputEnd().getValue(), p.getY());
+            Assert.assertEquals(channel.getInputStart().getValue(), p.getX());
+            Assert.assertEquals(channel.getInputEnd().getValue(), p.getY());
         }
     }
 
@@ -811,14 +807,14 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
         List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(),
                 Arrays.asList(d.getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 1);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(1, m.size());
         def = factory.getPixelsService().retrieveRndSettings(id);
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = def.getChannelBinding(i);
             p = list.get(i);
-            assertEquals(channel.getInputStart().getValue(), p.getX());
-            assertEquals(channel.getInputEnd().getValue(), p.getY());
+            Assert.assertEquals(channel.getInputStart().getValue(), p.getX());
+            Assert.assertEquals(channel.getInputEnd().getValue(), p.getY());
         }
     }
 
@@ -838,7 +834,7 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
                 Arrays.asList(d.getId().getValue()));
         List<Long> m = prx.resetMinMaxInSet(Dataset.class.getName(),
                 Arrays.asList(d.getId().getValue()));
-        assertEquals(m.size(), 0);
+        Assert.assertEquals(0, m.size());
     }
 
     /**
@@ -860,7 +856,7 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
                 Arrays.asList(image.getId().getValue()));
         // method already tested
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
-        assertNotNull(def);
+        Assert.assertNotNull(def);
 
         // Modified the settings.
         ChannelBinding channel;
@@ -896,14 +892,14 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
 
         List<Long> m = prx.resetMinMaxInSet(Project.class.getName(),
                 Arrays.asList(project.getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 1);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(1, m.size());
         def = factory.getPixelsService().retrieveRndSettings(id);
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = def.getChannelBinding(i);
             p = list.get(i);
-            assertEquals(channel.getInputStart().getValue(), p.getX());
-            assertEquals(channel.getInputEnd().getValue(), p.getY());
+            Assert.assertEquals(channel.getInputStart().getValue(), p.getX());
+            Assert.assertEquals(channel.getInputEnd().getValue(), p.getY());
         }
 
     }
@@ -953,14 +949,14 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
 
         List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(),
                 Arrays.asList(plate.getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 1);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(1, m.size());
         def = factory.getPixelsService().retrieveRndSettings(id);
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = def.getChannelBinding(i);
             p = list.get(i);
-            assertEquals(channel.getInputStart().getValue(), p.getX());
-            assertEquals(channel.getInputEnd().getValue(), p.getY());
+            Assert.assertEquals(channel.getInputStart().getValue(), p.getX());
+            Assert.assertEquals(channel.getInputEnd().getValue(), p.getY());
         }
     }
 
@@ -1010,14 +1006,14 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
 
         List<Long> m = prx.resetMinMaxInSet(PlateAcquisition.class.getName(),
                 Arrays.asList(ws.getPlateAcquisition().getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 1);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(1, m.size());
         def = factory.getPixelsService().retrieveRndSettings(id);
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = def.getChannelBinding(i);
             p = list.get(i);
-            assertEquals(channel.getInputStart().getValue(), p.getX());
-            assertEquals(channel.getInputEnd().getValue(), p.getY());
+            Assert.assertEquals(channel.getInputStart().getValue(), p.getX());
+            Assert.assertEquals(channel.getInputEnd().getValue(), p.getY());
         }
     }
 
@@ -1073,14 +1069,14 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
 
         List<Long> m = prx.resetMinMaxInSet(Plate.class.getName(),
                 Arrays.asList(plate.getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 1);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(1, m.size());
         def = factory.getPixelsService().retrieveRndSettings(id);
         for (int i = 0; i < pixels.getSizeC().getValue(); i++) {
             channel = def.getChannelBinding(i);
             p = list.get(i);
-            assertEquals(channel.getInputStart().getValue(), p.getX());
-            assertEquals(channel.getInputEnd().getValue(), p.getY());
+            Assert.assertEquals(channel.getInputStart().getValue(), p.getX());
+            Assert.assertEquals(channel.getInputEnd().getValue(), p.getY());
         }
     }
 
@@ -1109,15 +1105,15 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         Map<Boolean, List<Long>> m = prx
                 .applySettingsToSet(id, Image.class.getName(),
                         Arrays.asList(image2.getId().getValue()));
-        assertNotNull(m);
+        Assert.assertNotNull(m);
         List<Long> success = (List<Long>) m.get(Boolean.valueOf(true));
         List<Long> failure = (List<Long>) m.get(Boolean.valueOf(false));
-        assertNotNull(success);
-        assertNotNull(failure);
-        assertTrue(success.size() == 1);
-        assertTrue(failure.size() == 0);
+        Assert.assertNotNull(success);
+        Assert.assertNotNull(failure);
+        Assert.assertEquals(1, success.size());
+        Assert.assertEquals(0, failure.size());
         id = success.get(0); // image id.
-        assertTrue(id == image2.getId().getValue());
+        Assert.assertEquals(id, image2.getId().getValue());
         RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(
                 image2.getPrimaryPixels().getId().getValue());
         compareRenderingDef(def, def2);
@@ -1148,16 +1144,16 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         // Image
         List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         param.addLong("oid", ctx2.userId);
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid and rdef.details.owner.id = :oid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -1184,16 +1180,16 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         // Image
         List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(v);
-        assertEquals(v.size(), 1);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(1, v.size());
         ParametersI param = new ParametersI();
         param.addLong("pid", pixels.getId().getValue());
         param.addLong("oid", ctx2.userId);
         String sql = "select rdef from RenderingDef as rdef "
                 + "where rdef.pixels.id = :pid and rdef.details.owner.id = :oid";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        assertNotNull(values);
-        assertEquals(values.size(), 1);
+        Assert.assertNotNull(values);
+        Assert.assertEquals(1, values.size());
     }
 
     /**
@@ -1218,8 +1214,8 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         // Image
         List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(v);
-        assertEquals(v.size(), 0);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(0, v.size());
     }
 
     /**
@@ -1237,8 +1233,8 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         // method already tested
         List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 1);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(1, m.size());
     }
 
     /**
@@ -1257,8 +1253,8 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         // method already tested
         List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 0);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(m.size(), 0);
     }
 
     /**
@@ -1277,8 +1273,8 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         List<Long> v = prx.resetDefaultsByOwnerInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(v);
-        assertEquals(v.size(), 0);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(v.size(), 0);
     }
 
     /**
@@ -1297,8 +1293,8 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         List<Long> v = prx.setOriginalSettingsInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(v);
-        assertEquals(v.size(), 0);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(v.size(), 0);
     }
 
     /**
@@ -1317,8 +1313,8 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
         List<Long> v = prx.resetDefaultsInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(v);
-        assertEquals(v.size(), 0);
+        Assert.assertNotNull(v);
+        Assert.assertEquals(v.size(), 0);
     }
 
     /**
@@ -1352,13 +1348,13 @@ public class RenderingSettingsServiceTest extends AbstractServerTest {
         i = channels.iterator();
         while (i.hasNext()) {
             channel = (Channel) i.next();
-            assertNull(channel.getStatsInfo());
+            Assert.assertNull(channel.getStatsInfo());
         }
         // Image
         // method already tested
         List<Long> m = prx.resetMinMaxInSet(Image.class.getName(),
                 Arrays.asList(image.getId().getValue()));
-        assertNotNull(m);
-        assertEquals(m.size(), 1);
+        Assert.assertNotNull(m);
+        Assert.assertEquals(m.size(), 1);
     }
 }

@@ -34,6 +34,8 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -83,9 +85,9 @@ public class ROINode
 	private static final int				ANNOTATION_COLUMN = 
 		ROITableModel.ANNOTATION_COLUMN;
 
-	/** Visible Column no for the wizard. */
-	private static final int				VISIBLE_COLUMN = 
-		ROITableModel.VISIBLE_COLUMN;
+	/** Show Column no for the wizard. */
+	private static final int				SHOW_COLUMN = 
+		ROITableModel.SHOW_COLUMN;
 	
 	/** The map of the children, ROIShapes belonging to the ROINode. */
 	private Map<ROIShape, ROINode>				childMap;
@@ -97,10 +99,12 @@ public class ROINode
     private HashMap<FolderData, ROINode>           folderMap;
     
     /**
-     * Flag to indicate if this node is marked as visible; only used for folder
-     * nodes, which can override shape node visibility
+     * Flag to indicate if this node is marked to be shown;
      */
-    private boolean visible = true;
+    private boolean show = true;
+    
+    /** Flag to indicate if the "Show" checkbox should be enabled */
+    private boolean showEnabled = true;
     
 	/**
 	 * Constructor for parent node. 
@@ -289,7 +293,8 @@ public class ROINode
 	{
 		switch (column)
 		{
-			case VISIBLE_COLUMN+1:
+			case SHOW_COLUMN+1:
+			    return showEnabled;
 			case ANNOTATION_COLUMN+1:
 				return true;
 			default:
@@ -379,8 +384,8 @@ public class ROINode
 					return roi.getShapeTypes();
 				case ANNOTATION_COLUMN+1:
 					return AnnotationKeys.TEXT.get(roi);
-				case VISIBLE_COLUMN+1:
-					return isVisible();
+				case SHOW_COLUMN+1:
+					return isShown();
 				default:
 					return null;
 			}
@@ -410,8 +415,8 @@ public class ROINode
 				case ANNOTATION_COLUMN+1:
 					return roiShape.getFigure().getAttribute(
 							MeasurementAttributes.TEXT);
-				case VISIBLE_COLUMN+1:
-					return isVisible();
+				case SHOW_COLUMN+1:
+					return isShown();
 				default:
 					return null;
 			}
@@ -423,8 +428,8 @@ public class ROINode
                 return folder.getId();
             case ANNOTATION_COLUMN+1:
                 return folder.getDescription();
-            case VISIBLE_COLUMN + 1:
-                return isVisible();
+            case SHOW_COLUMN + 1:
+                return isShown();
             default:
                 return "";
             }
@@ -433,15 +438,11 @@ public class ROINode
 		return null;
 	}
 
-    boolean isVisible() {
-        if (isROINode()) {
-            return ((ROI) getUserObject()).isVisible();
-        } else if (isShapeNode()) {
-            return ((ROIShape) getUserObject()).getFigure().isVisible();
-        } else if (isFolderNode()) {
-            return this.visible;
-        }
-        return false;
+    /**
+     * @return Check if this node is marked to be shown
+     */
+    boolean isShown() {
+        return this.show;
     }
 	
 	/**
@@ -466,15 +467,14 @@ public class ROINode
 					if (value instanceof String)
 						roi.setAnnotation(AnnotationKeys.TEXT, (String) value);
 					break;
-				case VISIBLE_COLUMN+1:
+				case SHOW_COLUMN+1:
 					if (value instanceof Boolean)
 					{
-					    for(MutableTreeTableNode child : getChildList()) {
-	                        child.setValueAt(value, column);
-	                    }
+					    setShow((Boolean) value);
+					    updateShapeVisibility();
 					}
 					break;
-					default:
+				default:
 					break;
 			}
 		} else if (userObject instanceof ROIShape) {
@@ -495,9 +495,11 @@ public class ROINode
 								!((String) value).equals(""));
 					}
 					break;
-				case VISIBLE_COLUMN+1:
-					if(value instanceof Boolean)
-						roiShape.getFigure().setVisible((Boolean) value);
+				case SHOW_COLUMN+1:
+					if(value instanceof Boolean) {
+					    setShow((Boolean) value);
+					    updateShapeVisibility();
+					}
 					break;
 				default:
 					break;
@@ -505,13 +507,9 @@ public class ROINode
 		} else if (userObject instanceof FolderData) {
 		    
             switch (column) {
-            case VISIBLE_COLUMN + 1:
+            case SHOW_COLUMN + 1:
                 if(value instanceof Boolean) {
-                    this.visible = (Boolean) value;
-                    for (int i = 0; i < getChildCount(); i++) {
-                        ROINode child = (ROINode) getChildAt(i);
-                        propateFolderVisibility(this.visible, child);
-                    }
+                    setShow((Boolean) value);
                     updateShapeVisibility();
                 }
                 break;
@@ -522,73 +520,125 @@ public class ROINode
 		}
 	}
 	
-	/**
-	 * Runs through all shape nodes and updates their visibility with
-	 * respect to the folders' visibility state they are part of.
-	 */
-    private void updateShapeVisibility() {
-        Collection<ROINode> shapes = ROIUtil.getShapeNodes(getRoot());
+    /**
+     * Check if the "Show" checkbox is enabled
+     * 
+     * @return See above.
+     */
+    public boolean isShowEnabled() {
+        return showEnabled;
+    }
 
-        for (ROINode shape : shapes) {
-            ROIShape s = (ROIShape) shape.getUserObject();
-            s.getFigure().setVisible(isShapeVisible(shape));
+    /**
+     * Enable/Disable the "Show" checkbox
+     * 
+     * @param showEnabled
+     *            Pass <code>true</code> to enable the checkbox
+     */
+    public void setShowEnabled(boolean showEnabled) {
+        this.showEnabled = showEnabled;
+        for (MutableTreeTableNode n : getChildList()) {
+            ((ROINode) n).setShowEnabled(showEnabled);
         }
     }
 
     /**
-     * Propagates the visibility status down to all subfolders of the given node
+     * Set the show flag; this method makes sure, that the ROI is set to the
+     * same state in case this node represents a shape and vice versa
      * 
-     * @param vis
-     *            The visibility status
-     * @param node
-     *            The node
+     * @param show
+     *            The show flag
      */
-    private void propateFolderVisibility(boolean vis, ROINode node) {
-        if (!node.isFolderNode())
-            return;
-        node.setValueAt((Boolean) vis, VISIBLE_COLUMN + 1);
-        for (int i = 0; i < node.getChildCount(); i++) {
-            ROINode child = (ROINode) node.getChildAt(i);
-            propateFolderVisibility(vis, child);
+    void setShow(boolean show) {
+        this.show = show;
+        if (isShapeNode()) {
+            ROINode roinode = (ROINode) getPath().getParentPath()
+                    .getLastPathComponent();
+            roinode.show = show;
         }
-    }
-    
-    /**
-     * Determines the visibility of a shape node with respect to the folders'
-     * visibility the shape is part of.
-     * 
-     * @param shape
-     *            The shape node to check
-     * @return Returns <code>true</code> if any folder the shape is part of is
-     *         visible, <code>false</code> otherwise. If the shape is not part
-     *         of any folder, the shape's visibility itself is returned.
-     */
-    private boolean isShapeVisible(ROINode shape) {
-        Boolean b = null;
-        Collection<ROINode> shapeNodes = ROIUtil.getShapeNodes(((ROIShape) shape
-                .getUserObject()).getROIShapeID(), getRoot());
-        for (ROINode shapeNode : shapeNodes) {
-            TreePath path = shapeNode.getPath();
-            if (path.getPathCount() > 2) {
-                // the direct parent of a shape node is always an roi node
-                // therefore take a step of length 2 to get the folder node
-                ROINode folder = (ROINode) path.getPathComponent(path
-                        .getPathCount() - 3);
-                if (folder.isRoot())
-                    return shape.isVisible();
-                if (b == null)
-                    b = folder.isVisible();
-                else
-                    b = b == true || folder.isVisible();
+        else if (isROINode()) {
+            for (MutableTreeTableNode n : getChildList()) {
+                ((ROINode) n).show = show;
             }
         }
+        else if (isFolderNode()) {
+            for (MutableTreeTableNode n : getChildList()) {
+                ((ROINode) n).setShowEnabled(show);
+            }
+        }
+    }
+	
+    /**
+     * Updates the visibility of all shape nodes. A shape will be set to visible
+     * if and only if all parent nodes of one branch (in case the ROI is part of
+     * multiple branches ie folders), are marked as shown.
+     */
+    private void updateShapeVisibility() {
 
-        if (b == null)
-            return shape.isVisible();
-        else
-            return b;
+        long shapeId = -123;
+        if (isShapeNode()) {
+            shapeId = ((ROIShape) getUserObject()).getID();
+        }
+        if (isROINode()) {
+            shapeId = ((ROIShape) ((ROINode) (getChildList().iterator().next()))
+                    .getUserObject()).getID();
+        }
+            
+        Collection<ROINode> shapeNodes = ROIUtil.getShapeNodes(getRoot());
+
+        // transform to map for faster access to nodes for a specific shape
+        Multimap<Long, ROINode> map = ArrayListMultimap.create();
+        for(ROINode n : shapeNodes)
+            map.put(((ROIShape)n.getUserObject()).getID(), n);
+        
+        for (ROINode n : shapeNodes) {
+            ROIShape s = (ROIShape) n.getUserObject();
+            
+            // make sure all ROINodes which represent this ROI or Shape node
+            // are set to the same 'show' state
+            if (s.getID() == shapeId) {
+                n.setShow(isShown());
+                s.getFigure().setVisible(isShown());
+                continue;
+            }
+            
+            // check all branches this shape is part of
+            Collection<ROINode> sNodes = map.get(s.getID());
+            boolean shown = false;
+            for (ROINode n2 : sNodes) {
+                if (checkPathShown(n2)) {
+                    shown = true;
+                    break;
+                }
+            }
+            s.getFigure().setVisible(shown);
+        }
     }
     
+    /**
+     * Checks the whole branch of a ROINode for 'show' flag
+     * 
+     * @param n
+     *            The node to check
+     * @return <code>true</code> if all parents of the node are marked as
+     *         'show', <code>false</code> otherwise
+     */
+    private boolean checkPathShown(ROINode n) {
+        TreePath p = n.getPath();
+        boolean shown = true;
+        for (int i = 0; i < p.getPathCount(); i++) {
+            Object o = p.getPathComponent(i);
+            if (o instanceof ROINode) {
+                ROINode r = (ROINode) o;
+                if (!r.isShown()) {
+                    shown = false;
+                    break;
+                }
+            }
+        }
+        return shown;
+    }
+
     /**
      * Indicates if the node can be annotated if <code>true</code>,
      * <code>false</code> otherwise.

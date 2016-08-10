@@ -37,6 +37,7 @@ import ome.util.SqlAction;
 // Note: This cannot be imported because
 // it's in the blitz pacakge. TODO
 
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
@@ -87,6 +88,11 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * the collection is frequently passed out.
      */
     private/* final */ Set<String> mimetypes = new HashSet<String>();
+
+    /** The collection of mimetypes from each from each of the
+     * {@link ScriptFileType} instances in {@link #types} that are marked as inert.
+     */
+    private/* final */ Set<String> inertMimetypes = new HashSet<String>();
 
     private final String uuid;
 
@@ -158,9 +164,12 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
             log.info("Registering {}: {}", entry.getKey(), found);
             orFilters.add(found);
             mimetypes.add(entry.getValue().getMimetype());
+            if (entry.getValue().isInert()) {
+                inertMimetypes.add(entry.getValue().getMimetype());
+            }
         }
         mimetypes = Collections.unmodifiableSet(mimetypes);
-
+        inertMimetypes = Collections.unmodifiableSet(inertMimetypes);
         andFilters.add(BASE_SCRIPT_FILTER);
         andFilters.add(new OrFileFilter(orFilters));
         this.scriptFilter = new AndFileFilter(andFilters);
@@ -440,6 +449,84 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         return FileUtils.iterateFiles(dir, scriptFilter, TrueFileFilter.TRUE);
     }
 
+    @SuppressWarnings("unchecked")
+    private List<OriginalFile> loadAllScripts(final boolean modificationCheck,
+            final String mimetype, final Principal pp) {
+        final Iterator<File> it = iterate();
+        final List<OriginalFile> rv = new ArrayList<OriginalFile>();
+        return (List<OriginalFile>) ex.execute(pp, new Executor.SimpleWork(this,
+                "loadAll", modificationCheck) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                SqlAction sqlAction = getSqlAction();
+                List<OriginalFile> list = new ArrayList<OriginalFile>();
+                File f = null;
+                RepoFile file = null;
+                //only retrieve the non-inert mimetypes
+                Set<String> types = new HashSet<String>();
+                if (StringUtils.isBlank(mimetype)) {
+                    types.addAll(mimetypes);
+                    types.removeAll(inertMimetypes);
+                } else {
+                    types.add(mimetype);
+                }
+                while (it.hasNext()) {
+                    f = it.next();
+                    file = new RepoFile(dir, f);
+                    Long id = findInDb(sqlAction, file, false); // non-scripts count
+                    String hash = null;
+                    OriginalFile ofile = null;
+                    if (id == null) {
+                        ofile = addOrReplace(session, sqlAction, sf, file, null);
+                    } else {
+                        ofile = load(id, session, getSqlAction(), true); // checks for type & repo
+                        if (ofile == null) {
+                            continue; // wrong type or similar
+                        }
+
+                        if (modificationCheck) {
+                            hash = file.hash();
+                            if (!hash.equals(ofile.getHash())) {
+                                ofile = addOrReplace(session, sqlAction, sf, file, id);
+                            }
+                        }
+                    }
+                    if (types.contains(ofile.getMimetype())) {
+                        rv.add(ofile);
+                    } else {
+                        list.add(ofile);
+                    }
+                }
+                list.addAll(rv);
+                removeMissingFilesFromDb(sqlAction, session, list);
+                return rv;
+            }});
+    }
+
+    /**
+     * Walks all files in the repository (via {@link #iterate()} and adds them
+     * if not found in the database.
+     *
+     * If modificationCheck is true, then a change in the hash for a file in
+     * the repository will cause the old file to be removed from the repository
+     * <pre>(uuid == null)</pre> and a new file created in its place.
+     *
+     * @param modificationCheck
+     * @param mimetype the mimetype of the scripts or <code>null</code>.
+     * @return See above.
+     */
+    @SuppressWarnings("unchecked")
+    public List<OriginalFile> loadAll(final boolean modificationCheck, final
+            String mimetype) {
+        return loadAllScripts(modificationCheck, mimetype, p);
+    }
+
+    public List<OriginalFile> loadAll(final boolean modificationCheck, final
+            String mimetype, final Principal pp) {
+        return loadAllScripts(modificationCheck, mimetype, pp);
+    }
+
     /**
      * Walks all files in the repository (via {@link #iterate()} and adds them
      * if not found in the database.
@@ -453,45 +540,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      */
     @SuppressWarnings("unchecked")
     public List<OriginalFile> loadAll(final boolean modificationCheck) {
-        final Iterator<File> it = iterate();
-        final List<OriginalFile> rv = new ArrayList<OriginalFile>();
-        return (List<OriginalFile>) ex.execute(p, new Executor.SimpleWork(this,
-                "loadAll", modificationCheck) {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-
-                SqlAction sqlAction = getSqlAction();
-
-                File f = null;
-                RepoFile file = null;
-
-                while (it.hasNext()) {
-                    f = it.next();
-                    file = new RepoFile(dir, f);
-                    Long id = findInDb(sqlAction, file, false); // non-scripts count
-                    String hash = null;
-                    OriginalFile ofile = null;
-                    if (id == null) {
-                        ofile = addOrReplace(session, sqlAction, sf, file, null);
-                    } else {
-
-                        ofile = load(id, session, getSqlAction(), true); // checks for type & repo
-                        if (ofile == null) {
-                            continue; // wrong type or similar
-                        }
-
-                        if (modificationCheck) {
-                            hash = file.hash();
-                            if (!hash.equals(ofile.getHash())) {
-                                ofile = addOrReplace(session, sqlAction, sf, file, id);
-                            }
-                        }
-                    }
-                    rv.add(ofile);
-                }
-                removeMissingFilesFromDb(sqlAction, session, rv);
-                return rv;
-            }});
+        return loadAll(modificationCheck, null);
     }
 
     /**
@@ -701,4 +750,19 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
                 });
     }
 
+    /**
+     * Returns <code>true</code> if the file is an "inert" file e.g. a lut,
+     * <code>false</code> otherwise.
+     * @param f The file to handle.
+     * @return See above.
+     */
+    public boolean isInert(OriginalFile f)
+    {
+        if (f == null) return false;
+        String mimetype = f.getMimetype();
+        if (StringUtils.isBlank(mimetype)) {
+            return false;
+        }
+        return inertMimetypes.contains(mimetype);
+    }
 }

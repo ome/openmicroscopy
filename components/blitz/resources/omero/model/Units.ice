@@ -148,7 +148,7 @@ module omero {
                 KILOPASCAL,
                 HECTOPASCAL,
                 DECAPASCAL,
-                Pascal,
+                PASCAL,
                 DECIPASCAL,
                 CENTIPASCAL,
                 MILLIPASCAL,

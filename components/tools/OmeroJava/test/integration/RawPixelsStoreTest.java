@@ -1,6 +1,4 @@
 /*
- * integration.RawPixelsStoreTest
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
@@ -22,10 +20,6 @@
  */
 package integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,6 +28,7 @@ import omero.api.RawPixelsStorePrx;
 import omero.model.Image;
 import omero.model.Pixels;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -101,9 +96,9 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 RomioPixelBuffer.safeLongToInteger(svc.getPlaneSize()), 0);
         svc.setPlane(data, 0, 0, 0);
         byte[] r = svc.getPlane(0, 0, 0);
-        assertNotNull(r);
-        assertEquals(data.length, r.length);
-        assertEquals(sha1(data), sha1(r));
+        Assert.assertNotNull(r);
+        Assert.assertEquals(data.length, r.length);
+        Assert.assertEquals(sha1(data), sha1(r));
     }
 
     /**
@@ -124,9 +119,9 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 ModelMockFactory.SIZE_X, ModelMockFactory.SIZE_Y, 1, 1, 1 });
         List<Integer> step = Arrays.asList(new Integer[] { 1, 1, 1, 1, 1 });
         byte[] r = svc.getHypercube(offset, size, step);
-        assertNotNull(r);
-        assertEquals(data.length, r.length);
-        assertEquals(sha1(data), sha1(r));
+        Assert.assertNotNull(r);
+        Assert.assertEquals(data.length, r.length);
+        Assert.assertEquals(sha1(data), sha1(r));
     }
 
     /**
@@ -154,8 +149,8 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 ModelMockFactory.SIZE_Z, 1, ModelMockFactory.SIZE_T });
         List<Integer> step = Arrays.asList(new Integer[] { 1, 1, 1, 1, 1 });
         byte[] r = svc.getHypercube(offset, size, step);
-        assertNotNull(r);
-        assertEquals(data.length * ModelMockFactory.SIZE_Z
+        Assert.assertNotNull(r);
+        Assert.assertEquals(data.length * ModelMockFactory.SIZE_Z
                 * ModelMockFactory.SIZE_T, r.length);
     }
 
@@ -167,7 +162,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
      */
     @Test
     public void testPlaneSize() throws Exception {
-        assertEquals(planeSize, svc.getPlaneSize());
+        Assert.assertEquals(planeSize, svc.getPlaneSize());
     }
 
     /**
@@ -185,10 +180,10 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         plane1[planeSize - 1] = 1;
         svc.setRegion(planeSize, 0, plane1);
         byte[] plane2 = svc.getPlane(0, 0, 0);
-        assertNotNull(plane1);
-        assertNotNull(plane2);
-        assertEquals(planeSize, plane2.length);
-        assertEquals(sha1(plane1, 0, planeSize), sha1(plane2));
+        Assert.assertNotNull(plane1);
+        Assert.assertNotNull(plane2);
+        Assert.assertEquals(planeSize, plane2.length);
+        Assert.assertEquals(sha1(plane1, 0, planeSize), sha1(plane2));
     }
 
     /**
@@ -202,10 +197,10 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         plane1[planeSize - 1] = 1;
         svc.setRegion(planeSize, 0, plane1);
         byte[] plane2 = svc.getPlane(0, 0, 0);
-        assertNotNull(plane1);
-        assertNotNull(plane2);
-        assertEquals(plane1.length, plane2.length);
-        assertEquals(sha1(plane1), sha1(plane2));
+        Assert.assertNotNull(plane1);
+        Assert.assertNotNull(plane2);
+        Assert.assertEquals(plane1.length, plane2.length);
+        Assert.assertEquals(sha1(plane1), sha1(plane2));
     }
 
     /**
@@ -221,12 +216,12 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         svc.setRegion(b1.length, half, b1);
         byte[] a2 = svc.getRegion(a1.length, 0);
         byte[] b2 = svc.getRegion(b1.length, half);
-        assertNotNull(a2);
-        assertNotNull(b2);
-        assertEquals(a1.length, a2.length);
-        assertEquals(b1.length, b2.length);
-        assertEquals(sha1(a1), sha1(a2));
-        assertEquals(sha1(b1), sha1(b2));
+        Assert.assertNotNull(a2);
+        Assert.assertNotNull(b2);
+        Assert.assertEquals(a1.length, a2.length);
+        Assert.assertEquals(b1.length, b2.length);
+        Assert.assertEquals(sha1(a1), sha1(a2));
+        Assert.assertEquals(sha1(b1), sha1(b2));
     }
 
     /**
@@ -245,9 +240,9 @@ public class RawPixelsStoreTest extends AbstractServerTest {
         svc.setRegion(remaining, offset, a1);
         byte[] a2 = svc.getRegion(remaining, offset);
         a1 = prepareTestByteArray(planeSize / 2, 0);
-        assertNotNull(a2);
-        assertEquals(remaining, a2.length);
-        assertEquals(sha1(a1), sha1(a2));
+        Assert.assertNotNull(a2);
+        Assert.assertEquals(remaining, a2.length);
+        Assert.assertEquals(sha1(a1), sha1(a2));
     }
 
     /**
@@ -268,12 +263,12 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 ModelMockFactory.SIZE_T - 1);
         byte[] a2 = svc.getRegion(remaining, offset);
         a1 = prepareTestByteArray(planeSize / 2, 0);
-        assertNotNull(a2);
-        assertNotNull(lastPlane);
-        assertEquals(remaining, a2.length);
-        assertEquals(planeSize, lastPlane.length);
-        assertEquals(sha1(a1), sha1(a2));
-        assertEquals(sha1(new byte[planeSize]), sha1(lastPlane));
+        Assert.assertNotNull(a2);
+        Assert.assertNotNull(lastPlane);
+        Assert.assertEquals(remaining, a2.length);
+        Assert.assertEquals(planeSize, lastPlane.length);
+        Assert.assertEquals(sha1(a1), sha1(a2));
+        Assert.assertEquals(sha1(new byte[planeSize]), sha1(lastPlane));
     }
 
     /**
@@ -298,12 +293,12 @@ public class RawPixelsStoreTest extends AbstractServerTest {
                 ModelMockFactory.SIZE_T - 1);
         byte[] a2 = svc.getRegion(remaining, offset);
         a1 = prepareTestByteArray(planeSize / 2, 0);
-        assertNotNull(a2);
-        assertNotNull(lastPlane);
-        assertEquals(remaining, a2.length);
-        assertEquals(planeSize, lastPlane.length);
-        assertEquals(0x01, lastPlane[0]);
-        assertEquals(sha1(a1), sha1(a2));
+        Assert.assertNotNull(a2);
+        Assert.assertNotNull(lastPlane);
+        Assert.assertEquals(remaining, a2.length);
+        Assert.assertEquals(planeSize, lastPlane.length);
+        Assert.assertEquals(0x01, lastPlane[0]);
+        Assert.assertEquals(sha1(a1), sha1(a2));
     }
 
     /**
@@ -336,11 +331,11 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             for (int c = 0; c < 1; c++) {
                 for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
                     buf = svc.getPlane(z, c, t);
-                    assertEquals(planeSize, buf.length);
-                    assertEquals(i, buf[0]);
-                    assertEquals(i, buf[planeSize / 4]);
-                    assertEquals(i, buf[planeSize / 2]);
-                    assertEquals(i, buf[planeSize - 1]);
+                    Assert.assertEquals(planeSize, buf.length);
+                    Assert.assertEquals(i, buf[0]);
+                    Assert.assertEquals(i, buf[planeSize / 4]);
+                    Assert.assertEquals(i, buf[planeSize / 2]);
+                    Assert.assertEquals(i, buf[planeSize - 1]);
                     i++;
                 }
             }
@@ -357,7 +352,7 @@ public class RawPixelsStoreTest extends AbstractServerTest {
     public void testSetMegabyteRegion() throws Exception {
         byte[] buf = new byte[1048576];
         int bufSize = buf.length;
-        assertTrue(bufSize > totalSize);
+        Assert.assertTrue(bufSize > totalSize);
 
         byte i = 1;
         long planeOffset;
@@ -381,11 +376,11 @@ public class RawPixelsStoreTest extends AbstractServerTest {
             for (int c = 0; c < 1; c++) {
                 for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
                     buf = svc.getPlane(z, c, t);
-                    assertEquals(planeSize, buf.length);
-                    assertEquals(i, buf[0]);
-                    assertEquals(i, buf[planeSize / 4]);
-                    assertEquals(i, buf[planeSize / 2]);
-                    assertEquals(i, buf[planeSize - 1]);
+                    Assert.assertEquals(planeSize, buf.length);
+                    Assert.assertEquals(i, buf[0]);
+                    Assert.assertEquals(i, buf[planeSize / 4]);
+                    Assert.assertEquals(i, buf[planeSize / 2]);
+                    Assert.assertEquals(i, buf[planeSize - 1]);
                     i++;
                 }
             }

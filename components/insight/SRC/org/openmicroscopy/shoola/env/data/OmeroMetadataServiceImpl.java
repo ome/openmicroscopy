@@ -579,7 +579,7 @@ class OmeroMetadataServiceImpl
                             PojoMapper.asDataObject(link.getChild()));
                 }
             }
-			annotations.addAll(PojoMapper.asDataObjects(r));
+			annotations.addAll(PojoMapper.<AnnotationData>convertToDataObjects(r));
 		}
 		return annotations;
     }
@@ -1399,8 +1399,6 @@ class OmeroMetadataServiceImpl
 	            toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
 	        if (!FileAnnotationData.MEASUREMENT_NS.equals(nameSpace))
 	            toExclude.add(FileAnnotationData.MEASUREMENT_NS);
-	        if (!FileAnnotationData.FLIM_NS.equals(nameSpace))
-	            toExclude.add(FileAnnotationData.FLIM_NS);
 	        if (!FileAnnotationData.EXPERIMENTER_PHOTO_NS.equals(nameSpace))
 	            toExclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 	        if (!FileAnnotationData.LOG_FILE_NS.equals(nameSpace))
@@ -1493,7 +1491,7 @@ class OmeroMetadataServiceImpl
 		Iterator<DataObject> j = data.iterator();
 		DataObject object, child;
 		List<Long> ids;
-		Set images = null;
+		Collection images = null;
 		Parameters po = new Parameters();
 		Iterator k;
 		List result = null;
@@ -2265,7 +2263,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
-				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
@@ -2298,7 +2295,6 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
-				exclude.add(FileAnnotationData.FLIM_NS);
 				exclude.add(FileAnnotationData.EXPERIMENTER_PHOTO_NS);
 				exclude.add(FileAnnotationData.LOG_FILE_NS);
 		}
@@ -2315,7 +2311,7 @@ class OmeroMetadataServiceImpl
 			throws DSOutOfServiceException, DSAccessException
 	{
 		//Tmp code
-		Set<DataObject> set = gateway.loadAnnotation(ctx, 
+	    Collection<DataObject> set = gateway.loadAnnotation(ctx, 
 				Arrays.asList(annotationID));
 		if (set.size() != 1) return null;
 		Iterator<DataObject> i = set.iterator();
@@ -2468,7 +2464,7 @@ class OmeroMetadataServiceImpl
 	 * Class, List, List)
 	 */
 	public Map<Long, Collection<AnnotationData>>
-		loadAnnotations(SecurityContext ctx, Class<?> rootType,
+		loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
 			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
 			List<String> nsExclude)
 		throws DSOutOfServiceException, DSAccessException
@@ -2486,7 +2482,7 @@ class OmeroMetadataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#downloadMetadataFile(SecurityContext, File, long)
+	 * @see OmeroMetadataService#downloadMetadataFile(SecurityContext, File, long)
 	 */
 	public RequestCallback downloadMetadataFile(SecurityContext ctx,
 			File file, long id)
@@ -2501,10 +2497,10 @@ class OmeroMetadataServiceImpl
 
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroDataService#loadLogFiles(SecurityContext, Class, List)
+     * @see OmeroMetadataService#loadLogFiles(SecurityContext, Class, List)
      */
     public Map<Long, List<IObject>> loadLogFiles(SecurityContext ctx,
-            Class<?> rootType, List<Long> rootIDs)
+            Class<? extends DataObject> rootType, List<Long> rootIDs)
                     throws DSOutOfServiceException, DSAccessException
    {
         if (rootType == null || CollectionUtils.isEmpty(rootIDs))
@@ -2514,7 +2510,7 @@ class OmeroMetadataServiceImpl
 
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroMetadataService#saveData(SecurityContext, Map, Map, long)
+     * @see OmeroMetadataService#saveAnnotationData(SecurityContext, Map, Map, long)
      */
     public void saveAnnotationData(SecurityContext ctx,
             Map<DataObject, List<AnnotationData>> toAdd,

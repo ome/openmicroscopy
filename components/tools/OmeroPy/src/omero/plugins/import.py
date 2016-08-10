@@ -25,7 +25,10 @@
 """
 
 import os
+import csv
 import sys
+import shlex
+
 from omero.cli import BaseControl, CLI
 import omero.java
 from omero_ext.argparse import SUPPRESS
@@ -42,6 +45,26 @@ OMERO.cli. To see more options, use "--javahelp".
 Options marked with "**" are passed strictly to Java. If they interfere with
 any of the Python arguments, you may need to end precede your arguments with a
 "--".
+
+Bulk imports:
+
+Rather than passing one or more files to the import command, a single
+dictionary-like file (e.g. yml or json) can be passed to the `--bulk`
+argument. Most keys in the bulk file will be treated like additional
+command-line arguments. Special keys include:
+
+ * columns      A list of columns for parsing the value of path
+ * continue     Like the "-c" changes error handling
+ * dry_run      Prints out additional arguments rather than running them
+ * include      Relative path (from the bulk file) of a parent bulk file
+ * path         A file which will be parsed line by line based on its file
+                ending. Lines containing zero or more keys along with a
+                single file to be imported. Options for formats include:
+                  - .tsv and .csv files will be parsed by the existing library
+                  - other files will be parsed with shlex
+                  - unless no columns are specified, in which case each line
+                    is treated as a file
+
 """
 EXAMPLES = """
 Examples:
@@ -65,154 +88,151 @@ Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
+OUTPUT_CHOICES = ["legacy", "yaml"]
 SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
+NO_ARG = object()
 
 
-class ImportControl(BaseControl):
+class CommandArguments(object):
 
-    COMMAND = [START_CLASS]
+    def __init__(self, ctx, args):
+        self.__ctx = ctx
+        self.__args = args
+        self.__accepts = set()
+        self.__added = dict()
+        self.__java_initial = list()
+        self.__java_additional = list()
+        self.__py_initial = list()
+        self.__py_additional = list()
+        # Python arguments
+        self.__py_keys = (
+            "javahelp", "skip", "file", "errs", "logback",
+            "port", "password", "group", "create", "func",
+            "bulk", "prog", "user", "key", "path", "logprefix",
+            "JAVA_DEBUG", "quiet", "server", "depth", "clientdir",
+            "sudo")
+        self.set_login_arguments(ctx, args)
+        self.set_skip_arguments(args)
 
-    def _configure(self, parser):
-        parser.add_login_arguments()
+        for key in vars(args):
+            self.__accepts.add(key)
+            val = getattr(args, key)
+            if key in self.__py_keys:
+                # Place the Python elements on the CommandArguments
+                # instance so that it behaves like `args`
+                setattr(self, key, val)
+                self.append_arg(self.__py_initial, key, val)
 
-        parser.add_argument(
-            "--javahelp", "--java-help",
-            action="store_true", help="Show the Java help text")
-        parser.add_argument(
-            "--advanced-help", action="store_true", dest="java_advanced_help",
-            help="Show the advanced help text")
-        parser.add_argument(
-            "---file", nargs="?",
-            help="File for storing the standard out of the Java process")
-        parser.add_argument(
-            "---errs", nargs="?",
-            help="File for storing the standard err of the Java process")
-        parser.add_argument(
-            "--clientdir", type=str,
-            help="Path to the directory containing the client JARs. "
-            " Default: lib/client")
+            elif not val:
+                # If there's no value, do nothing
+                pass
 
-        # The following arguments are strictly passed to Java
-        name_group = parser.add_argument_group(
-            'Naming arguments', 'Optional arguments passed strictly to Java.')
-        name_group.add_argument(
-            "-n", "--name", dest="java_name",
-            help="Image or plate name to use (**)",
-            metavar="NAME")
-        name_group.add_argument(
-            "-x", "--description", dest="java_description",
-            help="Image or plate description to use (**)",
-            metavar="DESCRIPTION")
-        # Deprecated naming arguments
-        name_group.add_argument(
-            "--plate_name", dest="java_plate_name",
-            help=SUPPRESS)
-        name_group.add_argument(
-            "--plate_description", dest="java_plate_description",
-            help=SUPPRESS)
+            else:
+                self.append_arg(self.__java_initial, key, val)
 
-        # Feedback options
-        feedback_group = parser.add_argument_group(
-            'Feedback arguments',
-            'Optional arguments passed strictly to Java allowing to report'
-            ' errors to the OME team.')
-        feedback_group.add_argument(
-            "--report", action="store_true", dest="java_report",
-            help="Report errors to the OME team (**)")
-        feedback_group.add_argument(
-            "--upload", action="store_true", dest="java_upload",
-            help=("Upload broken files and log file (if any) with report."
-                  " Required --report (**)"))
-        feedback_group.add_argument(
-            "--logs", action="store_true", dest="java_logs",
-            help=("Upload log file (if any) with report."
-                  " Required --report (**)"))
-        feedback_group.add_argument(
-            "--email", dest="java_email",
-            help="Email for reported errors. Required --report (**)",
-            metavar="EMAIL")
-        feedback_group.add_argument(
-            "--qa-baseurl", dest="java_qa_baseurl",
-            help=SUPPRESS)
+    def append_arg(self, cmd_list, key, val=NO_ARG):
+        arg_list = self.build_arg_list(key, val)
+        cmd_list.extend(arg_list)
 
-        # Annotation options
-        annotation_group = parser.add_argument_group(
-            'Annotation arguments',
-            'Optional arguments passed strictly to Java allowing to annotate'
-            ' imports.')
-        annotation_group.add_argument(
-            "--annotation-ns", dest="java_ns", metavar="ANNOTATION_NS",
-            help="Namespace to use for subsequent annotation (**)")
-        annotation_group.add_argument(
-            "--annotation-text", dest="java_text", metavar="ANNOTATION_TEXT",
-            help="Content for a text annotation (requires namespace) (**)")
-        annotation_group.add_argument(
-            "--annotation-link", dest="java_link",
-            metavar="ANNOTATION_LINK",
-            help="Comment annotation ID to link all images to (**)")
-        annotation_group.add_argument(
-            "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
-            help=SUPPRESS)
-        annotation_group.add_argument(
-            "--annotation_text", dest="java_text", metavar="ANNOTATION_TEXT",
-            help=SUPPRESS)
-        annotation_group.add_argument(
-            "--annotation_link", dest="java_link", metavar="ANNOTATION_LINK",
-            help=SUPPRESS)
+    def reset_arg(self, cmd_list, idx, key, val=NO_ARG):
+        arg_list = self.build_arg_list(key, val)
+        cmd_list[idx:idx+len(arg_list)] = arg_list
 
-        java_group = parser.add_argument_group(
-            'Java arguments', 'Optional arguments passed strictly to Java')
-        java_group.add_argument(
-            "-f", dest="java_f", action="store_true",
-            help="Display the used files and exit (**)")
-        java_group.add_argument(
-            "-c", dest="java_c", action="store_true",
-            help="Continue importing after errors (**)")
-        java_group.add_argument(
-            "-l", dest="java_l",
-            help="Use the list of readers rather than the default (**)",
-            metavar="READER_FILE")
-        java_group.add_argument(
-            "-d", dest="java_d",
-            help="OMERO dataset ID to import image into (**)",
-            metavar="DATASET_ID")
-        java_group.add_argument(
-            "-r", dest="java_r",
-            help="OMERO screen ID to import plate into (**)",
-            metavar="SCREEN_ID")
-        java_group.add_argument(
-            "-T", "--target", dest="java_target",
-            help="OMERO target specification (**)",
-            metavar="TARGET")
-        java_group.add_argument(
-            "--debug", choices=DEBUG_CHOICES, dest="java_debug",
-            help="Turn debug logging on (**)",
-            metavar="LEVEL")
+    def build_arg_list(self, key, val=NO_ARG):
+        arg_list = []
+        if len(key) == 1:
+            arg_list.append("-"+key)
+            if val != NO_ARG:
+                if isinstance(val, (str, unicode)):
+                    arg_list.append(val)
+        else:
+            key = key.replace("_", "-")
+            if val == NO_ARG:
+                arg_list.append("--%s" % key)
+            elif isinstance(val, (str, unicode)):
+                arg_list.append(
+                    "--%s=%s" % (key, val))
+            else:
+                arg_list.append("--%s" % key)
+        return arg_list
 
-        parser.add_argument(
-            "--depth", default=4, type=int,
-            help="Number of directories to scan down for files")
-        parser.add_argument(
-            "--skip", type=str, choices=SKIP_CHOICES, action='append',
-            help="Optional step to skip during import")
-        parser.add_argument(
-            "path", nargs="*",
-            help="Path to be passed to the Java process")
+    def set_path(self, path):
+        if not isinstance(path, list):
+            self.__ctx.die(202, "Path is not a list")
+        else:
+            self.path = path
 
-        parser.set_defaults(func=self.importer)
+    def java_args(self):
+        rv = list()
+        rv.extend(self.__java_initial)
+        rv.extend(self.__java_additional)
+        rv.extend(self.path)
+        if self.JAVA_DEBUG:
+            # Since "args.debug" is used by omero/cli.py itself,
+            # uses of "--debug" *after* the `import` command are
+            # handled by placing them in this special variable.
+            rv.append("--debug=%s" % self.JAVA_DEBUG)
+        return rv
 
-    def set_login_arguments(self, args):
+    def initial_args(self):
+        rv = list()
+        rv.extend(self.__py_initial)
+        rv.extend(self.__java_initial)
+        return rv
+
+    def added_args(self):
+        rv = list()
+        rv.extend(self.__py_additional)
+        rv.extend(self.__java_additional)
+        rv.extend(self.path)
+        return rv
+
+    def accepts(self, key):
+        return key in self.__accepts
+
+    def add(self, key, val=NO_ARG):
+
+        idx = None
+        if key in self.__added:
+            idx = self.__added[key]
+
+        if key in self.__py_keys:
+            # First we check if this is a Python argument, in which
+            # case it's set directly on the instance itself. This
+            # may need to be later set elsewhere if multiple bulk
+            # files are supported.
+            setattr(self, key, val)
+            where = self.__py_additional
+        elif not self.accepts(key):
+            self.__ctx.die(200, "Unknown argument: %s" % key)
+        else:
+            where = self.__java_additional
+
+        if idx is None:
+            idx = len(where)
+            self.append_arg(where, key, val)
+            self.__added[key] = idx
+        else:
+            self.reset_arg(where, idx, key, val)
+
+    def set_login_arguments(self, ctx, args):
         """Set the connection arguments"""
 
+        if args.javahelp:
+            self.__java_initial.append("-h")
+
         # Connection is required unless help arguments or -f is passed
-        connection_required = ("-h" not in self.command_args and
-                               not args.java_f and
-                               not args.java_advanced_help)
+        connection_required = ("-h" not in self.__java_initial and
+                               not args.f and
+                               not args.advanced_help)
         if connection_required:
-            client = self.ctx.conn(args)
-            self.command_args.extend(["-s", client.getProperty("omero.host")])
-            self.command_args.extend(["-p", client.getProperty("omero.port")])
-            self.command_args.extend(["-k", client.getSessionId()])
+            client = ctx.conn(args)
+            host = client.getProperty("omero.host")
+            port = client.getProperty("omero.port")
+            session = client.getSessionId()
+            self.__java_initial.extend(["-s", host])
+            self.__java_initial.extend(["-p", port])
+            self.__java_initial.extend(["-k", session])
 
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
@@ -220,53 +240,221 @@ class ImportControl(BaseControl):
             return
 
         if ('all' in args.skip or 'checksum' in args.skip):
-            self.command_args.append("--checksum-algorithm=File-Size-64")
+            self.__java_initial.append("--checksum-algorithm=File-Size-64")
         if ('all' in args.skip or 'thumbnails' in args.skip):
-            self.command_args.append("--no-thumbnails")
+            self.__java_initial.append("--no-thumbnails")
         if ('all' in args.skip or 'minmax' in args.skip):
-            self.command_args.append("--no-stats-info")
+            self.__java_initial.append("--no-stats-info")
         if ('all' in args.skip or 'upgrade' in args.skip):
-            self.command_args.append("--no-upgrade-check")
+            self.__java_initial.append("--no-upgrade-check")
 
-    def set_java_arguments(self, args):
-        """Set the arguments passed to Java"""
-        # Due to the use of "--" some of these like debug
-        # will never be filled out. But for completeness
-        # sake, we include them here.
-        java_args = {
-            "java_f": "-f",
-            "java_c": "-c",
-            "java_l": "-l",
-            "java_d": "-d",
-            "java_r": "-r",
-            "java_target": ("--target",),
-            "java_name": ("--name",),
-            "java_description": ("--description",),
-            "java_plate_name": ("--plate_name",),
-            "java_plate_description": ("--plate_description",),
-            "java_report": ("--report"),
-            "java_upload": ("--upload"),
-            "java_logs": ("--logs"),
-            "java_email": ("--email"),
-            "java_debug": ("--debug",),
-            "java_qa_baseurl": ("--qa-baseurl",),
-            "java_ns": "--annotation-ns",
-            "java_text": "--annotation-text",
-            "java_link": "--annotation-link",
-            "java_advanced_help": "--advanced-help",
-            }
+    def open_files(self):
+        # Open file handles for stdout/stderr if applicable
+        out = self.open_log(self.__args.file, self.__args.logprefix)
+        err = self.open_log(self.__args.errs, self.__args.logprefix)
+        return out, err
 
-        for attr_name, arg_name in java_args.items():
-            arg_value = getattr(args, attr_name)
-            if arg_value:
-                if isinstance(arg_name, tuple):
-                    arg_name = arg_name[0]
-                    self.command_args.append(
-                        "%s=%s" % (arg_name, arg_value))
-                else:
-                    self.command_args.append(arg_name)
-                    if isinstance(arg_value, (str, unicode)):
-                        self.command_args.append(arg_value)
+    def open_log(self, file, prefix=None):
+        if not file:
+            return None
+        if prefix:
+            file = os.path.sep.join([prefix, file])
+        dir = os.path.dirname(file)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        return open(file, "w")
+
+
+class ImportControl(BaseControl):
+
+    COMMAND = [START_CLASS]
+
+    def _configure(self, parser):
+
+        parser.add_login_arguments()
+
+        parser.add_argument(
+            "--javahelp", "--java-help",
+            action="store_true", help="Show the Java help text")
+
+        # The following arguments are strictly used by Python
+        # The "---" form is kept for backwards compatibility.
+        py_group = parser.add_argument_group(
+            'Python arguments',
+            'Optional arguments which are used to configure import.')
+
+        def add_python_argument(*args, **kwargs):
+            py_group.add_argument(*args, **kwargs)
+
+        for name, help in (
+            ("bulk", "Bulk YAML file for driving multiple imports"),
+            ("logprefix", "Directory or file prefix for --file and --errs"),
+            ("file", "File for storing the standard out of the Java process"),
+            ("errs", "File for storing the standard err of the Java process")
+        ):
+            add_python_argument("--%s" % name, nargs="?", help=help)
+            add_python_argument("---%s" % name, nargs="?", help=SUPPRESS)
+
+        add_python_argument(
+            "--clientdir", type=str,
+            help="Path to the directory containing the client JARs. "
+            " Default: lib/client")
+        add_python_argument(
+            "--logback", type=str,
+            help="Path to a logback xml file. "
+            " Default: etc/logback-cli.xml")
+
+        # The following arguments are strictly passed to Java
+        name_group = parser.add_argument_group(
+            'Naming arguments', 'Optional arguments passed strictly to Java.')
+
+        def add_java_name_argument(*args, **kwargs):
+            name_group.add_argument(*args, **kwargs)
+
+        add_java_name_argument(
+            "-n", "--name",
+            help="Image or plate name to use (**)",
+            metavar="NAME")
+        add_java_name_argument(
+            "-x", "--description",
+            help="Image or plate description to use (**)",
+            metavar="DESCRIPTION")
+        # Deprecated naming arguments
+        add_java_name_argument(
+            "--plate_name",
+            help=SUPPRESS)
+        add_java_name_argument(
+            "--plate_description",
+            help=SUPPRESS)
+
+        # Feedback options
+        feedback_group = parser.add_argument_group(
+            'Feedback arguments',
+            'Optional arguments passed strictly to Java allowing to report'
+            ' errors to the OME team.')
+
+        def add_feedback_argument(*args, **kwargs):
+            feedback_group.add_argument(*args, **kwargs)
+
+        add_feedback_argument(
+            "--report", action="store_true",
+            help="Report errors to the OME team (**)")
+        add_feedback_argument(
+            "--upload", action="store_true",
+            help=("Upload broken files and log file (if any) with report."
+                  " Required --report (**)"))
+        add_feedback_argument(
+            "--logs", action="store_true",
+            help=("Upload log file (if any) with report."
+                  " Required --report (**)"))
+        add_feedback_argument(
+            "--email",
+            help="Email for reported errors. Required --report (**)",
+            metavar="EMAIL")
+        add_feedback_argument(
+            "--qa-baseurl",
+            help=SUPPRESS)
+
+        # Annotation options
+        annotation_group = parser.add_argument_group(
+            'Annotation arguments',
+            'Optional arguments passed strictly to Java allowing to annotate'
+            ' imports.')
+
+        def add_annotation_argument(*args, **kwargs):
+            annotation_group.add_argument(*args, **kwargs)
+
+        add_annotation_argument(
+            "--annotation-ns", metavar="ANNOTATION_NS",
+            help="Namespace to use for subsequent annotation (**)")
+        add_annotation_argument(
+            "--annotation-text", metavar="ANNOTATION_TEXT",
+            help="Content for a text annotation (requires namespace) (**)")
+        add_annotation_argument(
+            "--annotation-link",
+            metavar="ANNOTATION_LINK",
+            help="Comment annotation ID to link all images to (**)")
+        add_annotation_argument(
+            "--annotation_ns", metavar="ANNOTATION_NS",
+            help=SUPPRESS)
+        add_annotation_argument(
+            "--annotation_text", metavar="ANNOTATION_TEXT",
+            help=SUPPRESS)
+        add_annotation_argument(
+            "--annotation_link", metavar="ANNOTATION_LINK",
+            help=SUPPRESS)
+
+        java_group = parser.add_argument_group(
+            'Java arguments', 'Optional arguments passed strictly to Java')
+
+        def add_java_argument(*args, **kwargs):
+            java_group.add_argument(*args, **kwargs)
+
+        add_java_argument(
+            "-f", action="store_true",
+            help="Display the used files and exit (**)")
+        add_java_argument(
+            "-c", action="store_true",
+            help="Continue importing after errors (**)")
+        add_java_argument(
+            "-l",
+            help="Use the list of readers rather than the default (**)",
+            metavar="READER_FILE")
+        add_java_argument(
+            "-d",
+            help="OMERO dataset ID to import image into (**)",
+            metavar="DATASET_ID")
+        add_java_argument(
+            "-r",
+            help="OMERO screen ID to import plate into (**)",
+            metavar="SCREEN_ID")
+        add_java_argument(
+            "-T", "--target",
+            help="OMERO target specification (**)",
+            metavar="TARGET")
+        add_java_argument(
+            "--debug", choices=DEBUG_CHOICES,
+            help="Turn debug logging on (**)",
+            metavar="LEVEL", dest="JAVA_DEBUG")
+        add_java_argument(
+            "--output", choices=OUTPUT_CHOICES,
+            help="Set an alternative output style",
+            metavar="TYPE")
+
+        # Arguments previously *following" `--`
+        advjava_group = parser.add_argument_group(
+            'Advanced Java arguments', (
+                'Optional arguments passed strictly to Java.'
+                'For more information, see --advanced-help'))
+
+        def add_advjava_argument(*args, **kwargs):
+            advjava_group.add_argument(*args, **kwargs)
+
+        add_advjava_argument(
+            "--advanced-help", action="store_true",
+            help="Show the advanced help text")
+        add_advjava_argument(
+            "--transfer", nargs="?", metavar="TYPE",
+            help="Transfer methods like in-place import")
+        add_advjava_argument(
+            "--exclude", nargs="?", metavar="TYPE",
+            help="Exclusion filters for preventing re-import")
+        add_advjava_argument(
+            "--checksum-algorithm", nargs="?", metavar="TYPE",
+            help="Alternative hashing mechanisms balancing speed & accuracy")
+
+        # Unsure on these.
+        add_python_argument(
+            "--depth", default=4, type=int,
+            help="Number of directories to scan down for files")
+        add_python_argument(
+            "--skip", type=str, choices=SKIP_CHOICES, action='append',
+            help="Optional step to skip during import")
+        add_python_argument(
+            "path", nargs="*",
+            help="Path to be passed to the Java process")
+
+        parser.set_defaults(func=self.importer)
 
     def importer(self, args):
 
@@ -275,7 +463,10 @@ class ImportControl(BaseControl):
         else:
             client_dir = self.ctx.dir / "lib" / "client"
         etc_dir = self.ctx.dir / "etc"
-        xml_file = etc_dir / "logback-cli.xml"
+        if args.logback:
+            xml_file = path(args.logback)
+        else:
+            xml_file = etc_dir / "logback-cli.xml"
         logback = "-Dlogback.configurationFile=%s" % xml_file
 
         try:
@@ -286,31 +477,28 @@ class ImportControl(BaseControl):
         if not classpath:
             self.ctx.die(103, "No JAR files found under '%s'" % client_dir)
 
+        command_args = CommandArguments(self.ctx, args)
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
-
-        # Create import command to be passed to Java
-        self.command_args = []
-        if args.javahelp:
-            self.command_args.append("-h")
-        self.set_login_arguments(args)
-        self.set_skip_arguments(args)
-        self.set_java_arguments(args)
         xargs.append("-Domero.import.depth=%s" % args.depth)
-        import_command = self.COMMAND + self.command_args + args.path
 
+        if args.bulk and args.path:
+            self.ctx.die(104, "When using bulk import, omit paths")
+        elif args.bulk:
+            self.bulk_import(command_args, xargs)
+        else:
+            self.do_import(command_args, xargs)
+
+    def do_import(self, command_args, xargs):
+        out = err = None
         try:
-            # Open file handles for stdout/stderr if applicable
-            out = args.file
-            err = args.errs
 
-            if out:
-                out = open(out, "w")
-            if err:
-                err = open(err, "w")
+            import_command = self.COMMAND + command_args.java_args()
+            out, err = command_args.open_files()
 
             p = omero.java.popen(
-                import_command, debug=False, xargs=xargs, stdout=out,
-                stderr=err)
+                import_command, debug=False, xargs=xargs,
+                stdout=out, stderr=err)
+
             self.ctx.rv = p.wait()
 
         finally:
@@ -319,6 +507,140 @@ class ImportControl(BaseControl):
                 out.close()
             if err:
                 err.close()
+
+    def bulk_import(self, command_args, xargs):
+
+        try:
+            from yaml import safe_load
+        except ImportError:
+            self.ctx.die(105, "yaml is unsupported")
+
+        old_pwd = os.getcwd()
+        try:
+
+            # Walk the .yml graph looking for includes
+            # and load them all so that the top parent
+            # values can be overwritten.
+            contents = list()
+            bulkfile = command_args.bulk
+            while bulkfile:
+                bulkfile = os.path.abspath(bulkfile)
+                parent = os.path.dirname(bulkfile)
+                with open(bulkfile, "r") as f:
+                    data = safe_load(f)
+                    contents.append((bulkfile, parent, data))
+                    bulkfile = data.get("include")
+                    os.chdir(parent)
+                    # TODO: included files are updated based on the including
+                    # file but other file paths aren't!
+
+            bulk = dict()
+            for bulkfile, parent, data in reversed(contents):
+                bulk.update(data)
+                os.chdir(parent)
+
+            failed = 0
+            total = 0
+            for cont in self.parse_bulk(bulk, command_args):
+                if command_args.dry_run:
+                    rv = ['"%s"' % x for x in command_args.added_args()]
+                    rv = " ".join(rv)
+                    self.ctx.out(rv)
+                else:
+                    self.do_import(command_args, xargs)
+                if self.ctx.rv:
+                    failed += 1
+                    total += self.ctx.rv
+                    if cont:
+                        msg = "Import failed with error code: %s. Continuing"
+                        self.ctx.err(msg % self.ctx.rv)
+                    else:
+                        msg = "Import failed. Use -c to continue after errors"
+                        self.ctx.die(106, msg)
+                # Fail if any import failed
+                self.ctx.rv = total
+                if failed:
+                    self.ctx.err("%x failed imports" % failed)
+        finally:
+            os.chdir(old_pwd)
+
+    def parse_bulk(self, bulk, command_args):
+        # Known keys with special handling
+        cont = False
+
+        command_args.dry_run = False
+        if "dry_run" in bulk:
+            dry_run = bulk.pop("dry_run")
+            command_args.dry_run = dry_run
+
+        if "continue" in bulk:
+            cont = True
+            c = bulk.pop("continue")
+            if bool(c):
+                command_args.add("c")
+
+        if "path" not in bulk:
+            # Required until @file format is implemented
+            self.ctx.die(107, "No path specified")
+        path = bulk.pop("path")
+
+        cols = None
+        if "columns" in bulk:
+            cols = bulk.pop("columns")
+
+        if "include" in bulk:
+            bulk.pop("include")
+
+        # Now parse all other keys
+        for key in bulk:
+            command_args.add(key, bulk[key])
+
+        # All properties are set, yield for each path
+        # to be imported in turn. The value for `cont`
+        # is yielded so that the caller knows whether
+        # or not an error should be fatal.
+
+        if not cols:
+            # No parsing necessary
+            function = self.parse_text
+        else:
+            function = self.parse_shlex
+            if path.endswith(".tsv"):
+                function = self.parse_tsv
+            elif path.endswith(".csv"):
+                function = self.parse_csv
+
+        for parts in function(path):
+            if not cols:
+                command_args.set_path(parts)
+            else:
+                for idx, col in enumerate(cols):
+                    if col == "path":
+                        command_args.set_path([parts[idx]])
+                    else:
+                        command_args.add(col, parts[idx])
+            yield cont
+
+    def parse_text(self, path, parse=False):
+        with open(path, "r") as o:
+            for line in o:
+                line = line.strip()
+                if parse:
+                    line = shlex.split(line)
+                yield [line]
+
+    def parse_shlex(self, path):
+        for line in self.parse_text(path, parse=True):
+            yield line
+
+    def parse_tsv(self, path, delimiter="\t"):
+        for line in self.parse_csv(path, delimiter):
+            yield line
+
+    def parse_csv(self, path, delimiter=","):
+        with open(path, "r") as data:
+            for line in csv.reader(data, delimiter=delimiter):
+                yield line
 
 
 class TestEngine(ImportControl):

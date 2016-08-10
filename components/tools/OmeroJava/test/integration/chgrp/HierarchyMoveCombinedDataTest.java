@@ -1,6 +1,4 @@
 /*
- * integration.chgrp.HierarchyMoveCombinedDataTest
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
@@ -21,7 +19,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package integration.chgrp;
 
 import integration.AbstractServerTest;
@@ -42,9 +39,8 @@ import omero.model.Image;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * Tests the move of data objects containing others members data.
@@ -109,7 +105,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         iUpdate.saveAndReturnObject(link);
 
         long user2 = d.getDetails().getOwner().getId().getValue();
-        assertTrue(user1 != user2);
+        Assert.assertNotEquals(user1, user2);
         
         // Step 3
         // Create a new group, the user is now a member of the new group.
@@ -135,7 +131,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         ParametersI param = new ParametersI();
         param.addId(d.getId().getValue());
         String sql = "select i from Dataset as i where i.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
+        Assert.assertNull(iQuery.findByQuery(sql, param));
 
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
@@ -145,7 +141,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         param.addIds(ids);
         sql = "select i from Image as i where i.id in (:ids)";
         List<IObject> results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), 0);
+        Assert.assertEquals(0, results.size());
 
         // Step 5
         // log into source group to perform the move
@@ -163,21 +159,21 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         sql = "select i from Dataset as i where i.id = :id";
 
         // Check if the dataset is in the target group.
-        assertNotNull(iQuery.findByQuery(sql, param));
+        Assert.assertNotNull(iQuery.findByQuery(sql, param));
 
         // Check
         param = new ParametersI();
         param.addIds(ids);
         sql = "select i from Image as i where i.id in (:ids)";
         results = iQuery.findAllByQuery(sql, param);
-        assertEquals(results.size(), ids.size());
+        Assert.assertEquals(ids.size(), results.size());
         Iterator<IObject> i = results.iterator();
         int count = 0;
         while (i.hasNext()) {
             if (ids.contains(i.next().getId().getValue()))
                 count++;
         }
-        assertEquals(count, ids.size());
+        Assert.assertEquals(ids.size(), count);
         disconnect();
     }
 
