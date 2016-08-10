@@ -39,6 +39,11 @@
 .lutpicker label {
 	font-size: 12px;
 	font-weight: normal;
+	width: 100%;
+	display: block;
+}
+.lutpicker label:hover {
+	background-color: #ddddff;
 }
 .lutpicker label span {
 	display: inline-block;
