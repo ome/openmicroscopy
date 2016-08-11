@@ -1863,7 +1863,7 @@ CREATE INDEX experimenter_config_value ON experimenter_config(value);
 
 -- ... up to patch 9:
 
-ALTER TABLE projectiondef ADD stepping nonnegative_int;
+ALTER TABLE projectiondef ADD stepping positive_int;
 
 --
 -- FINISHED

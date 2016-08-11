@@ -51,7 +51,7 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 -- Actual upgrade
 --
 
-ALTER TABLE projectiondef ADD stepping nonnegative_int;
+ALTER TABLE projectiondef ADD stepping positive_int;
 
 --
 -- FINISHED
