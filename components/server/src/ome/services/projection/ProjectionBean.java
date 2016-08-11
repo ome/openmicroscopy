@@ -9,6 +9,7 @@ package ome.services.projection;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -104,7 +105,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
         PixelBuffer pixelBuffer = pixelsService.getPixelBuffer(
                 ctx.pixels, false);
-        zIntervalBoundsCheck(start, end, ctx.pixels.getSizeZ());
+        intervalBoundsCheck(start, end, ctx.pixels.getSizeZ());
         outOfBoundsStepping(stepping);
         outOfBoundsCheck(channelIndex, "channel");
         outOfBoundsCheck(timepoint, "timepoint");
@@ -210,7 +211,8 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                 return projectPixelsAlongZ(pixelsId, pixelsType, algorithm, planeStart,
                         planeEnd, channels, stepping, start, end, name);
             case IProjection.T_AXIS:
-                return -1;
+                return projectPixelsAlongT(pixelsId, pixelsType, algorithm, planeStart,
+                        planeEnd, channels, stepping, start, end, name);
         }
     }
 
@@ -261,16 +263,17 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
      * than zero).
      * @param start The lower bound of the interval.
      * @param end The upper bound of the interval.
-     * @param name The name of the value to be used for error reporting.
+     * @param max The maximum value
      * @throws ValidationException If <code>value</code> is out of range.
      */
-    private void zIntervalBoundsCheck(int start, int end, Integer maxZ)
+    private void intervalBoundsCheck(int start, int end, Integer max)
     {
         if (start < 0 || end < 0)
-            throw new ValidationException("Z interval value cannot be negative.");
-        if (start >= maxZ || end >= maxZ)
-            throw new ValidationException("Z interval value cannot be >= "+maxZ);
+            throw new ValidationException("interval value cannot be negative.");
+        if (start >= max || end >= max)
+            throw new ValidationException("Interval value cannot be >= "+max);
     }
+
 
     /**
      * Projects a stack based on the maximum intensity at each XY coordinate.
@@ -295,9 +298,9 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         for (int i = 0; i < ctx.planeSizeInPixels; i++)
         {
             projectedValue = 0;
-            for (int z = start; z <= end; z += stepping)
+            for (int v = start; v <= end; v += stepping)
             {
-                currentPlaneStart = ctx.planeSizeInPixels * z;
+                currentPlaneStart = ctx.planeSizeInPixels * v;
                 stackValue = ctx.from.getPixelValue(currentPlaneStart + i);
                 if (stackValue > projectedValue)
                 {
@@ -389,9 +392,9 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         {
             projectedValue = 0;
             int projectedPlaneCount = 0;
-            for (int z = start; z < end; z += stepping)
+            for (int v = start; v < end; v += stepping)
             {
-                currentPlaneStart = ctx.planeSizeInPixels * z;
+                currentPlaneStart = ctx.planeSizeInPixels * v;
                 stackValue = ctx.from.getPixelValue(currentPlaneStart + i);
                 projectedValue += stackValue;
                 projectedPlaneCount++;
@@ -458,7 +461,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         name = name == null? image.getName() + " Projection" : name;
         //size of the new buffer.
         //Add control for z
-        zIntervalBoundsCheck(zStart, zEnd, ctx.pixels.getSizeZ());
+        intervalBoundsCheck(zStart, zEnd, ctx.pixels.getSizeZ());
         outOfBoundsStepping(stepping);
 
         Integer sizeT = tEnd-tStart+1;
@@ -544,6 +547,159 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                             String error = String.format(
                                     "C=%d or T=%d out of range for Pixels Id %d: %s",
                                     c, t, ctx.pixels.getId(), e.getMessage());
+                            log.error(error, e);
+                            throw new ValidationException(error);
+                        } finally {
+                            if (ctx.from != null) {
+                                ctx.from.dispose();
+                            }
+                        }
+                    }
+                    // Handle the change of minimum and maximum for this channel.
+                    Channel channel = newPixels.getChannel(newC);
+                    StatsInfo si = new StatsInfo();
+                    si.setGlobalMin(ctx.minimum);
+                    si.setGlobalMax(ctx.maximum);
+                    channel.setStatsInfo(si);
+                    // Set our methodology
+                    newPixels.setMethodology(
+                            IProjection.METHODOLOGY_STRINGS[algorithm]);
+                    newC++;
+                }
+            }
+            finally
+            {
+                try
+                {
+                    destinationBuffer.close();
+                }
+                catch (IOException e)
+                {
+                    log.error("Buffer did not close successfully: " + destinationBuffer , e);
+                    throw new ResourceError(
+                            e.getMessage() + " Please check server log.");
+                }
+            }
+        } finally {
+            try
+            {
+                sourceBuffer.close();
+            }
+            catch (IOException e)
+            {
+                log.error("Buffer did not close successfully: " + sourceBuffer, e);
+                throw new ResourceError(
+                        e.getMessage() + " Please check server log.");
+            }
+        }
+        newImage = iUpdate.saveAndReturnObject(newImage);
+        return newImage.getId();
+    }
+
+    private long projectPixelsAlongT(long pixelsId, PixelsType pixelsType,
+            int algorithm, int planeStart, int planeEnd,
+            List<Integer> channels, int stepping, int start, int end,
+            String name)
+    {
+     // First, copy and resize our image with sizeT = 1.
+        ProjectionContext ctx = new ProjectionContext();
+        ctx.pixels = iQuery.get(Pixels.class, pixelsId);
+        Image image = ctx.pixels.getImage();
+        name = name == null? image.getName() + " Projection" : name;
+        //size of the new buffer.
+        //Add control for z
+        intervalBoundsCheck(start, end, ctx.pixels.getSizeT());
+        outOfBoundsStepping(stepping);
+
+        Integer sizeZ = planeEnd-planeStart+1;
+        if (planeStart > planeEnd)
+            sizeZ = planeStart-planeEnd+1;
+        if (sizeZ <= 0) sizeZ = null;
+
+        //Channels and timepoint validation done there
+        long newImageId =
+            iPixels.copyAndResizeImage(image.getId(), null, null, sizeZ, 1,
+                                       channels, name, false);
+        Image newImage = iQuery.get(Image.class, newImageId);
+        Pixels newPixels = newImage.getPixels(0);
+        if (pixelsType == null)
+        {
+            pixelsType = ctx.pixels.getPixelsType();
+        }
+        else
+        {
+            pixelsType = iQuery.get(PixelsType.class, pixelsType.getId());
+        }
+        newPixels.setPixelsType(pixelsType);
+
+        // Project each timepoint for each channel and each z in the
+        // entire image, copying into the pixel buffer the projected pixels.
+        PixelBuffer sourceBuffer = pixelsService.getPixelBuffer(
+                ctx.pixels, false);
+        try {
+            PixelBuffer destinationBuffer = pixelsService.getPixelBuffer(
+                    newPixels, true);
+            try
+            {
+                Integer sizeX = ctx.pixels.getSizeX();
+                Integer sizeY = ctx.pixels.getSizeY();
+                ctx.planeSizeInPixels = sizeX * sizeY;
+                int planeSize =
+                    ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);
+                byte[] buf = new byte[planeSize];
+                ctx.to = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(buf));
+                int newC = 0;
+                List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
+                Integer sizeT = end-start;
+                List<Integer> size = Arrays.asList(new Integer[]{sizeX,sizeY, 1, 1, sizeT});
+                for (Integer c : channels)
+                {
+                    ctx.minimum = Double.MAX_VALUE;
+                    ctx.maximum = Double.MIN_VALUE;
+                    for (int z = planeStart; z <= planeEnd; z++)
+                    {
+                        try
+                        {
+                            List<Integer> offset = Arrays.asList(new Integer[]{0, 0, z, c, 0});
+                            ctx.from = sourceBuffer.getHypercube(offset, size, step);
+                            switch (algorithm)
+                            {
+                                case IProjection.MAXIMUM_INTENSITY:
+                                {
+                                    projectStackMax(ctx, stepping, start, end, true);
+                                    break;
+                                }
+                                case IProjection.MEAN_INTENSITY:
+                                {
+                                    projectStackMean(ctx, stepping, start, end, true);
+                                    break;
+                                }
+                                case IProjection.SUM_INTENSITY:
+                                {
+                                    projectStackSum(ctx, stepping, start, end, true);
+                                    break;
+                                }
+                                default:
+                                {
+                                    throw new IllegalArgumentException(
+                                            "Unknown algorithm: " + algorithm);
+                                }
+                            }
+                            destinationBuffer.setPlane(buf, z, newC, 0);
+                        }
+                        catch (IOException e)
+                        {
+                            String error = String.format(
+                                    "I/O error retrieving stack Z=%d C=%d: %s",
+                                    z, c, e.getMessage());
+                            log.error(error, e);
+                            throw new ResourceError(error);
+                        }
+                        catch (DimensionsOutOfBoundsException e)
+                        {
+                            String error = String.format(
+                                    "Z=%d or C=%d out of range for Pixels Id %d: %s",
+                                    z, c, ctx.pixels.getId(), e.getMessage());
                             log.error(error, e);
                             throw new ValidationException(error);
                         } finally {
