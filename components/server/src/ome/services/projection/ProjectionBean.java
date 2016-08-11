@@ -224,8 +224,8 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                               List<Integer> channels, int stepping,
                               int zStart, int zEnd, String name)
     {
-        return projectPixelsAlongZ(pixelsId, pixelsType, algorithm, tStart,
-                tEnd, channels, stepping, zStart, zEnd, name);
+        return project(pixelsId, pixelsType, algorithm, IProjection.Z_AXIS,
+                tStart, tEnd, channels, stepping, zStart, zEnd, name);
     }
 
     /**
@@ -242,7 +242,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             throw new ValidationException(name + ": " + value + " < 0");
         }
     }
-    
+
     /**
      * Ensures that a particular dimension value is not out of range.
      * @param value The value to check.
@@ -255,7 +255,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             throw new ValidationException("stepping: " + value + " <= 0");
         }
     }
-    
+
     /**
      * Ensures that a particular dimension value is not out of range (ex. less
      * than zero).
@@ -271,7 +271,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         if (start >= maxZ || end >= maxZ)
             throw new ValidationException("Z interval value cannot be >= "+maxZ);
     }
-    
+
     /**
      * Projects a stack based on the maximum intensity at each XY coordinate.
      * @param ctx The context of our projection.
@@ -314,7 +314,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         ctx.minimum = minimum;
         ctx.maximum = maximum;
     }
-    
+
     /**
      * Projects a stack based on the mean intensity at each XY coordinate.
      * @param from The raw pixel data from the stack to project from.
@@ -335,7 +335,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     {
         projectStackMeanOrSum(ctx, stepping, start, end, true, doMinMax);
     }
-    
+
     /**
      * Projects a stack based on the sum intensity at each XY coordinate.
      * @param ctx The context of our projection.
@@ -356,7 +356,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     {
         projectStackMeanOrSum(ctx, stepping, start, end, false, doMinMax);
     }
-    
+
     /**
      * Projects a stack based on the sum intensity at each XY coordinate with
      * the option to also average the sum intensity.
@@ -414,7 +414,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         ctx.minimum = minimum;
         ctx.maximum = maximum;
     }
-    
+
     /**
      * Stores the context of a projection operation.
      * 
@@ -592,5 +592,5 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         newImage = iUpdate.saveAndReturnObject(newImage);
         return newImage.getId();
     }
-    
+
 }
