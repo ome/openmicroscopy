@@ -241,7 +241,9 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
     }
 
     private void deletePyramid() {
+        LOGGER.info("deletePyramid called");
         if (deletePyramid) {
+            LOGGER.info("deleting pyramid...");
             requireFileset("pyramid");
             processFile("pyramid", files.pyramid, null);
             files.update(rsp);
@@ -252,6 +254,7 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
         if (rsp.filesetId == null) {
             throw helper.cancel(new ERR(), null, which + "-requires-fileset");
         }
+        LOGGER.info("Fileset ID: " + rsp.filesetId.getValue());
     }
 
     private void processFile(String which, File file, File dest) {
@@ -259,12 +262,13 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
         if (!file.exists()) {
             return; // Nothing to do
         }
-
+        LOGGER.info("Processing file: " + file.getPath());
         IQuery query = helper.getServiceFactory().getQueryService();
         Image image = query.get(Image.class, imageId);
         if (!voter.allowDelete(image, image.getDetails())) {
             throw helper.cancel(new ERR(), null, which + "-delete-disallowed");
         }
+        LOGGER.info("Delete of Image ID: " + imageId + " allowed");
         if (dest != null) {
             if (!file.renameTo(dest)) {
                 throw helper.cancel(new ERR(), null, which + "-delete-false");
@@ -275,9 +279,9 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
                 throw helper.cancel(new ERR(), null, which + "-delete-false");
             }
             if (file.exists()) {
-                LOGGER.debug("Failed to delete: " + file.getPath());
+                LOGGER.info("Failed to delete: " + file.getPath());
             } else {
-                LOGGER.debug("File deleted: " + file.getPath());
+                LOGGER.info("File deleted: " + file.getPath());
             }
         }
     }
