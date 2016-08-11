@@ -167,7 +167,7 @@ def assert_objects(conn, json_objects, omero_ids_objects, dtype="Project",
     for p in omero_ids_objects:
         try:
             pids.append(long(p))
-        except ValueError:
+        except TypeError:
             pids.append(p.id.val)
     conn.SERVICE_OPTS.setOmeroGroup(group)
     projects = conn.getObjects(dtype, pids, respect_order=True)
