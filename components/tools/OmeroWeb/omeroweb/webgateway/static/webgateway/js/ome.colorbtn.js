@@ -122,7 +122,7 @@ $.fn.colorbtn = function(cfg) {
             var preview = '';
             // background image is luts_10.png which is 10 pixels per lut(row) but size is set to 200% so each row is 20 pixels
             if (idx > -1) {
-              preview = 'class="lutPreview" style="background-position: 0 -' + (idx * 20) + 'px"';
+              preview = 'class="lutBackground" style="background-position: 0 -' + (idx * 20) + 'px"';
             }
             var lutHtml = '<div><input id="' + lut.name + '" type="radio" name="lut" value="' + lut.name + '">';
             lutHtml += '<label for="' + lut.name + '">';

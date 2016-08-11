@@ -1669,7 +1669,6 @@ def listLuts_json(request, conn=None, **kwargs):
                    'name': l.name.val,
                    'size': unwrap(l.size)
                    })
-    rv.sort()
     rv.sort(key=lambda x: x['name'].lower())
     return {"luts": rv}
 

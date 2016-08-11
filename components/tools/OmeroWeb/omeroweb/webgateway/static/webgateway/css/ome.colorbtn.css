@@ -53,8 +53,3 @@
 .lutpicker input {
 	width: 10px;
 }
-.lutPreview {
-	background-image: url('../img/luts_10.png');
-	background-size: 50px 640px;
-	background-repeat: no-repeat;
-}
