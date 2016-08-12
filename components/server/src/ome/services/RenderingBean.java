@@ -1048,8 +1048,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfNullRenderingDef();
-            ChannelBinding[] cb = renderer.getChannelBindings();
-            cb[w].setLookupTable(lookup);
+            renderer.setChannelLookupTable(w, lookup);
         } finally {
             rwl.readLock().unlock();
         }

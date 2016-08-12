@@ -1,6 +1,4 @@
 /*
- * omeis.providers.re.Renderer
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -16,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,7 +231,11 @@ public class Renderer {
     			optimizations.setPrimaryColorEnabled(false);
     			return;
     		}
-    		
+    		// Check if there is no lut
+    		if (StringUtils.isNotBlank(channelBinding.getLookupTable())) {
+    		    optimizations.setPrimaryColorEnabled(false);
+                return;
+    		}
 			// Now we ensure the color is "primary" (Red, Green or Blue).
 			boolean isPrimary = false;
 			int[] colorArray = getColorArray(channelBinding);
@@ -792,7 +795,19 @@ public class Renderer {
         cb[w].setAlpha(Integer.valueOf(alpha));
         checkOptimizations();
     }
-    
+
+    /**
+     * Sets the lookup table associated to the channel.
+     *
+     * @param w The selected channel.
+     * @param lookupTable The lookup table.
+     */
+    public void setChannelLookupTable(int w, String lookupTable) {
+        ChannelBinding[] cb = getChannelBindings();
+        cb[w].setLookupTable(lookupTable);
+        checkOptimizations();
+    }
+
     /**
      * Makes a particular channel active or inactive.
      * @param w the wavelength index to toggle.
