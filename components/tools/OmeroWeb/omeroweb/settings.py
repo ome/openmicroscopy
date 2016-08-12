@@ -29,7 +29,6 @@
 
 import os.path
 import sys
-import platform
 import logging
 import omero
 import omero.config
@@ -80,10 +79,7 @@ FULL_REQUEST_LOGFORMAT = (
     ' (proc.%(process)5.5d) %(funcName)s():%(lineno)d'
     ' HTTP %(status_code)d %(request)s')
 
-if platform.system() in ("Windows",):
-    LOGGING_CLASS = 'logging.handlers.RotatingFileHandler'
-else:
-    LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
+LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
 
 LOGGING = {
     'version': 1,
