@@ -51,6 +51,9 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 -- Actual upgrade
 --
 
+INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
+             VALUES ('OMERO5.3DEV',  9,            'OMERO5.3DEV',   8);
+
 ALTER TABLE projectiondef ADD stepping positive_int;
 
 --
