@@ -195,7 +195,7 @@ class MapAnnotationManager(object):
     def get_map_annotations(self):
         return self.mapanns.values() + self.nokey
 
-    def add_from_namespace_query(self, session, ns, primary_keys):
+    def add_from_namespace_query(self, session, ns, primary_keys, unique_keys):
         """
         Fetches all map-annotations with the given namespace
         This will only work if there are no duplicates, otherwise an
@@ -210,6 +210,7 @@ class MapAnnotationManager(object):
         :param session: An OMERO session
         :param ns: The namespace
         :param primary_keys: Primary keys
+        :param unique_keys: Whether keys have to be unique in a map
         """
         qs = session.getQueryService()
         q = 'FROM MapAnnotation WHERE ns=:ns ORDER BY id DESC'
@@ -218,7 +219,7 @@ class MapAnnotationManager(object):
         results = qs.findAllByQuery(q, p)
         log.debug('Found %d MapAnnotations in ns:%s', len(results), ns)
         for ma in results:
-            cma = CanonicalMapAnnotation(ma, primary_keys)
+            cma = CanonicalMapAnnotation(ma, primary_keys, unique_keys)
             r = self.add(cma)
             if r:
                 raise Exception(

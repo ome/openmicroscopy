@@ -1113,7 +1113,7 @@ class BulkToMapAnnotationContext(_QueryContext):
 
                 self.pkmap[gns] = keys
                 self.mapannotations.add_from_namespace_query(
-                    self.client.getSession(), gns, keys)
+                    self.client.getSession(), gns, keys, False)
                 log.debug('Loaded ns:%s primary-keys:%s', gns, keys)
 
     def _get_ns_primary_keys(self, ns):
@@ -1266,11 +1266,11 @@ class BulkToMapAnnotationContext(_QueryContext):
         for cma in self.mapannotations.get_map_annotations():
             links.append(self._create_map_annotation_links(cma))
         for batch in self._grouped_batch(links, sz=batch_size):
-            ids = update_service.saveAndReturnIds(
+            arr = update_service.saveAndReturnArray(
                 batch, {'omero.group': group})
-            i += len(ids)
+            i += len(arr)
             log.info('Created/linked %d MapAnnotations (total %s)',
-                     len(ids), i)
+                     len(arr), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):
