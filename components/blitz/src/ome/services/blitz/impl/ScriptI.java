@@ -552,15 +552,25 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         safeRunnableCall(__current, cb, true, new Callable<Object>() {
             public Object call() throws Exception {
 
-                OriginalFile file = getOriginalFileOrNull(id, __current);
+                final OriginalFile file = getOriginalFileOrNull(id, __current);
                 if (file == null) {
                     throw new ApiUsageException(null, null,
                             "No script with id " + id + " on server.");
                 }
 
                 deleteOriginalFile(file, __current);
-                return null; // void
+                factory.executor.execute(
+                        __current.ctx, factory.principal, new Executor.SimpleWork(this, "deleteScript") {
 
+                            @Transactional(readOnly = false)
+                            public Object doWork(Session session, ServiceFactory sf) {
+                                session.delete(file);
+                                return null;
+                            }
+
+                        });
+                
+                return null; // void
             }
         });
     }
@@ -679,14 +689,11 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         if (file == null) {
             return;
         }
-
         if (scripts.delete(file.getId())) {
             return;
         }
-
         scripts.simpleDelete(current.ctx, factory.executor, factory.principal,
             file.getId());
-
     }
 
     /**
