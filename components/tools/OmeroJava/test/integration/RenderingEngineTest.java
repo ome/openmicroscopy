@@ -1909,8 +1909,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         ProjectionDef pDef = new ProjectionDefI();
         pDef.setActive(omero.rtypes.rbool(true));
         pDef.setStartPlane(omero.rtypes.rint(0));
-        pDef.setEndPlane(omero.rtypes.rint(1));
-        pDef.setStepping(omero.rtypes.rint(1));
+        pDef.setEndPlane(omero.rtypes.rint(4));
+        pDef.setStepping(omero.rtypes.rint(2));
         ProjectionAxisI projection = new ProjectionAxisI();
         projection.setValue(omero.rtypes.rstring("Z"));
         pDef.setAxis(projection);
