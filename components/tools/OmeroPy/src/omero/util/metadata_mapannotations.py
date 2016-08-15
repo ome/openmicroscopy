@@ -23,8 +23,13 @@
 Utilities for manipulating map-annotations used as metadata
 """
 
+import logging
 from omero.model import NamedValue
 from omero.rtypes import rstring, unwrap
+from omero.sys import ParametersI
+
+
+log = logging.getLogger("omero.util.metadata_mapannotations")
 
 
 class MapAnnotationPrimaryKeyException(Exception):
@@ -140,6 +145,10 @@ class MapAnnotationManager(object):
     MA_APPEND, MA_OLD, MA_NEW = range(3)
 
     def __init__(self, combine=MA_APPEND):
+        """
+        Ensure you understand the doc string for init_from_namespace_query
+        if not using MA_APPEND
+        """
         self.mapanns = {}
         self.nokey = []
         self.combine = combine
@@ -185,3 +194,33 @@ class MapAnnotationManager(object):
 
     def get_map_annotations(self):
         return self.mapanns.values() + self.nokey
+
+    def add_from_namespace_query(self, session, ns, primary_keys):
+        """
+        Fetches all map-annotations with the given namespace
+        This will only work if there are no duplicates, otherwise an
+        exception will be thrown
+
+        WARNING: You should probably only use this in MA_APPEND mode since
+        the parents of existing annotations aren't fetched (requires a query
+        for each parent type)
+        WARNING: This may be resource intensive
+        TODO: Use omero.utils.populate_metadata._QueryContext for batch queries
+
+        :param session: An OMERO session
+        :param ns: The namespace
+        :param primary_keys: Primary keys
+        """
+        qs = session.getQueryService()
+        q = 'FROM MapAnnotation WHERE ns=:ns ORDER BY id DESC'
+        p = ParametersI()
+        p.addString('ns', ns)
+        results = qs.findAllByQuery(q, p)
+        log.debug('Found %d MapAnnotations in ns:%s', len(results), ns)
+        for ma in results:
+            cma = CanonicalMapAnnotation(ma, primary_keys)
+            r = self.add(cma)
+            if r:
+                raise Exception(
+                    'Duplicate MapAnnotation primary key (%s, %s): id:%s',
+                    ns, primary_keys, unwrap(ma.getId()))
