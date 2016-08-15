@@ -1089,28 +1089,11 @@ class BulkToMapAnnotationContext(_QueryContext):
         self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
             get_config(self.client.getSession(), cfg=cfg, cfgid=cfgid)
 
-        self.pkmap = None
-        self.mapannotations = MapAnnotationManager()
-
-    def get_target(self, target_object):
-        qs = self.client.getSession().getQueryService()
-        return qs.find(target_object.ice_staticId().split('::')[-1],
-                       target_object.id.val)
-
-    def get_bulk_annotation_file(self):
-        otype = self.target_object.ice_staticId().split('::')[-1]
-        q = """SELECT child.file.id FROM %sAnnotationLink link
-               WHERE parent.id=:id AND child.ns=:ns ORDER by id""" % otype
-        r = self.projection(q, unwrap(self.target_object.getId()),
-                            omero.constants.namespaces.NSBULKANNOTATIONS)
-        if r:
-            return r[-1]
-
-    def _get_ns_primary_keys(self, ns):
-        if self.pkmap is not None:
-            return self.pkmap.get(ns, None)
-
         self.pkmap = {}
+        self.mapannotations = MapAnnotationManager()
+        self._init_namespace_primarykeys()
+
+    def _init_namespace_primarykeys(self):
         try:
             pkcfg = self.advanced_cfgs['primary_group_keys']
         except (TypeError, KeyError):
@@ -1127,9 +1110,28 @@ class BulkToMapAnnotationContext(_QueryContext):
                     raise Exception('keys must be a list')
                 if gns in self.pkmap:
                     raise Exception('Duplicate namespace in keys: %s' % gns)
-                self.pkmap[gns] = keys
 
-        return self.pkmap[ns]
+                self.pkmap[gns] = keys
+                self.mapannotations.add_from_namespace_query(
+                    self.client.getSession(), gns, keys)
+                log.debug('Loaded ns:%s primary-keys:%s', gns, keys)
+
+    def _get_ns_primary_keys(self, ns):
+        return self.pkmap.get(ns, None)
+
+    def get_target(self, target_object):
+        qs = self.client.getSession().getQueryService()
+        return qs.find(target_object.ice_staticId().split('::')[-1],
+                       target_object.id.val)
+
+    def get_bulk_annotation_file(self):
+        otype = self.target_object.ice_staticId().split('::')[-1]
+        q = """SELECT child.file.id FROM %sAnnotationLink link
+               WHERE parent.id=:id AND child.ns=:ns ORDER by id""" % otype
+        r = self.projection(q, unwrap(self.target_object.getId()),
+                            omero.constants.namespaces.NSBULKANNOTATIONS)
+        if r:
+            return r[-1]
 
     def _create_cmap_annotation(self, targets, rowkvs, ns):
         pks = self._get_ns_primary_keys(ns)
@@ -1240,7 +1242,6 @@ class BulkToMapAnnotationContext(_QueryContext):
                         cma = self._create_cmap_annotation(targets, rowkvs, ns)
                         if cma:
                             self.mapannotations.add(cma)
-                            print cma
                             log.debug('Added MapAnnotation: %s', cma)
                         else:
                             log.debug(
