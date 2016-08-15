@@ -723,6 +723,9 @@ class TestPopulateMetadata(lib.ITest):
         self._test_bulk_to_map_annotation_context(fixture, 2)
         self._test_delete_map_annotation_context(fixture, 2)
 
+    # TODO: testPopulateMetadataNsAnns with multiple separate Plates
+    # to check duplicate map-annotations aren't created
+
     def _test_parsing_context(self, fixture, batch_size):
         """
             Create a small csv file, use populate_metadata.py to parse and

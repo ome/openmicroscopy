@@ -26,15 +26,18 @@ Integration test of metadata_mapannotation
 
 import library as lib
 from omero.model import MapAnnotationI, NamedValue
-from omero.rtypes import wrap
-from omero.util.metadata_mapannotations import MapAnnotationManager
+from omero.rtypes import unwrap, wrap
+from omero.util.metadata_mapannotations import (
+    CanonicalMapAnnotation, MapAnnotationManager)
 
 
-def assert_equal_name_value(a, b):
-    assert isinstance(a, NamedValue)
-    assert isinstance(b, NamedValue)
-    assert a.name == b.name
-    assert a.value == b.value
+def assert_equal_map_value(mva, mvb):
+    assert len(mva) == len(mvb)
+    for a, b in zip(mva, mvb):
+        assert isinstance(a, NamedValue)
+        assert isinstance(b, NamedValue)
+        assert a.name == b.name
+        assert a.value == b.value
 
 
 class TestMapAnnotationManager(lib.ITest):
@@ -73,12 +76,38 @@ class TestMapAnnotationManager(lib.ITest):
         assert cma1.kvpairs == [('a', '1')]
         assert cma1.parents == set()
         mv1 = cma1.get_mapann().getMapValue()
-        assert len(mv1) == 1
-        assert_equal_name_value(mv1[0], NamedValue('a', '1'))
+        assert_equal_map_value(mv1, [NamedValue('a', '1')])
 
         cma2 = mgr.mapanns[pk2]
         assert cma2.kvpairs == [('a', '2')]
         assert cma2.parents == set()
         mv2 = cma2.get_mapann().getMapValue()
-        assert len(mv2) == 1
-        assert_equal_name_value(mv2[0], NamedValue('a', '2'))
+        assert_equal_map_value(mv2, [NamedValue('a', '2')])
+
+    def test_update_existing_mapann(self):
+        ns1, ns3, mids = self.create_mas()
+        pks = ['a']
+        mgr = MapAnnotationManager()
+        mgr.add_from_namespace_query(self.sf, ns1, pks)
+
+        ma4 = MapAnnotationI()
+        ma4 = MapAnnotationI()
+        ma4.setNs(wrap(ns1))
+        ma4.setMapValue([NamedValue('a', '2'), NamedValue('b', '3'), ])
+
+        cma = CanonicalMapAnnotation(ma4, pks)
+        # This should modify ma2
+        r = mgr.add(cma)
+        assert r is cma
+
+        cmas = mgr.get_map_annotations()
+        assert len(cmas) == 2
+        rs = self.update.saveAndReturnArray([c.get_mapann() for c in cmas])
+        rs = sorted(rs, key=lambda x: unwrap(x.getId()))
+
+        assert_equal_map_value(rs[0].getMapValue(), [NamedValue('a', '1')])
+        assert unwrap(rs[0].getNs()) == ns1
+
+        assert_equal_map_value(rs[1].getMapValue(), [
+            NamedValue('a', '2'), NamedValue('b', '3')])
+        assert unwrap(rs[1].getNs()) == ns1
