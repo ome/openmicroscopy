@@ -730,7 +730,7 @@ class BulkToMapAnnotationContext(_QueryContext):
 
                 self.pkmap[gns] = keys
                 self.mapannotations.add_from_namespace_query(
-                    self.client.getSession(), gns, keys)
+                    self.client.getSession(), gns, keys, False)
                 log.debug('Loaded ns:%s primary-keys:%s', gns, keys)
 
     def _get_ns_primary_keys(self, ns):
@@ -856,9 +856,18 @@ class BulkToMapAnnotationContext(_QueryContext):
         sf = self.client.getSession()
         group = str(self.target_object.details.group.id.val)
         update_service = sf.getUpdateService()
-        ids = update_service.saveAndReturnIds(
-            self.mapannotations, {'omero.group': group})
-        log.info('Created %d MapAnnotations', len(ids))
+        i = 0
+        links = []
+        # This may be many-links-to-one-new-mapann so everything must
+        # be kept together to avoid duplication of the mapann
+        for cma in self.mapannotations.get_map_annotations():
+            links.append(self._create_map_annotation_links(cma))
+        for batch in self._grouped_batch(links, sz=batch_size):
+            arr = update_service.saveAndReturnArray(
+                batch, {'omero.group': group})
+            i += len(arr)
+            log.info('Created/linked %d MapAnnotations (total %s)',
+                     len(arr), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):

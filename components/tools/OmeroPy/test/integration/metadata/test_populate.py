@@ -192,8 +192,26 @@ class TestPopulateMetadata(BasePopulate):
         self._test_bulk_to_map_annotation_context(fixture, 2)
         self._test_delete_map_annotation_context(fixture, 2)
 
-    # TODO: testPopulateMetadataNsAnns with multiple separate Plates
-    # to check duplicate map-annotations aren't created
+    def testPopulateMetadataNsAnnsDedup(self):
+        """
+        Similar to testPopulateMetadataNsAnns but use two plates and check
+        MapAnnotations aren't duplicated
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture = Plate2WellsNs2()
+        fixture.init(self)
+        self._test_parsing_context(fixture, 2)
+        self._test_bulk_to_map_annotation_context(fixture, 2)
+
+        fixture2 = Plate2WellsNs2()
+        fixture2.init(self)
+        self._test_parsing_context(fixture2, 2)
+        self._test_bulk_to_map_annotation_dedup(fixture, fixture2, 2)
 
     def _test_parsing_context(self, fixture, batch_size):
         """
@@ -247,18 +265,44 @@ class TestPopulateMetadata(BasePopulate):
         was = self.get_well_annotations()
         assert len(was) == 2
 
-        for ma, wid, wr, wc in was:
-            assert isinstance(ma, MapAnnotationI)
-            assert unwrap(ma.getNs()) == NSBULKANNOTATIONS
-            mv = ma.getMapValueAsMap()
-            assert mv['Well'] == str(wid)
-            assert coord2offset(mv['Well Name']) == (wr, wc)
-            if (wr, wc) == (0, 0):
-                assert mv['Well Type'] == 'Control'
-                assert mv['Concentration'] == '0'
-            else:
-                assert mv['Well Type'] == 'Treatment'
-                assert mv['Concentration'] == '10'
+    def _test_bulk_to_map_annotation_dedup(
+            self, fixture1, fixture2, batch_size):
+        ann_count = fixture1.annCount
+        assert fixture2.annCount == ann_count
+        assert len(fixture1.get_child_annotations()) == ann_count
+        assert len(fixture2.get_child_annotations()) == 0
+
+        cfg = fixture2.get_cfg()
+
+        target = fixture2.get_target()
+        anns = fixture2.get_annotations()
+        fileid = anns[0].file.id.val
+        ctx = BulkToMapAnnotationContext(
+            self.client, target, fileid=fileid, cfg=cfg)
+        ctx.parse()
+        assert len(fixture1.get_child_annotations()) == ann_count
+        assert len(fixture2.get_child_annotations()) == 0
+
+        if batch_size is None:
+            ctx.write_to_omero()
+        else:
+            ctx.write_to_omero(batch_size=batch_size)
+
+        oas1 = fixture1.get_child_annotations()
+        oas2 = fixture2.get_child_annotations()
+        assert len(oas1) == ann_count
+        assert len(oas2) == ann_count
+        fixture1.assert_child_annotations(oas1)
+        fixture2.assert_child_annotations(oas2)
+
+        # 6 of the mapannotations should be common
+        ids1 = set(unwrap(o[0].getId()) for o in oas1)
+        ids2 = set(unwrap(o[0].getId()) for o in oas2)
+        assert len(ids1.intersection(ids2)) == 3
+
+    def _test_delete_map_annotation_context(self, fixture, batch_size):
+        # self._test_bulk_to_map_annotation_context()
+        assert len(fixture.get_child_annotations()) == fixture.annCount
 
     def _test_delete_map_annotation_context(self):
         # self._test_bulk_to_map_annotation_context()
