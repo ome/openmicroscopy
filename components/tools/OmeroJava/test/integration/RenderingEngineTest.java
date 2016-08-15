@@ -1929,7 +1929,8 @@ public class RenderingEngineTest extends AbstractServerTest {
         ProjectionDef savedDef = def.getProjectionDef(0);
         assertEquals(true, savedDef.getActive().getValue());
         assertEquals(0, savedDef.getStartPlane().getValue());
-        assertEquals(1, savedDef.getEndPlane().getValue());
+        assertEquals(4, savedDef.getEndPlane().getValue());
+        assertEquals(2, savedDef.getStepping().getValue());
         assertEquals("Z", savedDef.getAxis().getValue().getValue());
         assertEquals("maximum", savedDef.getType().getValue().getValue());
     }
