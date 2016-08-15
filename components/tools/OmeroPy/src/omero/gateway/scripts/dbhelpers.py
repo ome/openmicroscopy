@@ -21,7 +21,8 @@ if not omero.gateway.BlitzGateway.ICE_CONFIG:
         import settings
         iceconfig = os.environ.get('ICE_CONFIG', None)
         if iceconfig is None:
-            iceconfig = os.path.join(settings.OMERO_HOME, 'etc', 'ice.config')
+            iceconfig = os.path.join(
+                settings.OMERO_BASE_DIR, 'etc', 'ice.config')
         omero.gateway.BlitzGateway.ICE_CONFIG = iceconfig
     except ImportError:
         pass

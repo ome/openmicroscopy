@@ -44,19 +44,15 @@ from omero_ext import portalocker
 
 logger = logging.getLogger(__name__)
 
+OMERO_BASE_DIR = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+OMERO_BASE_DIR = os.path.normpath(OMERO_BASE_DIR)
+
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 # Debuging mode.
 # A boolean that turns on/off debug mode.
 # handler404 and handler500 works only when False
-if 'OMERO_HOME' in os.environ:
-    OMERO_HOME = os.environ.get('OMERO_HOME')
-else:
-    OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
-    OMERO_HOME = os.path.normpath(OMERO_HOME)
-
-# Logging
-LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\', '/')
+LOGDIR = os.path.join(OMERO_BASE_DIR, 'var', 'log').replace('\\', '/')
 
 if not os.path.isdir(LOGDIR):
     try:
@@ -162,7 +158,7 @@ LOGGING = {
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
 from omero.util.concurrency import get_event
-CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
+CONFIG_XML = os.path.join(OMERO_BASE_DIR, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
 
@@ -901,7 +897,7 @@ LANGUAGE_CODE = 'en-gb'
 try:
     SECRET_KEY
 except NameError:
-    secret_path = os.path.join(OMERO_HOME, 'var',
+    secret_path = os.path.join(OMERO_BASE_DIR, 'var',
                                'django_secret_key').replace('\\', '/')
     if not os.path.isfile(secret_path):
         try:
