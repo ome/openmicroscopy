@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2008-2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2008-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -1222,32 +1222,21 @@ def api_share_list(request, conn=None, **kwargs):
 
 @login_required()
 @render_response()
-def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
-              o3_type=None, o3_id=None, conn=None, **kwargs):
+def load_plate(request, o1_type=None, o1_id=None, conn=None, **kwargs):
     """
     This loads data for the center panel, via AJAX calls.
     Used for Datasets, Plates & Orphaned Images.
     """
 
-    # get page
-    page = getIntOrDefault(request, 'page', 1)
-    # limit = get_long_or_default(request, 'limit', settings.PAGE)
-
     # get index of the plate
     index = getIntOrDefault(request, 'index', 0)
 
-    # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L,
-    # 'dataset': 301L}
+    # prepare data. E.g. kw = {}  or  {'plate': 301L}  or
+    # 'acquisition': 301L}
     kw = dict()
     if o1_type is not None:
         if o1_id is not None and o1_id > 0:
             kw[str(o1_type)] = long(o1_id)
-        else:
-            kw[str(o1_type)] = bool(o1_id)
-    if o2_type is not None and o2_id > 0:
-        kw[str(o2_type)] = long(o2_id)
-    if o3_type is not None and o3_id > 0:
-        kw[str(o3_type)] = long(o3_id)
 
     try:
         manager = BaseContainer(conn, **kw)
@@ -1255,7 +1244,6 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
         return handlerInternalError(request, x)
 
     # prepare forms
-    filter_user_id = request.session.get('user_id')
     form_well_index = None
 
     context = {
@@ -1265,21 +1253,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
 
     # load data & template
     template = None
-    template = "webclient/data/containers_icon.html"
-    if 'orphaned' in kw:
-        # We need to set group context since we don't have a container Id
-        groupId = request.session.get('active_group')
-        if groupId is None:
-            groupId = conn.getEventContext().groupId
-        conn.SERVICE_OPTS.setOmeroGroup(groupId)
-        manager.listOrphanedImages(filter_user_id, page)
-    elif 'dataset' in kw:
-        # we need the sizeX and sizeY for these
-        load_pixels = True
-        filter_user_id = None   # Show images belonging to all users
-        manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
-                                    page, load_pixels=load_pixels)
-    elif 'plate' in kw or 'acquisition' in kw:
+    if 'plate' in kw or 'acquisition' in kw:
         fields = manager.getNumberOfFields()
         if fields is not None:
             form_well_index = WellIndexForm(
@@ -1469,34 +1443,6 @@ def load_searching(request, form=None, conn=None, **kwargs):
         'foundById': foundById,
         'resultCount': manager.c_size + len(foundById)}
     context['template'] = template
-    return context
-
-
-@login_required()
-@render_response()
-def load_data_by_tag(request, conn=None, **kwargs):
-    """
-    Loads data for the center panel.
-    Either get the P/D/I etc under tags, or the images etc under a tagged
-    Dataset or Project.
-    @param o_type       'tag' or 'project', 'dataset'.
-    """
-
-    o_id = getIntOrDefault(request, "o_id", None)
-    if o_id is None:
-        return handlerInternalError(
-            request, "Need to specify tag id as ?o_id=id")
-
-    try:
-        manager = BaseContainer(conn, tag=o_id)
-    except AttributeError, x:
-        return handlerInternalError(request, x)
-
-    manager.loadDataByTag()
-    template = "webclient/data/containers_icon.html"
-
-    context = {'manager': manager,
-               'template': template}
     return context
 
 
@@ -2076,15 +2022,6 @@ def batch_annotate(request, conn=None, **kwargs):
     conn.SERVICE_OPTS.setOmeroGroup(groupId)
 
     manager = BaseContainer(conn)
-    batchAnns = manager.loadBatchAnnotations(objs)
-    # get average values for User ratings and Other ratings.
-    r = [r['ann'].getLongValue() for r in batchAnns['UserRatings']]
-    userRatingAvg = r and sum(r) / len(r) or 0
-    # get all ratings and summarise
-    allratings = [a['ann'] for a in batchAnns['UserRatings']]
-    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
-    ratings = manager.getGroupedRatings(allratings)
-
     figScripts = manager.listFigureScripts(objs)
     canExportAsJpg = manager.canExportAsJpg(request, objs)
     filesetInfo = None
@@ -2104,15 +2041,12 @@ def batch_annotate(request, conn=None, **kwargs):
         'obj_string': obj_string,
         'link_string': link_string,
         'obj_labels': obj_labels,
-        'batchAnns': batchAnns,
         'batch_ann': True,
         'index': index,
         'figScripts': figScripts,
         'canExportAsJpg': canExportAsJpg,
         'filesetInfo': filesetInfo,
         'annotationBlocked': annotationBlocked,
-        'userRatingAvg': userRatingAvg,
-        'ratings': ratings,
         'differentGroups': False}
     if len(groupIds) > 1:
         context['annotationBlocked'] = ("Can't add annotations because"
@@ -2210,25 +2144,7 @@ def annotate_file(request, conn=None, **kwargs):
                 newFileId = manager.createFileAnnotations(
                     fileupload, oids, well_index=index)
                 added_files.append(newFileId)
-            if len(added_files) == 0:
-                return HttpResponse("<div>No Files chosen</div>")
-            template = "webclient/annotations/fileanns.html"
-            context = {}
-            # Now we lookup the object-annotations (same as for def
-            # batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(
-                oids, ann_ids=added_files, addedByMe=(obj_count == 1))
-            if obj_count > 1:
-                context["batchAnns"] = batchAnns
-                context['batch_ann'] = True
-            else:
-                # We only need a subset of the info in batchAnns
-                fileanns = []
-                for a in batchAnns['File']:
-                    for l in a['links']:
-                        fileanns.append(l.getAnnotation())
-                context['fileanns'] = fileanns
-                context['can_remove'] = True
+            return HttpJsonResponse({'fileIds': added_files})
         else:
             return HttpResponse(form_file.errors)
 
@@ -2258,12 +2174,7 @@ def annotate_rating(request, conn=None, **kwargs):
             o.setRating(rating)
 
     # return a summary of ratings
-    manager = BaseContainer(conn)
-    batchAnns = manager.loadBatchAnnotations(oids)
-    allratings = [a['ann'] for a in batchAnns['UserRatings']]
-    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
-    ratings = manager.getGroupedRatings(allratings)
-    return ratings
+    return HttpJsonResponse({'success': True})
 
 
 @login_required()
@@ -2315,14 +2226,20 @@ def annotate_comment(request, conn=None, **kwargs):
                         reverse("load_template", args=["public"])),
                     int(conn.server_id))
                 textAnn = manager.addComment(host, content)
+                # For shares we need to return html for display...
+                context = {
+                    'tann': textAnn,
+                    'added_by': conn.getUserId(),
+                    'template': "webclient/annotations/comment.html"}
             else:
+                # ...otherwise Comments are re-loaded by AJAX json
+                # so we don't *need* to return anything
                 manager = BaseContainer(conn)
-                textAnn = manager.createCommentAnnotations(
+                annId = manager.createCommentAnnotations(
                     content, oids, well_index=index)
-            context = {
-                'tann': textAnn,
-                'added_by': conn.getUserId(),
-                'template': "webclient/annotations/comment.html"}
+                context = {
+                    'annId': annId,
+                    'added_by': conn.getUserId()}
             return context
     else:
         # TODO: handle invalid form error
@@ -2417,7 +2334,6 @@ def marshal_tagging_form_data(request, conn=None, **kwargs):
     if jsonmode == 'tags':
         # send tag information without descriptions
         r = list((i, t, o, s) for i, d, t, o, s in all_tags)
-        print len(r)
         return r
 
     elif jsonmode == 'desc':
@@ -2451,68 +2367,57 @@ def annotate_tags(request, conn=None, **kwargs):
 
     tags = []
 
-    # Prepare list of 'selected_tags' either for creation of the Tag dialog,
-    # OR to use with form POST to know what has been added / removed from
-    # selected tags.
-    if obj_count == 1:
-        for t in selected:
-            if len(selected[t]) > 0:
-                o_type = t[:-1]         # "images" -> "image"
-                o_id = selected[t][0]
-                objWrapper = oids[o_type][0]
-                conn.SERVICE_OPTS.setOmeroGroup(
-                    objWrapper.getDetails().group.id.val)
-                break
-        if o_type in ("dataset", "project", "image", "screen", "plate",
-                      "acquisition", "well", "comment", "file", "tag",
-                      "tagset"):
-            if o_type == 'tagset':
-                # TODO: this should be handled by the BaseContainer
-                o_type = 'tag'
-            kw = {'index': index}
-            if o_type is not None and o_id > 0:
-                kw[str(o_type)] = long(o_id)
-            try:
-                manager = BaseContainer(conn, **kw)
-            except AttributeError, x:
-                return handlerInternalError(request, x)
-        elif o_type in ("share", "sharecomment"):
-            manager = BaseShare(conn, o_id)
+    # Use the first object we find to set context (assume all objects are
+    # in same group!)
+    for obs in oids.values():
+        if len(obs) > 0:
+            conn.SERVICE_OPTS.setOmeroGroup(
+                obs[0].getDetails().group.id.val)
+            break
 
-        manager.annotationList()
-        tags = manager.tag_annotations
+    # Make a list of all current tags
+    # As would be on right column of tagging dialog...
+    taglist, users = tree.marshal_annotations(
+        conn,
+        project_ids=selected['projects'],
+        dataset_ids=selected['datasets'],
+        image_ids=selected['images'],
+        screen_ids=selected['screens'],
+        plate_ids=selected['plates'],
+        run_ids=selected['acquisitions'],
+        ann_type='tag')
 
-    else:
-        manager = BaseContainer(conn)
-        # Use the first object we find to set context (assume all objects are
-        # in same group!)
-        for obs in oids.values():
-            if len(obs) > 0:
-                conn.SERVICE_OPTS.setOmeroGroup(
-                    obs[0].getDetails().group.id.val)
-                break
+    userMap = {}
+    for exp in users:
+        userMap[exp['id']] = exp
 
-        batchAnns = manager.loadBatchAnnotations(oids)
-        tags = []
-        for t in batchAnns['Tag']:
-            mylinks = [l for l in t['links'] if l.isOwned()]
-            if len(mylinks) == obj_count:
-                # make sure we pick a link that we own
-                t['ann'].link = mylinks[0]
-                tags.append(t['ann'])
+    # For batch annotate, only include tags that user has added to all objects
+    if obj_count > 1:
+        # count my links
+        myLinkCount = {}
+        for t in taglist:
+            tid = t['id']
+            if tid not in myLinkCount:
+                myLinkCount[tid] = 0
+            if t['link']['owner']['id'] == self_id:
+                myLinkCount[tid] += 1
+        # filter
+        taglist = [t for t in taglist if myLinkCount[t['id']] == obj_count]
 
     selected_tags = []
-    for tag in tags:
-        ownerId = unwrap(tag.link.details.owner.id)
+    for tag in taglist:
+        linkOwnerId = tag['link']['owner']['id']
+        owner = userMap[linkOwnerId]
         ownerName = "%s %s" % (
-            unwrap(tag.link.details.owner.firstName),
-            unwrap(tag.link.details.owner.lastName))
-        canDelete = unwrap(tag.link.details.getPermissions().canDelete())
-        created = str(datetime.datetime.fromtimestamp(
-            unwrap(tag.link.details.getCreationEvent().getTime()) / 1000))
-        owned = self_id == unwrap(tag.link.details.owner.id)
+            owner['firstName'],
+            owner['lastName'])
+        canDelete = True
+        created = tag['link']['date']
+        linkOwned = linkOwnerId == self_id
         selected_tags.append(
-            (tag.id, ownerId, ownerName, canDelete, created, owned))
+            (tag['id'], self_id, ownerName, canDelete, created, linkOwned))
+
+    selected_tags.sort(key=lambda x: x[0])
 
     initial = {
         'selected': selected,
@@ -2535,11 +2440,13 @@ def annotate_tags(request, conn=None, **kwargs):
             # filter down previously selected tags to the ones linked by
             # current user
             selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
-            added_tags = [stag[0] for stag in selected_tags if not stag[5]]
-            tags = [tag for tag in form_tags.cleaned_data['tags']
+            # added_tags = [stag[0] for stag in selected_tags if not stag[5]]
+            post_tags = form_tags.cleaned_data['tags']
+            tags = [tag for tag in post_tags
                     if tag not in selected_tag_ids]
             removed = [tag for tag in selected_tag_ids
-                       if tag not in form_tags.cleaned_data['tags']]
+                       if tag not in post_tags]
+            manager = BaseContainer(conn)
             if tags:
                 manager.createAnnotationsLinks(
                     'tag',
@@ -2547,8 +2454,9 @@ def annotate_tags(request, conn=None, **kwargs):
                     oids,
                     well_index=index,
                 )
+            new_tags = []
             for form in newtags_formset.forms:
-                added_tags.append(manager.createTagAnnotations(
+                new_tags.append(manager.createTagAnnotations(
                     form.cleaned_data['tag'],
                     form.cleaned_data['description'],
                     oids,
@@ -2562,23 +2470,9 @@ def annotate_tags(request, conn=None, **kwargs):
                     "%s-%s" % (dtype, obj.id)
                     for dtype, objs in oids.items()
                     for obj in objs], index, tag_owner_id=self_id)
-            template = "webclient/annotations/tags.html"
-            context = {}
-            # Now we lookup the object-annotations (same as for def
-            # batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(
-                oids, ann_ids=form_tags.cleaned_data['tags'] + added_tags)
-            if obj_count > 1:
-                context["batchAnns"] = batchAnns
-                context['batch_ann'] = True
-            else:
-                # We only need a subset of the info in batchAnns
-                taganns = []
-                for a in batchAnns['Tag']:
-                    for l in a['links']:
-                        taganns.append(l.getAnnotation())
-                context['tags'] = taganns
-                context['can_remove'] = True
+            return HttpJsonResponse({'added': tags,
+                                     'removed': removed,
+                                     'new': new_tags})
         else:
             # TODO: handle invalid form error
             return HttpResponse(str(form_tags.errors))
@@ -3261,26 +3155,6 @@ def download_placeholder(request, conn=None, **kwargs):
         'fileLists': fileLists,
         'fileCount': fileCount
         }
-    return context
-
-
-@login_required()
-@render_response()
-def load_public(request, share_id=None, conn=None, **kwargs):
-    """ Loads data for the center panel in the 'public' main page. """
-
-    # SUBTREE TODO:
-    if share_id is None:
-        share_id = (request.GET.get("o_id") is not None and
-                    long(request.GET.get("o_id")) or None)
-
-    template = "webclient/data/containers_icon.html"
-    controller = BaseShare(conn, share_id)
-    controller.loadShareContent()
-
-    context = {'share': controller, 'manager': controller}
-    context['isLeader'] = conn.isLeader()
-    context['template'] = template
     return context
 
 
@@ -3974,7 +3848,6 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     elif scriptName == "Thumbnail":
         scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
         template = "webclient/scripts/thumbnail_figure.html"
-        # context['tags'] = BaseContainer(conn).getTagsByObject()  # ALL tags
 
         def loadImageTags(imageIds):
             tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)

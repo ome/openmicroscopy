@@ -1,6 +1,6 @@
 {% comment %}
 /**
-  Copyright (C) 2012-2015 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2012-2016 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 
 <script>
 /**
- * This script is included in the main containers.html page as well as the container_tags.html and public.html pages,
+ * This script is included in the main containers.html page as well as public.html,
  * adding itself as a selection listener to the jsTree in each case.
  * It loads appropriate data into the middle panel on selection changes in the jsTree.
  * For the main containers.html page, it also responds to switching between 'plugins'
@@ -752,16 +752,10 @@ $(document).ready(function() {
             var show = WEBCLIENT.initially_select.join("|");
 
             switch(nodeType) {
-                // case 'dataset':
-                //     url += 'load_data/' + nodeType + '/' + nodeId + '/?view=icon' + "&page="+newPage;
-                //     break;
-                // case 'orphaned':
-                //     url += 'load_data/' + nodeType + '/?view=icon' + "&page="+newPage;
-                //     break;
                 case 'plate':
                     // Only load plates if it has a single 'Run' (or none)
                     if (node.children.length < 2) {
-                        url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
+                        url += 'load_plate/' + nodeType + '/' + nodeId + '/?index=' + newField;
                         if (show) {
                             url += "&show=" + show;
                         }
@@ -770,17 +764,11 @@ $(document).ready(function() {
                     }
                     break;
                 case 'acquisition':
-                    url += 'load_data/' + nodeType + '/' + nodeId + '/?index=' + newField;
+                    url += 'load_plate/' + nodeType + '/' + nodeId + '/?index=' + newField;
                     if (show) {
                         url += "&show=" + show;
                     }
                     break;
-                // case 'tag':
-                //     url += 'load_data_by_tag/?o_id=' + nodeId;
-                //     break;
-                // case 'share':
-                //     url += 'load_public/' + nodeId + '/?view=icon'
-                //     break;
                 default:
                     url = undefined;
             }

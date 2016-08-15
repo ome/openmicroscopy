@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2008-2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2008-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -1664,6 +1664,7 @@ def _marshal_annotation(conn, annotation, link=None):
     ownerId = annotation.details.owner.id.val
     ann['id'] = annotation.id.val
     ann['ns'] = unwrap(annotation.ns)
+    ann['description'] = unwrap(annotation.description)
     ann['owner'] = {'id': ownerId}
     creation = annotation.details.creationEvent._time
     ann['date'] = _marshal_date(unwrap(creation))
