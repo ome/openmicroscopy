@@ -159,7 +159,43 @@ class TestPopulateMetadata(BasePopulate):
         # self._test_bulk_to_map_annotation_context()
         # self._test_delete_map_annotation_context()
 
-    def _test_parsing_context(self):
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, batch_size)
+        self._assert_parsing_context_values(t, fixture)
+        self._test_bulk_to_map_annotation_context(fixture, batch_size)
+        self._test_delete_map_annotation_context(fixture, batch_size)
+
+    @mark.parametrize("fixture", METADATA_NS_FIXTURES, ids=METADATA_NS_IDS)
+    def testPopulateMetadataNsAnns(self, fixture):
+        """
+        Test complicated annotations (multiple ns/groups) on a single OMERO
+        data type, as opposed to testPopulateMetadata which tests simple
+        annotations on multiple OMERO data types
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, 2)
+
+        cols = t.getHeaders()
+        rows = t.getNumberOfRows()
+        fixture.assert_rows(rows)
+        data = [c.values for c in t.read(range(len(cols)), 0, rows).columns]
+        rowValues = zip(*data)
+        assert len(rowValues) == fixture.count
+        fixture.assert_row_values(rowValues)
+
+        self._test_bulk_to_map_annotation_context(fixture, 2)
+        self._test_delete_map_annotation_context(fixture, 2)
+
+    # TODO: testPopulateMetadataNsAnns with multiple separate Plates
+    # to check duplicate map-annotations aren't created
+
+    def _test_parsing_context(self, fixture, batch_size):
         """
             Create a small csv file, use populate_metadata.py to parse and
             attach to Plate. Then query to check table has expected content.
