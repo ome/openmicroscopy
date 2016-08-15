@@ -22,7 +22,7 @@ def windows_warning(func):
     def win_warn(func):
         def wrapper(self, *args, **kwargs):
             if self._isWindows():
-                self.ctx.die(WINDOWS_WARNING)
+                self.ctx.die(20, WINDOWS_WARNING)
             return func(self, *args, **kwargs)
         return wrapper
     return wraps(func)(win_warn(func))
