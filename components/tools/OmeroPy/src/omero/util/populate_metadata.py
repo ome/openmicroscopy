@@ -36,8 +36,7 @@ from collections import defaultdict
 
 import omero.clients
 from omero import CmdError
-from omero.callbacks import CmdCallbackI
-from omero.rtypes import rstring, unwrap
+from omero.rtypes import rlist, rstring, unwrap
 from omero.model import DatasetAnnotationLinkI, DatasetI, FileAnnotationI
 from omero.model import OriginalFileI, PlateI, PlateAnnotationLinkI, ScreenI
 from omero.model import PlateAcquisitionI, WellI, WellSampleI, ImageI
@@ -47,9 +46,11 @@ from omero.model import MapAnnotationI, NamedValue
 from omero.grid import ImageColumn, LongColumn, PlateColumn, RoiColumn
 from omero.grid import StringColumn, WellColumn, DoubleColumn, BoolColumn
 from omero.grid import DatasetColumn
-from omero.util.metadata_utils import KeyValueListPassThrough
-from omero.util.metadata_utils import KeyValueListTransformer
-from omero.util.metadata_utils import NSBULKANNOTATIONSCONFIG
+from omero.util.metadata_mapannotations import (
+    CanonicalMapAnnotation, MapAnnotationPrimaryKeyException,
+    MapAnnotationManager)
+from omero.util.metadata_utils import (
+    KeyValueListPassThrough, KeyValueGroupList, NSBULKANNOTATIONSCONFIG)
 from omero import client
 
 from populate_roi import ThreadPool
@@ -952,14 +953,36 @@ class _QueryContext(object):
         for batch in (i[pos:pos + sz] for pos in xrange(0, len(i), sz)):
             yield batch
 
-    def projection(self, q, ids, ns=None, batch_size=None):
+    def _grouped_batch(self, groups, sz=1000):
+        """
+        In some cases groups of objects must be kept together.
+        This method attempts to return up to sz objects without breaking
+        up groups. If a single group is greater than sz the whole group
+        is returned.
+
+        :param groups: an iterable of lists/tuples of objects
+        """
+        batch = []
+        for group in groups:
+            if (len(batch) == 0) or (len(batch) + len(group) <= sz):
+                batch.extend(group)
+            else:
+                toyield = batch
+                batch = group
+                yield toyield
+        if batch:
+            yield batch
+
+    def projection(self, q, ids, nss=None, batch_size=None):
         """
         Run a projection query designed to return scalars only
         :param q: The query to be projected, should contain either `:ids`
                or `:id` as a parameter
         :param: ids: Either a list of IDs to be passed as `:ids` parameter or
                 a single scalar id to be passed as `:id` parameter in query
-        :ns: Optional namespace to be passed as `:ns` parameter in query
+        :nss: Optional, Either a list of namespaces to be passed as `:nss`
+                parameter or a single string to be passed as `:ns` parameter
+                in query
         :batch_size: Optional batch_size (default: all) defining the number
                 of IDs that will be queried at once. Methods that expect to
                 have more than several thousand input IDs should consider an
@@ -977,10 +1000,12 @@ class _QueryContext(object):
             nids = 1
             single_id = ids
 
-        if ns:
-            params.addString("ns", ns)
+        if isinstance(nss, basestring):
+            params.addString("ns", nss)
+        elif nss:
+            params.map['nss'] = rlist(rstring(s) for s in nss)
 
-        log.debug("Query: %s len(IDs): %d", q, nids)
+        log.debug("Query: %s len(IDs): %d namespace(s): %s", q, nids, nss)
 
         if single_id is not None:
             params.addId(single_id)
@@ -995,6 +1020,38 @@ class _QueryContext(object):
                 rss.extend(unwrap(qs.projection(q, params)))
 
         return [r for rs in rss for r in rs]
+
+
+def get_config(session, cfg=None, cfgid=None):
+    if not YAML_ENABLED:
+        raise ImportError("yaml (PyYAML) module required")
+
+    if cfgid:
+        try:
+            rfs = session.createRawFileStore()
+            rfs.setFileId(cfgid)
+            rawdata = rfs.read(0, rfs.size())
+        finally:
+            rfs.close()
+    elif cfg:
+        with open(cfg, 'r') as f:
+            rawdata = f.read()
+    else:
+        raise Exception("Configuration file required")
+
+    cfg = list(yaml.load_all(rawdata))
+    if len(cfg) != 1:
+        raise Exception(
+            "Expected YAML file with one document, found %d" % len(cfg))
+    cfg = cfg[0]
+
+    default_cfg = cfg.get("defaults")
+    column_cfgs = cfg.get("columns")
+    advanced_cfgs = cfg.get("advanced", {})
+    if not default_cfg and not column_cfgs:
+        raise Exception(
+            "Configuration defaults and columns were both empty")
+    return default_cfg, column_cfgs, advanced_cfgs
 
 
 class BulkToMapAnnotationContext(_QueryContext):
@@ -1030,43 +1087,15 @@ class BulkToMapAnnotationContext(_QueryContext):
             raise MetadataError("Unable to find bulk-annotations file")
 
         self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
-            self.get_config(cfg=cfg, cfgid=cfgid)
+            get_config(self.client.getSession(), cfg=cfg, cfgid=cfgid)
+
+        self.pkmap = None
+        self.mapannotations = MapAnnotationManager()
 
     def get_target(self, target_object):
         qs = self.client.getSession().getQueryService()
         return qs.find(target_object.ice_staticId().split('::')[-1],
                        target_object.id.val)
-
-    def get_config(self, cfg=None, cfgid=None):
-        if not YAML_ENABLED:
-            raise ImportError("yaml (PyYAML) module required")
-
-        if cfgid:
-            try:
-                rfs = self.client.getSession().createRawFileStore()
-                rfs.setFileId(cfgid)
-                rawdata = rfs.read(0, rfs.size())
-            finally:
-                rfs.close()
-        elif cfg:
-            with open(cfg, 'r') as f:
-                rawdata = f.read()
-        else:
-            raise Exception("Configuration file required")
-
-        cfg = list(yaml.load_all(rawdata))
-        if len(cfg) != 1:
-            raise Exception(
-                "Expected YAML file with one document, found %d" % len(cfg))
-        cfg = cfg[0]
-
-        default_cfg = cfg.get("defaults")
-        column_cfgs = cfg.get("columns")
-        advanced_cfgs = cfg.get("advanced", {})
-        if not default_cfg and not column_cfgs:
-            raise Exception(
-                "Configuration defaults and columns were both empty")
-        return default_cfg, column_cfgs, advanced_cfgs
 
     def get_bulk_annotation_file(self):
         otype = self.target_object.ice_staticId().split('::')[-1]
@@ -1077,9 +1106,34 @@ class BulkToMapAnnotationContext(_QueryContext):
         if r:
             return r[-1]
 
-    @staticmethod
-    def create_map_annotation(
-            targets, rowkvs, ns=omero.constants.namespaces.NSBULKANNOTATIONS):
+    def _get_ns_primary_keys(self, ns):
+        if self.pkmap is not None:
+            return self.pkmap.get(ns, None)
+
+        self.pkmap = {}
+        try:
+            pkcfg = self.advanced_cfgs['primary_group_keys']
+        except (TypeError, KeyError):
+            return None
+
+        for pk in pkcfg:
+            try:
+                gns = pk['groupname']
+                keys = pk['keys']
+            except KeyError:
+                raise Exception('Invalid primary_group_keys: %s' % pk)
+            if keys:
+                if not isinstance(keys, list):
+                    raise Exception('keys must be a list')
+                if gns in self.pkmap:
+                    raise Exception('Duplicate namespace in keys: %s' % gns)
+                self.pkmap[gns] = keys
+
+        return self.pkmap[ns]
+
+    def _create_cmap_annotation(self, targets, rowkvs, ns):
+        pks = self._get_ns_primary_keys(ns)
+
         ma = MapAnnotationI()
         ma.setNs(rstring(ns))
         mv = []
@@ -1087,14 +1141,26 @@ class BulkToMapAnnotationContext(_QueryContext):
             if not isinstance(vs, (tuple, list)):
                 vs = [vs]
             mv.extend(NamedValue(k, str(v)) for v in vs)
+
+        if not mv:
+            log.debug('Empty MapValue, ignoring: %s', rowkvs)
+            return
+
         ma.setMapValue(mv)
 
+        log.debug('Creating CanonicalMapAnnotation ns:%s pks:%s kvs:%s',
+                  ns, pks, rowkvs)
+        cma = CanonicalMapAnnotation(ma, primary_keys=pks, unique_keys=False)
+        for (otype, oid) in targets:
+            cma.add_parent(otype, oid)
+        return cma
+
+    def _create_map_annotation_links(self, cma):
         links = []
-        for target in targets:
-            otype = target.ice_staticId().split('::')[-1]
+        for (otype, oid) in cma.get_parents():
             link = getattr(omero.model, '%sAnnotationLinkI' % otype)()
-            link.setParent(target)
-            link.setChild(ma)
+            link.setParent(getattr(omero.model, '%sI' % otype)(oid, False))
+            link.setChild(cma.get_mapann())
             links.append(link)
         return links
 
@@ -1112,16 +1178,24 @@ class BulkToMapAnnotationContext(_QueryContext):
 
     def _get_additional_targets(self, target):
         iids = []
-        if self.advanced_cfgs.get('well_to_images') and isinstance(
-                target, omero.model.Well):
-            q = 'SELECT image.id FROM WellSample WHERE well.id=:id'
-            iids = self.projection(q, unwrap(target.getId()))
-        return [omero.model.ImageI(i, False) for i in iids]
+        try:
+            if self.advanced_cfgs['well_to_images'] and target[0] == 'Well':
+                q = 'SELECT image.id FROM WellSample WHERE well.id=:id'
+                iids = self.projection(q, target[1])
+        except (KeyError, TypeError):
+            pass
+        return [('Image', i) for i in iids]
 
     def populate(self, table):
         def idcolumn_to_omeroclass(col):
             clsname = re.search('::(\w+)Column$', col.ice_staticId()).group(1)
-            return getattr(omero.model, '%sI' % clsname)
+            return clsname
+
+        try:
+            ignore_missing_primary_key = self.advanced_cfgs[
+                'ignore_missing_primary_key']
+        except (KeyError, TypeError):
+            ignore_missing_primary_key = False
 
         nrows = table.getNumberOfRows()
         data = table.readCoordinates(range(nrows))
@@ -1138,48 +1212,64 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         headers = [c.name for c in data.columns]
         if self.default_cfg or self.column_cfgs:
-            tr = KeyValueListTransformer(
+            kvgl = KeyValueGroupList(
                 headers, self.default_cfg, self.column_cfgs)
+            trs = kvgl.get_transformers()
         else:
-            tr = KeyValueListPassThrough(headers)
+            trs = [KeyValueListPassThrough(headers)]
 
-        mas = []
         for row in izip(*(c.values for c in data.columns)):
-            rowkvs = tr.transform(row)
             targets = []
             for omerotype, n in idcols:
                 if row[n] > 0:
-                    obj = omerotype(row[n], False)
-                    additional = self._get_additional_targets(obj)
+                    # Be aware this has implications for client UIs, since
+                    # Wells and Images may be treated as one when it comes
+                    # to annotations
+                    obj = (omerotype, row[n])
+                    targets.append(obj)
                     targets.extend(self._get_additional_targets(obj))
-                    # Josh: disabling to prevent duplication in UI
-                    # if there are other targets to be used. FIXME
-                    if not additional:
-                        targets.append(obj)
                 else:
                     log.warn("Invalid Id:%d found in row %s", row[n], row)
             if targets:
-                malinks = self.create_map_annotation(targets, rowkvs)
-                log.debug('Map:\n\t' + ('\n\t'.join("%s=%s" % (
-                    v.name, v.value) for v in
-                    malinks[0].getChild().getMapValue())))
-                log.debug('Targets:\n\t' + ('\n\t'.join("%s:%d" % (
-                    t.ice_staticId().split('::')[-1], t.id._val)
-                    for t in targets)))
-                mas.extend(malinks)
-
-        self.mapannotations = mas
+                for tr in trs:
+                    rowkvs = tr.transform(row)
+                    ns = tr.name
+                    if not ns:
+                        ns = omero.constants.namespaces.NSBULKANNOTATIONS
+                    try:
+                        cma = self._create_cmap_annotation(targets, rowkvs, ns)
+                        if cma:
+                            self.mapannotations.add(cma)
+                            print cma
+                            log.debug('Added MapAnnotation: %s', cma)
+                        else:
+                            log.debug(
+                                'Empty MapAnnotation: %s', rowkvs)
+                    except MapAnnotationPrimaryKeyException as e:
+                        c = ''
+                        if ignore_missing_primary_key:
+                            c = ' (Continuing)'
+                        log.error(
+                            'Missing primary keys%s: %s %s ', c, e, rowkvs)
+                        if not ignore_missing_primary_key:
+                            raise
 
     def write_to_omero(self, batch_size=1000):
         sf = self.client.getSession()
         group = str(self.target_object.details.group.id)
         update_service = sf.getUpdateService()
         i = 0
-        for batch in self._batch(self.mapannotations, sz=batch_size):
-            i += 1
+        links = []
+        # This may be many-links-to-one-new-mapann so everything must
+        # be kept together to avoid duplication of the mapann
+        for cma in self.mapannotations.get_map_annotations():
+            links.append(self._create_map_annotation_links(cma))
+        for batch in self._grouped_batch(links, sz=batch_size):
             ids = update_service.saveAndReturnIds(
                 batch, {'omero.group': group})
-            log.info('Created %d MapAnnotations (batch %s)', len(ids), i)
+            i += len(ids)
+            log.info('Created/linked %d MapAnnotations (total %s)',
+                     len(ids), i)
 
 
 class DeleteMapAnnotationContext(_QueryContext):
@@ -1201,19 +1291,38 @@ class DeleteMapAnnotationContext(_QueryContext):
         self.target_object = target_object
         self.attach = attach
 
+        if cfg or cfgid:
+            self.default_cfg, self.column_cfgs, self.advanced_cfgs = \
+                get_config(self.client.getSession(), cfg=cfg, cfgid=cfgid)
+        else:
+            self.default_cfg = None
+            self.column_cfgs = None
+            self.advanced_cfgs = None
+
     def parse(self):
         return self.populate()
 
-    def _get_annotations_for_deletion(self, objtype, objids, anntype, ns):
+    def _get_annotations_for_deletion(self, objtype, objids, anntype, nss):
         r = []
         if objids:
             q = ("SELECT child.id FROM %sAnnotationLink WHERE "
                  "child.class=%s AND parent.id in (:ids) "
-                 "AND child.ns=:ns")
-            r = self.projection(q % (objtype, anntype), objids, ns,
+                 "AND child.ns in (:nss)")
+            r = self.projection(q % (objtype, anntype), objids, nss,
                                 batch_size=10000)
             log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
         return r
+
+    def _get_configured_namespaces(self):
+        nss = set([omero.constants.namespaces.NSBULKANNOTATIONS])
+        if self.column_cfgs:
+            for c in self.column_cfgs:
+                try:
+                    ns = c['group']['groupname']
+                    nss.add(ns)
+                except KeyError:
+                    continue
+        return list(nss)
 
     def populate(self):
         # Hierarchy: Screen, Plate, {PlateAcquistion, Well}, WellSample, Image
@@ -1303,28 +1412,28 @@ class DeleteMapAnnotationContext(_QueryContext):
         self.fileannids = set()
         not_annotatable = ('WellSample',)
 
-        ns = omero.constants.namespaces.NSBULKANNOTATIONS
+        nss = self._get_configured_namespaces()
         for objtype, objids in parentids.iteritems():
             if objtype in not_annotatable:
                 continue
             r = self._get_annotations_for_deletion(
-                objtype, objids, 'MapAnnotation', ns)
+                objtype, objids, 'MapAnnotation', nss)
             self.mapannids.update(r)
 
         log.info("Total: %d MapAnnotation(s) in %s",
-                 len(set(self.mapannids)), ns)
+                 len(set(self.mapannids)), nss)
 
         if self.attach:
-            ns = NSBULKANNOTATIONSCONFIG
+            nss = [NSBULKANNOTATIONSCONFIG]
             for objtype, objids in parentids.iteritems():
                 if objtype in not_annotatable:
                     continue
                 r = self._get_annotations_for_deletion(
-                    objtype, objids, 'FileAnnotation', ns)
+                    objtype, objids, 'FileAnnotation', nss)
                 self.fileannids.update(r)
 
             log.info("Total: %d FileAnnotation(s) in %s",
-                     len(set(self.fileannids)), ns)
+                     len(set(self.fileannids)), nss)
 
     def write_to_omero(self, batch_size=1000):
         for batch in self._batch(self.mapannids, sz=batch_size):

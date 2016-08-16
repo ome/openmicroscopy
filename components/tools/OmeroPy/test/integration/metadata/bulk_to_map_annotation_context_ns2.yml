@@ -1,0 +1,34 @@
+---
+name: test_bulk_to_map_annotation_context_ns2
+version: 2
+
+defaults:
+    include: yes
+
+columns:
+- name: Gene
+- name: FlyBase
+  clientname: FlyBase URL
+  clientvalue: http://flybase.org/reports/{{ value }}.html
+  omitempty: yes
+- name: Well
+  include: no
+  includeclient: no
+- name: Well Name
+  include: no
+  includeclient: no
+- group:
+    groupname: openmicroscopy.org/mapr/gene
+    columns:
+    # Intentionally duplicate a column in a different group
+    - name: Gene
+    - name: Gene Names
+      clientname: Gene name
+      split: ;
+
+advanced:
+#    well_to_images: yes
+    primary_group_keys:
+    - groupname: openmicroscopy.org/mapr/gene
+      keys:
+      - Gene

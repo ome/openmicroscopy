@@ -145,6 +145,10 @@ class Fixture(object):
     def get_csv(self):
         return self.csv
 
+    def get_cfg(self):
+        return os.path.join(
+            os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
+
     def assert_rows(self, rows):
         assert rows == self.rowCount * self.colCount
 
@@ -241,6 +245,229 @@ class Plate2Wells(Fixture):
         qs = self.test.client.sf.getQueryService()
         was = unwrap(qs.projection(query, None))
         return was
+
+
+class Plate2WellsNs(Plate2Wells):
+    # For this test use explicit files instead of generating them as an
+    # additional safeguard against changes in the test code
+
+    def __init__(self):
+        self.count = 6
+        self.annCount = 6 * 2  # Two namespaces
+        self.rowCount = 2
+        self.colCount = 3
+        d = os.path.dirname(__file__)
+        self.csv = os.path.join(d, 'bulk_to_map_annotation_context_ns.csv')
+        self.plate = None
+
+    def get_cfg(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context_ns.yml')
+
+    def assert_row_values(self, rowvalues):
+        # First column is the WellID
+        assert rowvalues[0][1:] == (
+            "FBgn0004644", "hh", "hedgehog;bar-3;CG4637", "a1")
+        assert rowvalues[1][1:] == (
+            "FBgn0003656", "sws", "swiss cheese;olfE;CG2212", "a2")
+        assert rowvalues[2][1:] == (
+            "FBgn0011236", "ken", "ken and barbie;CG5575", "a3")
+        assert rowvalues[3][1:] == (
+            "", "hh",
+            "DHH;IHH;SHH;Desert hedgehog;Indian hedgehog;Sonic hedgehog", "b1")
+        assert rowvalues[4][1:] == (
+            "", "sws",
+            "PNPLA6;patatin like phospholipase domain containing 6", "b2")
+        assert rowvalues[5][1:] == (
+            "", "ken", "BCL6;B-cell lymphoma 6 protein", "b3")
+
+    def assert_child_annotations(self, oas):
+        wellrcs = [coord2offset(c) for c in (
+            'a1', 'a2', 'a3', 'b1', 'b2', 'b3')]
+        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
+        check = dict((k, None) for k in wellrc_ns)
+        annids = []
+
+        for ma, wid, wr, wc in oas:
+            assert isinstance(ma, MapAnnotationI)
+            annids.append(unwrap(ma.getId()))
+            ns = unwrap(ma.getNs())
+            wrc = (wr, wc)
+
+            # Well names/ids aren't included in this test, because this also
+            # test that annotations are combined by primary key
+            assert (wrc, ns) in check, 'Unexpected well/namespace'
+            assert check[(wrc, ns)] is None, 'Duplicate annotation'
+
+            # Use getMapValue to check ordering and duplicates
+            check[(wrc, ns)] = [(p.name, p.value) for p in ma.getMapValue()]
+
+        # Row a
+
+        assert check[(wellrcs[0], nss[0])] == [
+            ('Gene', 'hh'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0004644.html'),
+        ]
+        assert check[(wellrcs[0], nss[1])] == [
+            ('Gene', 'hh'),
+            ('Gene name', 'hedgehog'),
+            ('Gene name', 'bar-3'),
+            ('Gene name', 'CG4637'),
+        ]
+
+        assert check[(wellrcs[1], nss[0])] == [
+            ('Gene', 'sws'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
+        ]
+        assert check[(wellrcs[1], nss[1])] == [
+            ('Gene', 'sws'),
+            ('Gene name', 'swiss cheese'),
+            ('Gene name', 'olfE'),
+            ('Gene name', 'CG2212'),
+        ]
+
+        assert check[(wellrcs[2], nss[0])] == [
+            ('Gene', 'ken'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
+        ]
+        assert check[(wellrcs[2], nss[1])] == [
+            ('Gene', 'ken'),
+            ('Gene name', 'ken and barbie'),
+            ('Gene name', 'CG5575'),
+        ]
+
+        # Row b
+
+        assert check[(wellrcs[3], nss[0])] == [
+            ('Gene', 'hh'),
+        ]
+        assert check[(wellrcs[3], nss[1])] == [
+            ('Gene', 'hh'),
+            ('Gene name', 'DHH'),
+            ('Gene name', 'IHH'),
+            ('Gene name', 'SHH'),
+            ('Gene name', 'Desert hedgehog'),
+            ('Gene name', 'Indian hedgehog'),
+            ('Gene name', 'Sonic hedgehog'),
+        ]
+        assert check[(wellrcs[4], nss[0])] == [
+            ('Gene', 'sws'),
+        ]
+        assert check[(wellrcs[4], nss[1])] == [
+            ('Gene', 'sws'),
+            ('Gene name', 'PNPLA6'),
+            ('Gene name', 'patatin like phospholipase domain containing 6'),
+        ]
+
+        assert check[(wellrcs[5], nss[0])] == [
+            ('Gene', 'ken'),
+        ]
+        assert check[(wellrcs[5], nss[1])] == [
+            ('Gene', 'ken'),
+            ('Gene name', 'BCL6'),
+            ('Gene name', 'B-cell lymphoma 6 protein'),
+        ]
+
+        assert len(annids) == 12
+        assert len(set(annids)) == 12
+
+
+class Plate2WellsNs2(Plate2WellsNs):
+    # For this test use explicit files instead of generating them as an
+    # additional safeguard against changes in the test code
+
+    def __init__(self):
+        super(Plate2WellsNs2, self).__init__()
+
+    def get_cfg(self):
+        return os.path.join(os.path.dirname(__file__),
+                            'bulk_to_map_annotation_context_ns2.yml')
+
+    def assert_child_annotations(self, oas):
+        wellrcs = [coord2offset(c) for c in (
+            'a1', 'a2', 'a3', 'b1', 'b2', 'b3')]
+        nss = [NSBULKANNOTATIONS, 'openmicroscopy.org/mapr/gene']
+        wellrc_ns = [(wrc, ns) for wrc in wellrcs for ns in nss]
+        check = dict((k, None) for k in wellrc_ns)
+        annids = []
+
+        for ma, wid, wr, wc in oas:
+            assert isinstance(ma, MapAnnotationI)
+            annids.append(unwrap(ma.getId()))
+            ns = unwrap(ma.getNs())
+            wrc = (wr, wc)
+
+            # Well names/ids aren't included in this test, because this also
+            # test that annotations are combined by primary key
+            assert (wrc, ns) in check, 'Unexpected well/namespace'
+            assert check[(wrc, ns)] is None, 'Duplicate annotation'
+
+            # Use getMapValue to check ordering and duplicates
+            check[(wrc, ns)] = [(p.name, p.value) for p in ma.getMapValue()]
+
+        # Row a
+
+        assert check[(wellrcs[0], nss[0])] == [
+            ('Gene', 'hh'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0004644.html'),
+        ]
+        assert check[(wellrcs[0], nss[1])] == [
+            ('Gene', 'hh'),
+            ('Gene name', 'hedgehog'),
+            ('Gene name', 'bar-3'),
+            ('Gene name', 'CG4637'),
+            ('Gene name', 'DHH'),
+            ('Gene name', 'IHH'),
+            ('Gene name', 'SHH'),
+            ('Gene name', 'Desert hedgehog'),
+            ('Gene name', 'Indian hedgehog'),
+            ('Gene name', 'Sonic hedgehog'),
+        ]
+        assert check[(wellrcs[1], nss[0])] == [
+            ('Gene', 'sws'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0003656.html'),
+        ]
+        assert check[(wellrcs[1], nss[1])] == [
+            ('Gene', 'sws'),
+            ('Gene name', 'swiss cheese'),
+            ('Gene name', 'olfE'),
+            ('Gene name', 'CG2212'),
+            ('Gene name', 'PNPLA6'),
+            ('Gene name', 'patatin like phospholipase domain containing 6'),
+        ]
+
+        assert check[(wellrcs[2], nss[0])] == [
+            ('Gene', 'ken'),
+            ('FlyBase URL', 'http://flybase.org/reports/FBgn0011236.html'),
+        ]
+        assert check[(wellrcs[2], nss[1])] == [
+            ('Gene', 'ken'),
+            ('Gene name', 'ken and barbie'),
+            ('Gene name', 'CG5575'),
+            ('Gene name', 'BCL6'),
+            ('Gene name', 'B-cell lymphoma 6 protein'),
+        ]
+
+        # Row b
+
+        assert check[(wellrcs[3], nss[0])] == [
+            ('Gene', 'hh'),
+        ]
+        assert check[(wellrcs[3], nss[1])] == check[(wellrcs[0], nss[1])]
+
+        assert check[(wellrcs[4], nss[0])] == [
+            ('Gene', 'sws'),
+        ]
+        assert check[(wellrcs[4], nss[1])] == check[(wellrcs[1], nss[1])]
+
+        assert check[(wellrcs[5], nss[0])] == [
+            ('Gene', 'ken'),
+        ]
+        assert check[(wellrcs[5], nss[1])] == check[(wellrcs[2], nss[1])]
+
+        assert len(annids) == 12
+        assert len(set(annids)) == 9
 
 
 class Dataset2Images(Fixture):
@@ -347,8 +574,8 @@ class GZIP(Dataset2Images):
         csvFileName = super(GZIP, self).createCsv(*args, **kwargs)
         gzipFileName = "%s.gz" % csvFileName
         with open(csvFileName, 'rb') as f_in, \
-            gzip.open(gzipFileName, 'wb') as f_out:
-                shutil.copyfileobj(f_in, f_out)
+                gzip.open(gzipFileName, 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
 
         return gzipFileName
 
@@ -443,6 +670,12 @@ class TestPopulateMetadata(lib.ITest):
     )
     METADATA_IDS = [x.__class__.__name__ for x in METADATA_FIXTURES]
 
+    METADATA_NS_FIXTURES = (
+        Plate2WellsNs(),
+        Plate2WellsNs2(),
+    )
+    METADATA_NS_IDS = [x.__class__.__name__ for x in METADATA_NS_FIXTURES]
+
     @mark.parametrize("fixture", METADATA_FIXTURES, ids=METADATA_IDS)
     @mark.parametrize("batch_size", (None, 10, 1000))
     def testPopulateMetadata(self, fixture, batch_size):
@@ -458,9 +691,37 @@ class TestPopulateMetadata(lib.ITest):
             skip("PyYAML not installed.")
 
         fixture.init(self)
-        self._test_parsing_context(fixture, batch_size)
+        t = self._test_parsing_context(fixture, batch_size)
+        self._assert_parsing_context_values(t, fixture)
         self._test_bulk_to_map_annotation_context(fixture, batch_size)
         self._test_delete_map_annotation_context(fixture, batch_size)
+
+    @mark.parametrize("fixture", METADATA_NS_FIXTURES, ids=METADATA_NS_IDS)
+    def testPopulateMetadataNsAnns(self, fixture):
+        """
+        Test complicated annotations (multiple ns/groups) on a single OMERO
+        data type, as opposed to testPopulateMetadata which tests simple
+        annotations on multiple OMERO data types
+        """
+        try:
+            import yaml
+            print yaml, "found"
+        except Exception:
+            skip("PyYAML not installed.")
+
+        fixture.init(self)
+        t = self._test_parsing_context(fixture, 2)
+
+        cols = t.getHeaders()
+        rows = t.getNumberOfRows()
+        fixture.assert_rows(rows)
+        data = [c.values for c in t.read(range(len(cols)), 0, rows).columns]
+        rowValues = zip(*data)
+        assert len(rowValues) == fixture.count
+        fixture.assert_row_values(rowValues)
+
+        self._test_bulk_to_map_annotation_context(fixture, 2)
+        self._test_delete_map_annotation_context(fixture, 2)
 
     def _test_parsing_context(self, fixture, batch_size):
         """
@@ -494,6 +755,9 @@ class TestPopulateMetadata(lib.ITest):
         # Open table to check contents
         r = self.client.sf.sharedResources()
         t = r.openTable(OriginalFileI(fileid), None)
+        return t
+
+    def _assert_parsing_context_values(self, t, fixture):
         cols = t.getHeaders()
         rows = t.getNumberOfRows()
         fixture.assert_rows(rows)
@@ -511,8 +775,7 @@ class TestPopulateMetadata(lib.ITest):
         # self._testPopulateMetadataPlate()
         assert len(fixture.get_child_annotations()) == 0
 
-        cfg = os.path.join(
-            os.path.dirname(__file__), 'bulk_to_map_annotation_context.yml')
+        cfg = fixture.get_cfg()
 
         target = fixture.get_target()
         anns = fixture.get_annotations()
@@ -534,8 +797,10 @@ class TestPopulateMetadata(lib.ITest):
         # self._test_bulk_to_map_annotation_context()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
+        cfg = fixture.get_cfg()
+
         target = fixture.get_target()
-        ctx = DeleteMapAnnotationContext(self.client, target)
+        ctx = DeleteMapAnnotationContext(self.client, target, cfg=cfg)
         ctx.parse()
         assert len(fixture.get_child_annotations()) == fixture.annCount
 
