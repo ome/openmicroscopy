@@ -1909,8 +1909,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         ProjectionDef pDef = new ProjectionDefI();
         pDef.setActive(omero.rtypes.rbool(true));
         pDef.setStartPlane(omero.rtypes.rint(0));
-        pDef.setEndPlane(omero.rtypes.rint(4));
-        pDef.setStepping(omero.rtypes.rint(2));
+        pDef.setEndPlane(omero.rtypes.rint(1));
         ProjectionAxisI projection = new ProjectionAxisI();
         projection.setValue(omero.rtypes.rstring("Z"));
         pDef.setAxis(projection);
@@ -1929,8 +1928,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         ProjectionDef savedDef = def.getProjectionDef(0);
         assertEquals(true, savedDef.getActive().getValue());
         assertEquals(0, savedDef.getStartPlane().getValue());
-        assertEquals(4, savedDef.getEndPlane().getValue());
-        assertEquals(2, savedDef.getStepping().getValue());
+        assertEquals(1, savedDef.getEndPlane().getValue());
         assertEquals("Z", savedDef.getAxis().getValue().getValue());
         assertEquals("maximum", savedDef.getType().getValue().getValue());
     }
