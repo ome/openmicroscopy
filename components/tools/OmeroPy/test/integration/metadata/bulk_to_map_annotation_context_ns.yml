@@ -18,7 +18,7 @@ columns:
   include: no
   includeclient: no
 - group:
-    groupname: openmicroscopy.org/mapr/gene
+    namespace: openmicroscopy.org/mapr/gene
     columns:
     # Intentionally duplicate a column in a different group
     - name: Gene

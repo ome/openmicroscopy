@@ -88,7 +88,7 @@ class TestBulkAnnotationConfiguration(object):
     def test_init_group(self):
         c = BulkAnnotationConfiguration({"omitempty": True}, [
             {"name": "a1"},
-            {"group": {"groupname": "group2", "columns": [{"name": "b2"}]}}
+            {"group": {"namespace": "group2", "columns": [{"name": "b2"}]}}
         ])
         assert c.default_cfg == expected(omitempty=True)
         assert len(c.column_cfgs) == 1
@@ -131,7 +131,7 @@ class TestBulkAnnotationConfiguration(object):
     def test_validate_group_config(self):
         with pytest.raises(Exception):
             BulkAnnotationConfiguration.validate_group_config({
-                "groupname": "ga"})
+                "namespace": "ga"})
 
         with pytest.raises(Exception):
             BulkAnnotationConfiguration.validate_group_config({
@@ -139,16 +139,16 @@ class TestBulkAnnotationConfiguration(object):
 
         with pytest.raises(Exception):
             BulkAnnotationConfiguration.validate_group_config({
-                "groupname": "", "columns": [{"name": "a"}]})
+                "namespace": "", "columns": [{"name": "a"}]})
 
         with pytest.raises(Exception):
             BulkAnnotationConfiguration.validate_group_config({
-                "groupname": "ga", "columns": [{"name": "a"}],
+                "namespace": "ga", "columns": [{"name": "a"}],
                 "nonexistent": "na"})
 
         # Shouldn't throw
         BulkAnnotationConfiguration.validate_group_config({
-            "groupname": "ga", "columns": [{"name": "a"}]})
+            "namespace": "ga", "columns": [{"name": "a"}]})
 
 
 class TestKeyValueListPassThrough(object):
@@ -171,7 +171,7 @@ class TestKeyValueGroupList(object):
         assert kvgl.headerindexmap == {'a1': 0}
 
         assert len(kvgl.output_configs) == 1
-        assert kvgl.output_configs[0].groupname == ""
+        assert kvgl.output_configs[0].namespace == ""
         configs = kvgl.output_configs[0].columns
         assert configs[0] == (expected(name="a1", visible=False), 0)
 
@@ -200,7 +200,7 @@ class TestKeyValueGroupList(object):
         assert kvgl.default_cfg == expected()
 
         assert len(kvgl.output_configs) == 1
-        assert kvgl.output_configs[0].groupname == ""
+        assert kvgl.output_configs[0].namespace == ""
         configs = kvgl.output_configs[0].columns
         assert len(configs) == 2
         assert configs[0] == (expected(name="a1", position=1), 1)
@@ -214,7 +214,7 @@ class TestKeyValueGroupList(object):
         assert kvgl.default_cfg == expected(include=False, includeclient=False)
 
         assert len(kvgl.output_configs) == 1
-        assert kvgl.output_configs[0].groupname == ""
+        assert kvgl.output_configs[0].namespace == ""
         configs = kvgl.output_configs[0].columns
         assert len(configs) == 1
         assert configs[0] == (expected(
@@ -226,7 +226,7 @@ class TestKeyValueGroupList(object):
         assert kvgl.default_cfg == expected()
 
         assert len(kvgl.output_configs) == 1
-        assert kvgl.output_configs[0].groupname == ""
+        assert kvgl.output_configs[0].namespace == ""
         configs = kvgl.output_configs[0].columns
         assert len(configs) == 6
         assert configs[0] == (expected(name="a1", position=1, split="|"), 3)
@@ -241,7 +241,7 @@ class TestKeyValueGroupList(object):
         headers = ["a1", "a2"]
         desc = [
             {"name": "a1"},
-            {"group": {"groupname": "g2", "columns": [{"name": "a2"}]}},
+            {"group": {"namespace": "g2", "columns": [{"name": "a2"}]}},
         ]
         kvgl = KeyValueGroupList(headers, None, desc)
         assert kvgl.default_cfg == expected()
@@ -249,21 +249,21 @@ class TestKeyValueGroupList(object):
 
         assert len(kvgl.output_configs) == 2
 
-        assert kvgl.output_configs[0].groupname == "g2"
+        assert kvgl.output_configs[0].namespace == "g2"
         assert kvgl.output_configs[0].columns == [(expected(name="a2"), 1)]
 
         # Default group always comes last
-        assert kvgl.output_configs[1].groupname == ""
+        assert kvgl.output_configs[1].namespace == ""
         assert kvgl.output_configs[1].columns == [(expected(name="a1"), 0)]
 
     def test_init_col_group_multi(self):
         headers = ["a1", "a2", "a3", "a4", "a5"]
         desc = [
             {"name": "a1"},
-            {"group": {"groupname": "g2", "columns": [{"name": "a2"}]}},
+            {"group": {"namespace": "g2", "columns": [{"name": "a2"}]}},
             {"name": "a3"},
             {"group": {
-                "groupname": "g4", "columns": [{"name": "a4"}, {"name": "a5"}]
+                "namespace": "g4", "columns": [{"name": "a4"}, {"name": "a5"}]
             }},
         ]
         kvgl = KeyValueGroupList(headers, None, desc)
@@ -273,15 +273,15 @@ class TestKeyValueGroupList(object):
 
         assert len(kvgl.output_configs) == 3
 
-        assert kvgl.output_configs[0].groupname == "g2"
+        assert kvgl.output_configs[0].namespace == "g2"
         assert kvgl.output_configs[0].columns == [(expected(name="a2"), 1)]
 
-        assert kvgl.output_configs[1].groupname == "g4"
+        assert kvgl.output_configs[1].namespace == "g4"
         assert kvgl.output_configs[1].columns == [
             (expected(name="a4"), 3), (expected(name="a5"), 4)]
 
         # Default group always comes last
-        assert kvgl.output_configs[2].groupname == ""
+        assert kvgl.output_configs[2].namespace == ""
         assert kvgl.output_configs[2].columns == [
             (expected(name="a1"), 0), (expected(name="a3"), 2)]
 
