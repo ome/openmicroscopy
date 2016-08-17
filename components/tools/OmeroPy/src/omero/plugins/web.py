@@ -45,17 +45,6 @@ Example Nginx developer usage:
     omero web stop
     nginx -s stop
 
-Example IIS usage:
-
-    # Install server
-    omero config set omero.web.debug true
-    omero web iis
-    iisreset
-
-    # Uninstall server
-    omero web iis --remove
-    iisreset
-
 """
 
 APACHE_MOD_WSGI_ERR = ("[ERROR] You are deploying OMERO.web using Apache and"
@@ -134,10 +123,7 @@ class WebControl(BaseControl):
             sub, self.restart, "Restart the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
 
-        iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
-        iis.add_argument("--remove", action="store_true", default=False)
-
-        for x in (start, restart, iis):
+        for x in (start, restart):
             group = x.add_mutually_exclusive_group()
             group.add_argument(
                 "--keep-sessions", action="store_true",
@@ -679,21 +665,6 @@ class WebControl(BaseControl):
             str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' +
                                  self.ctx.dir / 'bin')
-
-    @config_required
-    def iis(self, args, settings):
-        if not (self._isWindows() or self.ctx.isdebug):
-            self.ctx.die(2, "'iis' command is for Windows only")
-
-        self.collectstatic()
-        if not args.keep_sessions:
-            self.clearsessions(args)
-
-        web_iis = self._get_python_dir() / "omero_web_iis.py"
-        cmd = [sys.executable, str(web_iis)]
-        if args.remove:
-            cmd.append("remove")
-        self.ctx.call(cmd)
 
 try:
     register("web", WebControl, HELP)
