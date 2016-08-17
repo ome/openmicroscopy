@@ -718,7 +718,7 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         for pk in pkcfg:
             try:
-                gns = pk['groupname']
+                gns = pk['namespace']
                 keys = pk['keys']
             except KeyError:
                 raise Exception('Invalid primary_group_keys: %s' % pk)
@@ -901,6 +901,17 @@ class DeleteMapAnnotationContext(_QueryContext):
             r = self.projection(q % (objtype, anntype), objids, ns)
             log.debug("%s: %d %s(s)", objtype, len(set(r)), anntype)
         return r
+
+    def _get_configured_namespaces(self):
+        nss = set([omero.constants.namespaces.NSBULKANNOTATIONS])
+        if self.column_cfgs:
+            for c in self.column_cfgs:
+                try:
+                    ns = c['group']['namespace']
+                    nss.add(ns)
+                except KeyError:
+                    continue
+        return list(nss)
 
     def populate(self):
         # Hierarchy: Screen, Plate, {PlateAcquistion, Well}, WellSample, Image
