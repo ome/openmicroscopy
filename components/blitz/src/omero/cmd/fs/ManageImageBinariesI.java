@@ -118,6 +118,7 @@ public class ManageImageBinariesI extends ManageImageBinaries implements
     }
 
     public void init(Helper helper) {
+        LOGGER.info("deletePyramid = " + deletePyramid);
         this.helper = helper;
         this.helper.setSteps(6);
     }
