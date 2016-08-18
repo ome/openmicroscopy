@@ -148,6 +148,7 @@ class RenderHSBRegionTask implements RenderingTask {
         byte[] g = dataBuffer.getGreenBand();
         byte[] b = dataBuffer.getBlueBand();
         LutReader reader;
+        boolean hasMap = cc.hasMapContext();
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             reader = readers.get(i);
@@ -162,7 +163,9 @@ class RenderHSBRegionTask implements RenderingTask {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
                     discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
-                    discreteValue = cc.transform(discreteValue);
+                    if (hasMap) {
+                        discreteValue = cc.transform(discreteValue);
+                    }
 
                     if (reader != null) {
                         int r1 = ((r[pix] & 0x00FF0000) >> 16);
@@ -225,6 +228,7 @@ class RenderHSBRegionTask implements RenderingTask {
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
         LutReader reader;
+        boolean hasMap = cc.hasMapContext();
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             reader = readers.get(i);
@@ -260,7 +264,9 @@ class RenderHSBRegionTask implements RenderingTask {
                     
                     // Right now we have no transforms being used so it's safe to
                     // comment this out for the time being.
-                    //discreteValue = cc.transform(discreteValue);
+                    if (hasMap) {
+                        discreteValue = cc.transform(discreteValue);
+                    }
                     if (reader != null) {
                         int r1 = ((buf[pix] & 0x00FF0000) >> 16);
                         int r2 = reader.getRed(discreteValue) & 0xFF;
@@ -369,6 +375,7 @@ class RenderHSBRegionTask implements RenderingTask {
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
         LutReader reader;
+        boolean hasMap = cc.hasMapContext();
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             reader = readers.get(i);
@@ -401,8 +408,9 @@ class RenderHSBRegionTask implements RenderingTask {
                             qs.quantize(plane.getPixelValue(x1, x2));
                     // Right now we have no transforms being used so it's safe to
                     // comment this out for the time being.
-                    //discreteValue = cc.transform(discreteValue);
-
+                    if (hasMap) {
+                        discreteValue = cc.transform(discreteValue);
+                    }
                     if (reader != null) {
                         int r1 = ((buf[pix] & 0xFF000000) >> 24);
                         int r2 = reader.getRed(discreteValue) & 0xFF;
