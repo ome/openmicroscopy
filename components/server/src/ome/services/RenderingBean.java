@@ -38,6 +38,7 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.display.ReverseIntensityContext;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.roi.Mask;
@@ -834,7 +835,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 //binding.setFamily(unloadedFamily);
                 index++;
             }
-            
+            //Codomain save
+            //only reverse supported
+            rendDefObj.clearSpatialDomainEnhancement();
+            if (renderer.getCodomainChain().hasMapContext()) {
+                ReverseIntensityContext r = new ReverseIntensityContext();
+                r.setReverse(true);
+                rendDefObj.addCodomainMapContext(r);
+            }
             // Actually save the rendering settings
             Long id = (Long) ex.execute(/*ex*/null/*principal*/,
                     new Executor.SimpleWork(this,"saveCurrentSettings"){
