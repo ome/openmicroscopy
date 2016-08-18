@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import omero.model.CodomainMapContext;
 import omero.model.Length;
 import omero.romio.PlaneDef;
 import omero.gateway.exception.DSOutOfServiceException;
@@ -409,14 +410,13 @@ public interface RenderingControl
      * Only one codomain map can be added to the transformations list.
      * When a new element is added to the list, the look-up table
      * managing the codomain transformations is rebuilt. 
-     * 
+     *
      * @param mapCtx The context to add.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @throws RenderingServiceException If an error occurred while setting the value.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
-    //public void addCodomainMap(CodomainMapContext mapCtx)
-    //	throws RenderingServiceException, DSOutOfServiceException;
+    public void addCodomainMap(CodomainMapContext mapCtx)
+            throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Updates the specified <code>CodomainMapContext</code>.
@@ -434,14 +434,13 @@ public interface RenderingControl
      * Removed the <code>CodomainMapContext</code> from the list of
      * transformations.
      * 
-     * @param mapCtx    The context to remove.
-     * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @param mapCtx The context to remove.
+     * @throws RenderingServiceException If an error occurred while setting the value.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
-   // public void removeCodomainMap(CodomainMapContext mapCtx)
-    //	throws RenderingServiceException, DSOutOfServiceException;
-    
+    public void removeCodomainMap(CodomainMapContext mapCtx)
+            throws RenderingServiceException, DSOutOfServiceException;
+
     /**
      * Returns a read-only list of <code>CodomainMapContext</code>s using during
      * the mapping process in the device space.

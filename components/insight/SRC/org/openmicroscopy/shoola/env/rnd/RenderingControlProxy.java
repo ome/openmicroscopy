@@ -40,12 +40,15 @@ import java.util.Set;
 import omero.LockTimeout;
 import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
+import omero.model.CodomainMapContext;
 import omero.model.Family;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
+import omero.model.ReverseIntensityContext;
+import omero.model.ReverseIntensityContextI;
 import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
 
@@ -1251,15 +1254,23 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#addCodomainMap(CodomainMapContext)
      */
-    /*
     public void addCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException
+            throws RenderingServiceException, DSOutOfServiceException
     {
-    	//servant.addCodomainMap(mapCtx);
-        invalidateCache();
+        if (!(mapCtx instanceof ReverseIntensityContext)){
+            return ;
+        }
+        ReverseIntensityContext ric = (ReverseIntensityContext) mapCtx;
+        isSessionAlive();
+        try {
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            servant.addCodomainMap(c);
+            invalidateCache();
+        } catch (Exception e) {
+            handleException(e, ERROR+"cannot set the map context.");
+        }
     }
-*/
-    
+
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#updateCodomainMap(CodomainMapContext)
@@ -1277,14 +1288,17 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#removeCodomainMap(CodomainMapContext)
      */
-    /*
     public void removeCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException
+        throws RenderingServiceException, DSOutOfServiceException
     {
-        //servant.removeCodomainMap(mapCtx);
-        invalidateCache();
+        isSessionAlive();
+        try {
+            //servant.removeCodomainMap(mapCtx);
+            invalidateCache();
+        } catch (Exception e) {
+            handleException(e, ERROR+"cannot set the map context.");
+        }
     }
-    */
 
     /** 
      * Implemented as specified by {@link RenderingControl}.
