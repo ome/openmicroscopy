@@ -45,6 +45,8 @@ import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
 import ome.util.Utils;
 import omeis.providers.re.RGBBuffer;
+import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
 import omero.ApiUsageException;
@@ -557,6 +559,21 @@ public class IceMapper extends ome.util.ModelMapper implements
         b.sizeX1 = buffer.getSizeX1();
         b.sizeX2 = buffer.getSizeX2();
         return b;
+    }
+
+    /**
+     * Converts the passed Ice Object and returns the converted object.
+     * 
+     * @param ctx The object to convert
+     * @return See above.
+     * @throws omero.ApiUsageException Thrown if the slice is unknown.
+     */
+    public CodomainMapContext convert(omero.romio.CodomainMapContext ctx)
+    {
+        if (!(ctx instanceof omero.romio.ReverseIntensityMapContext)) {
+            return null;
+        }
+        return new ReverseIntensityContext();
     }
 
     /**
@@ -1177,6 +1194,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             return convert((omero.romio.PlaneDef) arg);
         } else if (Object[].class.isAssignableFrom(p)) {
             return reverseArray((List) arg, p);
+        } else if (CodomainMapContext.class.isAssignableFrom(p)) {
+            return convert((omero.romio.CodomainMapContext) arg);
         } else {
             throw new ApiUsageException(null, null, "Can't handle input " + p);
         }
