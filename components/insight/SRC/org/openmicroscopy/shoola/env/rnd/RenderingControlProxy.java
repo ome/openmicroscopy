@@ -1260,7 +1260,7 @@ class RenderingControlProxy
         if (!(mapCtx instanceof ReverseIntensityContext)){
             return ;
         }
-        ReverseIntensityContext ric = (ReverseIntensityContext) mapCtx;
+        //ReverseIntensityContext ric = (ReverseIntensityContext) mapCtx;
         isSessionAlive();
         try {
             omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
@@ -1291,11 +1291,16 @@ class RenderingControlProxy
     public void removeCodomainMap(CodomainMapContext mapCtx)
         throws RenderingServiceException, DSOutOfServiceException
     {
+        if (!(mapCtx instanceof ReverseIntensityContext)){
+            return ;
+        }
         isSessionAlive();
         try {
-            //servant.removeCodomainMap(mapCtx);
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            servant.removeCodomainMap(c);
             invalidateCache();
         } catch (Exception e) {
+            e.printStackTrace();
             handleException(e, ERROR+"cannot set the map context.");
         }
     }
