@@ -63,7 +63,7 @@ class TestMapAnnotationManager(lib.ITest):
         ns1, ns3, mids = self.create_mas()
         pks = ['a']
         mgr = MapAnnotationManager()
-        mgr.add_from_namespace_query(self.sf, ns1, pks, False)
+        mgr.add_from_namespace_query(self.sf, ns1, pks)
 
         assert len(mgr.mapanns) == 2
         pk1 = (ns1, frozenset([('a', '1')]))
@@ -88,7 +88,7 @@ class TestMapAnnotationManager(lib.ITest):
         ns1, ns3, mids = self.create_mas()
         pks = ['a']
         mgr = MapAnnotationManager()
-        mgr.add_from_namespace_query(self.sf, ns1, pks, False)
+        mgr.add_from_namespace_query(self.sf, ns1, pks)
 
         ma4 = MapAnnotationI()
         ma4 = MapAnnotationI()
