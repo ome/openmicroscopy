@@ -1113,7 +1113,7 @@ class BulkToMapAnnotationContext(_QueryContext):
 
                 self.pkmap[gns] = keys
                 self.mapannotations.add_from_namespace_query(
-                    self.client.getSession(), gns, keys, False)
+                    self.client.getSession(), gns, keys)
                 log.debug('Loaded ns:%s primary-keys:%s', gns, keys)
 
     def _get_ns_primary_keys(self, ns):
@@ -1152,7 +1152,7 @@ class BulkToMapAnnotationContext(_QueryContext):
 
         log.debug('Creating CanonicalMapAnnotation ns:%s pks:%s kvs:%s',
                   ns, pks, rowkvs)
-        cma = CanonicalMapAnnotation(ma, primary_keys=pks, unique_keys=False)
+        cma = CanonicalMapAnnotation(ma, primary_keys=pks)
         for (otype, oid) in targets:
             cma.add_parent(otype, oid)
         return cma

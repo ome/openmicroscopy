@@ -49,11 +49,9 @@ class CanonicalMapAnnotation(object):
     ma: The omero.model.MapAnnotation object
     primary_keys: Keys from key-value pairs that will be used to form the
         primary key.
-    unique_keys: If False duplicate keys (with different values) aren't
-        allowed, default True (allowed)
     """
 
-    def __init__(self, ma, primary_keys=None, unique_keys=True):
+    def __init__(self, ma, primary_keys=None):
         # TODO: should we consider data and description
         self.ma = ma
         ns = unwrap(ma.getNs())
@@ -63,17 +61,12 @@ class CanonicalMapAnnotation(object):
         except TypeError:
             mapvalue = []
         self.kvpairs, self.primary = self.process_keypairs(
-            mapvalue, primary_keys, unique_keys)
+            mapvalue, primary_keys)
         self.parents = set()
 
-    def process_keypairs(self, kvpairs, primary_keys, unique_keys):
+    def process_keypairs(self, kvpairs, primary_keys):
         if len(set(kvpairs)) != len(kvpairs):
             raise ValueError('Duplicate key-value pairs found: %s' % kvpairs)
-
-        if unique_keys:
-            u_keys = [k for (k, v) in kvpairs]
-            if len(set(u_keys)) != len(u_keys):
-                raise ValueError('Duplicate keys found: %s' % u_keys)
 
         if primary_keys:
             primary_keys = set(primary_keys)
@@ -133,8 +126,9 @@ class CanonicalMapAnnotation(object):
         return self.parents
 
     def __str__(self):
-        return 'primary:%s keyvalues:%s parents:%s' % (
-            self.primary, self.kvpairs, self.parents)
+        return 'ns:%s primary:%s keyvalues:%s parents:%s id:%s' % (
+            self.ns, self.primary, self.kvpairs, self.parents,
+            unwrap(self.ma.getId()))
 
 
 class MapAnnotationManager(object):
@@ -195,7 +189,7 @@ class MapAnnotationManager(object):
     def get_map_annotations(self):
         return self.mapanns.values() + self.nokey
 
-    def add_from_namespace_query(self, session, ns, primary_keys, unique_keys):
+    def add_from_namespace_query(self, session, ns, primary_keys):
         """
         Fetches all map-annotations with the given namespace
         This will only work if there are no duplicates, otherwise an
@@ -210,7 +204,6 @@ class MapAnnotationManager(object):
         :param session: An OMERO session
         :param ns: The namespace
         :param primary_keys: Primary keys
-        :param unique_keys: Whether keys have to be unique in a map
         """
         qs = session.getQueryService()
         q = 'FROM MapAnnotation WHERE ns=:ns ORDER BY id DESC'
@@ -219,7 +212,7 @@ class MapAnnotationManager(object):
         results = qs.findAllByQuery(q, p)
         log.debug('Found %d MapAnnotations in ns:%s', len(results), ns)
         for ma in results:
-            cma = CanonicalMapAnnotation(ma, primary_keys, unique_keys)
+            cma = CanonicalMapAnnotation(ma, primary_keys)
             r = self.add(cma)
             if r:
                 raise Exception(
