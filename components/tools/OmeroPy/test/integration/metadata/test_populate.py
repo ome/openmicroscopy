@@ -757,6 +757,9 @@ class TestPopulateMetadata(lib.ITest):
         fixture2.init(self)
         self._test_parsing_context(fixture2, 2)
         self._test_bulk_to_map_annotation_dedup(fixture1, fixture2)
+        # TODO: This will currently fail because the MapAnnotations are
+        # deleted even if they're multiply linked
+        # self._test_delete_map_annotation_context_dedup(fixture1, fixture2)
 
     def _test_parsing_context(self, fixture, batch_size):
         """
@@ -877,6 +880,25 @@ class TestPopulateMetadata(lib.ITest):
             ctx.write_to_omero(batch_size=batch_size)
         assert len(fixture.get_child_annotations()) == 0
         assert len(fixture.get_all_map_annotations()) == 0
+
+    def _test_delete_map_annotation_context_dedup(self, fixture1, fixture2):
+        assert len(fixture1.get_child_annotations()) == fixture1.annCount
+        assert len(fixture2.get_child_annotations()) == fixture2.annCount
+
+        ctx = DeleteMapAnnotationContext(
+            self.client, fixture1.get_target(), cfg=fixture1.get_cfg())
+        ctx.parse()
+        ctx.write_to_omero()
+        assert len(fixture1.get_child_annotations()) == 0
+        assert len(fixture2.get_child_annotations()) == fixture2.annCount
+
+        ctx = DeleteMapAnnotationContext(
+            self.client, fixture2.get_target(), cfg=fixture2.get_cfg())
+        ctx.parse()
+        ctx.write_to_omero()
+        assert len(fixture2.get_child_annotations()) == 0
+        assert len(fixture1.get_all_map_annotations()) == 0
+        assert len(fixture2.get_all_map_annotations()) == 0
 
 
 class MockMeasurementCtx(AbstractMeasurementCtx):
