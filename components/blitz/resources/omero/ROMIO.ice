@@ -77,6 +77,13 @@ module romio
     class CodomainMapContext
     {
     };
+
+    /**
+     * The reverse intensity.
+     **/
+    class ReverseIntensityMapContext extends CodomainMapContext
+    {
+    };
 };
 
 };
