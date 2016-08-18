@@ -28,6 +28,8 @@ import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
+import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.RegionDef;
@@ -324,6 +326,20 @@ public class Renderer {
     }
 
     /**
+     * Converts the context.
+     *
+     * @param ctx The value to convert.
+     * @return See above.
+     */
+    private CodomainMapContext convert(ome.model.display.CodomainMapContext ctx)
+    {
+        if (ctx instanceof ome.model.display.ReverseIntensityContext) {
+            return new ReverseIntensityContext();
+        }
+        return null;
+    }
+
+    /**
      * Creates a new instance to render the specified pixels set and get this
      * new instance ready for rendering.
      * 
@@ -359,8 +375,20 @@ public class Renderer {
         quantumManager.initStrategies(qd, cBindings);
 
         // Create and configure the codomain chain.
+        List<ome.model.display.CodomainMapContext> l = rndDef.<ome.model.display.CodomainMapContext>
+        collectSpatialDomainEnhancement(null);
+        List<CodomainMapContext> nl = new ArrayList<CodomainMapContext>();
+        if (l != null && l.size() > 0) {
+            Iterator<ome.model.display.CodomainMapContext> i = l.iterator();
+            while (i.hasNext()) {
+                CodomainMapContext ctx = convert(i.next());
+                if (ctx != null) {
+                    nl.add(ctx);
+                }
+            }
+        }
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd
-                .getCdEnd().intValue(), null);
+                .getCdEnd().intValue(), nl);
 
         // Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
