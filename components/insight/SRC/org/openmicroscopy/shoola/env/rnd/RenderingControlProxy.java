@@ -1300,7 +1300,6 @@ class RenderingControlProxy
             servant.removeCodomainMap(c);
             invalidateCache();
         } catch (Exception e) {
-            e.printStackTrace();
             handleException(e, ERROR+"cannot set the map context.");
         }
     }
