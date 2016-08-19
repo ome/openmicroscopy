@@ -70,7 +70,7 @@ public class LoggingImportMonitor implements IObserver
                     importSummary.outputGreppableResults(ev);
                     break;
                 default:
-                    importSummary.outputImageIds(ev);
+                    importSummary.outputImageOrPlateIds(ev);
             }
             importSummary.update(ev);
         } else if (event instanceof IMPORT_SUMMARY) {
@@ -226,6 +226,27 @@ public class LoggingImportMonitor implements IObserver
         }
 
         /**
+         * Returns a ListMultimap containing the class names and IDs of
+         * the imported objects
+         *
+         * @param ev the end of import event.
+         * @return See above.
+         */
+        private ListMultimap<String, Long> getObjectIdMap(IMPORT_DONE ev) {
+            ListMultimap<String, Long> collect = ArrayListMultimap.create();
+            for (IObject object : ev.objects) {
+                if (object != null && object.getId() != null) {
+                    String kls = object.getClass().getSimpleName();
+                    if (kls.endsWith("I")) {
+                        kls = kls.substring(0,kls.length()-1);
+                    }
+                    collect.put(kls, object.getId().getValue());
+                }
+            }
+            return collect;
+        }
+
+        /**
          * Displays a yaml description of the successfully imported Images
          * and other objects to standard output.
          *
@@ -238,16 +259,7 @@ public class LoggingImportMonitor implements IObserver
             System.err.println("Imported objects:");
             System.out.println("---");
             System.out.println("- Fileset: " + ev.fileset.getId().getValue());
-            ListMultimap<String, Long> collect = ArrayListMultimap.create();
-            for (IObject object : ev.objects) {
-                if (object != null && object.getId() != null) {
-                    String kls = object.getClass().getSimpleName();
-                    if (kls.endsWith("I")) {
-                        kls = kls.substring(0,kls.length()-1);
-                    }
-                    collect.put(kls, object.getId().getValue());
-                }
-            }
+            ListMultimap<String, Long> collect = getObjectIdMap(ev);
             for (String kls : collect.keySet()) {
                 List<Long> ids = collect.get(kls);
                 System.out.print("  ");
@@ -259,34 +271,26 @@ public class LoggingImportMonitor implements IObserver
         }
 
         /**
-         * Displays a list of successfully imported Image IDs on standard
-         * output using the Object:id format.
+         * Displays a list of successfully imported Image or Plate IDs
+         * on standard output using the Object:id format.
          *
          * Note that this behavior is intended for other command line tools to
          * pipe/grep the import results, and should be kept as is.
          *
          * @param ev the end of import event.
          */
-        void outputImageIds(IMPORT_DONE ev) {
-            StringBuilder sb = new StringBuilder();
-            String separator = "";
-            sb.append("Image:");
-            for (IObject object : ev.objects) {
-                sb.append(separator);
-                separator = ",";
-                if (object != null && object.getId() != null) {
-                    String kls = object.getClass().getSimpleName();
-                    if (kls.endsWith("I")) {
-                        kls = kls.substring(0,kls.length()-1);
-                    }
-                    if (kls.equals("Image")) {
-                        sb.append(object.getId().getValue());
-                    }
-                }
+        void outputImageOrPlateIds(IMPORT_DONE ev) {
+            String kls;
+            ListMultimap<String, Long> collect = getObjectIdMap(ev);
+            if (collect.containsKey("Plate")) {
+                kls = "Plate";
+            } else {
+                kls = "Image";
             }
-            sb.append("\n");
-            System.out.print(sb.toString());
-
+            List<Long> ids = collect.get(kls);
+            System.out.print(kls);
+            System.out.print(":");
+            System.out.println(Joiner.on(",").join(ids));
         }
     }
 }
