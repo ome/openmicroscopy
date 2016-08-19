@@ -257,6 +257,24 @@ class TestPrefs(object):
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[]')
 
+    def testAppendSet(self, capsys):
+        self.invoke("append --set A 1")
+        self.assertStdoutStderr(capsys, out='Appended A:1')
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1]')
+        self.invoke("append --set A 2")
+        self.assertStdoutStderr(capsys, out='Appended A:2')
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1, 2]')
+        self.invoke("append --set A 1")
+        self.assertStdoutStderr(capsys, out='')
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1, 2]')
+        self.invoke("append A 1")
+        self.assertStdoutStderr(capsys, out='')
+        self.invoke("get A")
+        self.assertStdoutStderr(capsys, out='[1, 2, 1]')
+
     def testRemoveIdenticalValues(self, capsys):
         self.invoke("set A [1,1]")
         self.invoke("remove A 1")
@@ -273,9 +291,15 @@ class TestPrefs(object):
             "omero.web.test": ["TEST", "[1,2,3]", json.loads],
             "omero.web.notalist": ["NOTALIST", "abc", str],
         })
+
         self.invoke("append omero.web.test 4")
         self.invoke("get omero.web.test")
         self.assertStdoutStderr(capsys, out='[1, 2, 3, 4]')
+        self.invoke("append --set omero.web.test 2")
+        self.assertStdoutStderr(capsys, out='')
+        self.invoke("get omero.web.test")
+        self.assertStdoutStderr(capsys, out='[1, 2, 3, 4]')
+
         self.invoke("append omero.web.unknown 1")
         self.invoke("get omero.web.unknown")
         self.assertStdoutStderr(capsys, out='[1]')
