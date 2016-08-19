@@ -171,6 +171,9 @@ class PrefsControl(WriteableConfigControl):
         set.add_argument(
             "VALUE", nargs="?",
             help="Value to be set. If it is missing, the key will be removed")
+        append.add_argument(
+            "--set", action="store_true",
+            help="Append only if not already in the list")
         append.add_argument("VALUE", help="Value to be appended")
         remove.add_argument("VALUE", help="Value to be removed")
 
@@ -348,13 +351,17 @@ class PrefsControl(WriteableConfigControl):
         import json
         if args.KEY in config.keys():
             list_value = self.get_list_value(args, config)
-            list_value.append(json.loads(args.VALUE))
         elif args.KEY.startswith('omero.web.'):
             list_value = self.get_omeroweb_default(args.KEY)
-            list_value.append(json.loads(args.VALUE))
         else:
-            list_value = [json.loads(args.VALUE)]
-        config[args.KEY] = json.dumps(list_value)
+            list_value = []
+        jv = json.loads(args.VALUE)
+        if not args.set or jv not in list_value:
+            list_value.append(json.loads(args.VALUE))
+            config[args.KEY] = json.dumps(list_value)
+            if args.set:
+                # Only output if --set so that user knows if it was changed
+                self.ctx.out('Appended %s:%s' % (args.KEY, args.VALUE))
 
     @with_rw_config
     def remove(self, args, config):
