@@ -92,7 +92,7 @@ class TestLogin(IWebTest):
 
     def test_guest_login(self):
         """
-        Tests that we get correct error if try to login as guest
+        Tests that we get form validation error if try to login as guest
         """
         django_client = self.django_root_client
         # test the most recent version
@@ -105,7 +105,8 @@ class TestLogin(IWebTest):
 
     def test_no_password_login(self):
         """
-        Tests that we get correct error if try to login as guest
+        Tests that we get form validation error if try to login
+        without password
         """
         django_client = self.django_root_client
         # test the most recent version
@@ -115,3 +116,33 @@ class TestLogin(IWebTest):
         rsp = _csrf_post_response_json(django_client, request_url, data,
                                        status_code=403)
         assert (rsp['message'] == "Password: This field is required.")
+
+    def test_no_username_and_server(self):
+        """
+        Tests that we get form validation error if try to login
+        without username or server. Tests concatenation of 2 errors.
+        """
+        django_client = self.django_root_client
+        # test the most recent version
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_login', kwargs={'api_version': version})
+        data = {'password': 'fake'}
+        rsp = _csrf_post_response_json(django_client, request_url, data,
+                                       status_code=403)
+        assert (rsp['message'] ==
+                "Username: This field is required. Server: This field is required.")
+
+    def test_invalid_login(self):
+        """
+        Tests that we get form validation error if try to login
+        without username or server. Tests concatenation of 2 errors.
+        """
+        django_client = self.django_root_client
+        # test the most recent version
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_login', kwargs={'api_version': version})
+        data = {'username': 'nobody', 'password': 'fake', 'server': 1}
+        rsp = _csrf_post_response_json(django_client, request_url, data,
+                                       status_code=403)
+        assert rsp['message'] == ("Connection not available, please check your"
+                                  " user name and password.")
