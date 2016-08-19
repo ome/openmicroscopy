@@ -22,7 +22,8 @@ Tests logging in with webgateway json api
 """
 
 import pytest
-from weblibrary import IWebTest, _get_response_json, _post_response_json
+from weblibrary import IWebTest, _get_response_json, _post_response_json, \
+    _csrf_post_response_json
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
 
@@ -74,7 +75,7 @@ class TestLogin(IWebTest):
         request_url = reverse('api_login', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         assert (rsp['message'] ==
-                "POST only with username, password and csrftoken")
+                "POST only with username, password, server and csrftoken")
 
     def test_login_csrf(self):
         """
@@ -88,3 +89,29 @@ class TestLogin(IWebTest):
                                   status_code=403)
         assert (rsp['message'] ==
                 "CSRF Error. You need to include 'X-CSRFToken' in header")
+
+    def test_guest_login(self):
+        """
+        Tests that we get correct error if try to login as guest
+        """
+        django_client = self.django_root_client
+        # test the most recent version
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_login', kwargs={'api_version': version})
+        data = {'username': 'guest', 'password': 'fake', 'server': 1}
+        rsp = _csrf_post_response_json(django_client, request_url, data,
+                                       status_code=403)
+        assert (rsp['message'] == "Username: Guest account is not supported.")
+
+    def test_no_password_login(self):
+        """
+        Tests that we get correct error if try to login as guest
+        """
+        django_client = self.django_root_client
+        # test the most recent version
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_login', kwargs={'api_version': version})
+        data = {'username': 'nobody', 'password': '', 'server': 1}
+        rsp = _csrf_post_response_json(django_client, request_url, data,
+                                       status_code=403)
+        assert (rsp['message'] == "Password: This field is required.")
