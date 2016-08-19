@@ -165,6 +165,9 @@ class PrefsControl(WriteableConfigControl):
         for x in [set, append, remove]:
             x.add_argument(
                 "KEY", help="Name of the key in the current profile")
+            # report is intended for use with cfg mgmt tools
+            x.add_argument("--report", action="store_true",
+                           help="Report if changes are made")
         set.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Load value from file")
@@ -320,8 +323,12 @@ class PrefsControl(WriteableConfigControl):
                 f.close()
         elif args.VALUE is None:
             del config[args.KEY]
+            if args.report:
+                self.ctx.out('Changed: Removed %s' % args.KEY)
         else:
             config[args.KEY] = args.VALUE
+            if args.report:
+                self.ctx.out('Changed: Set %s:%s' % (args.KEY, args.VALUE))
 
     def get_list_value(self, args, config):
         import json
@@ -359,9 +366,9 @@ class PrefsControl(WriteableConfigControl):
         if not args.set or jv not in list_value:
             list_value.append(json.loads(args.VALUE))
             config[args.KEY] = json.dumps(list_value)
-            if args.set:
-                # Only output if --set so that user knows if it was changed
-                self.ctx.out('Appended %s:%s' % (args.KEY, args.VALUE))
+            if args.report:
+                self.ctx.out(
+                    'Changed: Appended %s:%s' % (args.KEY, args.VALUE))
 
     @with_rw_config
     def remove(self, args, config):
@@ -379,6 +386,8 @@ class PrefsControl(WriteableConfigControl):
 
         list_value.remove(json.loads(args.VALUE))
         config[args.KEY] = json.dumps(list_value)
+        if args.report:
+            self.ctx.out('Changed: Removed %s:%s' % (args.KEY, args.VALUE))
 
     @with_config
     def keys(self, args, config):

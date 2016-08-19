@@ -243,35 +243,47 @@ class TestPrefs(object):
         with pytest.raises(NonZeroReturnCode):
             self.invoke("remove A %s" % newval)
 
-    def testAppendRemove(self, capsys):
-        self.invoke("append A 1")
+    @pytest.mark.parametrize('report', ['--report', ''])
+    def testAppendRemove(self, report, capsys):
+        self.invoke("append %s A 1" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:1')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1]')
-        self.invoke("append A \"y\"")
+        self.invoke("append %s A \"y\"" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:"y"')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1, "y"]')
-        self.invoke("remove A \"y\"")
+        self.invoke("remove %s A \"y\"" % report)
+        self.assertReportStdout(report, capsys, 'Removed A:"y"')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1]')
-        self.invoke("remove A 1")
+        self.invoke("remove %s A 1" % report)
+        self.assertReportStdout(report, capsys, 'Removed A:1')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[]')
 
-    def testAppendSet(self, capsys):
-        self.invoke("append --set A 1")
-        self.assertStdoutStderr(capsys, out='Appended A:1')
+    def assertReportStdout(self, report, capsys, out):
+        if report and out:
+            self.assertStdoutStderr(capsys, out='Changed: %s' % out)
+        else:
+            self.assertStdoutStderr(capsys, out='')
+
+    @pytest.mark.parametrize('report', ['--report', ''])
+    def testAppendSet(self, report, capsys):
+        self.invoke("append %s --set A 1" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:1')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1]')
-        self.invoke("append --set A 2")
-        self.assertStdoutStderr(capsys, out='Appended A:2')
+        self.invoke("append %s --set A 2" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:2')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1, 2]')
-        self.invoke("append --set A 1")
-        self.assertStdoutStderr(capsys, out='')
+        self.invoke("append %s --set A 1" % report)
+        self.assertReportStdout(report, capsys, '')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1, 2]')
-        self.invoke("append A 1")
-        self.assertStdoutStderr(capsys, out='')
+        self.invoke("append %s A 1" % report)
+        self.assertReportStdout(report, capsys, 'Appended A:1')
         self.invoke("get A")
         self.assertStdoutStderr(capsys, out='[1, 2, 1]')
 
