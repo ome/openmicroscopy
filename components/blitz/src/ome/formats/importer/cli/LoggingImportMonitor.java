@@ -193,39 +193,6 @@ public class LoggingImportMonitor implements IObserver
         }
 
         /**
-         * Displays a list of successfully imported Pixels IDs on standard
-         * output.
-         *
-         * Note that this behavior is intended for other command line tools to
-         * pipe/grep the import results, and should be kept as is.
-         *
-         * @param ev the end of import event.
-         */
-        void outputGreppableResults(IMPORT_DONE ev) {
-            System.err.println("Imported pixels:");
-            for (Pixels p : ev.pixels) {
-                System.out.println(p.getId().getValue());
-            }
-
-            System.err.println("Other imported objects:");
-            System.err.print("Fileset:");
-            System.err.println(ev.fileset.getId().getValue());
-            for (IObject object : ev.objects) {
-                if (object != null && object.getId() != null) {
-                    // Not printing to stdout since the contract at the moment
-                    // is that only pixel IDs hit stdout.
-                    String kls = object.getClass().getSimpleName();
-                    if (kls.endsWith("I")) {
-                        kls = kls.substring(0,kls.length()-1);
-                    }
-                    System.err.print(kls);
-                    System.err.print(":");
-                    System.err.println(object.getId().getValue());
-                }
-            }
-        }
-
-        /**
          * Returns a ListMultimap containing the class names and IDs of
          * the imported objects
          *
@@ -244,6 +211,35 @@ public class LoggingImportMonitor implements IObserver
                 }
             }
             return collect;
+        }
+
+        /**
+         * Displays a list of successfully imported Pixels IDs on standard
+         * output.
+         *
+         * Note that this behavior is intended for other command line tools to
+         * pipe/grep the import results, and should be kept as is.
+         *
+         * @param ev the end of import event.
+         */
+        void outputGreppableResults(IMPORT_DONE ev) {
+            System.err.println("Imported pixels:");
+            for (Pixels p : ev.pixels) {
+                System.out.println(p.getId().getValue());
+            }
+
+            System.err.println("Other imported objects:");
+            System.err.print("Fileset:");
+            System.err.println(ev.fileset.getId().getValue());
+            ListMultimap<String, Long> collect = getObjectIdMap(ev);
+            for (String kls : collect.keySet()) {
+                List<Long> ids = collect.get(kls);
+                for (Long id : ids) {
+                    System.err.print(kls);
+                    System.err.print(":");
+                    System.err.println(id);
+                }
+            }
         }
 
         /**
