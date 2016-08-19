@@ -1140,7 +1140,7 @@ OMERO Diagnostics %s
                 if not p.exists():
                     self.ctx.out("n/a")
                 else:
-                    warn_regex = '(-! )?[\d\-/]+\s+[\d:,.]+\s+warn(ing:)?\s'
+                    warn_regex = '(-! )?[\d\-/]+\s+[\d:,.]+\s+warn(i(ng:)?)?\s'
                     err_regex = '(-! )?[\d\-/]+\s+[\d:,.]+\s+error:?\s'
                     warn = 0
                     err = 0
