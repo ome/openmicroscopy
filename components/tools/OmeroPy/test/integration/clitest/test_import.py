@@ -129,6 +129,8 @@ class TestImport(CLITest):
         self.add_client_dir()
 
     def do_import(self, capfd):
+        # Temporary fix to pass current tests by getting legacy output
+        self.args += ["--output", "legacy"]
         try:
             self.cli.invoke(self.args, strict=True)
         except NonZeroReturnCode:
