@@ -2582,7 +2582,7 @@ class LoginView(View):
     useragent = 'OMERO.webapi'
 
     def get(self, request, *args, **kwargs):
-        return {"message": "POST only with username, password and csrftoken"}
+        return {"message": "POST only with username, password, server and csrftoken"}
 
     def _handleLoggedIn(self, request, conn, connector, *args, **kwargs):
         """ Returns a response for successful login """
@@ -2595,8 +2595,23 @@ class LoginView(View):
                 ctx[a] = getattr(c, a)
         return {"success": True, "eventContext": ctx}
 
-    def _handleNotLoggedIn(self, request, error, **kwargs):
-        """ Returns a response for failed login """
+    def _handleNotLoggedIn(self, request, error, form, **kwargs):
+        """
+        Returns a response for failed login.
+        Reason for failure may be due to server 'error' or because
+        of form validation errors.
+
+        @param request:     http request
+        @param error:       Error message
+        @param form:        Instance of Login Form, populated with data
+        """
+        if error is None:
+            # If no error from server, maybe form wasn't valid
+            formErrors = []
+            for field in form:
+                for e in field.errors:
+                    formErrors.append("%s: %s" % (field.label, e))
+            error = " ".join(formErrors)
         # Since @jsonp decorator can't return a 403,
         # we do it manually. NB: this won't return jsonp 'callback()'
         return JsonResponseForbidden({"message": error})
@@ -2643,7 +2658,8 @@ class LoginView(View):
                         error = "This user is not active."
                         return self._handleNotLoggedIn(self, request, error,
                                                        **kwargs)
-
+            # Once here, we are not logged in...
+            # Need correct error message
             if not connector.is_server_up(self.useragent):
                 error = ("Server is not responding,"
                          " please contact administrator.")
@@ -2657,7 +2673,7 @@ class LoginView(View):
                 else:
                     error = ("Connection not available, please check your"
                              " user name and password.")
-        return self._handleNotLoggedIn(request, error, *args, **kwargs)
+        return self._handleNotLoggedIn(request, error, form, *args, **kwargs)
 
 
 class ProjectView(View):

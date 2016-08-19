@@ -222,14 +222,23 @@ class WebclientLoginView(webgateway_views.LoginView):
                 url = reverse("webindex")
         return HttpResponseRedirect(url)
 
-    def _handleNotLoggedIn(self, request, error=None, **kwargs):
+    def _handleNotLoggedIn(self, request, error=None, form=None, **kwargs):
+        """
+        Returns a response for failed login.
+        Reason for failure may be due to server 'error' or because
+        of form validation errors.
 
-        server_id = request.GET.get('server', request.POST.get('server'))
-        if server_id is not None:
-            initial = {'server': unicode(server_id)}
-            form = LoginForm(initial=initial)
-        else:
-            form = LoginForm()
+        @param request:     http request
+        @param error:       Error message
+        @param form:        Instance of Login Form, populated with data
+        """
+        if form is None:
+            server_id = request.GET.get('server', request.POST.get('server'))
+            if server_id is not None:
+                initial = {'server': unicode(server_id)}
+                form = LoginForm(initial=initial)
+            else:
+                form = LoginForm()
         context = {
             'version': omero_version,
             'build_year': build_year,
