@@ -351,8 +351,7 @@ public class Renderer {
 
         // Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd
-                .getCdEnd().intValue(), rndDef.<ome.model.display.CodomainMapContext>
-                collectSpatialDomainEnhancement(null));
+                .getCdEnd().intValue(), null);
 
         // Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
@@ -704,12 +703,14 @@ public class Renderer {
         qd.setCdStart(Integer.valueOf(start));
         qd.setCdEnd(Integer.valueOf(end));
         ome.model.display.CodomainMapContext mapCtx;
+        /*
         Iterator<ome.model.display.CodomainMapContext> i = rd.iterateSpatialDomainEnhancement();
         while (i.hasNext()) {
             mapCtx = i.next();
             throw new UnsupportedOperationException("BROKEN");
             // XXX What is supposed to happen here? mapCtx.setCodomain(start, end);
         }
+        */
         //need to rebuild the look up table
         updateQuantumManager();
     }
