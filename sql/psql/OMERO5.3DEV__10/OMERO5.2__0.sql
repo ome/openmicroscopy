@@ -1865,6 +1865,15 @@ CREATE INDEX experimenter_config_value ON experimenter_config(value);
 
 ALTER TABLE projectiondef ADD stepping positive_int;
 
+-- ... up to patch 10:
+
+ALTER TABLE codomainmapcontext 
+    ADD CONSTRAINT FKcodomainmapcontext_channelBinding_channelbinding 
+    FOREIGN KEY (channelBinding) 
+    REFERENCES channelbinding  ;;
+
+ALTER TABLE codomainmapcontext 
+    DROP FOREIGN KEY (renderingDef)
 --
 -- FINISHED
 --

@@ -54,7 +54,13 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.3DEV',  10,            'OMERO5.3DEV',   9);
 
-ALTER TABLE projectiondef ADD stepping positive_int;
+ALTER TABLE codomainmapcontext 
+    ADD CONSTRAINT FKcodomainmapcontext_channelBinding_channelbinding 
+    FOREIGN KEY (channelBinding) 
+    REFERENCES channelbinding  ;;
+
+ALTER TABLE codomainmapcontext 
+    DROP FOREIGN KEY (renderingDef)
 
 --
 -- FINISHED
