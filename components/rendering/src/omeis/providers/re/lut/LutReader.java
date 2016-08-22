@@ -30,7 +30,7 @@ import java.io.File;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 5.3
  */
-abstract class LutReader {
+public abstract class LutReader {
 
     /** The size of the color interval.*/
     static final int SIZE = 256;
@@ -67,4 +67,38 @@ abstract class LutReader {
      */
     abstract int read()
             throws Exception;
+
+    /**
+     * Returns the red value.
+     *
+     * @param value The value to handle.
+     * @return See above
+     */
+    public byte getRed(int value)
+    {
+        return reds[value];
+    }
+
+    /**
+     * Returns the green value.
+     *
+     * @param value The value to handle.
+     * @return See above
+     */
+    public byte getGreen(int value)
+    {
+        return greens[value];
+    }
+
+    /**
+     * Returns the blue value.
+     *
+     * @param value The value to handle.
+     * @return See above
+     */
+    public byte getBlue(int value)
+    {
+        return blues[value];
+    }
+
 }

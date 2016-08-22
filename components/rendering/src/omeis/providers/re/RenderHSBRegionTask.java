@@ -1,7 +1,5 @@
 /*
- * omeis.providers.re.RenderHSBWaveTask
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -15,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import ome.util.PixelData;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
-import omeis.providers.re.lut.LutReaderFactory;
+import omeis.providers.re.lut.LutReader;
 import omeis.providers.re.quantum.BinaryMaskQuantizer;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -70,7 +68,7 @@ class RenderHSBRegionTask implements RenderingTask {
     private Optimizations optimizations;
 
     /** The collection of readers.*/
-    private List<LutReaderFactory> readers;
+    private List<LutReader> readers;
 
     /**
      * Creates a new instance to render a wavelength.
@@ -100,7 +98,7 @@ class RenderHSBRegionTask implements RenderingTask {
             List<QuantumStrategy> strategies, CodomainChain cc,
             List<int[]> colors, Optimizations optimizations,
             int x1Start, int x1End, int x2Start, int x2End,
-            List<LutReaderFactory> readers) {
+            List<LutReader> readers) {
         this.dataBuffer = dataBuffer;
         this.wData = wData;
         this.strategies = strategies;
@@ -149,7 +147,7 @@ class RenderHSBRegionTask implements RenderingTask {
         byte[] r = dataBuffer.getRedBand();
         byte[] g = dataBuffer.getGreenBand();
         byte[] b = dataBuffer.getBlueBand();
-        LutReaderFactory reader;
+        LutReader reader;
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             reader = readers.get(i);
@@ -226,7 +224,7 @@ class RenderHSBRegionTask implements RenderingTask {
         int[] buf = ((RGBIntBuffer) dataBuffer).getDataBuffer();
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
-        LutReaderFactory reader;
+        LutReader reader;
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             reader = readers.get(i);
@@ -370,7 +368,7 @@ class RenderHSBRegionTask implements RenderingTask {
         int[] buf = ((RGBAIntBuffer) dataBuffer).getDataBuffer();
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
-        LutReaderFactory reader;
+        LutReader reader;
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             reader = readers.get(i);

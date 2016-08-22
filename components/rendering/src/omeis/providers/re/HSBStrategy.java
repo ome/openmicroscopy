@@ -1,7 +1,5 @@
 /*
- * omeis.providers.re.HSBStrategy
- *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -25,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
-import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
@@ -35,6 +32,7 @@ import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.lut.LutReader;
 import omeis.providers.re.lut.LutReaderFactory;
 import omeis.providers.re.quantum.BinaryMaskQuantizer;
 import omeis.providers.re.quantum.QuantizationException;
@@ -145,7 +143,7 @@ class HSBStrategy extends RenderingStrategy {
      * @param luts The collection of supported LUT.
      * @return See above.
      */
-    private LutReaderFactory initReader(String name, List<File> luts)
+    private LutReader initReader(String name, List<File> luts)
     {
         Iterator<File> i = luts.iterator();
         if (name != null) {
@@ -157,14 +155,12 @@ class HSBStrategy extends RenderingStrategy {
             lutName = lutName.toLowerCase();
             if (lutName.equals(name) ||
                     FilenameUtils.getBaseName(lutName).equals(name)) {
-                LutReaderFactory reader = new LutReaderFactory(f);
                 try {
-                    reader.read();
+                    return LutReaderFactory.read(f);
                 } catch (Exception e) {
                     log.debug("cannot read lut "+f.getName(), e);
-                    reader = null;
                 }
-                return reader;
+                return null;
             }
         }
         return null;
@@ -175,11 +171,11 @@ class HSBStrategy extends RenderingStrategy {
      *
      * @return See above.
      */
-    private List<LutReaderFactory> getLutReaders()
+    private List<LutReader> getLutReaders()
     {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
         List<File> luts = renderer.getAllLuts();
-        List<LutReaderFactory> l = new ArrayList<LutReaderFactory>();
+        List<LutReader> l = new ArrayList<LutReader>();
         for (int w = 0; w < channelBindings.length; w++) {
             ChannelBinding cb = channelBindings[w];
             if (cb.getActive()) {
@@ -271,7 +267,7 @@ class HSBStrategy extends RenderingStrategy {
         //RenderingStats performanceStats = renderer.getStats();
         List<Plane2D> wData = getWavelengthData(def);
         List<int[]> colors = getColors();
-        List<LutReaderFactory> readers = getLutReaders();
+        List<LutReader> readers = getLutReaders();
         List<QuantumStrategy> strategies = getStrategies();
         // Create a number of rendering tasks.
         int taskCount = numTasks(sizeX2);

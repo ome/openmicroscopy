@@ -31,37 +31,26 @@ import java.io.File;
  */
 public class LutReaderFactory {
 
-    /** The file to read. */
-    private File file;
-
-    /** The reader used.*/
-    private LutReader reader;
-
     /**
-     * Creates a new instance.
-     *
-     * @param filePath The path to the file.
-     * @param fileName The name of the file.
-     */
-    public LutReaderFactory(String filePath, String fileName)
-    {
-        file = new File(filePath, fileName);
-    }
-
-    /**
-     * Creates a new instance.
+     * Reads the specified file.
      *
      * @param file The file to read.
      */
-    public LutReaderFactory(File file)
-    {
-        this.file = file;
-    }
-
-    /** Reads the file.*/
-    public void read()
+    public static LutReader read(String filePath, String fileName)
         throws Exception
     {
+        return LutReaderFactory.read(new File(filePath, fileName));
+    }
+
+    /**
+     * Reads the specified file.
+     *
+     * @param file The file to read.
+     */
+    public static LutReader read(File file)
+        throws Exception
+    {
+        LutReader reader = null;
         long length = file.length();
         int size = 0;
         if (length > 768) { // attempt to read NIH Image LUT
@@ -77,42 +66,7 @@ public class LutReaderFactory {
             reader = new TextLutReader(file);
             size = reader.read();
         }
-        if (size == 0) {
-            throw new Exception("Cannot read the lookup table.");
-        }
-    }
-
-    /**
-     * Returns the red value.
-     *
-     * @param value The value to handle.
-     * @return See above
-     */
-    public byte getRed(int value)
-    {
-        return reader.reds[value];
-    }
-
-    /**
-     * Returns the green value.
-     *
-     * @param value The value to handle.
-     * @return See above
-     */
-    public byte getGreen(int value)
-    {
-        return reader.greens[value];
-    }
-
-    /**
-     * Returns the blue value.
-     *
-     * @param value The value to handle.
-     * @return See above
-     */
-    public byte getBlue(int value)
-    {
-        return reader.blues[value];
+        return reader;
     }
 
 }
