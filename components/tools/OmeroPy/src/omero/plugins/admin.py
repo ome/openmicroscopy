@@ -1141,7 +1141,7 @@ OMERO Diagnostics %s
                     self.ctx.out("n/a")
                 else:
                     warn_regex = '(-! )?[\d\-/]+\s+[\d:,.]+\s+warn(i(ng:)?)?\s'
-                    err_regex = '(-! )?[\d\-/]+\s+[\d:,.]+\s+error:?\s'
+                    err_regex = '(!! )?[\d\-/]+\s+[\d:,.]+\s+error:?\s'
                     warn = 0
                     err = 0
                     for l in p.lines():
