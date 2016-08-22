@@ -46,12 +46,14 @@ public class LookupTableIconUtil {
     private static String[] LUTS = new String[] { "16_colors.lut",
             "3-3-2_rgb.lut", "5_ramps.lut", "6_shades.lut",
             "blue_orange_icb.lut", "brgbcmyw.lut", "cool.lut", "cyan_hot.lut",
-            "edges.lut", "fire.lut", "gem.lut", "grays.lut",
+            "edges.lut", "fire.lut", "gem.lut", "glasbey.lut",
+            "glasbey_inverted.lut", "glow.lut", "grays.lut",
             "green_fire_blue.lut", "hilo.lut", "ica.lut", "ica2.lut",
             "ica3.lut", "ice.lut", "magenta_hot.lut", "orange_hot.lut",
-            "phase.lut", "rainbow_rgb.lut", "red-green.lut", "red_hot.lut",
-            "royal.lut", "sepia.lut", "smart.lut", "spectrum.lut", "thal.lut",
-            "thallium.lut", "unionjack.lut", "yellow_hot.lut" };
+            "phase.lut", "physics.lut", "rainbow_rgb.lut", "red-green.lut",
+            "red_hot.lut", "royal.lut", "sepia.lut", "smart.lut",
+            "spectrum.lut", "thal.lut", "thallium.lut", "thermal.lut",
+            "unionjack.lut", "yellow_hot.lut" };
 
     /**
      * Get the LUT icon for the given LUT filename, scaled to the specified
