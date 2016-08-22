@@ -182,8 +182,6 @@ public class ThumbnailBean extends AbstractLevel2Service
     private transient boolean wasPassivated = false;
 
     private final ScriptRepoHelper helper;
-    /** default constructor */
-    //public ThumbnailBean() {}
 
     /**
      * overridden to allow Spring to set boolean
