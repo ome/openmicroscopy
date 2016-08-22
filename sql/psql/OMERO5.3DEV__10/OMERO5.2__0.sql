@@ -1867,13 +1867,52 @@ ALTER TABLE projectiondef ADD stepping positive_int;
 
 -- ... up to patch 10:
 
-ALTER TABLE codomainmapcontext 
-    ADD FKcodomainmapcontext_channelBinding_channelbinding 
-    FOREIGN KEY (channelBinding) 
-    REFERENCES channelbinding  ;;
+ALTER TABLE codomainmapcontext DROP CONSTRAINT FKcodomainmapcontext_renderingDef_renderingdef;
+ALTER TABLE codomainmapcontext DROP renderingdef;
+ALTER TABLE codomainmapcontext DROP renderingdef_index;
 
-ALTER TABLE codomainmapcontext 
-    DROP FOREIGN KEY (renderingDef)
+DROP TRIGGER codomainmapcontext_renderingDef_index_trigger ON codomainmapcontext;
+DROP FUNCTION codomainmapcontext_renderingDef_index_move();
+
+ALTER TABLE codomainmapcontext ADD channelBinding int8;
+ALTER TABLE codomainmapcontext ADD channelBinding_index int4;
+
+ALTER TABLE codomainmapcontext
+ADD CONSTRAINT FKcodomainmapcontext_channelBinding_channelbinding
+FOREIGN KEY (channelBinding)
+REFERENCES channelbinding;
+
+CREATE OR REPLACE FUNCTION codomainmapcontext_channelBinding_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.channelBinding = old.channelBinding AND new.channelBinding_index = old.channelBinding_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM codomainmapcontext
+       WHERE channelBinding = new.channelBinding AND channelBinding_index = new.channelBinding_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping codomainmapcontext %% via (-1 - oldvalue )'', duplicate;
+          UPDATE codomainmapcontext SET channelBinding_index = -1 - channelBinding_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+CREATE TRIGGER codomainmapcontext_channelBinding_index_trigger
+    BEFORE UPDATE ON codomainmapcontext
+    FOR EACH ROW EXECUTE PROCEDURE codomainmapcontext_channelBinding_index_move ();
+
+CREATE INDEX i_CodomainMapContext_channelBinding ON codomainmapcontext(channelBinding);
+
 --
 -- FINISHED
 --
