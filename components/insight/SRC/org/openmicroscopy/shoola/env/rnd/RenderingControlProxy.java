@@ -65,6 +65,7 @@ import omero.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPickerUtil;
 
 import omero.gateway.model.ChannelData;
 import omero.gateway.model.ExperimenterData;
@@ -1857,8 +1858,9 @@ class RenderingControlProxy
 				return false;
 			if (channel.isNoiseReduction() != getChannelNoiseReduction(i))
 				return false;
-			if (channel.getLookupTable() != getLookupTable(i))
-			    return false;
+            if (!ColourPickerUtil.sameLookuptable(channel.getLookupTable(),
+                    getLookupTable(i)))
+                return false;
 			rgba = channel.getRGBA();
 			color = getRGBA(i);
 			if (rgba[0] != color.getRed()) return false;
