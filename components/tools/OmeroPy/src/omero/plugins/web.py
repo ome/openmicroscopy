@@ -26,6 +26,9 @@ HELP = "OMERO.web configuration/deployment tools"
 if platform.system() == 'Windows':
     HELP += ("\n\n%s" % WINDOWS_WARNING)
 
+if not py27_only():
+    HELP += ("\n\nERROR: %s" % PYTHON_WARNING)
+
 LONGHELP = """OMERO.web configuration/deployment tools
 
 Configuration:
