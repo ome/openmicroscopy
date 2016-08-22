@@ -223,7 +223,7 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
     List<AnnotationData> getAnnotationsToSave() {
         // Edits are saved instantly and there's no way to create
         // "other" annotations, so it's safe to just return an empty list.
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override

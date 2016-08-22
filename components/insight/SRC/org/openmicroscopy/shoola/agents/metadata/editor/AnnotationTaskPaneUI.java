@@ -191,7 +191,7 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
      * Get the toolbar buttons; override this method if a toolbar is needed
      */
     List<JButton> getToolbarButtons() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**

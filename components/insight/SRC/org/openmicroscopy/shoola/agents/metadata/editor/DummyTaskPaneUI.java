@@ -67,12 +67,12 @@ public class DummyTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     List<AnnotationData> getAnnotationsToSave() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
     List<Object> getAnnotationsToRemove() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
