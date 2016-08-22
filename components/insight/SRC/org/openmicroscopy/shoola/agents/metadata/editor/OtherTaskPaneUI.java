@@ -308,6 +308,13 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
     void onRelatedNodesSet() {
         removeButton.setEnabled(model.canAddAnnotationLink());
     }
-    
-    
+
+    @Override
+    int getUnfilteredAnnotationCount() {
+        if (model.isMultiSelection()) {
+            return model.getAllOtherAnnotations().size();
+        } else {
+            return model.getOtherAnnotations().size();
+        }
+    }
 }

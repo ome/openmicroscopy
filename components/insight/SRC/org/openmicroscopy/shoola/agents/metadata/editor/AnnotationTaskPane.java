@@ -1,7 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,6 +27,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
 import omero.gateway.model.AnnotationData;
+
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
@@ -188,6 +188,7 @@ public class AnnotationTaskPane extends JXTaskPane {
      */
     void refreshUI() {
         ui.refreshUI();
+        setAnnotationCount(ui.getUnfilteredAnnotationCount());
     }
 
     /**
