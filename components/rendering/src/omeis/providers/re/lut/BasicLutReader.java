@@ -32,6 +32,7 @@ import java.io.File;
  */
 abstract class BasicLutReader {
 
+    /** The size of the color interval.*/
     static final int SIZE = 256;
 
     /** Holds the red values.*/
@@ -43,14 +44,27 @@ abstract class BasicLutReader {
     /** Holds the blues values.*/
     protected byte[] blues = new byte[SIZE];
 
+    /** The file to read.*/
+    protected File file;
+
+    /** Flag indicating to read 32 byte NIH Image LUT header.*/
+    protected boolean raw;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param file The file to read.
+     */
+    BasicLutReader(File file)
+    {
+        this.file = file;
+    }
+
     /**
      * Reads the lookup table.
-     *
-     * @param f The lookup table.
-     * @param raw Identifies the lookup table. This is only used for Binary lut.
      * @return See above.
      * @throws Exception Throw if the file cannot be read.
      */
-    abstract int read(File f, boolean raw)
+    abstract int read()
             throws Exception;
 }

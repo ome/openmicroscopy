@@ -62,10 +62,32 @@ class BinaryLutReader
     }
 
     /**
+     * Creates a new instance.
+     *
+     * @param file The file to read.
+     */
+    BinaryLutReader(File file)
+    {
+        super(file);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param file The file to read.
+     * @param raw Set the flag indicating to read or not NIH lut.
+     */
+    BinaryLutReader(File file, boolean raw)
+    {
+        super(file);
+        this.raw = raw;
+    }
+
+    /**
      * Reads the binary lut.
      */
     @Override
-    int read(File file, boolean raw) throws Exception {
+    int read() throws Exception {
         InputStream is = new FileInputStream(file.getAbsolutePath());
         DataInputStream f = new DataInputStream(is);
         int nColors = SIZE;

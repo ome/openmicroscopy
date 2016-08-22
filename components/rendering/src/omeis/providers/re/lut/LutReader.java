@@ -65,17 +65,17 @@ public class LutReader {
         long length = file.length();
         int size = 0;
         if (length > 768) { // attempt to read NIH Image LUT
-            reader = new BinaryLutReader();
-            size = reader.read(file, false);
+            reader = new BinaryLutReader(file);
+            size = reader.read();
         }
         //read raw lut
         if (size == 0 && (length == 0 || length == 768 || length == 970)) {
-            reader = new BinaryLutReader();
-            size = reader.read(file, true);
+            reader = new BinaryLutReader(file, true);
+            size = reader.read();
         }
         if (size == 0 && length > 768) {
-            reader = new TextLutReader();
-            size = reader.read(file, true);//the boolean flag is not taken into account
+            reader = new TextLutReader(file);
+            size = reader.read();
         }
         if (size == 0) {
             throw new Exception("Cannot read the lookup table.");

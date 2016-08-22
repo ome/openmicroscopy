@@ -134,8 +134,9 @@ class TextLutReader
     }
 
     /** Creates a new instance.*/
-    TextLutReader()
+    TextLutReader(File f)
     {
+        super(f);
         rows = 0;
         columns = 1;
     }
@@ -165,7 +166,7 @@ class TextLutReader
      * Reads the file. The <code>raw</code> flag is not used.
      */
     @Override
-    int read(File file, boolean raw) throws Exception {
+    int read() throws Exception {
         String path = file.getAbsolutePath();
         Reader r = new BufferedReader(new FileReader(path));
         countLines(r);
