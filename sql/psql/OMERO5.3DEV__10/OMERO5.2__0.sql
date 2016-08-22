@@ -1868,7 +1868,7 @@ ALTER TABLE projectiondef ADD stepping positive_int;
 -- ... up to patch 10:
 
 ALTER TABLE codomainmapcontext 
-    ADD CONSTRAINT FKcodomainmapcontext_channelBinding_channelbinding 
+    ADD FKcodomainmapcontext_channelBinding_channelbinding 
     FOREIGN KEY (channelBinding) 
     REFERENCES channelbinding  ;;
 

@@ -55,7 +55,7 @@ INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatc
              VALUES ('OMERO5.3DEV',  10,            'OMERO5.3DEV',   9);
 
 ALTER TABLE codomainmapcontext 
-    ADD CONSTRAINT FKcodomainmapcontext_channelBinding_channelbinding 
+    ADD FKcodomainmapcontext_channelBinding_channelbinding 
     FOREIGN KEY (channelBinding) 
     REFERENCES channelbinding  ;;
 
