@@ -72,6 +72,7 @@
 			<required name="active" type="boolean"/>
 			<optional name="startPlane" type="NonNegativeInteger"/>
 			<optional name="endPlane" type="NonNegativeInteger"/>
+			<optional name="stepping" type="PositiveInteger"/>
 		</properties>
 	</type>
 

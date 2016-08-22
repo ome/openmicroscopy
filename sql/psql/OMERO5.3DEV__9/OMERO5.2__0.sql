@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__8.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__9.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  8,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  9,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1861,6 +1861,9 @@ CREATE TRIGGER experimenter_config_map_entry_delete_trigger
 CREATE INDEX experimenter_config_name ON experimenter_config(name);
 CREATE INDEX experimenter_config_value ON experimenter_config(value);
 
+-- ... up to patch 9:
+
+ALTER TABLE projectiondef ADD stepping positive_int;
 
 --
 -- FINISHED
@@ -1868,7 +1871,7 @@ CREATE INDEX experimenter_config_value ON experimenter_config(value);
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 8             AND
+          currentPatch    = 9             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
