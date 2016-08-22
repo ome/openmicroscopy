@@ -19,6 +19,7 @@ from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
+from omero.install.python_warning import py27_only, PYTHON_WARNING
 
 HELP = "OMERO.web configuration/deployment tools"
 
@@ -65,20 +66,13 @@ APACHE_MOD_WSGI_ERR = ("[ERROR] You are deploying OMERO.web using Apache and"
                        " a request.")
 
 
-def py27_only():
-    if sys.version_info < (2, 7) or sys.version_info >= (2, 8):
-        return False
-    return True
-
-
 def config_required(func):
     """Decorator validating Django dependencies and omeroweb/settings.py"""
     def import_django_settings(func):
         @windows_warning
         def wrapper(self, *args, **kwargs):
             if not py27_only():
-                self.ctx.die(681, "ERROR: Python version %s is not "
-                                  "supported!" % platform.python_version())
+                self.ctx.die(681, "ERROR: %s" % PYTHON_WARNING)
             try:
                 import django  # NOQA
             except:
