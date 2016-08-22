@@ -36,7 +36,7 @@ import java.io.StreamTokenizer;
  * @since 5.3
  */
 class TextLutReader
-    extends BasicLutReader
+    extends LutReader
 {
 
     /** Number of rows and columns composing the file.*/

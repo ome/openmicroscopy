@@ -23,96 +23,48 @@ package omeis.providers.re.lut;
 
 import java.io.File;
 
+
 /**
- * Initializes the reader corresponding to the specified lookup table.
+ * Class to be extended by LUT reader.
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 5.3
  */
-public class LutReader {
+abstract class LutReader {
 
-    /** The file to read. */
-    private File file;
+    /** The size of the color interval.*/
+    static final int SIZE = 256;
 
-    /** The reader used.*/
-    private BasicLutReader reader;
+    /** Holds the red values.*/
+    protected byte[] reds = new byte[SIZE];
 
-    /**
-     * Creates a new instance.
-     *
-     * @param filePath The path to the file.
-     * @param fileName The name of the file.
-     */
-    public LutReader(String filePath, String fileName)
-    {
-        file = new File(filePath, fileName);
-    }
+    /** Holds the green values.*/
+    protected byte[] greens = new byte[SIZE];
+
+    /** Holds the blues values.*/
+    protected byte[] blues = new byte[SIZE];
+
+    /** The file to read.*/
+    protected File file;
+
+    /** Flag indicating to read 32 byte NIH Image LUT header.*/
+    protected boolean raw;
 
     /**
      * Creates a new instance.
      *
      * @param file The file to read.
      */
-    public LutReader(File file)
+    LutReader(File file)
     {
         this.file = file;
     }
 
-    /** Reads the file.*/
-    public void read()
-        throws Exception
-    {
-        long length = file.length();
-        int size = 0;
-        if (length > 768) { // attempt to read NIH Image LUT
-            reader = new BinaryLutReader(file);
-            size = reader.read();
-        }
-        //read raw lut
-        if (size == 0 && (length == 0 || length == 768 || length == 970)) {
-            reader = new BinaryLutReader(file, true);
-            size = reader.read();
-        }
-        if (size == 0 && length > 768) {
-            reader = new TextLutReader(file);
-            size = reader.read();
-        }
-        if (size == 0) {
-            throw new Exception("Cannot read the lookup table.");
-        }
-    }
-
     /**
-     * Returns the red value.
-     *
-     * @param value The value to handle.
-     * @return See above
+     * Reads the lookup table.
+     * @return See above.
+     * @throws Exception Throw if the file cannot be read.
      */
-    public byte getRed(int value)
-    {
-        return reader.reds[value];
-    }
-
-    /**
-     * Returns the green value.
-     *
-     * @param value The value to handle.
-     * @return See above
-     */
-    public byte getGreen(int value)
-    {
-        return reader.greens[value];
-    }
-
-    /**
-     * Returns the blue value.
-     *
-     * @param value The value to handle.
-     * @return See above
-     */
-    public byte getBlue(int value)
-    {
-        return reader.blues[value];
-    }
-
+    abstract int read()
+            throws Exception;
 }

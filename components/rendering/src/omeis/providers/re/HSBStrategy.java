@@ -35,7 +35,7 @@ import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.lut.LutReader;
+import omeis.providers.re.lut.LutReaderFactory;
 import omeis.providers.re.quantum.BinaryMaskQuantizer;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -145,7 +145,7 @@ class HSBStrategy extends RenderingStrategy {
      * @param luts The collection of supported LUT.
      * @return See above.
      */
-    private LutReader initReader(String name, List<File> luts)
+    private LutReaderFactory initReader(String name, List<File> luts)
     {
         Iterator<File> i = luts.iterator();
         if (name != null) {
@@ -157,7 +157,7 @@ class HSBStrategy extends RenderingStrategy {
             lutName = lutName.toLowerCase();
             if (lutName.equals(name) ||
                     FilenameUtils.getBaseName(lutName).equals(name)) {
-                LutReader reader = new LutReader(f);
+                LutReaderFactory reader = new LutReaderFactory(f);
                 try {
                     reader.read();
                 } catch (Exception e) {
@@ -175,11 +175,11 @@ class HSBStrategy extends RenderingStrategy {
      *
      * @return See above.
      */
-    private List<LutReader> getLutReaders()
+    private List<LutReaderFactory> getLutReaders()
     {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
         List<File> luts = renderer.getAllLuts();
-        List<LutReader> l = new ArrayList<LutReader>();
+        List<LutReaderFactory> l = new ArrayList<LutReaderFactory>();
         for (int w = 0; w < channelBindings.length; w++) {
             ChannelBinding cb = channelBindings[w];
             if (cb.getActive()) {
@@ -271,7 +271,7 @@ class HSBStrategy extends RenderingStrategy {
         //RenderingStats performanceStats = renderer.getStats();
         List<Plane2D> wData = getWavelengthData(def);
         List<int[]> colors = getColors();
-        List<LutReader> readers = getLutReaders();
+        List<LutReaderFactory> readers = getLutReaders();
         List<QuantumStrategy> strategies = getStrategies();
         // Create a number of rendering tasks.
         int taskCount = numTasks(sizeX2);

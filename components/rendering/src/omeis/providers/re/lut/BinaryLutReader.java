@@ -34,7 +34,7 @@ import java.io.InputStream;
  * @since 5.3
  */
 class BinaryLutReader
-    extends BasicLutReader
+    extends LutReader
 {
 
     private void interpolate(byte[] reds, byte[] greens, byte[] blues, int nColors) {
