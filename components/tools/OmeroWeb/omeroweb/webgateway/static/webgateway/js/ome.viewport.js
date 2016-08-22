@@ -898,7 +898,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     for (var i=0; i<e1.channels.length; i++) {
       if (!(e1.channels[i].active == e2.channels[i].active &&
-            OME.rgbToHex(e1.channels[i].color) == OME.rgbToHex(e2.channels[i].color) &&
+            e1.channels[i].color == e2.channels[i].color &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
             e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
             e1.channels[i].metalabel == e2.channels[i].metalabel)) {
@@ -914,7 +914,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     var channels = _this.loadedImg.channels;
     for (i=0; i<channels.length; i++) {
       var channel = {active: channels[i].active,
-                     color: toRGB(channels[i].color),
+                     color: channels[i].color,
                      windowStart: channels[i].window.start,
                      windowEnd: channels[i].window.end,
                      metalabel: channels[i].metalabel};
