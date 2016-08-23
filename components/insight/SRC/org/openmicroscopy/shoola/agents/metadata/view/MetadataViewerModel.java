@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1059,10 +1059,16 @@ class MetadataViewerModel
 			ids.add(((ExperimenterData) i.next()).getId());
 		}
 		if (ids.size() == 0) return;
+		
+        Integer lId = getLoaderID(ThumbnailLoader.class);
+        if (lId != null) {
+            cancel(lId);
+        }
+		
 		loaderID++;
 		ctx = retrieveContext(image);
 		ThumbnailLoader loader = new ThumbnailLoader(component, ctx, image,
-				ids, loaderID);
+				ids, loaderID); 
 		loaders.put(loaderID, loader);
 		loader.load();
 	}
