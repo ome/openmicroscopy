@@ -7,7 +7,7 @@ as for upgrading existing databases.
 
 All scripts are of the form:
 
-  CURRENTVERSION__CURRENTPATCH/TARGETVERSION__TARGETPATCH.sql
+  TARGETVERSION__TARGETPATCH/CURRENTVERSION__CURRENTPATCH.sql
 
 with the exception of scripts concatenated by "omero db script":
 
