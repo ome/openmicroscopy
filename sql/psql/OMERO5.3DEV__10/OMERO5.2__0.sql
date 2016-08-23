@@ -1877,6 +1877,9 @@ DROP FUNCTION codomainmapcontext_renderingDef_index_move();
 ALTER TABLE codomainmapcontext ADD channelBinding int8 NOT NULL;
 ALTER TABLE codomainmapcontext ADD channelBinding_index int4 NOT NULL;
 
+ALTER TABLE codomainmapcontext ADD UNIQUE (channelBinding);
+ALTER TABLE codomainmapcontext ADD UNIQUE (channelBinding_index);
+
 ALTER TABLE codomainmapcontext
 ADD CONSTRAINT FKcodomainmapcontext_channelBinding_channelbinding
 FOREIGN KEY (channelBinding)
