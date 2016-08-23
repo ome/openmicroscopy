@@ -41,6 +41,7 @@ class TestConnectionMethods(object):
             c3, a.containedGroups(c3.getUserId())[1])
         c3.setGroupForSession(g)
 
+    # seppuku is deprecated: testTerminateAllClients below supersedes this test
     def testSeppuku(self, gatewaywrapper, author_testimg):
         # author_testimg in args to make sure the image has been imported
         gatewaywrapper.loginAsAuthor()
@@ -72,6 +73,42 @@ class TestConnectionMethods(object):
         assert gatewaywrapper.getTestImage() is not None
         assert g2_getTestImage() is not None
         g2.seppuku(softclose=False)
+        pytest.raises(Ice.ConnectionLostException, g2_getTestImage)
+        pytest.raises(Ice.ObjectNotExistException, gatewaywrapper.getTestImage)
+        gatewaywrapper._has_connected = False
+        gatewaywrapper.doDisconnect()
+
+    def testTerminateAllClients(self, gatewaywrapper, author_testimg):
+        # author_testimg in args to make sure the image has been imported
+        gatewaywrapper.loginAsAuthor()
+        assert gatewaywrapper.getTestImage() is not None
+        gatewaywrapper.gateway.terminateAllClients()
+        pytest.raises(Ice.ConnectionLostException, gatewaywrapper.getTestImage)
+        gatewaywrapper._has_connected = False
+        gatewaywrapper.doDisconnect()
+        gatewaywrapper.loginAsAuthor()
+        assert gatewaywrapper.getTestImage() is not None
+        gatewaywrapper.gateway.terminateAllClients(softclose=False)
+        pytest.raises(Ice.ConnectionLostException, gatewaywrapper.getTestImage)
+        gatewaywrapper._has_connected = False
+        gatewaywrapper.doDisconnect()
+        # Also make sure softclose does the right thing
+        gatewaywrapper.loginAsAuthor()
+        g2 = gatewaywrapper.gateway.clone()
+
+        def g2_getTestImage():
+            return dbhelpers.getImage(g2, 'testimg1')
+        assert g2.connect(gatewaywrapper.gateway._sessionUuid)
+        assert gatewaywrapper.getTestImage() is not None
+        assert g2_getTestImage() is not None
+        g2.terminateAllClients(softclose=True)
+        pytest.raises(Ice.ConnectionLostException, g2_getTestImage)
+        assert gatewaywrapper.getTestImage() is not None
+        g2 = gatewaywrapper.gateway.clone()
+        assert g2.connect(gatewaywrapper.gateway._sessionUuid)
+        assert gatewaywrapper.getTestImage() is not None
+        assert g2_getTestImage() is not None
+        g2.terminateAllClients(softclose=False)
         pytest.raises(Ice.ConnectionLostException, g2_getTestImage)
         pytest.raises(Ice.ObjectNotExistException, gatewaywrapper.getTestImage)
         gatewaywrapper._has_connected = False
