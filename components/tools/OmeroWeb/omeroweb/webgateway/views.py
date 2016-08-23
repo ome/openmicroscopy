@@ -2284,7 +2284,7 @@ def su(request, user, conn=None, **kwargs):
         connector.omero_session_key = conn.suConn(user, ttl=ttl)._sessionUuid
         request.session['connector'] = connector
         conn.revertGroupForSession()
-        conn.seppuku()
+        conn.terminateAllClients()
         return True
     else:
         context = {

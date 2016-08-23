@@ -340,7 +340,7 @@ def logout(request, conn=None, **kwargs):
     if request.method == "POST":
         try:
             try:
-                conn.seppuku()
+                conn.terminateAllClients()
             except:
                 logger.error('Exception during logout.', exc_info=True)
         finally:
