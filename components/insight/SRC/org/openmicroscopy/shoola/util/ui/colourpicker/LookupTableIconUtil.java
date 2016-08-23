@@ -32,6 +32,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * Utility class for getting an Icon for a specific Lookup Table, see
@@ -73,7 +74,7 @@ public class LookupTableIconUtil {
             return new ImageIcon(img);
         }
 
-        return null;
+        return getDefaultIcon();
     }
 
     /**
@@ -85,13 +86,13 @@ public class LookupTableIconUtil {
      */
     public static BufferedImage getLUTIconImage(String filename) {
         BufferedImage src = getFullIconsImage();
-
+        
         for (int i = 0; i < LUTS.length; i++) {
             if (LUTS[i].equals(filename))
                 return src.getSubimage(0, i * 10, src.getWidth(), 10);
         }
 
-        return null;
+        return getDefaultImage();
     }
 
     /**
@@ -117,5 +118,30 @@ public class LookupTableIconUtil {
         bGr.dispose();
 
         return bimage;
+    }
+
+    /**
+     * Creates an empty default image
+     * 
+     * @return See above.
+     */
+    private static BufferedImage getDefaultImage() {
+        Dimension dim = new Dimension(96, 24);
+        BufferedImage bimage = new BufferedImage(dim.width, dim.height,
+                BufferedImage.TYPE_INT_RGB);
+        Graphics2D bGr = bimage.createGraphics();
+        bGr.setColor(UIUtilities.BACKGROUND);
+        bGr.fillRect(0, 0, dim.width, dim.height);
+        bGr.dispose();
+        return bimage;
+    }
+
+    /**
+     * Creates an empty default icon
+     * 
+     * @return See above.
+     */
+    private static Icon getDefaultIcon() {
+        return new ImageIcon(getDefaultImage());
     }
 }
