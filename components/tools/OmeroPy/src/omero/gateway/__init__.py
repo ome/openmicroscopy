@@ -1043,7 +1043,7 @@ class BlitzObjectWrapper (object):
                 clone = self.__class__(newConn, self._obj)
                 ann = clone._linkAnnotation(ann)
                 if newConn != self._conn:
-                    newConn.seppuku()
+                    newConn.terminateAllClients()
             elif d.getGroup():
                 # Try to match group
                 # TODO: Should switch session of this object to use group from
@@ -1746,6 +1746,20 @@ class _BlitzGateway (object):
             return False
 
     def seppuku(self, softclose=False):  # pragma: no cover
+        """
+        Terminates connection with killSession(). If softclose is False, the
+        session is really terminate disregarding its connection refcount.
+
+        :param softclose:   Boolean
+
+        ** Deprecated ** Use :meth:`terminateAllClients`.
+        Our apologies for any offense caused by this previous method name.
+        """
+        warnings.warn("Deprecated. Use terminateAllClients",
+                      DeprecationWarning)
+        self.terminateAllClients(softclose)
+
+    def terminateAllClients(self, softclose=False):  # pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the
         session is really terminate disregarding its connection refcount.
