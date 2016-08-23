@@ -34,7 +34,8 @@ public class LutReaderFactory {
     /**
      * Reads the specified file.
      *
-     * @param file The file to read.
+     * @param filePath The path to the directory.
+     * @param fileName The name of the file.
      */
     public static LutReader read(String filePath, String fileName)
         throws Exception
