@@ -539,9 +539,11 @@ public class DMRefreshLoader
             Map<DataObject, Collection<?>> mapForDataObject)
     {
         if (mapForDataObject.isEmpty()) {
-            tag.setDataObjects((Set<DataObject>) values.get(tag.getId()));
+            Set<DataObject> objs = new HashSet<DataObject>();
+            objs.addAll((Collection<DataObject>) values.get(tag.getId()));
+            tag.setDataObjects(objs);
         } else {
-            Set<DataObject> objects = (Set<DataObject>) values.get(tag.getId());
+            Collection<DataObject> objects = (Collection<DataObject>) values.get(tag.getId());
             Set<DataObject> newList = new HashSet<DataObject>(objects.size());
             Iterator<DataObject> kk = objects.iterator();
             while (kk.hasNext()) {
