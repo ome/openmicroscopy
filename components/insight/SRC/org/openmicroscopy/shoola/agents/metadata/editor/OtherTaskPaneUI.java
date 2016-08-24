@@ -223,7 +223,7 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
     List<AnnotationData> getAnnotationsToSave() {
         // Edits are saved instantly and there's no way to create
         // "other" annotations, so it's safe to just return an empty list.
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
@@ -308,6 +308,13 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
     void onRelatedNodesSet() {
         removeButton.setEnabled(model.canAddAnnotationLink());
     }
-    
-    
+
+    @Override
+    int getUnfilteredAnnotationCount() {
+        if (model.isMultiSelection()) {
+            return model.getAllOtherAnnotations().size();
+        } else {
+            return model.getOtherAnnotations().size();
+        }
+    }
 }
