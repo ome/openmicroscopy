@@ -23,6 +23,8 @@ Tests webclient login
 
 from weblibrary import IWebTest, _csrf_post_response
 from django.core.urlresolvers import reverse
+from random import random
+import pytest
 
 
 class TestLogin(IWebTest):
@@ -30,26 +32,21 @@ class TestLogin(IWebTest):
     Tests login
     """
 
-    def test_guest_login_not_supported(self):
+    @pytest.mark.parametrize("login", [['guest', 'guest'],
+                                      ['g', str(random())]])
+    def test_guest_login_not_supported(self, login):
         """
-        Test that guest login is not permitted
-        """
-        django_client = self.django_root_client
-        request_url = reverse('weblogin')
-        data = {'username': 'guest', 'password': 'secret', 'server': 1}
-        rsp = _csrf_post_response(django_client, request_url, data,
-                                  status_code=200)
-        assert "Guest account is not supported." in rsp.content
-
-    def test_wrong_guest_login(self):
-        """
-        Test that login as 'g' doesn't give wrong error message
+        Test that guest login is not permitted and login as 'g' is not
+        confused as 'guest':
         https://trello.com/c/U47AiD1R/682-weird-guest-login
         """
         django_client = self.django_root_client
         request_url = reverse('weblogin')
-        data = {'username': 'g', 'password': 'secret', 'server': 1}
+        data = {'username': login[0], 'password': login[1], 'server': 1}
         rsp = _csrf_post_response(django_client, request_url, data,
                                   status_code=200)
-        assert "Guest account is not supported." not in rsp.content
-        assert "please check your user name and password" in rsp.content
+        if login[0] == 'guest':
+            assert "Guest account is not supported." in rsp.content
+        else:
+            assert "Guest account is not supported." not in rsp.content
+            assert "please check your user name and password" in rsp.content
