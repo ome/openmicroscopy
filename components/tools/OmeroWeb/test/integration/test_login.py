@@ -33,7 +33,7 @@ class TestLogin(IWebTest):
     """
 
     @pytest.mark.parametrize("login", [['guest', 'guest'],
-                                      ['g', str(random())]])
+                                       ['g', str(random())]])
     def test_guest_login_not_supported(self, login):
         """
         Test that guest login is not permitted and login as 'g' is not
