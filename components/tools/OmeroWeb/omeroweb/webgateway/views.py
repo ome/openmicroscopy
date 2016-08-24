@@ -2582,7 +2582,8 @@ class LoginView(View):
     useragent = 'OMERO.webapi'
 
     def get(self, request, *args, **kwargs):
-        return {"message": "POST only with username, password, server and csrftoken"}
+        return {"message":
+                "POST only with username, password, server and csrftoken"}
 
     def _handleLoggedIn(self, request, conn, connector, *args, **kwargs):
         """ Returns a response for successful login """
