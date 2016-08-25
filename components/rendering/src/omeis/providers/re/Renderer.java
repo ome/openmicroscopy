@@ -1,6 +1,4 @@
 /*
- * omeis.providers.re.Renderer
- *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -8,12 +6,15 @@
 package omeis.providers.re;
 
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,6 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
-
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
@@ -136,6 +136,9 @@ public class Renderer {
     /** Map of overlays we've currently been told to render. */
     private Map<byte[], Integer> overlays;
 
+    /** The collections of available lookup tables.*/
+    private List<File> luts;
+
     /**
      * Returns a copy of a list of channel bindings with one element removed;
      * the so called "other" channel bindings for the image.
@@ -228,7 +231,11 @@ public class Renderer {
     			optimizations.setPrimaryColorEnabled(false);
     			return;
     		}
-    		
+    		// Check if there is no lut
+    		if (StringUtils.isNotBlank(channelBinding.getLookupTable())) {
+    		    optimizations.setPrimaryColorEnabled(false);
+                return;
+    		}
 			// Now we ensure the color is "primary" (Red, Green or Blue).
 			boolean isPrimary = false;
 			int[] colorArray = getColorArray(channelBinding);
@@ -325,15 +332,17 @@ public class Renderer {
      * @param pixelsObj Pixels object.
      * @param renderingDefObj Rendering definition object.
      * @param bufferObj PixelBuffer object.
+     * @param luts the available lookup tables.
      * @throws NullPointerException If <code>null</code> parameters are passed.
      */
     public Renderer(QuantumFactory quantumFactory,
     		List<RenderingModel> renderingModels, Pixels pixelsObj,
-            RenderingDef renderingDefObj, PixelBuffer bufferObj) {
+            RenderingDef renderingDefObj, PixelBuffer bufferObj,
+            List<File> luts) {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
-
+        this.luts = Collections.unmodifiableList(luts);
         if (metadata == null) {
             throw new NullPointerException("Expecting not null metadata");
         } else if (rndDef == null) {
@@ -361,6 +370,15 @@ public class Renderer {
         checkOptimizations();
     }
 
+    /**
+     * Returns the list of lookup tables that can be used.
+     *
+     * @return See above.
+     */
+    List<File> getAllLuts()
+    {
+        return luts;
+    }
     /**
      * Specifies the model that dictates how transformed raw data has to be
      * mapped onto a color space. This class delegates the actual rendering to a
@@ -777,7 +795,19 @@ public class Renderer {
         cb[w].setAlpha(Integer.valueOf(alpha));
         checkOptimizations();
     }
-    
+
+    /**
+     * Sets the lookup table associated to the channel.
+     *
+     * @param w The selected channel.
+     * @param lookupTable The lookup table.
+     */
+    public void setChannelLookupTable(int w, String lookupTable) {
+        ChannelBinding[] cb = getChannelBindings();
+        cb[w].setLookupTable(lookupTable);
+        checkOptimizations();
+    }
+
     /**
      * Makes a particular channel active or inactive.
      * @param w the wavelength index to toggle.

@@ -806,6 +806,11 @@ public class AbstractServerTest extends AbstractTest {
             b1 = Boolean.valueOf(c1.getNoiseReduction().getValue());
             b2 = Boolean.valueOf(c2.getNoiseReduction().getValue());
             Assert.assertEquals(b1, b2);
+            //Check lut
+            if (c1.getLookupTable() != null && c2.getLookupTable() != null) {
+                Assert.assertEquals(c1.getLookupTable().getValue(),
+                        c2.getLookupTable().getValue());
+            }
         }
     }
 
