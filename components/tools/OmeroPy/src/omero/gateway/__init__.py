@@ -6694,6 +6694,22 @@ class _ChannelWrapper (BlitzObjectWrapper):
         return ColorHolder.fromRGBA(
             *self._re.getRGBA(self._idx, self._conn.SERVICE_OPTS))
 
+    def getLut(self):
+        """
+        Returns the Lookup Table name for the Channel.
+        E.g. "cool.lut" or None if no LUT.
+
+        :return:    Lut name.
+        :rtype:     String
+        """
+
+        if self._re is None:
+            return None
+        lut = self._re.getChannelLookupTable(self._idx)
+        if not lut or len(lut) == 0:
+            return None
+        return lut
+
     def getWindowStart(self):
         """
         Returns the rendering settings window-start of this channel
@@ -7642,10 +7658,15 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                         c, float(windows[idx][0]), float(windows[idx][1]),
                         self._conn.SERVICE_OPTS)
                 if colors is not None and colors[idx]:
-                    rgba = splitHTMLColor(colors[idx])
-                    if rgba:
-                        self._re.setRGBA(
-                            c, *(rgba + [self._conn.SERVICE_OPTS]))
+                    if colors[idx].endswith('.lut'):
+                        self._re.setChannelLookupTable(c, colors[idx])
+                    else:
+                        rgba = splitHTMLColor(colors[idx])
+                        if rgba:
+                            self._re.setRGBA(
+                                c, *(rgba + [self._conn.SERVICE_OPTS]))
+                            # disable LUT
+                            self._re.setChannelLookupTable(c, None)
             if (c+1 in abs_channels):
                 idx += 1
         return True
