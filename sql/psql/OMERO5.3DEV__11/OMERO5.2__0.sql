@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__10.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__11.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  10,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  11,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1916,16 +1916,21 @@ CREATE TRIGGER codomainmapcontext_channelBinding_index_trigger
 
 CREATE INDEX i_CodomainMapContext_channelBinding ON codomainmapcontext(channelBinding);
 
+-- ... up to patch 11:
+
+-- TODO
+
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 10             AND
+          currentPatch    = 11             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__10'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
