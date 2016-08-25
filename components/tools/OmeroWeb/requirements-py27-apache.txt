@@ -4,3 +4,4 @@
 #     pip install -r requirements-py27-apache.txt
 #
 Django>=1.8,<1.9
+django-pipeline==1.3.20
