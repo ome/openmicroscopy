@@ -16,7 +16,7 @@ arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007-2015, Glencoe Software, Inc.
+Copyright (c) 2007-2016, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
@@ -890,6 +890,21 @@ class BaseControl(object):
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
+
+    def _order_and_range_ids(self, ids):
+        from itertools import groupby
+        from operator import itemgetter
+        out = ""
+        ids = sorted(ids)
+        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
+            g = map(str, map(itemgetter(1), g))
+            out += g[0]
+            if len(g) > 2:
+                out += "-" + g[-1]
+            elif len(g) == 2:
+                out += "," + g[1]
+            out += ","
+        return out.rstrip(",")
 
 
 class CLI(cmd.Cmd, Context):
@@ -1868,21 +1883,6 @@ class GraphControl(CmdControl):
             key = k[k.rfind('.')+1:]
             objIds[key] = newIds[k]
         return objIds
-
-    def _order_and_range_ids(self, ids):
-        from itertools import groupby
-        from operator import itemgetter
-        out = ""
-        ids = sorted(ids)
-        for k, g in groupby(enumerate(ids), lambda (i, x): i-x):
-            g = map(str, map(itemgetter(1), g))
-            out += g[0]
-            if len(g) > 2:
-                out += "-" + g[-1]
-            elif len(g) == 2:
-                out += "," + g[1]
-            out += ","
-        return out.rstrip(",")
 
 
 class UserGroupControl(BaseControl):
