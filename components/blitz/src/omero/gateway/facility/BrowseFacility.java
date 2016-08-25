@@ -32,6 +32,7 @@ import java.util.Set;
 
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
+import omero.api.IScriptPrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -40,6 +41,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.Folder;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Well;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
@@ -66,6 +68,9 @@ import omero.gateway.util.PojoMapper;
 
 public class BrowseFacility extends Facility {
 
+    /** MIME type for lookup tables */
+    private static final String LUT_MIMETYPE = "text/x-lut";
+    
     /**
      * Creates a new instance
      * 
@@ -1457,4 +1462,31 @@ public class BrowseFacility extends Facility {
         return Collections.EMPTY_LIST;
     }
     
+    /**
+     * Get the available lookup tables
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Collection<String> getLookupTables(SecurityContext ctx)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            IScriptPrx service = gateway.getScriptService(ctx);
+            List<OriginalFile> scripts = service
+                    .getScriptsByMimetype(LUT_MIMETYPE);
+            List<String> result = new ArrayList<String>(scripts.size());
+            for (OriginalFile of : scripts)
+                result.add(of.getName().getValue());
+            return result;
+        } catch (Throwable t) {
+            handleException(this, t, "Could not load lookup tables.");
+        }
+        return Collections.EMPTY_LIST;
+    }
 }
