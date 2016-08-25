@@ -46,7 +46,6 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 
-import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.enums.UnitsLength;
 
@@ -513,16 +512,10 @@ class InputServerStrategy
 	    Length l;
         try {
             l = data.getStrokeWidth(UnitsLength.PIXEL);
-            if (l != null) {
+            if (l != null && l.getValue() >= 1) {
                 value = l.getValue();
             }
         } catch (Exception e) {
-            if (e instanceof BigResult) {
-                BigResult ex = (BigResult) e;
-                if (ex.result != null) {
-                    value = ex.result.doubleValue();
-                }
-            }
         }
 		STROKE_WIDTH.set(figure, value);
 		STROKE_COLOR.set(figure, data.getStroke());
