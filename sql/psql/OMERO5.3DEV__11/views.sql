@@ -7,6 +7,141 @@
 -- and can be used to overwrite the generated Map<Long, Long> tables
 -- with functional views.
 
+  DROP TABLE count_Annotation_channelLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_channelLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM channelannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_datasetLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_datasetLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM datasetannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_detectorLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_detectorLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM detectorannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_dichroicLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_dichroicLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM dichroicannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_experimenterLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_experimenterLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM experimenterannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_experimenterGroupLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_experimenterGroupLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM experimentergroupannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_filesetLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_filesetLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM filesetannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_filterLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_filterLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM filterannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_folderLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_folderLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM folderannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_imageLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_imageLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM imageannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_instrumentLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_instrumentLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM instrumentannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_lightPathLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_lightPathLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM lightpathannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_lightSourceLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_lightSourceLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM lightsourceannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_namespaceLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_namespaceLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM namespaceannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_nodeLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_nodeLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM nodeannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_objectiveLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_objectiveLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM objectiveannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_originalFileLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_originalFileLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM originalfileannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_planeInfoLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_planeInfoLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM planeinfoannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_plateAcquisitionLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_plateAcquisitionLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM plateacquisitionannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_plateLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_plateLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM plateannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_projectLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_projectLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM projectannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_reagentLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_reagentLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM reagentannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_roiLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_roiLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM roiannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_screenLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_screenLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM screenannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_sessionLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_sessionLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM sessionannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_shapeLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_shapeLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM shapeannotationlink GROUP BY child, owner_id ORDER BY child;
+
+  DROP TABLE count_Annotation_wellLinks_by_owner;
+
+  CREATE OR REPLACE VIEW count_Annotation_wellLinks_by_owner (Annotation_id, owner_id, count) AS select child, owner_id, count(*)
+    FROM wellannotationlink GROUP BY child, owner_id ORDER BY child;
+
   DROP TABLE count_Annotation_annotationLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Annotation_annotationLinks_by_owner (Annotation_id, owner_id, count) AS select parent, owner_id, count(*)
