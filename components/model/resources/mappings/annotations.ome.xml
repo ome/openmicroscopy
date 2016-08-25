@@ -2,8 +2,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -24,6 +22,7 @@
 			<parent name="experimenterGroupLinks" type="ome.model.annotations.ExperimenterGroupAnnotationLink" target="ome.model.meta.ExperimenterGroup"/>
 			<parent name="filesetLinks" type="ome.model.annotations.FilesetAnnotationLink" target="ome.model.fs.Fileset"/>
 			<parent name="filterLinks" type="ome.model.annotations.FilterAnnotationLink" target="ome.model.acquisition.Filter"/>
+			<parent name="folderLinks" type="ome.model.annotations.FolderAnnotationLink" target="ome.model.containers.Folder"/>
 			<parent name="imageLinks" type="ome.model.annotations.ImageAnnotationLink" target="ome.model.core.Image"/>
 			<parent name="instrumentLinks" type="ome.model.annotations.InstrumentAnnotationLink" target="ome.model.acquisition.Instrument"/>
 			<parent name="lightPathLinks" type="ome.model.annotations.LightPathAnnotationLink" target="ome.model.acquisition.LightPath"/>
