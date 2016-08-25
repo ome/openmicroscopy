@@ -1918,7 +1918,86 @@ CREATE INDEX i_CodomainMapContext_channelBinding ON codomainmapcontext(channelBi
 
 -- ... up to patch 11:
 
--- TODO
+CREATE VIEW count_annotation_channellinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM channelannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_datasetlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM datasetannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_detectorlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM detectorannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_dichroiclinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM dichroicannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_experimenterlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM experimenterannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_experimentergrouplinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM experimentergroupannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_filesetlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM filesetannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_filterlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM filterannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_folderlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM folderannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_imagelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM imageannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_instrumentlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM instrumentannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_lightpathlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM lightpathannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_lightsourcelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM lightsourceannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_namespacelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM namespaceannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_nodelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM nodeannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_objectivelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM objectiveannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_originalfilelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM originalfileannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_planeinfolinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM planeinfoannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_plateacquisitionlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM plateacquisitionannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_platelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM plateannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_projectlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM projectannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_reagentlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM reagentannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_roilinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM roiannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_screenlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM screenannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_sessionlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM sessionannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_shapelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM shapeannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_welllinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM wellannotationlink GROUP BY child, owner_id ORDER BY child;
 
 
 --
