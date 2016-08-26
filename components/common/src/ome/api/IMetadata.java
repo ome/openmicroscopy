@@ -117,6 +117,27 @@ public interface IMetadata
             @Validate(Long.class) Set<Long> annotatorIds, Parameters options);
     
     /**
+     * Loads the annotation counts, that have been attached to the specified
+     * <code>rootNodes</code> for the specified <code>annotatorIds</code>.
+     * 
+     * @param nodeType
+     *            The type of the nodes the annotations are linked to. Mustn't
+     *            be <code>null</code>.
+     * @param rootNodeIds
+     *            Ids of the objects of type <code>rootNodeType</code>. Mustn't
+     *            be <code>null</code>.
+     * @param annotatorIds
+     *            Ids of the users for whom annotations should be retrieved. If
+     *            <code>null</code>, all annotations returned.
+     * @param options
+     * @return A map whose key is the annotation class name and value the number
+     *         of annotations of this type attached the specified objects.
+     */
+    public Map<String, Long> loadAnnotationCounts(@NotNull Class nodeType,
+            @NotNull @Validate(Long.class) Set<Long> rootNodeIds,
+            @Validate(Long.class) Set<Long> annotatorIds, Parameters options);
+    
+    /**
      * Loads all the annotations of a given type.
      * It is possible to filter the annotations by including or excluding name
      * spaces set on the annotations.
