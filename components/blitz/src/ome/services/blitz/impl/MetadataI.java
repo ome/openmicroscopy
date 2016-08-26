@@ -41,6 +41,7 @@ import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
 import omero.api.AMD_IMetadata_loadSpecifiedAnnotationsLinkedTo;
 import omero.api.AMD_IMetadata_loadTagContent;
 import omero.api.AMD_IMetadata_loadTagSets;
+import omero.api.AMD_IMetadata_loadAnnotationCounts;
 import omero.api._IMetadataOperations;
 import omero.sys.Parameters;
 import omero.util.IceMapper;
@@ -210,6 +211,14 @@ public class MetadataI
             String rootType, List<Long> ids, Current __current)
                     throws ServerError {
         callInvokerOnRawArgs(__cb, __current, rootType, ids);
+    }
+
+    @Override
+    public void loadAnnotationCounts_async(
+            AMD_IMetadata_loadAnnotationCounts __cb, String rootType,
+            List<Long> ids, List<Long> userIds, Parameters options,
+            Current __current) {
+        callInvokerOnRawArgs(__cb, __current, rootType, ids, userIds, options);
     }
 
 	protected void map(List<String> annotationTypes) throws ServerError
