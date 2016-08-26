@@ -278,12 +278,13 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#importImages(long, long, AgentEventListener)
+     * @see ImageDataView#importFiles(ImportableObject, AgentEventListener)
      */
-	public CallHandle importFiles(ImportableObject context, 
+	public CallHandle importFiles(ImportableObject target,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ImagesImporter(context);
+		BatchCallTree cmd = ImagesImporter.newImporter(
+				DataViewsFactory.getContext(), target);
 		return cmd.exec(observer);
 	}
 

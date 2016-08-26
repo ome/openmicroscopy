@@ -22,36 +22,19 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import omero.gateway.model.DataObject;
-import omero.gateway.model.ExperimenterData;
-import omero.gateway.model.ScreenData;
-import omero.gateway.model.TagAnnotationData;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.ImportException;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.OmeroSessionService;
-import org.openmicroscopy.shoola.env.data.OmeroSessionServiceImpl;
-import org.openmicroscopy.shoola.env.data.model.ImportRequestData;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.svc.SvcRegistry;
-import org.openmicroscopy.shoola.svc.communicator.Communicator;
-import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
-import org.openmicroscopy.shoola.svc.transport.HttpChannel;
-
-import com.google.gson.Gson;
 
 /** 
  * Command to import images in a container if specified.
@@ -66,6 +49,35 @@ import com.google.gson.Gson;
 public class ImagesImporter
     extends BatchCallTree
 {
+
+    private static boolean isOffline(Registry context) {
+        Boolean offline = (Boolean)
+                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
+        return offline != null && offline;
+    }
+
+    /**
+     * Factory method to build an import task depending on weather this client
+     * has been configure to offload imports to the OMERO Import Proxy.
+     *
+     * @param context the configuration store.
+     * @param target the data to import.
+     * @return depending on configuration, either an online importer that calls
+     * OMERO directly to import each image given in the target {@link
+     * ImportableObject} or one that offloads the imports to a proxy that will
+     * carry them out in a separate background process.
+     */
+    public static BatchCallTree newImporter(Registry context,
+                                            ImportableObject target) {
+        if (context == null)
+            throw new NullPointerException("No registry.");
+        if (target == null || CollectionUtils.isEmpty(target.getFiles()))
+            throw new IllegalArgumentException("No files to import.");
+
+        return isOffline(context) ? new OfflineImagesImporter(target) :
+                                    new ImagesImporter(target);
+    }
+
     /** 
      * Map of result, key is the file to import, value is an object or a
      * string.
@@ -75,111 +87,22 @@ public class ImagesImporter
     /** The object hosting the information for the import. */
     private ImportableObject object;
 
-    /** recycle the session key.*/
-    private String sessionKey;
-
     /**
      * Imports the file.
      *
-     * @param ImportableFile The file to import.
-     * @param Pass <code>true</code> to close the import,
+     * @param importable The file to import.
+     * @param close <code>true</code> to close the import,
      *        <code>false</code> otherwise.
      */
     private void importFile(ImportableFile importable, boolean close)
     {
-        partialResult = new HashMap<ImportableFile, Object>();
-        //To be read from config.
-        Boolean offline = (Boolean)
-                context.lookup(LookupNames.OFFLINE_IMPORT_ENABLED);
-        if (offline != null && offline) {
-            String tokenURL = (String)
-                    context.lookup(LookupNames.OFFLINE_IMPORT_URL);
-            Communicator c;
-            CommunicatorDescriptor desc = new CommunicatorDescriptor
-                (HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
-            try {
-                //code not ready for sudo operation
-                //check creation of tags and containers
-                OmeroImageService os = context.getImageService();
-                Object o = os.importFile(object, importable, close);
-                if (o instanceof ImportException) {
-                    partialResult.put(importable, o);
-                    return;
-                }
-                if (o instanceof Boolean) {
-                    Boolean b = (Boolean) o;
-                    if (!b.booleanValue() ||
-                          importable.getStatus().isMarkedAsDuplicate()) {
-                        partialResult.put(importable, o);
-                        return;
-                    }
-                }
-                AdminService svc = context.getAdminService();
-                c = SvcRegistry.getCommunicator(desc);
-                ImportRequestData data = new ImportRequestData();
-                ExperimenterData exp = importable.getUser();
-                if (exp == null) {
-                    exp = svc.getUserDetails();
-                }
-                data.experimenterEmail = exp.getEmail();
-                data.omeroHost = svc.getServerName();
-                if (svc.getPort() > 0) {
-                    data.omeroPort = ""+svc.getPort();
-                }
-                data.targetUri = importable.getOriginalFile().getAbsolutePath();
-                DataObject target = importable.getDataset();
-                if (target != null && target.getId() > 0) {
-                    data.datasetId = ""+target.getId();
-                }
-                target = importable.getParent();
-                if (target != null) {
-                    if (target instanceof ScreenData) {
-                        data.screenId = ""+target.getId();
-                    }
-                }
-                Collection<TagAnnotationData> tags = object.getTags();
-                if (CollectionUtils.isNotEmpty(tags)) {
-                    List<String> ids = new ArrayList<String>();
-                    Iterator<TagAnnotationData> i = tags.iterator();
-                    while (i.hasNext()) {
-                        target = i.next();
-                        if (target.getId() > 0) {
-                            ids.add(""+target.getId());
-                        }
-                    }
-                    data.annotationIds = ids.toArray(new String[ids.size()]);
-                }
-                //create a new client //no sudo for that demo
-                /*
-                if (sessionKey == null) {
-                    OmeroSessionService oss =
-                            new OmeroSessionServiceImpl(context);
-                    sessionKey = oss.createOfflineImportSession();
-                }
-                data.sessionKey = sessionKey;
-                */
-                // TODO: Smuggler import batch.
-                // After rolling out the new Smuggler with import batches,
-                // delete line below and comment in code block above.
-                data.sessionKey = new OmeroSessionServiceImpl(context)
-                                .createOfflineImportSession();
-
-                //Prepare json string
-                Gson writer = new Gson();
-                c.enqueueImport(writer.toJson(data), new StringBuilder());
-                importable.getStatus().markedAsOffLineImport();
-                partialResult.put(importable, true);
-            } catch (Exception e) {
-                partialResult.put(importable, e);
-            }
-        } else {
-            OmeroImageService os = context.getImageService();
-            try {
-                partialResult.put(importable, 
-                        os.importFile(object, importable, close));
-            } catch (Exception e) {
-                partialResult.put(importable, e);
-            }
+        partialResult = new HashMap<>();
+        OmeroImageService os = context.getImageService();
+        try {
+            partialResult.put(importable,
+                    os.importFile(object, importable, close));
+        } catch (Exception e) {
+            partialResult.put(importable, e);
         }
     }
 
@@ -196,7 +119,7 @@ public class ImagesImporter
         int index = 0;
         int n = files.size()-1;
         while (i.hasNext()) {
-            io = (ImportableFile) i.next();
+            io = i.next();
             final ImportableFile f = io;
             final boolean b = index == n;
             index++;
@@ -229,10 +152,8 @@ public class ImagesImporter
      *
      * @param object The object hosting all import information.
      */
-    public ImagesImporter(ImportableObject object)
+    private ImagesImporter(ImportableObject object)
     {
-        if (object == null || CollectionUtils.isEmpty(object.getFiles()))
-            throw new IllegalArgumentException("No Files to import.");
         this.object = object;
     }
 
