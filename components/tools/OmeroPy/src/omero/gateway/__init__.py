@@ -1749,6 +1749,7 @@ class _BlitzGateway (object):
         """
         Terminates connection with killSession(). If softclose is False, the
         session is really terminated disregarding its connection refcount.
+        If softclose is True then the connection refcount is decremented by 1.
 
         :param softclose:   Boolean
 
