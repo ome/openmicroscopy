@@ -1537,8 +1537,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
 
     context['figScripts'] = figScripts
     context['template'] = template
-    context['webclient_path'] = request.build_absolute_uri(
-        reverse('webindex'))
+    context['webclient_path'] = reverse('webindex')
     return context
 
 
@@ -2054,7 +2053,7 @@ def batch_annotate(request, conn=None, **kwargs):
         context['differentGroups'] = True       # E.g. don't run scripts etc
     context['canDownload'] = manager.canDownload(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
-    context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
+    context['webclient_path'] = reverse('webindex')
     return context
 
 

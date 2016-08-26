@@ -103,12 +103,7 @@
                 // show a link to the current object
                 $("#show_link_btn").click(function(){
                     $("#link_info_popup").show();
-                {% if webclient_path %}
-                    var lnk = "{{ webclient_path }}";
-                {% else %}
-                    var lnk = location.href.substring(0,location.href.length - location.search.length);
-                    if (lnk.charAt( lnk.length-1 ) == "#") { lnk = lnk.substring(0, lnk.length-1)}
-                {% endif %}
+                    var lnk = location.protocol + "//" + location.host + "{{ webclient_path }}";
                     var obj_type = "{{manager.obj_type}}";
                     if (obj_type === "acquisition") {
                         obj_type = "run";
