@@ -1757,15 +1757,6 @@ class _BlitzGateway (object):
         """
         warnings.warn("Deprecated. Use terminateAllClients",
                       DeprecationWarning)
-        self.terminateAllClients(softclose)
-
-    def terminateAllClients(self, softclose=False):  # pragma: no cover
-        """
-        Terminates connection with killSession(). If softclose is False, the
-        session is really terminated disregarding its connection refcount.
-
-        :param softclose:   Boolean
-        """
         self._connected = False
         oldC = self.c
         if oldC is not None:
@@ -1781,6 +1772,24 @@ class _BlitzGateway (object):
                         oldC.closeSession()
                 else:
                     self._closeSession()
+            finally:
+                oldC.__del__()
+                oldC = None
+                self.c = None
+
+        self._proxies = NoProxies()
+        logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
+
+    def terminateAllClients(self):  # pragma: no cover
+        """
+        Terminates connection with killSession(). The session is terminated
+        regardless of its connection refcount.
+        """
+        self._connected = False
+        oldC = self.c
+        if oldC is not None:
+            try:
+                self._closeSession()
             finally:
                 oldC.__del__()
                 oldC = None

@@ -87,13 +87,6 @@ class TestConnectionMethods(object):
         gatewaywrapper._has_connected = False
         gatewaywrapper.doDisconnect()
         gatewaywrapper.loginAsAuthor()
-        assert gatewaywrapper.getTestImage() is not None
-        gatewaywrapper.gateway.terminateAllClients(softclose=False)
-        pytest.raises(Ice.ConnectionLostException, gatewaywrapper.getTestImage)
-        gatewaywrapper._has_connected = False
-        gatewaywrapper.doDisconnect()
-        # Also make sure softclose does the right thing
-        gatewaywrapper.loginAsAuthor()
         g2 = gatewaywrapper.gateway.clone()
 
         def g2_getTestImage():
@@ -101,14 +94,7 @@ class TestConnectionMethods(object):
         assert g2.connect(gatewaywrapper.gateway._sessionUuid)
         assert gatewaywrapper.getTestImage() is not None
         assert g2_getTestImage() is not None
-        g2.terminateAllClients(softclose=True)
-        pytest.raises(Ice.ConnectionLostException, g2_getTestImage)
-        assert gatewaywrapper.getTestImage() is not None
-        g2 = gatewaywrapper.gateway.clone()
-        assert g2.connect(gatewaywrapper.gateway._sessionUuid)
-        assert gatewaywrapper.getTestImage() is not None
-        assert g2_getTestImage() is not None
-        g2.terminateAllClients(softclose=False)
+        g2.terminateAllClients()
         pytest.raises(Ice.ConnectionLostException, g2_getTestImage)
         pytest.raises(Ice.ObjectNotExistException, gatewaywrapper.getTestImage)
         gatewaywrapper._has_connected = False
