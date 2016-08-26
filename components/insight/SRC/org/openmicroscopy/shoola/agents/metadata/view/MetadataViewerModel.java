@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.metadata.AdminEditor;
+import org.openmicroscopy.shoola.agents.metadata.AnnotationCountLoader;
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
 import org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor;
@@ -452,22 +453,52 @@ class MetadataViewerModel
 	 */
 	void fireStructuredDataLoading(Object node, EnumSet<AnnotationType> types)
 	{
-		if (!(node instanceof DataObject)) return;
-		if (node instanceof ExperimenterData) return;
-		if (node instanceof DataObject) {
-			Integer id = getLoaderID(StructuredDataLoader.class);
-			if (id != null) cancel(id);
-			loaderID++;
-			if (node instanceof WellSampleData) {
-			    node = ((WellSampleData) node).getImage();
-			}
-			ctx = retrieveContext((DataObject) node);
-			StructuredDataLoader loader = new StructuredDataLoader(component,
-					ctx, Arrays.asList((DataObject) node), types, loaderID);
-			loaders.put(loaderID, loader);
-			loader.load();
-			setState(MetadataViewer.LOADING_METADATA);
-		}
+        if (node == null || node instanceof ExperimenterData)
+            return;
+
+        List<DataObject> data = new ArrayList<DataObject>();
+        if (node instanceof DataObject) {
+            if (node instanceof WellSampleData) {
+                node = ((WellSampleData) node).getImage();
+            }
+
+            data.add((DataObject) node);
+            ctx = retrieveContext((DataObject) node);
+        } else if (node instanceof List) {
+            List l = (List) node;
+            if (l.isEmpty())
+                return;
+            data.addAll((Collection<? extends DataObject>) node);
+            ctx = retrieveContext((DataObject) l.iterator().next());
+        }
+
+        Integer id = getLoaderID(StructuredDataLoader.class);
+        if (id != null)
+            cancel(id);
+        loaderID++;
+
+        StructuredDataLoader loader = new StructuredDataLoader(component, ctx,
+                data, types, loaderID);
+        loaders.put(loaderID, loader);
+        loader.load();
+        setState(MetadataViewer.LOADING_METADATA);
+	}
+	
+	/**
+     * Starts the asynchronous retrieval of the number of annotations
+     * attached to the specified objects
+     * 
+     * @param objs The objects to handle.
+     */
+	void fireAnnotationCountLoading(Collection<DataObject> objs) {
+	    if(CollectionUtils.isEmpty(objs))
+	        return;
+	    DataObject obj = objs.iterator().next();
+	    ctx = retrieveContext(obj);
+        AnnotationCountLoader loader = new AnnotationCountLoader(component, ctx, objs, ++loaderID);
+        loaders.put(loaderID, loader);
+        loader.load();
+        setState(MetadataViewer.LOADING_METADATA_COUNT);
 	}
 	
 	/**
@@ -853,15 +884,6 @@ class MetadataViewerModel
 	void setRelatedNodes(List<DataObject> relatedNodes)
 	{ 
 	    this.relatedNodes = relatedNodes;
-	    if (CollectionUtils.isEmpty(relatedNodes)) return;
-	    DataObject ho = relatedNodes.get(0);
-	    List<DataObject> l = new ArrayList<DataObject>();
-	    if (ho instanceof WellSampleData) {
-	        Iterator<DataObject> i = relatedNodes.iterator();
-	        while (i.hasNext()) {
-	            l.add(((WellSampleData) i.next()).getImage());
-	        }
-	    } else l.addAll(relatedNodes);
 	}
 
 	/**
@@ -1233,5 +1255,20 @@ class MetadataViewerModel
     RndProxyDef getAlternativeRenderingSettings()
     {
         return def;
+    }
+
+    /**
+     * Set the annotation counts
+     * 
+     * @param result
+     *            The counts
+     * @param loaderID
+     *            The id of the loader
+     */
+    public void setAnnotationCount(Map<AnnotationType, Long> result,
+            int loaderID) {
+        loaders.remove(loaderID);
+        state = MetadataViewer.READY;
+        editor.setAnnotationCount(result);
     }
 }

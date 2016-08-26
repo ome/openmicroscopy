@@ -243,32 +243,12 @@ public class StructuredDataResults {
     }
 
     /**
-     * Sets the collection of annotations.
-     * 
-     * @param texts
-     *            The value to set.
-     */
-    public void setTextualAnnotations(Collection<TextualAnnotationData> texts) {
-        this.texts = texts;
-    }
-
-    /**
      * Returns the collection of attachments.
      * 
      * @return See above.
      */
     public Collection<FileAnnotationData> getAttachments() {
         return attachments;
-    }
-
-    /**
-     * Sets the collections of attachments.
-     * 
-     * @param attachments
-     *            The value to set.
-     */
-    public void setAttachments(Collection<FileAnnotationData> attachments) {
-        this.attachments = attachments;
     }
 
     /**
@@ -281,32 +261,12 @@ public class StructuredDataResults {
     }
 
     /**
-     * Sets the collections of <code>XML</code> annotations.
-     * 
-     * @param xmlAnnotations
-     *            The value to set.
-     */
-    public void setXMLAnnotations(Collection<XMLAnnotationData> xmlAnnotations) {
-        this.xmlAnnotations = xmlAnnotations;
-    }
-
-    /**
      * Returns the ratings.
      * 
      * @return See above.
      */
     public Collection<RatingAnnotationData> getRatings() {
         return ratings;
-    }
-
-    /**
-     * Sets the ratings.
-     * 
-     * @param ratings
-     *            The value to set.
-     */
-    public void setRatings(Collection<RatingAnnotationData> ratings) {
-        this.ratings = ratings;
     }
 
     /**
@@ -317,17 +277,6 @@ public class StructuredDataResults {
     public Collection<TagAnnotationData> getTags() {
         return tags;
     }
-
-    /**
-     * Sets the collections of tags.
-     * 
-     * @param tags
-     *            The value to set.
-     */
-    public void setTags(Collection<TagAnnotationData> tags) {
-        this.tags = tags;
-    }
-
     /**
      * Returns the collection of terms.
      * 
@@ -338,16 +287,6 @@ public class StructuredDataResults {
     }
 
     /**
-     * Sets the collections of terms.
-     * 
-     * @param terms
-     *            The value to set.
-     */
-    public void setTerms(Collection<TermAnnotationData> terms) {
-        this.terms = terms;
-    }
-
-    /**
      * Returns the collection of annotations.
      * 
      * @return See above.
@@ -355,17 +294,7 @@ public class StructuredDataResults {
     public Collection<AnnotationData> getOtherAnnotations() {
         return otherAnnotation;
     }
-
-    /**
-     * Sets the collections of annotations.
-     * 
-     * @param otherAnnotation
-     *            The value to set.
-     */
-    public void setOtherAnnotation(Collection<AnnotationData> otherAnnotation) {
-        this.otherAnnotation = otherAnnotation;
-    }
-
+    
     /**
      * Returns the collection of links.
      * 
@@ -376,43 +305,12 @@ public class StructuredDataResults {
     }
 
     /**
-     * Sets the collection.
-     * 
-     * @param links
-     *            The collection to set.
-     */
-    public void setLinks(Map<DataObject, ExperimenterData> links) {
-        this.links = links;
-    }
-
-    /**
      * Returns the collection of links.
      * 
      * @return See above.
      */
     public Collection<AnnotationLinkData> getAnnotationLinks() {
         return annotationLinks;
-    }
-
-    /**
-     * Sets the collection.
-     * 
-     * @param annotationLinks
-     *            The collection to set.
-     */
-    public void setAnnotationLinks(
-            Collection<AnnotationLinkData> annotationLinks) {
-        this.annotationLinks = annotationLinks;
-    }
-
-    /**
-     * Sets the collection of transferlink annotations (in-place imports)
-     * 
-     * @param transferlinks
-     *            Transferlink annotations to set
-     */
-    public void setTransferlinks(Collection<AnnotationData> transferlinks) {
-        this.transferlinks = transferlinks;
     }
 
     /**
@@ -431,16 +329,6 @@ public class StructuredDataResults {
      */
     public Collection<MapAnnotationData> getMapAnnotations() {
         return mapAnnotations;
-    }
-
-    /**
-     * Sets the collection of {@link MapAnnotationData}.
-     * 
-     * @param mapAnnotations
-     *            The value to set.
-     */
-    public void setMapAnnotations(Collection<MapAnnotationData> mapAnnotations) {
-        this.mapAnnotations = mapAnnotations;
     }
 
     /**

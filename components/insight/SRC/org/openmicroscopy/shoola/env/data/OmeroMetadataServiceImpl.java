@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import ome.formats.model.UnitsFactory;
 import omero.model.PlateAnnotationLink;
@@ -95,6 +96,7 @@ import omero.gateway.util.PojoMapper;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.MetadataFacility;
 import omero.gateway.model.ROIResult;
 import omero.gateway.model.TableResult;
 
@@ -964,14 +966,14 @@ class OmeroMetadataServiceImpl
                         results.getObjectId(), annotationIds, -1);
                 formatAnnotationLinks(links, results);
             }
-            results.setOtherAnnotation(other);
-            results.setXMLAnnotations(xml);
-            results.setTextualAnnotations(texts);
-            results.setTerms(terms);
-            results.setTags(tags);
-            results.setRatings(ratings);
-            results.setAttachments(attachments);
-            results.setMapAnnotations(maps);
+            results.getOtherAnnotations().addAll(other);
+            results.getXMLAnnotations().addAll(xml);
+            results.getTextualAnnotations().addAll(texts);
+            results.getTerms().addAll(terms);
+            results.getTags().addAll(tags);
+            results.getRatings().addAll(ratings);
+            results.getAttachments().addAll(attachments);
+            results.getMapAnnotations().addAll(maps);
         }
     }
     
@@ -1011,7 +1013,8 @@ class OmeroMetadataServiceImpl
 					loadAnnotations(ctx, FilesetData.class, Arrays.asList(fID),
 						TextualAnnotationData.class,
 						Arrays.asList(AnnotationData.FILE_TRANSFER_NS), null);
-				results.setTransferlinks(map.get(fID));
+				if(map.get(fID)!=null)
+				    results.getTransferLinks().addAll(map.get(fID));
 			}
 		}
 		return results;
@@ -1178,7 +1181,8 @@ class OmeroMetadataServiceImpl
                 results.put(n, r);
                 if (n instanceof ImageData) {
                     ImageData img = (ImageData) n;
-                    r.setTransferlinks(filesetMap.get(img.getFilesetId()));
+                    if(filesetMap.get(img.getFilesetId())!=null)
+                        r.getTransferLinks().addAll(filesetMap.get(img.getFilesetId()));
                 }
                 formatAnnotationLinks(linkMap.get(n.getId()), r);
             }
@@ -1249,7 +1253,8 @@ class OmeroMetadataServiceImpl
                 results.put(n, r);
                 if (n instanceof ImageData) {
                     ImageData img = (ImageData) n;
-                    r.setTransferlinks(filesetMap.get(img.getFilesetId()));
+                    if(filesetMap.get(img.getFilesetId())!=null)
+                        r.getTransferLinks().addAll(filesetMap.get(img.getFilesetId()));
                 }
                 formatAnnotationLinks(linkMap.get(n.getId()), r);
             }
@@ -1285,8 +1290,8 @@ class OmeroMetadataServiceImpl
 	            m.put(d, (ExperimenterData) PojoMapper.asDataObject(
 	                    link.getDetails().getOwner()));
 	    }
-	    results.setLinks(m);
-	    results.setAnnotationLinks(l);
+	    results.getLinks().putAll(m);
+	    results.getAnnotationLinks().addAll(l);
 	}
 
 	/**
@@ -2695,5 +2700,39 @@ class OmeroMetadataServiceImpl
                }
            }
         }
+    }
+    
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * 
+     * @see OmeroMetadataService#loadAnnotationCount(SecurityContext,
+     *      Collection, long)
+     */
+    public Map<AnnotationType, Long> loadAnnotationCount(SecurityContext ctx,
+            Collection<DataObject> objects, long userID)
+            throws DSOutOfServiceException, DSAccessException {
+        Map<AnnotationType, Long> result = new HashMap<AnnotationType, Long>();
+
+        try {
+            List<Long> userIds = new ArrayList<Long>();
+            if (userID >= 0)
+                userIds.add(userID);
+
+            MetadataFacility fac = gateway.getGateway().getFacility(
+                    MetadataFacility.class);
+            
+            Map<Class<? extends AnnotationData>, Long> data = fac
+                    .getAnnotationCount(ctx, objects, userIds);
+            
+            for (Entry<Class<? extends AnnotationData>, Long> e : data
+                    .entrySet()) {
+                AnnotationType type = AnnotationType.getAnnotationType(e
+                        .getKey());
+                result.put(type, e.getValue());
+            }
+        } catch (ExecutionException e) {
+            // do nothing
+        }
+        return result;
     }
 }

@@ -534,10 +534,6 @@ public class AttachmentsTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     int getUnfilteredAnnotationCount() {
-        if (model.isMultiSelection()) {
-            return model.getAllAttachments().size();
-        } else {
-            return model.getAttachments().size();
-        }
+        return (int) model.getAnnotationCount(AnnotationType.ATTACHMENT);
     }
 }

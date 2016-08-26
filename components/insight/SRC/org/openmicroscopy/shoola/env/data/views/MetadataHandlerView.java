@@ -509,4 +509,22 @@ public interface MetadataHandlerView
         Map<DataObject, List<AnnotationData>> toAdd,
         Map<DataObject, List<AnnotationData>> toRemove, long userID,
         AgentEventListener observer);
+
+    
+    /**
+     * Load the number of annotations attached to the specified objects
+     * 
+     * @param ctx
+     *            The security context.
+     * @param dataObjects
+     *            The objects
+     * @param userID
+     *            The id of the user.
+     * @param observer
+     *            Call-back handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadAnnotationCount(SecurityContext ctx,
+            Collection<DataObject> dataObjects, long userID,
+            AgentEventListener observer);
 }

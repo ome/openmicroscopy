@@ -612,6 +612,16 @@ class EditorComponent
 	}
 
 	/** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#setAnnotationCount(Map)
+     */
+    public void setAnnotationCount(Map<AnnotationType, Long> result)
+    {
+        model.setAnnotationCount(result);
+        view.refreshAnnotationTaskPanes();
+    }
+    
+	/** 
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#setChannelAcquisitionData(int, ChannelAcquisitionData)
 	 */

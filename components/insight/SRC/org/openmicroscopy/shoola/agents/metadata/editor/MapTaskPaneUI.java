@@ -792,21 +792,17 @@ public class MapTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     void onRelatedNodesSet() {
+        if (init) {
+            return;
+        }
+        
         clearDisplay();
         refreshButtonStates();
     }
 
     @Override
     int getUnfilteredAnnotationCount() {
-        int count = 0;
-        for (final MapAnnotationType type : MapAnnotationType.values()) {
-            for (final MapAnnotationData map : model.getMapAnnotations(type)) {
-                if (!((Collection<?>) map.getContent()).isEmpty()) {
-                    count++;
-                }
-            }
-        }
-        return count;
+        return (int) model.getAnnotationCount(AnnotationType.MAP);
     }
     
     @Override

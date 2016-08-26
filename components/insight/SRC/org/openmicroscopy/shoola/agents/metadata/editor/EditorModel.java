@@ -271,6 +271,9 @@ class EditorModel
     /** The file set associated to the image if an image is selected.*/
     private Set<FilesetData> set;
     
+    /** The annotation counts */
+    private Map<AnnotationType, Long> annotationCounts = null;
+    
     /** Checks if the image is a large image or not. */
     private void fireLargeImageLoading()
     {
@@ -2669,6 +2672,7 @@ class EditorModel
 	    if (resultsLoader != null) resultsLoader.clear();
 	    resultsLoader = null;
 	    if (!b) {
+	        annotationCounts = null;
 			parentRefObject = null;
 			gpRefObject = null;
 	    	if (emissionsWavelengths != null) 
@@ -4640,5 +4644,37 @@ class EditorModel
      */
     public void loadStructuredData(EnumSet<AnnotationType> types) {
         parent.loadStructuredData(types);
+    }
+    
+    /**
+     * Triggers the loading of the annotation counts
+     */
+    void loadAnnotationCount() {
+        parent.loadAnnotationCount();
+    }
+
+    /**
+     * Set the annotation counts
+     * 
+     * @param result
+     *            The annotation counts
+     */
+    void setAnnotationCount(Map<AnnotationType, Long> result) {
+        this.annotationCounts = result;
+    }
+
+    /**
+     * Get the number of annotations of a certain type
+     * 
+     * @param type
+     *            The {@link AnnotationType}
+     * @return The number of annotations or <code>-1</code> if the annotation
+     *         counts haven't been loaded (see {@link #loadAnnotationCount()})
+     */
+    long getAnnotationCount(AnnotationType type) {
+        if (annotationCounts == null)
+            return -1;
+        Long l = annotationCounts.get(type);
+        return l == null ? 0 : l;
     }
 }

@@ -119,4 +119,19 @@ public enum AnnotationType {
         return descriptiveName;
     }
 
+    /**
+     * Determine the {@link AnnotationType} by the given pojo class
+     * 
+     * @param pojoClass
+     *            The pojo class
+     * @return See above.
+     */
+    public static AnnotationType getAnnotationType(
+            Class<? extends DataObject> pojoClass) {
+        for (AnnotationType type : AnnotationType.values()) {
+            if (type.getPojoClass().equals(pojoClass))
+                return type;
+        }
+        return OTHER;
+    }
 }

@@ -334,11 +334,7 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     int getUnfilteredAnnotationCount() {
-        if (model.isMultiSelection()) {
-            return model.getAllTags().size();
-        } else {
-            return model.getTags().size();
-        }
+        return (int) model.getAnnotationCount(AnnotationType.TAG);
     }
     
     void onCollapsed(boolean collapsed) {

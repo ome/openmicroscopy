@@ -178,6 +178,9 @@ public interface MetadataViewer
 	/** Flag to denote the <i>Loading Metadata</i> state. */
 	public static final int     LOADING_METADATA = 2;
 
+	/** Flag to denote the <i>Loading Metadata Count</i> state. */
+    public static final int     LOADING_METADATA_COUNT = 3;
+    
 	/** Flag to denote the <i>Ready</i> state. */
 	public static final int     READY = 3;
 
@@ -727,4 +730,20 @@ public interface MetadataViewer
      *            The types of annotations to load
      */
     public void loadStructuredData(EnumSet<AnnotationType> types);
+
+    /**
+     * Triggers the loading of the annotation counts
+     */
+    public void loadAnnotationCount();
+
+    /**
+     * Set the annotation counts
+     * 
+     * @param result
+     *            The annotation counts
+     * @param loaderID
+     *            The ID of the loader
+     */
+    public void setAnnotationCount(Map<AnnotationType, Long> result,
+            int loaderID);
 }

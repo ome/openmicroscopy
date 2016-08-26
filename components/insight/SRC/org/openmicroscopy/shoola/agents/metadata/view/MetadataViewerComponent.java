@@ -1322,8 +1322,40 @@ class MetadataViewerComponent
         model.getEditor().reloadROICount();
     }
     
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#loadStructuredData(EnumSet)
+     */
     @Override
     public void loadStructuredData(EnumSet<AnnotationType> types) {
-        model.fireStructuredDataLoading(getRefObject(), types);
+        boolean b = model.isSingleMode();
+        if(b) 
+            model.fireStructuredDataLoading(getRefObject(), types);
+        else
+            model.fireStructuredDataLoading(getRelatedNodes(), types);
+    }
+    
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#loadAnnotationCount()
+     */
+    @Override
+    public void loadAnnotationCount() {
+        Collection<DataObject> objs = new ArrayList<DataObject>();
+        if(isSingleMode())
+            objs.add((DataObject) getRefObject());
+        else
+            objs.addAll(getRelatedNodes());
+        model.fireAnnotationCountLoading(objs);
+    }
+    
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#setAnnotationCount(Map, int)
+     */
+    @Override
+    public void setAnnotationCount(Map<AnnotationType, Long> result,
+            int loaderID) {
+        model.setAnnotationCount(result, loaderID);
     }
 }
