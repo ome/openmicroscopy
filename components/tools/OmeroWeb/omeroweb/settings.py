@@ -29,7 +29,6 @@
 
 import os.path
 import sys
-import platform
 import logging
 import omero
 import omero.config
@@ -80,10 +79,7 @@ FULL_REQUEST_LOGFORMAT = (
     ' (proc.%(process)5.5d) %(funcName)s():%(lineno)d'
     ' HTTP %(status_code)d %(request)s')
 
-if platform.system() in ("Windows",):
-    LOGGING_CLASS = 'logging.handlers.RotatingFileHandler'
-else:
-    LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
+LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
 
 LOGGING = {
     'version': 1,
@@ -584,8 +580,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          '[]',
          json.loads,
          ("List of locations of the template source files, in search order. "
-          "Note that these paths should use Unix-style forward slashes, even"
-          " on Windows.")],
+          "Note that these paths should use Unix-style forward slashes.")],
     "omero.web.index_template":
         ["INDEX_TEMPLATE",
          None,
@@ -885,8 +880,6 @@ SITE_ID = 1
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
 TIME_ZONE = 'Europe/London'
 FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
