@@ -1748,7 +1748,7 @@ class _BlitzGateway (object):
     def seppuku(self, softclose=False):  # pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the
-        session is really terminate disregarding its connection refcount.
+        session is really terminated disregarding its connection refcount.
 
         :param softclose:   Boolean
 
@@ -1762,7 +1762,7 @@ class _BlitzGateway (object):
     def terminateAllClients(self, softclose=False):  # pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the
-        session is really terminate disregarding its connection refcount.
+        session is really terminated disregarding its connection refcount.
 
         :param softclose:   Boolean
         """
