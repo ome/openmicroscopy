@@ -168,15 +168,15 @@
         id int8 not null,
         permissions int8 not null,
         version int4,
+        channelBinding int8 not null,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        renderingDef int8 not null,
-        renderingDef_index int4 not null,
+        channelBinding_index int4 not null,
         primary key (id),
-        unique (renderingDef, renderingDef_index)
+        unique (channelBinding, channelBinding_index)
     );;
 
     create table contrastmethod (
@@ -941,8 +941,8 @@
         parent int8 not null,
         parent_index int4 not null,
         primary key (id),
-        unique (parent, parent_index),
-        unique (parent, child, owner_id)
+        unique (parent, child, owner_id),
+        unique (parent, parent_index)
     );;
 
     create table filter (
@@ -1395,8 +1395,8 @@
         parent int8 not null,
         parent_index int4 not null,
         primary key (id),
-        unique (parent, parent_index),
-        unique (parent, child, owner_id)
+        unique (parent, child, owner_id),
+        unique (parent, parent_index)
     );;
 
     create table lightsettings (
@@ -2476,19 +2476,9 @@
         references externalinfo  ;;
 
     alter table affinetransform 
-        add constraint FKaffinetransform_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table affinetransform 
         add constraint FKaffinetransform_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table affinetransform 
-        add constraint FKaffinetransform_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table affinetransform 
         add constraint FKaffinetransform_group_id_experimentergroup 
@@ -2500,8 +2490,13 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table annotation 
-        add constraint FKannotation_creation_id_event 
+    alter table affinetransform 
+        add constraint FKaffinetransform_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table affinetransform 
+        add constraint FKaffinetransform_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
@@ -2509,11 +2504,6 @@
         add constraint FKannotation_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table annotation 
-        add constraint FKannotation_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table annotation 
         add constraint FKfileannotation_file_originalfile 
@@ -2530,19 +2520,19 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table annotation_mapValue 
-        add constraint FKannotation_mapValue_map 
-        foreign key (annotation_id) 
-        references annotation  ;;
+    alter table annotation 
+        add constraint FKannotation_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table annotationannotationlink 
-        add constraint FKannotationannotationlink_creation_id_event 
+    alter table annotation 
+        add constraint FKannotation_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table annotationannotationlink 
-        add constraint FKannotationannotationlink_child_annotation 
-        foreign key (child) 
+    alter table annotation_mapValue 
+        add constraint FKannotation_mapValue_map 
+        foreign key (annotation_id) 
         references annotation  ;;
 
     alter table annotationannotationlink 
@@ -2551,9 +2541,9 @@
         references event  ;;
 
     alter table annotationannotationlink 
-        add constraint FKannotationannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKannotationannotationlink_parent_annotation 
+        foreign key (parent) 
+        references annotation  ;;
 
     alter table annotationannotationlink 
         add constraint FKannotationannotationlink_group_id_experimentergroup 
@@ -2566,8 +2556,18 @@
         references experimenter  ;;
 
     alter table annotationannotationlink 
-        add constraint FKannotationannotationlink_parent_annotation 
-        foreign key (parent) 
+        add constraint FKannotationannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table annotationannotationlink 
+        add constraint FKannotationannotationlink_child_annotation 
+        foreign key (child) 
         references annotation  ;;
 
     alter table arc 
@@ -2591,29 +2591,9 @@
         references externalinfo  ;;
 
     alter table channel 
-        add constraint FKchannel_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table channel 
-        add constraint FKchannel_logicalChannel_logicalchannel 
-        foreign key (logicalChannel) 
-        references logicalchannel  ;;
-
-    alter table channel 
         add constraint FKchannel_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table channel 
-        add constraint FKchannel_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table channel 
-        add constraint FKchannel_statsInfo_statsinfo 
-        foreign key (statsInfo) 
-        references statsinfo  ;;
 
     alter table channel 
         add constraint FKchannel_pixels_pixels 
@@ -2630,15 +2610,25 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table channelannotationlink 
-        add constraint FKchannelannotationlink_creation_id_event 
+    alter table channel 
+        add constraint FKchannel_statsInfo_statsinfo 
+        foreign key (statsInfo) 
+        references statsinfo  ;;
+
+    alter table channel 
+        add constraint FKchannel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table channel 
+        add constraint FKchannel_logicalChannel_logicalchannel 
+        foreign key (logicalChannel) 
+        references logicalchannel  ;;
+
+    alter table channel 
+        add constraint FKchannel_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table channelannotationlink 
-        add constraint FKchannelannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table channelannotationlink 
         add constraint FKchannelannotationlink_update_id_event 
@@ -2646,9 +2636,9 @@
         references event  ;;
 
     alter table channelannotationlink 
-        add constraint FKchannelannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKchannelannotationlink_parent_channel 
+        foreign key (parent) 
+        references channel  ;;
 
     alter table channelannotationlink 
         add constraint FKchannelannotationlink_group_id_experimentergroup 
@@ -2661,19 +2651,39 @@
         references experimenter  ;;
 
     alter table channelannotationlink 
-        add constraint FKchannelannotationlink_parent_channel 
-        foreign key (parent) 
-        references channel  ;;
+        add constraint FKchannelannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table channelbinding 
-        add constraint FKchannelbinding_creation_id_event 
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table channelannotationlink 
+        add constraint FKchannelannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table channelbinding 
         add constraint FKchannelbinding_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_renderingDef_renderingdef 
+        foreign key (renderingDef) 
+        references renderingdef  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table channelbinding 
+        add constraint FKchannelbinding_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table channelbinding 
         add constraint FKchannelbinding_external_id_externalinfo 
@@ -2686,19 +2696,9 @@
         references family  ;;
 
     alter table channelbinding 
-        add constraint FKchannelbinding_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table channelbinding 
-        add constraint FKchannelbinding_renderingDef_renderingdef 
-        foreign key (renderingDef) 
-        references renderingdef  ;;
-
-    alter table channelbinding 
-        add constraint FKchannelbinding_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
+        add constraint FKchannelbinding_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table checksumalgorithm 
         add constraint FKchecksumalgorithm_external_id_externalinfo 
@@ -2706,19 +2706,9 @@
         references externalinfo  ;;
 
     alter table codomainmapcontext 
-        add constraint FKcodomainmapcontext_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table codomainmapcontext 
         add constraint FKcodomainmapcontext_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table codomainmapcontext 
-        add constraint FKcodomainmapcontext_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table codomainmapcontext 
         add constraint FKcodomainmapcontext_group_id_experimentergroup 
@@ -2726,14 +2716,24 @@
         references experimentergroup  ;;
 
     alter table codomainmapcontext 
-        add constraint FKcodomainmapcontext_renderingDef_renderingdef 
-        foreign key (renderingDef) 
-        references renderingdef  ;;
-
-    alter table codomainmapcontext 
         add constraint FKcodomainmapcontext_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_channelBinding_channelbinding 
+        foreign key (channelBinding) 
+        references channelbinding  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table contrastmethod 
         add constraint FKcontrastmethod_external_id_externalinfo 
@@ -3001,19 +3001,9 @@
         references well  ;;
 
     alter table dataset 
-        add constraint FKdataset_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table dataset 
         add constraint FKdataset_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table dataset 
-        add constraint FKdataset_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table dataset 
         add constraint FKdataset_group_id_experimentergroup 
@@ -3025,15 +3015,15 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table datasetannotationlink 
-        add constraint FKdatasetannotationlink_creation_id_event 
+    alter table dataset 
+        add constraint FKdataset_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table dataset 
+        add constraint FKdataset_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table datasetannotationlink 
-        add constraint FKdatasetannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table datasetannotationlink 
         add constraint FKdatasetannotationlink_update_id_event 
@@ -3041,9 +3031,9 @@
         references event  ;;
 
     alter table datasetannotationlink 
-        add constraint FKdatasetannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKdatasetannotationlink_parent_dataset 
+        foreign key (parent) 
+        references dataset  ;;
 
     alter table datasetannotationlink 
         add constraint FKdatasetannotationlink_group_id_experimentergroup 
@@ -3056,19 +3046,19 @@
         references experimenter  ;;
 
     alter table datasetannotationlink 
-        add constraint FKdatasetannotationlink_parent_dataset 
-        foreign key (parent) 
-        references dataset  ;;
+        add constraint FKdatasetannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table datasetimagelink 
-        add constraint FKdatasetimagelink_creation_id_event 
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table datasetimagelink 
-        add constraint FKdatasetimagelink_child_image 
+    alter table datasetannotationlink 
+        add constraint FKdatasetannotationlink_child_annotation 
         foreign key (child) 
-        references image  ;;
+        references annotation  ;;
 
     alter table datasetimagelink 
         add constraint FKdatasetimagelink_update_id_event 
@@ -3076,9 +3066,9 @@
         references event  ;;
 
     alter table datasetimagelink 
-        add constraint FKdatasetimagelink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKdatasetimagelink_parent_dataset 
+        foreign key (parent) 
+        references dataset  ;;
 
     alter table datasetimagelink 
         add constraint FKdatasetimagelink_group_id_experimentergroup 
@@ -3091,9 +3081,19 @@
         references experimenter  ;;
 
     alter table datasetimagelink 
-        add constraint FKdatasetimagelink_parent_dataset 
-        foreign key (parent) 
-        references dataset  ;;
+        add constraint FKdatasetimagelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table datasetimagelink 
+        add constraint FKdatasetimagelink_child_image 
+        foreign key (child) 
+        references image  ;;
 
     alter table dbpatch 
         add constraint FKdbpatch_external_id_externalinfo 
@@ -3101,29 +3101,9 @@
         references externalinfo  ;;
 
     alter table detector 
-        add constraint FKdetector_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table detector 
         add constraint FKdetector_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table detector 
-        add constraint FKdetector_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table detector 
-        add constraint FKdetector_type_detectortype 
-        foreign key (type) 
-        references detectortype  ;;
-
-    alter table detector 
-        add constraint FKdetector_instrument_instrument 
-        foreign key (instrument) 
-        references instrument  ;;
 
     alter table detector 
         add constraint FKdetector_group_id_experimentergroup 
@@ -3135,15 +3115,25 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table detectorannotationlink 
-        add constraint FKdetectorannotationlink_creation_id_event 
+    alter table detector 
+        add constraint FKdetector_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table detector 
+        add constraint FKdetector_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table detector 
+        add constraint FKdetector_type_detectortype 
+        foreign key (type) 
+        references detectortype  ;;
+
+    alter table detector 
+        add constraint FKdetector_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table detectorannotationlink 
-        add constraint FKdetectorannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table detectorannotationlink 
         add constraint FKdetectorannotationlink_update_id_event 
@@ -3151,9 +3141,9 @@
         references event  ;;
 
     alter table detectorannotationlink 
-        add constraint FKdetectorannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKdetectorannotationlink_parent_detector 
+        foreign key (parent) 
+        references detector  ;;
 
     alter table detectorannotationlink 
         add constraint FKdetectorannotationlink_group_id_experimentergroup 
@@ -3166,14 +3156,19 @@
         references experimenter  ;;
 
     alter table detectorannotationlink 
-        add constraint FKdetectorannotationlink_parent_detector 
-        foreign key (parent) 
-        references detector  ;;
+        add constraint FKdetectorannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table detectorsettings 
-        add constraint FKdetectorsettings_creation_id_event 
+    alter table detectorannotationlink 
+        add constraint FKdetectorannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table detectorannotationlink 
+        add constraint FKdetectorannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table detectorsettings 
         add constraint FKdetectorsettings_update_id_event 
@@ -3181,9 +3176,14 @@
         references event  ;;
 
     alter table detectorsettings 
-        add constraint FKdetectorsettings_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKdetectorsettings_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table detectorsettings 
+        add constraint FKdetectorsettings_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table detectorsettings 
         add constraint FKdetectorsettings_binning_binning 
@@ -3191,19 +3191,19 @@
         references binning  ;;
 
     alter table detectorsettings 
-        add constraint FKdetectorsettings_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
+        add constraint FKdetectorsettings_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table detectorsettings 
+        add constraint FKdetectorsettings_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table detectorsettings 
         add constraint FKdetectorsettings_detector_detector 
         foreign key (detector) 
         references detector  ;;
-
-    alter table detectorsettings 
-        add constraint FKdetectorsettings_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
 
     alter table detectortype 
         add constraint FKdetectortype_external_id_externalinfo 
@@ -3211,14 +3211,19 @@
         references externalinfo  ;;
 
     alter table dichroic 
-        add constraint FKdichroic_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table dichroic 
         add constraint FKdichroic_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table dichroic 
+        add constraint FKdichroic_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table dichroic 
+        add constraint FKdichroic_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table dichroic 
         add constraint FKdichroic_external_id_externalinfo 
@@ -3231,24 +3236,9 @@
         references instrument  ;;
 
     alter table dichroic 
-        add constraint FKdichroic_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table dichroic 
-        add constraint FKdichroic_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
-    alter table dichroicannotationlink 
-        add constraint FKdichroicannotationlink_creation_id_event 
+        add constraint FKdichroic_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table dichroicannotationlink 
-        add constraint FKdichroicannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table dichroicannotationlink 
         add constraint FKdichroicannotationlink_update_id_event 
@@ -3256,9 +3246,9 @@
         references event  ;;
 
     alter table dichroicannotationlink 
-        add constraint FKdichroicannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKdichroicannotationlink_parent_dichroic 
+        foreign key (parent) 
+        references dichroic  ;;
 
     alter table dichroicannotationlink 
         add constraint FKdichroicannotationlink_group_id_experimentergroup 
@@ -3271,9 +3261,19 @@
         references experimenter  ;;
 
     alter table dichroicannotationlink 
-        add constraint FKdichroicannotationlink_parent_dichroic 
-        foreign key (parent) 
-        references dichroic  ;;
+        add constraint FKdichroicannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table dichroicannotationlink 
+        add constraint FKdichroicannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table dichroicannotationlink 
+        add constraint FKdichroicannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table dimensionorder 
         add constraint FKdimensionorder_external_id_externalinfo 
@@ -3286,19 +3286,19 @@
         references experimentergroup  ;;
 
     alter table event 
-        add constraint FKevent_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table event 
         add constraint FKevent_session_session 
         foreign key ("session") 
         references session  ;;
 
     alter table event 
-        add constraint FKevent_containingEvent_event 
-        foreign key (containingEvent) 
-        references event  ;;
+        add constraint FKevent_experimenter_experimenter 
+        foreign key (experimenter) 
+        references experimenter  ;;
+
+    alter table event 
+        add constraint FKevent_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table event 
         add constraint FKevent_type_eventtype 
@@ -3306,9 +3306,9 @@
         references eventtype  ;;
 
     alter table event 
-        add constraint FKevent_experimenter_experimenter 
-        foreign key (experimenter) 
-        references experimenter  ;;
+        add constraint FKevent_containingEvent_event 
+        foreign key (containingEvent) 
+        references event  ;;
 
     alter table eventlog 
         add constraint FKeventlog_external_id_externalinfo 
@@ -3326,14 +3326,19 @@
         references externalinfo  ;;
 
     alter table experiment 
-        add constraint FKexperiment_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table experiment 
         add constraint FKexperiment_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table experiment 
+        add constraint FKexperiment_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table experiment 
         add constraint FKexperiment_external_id_externalinfo 
@@ -3346,14 +3351,9 @@
         references experimenttype  ;;
 
     alter table experiment 
-        add constraint FKexperiment_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table experiment 
-        add constraint FKexperiment_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
+        add constraint FKexperiment_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table experimenter 
         add constraint FKexperimenter_external_id_externalinfo 
@@ -3366,24 +3366,14 @@
         references experimenter  ;;
 
     alter table experimenterannotationlink 
-        add constraint FKexperimenterannotationlink_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table experimenterannotationlink 
-        add constraint FKexperimenterannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
-
-    alter table experimenterannotationlink 
         add constraint FKexperimenterannotationlink_update_id_event 
         foreign key (update_id) 
         references event  ;;
 
     alter table experimenterannotationlink 
-        add constraint FKexperimenterannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKexperimenterannotationlink_parent_experimenter 
+        foreign key (parent) 
+        references experimenter  ;;
 
     alter table experimenterannotationlink 
         add constraint FKexperimenterannotationlink_group_id_experimentergroup 
@@ -3396,9 +3386,19 @@
         references experimenter  ;;
 
     alter table experimenterannotationlink 
-        add constraint FKexperimenterannotationlink_parent_experimenter 
-        foreign key (parent) 
-        references experimenter  ;;
+        add constraint FKexperimenterannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table experimenterannotationlink 
+        add constraint FKexperimenterannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table experimentergroup 
         add constraint FKexperimentergroup_external_id_externalinfo 
@@ -3411,24 +3411,14 @@
         references experimentergroup  ;;
 
     alter table experimentergroupannotationlink 
-        add constraint FKexperimentergroupannotationlink_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table experimentergroupannotationlink 
-        add constraint FKexperimentergroupannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
-
-    alter table experimentergroupannotationlink 
         add constraint FKexperimentergroupannotationlink_update_id_event 
         foreign key (update_id) 
         references event  ;;
 
     alter table experimentergroupannotationlink 
-        add constraint FKexperimentergroupannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKexperimentergroupannotationlink_parent_experimentergroup 
+        foreign key (parent) 
+        references experimentergroup  ;;
 
     alter table experimentergroupannotationlink 
         add constraint FKexperimentergroupannotationlink_group_id_experimentergroup 
@@ -3441,22 +3431,22 @@
         references experimenter  ;;
 
     alter table experimentergroupannotationlink 
-        add constraint FKexperimentergroupannotationlink_parent_experimentergroup 
-        foreign key (parent) 
-        references experimentergroup  ;;
-
-    alter table experimenttype 
-        add constraint FKexperimenttype_external_id_externalinfo 
+        add constraint FKexperimentergroupannotationlink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
-    alter table externalinfo 
-        add constraint FKexternalinfo_creation_id_event 
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table externalinfo 
-        add constraint FKexternalinfo_external_id_externalinfo 
+    alter table experimentergroupannotationlink 
+        add constraint FKexperimentergroupannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table experimenttype 
+        add constraint FKexperimenttype_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
@@ -3469,6 +3459,16 @@
         add constraint FKexternalinfo_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table externalinfo 
+        add constraint FKexternalinfo_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table externalinfo 
+        add constraint FKexternalinfo_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table family 
         add constraint FKfamily_external_id_externalinfo 
@@ -3491,19 +3491,9 @@
         references externalinfo  ;;
 
     alter table fileset 
-        add constraint FKfileset_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table fileset 
         add constraint FKfileset_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table fileset 
-        add constraint FKfileset_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table fileset 
         add constraint FKfileset_group_id_experimentergroup 
@@ -3515,15 +3505,15 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table filesetannotationlink 
-        add constraint FKfilesetannotationlink_creation_id_event 
+    alter table fileset 
+        add constraint FKfileset_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table fileset 
+        add constraint FKfileset_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table filesetannotationlink 
-        add constraint FKfilesetannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table filesetannotationlink 
         add constraint FKfilesetannotationlink_update_id_event 
@@ -3531,9 +3521,9 @@
         references event  ;;
 
     alter table filesetannotationlink 
-        add constraint FKfilesetannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKfilesetannotationlink_parent_fileset 
+        foreign key (parent) 
+        references fileset  ;;
 
     alter table filesetannotationlink 
         add constraint FKfilesetannotationlink_group_id_experimentergroup 
@@ -3546,34 +3536,24 @@
         references experimenter  ;;
 
     alter table filesetannotationlink 
-        add constraint FKfilesetannotationlink_parent_fileset 
-        foreign key (parent) 
-        references fileset  ;;
+        add constraint FKfilesetannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table filesetentry 
-        add constraint FKfilesetentry_creation_id_event 
+    alter table filesetannotationlink 
+        add constraint FKfilesetannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table filesetentry 
-        add constraint FKfilesetentry_originalFile_originalfile 
-        foreign key (originalFile) 
-        references originalfile  ;;
+    alter table filesetannotationlink 
+        add constraint FKfilesetannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table filesetentry 
         add constraint FKfilesetentry_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table filesetentry 
-        add constraint FKfilesetentry_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table filesetentry 
-        add constraint FKfilesetentry_fileset_fileset 
-        foreign key (fileset) 
-        references fileset  ;;
 
     alter table filesetentry 
         add constraint FKfilesetentry_group_id_experimentergroup 
@@ -3585,15 +3565,25 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table filesetjoblink 
-        add constraint FKfilesetjoblink_creation_id_event 
+    alter table filesetentry 
+        add constraint FKfilesetentry_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filesetentry 
+        add constraint FKfilesetentry_originalFile_originalfile 
+        foreign key (originalFile) 
+        references originalfile  ;;
+
+    alter table filesetentry 
+        add constraint FKfilesetentry_fileset_fileset 
+        foreign key (fileset) 
+        references fileset  ;;
+
+    alter table filesetentry 
+        add constraint FKfilesetentry_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table filesetjoblink 
-        add constraint FKfilesetjoblink_child_job 
-        foreign key (child) 
-        references job  ;;
 
     alter table filesetjoblink 
         add constraint FKfilesetjoblink_update_id_event 
@@ -3601,9 +3591,9 @@
         references event  ;;
 
     alter table filesetjoblink 
-        add constraint FKfilesetjoblink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKfilesetjoblink_parent_fileset 
+        foreign key (parent) 
+        references fileset  ;;
 
     alter table filesetjoblink 
         add constraint FKfilesetjoblink_group_id_experimentergroup 
@@ -3616,39 +3606,24 @@
         references experimenter  ;;
 
     alter table filesetjoblink 
-        add constraint FKfilesetjoblink_parent_fileset 
-        foreign key (parent) 
-        references fileset  ;;
+        add constraint FKfilesetjoblink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table filter 
-        add constraint FKfilter_creation_id_event 
+    alter table filesetjoblink 
+        add constraint FKfilesetjoblink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table filesetjoblink 
+        add constraint FKfilesetjoblink_child_job 
+        foreign key (child) 
+        references job  ;;
 
     alter table filter 
         add constraint FKfilter_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table filter 
-        add constraint FKfilter_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table filter 
-        add constraint FKfilter_transmittanceRange_transmittancerange 
-        foreign key (transmittanceRange) 
-        references transmittancerange  ;;
-
-    alter table filter 
-        add constraint FKfilter_type_filtertype 
-        foreign key (type) 
-        references filtertype  ;;
-
-    alter table filter 
-        add constraint FKfilter_instrument_instrument 
-        foreign key (instrument) 
-        references instrument  ;;
 
     alter table filter 
         add constraint FKfilter_group_id_experimentergroup 
@@ -3660,15 +3635,30 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table filterannotationlink 
-        add constraint FKfilterannotationlink_creation_id_event 
+    alter table filter 
+        add constraint FKfilter_transmittanceRange_transmittancerange 
+        foreign key (transmittanceRange) 
+        references transmittancerange  ;;
+
+    alter table filter 
+        add constraint FKfilter_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filter 
+        add constraint FKfilter_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table filter 
+        add constraint FKfilter_type_filtertype 
+        foreign key (type) 
+        references filtertype  ;;
+
+    alter table filter 
+        add constraint FKfilter_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table filterannotationlink 
-        add constraint FKfilterannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table filterannotationlink 
         add constraint FKfilterannotationlink_update_id_event 
@@ -3676,9 +3666,9 @@
         references event  ;;
 
     alter table filterannotationlink 
-        add constraint FKfilterannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKfilterannotationlink_parent_filter 
+        foreign key (parent) 
+        references filter  ;;
 
     alter table filterannotationlink 
         add constraint FKfilterannotationlink_group_id_experimentergroup 
@@ -3691,19 +3681,39 @@
         references experimenter  ;;
 
     alter table filterannotationlink 
-        add constraint FKfilterannotationlink_parent_filter 
-        foreign key (parent) 
-        references filter  ;;
+        add constraint FKfilterannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table filterset 
-        add constraint FKfilterset_creation_id_event 
+    alter table filterannotationlink 
+        add constraint FKfilterannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table filterannotationlink 
+        add constraint FKfilterannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table filterset 
         add constraint FKfilterset_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table filterset 
+        add constraint FKfilterset_dichroic_dichroic 
+        foreign key (dichroic) 
+        references dichroic  ;;
+
+    alter table filterset 
+        add constraint FKfilterset_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table filterset 
+        add constraint FKfilterset_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table filterset 
         add constraint FKfilterset_external_id_externalinfo 
@@ -3716,29 +3726,9 @@
         references instrument  ;;
 
     alter table filterset 
-        add constraint FKfilterset_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table filterset 
-        add constraint FKfilterset_dichroic_dichroic 
-        foreign key (dichroic) 
-        references dichroic  ;;
-
-    alter table filterset 
-        add constraint FKfilterset_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
-    alter table filtersetemissionfilterlink 
-        add constraint FKfiltersetemissionfilterlink_creation_id_event 
+        add constraint FKfilterset_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table filtersetemissionfilterlink 
-        add constraint FKfiltersetemissionfilterlink_child_filter 
-        foreign key (child) 
-        references filter  ;;
 
     alter table filtersetemissionfilterlink 
         add constraint FKfiltersetemissionfilterlink_update_id_event 
@@ -3746,9 +3736,9 @@
         references event  ;;
 
     alter table filtersetemissionfilterlink 
-        add constraint FKfiltersetemissionfilterlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKfiltersetemissionfilterlink_parent_filterset 
+        foreign key (parent) 
+        references filterset  ;;
 
     alter table filtersetemissionfilterlink 
         add constraint FKfiltersetemissionfilterlink_group_id_experimentergroup 
@@ -3761,17 +3751,17 @@
         references experimenter  ;;
 
     alter table filtersetemissionfilterlink 
-        add constraint FKfiltersetemissionfilterlink_parent_filterset 
-        foreign key (parent) 
-        references filterset  ;;
+        add constraint FKfiltersetemissionfilterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table filtersetexcitationfilterlink 
-        add constraint FKfiltersetexcitationfilterlink_creation_id_event 
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table filtersetexcitationfilterlink 
-        add constraint FKfiltersetexcitationfilterlink_child_filter 
+    alter table filtersetemissionfilterlink 
+        add constraint FKfiltersetemissionfilterlink_child_filter 
         foreign key (child) 
         references filter  ;;
 
@@ -3781,9 +3771,9 @@
         references event  ;;
 
     alter table filtersetexcitationfilterlink 
-        add constraint FKfiltersetexcitationfilterlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKfiltersetexcitationfilterlink_parent_filterset 
+        foreign key (parent) 
+        references filterset  ;;
 
     alter table filtersetexcitationfilterlink 
         add constraint FKfiltersetexcitationfilterlink_group_id_experimentergroup 
@@ -3796,9 +3786,19 @@
         references experimenter  ;;
 
     alter table filtersetexcitationfilterlink 
-        add constraint FKfiltersetexcitationfilterlink_parent_filterset 
-        foreign key (parent) 
-        references filterset  ;;
+        add constraint FKfiltersetexcitationfilterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table filtersetexcitationfilterlink 
+        add constraint FKfiltersetexcitationfilterlink_child_filter 
+        foreign key (child) 
+        references filter  ;;
 
     alter table filtertype 
         add constraint FKfiltertype_external_id_externalinfo 
@@ -3806,24 +3806,9 @@
         references externalinfo  ;;
 
     alter table folder 
-        add constraint FKfolder_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table folder 
         add constraint FKfolder_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table folder 
-        add constraint FKfolder_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table folder 
-        add constraint FKfolder_parentFolder_folder 
-        foreign key (parentFolder) 
-        references folder  ;;
 
     alter table folder 
         add constraint FKfolder_group_id_experimentergroup 
@@ -3835,15 +3820,20 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table folderannotationlink 
-        add constraint FKfolderannotationlink_creation_id_event 
+    alter table folder 
+        add constraint FKfolder_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table folder 
+        add constraint FKfolder_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table folderannotationlink 
-        add constraint FKfolderannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
+    alter table folder 
+        add constraint FKfolder_parentFolder_folder 
+        foreign key (parentFolder) 
+        references folder  ;;
 
     alter table folderannotationlink 
         add constraint FKfolderannotationlink_update_id_event 
@@ -3851,9 +3841,9 @@
         references event  ;;
 
     alter table folderannotationlink 
-        add constraint FKfolderannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKfolderannotationlink_parent_folder 
+        foreign key (parent) 
+        references folder  ;;
 
     alter table folderannotationlink 
         add constraint FKfolderannotationlink_group_id_experimentergroup 
@@ -3866,19 +3856,19 @@
         references experimenter  ;;
 
     alter table folderannotationlink 
-        add constraint FKfolderannotationlink_parent_folder 
-        foreign key (parent) 
-        references folder  ;;
+        add constraint FKfolderannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table folderimagelink 
-        add constraint FKfolderimagelink_creation_id_event 
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table folderimagelink 
-        add constraint FKfolderimagelink_child_image 
+    alter table folderannotationlink 
+        add constraint FKfolderannotationlink_child_annotation 
         foreign key (child) 
-        references image  ;;
+        references annotation  ;;
 
     alter table folderimagelink 
         add constraint FKfolderimagelink_update_id_event 
@@ -3886,9 +3876,9 @@
         references event  ;;
 
     alter table folderimagelink 
-        add constraint FKfolderimagelink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKfolderimagelink_parent_folder 
+        foreign key (parent) 
+        references folder  ;;
 
     alter table folderimagelink 
         add constraint FKfolderimagelink_group_id_experimentergroup 
@@ -3901,19 +3891,19 @@
         references experimenter  ;;
 
     alter table folderimagelink 
-        add constraint FKfolderimagelink_parent_folder 
-        foreign key (parent) 
-        references folder  ;;
+        add constraint FKfolderimagelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table folderroilink 
-        add constraint FKfolderroilink_creation_id_event 
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table folderroilink 
-        add constraint FKfolderroilink_child_roi 
+    alter table folderimagelink 
+        add constraint FKfolderimagelink_child_image 
         foreign key (child) 
-        references roi  ;;
+        references image  ;;
 
     alter table folderroilink 
         add constraint FKfolderroilink_update_id_event 
@@ -3921,9 +3911,9 @@
         references event  ;;
 
     alter table folderroilink 
-        add constraint FKfolderroilink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKfolderroilink_parent_folder 
+        foreign key (parent) 
+        references folder  ;;
 
     alter table folderroilink 
         add constraint FKfolderroilink_group_id_experimentergroup 
@@ -3936,9 +3926,19 @@
         references experimenter  ;;
 
     alter table folderroilink 
-        add constraint FKfolderroilink_parent_folder 
-        foreign key (parent) 
-        references folder  ;;
+        add constraint FKfolderroilink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table folderroilink 
+        add constraint FKfolderroilink_child_roi 
+        foreign key (child) 
+        references roi  ;;
 
     alter table format 
         add constraint FKformat_external_id_externalinfo 
@@ -3956,9 +3956,9 @@
         references genericexcitationsource  ;;
 
     alter table groupexperimentermap 
-        add constraint FKgroupexperimentermap_child_experimenter 
-        foreign key (child) 
-        references experimenter  ;;
+        add constraint FKgroupexperimentermap_parent_experimentergroup 
+        foreign key (parent) 
+        references experimentergroup  ;;
 
     alter table groupexperimentermap 
         add constraint FKgroupexperimentermap_external_id_externalinfo 
@@ -3966,9 +3966,9 @@
         references externalinfo  ;;
 
     alter table groupexperimentermap 
-        add constraint FKgroupexperimentermap_parent_experimentergroup 
-        foreign key (parent) 
-        references experimentergroup  ;;
+        add constraint FKgroupexperimentermap_child_experimenter 
+        foreign key (child) 
+        references experimenter  ;;
 
     alter table illumination 
         add constraint FKillumination_external_id_externalinfo 
@@ -3976,54 +3976,9 @@
         references externalinfo  ;;
 
     alter table image 
-        add constraint FKimage_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table image 
         add constraint FKimage_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table image 
-        add constraint FKimage_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table image 
-        add constraint FKimage_imagingEnvironment_imagingenvironment 
-        foreign key (imagingEnvironment) 
-        references imagingenvironment  ;;
-
-    alter table image 
-        add constraint FKimage_experiment_experiment 
-        foreign key (experiment) 
-        references experiment  ;;
-
-    alter table image 
-        add constraint FKimage_instrument_instrument 
-        foreign key (instrument) 
-        references instrument  ;;
-
-    alter table image 
-        add constraint FKimage_format_format 
-        foreign key (format) 
-        references format  ;;
-
-    alter table image 
-        add constraint FKimage_fileset_fileset 
-        foreign key (fileset) 
-        references fileset  ;;
-
-    alter table image 
-        add constraint FKimage_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table image 
-        add constraint FKimage_stageLabel_stagelabel 
-        foreign key (stageLabel) 
-        references stagelabel  ;;
 
     alter table image 
         add constraint FKimage_objectiveSettings_objectivesettings 
@@ -4031,19 +3986,54 @@
         references objectivesettings  ;;
 
     alter table image 
+        add constraint FKimage_experiment_experiment 
+        foreign key (experiment) 
+        references experiment  ;;
+
+    alter table image 
+        add constraint FKimage_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table image 
         add constraint FKimage_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table imageannotationlink 
-        add constraint FKimageannotationlink_creation_id_event 
+    alter table image 
+        add constraint FKimage_format_format 
+        foreign key (format) 
+        references format  ;;
+
+    alter table image 
+        add constraint FKimage_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table image 
+        add constraint FKimage_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table image 
+        add constraint FKimage_stageLabel_stagelabel 
+        foreign key (stageLabel) 
+        references stagelabel  ;;
+
+    alter table image 
+        add constraint FKimage_fileset_fileset 
+        foreign key (fileset) 
+        references fileset  ;;
+
+    alter table image 
+        add constraint FKimage_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table imageannotationlink 
-        add constraint FKimageannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
+    alter table image 
+        add constraint FKimage_imagingEnvironment_imagingenvironment 
+        foreign key (imagingEnvironment) 
+        references imagingenvironment  ;;
 
     alter table imageannotationlink 
         add constraint FKimageannotationlink_update_id_event 
@@ -4051,9 +4041,9 @@
         references event  ;;
 
     alter table imageannotationlink 
-        add constraint FKimageannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKimageannotationlink_parent_image 
+        foreign key (parent) 
+        references image  ;;
 
     alter table imageannotationlink 
         add constraint FKimageannotationlink_group_id_experimentergroup 
@@ -4066,24 +4056,24 @@
         references experimenter  ;;
 
     alter table imageannotationlink 
-        add constraint FKimageannotationlink_parent_image 
-        foreign key (parent) 
-        references image  ;;
+        add constraint FKimageannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table imagingenvironment 
-        add constraint FKimagingenvironment_creation_id_event 
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table imageannotationlink 
+        add constraint FKimageannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table imagingenvironment 
         add constraint FKimagingenvironment_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table imagingenvironment 
-        add constraint FKimagingenvironment_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table imagingenvironment 
         add constraint FKimagingenvironment_group_id_experimentergroup 
@@ -4094,6 +4084,16 @@
         add constraint FKimagingenvironment_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table imagingenvironment 
+        add constraint FKimagingenvironment_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table imagingenvironment 
+        add constraint FKimagingenvironment_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table imagingenvironment_map 
         add constraint FKimagingenvironment_map_map 
@@ -4116,19 +4116,9 @@
         references job  ;;
 
     alter table instrument 
-        add constraint FKinstrument_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table instrument 
         add constraint FKinstrument_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table instrument 
-        add constraint FKinstrument_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table instrument 
         add constraint FKinstrument_group_id_experimentergroup 
@@ -4136,24 +4126,24 @@
         references experimentergroup  ;;
 
     alter table instrument 
-        add constraint FKinstrument_microscope_microscope 
-        foreign key (microscope) 
-        references microscope  ;;
-
-    alter table instrument 
         add constraint FKinstrument_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table instrumentannotationlink 
-        add constraint FKinstrumentannotationlink_creation_id_event 
+    alter table instrument 
+        add constraint FKinstrument_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table instrument 
+        add constraint FKinstrument_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table instrumentannotationlink 
-        add constraint FKinstrumentannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
+    alter table instrument 
+        add constraint FKinstrument_microscope_microscope 
+        foreign key (microscope) 
+        references microscope  ;;
 
     alter table instrumentannotationlink 
         add constraint FKinstrumentannotationlink_update_id_event 
@@ -4161,9 +4151,9 @@
         references event  ;;
 
     alter table instrumentannotationlink 
-        add constraint FKinstrumentannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKinstrumentannotationlink_parent_instrument 
+        foreign key (parent) 
+        references instrument  ;;
 
     alter table instrumentannotationlink 
         add constraint FKinstrumentannotationlink_group_id_experimentergroup 
@@ -4176,9 +4166,19 @@
         references experimenter  ;;
 
     alter table instrumentannotationlink 
-        add constraint FKinstrumentannotationlink_parent_instrument 
-        foreign key (parent) 
-        references instrument  ;;
+        add constraint FKinstrumentannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table instrumentannotationlink 
+        add constraint FKinstrumentannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table instrumentannotationlink 
+        add constraint FKinstrumentannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table integritycheckjob 
         add constraint FKintegritycheckjob_job_id_job 
@@ -4186,24 +4186,9 @@
         references job  ;;
 
     alter table job 
-        add constraint FKjob_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table job 
         add constraint FKjob_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table job 
-        add constraint FKjob_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table job 
-        add constraint FKjob_status_jobstatus 
-        foreign key (status) 
-        references jobstatus  ;;
 
     alter table job 
         add constraint FKjob_group_id_experimentergroup 
@@ -4215,15 +4200,20 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table joboriginalfilelink 
-        add constraint FKjoboriginalfilelink_creation_id_event 
+    alter table job 
+        add constraint FKjob_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table job 
+        add constraint FKjob_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table joboriginalfilelink 
-        add constraint FKjoboriginalfilelink_child_originalfile 
-        foreign key (child) 
-        references originalfile  ;;
+    alter table job 
+        add constraint FKjob_status_jobstatus 
+        foreign key (status) 
+        references jobstatus  ;;
 
     alter table joboriginalfilelink 
         add constraint FKjoboriginalfilelink_update_id_event 
@@ -4231,9 +4221,9 @@
         references event  ;;
 
     alter table joboriginalfilelink 
-        add constraint FKjoboriginalfilelink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKjoboriginalfilelink_parent_job 
+        foreign key (parent) 
+        references job  ;;
 
     alter table joboriginalfilelink 
         add constraint FKjoboriginalfilelink_group_id_experimentergroup 
@@ -4246,9 +4236,19 @@
         references experimenter  ;;
 
     alter table joboriginalfilelink 
-        add constraint FKjoboriginalfilelink_parent_job 
-        foreign key (parent) 
-        references job  ;;
+        add constraint FKjoboriginalfilelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table joboriginalfilelink 
+        add constraint FKjoboriginalfilelink_child_originalfile 
+        foreign key (child) 
+        references originalfile  ;;
 
     alter table jobstatus 
         add constraint FKjobstatus_external_id_externalinfo 
@@ -4261,11 +4261,6 @@
         references lightsource  ;;
 
     alter table laser 
-        add constraint FKlaser_pump_lightsource 
-        foreign key (pump) 
-        references lightsource  ;;
-
-    alter table laser 
         add constraint FKlaser_laserMedium_lasermedium 
         foreign key (laserMedium) 
         references lasermedium  ;;
@@ -4274,6 +4269,11 @@
         add constraint FKlaser_pulse_pulse 
         foreign key (pulse) 
         references pulse  ;;
+
+    alter table laser 
+        add constraint FKlaser_pump_lightsource 
+        foreign key (pump) 
+        references lightsource  ;;
 
     alter table laser 
         add constraint FKlaser_type_lasertype 
@@ -4296,24 +4296,9 @@
         references lightsource  ;;
 
     alter table lightpath 
-        add constraint FKlightpath_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table lightpath 
         add constraint FKlightpath_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table lightpath 
-        add constraint FKlightpath_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table lightpath 
-        add constraint FKlightpath_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
 
     alter table lightpath 
         add constraint FKlightpath_dichroic_dichroic 
@@ -4321,19 +4306,24 @@
         references dichroic  ;;
 
     alter table lightpath 
+        add constraint FKlightpath_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table lightpath 
         add constraint FKlightpath_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table lightpathannotationlink 
-        add constraint FKlightpathannotationlink_creation_id_event 
+    alter table lightpath 
+        add constraint FKlightpath_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table lightpath 
+        add constraint FKlightpath_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table lightpathannotationlink 
-        add constraint FKlightpathannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table lightpathannotationlink 
         add constraint FKlightpathannotationlink_update_id_event 
@@ -4341,9 +4331,9 @@
         references event  ;;
 
     alter table lightpathannotationlink 
-        add constraint FKlightpathannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKlightpathannotationlink_parent_lightpath 
+        foreign key (parent) 
+        references lightpath  ;;
 
     alter table lightpathannotationlink 
         add constraint FKlightpathannotationlink_group_id_experimentergroup 
@@ -4356,19 +4346,19 @@
         references experimenter  ;;
 
     alter table lightpathannotationlink 
-        add constraint FKlightpathannotationlink_parent_lightpath 
-        foreign key (parent) 
-        references lightpath  ;;
+        add constraint FKlightpathannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table lightpathemissionfilterlink 
-        add constraint FKlightpathemissionfilterlink_creation_id_event 
+    alter table lightpathannotationlink 
+        add constraint FKlightpathannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table lightpathemissionfilterlink 
-        add constraint FKlightpathemissionfilterlink_child_filter 
+    alter table lightpathannotationlink 
+        add constraint FKlightpathannotationlink_child_annotation 
         foreign key (child) 
-        references filter  ;;
+        references annotation  ;;
 
     alter table lightpathemissionfilterlink 
         add constraint FKlightpathemissionfilterlink_update_id_event 
@@ -4376,9 +4366,9 @@
         references event  ;;
 
     alter table lightpathemissionfilterlink 
-        add constraint FKlightpathemissionfilterlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKlightpathemissionfilterlink_parent_lightpath 
+        foreign key (parent) 
+        references lightpath  ;;
 
     alter table lightpathemissionfilterlink 
         add constraint FKlightpathemissionfilterlink_group_id_experimentergroup 
@@ -4391,17 +4381,17 @@
         references experimenter  ;;
 
     alter table lightpathemissionfilterlink 
-        add constraint FKlightpathemissionfilterlink_parent_lightpath 
-        foreign key (parent) 
-        references lightpath  ;;
+        add constraint FKlightpathemissionfilterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table lightpathexcitationfilterlink 
-        add constraint FKlightpathexcitationfilterlink_creation_id_event 
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table lightpathexcitationfilterlink 
-        add constraint FKlightpathexcitationfilterlink_child_filter 
+    alter table lightpathemissionfilterlink 
+        add constraint FKlightpathemissionfilterlink_child_filter 
         foreign key (child) 
         references filter  ;;
 
@@ -4411,9 +4401,9 @@
         references event  ;;
 
     alter table lightpathexcitationfilterlink 
-        add constraint FKlightpathexcitationfilterlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKlightpathexcitationfilterlink_parent_lightpath 
+        foreign key (parent) 
+        references lightpath  ;;
 
     alter table lightpathexcitationfilterlink 
         add constraint FKlightpathexcitationfilterlink_group_id_experimentergroup 
@@ -4426,24 +4416,24 @@
         references experimenter  ;;
 
     alter table lightpathexcitationfilterlink 
-        add constraint FKlightpathexcitationfilterlink_parent_lightpath 
-        foreign key (parent) 
-        references lightpath  ;;
+        add constraint FKlightpathexcitationfilterlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table lightsettings 
-        add constraint FKlightsettings_creation_id_event 
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table lightpathexcitationfilterlink 
+        add constraint FKlightpathexcitationfilterlink_child_filter 
+        foreign key (child) 
+        references filter  ;;
 
     alter table lightsettings 
         add constraint FKlightsettings_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table lightsettings 
-        add constraint FKlightsettings_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table lightsettings 
         add constraint FKlightsettings_lightSource_lightsource 
@@ -4456,24 +4446,39 @@
         references experimentergroup  ;;
 
     alter table lightsettings 
-        add constraint FKlightsettings_microbeamManipulation_microbeammanipulation 
-        foreign key (microbeamManipulation) 
-        references microbeammanipulation  ;;
-
-    alter table lightsettings 
         add constraint FKlightsettings_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table lightsource 
-        add constraint FKlightsource_creation_id_event 
+    alter table lightsettings 
+        add constraint FKlightsettings_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table lightsettings 
+        add constraint FKlightsettings_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table lightsettings 
+        add constraint FKlightsettings_microbeamManipulation_microbeammanipulation 
+        foreign key (microbeamManipulation) 
+        references microbeammanipulation  ;;
 
     alter table lightsource 
         add constraint FKlightsource_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table lightsource 
+        add constraint FKlightsource_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table lightsource 
+        add constraint FKlightsource_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table lightsource 
         add constraint FKlightsource_external_id_externalinfo 
@@ -4486,24 +4491,9 @@
         references instrument  ;;
 
     alter table lightsource 
-        add constraint FKlightsource_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table lightsource 
-        add constraint FKlightsource_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
-    alter table lightsourceannotationlink 
-        add constraint FKlightsourceannotationlink_creation_id_event 
+        add constraint FKlightsource_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table lightsourceannotationlink 
-        add constraint FKlightsourceannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table lightsourceannotationlink 
         add constraint FKlightsourceannotationlink_update_id_event 
@@ -4511,9 +4501,9 @@
         references event  ;;
 
     alter table lightsourceannotationlink 
-        add constraint FKlightsourceannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKlightsourceannotationlink_parent_lightsource 
+        foreign key (parent) 
+        references lightsource  ;;
 
     alter table lightsourceannotationlink 
         add constraint FKlightsourceannotationlink_group_id_experimentergroup 
@@ -4526,24 +4516,24 @@
         references experimenter  ;;
 
     alter table lightsourceannotationlink 
-        add constraint FKlightsourceannotationlink_parent_lightsource 
-        foreign key (parent) 
-        references lightsource  ;;
+        add constraint FKlightsourceannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table link 
-        add constraint FKlink_creation_id_event 
+    alter table lightsourceannotationlink 
+        add constraint FKlightsourceannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table lightsourceannotationlink 
+        add constraint FKlightsourceannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table link 
         add constraint FKlink_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table link 
-        add constraint FKlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table link 
         add constraint FKlink_group_id_experimentergroup 
@@ -4555,45 +4545,15 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_external_id_externalinfo 
+    alter table link 
+        add constraint FKlink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_photometricInterpretation_photometricinterpretation 
-        foreign key (photometricInterpretation) 
-        references photometricinterpretation  ;;
-
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_lightPath_lightpath 
-        foreign key (lightPath) 
-        references lightpath  ;;
-
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_mode_acquisitionmode 
-        foreign key ("mode") 
-        references acquisitionmode  ;;
-
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_otf_otf 
-        foreign key (otf) 
-        references otf  ;;
-
-    alter table logicalchannel 
-        add constraint FKlogicalchannel_lightSourceSettings_lightsettings 
-        foreign key (lightSourceSettings) 
-        references lightsettings  ;;
+    alter table link 
+        add constraint FKlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table logicalchannel 
         add constraint FKlogicalchannel_update_id_event 
@@ -4601,9 +4561,24 @@
         references event  ;;
 
     alter table logicalchannel 
-        add constraint FKlogicalchannel_filterSet_filterset 
-        foreign key (filterSet) 
-        references filterset  ;;
+        add constraint FKlogicalchannel_otf_otf 
+        foreign key (otf) 
+        references otf  ;;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_illumination_illumination 
+        foreign key (illumination) 
+        references illumination  ;;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
     alter table logicalchannel 
         add constraint FKlogicalchannel_detectorSettings_detectorsettings 
@@ -4616,14 +4591,39 @@
         references contrastmethod  ;;
 
     alter table logicalchannel 
-        add constraint FKlogicalchannel_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
+        add constraint FKlogicalchannel_lightPath_lightpath 
+        foreign key (lightPath) 
+        references lightpath  ;;
 
     alter table logicalchannel 
-        add constraint FKlogicalchannel_illumination_illumination 
-        foreign key (illumination) 
-        references illumination  ;;
+        add constraint FKlogicalchannel_mode_acquisitionmode 
+        foreign key ("mode") 
+        references acquisitionmode  ;;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_lightSourceSettings_lightsettings 
+        foreign key (lightSourceSettings) 
+        references lightsettings  ;;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_photometricInterpretation_photometricinterpretation 
+        foreign key (photometricInterpretation) 
+        references photometricinterpretation  ;;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table logicalchannel 
+        add constraint FKlogicalchannel_filterSet_filterset 
+        foreign key (filterSet) 
+        references filterset  ;;
 
     alter table medium 
         add constraint FKmedium_external_id_externalinfo 
@@ -4641,29 +4641,14 @@
         references metadataimportjob  ;;
 
     alter table microbeammanipulation 
-        add constraint FKmicrobeammanipulation_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table microbeammanipulation 
         add constraint FKmicrobeammanipulation_update_id_event 
         foreign key (update_id) 
         references event  ;;
 
     alter table microbeammanipulation 
-        add constraint FKmicrobeammanipulation_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table microbeammanipulation 
         add constraint FKmicrobeammanipulation_experiment_experiment 
         foreign key (experiment) 
         references experiment  ;;
-
-    alter table microbeammanipulation 
-        add constraint FKmicrobeammanipulation_type_microbeammanipulationtype 
-        foreign key (type) 
-        references microbeammanipulationtype  ;;
 
     alter table microbeammanipulation 
         add constraint FKmicrobeammanipulation_group_id_experimentergroup 
@@ -4675,20 +4660,40 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_type_microbeammanipulationtype 
+        foreign key (type) 
+        references microbeammanipulationtype  ;;
+
+    alter table microbeammanipulation 
+        add constraint FKmicrobeammanipulation_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
     alter table microbeammanipulationtype 
         add constraint FKmicrobeammanipulationtype_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
     alter table microscope 
-        add constraint FKmicroscope_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table microscope 
         add constraint FKmicroscope_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table microscope 
+        add constraint FKmicroscope_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table microscope 
+        add constraint FKmicroscope_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table microscope 
         add constraint FKmicroscope_external_id_externalinfo 
@@ -4701,14 +4706,9 @@
         references microscopetype  ;;
 
     alter table microscope 
-        add constraint FKmicroscope_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table microscope 
-        add constraint FKmicroscope_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
+        add constraint FKmicroscope_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table microscopetype 
         add constraint FKmicroscopetype_external_id_externalinfo 
@@ -4717,6 +4717,31 @@
 
     alter table namespace 
         add constraint FKnamespace_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_parent_namespace 
+        foreign key (parent) 
+        references namespace  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table namespaceannotationlink 
+        add constraint FKnamespaceannotationlink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
@@ -4730,33 +4755,33 @@
         foreign key (child) 
         references annotation  ;;
 
-    alter table namespaceannotationlink 
-        add constraint FKnamespaceannotationlink_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table namespaceannotationlink 
-        add constraint FKnamespaceannotationlink_external_id_externalinfo 
+    alter table node 
+        add constraint FKnode_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
-    alter table namespaceannotationlink 
-        add constraint FKnamespaceannotationlink_group_id_experimentergroup 
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_parent_node 
+        foreign key (parent) 
+        references node  ;;
+
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup  ;;
 
-    alter table namespaceannotationlink 
-        add constraint FKnamespaceannotationlink_owner_id_experimenter 
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table namespaceannotationlink 
-        add constraint FKnamespaceannotationlink_parent_namespace 
-        foreign key (parent) 
-        references namespace  ;;
-
-    alter table node 
-        add constraint FKnode_external_id_externalinfo 
+    alter table nodeannotationlink 
+        add constraint FKnodeannotationlink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
 
@@ -4770,55 +4795,10 @@
         foreign key (child) 
         references annotation  ;;
 
-    alter table nodeannotationlink 
-        add constraint FKnodeannotationlink_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table nodeannotationlink 
-        add constraint FKnodeannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table nodeannotationlink 
-        add constraint FKnodeannotationlink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table nodeannotationlink 
-        add constraint FKnodeannotationlink_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
-    alter table nodeannotationlink 
-        add constraint FKnodeannotationlink_parent_node 
-        foreign key (parent) 
-        references node  ;;
-
-    alter table objective 
-        add constraint FKobjective_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
     alter table objective 
         add constraint FKobjective_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table objective 
-        add constraint FKobjective_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table objective 
-        add constraint FKobjective_immersion_immersion 
-        foreign key (immersion) 
-        references immersion  ;;
-
-    alter table objective 
-        add constraint FKobjective_instrument_instrument 
-        foreign key (instrument) 
-        references instrument  ;;
 
     alter table objective 
         add constraint FKobjective_group_id_experimentergroup 
@@ -4826,24 +4806,34 @@
         references experimentergroup  ;;
 
     alter table objective 
-        add constraint FKobjective_correction_correction 
-        foreign key (correction) 
-        references correction  ;;
+        add constraint FKobjective_immersion_immersion 
+        foreign key (immersion) 
+        references immersion  ;;
 
     alter table objective 
         add constraint FKobjective_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table objectiveannotationlink 
-        add constraint FKobjectiveannotationlink_creation_id_event 
+    alter table objective 
+        add constraint FKobjective_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table objective 
+        add constraint FKobjective_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table objective 
+        add constraint FKobjective_correction_correction 
+        foreign key (correction) 
+        references correction  ;;
+
+    alter table objective 
+        add constraint FKobjective_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table objectiveannotationlink 
-        add constraint FKobjectiveannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table objectiveannotationlink 
         add constraint FKobjectiveannotationlink_update_id_event 
@@ -4851,9 +4841,9 @@
         references event  ;;
 
     alter table objectiveannotationlink 
-        add constraint FKobjectiveannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKobjectiveannotationlink_parent_objective 
+        foreign key (parent) 
+        references objective  ;;
 
     alter table objectiveannotationlink 
         add constraint FKobjectiveannotationlink_group_id_experimentergroup 
@@ -4866,34 +4856,24 @@
         references experimenter  ;;
 
     alter table objectiveannotationlink 
-        add constraint FKobjectiveannotationlink_parent_objective 
-        foreign key (parent) 
-        references objective  ;;
+        add constraint FKobjectiveannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table objectivesettings 
-        add constraint FKobjectivesettings_creation_id_event 
+    alter table objectiveannotationlink 
+        add constraint FKobjectiveannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table objectivesettings 
-        add constraint FKobjectivesettings_medium_medium 
-        foreign key (medium) 
-        references medium  ;;
+    alter table objectiveannotationlink 
+        add constraint FKobjectiveannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table objectivesettings 
         add constraint FKobjectivesettings_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table objectivesettings 
-        add constraint FKobjectivesettings_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table objectivesettings 
-        add constraint FKobjectivesettings_objective_objective 
-        foreign key (objective) 
-        references objective  ;;
 
     alter table objectivesettings 
         add constraint FKobjectivesettings_group_id_experimentergroup 
@@ -4905,25 +4885,30 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table originalfile 
-        add constraint FKoriginalfile_creation_id_event 
+    alter table objectivesettings 
+        add constraint FKobjectivesettings_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table objectivesettings 
+        add constraint FKobjectivesettings_medium_medium 
+        foreign key (medium) 
+        references medium  ;;
+
+    alter table objectivesettings 
+        add constraint FKobjectivesettings_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table originalfile 
-        add constraint FKoriginalfile_hasher_checksumalgorithm 
-        foreign key (hasher) 
-        references checksumalgorithm  ;;
+    alter table objectivesettings 
+        add constraint FKobjectivesettings_objective_objective 
+        foreign key (objective) 
+        references objective  ;;
 
     alter table originalfile 
         add constraint FKoriginalfile_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table originalfile 
-        add constraint FKoriginalfile_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table originalfile 
         add constraint FKoriginalfile_group_id_experimentergroup 
@@ -4935,15 +4920,20 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table originalfileannotationlink 
-        add constraint FKoriginalfileannotationlink_creation_id_event 
+    alter table originalfile 
+        add constraint FKoriginalfile_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table originalfile 
+        add constraint FKoriginalfile_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table originalfileannotationlink 
-        add constraint FKoriginalfileannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
+    alter table originalfile 
+        add constraint FKoriginalfile_hasher_checksumalgorithm 
+        foreign key (hasher) 
+        references checksumalgorithm  ;;
 
     alter table originalfileannotationlink 
         add constraint FKoriginalfileannotationlink_update_id_event 
@@ -4951,9 +4941,9 @@
         references event  ;;
 
     alter table originalfileannotationlink 
-        add constraint FKoriginalfileannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKoriginalfileannotationlink_parent_originalfile 
+        foreign key (parent) 
+        references originalfile  ;;
 
     alter table originalfileannotationlink 
         add constraint FKoriginalfileannotationlink_group_id_experimentergroup 
@@ -4966,9 +4956,49 @@
         references experimenter  ;;
 
     alter table originalfileannotationlink 
-        add constraint FKoriginalfileannotationlink_parent_originalfile 
-        foreign key (parent) 
-        references originalfile  ;;
+        add constraint FKoriginalfileannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table originalfileannotationlink 
+        add constraint FKoriginalfileannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
+
+    alter table otf 
+        add constraint FKotf_update_id_event 
+        foreign key (update_id) 
+        references event  ;;
+
+    alter table otf 
+        add constraint FKotf_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table otf 
+        add constraint FKotf_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
+
+    alter table otf 
+        add constraint FKotf_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table otf 
+        add constraint FKotf_instrument_instrument 
+        foreign key (instrument) 
+        references instrument  ;;
+
+    alter table otf 
+        add constraint FKotf_pixelsType_pixelstype 
+        foreign key (pixelsType) 
+        references pixelstype  ;;
 
     alter table otf 
         add constraint FKotf_creation_id_event 
@@ -4981,39 +5011,9 @@
         references filterset  ;;
 
     alter table otf 
-        add constraint FKotf_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table otf 
-        add constraint FKotf_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table otf 
         add constraint FKotf_objective_objective 
         foreign key (objective) 
         references objective  ;;
-
-    alter table otf 
-        add constraint FKotf_instrument_instrument 
-        foreign key (instrument) 
-        references instrument  ;;
-
-    alter table otf 
-        add constraint FKotf_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table otf 
-        add constraint FKotf_pixelsType_pixelstype 
-        foreign key (pixelsType) 
-        references pixelstype  ;;
-
-    alter table otf 
-        add constraint FKotf_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
 
     alter table parsejob 
         add constraint FKparsejob_job_id_job 
@@ -5031,34 +5031,9 @@
         references job  ;;
 
     alter table pixels 
-        add constraint FKpixels_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table pixels 
         add constraint FKpixels_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table pixels 
-        add constraint FKpixels_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table pixels 
-        add constraint FKpixels_dimensionOrder_dimensionorder 
-        foreign key (dimensionOrder) 
-        references dimensionorder  ;;
-
-    alter table pixels 
-        add constraint FKpixels_relatedTo_pixels 
-        foreign key (relatedTo) 
-        references pixels  ;;
-
-    alter table pixels 
-        add constraint FKpixels_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
 
     alter table pixels 
         add constraint FKpixels_image_image 
@@ -5066,23 +5041,38 @@
         references image  ;;
 
     alter table pixels 
-        add constraint FKpixels_pixelsType_pixelstype 
-        foreign key (pixelsType) 
-        references pixelstype  ;;
+        add constraint FKpixels_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
 
     alter table pixels 
         add constraint FKpixels_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table pixelsoriginalfilemap 
-        add constraint FKpixelsoriginalfilemap_creation_id_event 
+    alter table pixels 
+        add constraint FKpixels_dimensionOrder_dimensionorder 
+        foreign key (dimensionOrder) 
+        references dimensionorder  ;;
+
+    alter table pixels 
+        add constraint FKpixels_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table pixels 
+        add constraint FKpixels_pixelsType_pixelstype 
+        foreign key (pixelsType) 
+        references pixelstype  ;;
+
+    alter table pixels 
+        add constraint FKpixels_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table pixelsoriginalfilemap 
-        add constraint FKpixelsoriginalfilemap_child_pixels 
-        foreign key (child) 
+    alter table pixels 
+        add constraint FKpixels_relatedTo_pixels 
+        foreign key (relatedTo) 
         references pixels  ;;
 
     alter table pixelsoriginalfilemap 
@@ -5091,9 +5081,9 @@
         references event  ;;
 
     alter table pixelsoriginalfilemap 
-        add constraint FKpixelsoriginalfilemap_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKpixelsoriginalfilemap_parent_originalfile 
+        foreign key (parent) 
+        references originalfile  ;;
 
     alter table pixelsoriginalfilemap 
         add constraint FKpixelsoriginalfilemap_group_id_experimentergroup 
@@ -5106,9 +5096,19 @@
         references experimenter  ;;
 
     alter table pixelsoriginalfilemap 
-        add constraint FKpixelsoriginalfilemap_parent_originalfile 
-        foreign key (parent) 
-        references originalfile  ;;
+        add constraint FKpixelsoriginalfilemap_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table pixelsoriginalfilemap 
+        add constraint FKpixelsoriginalfilemap_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table pixelsoriginalfilemap 
+        add constraint FKpixelsoriginalfilemap_child_pixels 
+        foreign key (child) 
+        references pixels  ;;
 
     alter table pixelstype 
         add constraint FKpixelstype_external_id_externalinfo 
@@ -5116,19 +5116,9 @@
         references externalinfo  ;;
 
     alter table planeinfo 
-        add constraint FKplaneinfo_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table planeinfo 
         add constraint FKplaneinfo_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table planeinfo 
-        add constraint FKplaneinfo_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table planeinfo 
         add constraint FKplaneinfo_pixels_pixels 
@@ -5145,15 +5135,15 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table planeinfoannotationlink 
-        add constraint FKplaneinfoannotationlink_creation_id_event 
+    alter table planeinfo 
+        add constraint FKplaneinfo_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table planeinfo 
+        add constraint FKplaneinfo_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table planeinfoannotationlink 
-        add constraint FKplaneinfoannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table planeinfoannotationlink 
         add constraint FKplaneinfoannotationlink_update_id_event 
@@ -5161,9 +5151,9 @@
         references event  ;;
 
     alter table planeinfoannotationlink 
-        add constraint FKplaneinfoannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKplaneinfoannotationlink_parent_planeinfo 
+        foreign key (parent) 
+        references planeinfo  ;;
 
     alter table planeinfoannotationlink 
         add constraint FKplaneinfoannotationlink_group_id_experimentergroup 
@@ -5176,9 +5166,19 @@
         references experimenter  ;;
 
     alter table planeinfoannotationlink 
-        add constraint FKplaneinfoannotationlink_parent_planeinfo 
-        foreign key (parent) 
-        references planeinfo  ;;
+        add constraint FKplaneinfoannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table planeinfoannotationlink 
+        add constraint FKplaneinfoannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table planeinfoannotationlink 
+        add constraint FKplaneinfoannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table planeslicingcontext 
         add constraint FKplaneslicingcontext_codomainmapcontext_id_codomainmapcontext 
@@ -5186,19 +5186,9 @@
         references codomainmapcontext  ;;
 
     alter table plate 
-        add constraint FKplate_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table plate 
         add constraint FKplate_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table plate 
-        add constraint FKplate_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table plate 
         add constraint FKplate_group_id_experimentergroup 
@@ -5210,8 +5200,13 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table plateacquisition 
-        add constraint FKplateacquisition_creation_id_event 
+    alter table plate 
+        add constraint FKplate_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table plate 
+        add constraint FKplate_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
@@ -5219,6 +5214,16 @@
         add constraint FKplateacquisition_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table plateacquisition 
+        add constraint FKplateacquisition_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table plateacquisition 
+        add constraint FKplateacquisition_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table plateacquisition 
         add constraint FKplateacquisition_external_id_externalinfo 
@@ -5231,24 +5236,9 @@
         references plate  ;;
 
     alter table plateacquisition 
-        add constraint FKplateacquisition_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table plateacquisition 
-        add constraint FKplateacquisition_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
-    alter table plateacquisitionannotationlink 
-        add constraint FKplateacquisitionannotationlink_creation_id_event 
+        add constraint FKplateacquisition_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table plateacquisitionannotationlink 
-        add constraint FKplateacquisitionannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table plateacquisitionannotationlink 
         add constraint FKplateacquisitionannotationlink_update_id_event 
@@ -5256,9 +5246,9 @@
         references event  ;;
 
     alter table plateacquisitionannotationlink 
-        add constraint FKplateacquisitionannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKplateacquisitionannotationlink_parent_plateacquisition 
+        foreign key (parent) 
+        references plateacquisition  ;;
 
     alter table plateacquisitionannotationlink 
         add constraint FKplateacquisitionannotationlink_group_id_experimentergroup 
@@ -5271,17 +5261,17 @@
         references experimenter  ;;
 
     alter table plateacquisitionannotationlink 
-        add constraint FKplateacquisitionannotationlink_parent_plateacquisition 
-        foreign key (parent) 
-        references plateacquisition  ;;
+        add constraint FKplateacquisitionannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table plateannotationlink 
-        add constraint FKplateannotationlink_creation_id_event 
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table plateannotationlink 
-        add constraint FKplateannotationlink_child_annotation 
+    alter table plateacquisitionannotationlink 
+        add constraint FKplateacquisitionannotationlink_child_annotation 
         foreign key (child) 
         references annotation  ;;
 
@@ -5291,9 +5281,9 @@
         references event  ;;
 
     alter table plateannotationlink 
-        add constraint FKplateannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKplateannotationlink_parent_plate 
+        foreign key (parent) 
+        references plate  ;;
 
     alter table plateannotationlink 
         add constraint FKplateannotationlink_group_id_experimentergroup 
@@ -5306,24 +5296,24 @@
         references experimenter  ;;
 
     alter table plateannotationlink 
-        add constraint FKplateannotationlink_parent_plate 
-        foreign key (parent) 
-        references plate  ;;
+        add constraint FKplateannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table project 
-        add constraint FKproject_creation_id_event 
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table plateannotationlink 
+        add constraint FKplateannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table project 
         add constraint FKproject_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table project 
-        add constraint FKproject_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table project 
         add constraint FKproject_group_id_experimentergroup 
@@ -5335,15 +5325,15 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table projectannotationlink 
-        add constraint FKprojectannotationlink_creation_id_event 
+    alter table project 
+        add constraint FKproject_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table project 
+        add constraint FKproject_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table projectannotationlink 
-        add constraint FKprojectannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table projectannotationlink 
         add constraint FKprojectannotationlink_update_id_event 
@@ -5351,9 +5341,9 @@
         references event  ;;
 
     alter table projectannotationlink 
-        add constraint FKprojectannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKprojectannotationlink_parent_project 
+        foreign key (parent) 
+        references project  ;;
 
     alter table projectannotationlink 
         add constraint FKprojectannotationlink_group_id_experimentergroup 
@@ -5366,19 +5356,19 @@
         references experimenter  ;;
 
     alter table projectannotationlink 
-        add constraint FKprojectannotationlink_parent_project 
-        foreign key (parent) 
-        references project  ;;
+        add constraint FKprojectannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table projectdatasetlink 
-        add constraint FKprojectdatasetlink_creation_id_event 
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table projectdatasetlink 
-        add constraint FKprojectdatasetlink_child_dataset 
+    alter table projectannotationlink 
+        add constraint FKprojectannotationlink_child_annotation 
         foreign key (child) 
-        references dataset  ;;
+        references annotation  ;;
 
     alter table projectdatasetlink 
         add constraint FKprojectdatasetlink_update_id_event 
@@ -5386,9 +5376,9 @@
         references event  ;;
 
     alter table projectdatasetlink 
-        add constraint FKprojectdatasetlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKprojectdatasetlink_parent_project 
+        foreign key (parent) 
+        references project  ;;
 
     alter table projectdatasetlink 
         add constraint FKprojectdatasetlink_group_id_experimentergroup 
@@ -5401,9 +5391,19 @@
         references experimenter  ;;
 
     alter table projectdatasetlink 
-        add constraint FKprojectdatasetlink_parent_project 
-        foreign key (parent) 
-        references project  ;;
+        add constraint FKprojectdatasetlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table projectdatasetlink 
+        add constraint FKprojectdatasetlink_child_dataset 
+        foreign key (child) 
+        references dataset  ;;
 
     alter table projectionaxis 
         add constraint FKprojectionaxis_external_id_externalinfo 
@@ -5411,14 +5411,24 @@
         references externalinfo  ;;
 
     alter table projectiondef 
-        add constraint FKprojectiondef_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table projectiondef 
         add constraint FKprojectiondef_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_renderingDef_renderingdef 
+        foreign key (renderingDef) 
+        references renderingdef  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table projectiondef 
+        add constraint FKprojectiondef_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table projectiondef 
         add constraint FKprojectiondef_external_id_externalinfo 
@@ -5436,19 +5446,9 @@
         references projectiontype  ;;
 
     alter table projectiondef 
-        add constraint FKprojectiondef_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table projectiondef 
-        add constraint FKprojectiondef_renderingDef_renderingdef 
-        foreign key (renderingDef) 
-        references renderingdef  ;;
-
-    alter table projectiondef 
-        add constraint FKprojectiondef_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
+        add constraint FKprojectiondef_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table projectiontype 
         add constraint FKprojectiontype_external_id_externalinfo 
@@ -5461,19 +5461,9 @@
         references externalinfo  ;;
 
     alter table quantumdef 
-        add constraint FKquantumdef_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table quantumdef 
         add constraint FKquantumdef_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table quantumdef 
-        add constraint FKquantumdef_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table quantumdef 
         add constraint FKquantumdef_group_id_experimentergroup 
@@ -5485,8 +5475,13 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table reagent 
-        add constraint FKreagent_creation_id_event 
+    alter table quantumdef 
+        add constraint FKquantumdef_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table quantumdef 
+        add constraint FKquantumdef_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
@@ -5496,14 +5491,14 @@
         references event  ;;
 
     alter table reagent 
-        add constraint FKreagent_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table reagent 
         add constraint FKreagent_group_id_experimentergroup 
         foreign key (group_id) 
         references experimentergroup  ;;
+
+    alter table reagent 
+        add constraint FKreagent_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table reagent 
         add constraint FKreagent_screen_screen 
@@ -5511,19 +5506,14 @@
         references screen  ;;
 
     alter table reagent 
-        add constraint FKreagent_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
+        add constraint FKreagent_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table reagentannotationlink 
-        add constraint FKreagentannotationlink_creation_id_event 
+    alter table reagent 
+        add constraint FKreagent_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table reagentannotationlink 
-        add constraint FKreagentannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table reagentannotationlink 
         add constraint FKreagentannotationlink_update_id_event 
@@ -5531,9 +5521,9 @@
         references event  ;;
 
     alter table reagentannotationlink 
-        add constraint FKreagentannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKreagentannotationlink_parent_reagent 
+        foreign key (parent) 
+        references reagent  ;;
 
     alter table reagentannotationlink 
         add constraint FKreagentannotationlink_group_id_experimentergroup 
@@ -5546,34 +5536,24 @@
         references experimenter  ;;
 
     alter table reagentannotationlink 
-        add constraint FKreagentannotationlink_parent_reagent 
-        foreign key (parent) 
-        references reagent  ;;
+        add constraint FKreagentannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table renderingdef 
-        add constraint FKrenderingdef_creation_id_event 
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table renderingdef 
-        add constraint FKrenderingdef_quantization_quantumdef 
-        foreign key (quantization) 
-        references quantumdef  ;;
+    alter table reagentannotationlink 
+        add constraint FKreagentannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table renderingdef 
         add constraint FKrenderingdef_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table renderingdef 
-        add constraint FKrenderingdef_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table renderingdef 
-        add constraint FKrenderingdef_model_renderingmodel 
-        foreign key (model) 
-        references renderingmodel  ;;
 
     alter table renderingdef 
         add constraint FKrenderingdef_pixels_pixels 
@@ -5590,6 +5570,26 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
+    alter table renderingdef 
+        add constraint FKrenderingdef_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_model_renderingmodel 
+        foreign key (model) 
+        references renderingmodel  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table renderingdef 
+        add constraint FKrenderingdef_quantization_quantumdef 
+        foreign key (quantization) 
+        references quantumdef  ;;
+
     alter table renderingmodel 
         add constraint FKrenderingmodel_external_id_externalinfo 
         foreign key (external_id) 
@@ -5601,14 +5601,24 @@
         references codomainmapcontext  ;;
 
     alter table roi 
-        add constraint FKroi_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table roi 
         add constraint FKroi_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table roi 
+        add constraint FKroi_image_image 
+        foreign key (image) 
+        references image  ;;
+
+    alter table roi 
+        add constraint FKroi_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table roi 
+        add constraint FKroi_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table roi 
         add constraint FKroi_external_id_externalinfo 
@@ -5621,29 +5631,9 @@
         references originalfile  ;;
 
     alter table roi 
-        add constraint FKroi_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table roi 
-        add constraint FKroi_image_image 
-        foreign key (image) 
-        references image  ;;
-
-    alter table roi 
-        add constraint FKroi_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
-    alter table roiannotationlink 
-        add constraint FKroiannotationlink_creation_id_event 
+        add constraint FKroi_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table roiannotationlink 
-        add constraint FKroiannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table roiannotationlink 
         add constraint FKroiannotationlink_update_id_event 
@@ -5651,9 +5641,9 @@
         references event  ;;
 
     alter table roiannotationlink 
-        add constraint FKroiannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKroiannotationlink_parent_roi 
+        foreign key (parent) 
+        references roi  ;;
 
     alter table roiannotationlink 
         add constraint FKroiannotationlink_group_id_experimentergroup 
@@ -5666,24 +5656,24 @@
         references experimenter  ;;
 
     alter table roiannotationlink 
-        add constraint FKroiannotationlink_parent_roi 
-        foreign key (parent) 
-        references roi  ;;
+        add constraint FKroiannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table screen 
-        add constraint FKscreen_creation_id_event 
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table roiannotationlink 
+        add constraint FKroiannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table screen 
         add constraint FKscreen_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table screen 
-        add constraint FKscreen_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table screen 
         add constraint FKscreen_group_id_experimentergroup 
@@ -5695,15 +5685,15 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table screenannotationlink 
-        add constraint FKscreenannotationlink_creation_id_event 
+    alter table screen 
+        add constraint FKscreen_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table screen 
+        add constraint FKscreen_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table screenannotationlink 
-        add constraint FKscreenannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table screenannotationlink 
         add constraint FKscreenannotationlink_update_id_event 
@@ -5711,9 +5701,9 @@
         references event  ;;
 
     alter table screenannotationlink 
-        add constraint FKscreenannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKscreenannotationlink_parent_screen 
+        foreign key (parent) 
+        references screen  ;;
 
     alter table screenannotationlink 
         add constraint FKscreenannotationlink_group_id_experimentergroup 
@@ -5726,19 +5716,19 @@
         references experimenter  ;;
 
     alter table screenannotationlink 
-        add constraint FKscreenannotationlink_parent_screen 
-        foreign key (parent) 
-        references screen  ;;
+        add constraint FKscreenannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table screenplatelink 
-        add constraint FKscreenplatelink_creation_id_event 
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table screenplatelink 
-        add constraint FKscreenplatelink_child_plate 
+    alter table screenannotationlink 
+        add constraint FKscreenannotationlink_child_annotation 
         foreign key (child) 
-        references plate  ;;
+        references annotation  ;;
 
     alter table screenplatelink 
         add constraint FKscreenplatelink_update_id_event 
@@ -5746,9 +5736,9 @@
         references event  ;;
 
     alter table screenplatelink 
-        add constraint FKscreenplatelink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKscreenplatelink_parent_screen 
+        foreign key (parent) 
+        references screen  ;;
 
     alter table screenplatelink 
         add constraint FKscreenplatelink_group_id_experimentergroup 
@@ -5761,14 +5751,29 @@
         references experimenter  ;;
 
     alter table screenplatelink 
-        add constraint FKscreenplatelink_parent_screen 
-        foreign key (parent) 
-        references screen  ;;
+        add constraint FKscreenplatelink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table screenplatelink 
+        add constraint FKscreenplatelink_child_plate 
+        foreign key (child) 
+        references plate  ;;
 
     alter table scriptjob 
         add constraint FKscriptjob_job_id_job 
         foreign key (job_id) 
         references job  ;;
+
+    alter table session 
+        add constraint FKsession_owner_experimenter 
+        foreign key (owner) 
+        references experimenter  ;;
 
     alter table session 
         add constraint FKsession_node_node 
@@ -5780,30 +5785,15 @@
         foreign key (external_id) 
         references externalinfo  ;;
 
-    alter table session 
-        add constraint FKsession_owner_experimenter 
-        foreign key (owner) 
-        references experimenter  ;;
-
-    alter table sessionannotationlink 
-        add constraint FKsessionannotationlink_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table sessionannotationlink 
-        add constraint FKsessionannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
-
     alter table sessionannotationlink 
         add constraint FKsessionannotationlink_update_id_event 
         foreign key (update_id) 
         references event  ;;
 
     alter table sessionannotationlink 
-        add constraint FKsessionannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKsessionannotationlink_parent_session 
+        foreign key (parent) 
+        references session  ;;
 
     alter table sessionannotationlink 
         add constraint FKsessionannotationlink_group_id_experimentergroup 
@@ -5816,14 +5806,19 @@
         references experimenter  ;;
 
     alter table sessionannotationlink 
-        add constraint FKsessionannotationlink_parent_session 
-        foreign key (parent) 
-        references session  ;;
+        add constraint FKsessionannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table shape 
-        add constraint FKshape_creation_id_event 
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
+
+    alter table sessionannotationlink 
+        add constraint FKsessionannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table shape 
         add constraint FKshape_update_id_event 
@@ -5831,9 +5826,9 @@
         references event  ;;
 
     alter table shape 
-        add constraint FKshape_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKshape_transform_affinetransform 
+        foreign key (transform) 
+        references affinetransform  ;;
 
     alter table shape 
         add constraint FKmask_pixels_pixels 
@@ -5846,29 +5841,24 @@
         references experimentergroup  ;;
 
     alter table shape 
-        add constraint FKshape_roi_roi 
-        foreign key (roi) 
-        references roi  ;;
-
-    alter table shape 
-        add constraint FKshape_transform_affinetransform 
-        foreign key (transform) 
-        references affinetransform  ;;
-
-    alter table shape 
         add constraint FKshape_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table shapeannotationlink 
-        add constraint FKshapeannotationlink_creation_id_event 
+    alter table shape 
+        add constraint FKshape_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table shape 
+        add constraint FKshape_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table shapeannotationlink 
-        add constraint FKshapeannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
+    alter table shape 
+        add constraint FKshape_roi_roi 
+        foreign key (roi) 
+        references roi  ;;
 
     alter table shapeannotationlink 
         add constraint FKshapeannotationlink_update_id_event 
@@ -5876,9 +5866,9 @@
         references event  ;;
 
     alter table shapeannotationlink 
-        add constraint FKshapeannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKshapeannotationlink_parent_shape 
+        foreign key (parent) 
+        references shape  ;;
 
     alter table shapeannotationlink 
         add constraint FKshapeannotationlink_group_id_experimentergroup 
@@ -5891,24 +5881,34 @@
         references experimenter  ;;
 
     alter table shapeannotationlink 
-        add constraint FKshapeannotationlink_parent_shape 
-        foreign key (parent) 
-        references shape  ;;
+        add constraint FKshapeannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table share 
-        add constraint FKshare_group_experimentergroup 
-        foreign key ("group") 
-        references experimentergroup  ;;
+    alter table shapeannotationlink 
+        add constraint FKshapeannotationlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table shapeannotationlink 
+        add constraint FKshapeannotationlink_child_annotation 
+        foreign key (child) 
+        references annotation  ;;
 
     alter table share 
         add constraint FKshare_session_id_session 
         foreign key (session_id) 
         references session  ;;
 
+    alter table share 
+        add constraint FKshare_group_experimentergroup 
+        foreign key ("group") 
+        references experimentergroup  ;;
+
     alter table sharemember 
-        add constraint FKsharemember_child_experimenter 
-        foreign key (child) 
-        references experimenter  ;;
+        add constraint FKsharemember_parent_share 
+        foreign key (parent) 
+        references share  ;;
 
     alter table sharemember 
         add constraint FKsharemember_external_id_externalinfo 
@@ -5916,24 +5916,14 @@
         references externalinfo  ;;
 
     alter table sharemember 
-        add constraint FKsharemember_parent_share 
-        foreign key (parent) 
-        references share  ;;
-
-    alter table stagelabel 
-        add constraint FKstagelabel_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
+        add constraint FKsharemember_child_experimenter 
+        foreign key (child) 
+        references experimenter  ;;
 
     alter table stagelabel 
         add constraint FKstagelabel_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table stagelabel 
-        add constraint FKstagelabel_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table stagelabel 
         add constraint FKstagelabel_group_id_experimentergroup 
@@ -5945,8 +5935,13 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table statsinfo 
-        add constraint FKstatsinfo_creation_id_event 
+    alter table stagelabel 
+        add constraint FKstagelabel_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table stagelabel 
+        add constraint FKstagelabel_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
@@ -5954,11 +5949,6 @@
         add constraint FKstatsinfo_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table statsinfo 
-        add constraint FKstatsinfo_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table statsinfo 
         add constraint FKstatsinfo_group_id_experimentergroup 
@@ -5970,8 +5960,13 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
-    alter table thumbnail 
-        add constraint FKthumbnail_creation_id_event 
+    alter table statsinfo 
+        add constraint FKstatsinfo_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table statsinfo 
+        add constraint FKstatsinfo_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
@@ -5979,11 +5974,6 @@
         add constraint FKthumbnail_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table thumbnail 
-        add constraint FKthumbnail_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table thumbnail 
         add constraint FKthumbnail_pixels_pixels 
@@ -6000,25 +5990,25 @@
         foreign key (owner_id) 
         references experimenter  ;;
 
+    alter table thumbnail 
+        add constraint FKthumbnail_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table thumbnail 
+        add constraint FKthumbnail_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
     alter table thumbnailgenerationjob 
         add constraint FKthumbnailgenerationjob_job_id_job 
         foreign key (job_id) 
         references job  ;;
 
     alter table transmittancerange 
-        add constraint FKtransmittancerange_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table transmittancerange 
         add constraint FKtransmittancerange_update_id_event 
         foreign key (update_id) 
         references event  ;;
-
-    alter table transmittancerange 
-        add constraint FKtransmittancerange_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
 
     alter table transmittancerange 
         add constraint FKtransmittancerange_group_id_experimentergroup 
@@ -6029,6 +6019,16 @@
         add constraint FKtransmittancerange_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table transmittancerange 
+        add constraint FKtransmittancerange_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table transmittancerange 
+        add constraint FKtransmittancerange_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     alter table uploadjob 
         add constraint FKuploadjob_job_id_job 
@@ -6041,14 +6041,19 @@
         references uploadjob  ;;
 
     alter table well 
-        add constraint FKwell_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table well 
         add constraint FKwell_update_id_event 
         foreign key (update_id) 
         references event  ;;
+
+    alter table well 
+        add constraint FKwell_group_id_experimentergroup 
+        foreign key (group_id) 
+        references experimentergroup  ;;
+
+    alter table well 
+        add constraint FKwell_owner_id_experimenter 
+        foreign key (owner_id) 
+        references experimenter  ;;
 
     alter table well 
         add constraint FKwell_external_id_externalinfo 
@@ -6061,24 +6066,9 @@
         references plate  ;;
 
     alter table well 
-        add constraint FKwell_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table well 
-        add constraint FKwell_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
-
-    alter table wellannotationlink 
-        add constraint FKwellannotationlink_creation_id_event 
+        add constraint FKwell_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
-
-    alter table wellannotationlink 
-        add constraint FKwellannotationlink_child_annotation 
-        foreign key (child) 
-        references annotation  ;;
 
     alter table wellannotationlink 
         add constraint FKwellannotationlink_update_id_event 
@@ -6086,9 +6076,9 @@
         references event  ;;
 
     alter table wellannotationlink 
-        add constraint FKwellannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKwellannotationlink_parent_well 
+        foreign key (parent) 
+        references well  ;;
 
     alter table wellannotationlink 
         add constraint FKwellannotationlink_group_id_experimentergroup 
@@ -6101,19 +6091,19 @@
         references experimenter  ;;
 
     alter table wellannotationlink 
-        add constraint FKwellannotationlink_parent_well 
-        foreign key (parent) 
-        references well  ;;
+        add constraint FKwellannotationlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
 
-    alter table wellreagentlink 
-        add constraint FKwellreagentlink_creation_id_event 
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_creation_id_event 
         foreign key (creation_id) 
         references event  ;;
 
-    alter table wellreagentlink 
-        add constraint FKwellreagentlink_child_reagent 
+    alter table wellannotationlink 
+        add constraint FKwellannotationlink_child_annotation 
         foreign key (child) 
-        references reagent  ;;
+        references annotation  ;;
 
     alter table wellreagentlink 
         add constraint FKwellreagentlink_update_id_event 
@@ -6121,9 +6111,9 @@
         references event  ;;
 
     alter table wellreagentlink 
-        add constraint FKwellreagentlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
+        add constraint FKwellreagentlink_parent_well 
+        foreign key (parent) 
+        references well  ;;
 
     alter table wellreagentlink 
         add constraint FKwellreagentlink_group_id_experimentergroup 
@@ -6136,13 +6126,23 @@
         references experimenter  ;;
 
     alter table wellreagentlink 
-        add constraint FKwellreagentlink_parent_well 
-        foreign key (parent) 
-        references well  ;;
+        add constraint FKwellreagentlink_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table wellreagentlink 
+        add constraint FKwellreagentlink_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
+
+    alter table wellreagentlink 
+        add constraint FKwellreagentlink_child_reagent 
+        foreign key (child) 
+        references reagent  ;;
 
     alter table wellsample 
-        add constraint FKwellsample_creation_id_event 
-        foreign key (creation_id) 
+        add constraint FKwellsample_update_id_event 
+        foreign key (update_id) 
         references event  ;;
 
     alter table wellsample 
@@ -6151,19 +6151,9 @@
         references plateacquisition  ;;
 
     alter table wellsample 
-        add constraint FKwellsample_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table wellsample 
-        add constraint FKwellsample_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo  ;;
-
-    alter table wellsample 
-        add constraint FKwellsample_well_well 
-        foreign key (well) 
-        references well  ;;
+        add constraint FKwellsample_image_image 
+        foreign key (image) 
+        references image  ;;
 
     alter table wellsample 
         add constraint FKwellsample_group_id_experimentergroup 
@@ -6171,14 +6161,24 @@
         references experimentergroup  ;;
 
     alter table wellsample 
-        add constraint FKwellsample_image_image 
-        foreign key (image) 
-        references image  ;;
-
-    alter table wellsample 
         add constraint FKwellsample_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_well_well 
+        foreign key (well) 
+        references well  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_external_id_externalinfo 
+        foreign key (external_id) 
+        references externalinfo  ;;
+
+    alter table wellsample 
+        add constraint FKwellsample_creation_id_event 
+        foreign key (creation_id) 
+        references event  ;;
 
     create table seq_table (
          sequence_name varchar(255) not null ,

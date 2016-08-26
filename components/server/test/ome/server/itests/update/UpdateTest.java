@@ -127,7 +127,7 @@ public class UpdateTest extends AbstractUpdateTest {
 
         // What we're interested in
         def.addChannelBinding(binding);
-        def.addCodomainMapContext(enhancement);
+        binding.addCodomainMapContext(enhancement);
 
         def = iUpdate.saveAndReturnObject(def);
 
