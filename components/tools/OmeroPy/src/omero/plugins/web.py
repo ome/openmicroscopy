@@ -19,11 +19,15 @@ from functools import wraps
 from omero_ext.argparse import SUPPRESS
 
 from omero.install.windows_warning import windows_warning, WINDOWS_WARNING
+from omero.install.python_warning import py27_only, PYTHON_WARNING
 
 HELP = "OMERO.web configuration/deployment tools"
 
 if platform.system() == 'Windows':
     HELP += ("\n\n%s" % WINDOWS_WARNING)
+
+if not py27_only():
+    HELP += ("\n\nERROR: %s" % PYTHON_WARNING)
 
 LONGHELP = """OMERO.web configuration/deployment tools
 
@@ -59,6 +63,8 @@ def config_required(func):
     def import_django_settings(func):
         @windows_warning
         def wrapper(self, *args, **kwargs):
+            if not py27_only():
+                self.ctx.die(681, "ERROR: %s" % PYTHON_WARNING)
             try:
                 import django  # NOQA
             except:
