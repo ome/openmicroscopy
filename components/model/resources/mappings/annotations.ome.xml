@@ -2,8 +2,6 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# $Id$
-#
 # Copyright 2008-2014 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -16,6 +14,33 @@
 			<optional name="ns" type="string"/>
 			<optional name="name" type="string"/>
 			<optional name="description" type="text"/>
+			<parent name="channelLinks" type="ome.model.annotations.ChannelAnnotationLink" target="ome.model.core.Channel"/>
+			<parent name="datasetLinks" type="ome.model.annotations.DatasetAnnotationLink" target="ome.model.containers.Dataset"/>
+			<parent name="detectorLinks" type="ome.model.annotations.DetectorAnnotationLink" target="ome.model.acquisition.Detector"/>
+			<parent name="dichroicLinks" type="ome.model.annotations.DichroicAnnotationLink" target="ome.model.acquisition.Dichroic"/>
+			<parent name="experimenterLinks" type="ome.model.annotations.ExperimenterAnnotationLink" target="ome.model.meta.Experimenter"/>
+			<parent name="experimenterGroupLinks" type="ome.model.annotations.ExperimenterGroupAnnotationLink" target="ome.model.meta.ExperimenterGroup"/>
+			<parent name="filesetLinks" type="ome.model.annotations.FilesetAnnotationLink" target="ome.model.fs.Fileset"/>
+			<parent name="filterLinks" type="ome.model.annotations.FilterAnnotationLink" target="ome.model.acquisition.Filter"/>
+			<parent name="folderLinks" type="ome.model.annotations.FolderAnnotationLink" target="ome.model.containers.Folder"/>
+			<parent name="imageLinks" type="ome.model.annotations.ImageAnnotationLink" target="ome.model.core.Image"/>
+			<parent name="instrumentLinks" type="ome.model.annotations.InstrumentAnnotationLink" target="ome.model.acquisition.Instrument"/>
+			<parent name="lightPathLinks" type="ome.model.annotations.LightPathAnnotationLink" target="ome.model.acquisition.LightPath"/>
+			<parent name="lightSourceLinks" type="ome.model.annotations.LightSourceAnnotationLink" target="ome.model.acquisition.LightSource"/>
+			<parent name="namespaceLinks" type="ome.model.annotations.NamespaceAnnotationLink" target="ome.model.meta.Namespace"/>
+			<parent name="nodeLinks" type="ome.model.annotations.NodeAnnotationLink" target="ome.model.meta.Node"/>
+			<parent name="objectiveLinks" type="ome.model.annotations.ObjectiveAnnotationLink" target="ome.model.acquisition.Objective"/>
+			<parent name="originalFileLinks" type="ome.model.annotations.OriginalFileAnnotationLink" target="ome.model.core.OriginalFile"/>
+			<parent name="planeInfoLinks" type="ome.model.annotations.PlaneInfoAnnotationLink" target="ome.model.core.PlaneInfo"/>
+			<parent name="plateAcquisitionLinks" type="ome.model.annotations.PlateAcquisitionAnnotationLink" target="ome.model.screen.PlateAcquisition"/>
+			<parent name="plateLinks" type="ome.model.annotations.PlateAnnotationLink" target="ome.model.screen.Plate"/>
+			<parent name="projectLinks" type="ome.model.annotations.ProjectAnnotationLink" target="ome.model.containers.Project"/>
+			<parent name="reagentLinks" type="ome.model.annotations.ReagentAnnotationLink" target="ome.model.screen.Reagent"/>
+			<parent name="roiLinks" type="ome.model.annotations.RoiAnnotationLink" target="ome.model.roi.Roi"/>
+			<parent name="screenLinks" type="ome.model.annotations.ScreenAnnotationLink" target="ome.model.screen.Screen"/>
+			<parent name="sessionLinks" type="ome.model.annotations.SessionAnnotationLink" target="ome.model.meta.Session"/>
+			<parent name="shapeLinks" type="ome.model.annotations.ShapeAnnotationLink" target="ome.model.roi.Shape"/>
+			<parent name="wellLinks" type="ome.model.annotations.WellAnnotationLink" target="ome.model.screen.Well"/>
 		</properties>
 	</abstract>
 <!-- top-level types -->

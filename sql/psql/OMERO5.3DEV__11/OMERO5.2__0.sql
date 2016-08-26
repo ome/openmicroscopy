@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__10.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__11.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  10,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  11,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1916,16 +1916,100 @@ CREATE TRIGGER codomainmapcontext_channelBinding_index_trigger
 
 CREATE INDEX i_CodomainMapContext_channelBinding ON codomainmapcontext(channelBinding);
 
+-- ... up to patch 11:
+
+CREATE VIEW count_annotation_channellinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM channelannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_datasetlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM datasetannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_detectorlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM detectorannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_dichroiclinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM dichroicannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_experimenterlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM experimenterannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_experimentergrouplinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM experimentergroupannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_filesetlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM filesetannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_filterlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM filterannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_folderlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM folderannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_imagelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM imageannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_instrumentlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM instrumentannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_lightpathlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM lightpathannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_lightsourcelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM lightsourceannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_namespacelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM namespaceannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_nodelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM nodeannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_objectivelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM objectiveannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_originalfilelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM originalfileannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_planeinfolinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM planeinfoannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_plateacquisitionlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM plateacquisitionannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_platelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM plateannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_projectlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM projectannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_reagentlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM reagentannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_roilinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM roiannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_screenlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM screenannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_sessionlinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM sessionannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_shapelinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM shapeannotationlink GROUP BY child, owner_id ORDER BY child;
+
+CREATE VIEW count_annotation_welllinks_by_owner (annotation_id, owner_id, count) AS
+    SELECT child, owner_id, count(*) FROM wellannotationlink GROUP BY child, owner_id ORDER BY child;
+
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 10             AND
+          currentPatch    = 11             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__10'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
