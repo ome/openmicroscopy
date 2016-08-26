@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -784,4 +784,25 @@ public interface OmeroMetadataService
             Map<DataObject, List<AnnotationData>> toAdd,
             Map<DataObject, List<AnnotationData>> toRemove, long userID)
         throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Load the number of annotations attached to the specified
+     * {@link DataObject}s
+     * 
+     * @param ctx
+     *            The security context.
+     * @param data
+     *            The objects to load the annotation counts for
+     * @param userID
+     *            The id of the user (can be <code>null</code>)
+     * @return Seea bove
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
+     */
+    public Map<AnnotationType, Long> loadAnnotationCount(SecurityContext ctx,
+            Collection<DataObject> data, long userID)
+            throws DSOutOfServiceException, DSAccessException;
 }

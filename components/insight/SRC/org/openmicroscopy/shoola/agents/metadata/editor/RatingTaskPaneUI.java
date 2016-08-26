@@ -214,11 +214,7 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
 
     @Override
     int getUnfilteredAnnotationCount() {
-        if (model.isMultiSelection()) {
-            return model.getRatingCount(EditorModel.ME);
-        } else {
-            return model.getRatingCount(EditorModel.ALL);
-        }
+        return (int) model.getAnnotationCount(AnnotationType.RATING);
     }
     
     void onCollapsed(boolean collapsed) {

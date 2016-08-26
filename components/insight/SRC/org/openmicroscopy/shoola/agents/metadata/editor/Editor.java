@@ -579,4 +579,11 @@ public interface Editor
      */
     public void reloadROICount();
     
+    /**
+     * Set the annotation counts
+     * 
+     * @param result
+     *            The annotation counts
+     */
+    public void setAnnotationCount(Map<AnnotationType, Long> result);
 }

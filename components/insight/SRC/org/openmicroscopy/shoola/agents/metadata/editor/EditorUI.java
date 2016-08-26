@@ -916,6 +916,12 @@ class EditorUI
 		
 	}
 	
+	/** Refreshes the annotation task panes */
+    void refreshAnnotationTaskPanes()
+    {
+        generalPane.refreshAnnotationTaskPanes();
+    }
+	
 	/** Displays the scripts. */
 	void setScripts() { toolBar.setScripts(); }
 
@@ -1074,4 +1080,5 @@ class EditorUI
         return generalPane != null ? generalPane.getAnnotationTaskPane(type)
                 : null;
     }
+
 }

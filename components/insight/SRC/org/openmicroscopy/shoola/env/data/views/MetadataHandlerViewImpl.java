@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import omero.gateway.SecurityContext;
+import org.openmicroscopy.shoola.env.data.views.calls.AnnotationCountLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader;
@@ -457,6 +458,19 @@ class MetadataHandlerViewImpl
             AgentEventListener observer) {
         BatchCallTree cmd = new StructuredAnnotationSaver(ctx, toAdd, toRemove,
                 userID);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see MetadataHandlerView#loadAnnotationCount(SecurityContext, Collection, long,
+     * AgentEventListener)
+     */
+    @Override
+    public CallHandle loadAnnotationCount(SecurityContext ctx,
+            Collection<DataObject> dataObjects, long userID,
+            AgentEventListener observer) {
+        BatchCallTree cmd = new AnnotationCountLoader(ctx, dataObjects, userID);
         return cmd.exec(observer);
     }
 }

@@ -319,11 +319,7 @@ public class OtherTaskPaneUI extends AnnotationTaskPaneUI {
 
     @Override
     int getUnfilteredAnnotationCount() {
-        if (model.isMultiSelection()) {
-            return model.getAllOtherAnnotations().size();
-        } else {
-            return model.getOtherAnnotations().size();
-        }
+        return (int) model.getAnnotationCount(AnnotationType.OTHER);
     }
     
     @Override

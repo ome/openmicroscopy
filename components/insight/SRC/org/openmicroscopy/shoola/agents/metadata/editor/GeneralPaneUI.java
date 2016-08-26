@@ -626,6 +626,8 @@ class GeneralPaneUI extends JPanel
     	
 		revalidate();
 		repaint();
+		
+		model.loadAnnotationCount();
 	}
 	
 	/** Shows the image's info. */
@@ -880,13 +882,45 @@ class GeneralPaneUI extends JPanel
 	void onRelatedNodesSet()
 	{
 	    nameModified = false;
-	    tagsTaskPane.onRelatedNodesSet();
-	    roiTaskPane.onRelatedNodesSet();
-	    mapTaskPane.onRelatedNodesSet();
-	    attachmentTaskPane.onRelatedNodesSet();
-	    otherTaskPane.onRelatedNodesSet();
-	    ratingTaskPane.onRelatedNodesSet();
-	    commentTaskPane.onRelatedNodesSet();
+	    
+	    EnumSet<AnnotationType> reloadAnnos = EnumSet.noneOf(AnnotationType.class);
+	    
+	    if(!tagsTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.TAG);
+	    
+	    if(!roiTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.ROI);
+	    
+	    if(!mapTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.MAP);
+	    
+	    if(!attachmentTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.ATTACHMENT);
+	    
+	    if(!otherTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.OTHER);
+	    
+	    if(!ratingTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.RATING);
+	    
+	    if(!commentTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.COMMENT);
+	    
+	    model.loadStructuredData(reloadAnnos);
+	    model.loadAnnotationCount();
+	}
+	
+	/**
+	 * Refreshes the annotation task panes
+	 */
+	void refreshAnnotationTaskPanes() {
+	    tagsTaskPane.refreshUI();
+        roiTaskPane.refreshUI();
+        mapTaskPane.refreshUI();
+        attachmentTaskPane.refreshUI();
+        otherTaskPane.refreshUI();
+        ratingTaskPane.refreshUI();
+        commentTaskPane.refreshUI();
 	}
 	
 	/**

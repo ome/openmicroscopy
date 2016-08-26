@@ -108,7 +108,10 @@ public class AnnotationTaskPane extends JXTaskPane {
      *            The number of annotations available
      */
     void setAnnotationCount(int n) {
-        setTitle(type.getDescriptiveName() + " (" + n + ")");
+        if(n < 0)
+            setTitle(type.getDescriptiveName() + " ( - )");
+        else
+            setTitle(type.getDescriptiveName() + " (" + n + ")");
     }
 
     /**
