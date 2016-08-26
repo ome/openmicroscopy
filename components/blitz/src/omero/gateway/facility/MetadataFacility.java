@@ -21,6 +21,8 @@
 package omero.gateway.facility;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,18 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.Arrays;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.testng.collections.ListMultiMap;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Multimaps;
+
+import omero.RLong;
 import omero.api.IMetadataPrx;
+import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
@@ -243,4 +256,57 @@ public class MetadataFacility extends Facility {
         return result;
     }
 
+    /**
+     * Get the annotation counts for the given {@link DataObject}s
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param objects
+     *            The {@link DataObject}s to load the annotation counts for
+     * @param userIds
+     *            Only load annotations of certain users (can be
+     *            <code>null</code>, i. e. all users)
+     * @return See above
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or not logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public Map<Class<? extends AnnotationData>, Long> getAnnotationCount(
+            SecurityContext ctx, Collection<? extends DataObject> objects,
+            List<Long> userIds) throws DSOutOfServiceException,
+            DSAccessException {
+        String type = null;
+        List<Long> ids = new ArrayList<Long>();
+        for (DataObject obj : objects) {
+            if (type == null)
+                type = PojoMapper.getModelType(obj.getClass()).getName();
+            else if (!type.equals(PojoMapper.getModelType(obj.getClass())
+                    .getName()))
+                throw new IllegalArgumentException(
+                        "All objects have to be the same type");
+            ids.add(obj.getId());
+        }
+
+        try {
+            IMetadataPrx proxy = gateway.getMetadataService(ctx);
+            Map<String, Long> data = proxy.loadAnnotationCounts(type, ids,
+                    userIds, null);
+            Map<Class<? extends AnnotationData>, Long> result = new HashMap<Class<? extends AnnotationData>, Long>(
+                    data.size());
+            for (Entry<String, Long> e : data.entrySet()) {
+                Class<? extends AnnotationData> annoType = (Class<? extends AnnotationData>) PojoMapper
+                        .getPojoType((Class<? extends IObject>) Class.forName(e
+                                .getKey()));
+                result.put(annoType, e.getValue());
+            }
+            return result;
+        } catch (Throwable t) {
+            handleException(this, t, "Cannot get annotation counts.");
+        }
+
+        return Collections.emptyMap();
+    }
+    
 }
