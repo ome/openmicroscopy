@@ -1,11 +1,10 @@
 # Python installation requirements for OMERO.web
 # ==============================================
 #
-#     pip install -r requirements-py27-experimental.txt
+#     pip install -r requirements-py27-trial.txt
 #
+
 numpy>=1.9
 Pillow<3.4
 zeroc-ice>3.5,<3.7
-Django>=1.8,<1.9
-gunicorn>=19.3
-django-pipeline==1.3.20
+-r requirements-py27-nginx.txt
