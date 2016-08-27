@@ -563,26 +563,42 @@ def api_experimenter_list(request, conn=None, **kwargs):
         page = get_long_or_default(request, 'page', 1)
         limit = get_long_or_default(request, 'limit', settings.PAGE)
         group_id = get_long_or_default(request, 'group', -1)
-        experimenter_id = get_long_or_default(request, 'experimenter', None)
     except ValueError:
         return HttpResponseBadRequest('Invalid parameter value')
 
     try:
-        if experimenter_id:
-            if experimenter_id < 0:
-                experimenter = fake_experimenter(request)
-            else:
-                # Get the experimenter
-                experimenter = tree.marshal_experimenter(
-                    conn=conn, experimenter_id=experimenter_id)
-            return HttpJsonResponse({'experimenter': experimenter})
+        # Get the experimenters
+        experimenters = tree.marshal_experimenters(conn=conn,
+                                                   group_id=group_id,
+                                                   page=page,
+                                                   limit=limit)
+        return HttpJsonResponse({'experimenters': experimenters})
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+
+@login_required()
+def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
+    # Validate parameter
+    try:
+        experimenter_id = long(experimenter_id)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid experimenter id')
+
+    try:
+        # Get the experimenter
+        if experimenter_id < 0:
+            experimenter = fake_experimenter(request)
         else:
-            # Get the experimenters
-            experimenters = tree.marshal_experimenters(conn=conn,
-                                                       group_id=group_id,
-                                                       page=page,
-                                                       limit=limit)
-            return HttpJsonResponse({'experimenters': experimenters})
+            # Get the experimenter
+            experimenter = tree.marshal_experimenter(
+                conn=conn, experimenter_id=experimenter_id)
+        return HttpJsonResponse({'experimenter': experimenter})
+
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:

@@ -433,10 +433,6 @@ $(function() {
                 if (path && (node.type === 'experimenter' || node.type === 'orphaned')) {
                     payload['experimenter_id'] = inst.get_node(path[0]).data.obj.id;
                 }
-                // set activate user to load root node
-                if (!path) {
-                    payload['experimenter'] = WEBCLIENT.active_user_id;
-                }
 
                 // If this is a node which can have paged results then either specify that
                 // we want the specific page, or use default first page
