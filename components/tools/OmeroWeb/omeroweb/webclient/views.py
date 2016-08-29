@@ -2068,7 +2068,6 @@ def annotate_file(request, conn=None, **kwargs):
     Otherwise it generates the form for choosing file-annotations & local
     files.
     """
-    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {
@@ -2090,8 +2089,8 @@ def annotate_file(request, conn=None, **kwargs):
 
     obj_count = sum([len(selected[types]) for types in selected])
 
-    # Get appropriate manager, either to list available Tags to add to single
-    # object, or list ALL Tags (multiple objects)
+    # Get appropriate manager, either to list available Files to add to single
+    # object, or list ALL Files (multiple objects)
     manager = None
     if obj_count == 1:
         for t in selected:
@@ -2105,7 +2104,7 @@ def annotate_file(request, conn=None, **kwargs):
             if o_type == 'tagset':
                 # TODO: this should be handled by the BaseContainer
                 o_type = 'tag'
-            kw = {'index': index}
+            kw = {}
             if o_type is not None and o_id > 0:
                 kw[str(o_type)] = long(o_id)
             try:
@@ -2137,13 +2136,13 @@ def annotate_file(request, conn=None, **kwargs):
             added_files = []
             if files is not None and len(files) > 0:
                 added_files = manager.createAnnotationsLinks(
-                    'file', files, oids, well_index=index)
+                    'file', files, oids)
             # upload new file
             fileupload = ('annotation_file' in request.FILES and
                           request.FILES['annotation_file'] or None)
             if fileupload is not None and fileupload != "":
                 newFileId = manager.createFileAnnotations(
-                    fileupload, oids, well_index=index)
+                    fileupload, oids)
                 added_files.append(newFileId)
             return HttpJsonResponse({'fileIds': added_files})
         else:
@@ -2151,7 +2150,7 @@ def annotate_file(request, conn=None, **kwargs):
 
     else:
         form_file = FilesAnnotationForm(initial=initial)
-        context = {'form_file': form_file, 'index': index}
+        context = {'form_file': form_file}
         template = "webclient/annotations/files_form.html"
     context['template'] = template
     return context
@@ -2165,13 +2164,10 @@ def annotate_rating(request, conn=None, **kwargs):
     """
     rating = getIntOrDefault(request, 'rating', 0)
     oids = getObjects(request, conn)
-    well_index = getIntOrDefault(request, 'index', 0)
 
     # add / update rating
     for otype, objs in oids.items():
         for o in objs:
-            if isinstance(o._obj, omero.model.WellI):
-                o = o.getWellSample(well_index).image()
             o.setRating(rating)
 
     # return a summary of ratings
@@ -2284,8 +2280,6 @@ def annotate_map(request, conn=None, **kwargs):
         ann.save()
         for k, objs in oids.items():
             for obj in objs:
-                if k == "well":
-                    obj = obj.getWellSample(obj.index).image()
                 obj.linkAnnotation(ann)
         annId = ann.getId()
     # Or update existing annotation
@@ -2539,6 +2533,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                         editing),
                         "removefromshare", (tree P/D/I moving etc)
                         "delete", "deletemany"      (delete objects)
+                        "remove" (remove tag/comment from object)
     @param o_type:      "dataset", "project", "image", "screen", "plate",
                         "acquisition", "well","comment", "file", "tag",
                         "tagset","share", "sharecomment"
