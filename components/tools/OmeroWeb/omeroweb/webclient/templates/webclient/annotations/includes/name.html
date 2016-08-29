@@ -44,12 +44,6 @@
         src="{% static 'webclient/image/inPlace_16.png' %}"/>
     {% endif %}
     <table style="width: 50%">
-        {% if wellImageId %}
-        <tr>
-            <th>Image ID:</th>
-            <td><strong>{{ wellImageId }}</strong></td>
-        </tr>
-        {% endif %}
         <tr class="data_heading_id">
             {% ifequal manager.obj_type "acquisition" %}
               <th>Run ID:</th>
