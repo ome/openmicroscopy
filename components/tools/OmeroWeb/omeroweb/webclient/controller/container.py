@@ -47,7 +47,6 @@ class BaseContainer(BaseController):
     comment = None
     tags = None
 
-    index = None
     containers = None
     experimenter = None
 
@@ -105,8 +104,6 @@ class BaseContainer(BaseController):
             self.well = self.conn.getObject("Well", well)
             self.assertNotNone(self.well, well, "Well")
             self.assertNotNone(self.well._obj, well, "Well")
-            if index is not None:
-                self.well.index = index
         if tag is not None:
             self.obj_type = "tag"
             self.tag = self.conn.getObject("Annotation", tag)
@@ -566,7 +563,7 @@ class BaseContainer(BaseController):
                         pass
         return ann.getId()
 
-    def createFileAnnotations(self, newFile, oids, well_index=0):
+    def createFileAnnotations(self, newFile, oids):
         format = self.checkMimetype(newFile.content_type)
 
         oFile = omero.model.OriginalFileI()
@@ -586,16 +583,11 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in oids[k]:
-                    if isinstance(ob._obj, omero.model.WellI):
-                        t = 'Image'
-                        obj = ob.getWellSample(well_index).image()
-                    elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
+                for obj in oids[k]:
+                    if isinstance(obj._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
-                        obj = ob
                     else:
                         t = k.lower().title()
-                        obj = ob
                     l_ann = getattr(omero.model, t+"AnnotationLinkI")()
                     l_ann.setParent(obj._obj)
                     l_ann.setChild(fa._obj)
@@ -728,7 +720,7 @@ class BaseContainer(BaseController):
             container.description = None
         self.conn.saveObject(container)
 
-    def remove(self, parents, index, tag_owner_id=None):
+    def remove(self, parents, tag_owner_id=None):
         """
         Removes the current object (file, tag, comment, dataset, plate, image)
         from its parents by manually deleting the link. Orphaned comments will

@@ -693,7 +693,7 @@
                 {% if manager.canAnnotate %}
                     <div>
                         <a id="launch_tags_form"
-                            href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}" 
+                            href="{% url 'annotate_tags' %}?{{manager.obj_type}}={{ manager.obj_id }}" 
                             class="btn silver btn_add" title="Add tags"><span></span></a>
                     </div>
                 {% endif %}
@@ -745,7 +745,7 @@
 
                     {% if manager.canAnnotate %}
                         <a id="choose_file_anns"
-                            href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}"
+                            href="{% url 'annotate_file' %}?{{manager.obj_type}}={{ manager.obj_id }}"
                             class="btn silver btn_add" title="Attach a file">
                             <span></span>
                         </a>
