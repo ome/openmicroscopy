@@ -794,7 +794,7 @@ public class CommandLineImporter {
                 String outputArg = g.getOptarg();
                 log.info("Setting output format: {}", outputArg);
                 outputChoice = ImportOutput.valueOf(outputArg);
-
+                break;
             }
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
