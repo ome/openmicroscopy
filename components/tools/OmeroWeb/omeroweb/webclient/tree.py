@@ -454,8 +454,11 @@ def marshal_datasets(conn, project_id=None, orphaned=False, group_id=-1,
 
 
 def _marshal_date(time):
-    d = datetime.fromtimestamp(time/1000)
-    return d.isoformat() + 'Z'
+    try:
+        d = datetime.fromtimestamp(time/1000)
+        return d.isoformat() + 'Z'
+    except ValueError:
+        return ''
 
 
 def _marshal_image(conn, row, row_pixels=None, share_id=None,
