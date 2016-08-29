@@ -1043,7 +1043,7 @@ class BlitzObjectWrapper (object):
                 clone = self.__class__(newConn, self._obj)
                 ann = clone._linkAnnotation(ann)
                 if newConn != self._conn:
-                    newConn.terminateAllClients()
+                    newConn.close()
             elif d.getGroup():
                 # Try to match group
                 # TODO: Should switch session of this object to use group from
@@ -1753,10 +1753,10 @@ class _BlitzGateway (object):
 
         :param softclose:   Boolean
 
-        ** Deprecated ** Use :meth:`terminateAllClients`.
+        ** Deprecated ** Use :meth:`close`.
         Our apologies for any offense caused by this previous method name.
         """
-        warnings.warn("Deprecated. Use terminateAllClients",
+        warnings.warn("Deprecated. Use close()",
                       DeprecationWarning)
         self._connected = False
         oldC = self.c
@@ -1781,7 +1781,7 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-    def terminateAllClients(self):  # pragma: no cover
+    def close(self):  # pragma: no cover
         """
         Terminates connection with killSession(). The session is terminated
         regardless of its connection refcount.

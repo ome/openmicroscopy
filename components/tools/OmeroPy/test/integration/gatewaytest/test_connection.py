@@ -41,7 +41,7 @@ class TestConnectionMethods(object):
             c3, a.containedGroups(c3.getUserId())[1])
         c3.setGroupForSession(g)
 
-    # seppuku is deprecated: testTerminateAllClients below supersedes this test
+    # seppuku is deprecated: testClose below supersedes this test
     def testSeppuku(self, gatewaywrapper, author_testimg):
         # author_testimg in args to make sure the image has been imported
         gatewaywrapper.loginAsAuthor()
@@ -78,11 +78,11 @@ class TestConnectionMethods(object):
         gatewaywrapper._has_connected = False
         gatewaywrapper.doDisconnect()
 
-    def testTerminateAllClients(self, gatewaywrapper, author_testimg):
+    def testClose(self, gatewaywrapper, author_testimg):
         # author_testimg in args to make sure the image has been imported
         gatewaywrapper.loginAsAuthor()
         assert gatewaywrapper.getTestImage() is not None
-        gatewaywrapper.gateway.terminateAllClients()
+        gatewaywrapper.gateway.close()
         pytest.raises(Ice.ConnectionLostException, gatewaywrapper.getTestImage)
         gatewaywrapper._has_connected = False
         gatewaywrapper.doDisconnect()
@@ -94,7 +94,7 @@ class TestConnectionMethods(object):
         assert g2.connect(gatewaywrapper.gateway._sessionUuid)
         assert gatewaywrapper.getTestImage() is not None
         assert g2_getTestImage() is not None
-        g2.terminateAllClients()
+        g2.close()
         pytest.raises(Ice.ConnectionLostException, g2_getTestImage)
         pytest.raises(Ice.ObjectNotExistException, gatewaywrapper.getTestImage)
         gatewaywrapper._has_connected = False

@@ -66,7 +66,7 @@ class TestDBHelper(object):
             if rp:
                 dbhelpers.ROOT.passwd = rp
         finally:
-            gateway.terminateAllClients()
+            gateway.close()
 
         self.prepTestDB(onlyUsers=skipTestDB, skipImages=skipTestImages)
         self.doDisconnect()
@@ -84,7 +84,7 @@ class TestDBHelper(object):
     def doDisconnect(self):
         if self._has_connected and self.gateway:
             self.doConnect()
-            self.gateway.terminateAllClients()
+            self.gateway.close()
             assert not self.gateway.isConnected(), 'Can not disconnect'
         self.gateway = None
         self._has_connected = False
@@ -118,7 +118,7 @@ class TestDBHelper(object):
 
         try:
             if self.gateway is not None:
-                self.gateway.terminateAllClients()
+                self.gateway.close()
         finally:
             failure = False
             for tmpfile in self.tmpfiles:

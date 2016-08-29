@@ -84,7 +84,7 @@ class TestConfig(lib.ITest):
         self.conn = BlitzGateway(client_obj=self.new_client())
 
     def teardown_method(self, method):
-        self.conn.terminateAllClients()
+        self.conn.close()
         self.r.session.flush()
 
     def testDefaultConfig(self):
