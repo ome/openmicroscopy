@@ -795,7 +795,7 @@ public interface OmeroMetadataService
      *            The objects to load the annotation counts for
      * @param userID
      *            The id of the user (can be <code>null</code>)
-     * @return Seea bove
+     * @return See above
      * @throws DSOutOfServiceException
      *             If the connection is broken, or not logged in.
      * @throws DSAccessException
