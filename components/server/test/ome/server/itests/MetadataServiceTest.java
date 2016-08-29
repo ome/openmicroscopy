@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2016 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -419,5 +419,39 @@ public class MetadataServiceTest
         iMetadata.loadAnnotations(Experimenter.class,
                 Collections.singleton(iAdmin.getEventContext().getCurrentUserId()),
                 new HashSet(), null, null);
+    }
+    
+    @Test
+    public void testLoadAnnotationCounts() throws Exception {
+        loginNewUser();
+        
+        //create a project
+        Project p = new Project();
+        p.setName("project 1");
+        //create a comment annotation and a tag annotation
+        CommentAnnotation c1 = new CommentAnnotation();
+        c1.setTextValue("comment 1");
+        c1.setNs("");
+        p.linkAnnotation(c1);
+        CommentAnnotation c2 = new CommentAnnotation();
+        c2.setTextValue("comment 2");
+        c2.setNs("");
+        TagAnnotation t1 = new TagAnnotation();
+        t1.setTextValue("tag 1");
+        t1.setNs("");
+        p = iUpdate.saveAndReturnObject(p);
+        c2 = iUpdate.saveAndReturnObject(c2);
+        t1 = iUpdate.saveAndReturnObject(t1);
+        
+        Set<Long> ids = new HashSet<Long>();
+        ids.add(p.getId());
+        
+        Parameters options = new Parameters();
+        Map<String, Long> result = iMetadata.loadAnnotationCounts(Project.class, ids, null, options);
+        assertEquals(2, result.size());
+        long count = result.get(CommentAnnotation.class.getName());
+        assertEquals(2, count);
+        count = result.get(TagAnnotation.class.getName());
+        assertEquals(1, count);
     }
 }
