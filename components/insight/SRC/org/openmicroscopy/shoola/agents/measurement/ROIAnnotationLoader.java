@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
  */
 package org.openmicroscopy.shoola.agents.measurement;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import omero.gateway.SecurityContext;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -74,7 +76,7 @@ public class ROIAnnotationLoader
      */
     public void load()
     {
-        handle = mhView.loadStructuredData(ctx, shapes, -1, false, this);
+        handle = mhView.loadStructuredData(ctx, shapes, EnumSet.of(AnnotationType.TAG), -1, false, this);
     }
 
     /**

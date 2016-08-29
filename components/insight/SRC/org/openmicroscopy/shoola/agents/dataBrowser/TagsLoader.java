@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,9 @@ import java.util.Collection;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import omero.gateway.SecurityContext;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import omero.gateway.model.TagAnnotationData;
+
 
 /** 
  * Loads the available tags owned by the currently logged in user.
@@ -85,7 +86,7 @@ public class TagsLoader
 	{
 		long userID = getCurrentUser();
 		if (loadAll) userID = -1;
-		handle = mhView.loadExistingAnnotations(ctx, TagAnnotationData.class,
+		handle = mhView.loadExistingAnnotations(ctx, AnnotationType.TAG,
 												userID, this);
 	}
 	

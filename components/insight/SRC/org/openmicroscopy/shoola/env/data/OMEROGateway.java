@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -210,6 +210,7 @@ import omero.gateway.model.BooleanAnnotationData;
 import omero.gateway.model.ChannelAcquisitionData;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
+import omero.gateway.model.DoubleAnnotationData;
 import omero.gateway.model.EllipseData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
@@ -240,6 +241,7 @@ import omero.gateway.model.TextualAnnotationData;
 import omero.gateway.model.TimeAnnotationData;
 import omero.gateway.model.WellData;
 import omero.gateway.model.WellSampleData;
+import omero.gateway.model.XMLAnnotationData;
 
 
 /**
@@ -1275,11 +1277,19 @@ class OMEROGateway
 		else if (FileAnnotationData.class.equals(pojo))
 			return "ome.model.annotations.FileAnnotation";
 		else if (TermAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.UriAnnotation";
+			return "ome.model.annotations.TermAnnotation";
 		else if (TimeAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.TimeAnnotation";
+			return "ome.model.annotations.TimestampAnnotation";
 		else if (BooleanAnnotationData.class.equals(pojo))
 			return "ome.model.annotations.BooleanAnnotation";
+		else if (DoubleAnnotationData.class.equals(pojo))
+            return "ome.model.annotations.DoubleAnnotation";
+		else if (LongAnnotationData.class.equals(pojo))
+            return "ome.model.annotations.LongAnnotation";
+		else if (MapAnnotationData.class.equals(pojo))
+            return "ome.model.annotations.MapAnnotation";
+		else if (XMLAnnotationData.class.equals(pojo))
+            return "ome.model.annotations.XmlAnnotation";
 		return null;
 	}
 
@@ -1716,6 +1726,12 @@ class OMEROGateway
 		}
 		try {
 		    IMetadataPrx service = gw.getMetadataService(ctx);
+            if (types == null || types.isEmpty())
+                dsFactory.getLogger().warn(
+                        this,
+                        "Loading *all* annotations for " + nodeType + " "
+                                + String.join(",", nodeIDs)
+                                + ", avoid this where possible.");
 			return PojoMapper.asDataObjects(
 					service.loadAnnotations(PojoMapper.getModelType(nodeType).getName(),
 							nodeIDs, types, annotatorIDs, options));

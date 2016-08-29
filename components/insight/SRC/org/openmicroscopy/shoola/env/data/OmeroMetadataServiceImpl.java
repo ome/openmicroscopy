@@ -25,6 +25,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -82,6 +83,7 @@ import org.apache.commons.collections.ListUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -982,10 +984,10 @@ class OmeroMetadataServiceImpl
     
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, DataObject, long, boolean)
+	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, Object, long)
 	 */
 	public StructuredDataResults loadStructuredData(SecurityContext ctx,
-			Object object, long userID, boolean viewed) 
+			Object object, long userID) 
 	    throws DSOutOfServiceException, DSAccessException 
 	{
 		if (object == null)
@@ -1023,12 +1025,68 @@ class OmeroMetadataServiceImpl
 	}
 	
 	/**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroMetadataService#loadStructuredData(SecurityContext, List, EnumSet, long)
+     */
+    public Map<DataObject, StructuredDataResults>
+        loadStructuredData(SecurityContext ctx, List<DataObject> data, EnumSet<AnnotationType> types,
+            long userID) 
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Object not valid.");
+        
+        Map<DataObject, StructuredDataResults> 
+            results = new HashMap<DataObject, StructuredDataResults>();
+        Iterator<DataObject> i = data.iterator();
+        DataObject n;
+        List<Long> ids = new ArrayList<Long>();
+        Class<?> klass = null;
+        List<Long> fids = new ArrayList<Long>();
+        ImageData img;
+        Multimap<Class<?>, Long> mm = ArrayListMultimap.create();
+        while (i.hasNext()) {
+            n = i.next();
+            if (n != null) {
+                ids.add(n.getId());
+                mm.put(n.getClass(), n.getId());
+                if (n instanceof ImageData) {
+                    img = (ImageData) n;
+                    long fID = img.getFilesetId();
+                    if (fID >=0 && !fids.contains(fID)) {
+                        fids.add(fID);
+                    }
+                }
+            }
+        }
+        Map<Long, Collection<AnnotationData>> filesetMap =
+                new HashMap<Long, Collection<AnnotationData>>();
+        if (!fids.isEmpty()) {
+            filesetMap = loadAnnotations(ctx, FilesetData.class, fids,
+                    TextualAnnotationData.class,
+                    Arrays.asList(AnnotationData.FILE_TRANSFER_NS), null);
+        }
+        //load all the annotations
+        List<Long> usersIDs = null;
+        if (userID != -1) {
+            usersIDs = new ArrayList<Long>(1);
+            usersIDs.add(userID);
+        }
+        //Load annotations
+        for (Class<?> k : mm.keySet()) {
+            loadAnnotations(ctx, k, (List) mm.get(k), userID, data, types,
+                    filesetMap, results);
+        }
+        return results;
+    }
+    
+	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, List, long, boolean)
+	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, List, long)
 	 */
 	public Map<DataObject, StructuredDataResults>
 		loadStructuredData(SecurityContext ctx, List<DataObject> data,
-			long userID, boolean viewed) 
+			long userID) 
 	    throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
@@ -1133,6 +1191,78 @@ class OmeroMetadataServiceImpl
             }
         }
 	}
+	
+	private void loadAnnotations(SecurityContext ctx, Class<?> klass,
+            List<Long> ids, long userID, List<DataObject> data, EnumSet<AnnotationType> types,
+            Map<Long, Collection<AnnotationData>> filesetMap,
+            Map<DataObject, StructuredDataResults> results)
+    throws DSOutOfServiceException, DSAccessException
+    {
+        List<Long> usersIDs = null;
+        if (userID != -1) {
+            usersIDs = new ArrayList<Long>(1);
+            usersIDs.add(userID);
+        }
+        
+        List<Class> annotationTypes = new ArrayList<Class>();
+        for(AnnotationType t : types) {
+            if(t.getPojoClass()!=null)
+                annotationTypes.add(t.getPojoClass());
+            else if(t==AnnotationType.OTHER) {
+                annotationTypes.add(AnnotationType.BOOLEAN.getPojoClass());
+                annotationTypes.add(AnnotationType.DOUBLE.getPojoClass());
+                annotationTypes.add(AnnotationType.LONG.getPojoClass());
+                annotationTypes.add(AnnotationType.XML.getPojoClass());
+                annotationTypes.add(AnnotationType.TERM.getPojoClass());
+                annotationTypes.add(AnnotationType.TIME.getPojoClass());
+            }
+        }
+        
+        Map map = gateway.loadAnnotations(ctx, klass, ids, annotationTypes, usersIDs,
+                new Parameters());
+        Multimap<Long, IObject> linkMap = ArrayListMultimap.create();
+        if (!(klass.equals(TagAnnotationData.class) ||
+                klass.equals(FileAnnotationData.class))) {
+            Collection values = map.values();
+            Iterator k = values.iterator();
+            List<Long> annotationIds = new ArrayList<Long>();
+            while (k.hasNext()) {
+                Collection l = (Collection) k.next();
+                Iterator j = l.iterator();
+                while (j.hasNext()) {
+                    AnnotationData object = (AnnotationData) j.next();
+                    if (!annotationIds.contains(object.getId()))
+                        annotationIds.add(object.getId());
+                    
+                }
+               
+            }
+            if (CollectionUtils.isNotEmpty(annotationIds)) {
+                linkMap = gateway.findAnnotationLinks(ctx, klass, ids,
+                        annotationIds, userID);
+            }
+        }
+        //format the results
+        Iterator<DataObject> i = data.iterator();
+        StructuredDataResults r;
+        List<IObject> links;
+        DataObject n;
+        while (i.hasNext()) {
+            n = i.next();
+            if (n != null && ids.contains(n.getId())) {
+                r = new StructuredDataResults(n);
+                loadStructuredData(ctx, userID,
+                        (Collection) map.get(n.getId()), r, false);
+                results.put(n, r);
+                if (n instanceof ImageData) {
+                    ImageData img = (ImageData) n;
+                    r.setTransferlinks(filesetMap.get(img.getFilesetId()));
+                }
+                formatAnnotationLinks(linkMap.get(n.getId()), r);
+            }
+        }
+    }
+	
 	/**
 	 * Formats the annotation links.
 	 *
@@ -2310,7 +2440,6 @@ class OmeroMetadataServiceImpl
 	public DataObject loadAnnotation(SecurityContext ctx, long annotationID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		//Tmp code
 	    Collection<DataObject> set = gateway.loadAnnotation(ctx, 
 				Arrays.asList(annotationID));
 		if (set.size() != 1) return null;

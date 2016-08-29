@@ -21,16 +21,19 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 import java.awt.Container;
 import java.awt.Font;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
 import omero.gateway.model.AnnotationData;
-
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
+import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.State;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -41,6 +44,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class AnnotationTaskPane extends JXTaskPane {
 
+    /** The {@link JXTaskPane} property fired on collapse/expansion of the pane */
+    private static final String COLLAPSED_PROPERTY = "collapsed";
+    
     /** Reference to the {@link EditorUI} */
     private EditorUI view;
 
@@ -52,48 +58,6 @@ public class AnnotationTaskPane extends JXTaskPane {
 
     /** The component hosting the UI elements */
     private AnnotationTaskPaneUI ui;
-
-    /**
-     * The different kind of annotations
-     * 
-     * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
-     *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
-     */
-    public enum AnnotationType {
-        /** Tags */
-        TAGS("Tags"),
-
-        /** ROIs */
-        ROIS("ROIs"),
-
-        /** Map annotations */
-        MAP("Key-Value Pairs"),
-
-        /** File attachments */
-        ATTACHMENTS("Attachments"),
-
-        /** Other annotations */
-        OTHER("Others"),
-
-        /** Rating */
-        RATING("Ratings"),
-
-        /** User comments */
-        COMMENTS("Comments");
-
-        /** Human readable name for this annotation type */
-        String name = "";
-
-        /**
-         * Creates a new enumeration instance
-         * 
-         * @param name
-         *            Human readable name for this annotation type
-         */
-        AnnotationType(String name) {
-            this.name = name;
-        }
-    }
 
     /** The {@link AnnotationType} this taskpane should display */
     private AnnotationType type;
@@ -112,7 +76,7 @@ public class AnnotationTaskPane extends JXTaskPane {
      */
     AnnotationTaskPane(AnnotationType type, EditorUI view,
             EditorModel model, EditorControl controller) {
-        setTitle(type.name);
+        setTitle(type.getDescriptiveName());
         this.type = type;
         this.view = view;
         this.model = model;
@@ -144,7 +108,7 @@ public class AnnotationTaskPane extends JXTaskPane {
      *            The number of annotations available
      */
     void setAnnotationCount(int n) {
-        setTitle(type.name + " (" + n + ")");
+        setTitle(type.getDescriptiveName() + " (" + n + ")");
     }
 
     /**
@@ -218,16 +182,16 @@ public class AnnotationTaskPane extends JXTaskPane {
      */
     private void buildUI() {
         switch (type) {
-        case TAGS:
+        case TAG:
             ui = new TagsTaskPaneUI(model, view, controller);
             break;
         case MAP:
             ui = new MapTaskPaneUI(model, view, controller);
             break;
-        case ATTACHMENTS:
+        case ATTACHMENT:
             ui = new AttachmentsTaskPaneUI(model, view, controller);
             break;
-        case COMMENTS:
+        case COMMENT:
             ui = new CommentsTaskPaneUI(model, view, controller);
             break;
         case OTHER:
@@ -236,7 +200,7 @@ public class AnnotationTaskPane extends JXTaskPane {
         case RATING:
             ui = new RatingTaskPaneUI(model, view, controller);
             break;
-        case ROIS:
+        case ROI:
         default:
             ui = new DummyTaskPaneUI(model, view, controller);
             MetadataViewerAgent
@@ -247,7 +211,32 @@ public class AnnotationTaskPane extends JXTaskPane {
                                     + " annotations not implemented yet!");
         }
 
+        addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (COLLAPSED_PROPERTY.equals(evt.getPropertyName())) {
+                    ui.onCollapsed((Boolean) evt.getNewValue());
+                }
+            }
+        });
+        
         add(ui);
     }
 
+    /**
+     * Called when the data for this annotation task pane has been loaded
+     */
+    public void onLoaded() {
+        ui.onLoaded();
+    }
+
+    /**
+     * Overwrite the current state to LOADING state
+     */
+    public void setLoadingState() {
+        ui.state = State.LOADING;
+    }
+
 }
+

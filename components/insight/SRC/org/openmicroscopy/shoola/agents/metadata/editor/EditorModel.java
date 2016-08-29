@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -86,6 +87,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -1914,6 +1916,9 @@ class EditorModel
 		Collection<XMLAnnotationData> xml = data.getXMLAnnotations();
 		if (xml != null && !xml.isEmpty())
 			l.addAll(xml);
+		Collection<TermAnnotationData> term = data.getTerms();
+        if (term != null && !term.isEmpty())
+            l.addAll(term);
 		Collection<AnnotationData> others = data.getOtherAnnotations();
 		if (others != null && !others.isEmpty())
 			l.addAll(others);
@@ -1979,12 +1984,16 @@ class EditorModel
 		i = r.entrySet().iterator();
 
 		Collection<XMLAnnotationData> files;
+		Collection<TermAnnotationData> terms;
 		Collection<AnnotationData> others;
 		List<AnnotationData> results = new ArrayList<AnnotationData>();
 		List<Long> ids = new ArrayList<Long>();
+		List<Long> ids2 = new ArrayList<Long>();
 		Iterator<XMLAnnotationData> j;
+		Iterator<TermAnnotationData> j2;
 		Iterator<AnnotationData> k;
 		XMLAnnotationData file;
+		TermAnnotationData term;
 		AnnotationData other;
 		while (i.hasNext()) {
 			e = i.next();
@@ -1999,6 +2008,17 @@ class EditorModel
 					}
 				}
 			}
+			terms = e.getValue().getTerms();
+            if (terms != null) {
+                j2 = terms.iterator();
+                while (j2.hasNext()) {
+                    term = j2.next();
+                    if (!ids2.contains(term)) {
+                        results.add(term);
+                        ids2.add(term.getId());
+                    }
+                }
+            }
 			others = e.getValue().getOtherAnnotations();
 			if (others != null) {
 				k = others.iterator();
@@ -4612,5 +4632,13 @@ class EditorModel
             }
         }
         return imgSize <= maxSize;
+    }
+
+    /**
+     * Triggers the loading of the annotations
+     * @param types The types of annotations to load.
+     */
+    public void loadStructuredData(EnumSet<AnnotationType> types) {
+        parent.loadStructuredData(types);
     }
 }

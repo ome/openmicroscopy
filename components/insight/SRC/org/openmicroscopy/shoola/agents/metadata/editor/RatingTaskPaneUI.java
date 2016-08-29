@@ -27,6 +27,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.swing.Box;
@@ -37,6 +38,7 @@ import omero.gateway.model.AnnotationData;
 import omero.gateway.model.RatingAnnotationData;
 
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -84,15 +86,11 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         rating.setOpaque(false);
         rating.setBackground(UIUtilities.BACKGROUND_COLOR);
         rating.addPropertyChangeListener(this);
-        add(rating);
-        
-        add(Box.createHorizontalStrut(2));
-        
+
         otherRating = new JLabel();
         otherRating.setBackground(UIUtilities.BACKGROUND_COLOR);
         Font font = otherRating.getFont();
         otherRating.setFont(font.deriveFont(Font.ITALIC, font.getSize()-2));
-        add(otherRating);
     }
 
     @Override
@@ -109,6 +107,16 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
     @Override
     void refreshUI() {
         clearDisplay();
+        
+        if(state == State.LOADING) {
+            add(loadingLabel);
+            return;
+        }
+        
+        add(rating);
+        add(Box.createHorizontalStrut(2));
+        add(otherRating);
+        
         StringBuilder buffer = new StringBuilder();
         if (!model.isMultiSelection()) {
             originalValue = model.getUserRating();
@@ -210,6 +218,12 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
             return model.getRatingCount(EditorModel.ME);
         } else {
             return model.getRatingCount(EditorModel.ALL);
+        }
+    }
+    
+    void onCollapsed(boolean collapsed) {
+        if(!collapsed) {
+            model.loadStructuredData(EnumSet.of(AnnotationType.RATING));
         }
     }
 }

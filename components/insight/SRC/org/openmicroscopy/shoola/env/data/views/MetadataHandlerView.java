@@ -22,11 +22,13 @@ package org.openmicroscopy.shoola.env.data.views;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -118,19 +120,6 @@ public interface MetadataHandlerView
 	public CallHandle loadThumbnails(SecurityContext ctx, ImageData image,
 		Set<Long> userIDs, int thumbWidth, int thumbHeight,
 		AgentEventListener observer);
-
-	/**
-	 * Loads all annotations related the specified object.
-	 * Retrieves the files if the userID is not <code>-1</code>.
-	 * 
-	 * @param ctx The security context.
-	 * @param dataObject The object to handle. Mustn't be <code>null</code>.
-	 * @param userID Pass <code>-1</code> if no user specified.
-	 * @param observer Call-back handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadStructuredData(SecurityContext ctx, Object dataObject,
-			long userID, AgentEventListener observer);
 	
 	/**
 	 * Loads all annotations related the specified objects.
@@ -138,6 +127,7 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param data The objects to handle. Mustn't be <code>null</code>.
+	 * @param types The types of annotations to load (<code>null</code> means all annotation).
 	 * @param userID Pass <code>-1</code> if no user specified.
 	 * @param viewed Pass <code>true</code> to load the rendering settings 
 	 * related to the objects, <code>false<code> otherwise.
@@ -145,9 +135,9 @@ public interface MetadataHandlerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadStructuredData(SecurityContext ctx,
-		List<DataObject> data, long userID, boolean viewed,
-		AgentEventListener observer);
-	
+	        List<DataObject> data, EnumSet<AnnotationType> types, long userID, boolean viewed,
+	        AgentEventListener observer);
+	        
 	/**
 	 * Loads all {@link DataObject}s the given annotations ({@link FileAnnotationData}) are linked to
 	 * @param ctx The security context.
@@ -173,7 +163,7 @@ public interface MetadataHandlerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadExistingAnnotations(SecurityContext ctx,
-			Class annotation, long userID, AgentEventListener observer);
+	        AnnotationType annotation, long userID, AgentEventListener observer);
 
 	/**
 	 * Loads the existing annotations defined by the annotation type
@@ -188,7 +178,7 @@ public interface MetadataHandlerView
          * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadExistingAnnotations(List<SecurityContext> ctx,
-			Class annotation, long userID, AgentEventListener observer);
+	        AnnotationType annotation, long userID, AgentEventListener observer);
 	
 	/**
 	 * Saves the object, adds (resp. removes) annotations to (resp. from)
@@ -267,17 +257,6 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle loadFile(SecurityContext ctx, File file, long fileID,
 			int index, AgentEventListener observer);
-	
-	/**
-	 * Loads the annotation corresponding to the passed id.
-	 * 
-	 * @param ctx The security context.
-	 * @param annotationID The id of the annotation file.
-	 * @param observer Call-back handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadAnnotation(SecurityContext ctx, long annotationID,
-							AgentEventListener observer);
 	
 	/**
 	 * Loads the original files related to a given pixels set.
@@ -453,6 +432,7 @@ public interface MetadataHandlerView
 	 * @param userID The id of the experimenter or <code>-1</code>.
 	 * @param all Pass <code>true</code> to retrieve all the scripts uploaded
 	 * ones and the default ones, <code>false</code>.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadScripts(SecurityContext ctx, long userID, boolean all,
@@ -463,6 +443,7 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param scriptID The id of the script.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadScript(SecurityContext ctx, long scriptID,
@@ -474,6 +455,7 @@ public interface MetadataHandlerView
 	 * @param ctx The security context.
 	 * @param parameters The parameters indicating the data to load.
 	 * @param userID The id of the experimenter or <code>-1</code>.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadTabularData(SecurityContext ctx,
@@ -484,6 +466,7 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param imageId The id of the image.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFileset(SecurityContext ctx,
@@ -499,13 +482,15 @@ public interface MetadataHandlerView
 	 * Image.
 	 * @param rootIDs The collection of object's ids the annotations are linked
 	 * to.
-	 * @param annotationType The type of annotation to load.
+	 * @param annotationTypes The type of annotation to load.
 	 * @param nsInclude The annotation's name space to include if any.
 	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
+
 	public CallHandle loadAnnotations(SecurityContext ctx, Class<? extends DataObject> rootType,
-		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+		List<Long> rootIDs, EnumSet<AnnotationType> annotationTypes, List<String> nsInclude,
 		List<String> nsExlcude, AgentEventListener observer);
 
 	/**
