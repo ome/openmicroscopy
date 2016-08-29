@@ -1678,10 +1678,11 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['link'] = {}
         ann['link']['id'] = link.id.val
         ann['link']['owner'] = {'id': link.details.owner.id.val}
-        # Parent (Acquisition has no Name)
+        # Parent (Well & Acquisition have no Name)
         ann['link']['parent'] = {'id': link.parent.id.val,
-                                 'name': unwrap(link.parent.name),
                                  'class': link.parent.__class__.__name__}
+        if hasattr(link.parent, 'name'):
+            ann['link']['parent']['name'] = unwrap(link.parent.name)
         linkCreation = link.details.creationEvent._time
         ann['link']['date'] = _marshal_date(unwrap(linkCreation))
         p = link.details.permissions
@@ -1731,7 +1732,7 @@ def _marshal_exp_obj(experimenter):
 
 def marshal_annotations(conn, project_ids=None, dataset_ids=None,
                         image_ids=None, screen_ids=None, plate_ids=None,
-                        run_ids=None, ann_type=None,
+                        run_ids=None, well_ids=None, ann_type=None,
                         group_id=-1, page=1, limit=settings.PAGE):
 
     annotations = []
@@ -1767,9 +1768,9 @@ def marshal_annotations(conn, project_ids=None, dataset_ids=None,
             ch.ns!='openmicroscopy.org/omero/insight/rating')""")
 
     dtypes = ["Project", "Dataset", "Image",
-              "Screen", "Plate", "PlateAcquisition"]
+              "Screen", "Plate", "PlateAcquisition", "Well"]
     obj_ids = [project_ids, dataset_ids, image_ids,
-               screen_ids, plate_ids, run_ids]
+               screen_ids, plate_ids, run_ids, well_ids]
 
     experimenters = {}
 

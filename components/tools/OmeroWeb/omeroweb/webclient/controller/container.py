@@ -547,10 +547,7 @@ class BaseContainer(BaseController):
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in oids[k]:
-                    if isinstance(ob._obj, omero.model.WellI):
-                        t = 'Image'
-                        obj = ob.getWellSample(well_index).image()
-                    elif isinstance(ob._obj, omero.model.PlateAcquisitionI):
+                    if isinstance(ob._obj, omero.model.PlateAcquisitionI):
                         t = 'PlateAcquisition'
                         obj = ob
                     else:
@@ -613,7 +610,7 @@ class BaseContainer(BaseController):
                 new_links, self.conn.SERVICE_OPTS)
         return fa.getId()
 
-    def createAnnotationsLinks(self, atype, tids, oids, well_index=0):
+    def createAnnotationsLinks(self, atype, tids, oids):
         """
         Links existing annotations to 1 or more objects
 
@@ -645,16 +642,11 @@ class BaseContainer(BaseController):
                     params=params)
                 pcLinks = [(l.parent.id.val, l.child.id.val) for l in links]
                 # Create link between each object and annotation
-                for ob in self.conn.getObjects(parent_type, parent_ids):
-                    parent_objs.append(ob)
+                for obj in self.conn.getObjects(parent_type, parent_ids):
+                    parent_objs.append(obj)
                     for a in annotations:
-                        if (ob.id, a.id) in pcLinks:
+                        if (obj.id, a.id) in pcLinks:
                             continue    # link already exists
-                        if isinstance(ob._obj, omero.model.WellI):
-                            parent_type = 'Image'
-                            obj = ob.getWellSample(well_index).image()
-                        else:
-                            obj = ob
                         l_ann = getattr(
                             omero.model, parent_type+"AnnotationLinkI")()
                         l_ann.setParent(obj._obj)

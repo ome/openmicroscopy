@@ -1168,6 +1168,7 @@ def api_annotations(request, conn=None, **kwargs):
     screen_ids = r.getlist('screen')
     plate_ids = r.getlist('plate')
     run_ids = r.getlist('acquisition')
+    well_ids = r.getlist('well')
 
     ann_type = r.get('type', None)
 
@@ -1177,6 +1178,7 @@ def api_annotations(request, conn=None, **kwargs):
                                           screen_ids=screen_ids,
                                           plate_ids=plate_ids,
                                           run_ids=run_ids,
+                                          well_ids=well_ids,
                                           ann_type=ann_type)
 
     return HttpJsonResponse({'annotations': anns, 'experimenters': exps})
@@ -2354,7 +2356,6 @@ def annotate_tags(request, conn=None, **kwargs):
     existing tags to one or more objects
     """
 
-    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     obj_count = sum([len(selected[types]) for types in selected])
@@ -2384,6 +2385,7 @@ def annotate_tags(request, conn=None, **kwargs):
         screen_ids=selected['screens'],
         plate_ids=selected['plates'],
         run_ids=selected['acquisitions'],
+        well_ids=selected['wells'],
         ann_type='tag')
 
     userMap = {}
@@ -2450,8 +2452,7 @@ def annotate_tags(request, conn=None, **kwargs):
                 manager.createAnnotationsLinks(
                     'tag',
                     tags,
-                    oids,
-                    well_index=index,
+                    oids
                 )
             new_tags = []
             for form in newtags_formset.forms:
@@ -2459,7 +2460,6 @@ def annotate_tags(request, conn=None, **kwargs):
                     form.cleaned_data['tag'],
                     form.cleaned_data['description'],
                     oids,
-                    well_index=index,
                     tag_group_id=form.cleaned_data['tagset'],
                 ))
             # only remove Tags where the link is owned by self_id
@@ -2482,7 +2482,6 @@ def annotate_tags(request, conn=None, **kwargs):
         context = {
             'form_tags': form_tags,
             'newtags_formset': newtags_formset,
-            'index': index,
             'selected_tags': selected_tags,
         }
         template = "webclient/annotations/tags_form.html"
