@@ -31,7 +31,8 @@ import pytest
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI
 from omero.rtypes import unwrap, rstring
-from omero_marshal import get_encoder
+from omero_marshal import get_encoder, get_decoder
+from omero import ValidationException
 
 
 def get_update_service(user):
@@ -469,6 +470,35 @@ class TestProjects(IWebTest):
         assert rsp['@id'] == projectId
         conn = BlitzGateway(client_obj=self.root)
         assert_objects(conn, [rsp], [projectId])
+
+    def test_project_validation(self, userA):
+        """
+        This test illustrates the ValidationException we see when
+        Project is encoded to dict then decoded back to Project
+        and saved.
+        No exception is seen if the original Project is simply
+        saved without encode & decode OR if the omero:details are
+        removed from the dict before decoding back to Project.
+        """
+        conn = get_connection(userA)
+        project = ProjectI()
+        project.name = rstring('test_project_validation')
+        project = get_update_service(userA).saveAndReturnObject(project)
+
+        # Saving original Project directly is OK
+        conn.getUpdateService().saveObject(project)
+
+        # encode and decode before Save raises Validation Exception
+        project_json = get_encoder(project.__class__).encode(project)
+        decoder = get_decoder(project_json['@type'])
+        p = decoder.decode(project_json)
+        with pytest.raises(ValidationException):
+            conn.getUpdateService().saveObject(p)
+
+        # Removing details before decode allows Save without exception
+        del project_json['omero:details']
+        p = decoder.decode(project_json)
+        conn.getUpdateService().saveObject(p)
 
     def test_project_update(self, userA):
         conn = get_connection(userA)
