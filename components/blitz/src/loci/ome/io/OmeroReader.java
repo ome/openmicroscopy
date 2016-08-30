@@ -413,12 +413,12 @@ public class OmeroReader extends FormatReader {
                 }
             }
             for (int c=0; c<channels.size(); c++) {
-                LogicalChannel channel = channels.get(c).getLogicalChannel();
+                final LogicalChannel logicalChannel = channels.get(c).getLogicalChannel();
 
-                Length emWave = channel.getEmissionWave();
-                Length exWave = channel.getExcitationWave();
-                Length pinholeSize = channel.getPinHoleSize();
-                RString cname = channel.getName();
+                final Length emWave = logicalChannel.getEmissionWave();
+                final Length exWave = logicalChannel.getExcitationWave();
+                final Length pinholeSize = logicalChannel.getPinHoleSize();
+                final RString cname = logicalChannel.getName();
 
                 ome.units.quantity.Length emission = convertLength(emWave);
                 ome.units.quantity.Length excitation = convertLength(exWave);
