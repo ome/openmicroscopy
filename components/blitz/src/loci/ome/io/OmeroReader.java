@@ -411,9 +411,8 @@ public class OmeroReader extends FormatReader {
                     }
                     store.setChannelColor(color, 0, c);
                 }
-            }
-            for (int c=0; c<channels.size(); c++) {
-                final LogicalChannel logicalChannel = channels.get(c).getLogicalChannel();
+
+                final LogicalChannel logicalChannel = channel.getLogicalChannel();
 
                 final Length emWave = logicalChannel.getEmissionWave();
                 final Length exWave = logicalChannel.getExcitationWave();
