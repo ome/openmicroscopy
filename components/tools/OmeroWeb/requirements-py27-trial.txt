@@ -4,7 +4,6 @@
 #     pip install -r requirements-py27-trial.txt
 #
 
-numpy>=1.9
-Pillow<3.4
+-r requirements-common-trial.txt
 zeroc-ice>3.5,<3.7
 -r requirements-py27-nginx.txt
