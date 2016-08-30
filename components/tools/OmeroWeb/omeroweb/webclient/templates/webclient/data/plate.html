@@ -117,6 +117,7 @@
                 handleClickSelection(event);
                 var $selected = $('td.ui-selected', wpv.self);
                 syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                showImagesInWell();
             });
             $( '#spw' ).on( "dblclick", "td.well img", function(event) {
                 OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
@@ -128,6 +129,7 @@
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
                     syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                    showImagesInWell();
                 },
                 start: function(){
                 }
@@ -156,6 +158,31 @@
 
             wpv.load({{ manager.getPlateId }}, {{ index }});
 
+
+            var imagesInWellVisible = false;
+            $("#showWellImages").click(function(){
+                imagesInWellVisible = !imagesInWellVisible;
+                showImagesInWell();
+            });
+
+            var showImagesInWell = function() {
+                if (!imagesInWellVisible) {
+                    $("#wellImages").empty();
+                    return;
+                }
+                var $selected = $('td.ui-selected', wpv.self);
+                var wellIds = $selected.map(function(i, $w){
+                    return $w.id.split('-')[1];
+                });
+
+
+                [].forEach.call(wellIds, function(wellId) {
+                    var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
+                    $.getJSON(url, function(data){
+                        console.log(data);
+                    });
+                });
+            }
         });
 
     </script>
@@ -172,7 +199,11 @@
           </tbody>
         </table>
         </form>
-        <div id="toolbar" class="toolbar_noborder"></div>
+        <div id="toolbar" class="toolbar_noborder">
+            <button style="margin: -4px 8px;" id="showWellImages">Show Images in Well</button>
+        </div>
     </div>
     
     <div id="spw"></div>
+
+    <div id="wellImages"></div>
