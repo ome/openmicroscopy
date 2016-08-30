@@ -2,7 +2,7 @@
  * #%L
  * OME database I/O package for communicating with OME and OMERO servers.
  * %%
- * Copyright (C) 2005 - 2013 Open Microscopy Environment:
+ * Copyright (C) 2005 - 2016 Open Microscopy Environment:
  *   - Board of Regents of the University of Wisconsin-Madison
  *   - Glencoe Software, Inc.
  *   - University of Dundee
@@ -47,6 +47,7 @@ import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
 import ome.units.UNITS;
+import ome.xml.model.primitives.Color;
 import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.Timestamp;
 import omero.RInt;
@@ -395,6 +396,22 @@ public class OmeroReader extends FormatReader {
             }
 
             List<Channel> channels = pix.copyChannels();
+            for (int c=0; c<channels.size(); c++) {
+                final Channel channel = channels.get(c);
+                final RInt red = channel.getRed();
+                final RInt green = channel.getGreen();
+                final RInt blue = channel.getBlue();
+                final RInt alpha = channel.getAlpha();
+                if (red != null && green != null && blue != null) {
+                    final Color color;
+                    if (alpha == null) {
+                        color = new Color(red.getValue(), green.getValue(), blue.getValue(), 255);
+                    } else {
+                        color = new Color(red.getValue(), green.getValue(), blue.getValue(), alpha.getValue());
+                    }
+                    store.setChannelColor(color, 0, c);
+                }
+            }
             for (int c=0; c<channels.size(); c++) {
                 LogicalChannel channel = channels.get(c).getLogicalChannel();
 
