@@ -13,6 +13,7 @@ TRANSFERS = {
     "ome.formats.importer.transfers.HardlinkFileTransfer": "ln",
     "ome.formats.importer.transfers.MoveFileTransfer": "ln_rm",
     "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
+    "ome.formats.importer.transfers.RemoveFileTransfer": "ln_s_rm",
     "ome.formats.importer.transfers.UploadRmFileTransfer": "upload_rm",
     "ome.formats.importer.transfers.UploadFileTransfer": "",
     }

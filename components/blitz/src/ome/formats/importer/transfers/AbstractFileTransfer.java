@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) April 1st 2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,6 +50,7 @@ public abstract class AbstractFileTransfer implements FileTransfer {
         ln(HardlinkFileTransfer.class),
         ln_rm(MoveFileTransfer.class),
         ln_s(SymlinkFileTransfer.class),
+        ln_s_rm(RemoveFileTransfer.class),
         cp(CopyFileTransfer.class),
         cp_rm(CopyMoveFileTransfer.class),
         upload(UploadFileTransfer.class),

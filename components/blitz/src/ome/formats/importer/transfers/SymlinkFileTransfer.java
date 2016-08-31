@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) April 1st 2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -65,7 +65,7 @@ public class SymlinkFileTransfer extends AbstractExecFileTransfer {
     /**
      * No cleanup is needed for soft-linking.
      */
-    public void afterTransfer(int errors, List<String> srcFiles) {
+    public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
         // no-op
     }
 }
