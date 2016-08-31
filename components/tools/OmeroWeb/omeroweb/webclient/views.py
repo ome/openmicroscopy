@@ -386,7 +386,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # search support
     if menu == "search" and request.REQUEST.get('search_query'):
-        init['query'] = str(request.REQUEST.get('search_query')).replace(" ", "%20")
+        init['query'] = str(request.REQUEST.get('search_query').encode('utf-8', 'replace'))
 
     # get url without request string - used to refresh page after switch user/group etc
     url = reverse(viewname="load_template", args=[menu])
