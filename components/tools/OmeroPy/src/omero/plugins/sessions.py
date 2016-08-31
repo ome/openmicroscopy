@@ -42,7 +42,7 @@ from omero.rtypes import rlong
 from omero.rtypes import unwrap
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
-from omero.cli import BaseControl, CLI
+from omero.cli import BaseControl, CLI, ExceptionHandler
 from omero_ext.argparse import SUPPRESS
 
 HELP = """Control and create user sessions
@@ -119,10 +119,14 @@ Other sessions commands:
     $ bin/omero sessions group mygroup
     $ bin/omero sessions group 123
 
-    # List or change the timeToLive for the session
+    # List or change the inactivity timeout for the session
     $ bin/omero sessions timeout
     $ bin/omero sessions timeout 300.0 # Seconds
     $ bin/omero sessions timeout 300.0 --session=$UUID
+
+    # Create a token
+    $ bin/omero sessions createtoken
+    $ bin/omero sessions createtoken --expiration 3600 # Seconds
 
 Custom sessions directory:
 
@@ -188,6 +192,8 @@ class SessionsControl(BaseControl):
             self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
+        self.exc = ExceptionHandler()
+
         parser.add_login_arguments()
         sub = parser.sub()
         parser.add(sub, self.help, "Extended help")
@@ -243,6 +249,13 @@ class SessionsControl(BaseControl):
 
         key = parser.add(
             sub, self.key, "Print the key of the current active session")
+
+        createtoken = parser.add(
+            sub, self.createtoken, help="Create a new token")
+        createtoken.add_argument(
+            "--expiration", type=long, default=3600*24*30,
+            help="Expiration time in seconds for this token. Default: 30 days")
+        createtoken.add_login_arguments()
 
         for x in (file, key, logout, keepalive, list, clear, group):
             self._configure_dir(x)
@@ -542,10 +555,14 @@ class SessionsControl(BaseControl):
         host = client.getProperty("omero.host")
         port = client.getProperty("omero.port")
 
-        msg = "%s session %s (%s@%s:%s)." \
-            % (action, uuid, ec.userName, host, port)
-        msg += self._parse_timeout(idle, " Idle timeout: ")
-        msg += self._parse_timeout(live, " Expires in : ")
+        msg = ("%s session %s (%s@%s:%s)." %
+               (action, uuid, ec.userName, host, port))
+        idlemsg = self._parse_timeout(idle, " Idle timeout: ")
+        if idlemsg:
+            msg += idlemsg + "."
+        livemsg = self._parse_timeout(live, " Expires in: ")
+        if livemsg:
+            msg += livemsg + "."
 
         msg += (" Current group: %s" % ec.groupName)
 
@@ -557,11 +574,19 @@ class SessionsControl(BaseControl):
         if not timeout:
             return ""
 
-        unit = "min."
-        val = float(timeout) / 60 / 1000
-        if val < 5:
-            unit = "s."
-            val = val * 60
+        val = float(timeout) / 1000
+        if val >= 3600 * 24:
+            unit = "d"
+            val = val / (3600 * 24)
+        elif val >= 3600:
+            unit = "h"
+            val = val / 3600
+        elif val >= 60:
+            unit = "min"
+            val = val / 60
+        else:
+            unit = "s"
+
         return "%s%.f %s" % (msg, val, unit)
 
     def logout(self, args):
@@ -721,11 +746,13 @@ class SessionsControl(BaseControl):
             finally:
                 cb.close(True)
 
-            headers = ["name", "group", "logged in", "agent", "timeout"]
+            headers = [
+                "name", "group", "logged in", "agent", "timeout", "expiration"]
             extra = set()
             results = {"name": [], "group": [],
                        "logged in": [], "agent": [],
-                       "timeout": []}
+                       "timeout": [],
+                       "expiration": []}
 
             # Preparse data to find extra columns
             for idx, s in enumerate(rsp.sessions):
@@ -763,6 +790,8 @@ class SessionsControl(BaseControl):
                     results["agent"].append(unwrap(s.userAgent))
                     results["timeout"].append(
                         self._parse_timeout(s.timeToIdle))
+                    results["expiration"].append(
+                        self._parse_timeout(s.timeToLive))
                 else:
                     # Insufficient privileges. The EventContext
                     # will be missing fields as well.
@@ -770,6 +799,7 @@ class SessionsControl(BaseControl):
                     results["logged in"].append(msg)
                     results["agent"].append(msg)
                     results["timeout"].append(msg)
+                    results["expiration"].append(msg)
 
             from omero.util.text import Table, Column
             columns = tuple([Column(x, results[x]) for x in headers])
@@ -835,6 +865,25 @@ class SessionsControl(BaseControl):
         srv, usr, uuid, port = store.get_current()
         if uuid:
             self.ctx.out(uuid)
+
+    def createtoken(self, args):
+        """Create a new token and return the key associated with it"""
+
+        # Force password beased authentication
+        args.create = True
+        if args.key:
+            self.ctx.die(22, "Tokens cannot be created using a session key")
+        client = self.ctx.conn(args)
+
+        # Create a token with the input expiration time
+        ec = client.sf.getAdminService().getEventContext()
+        try:
+            sess = client.sf.getSessionService().createToken(
+                args.expiration * 1000, ec.groupName)
+        except Ice.RequestFailedException as rfe:
+            self.ctx.die(535, self.exc.handle_failed_request(rfe))
+
+        self.ctx.out(sess.uuid.val)
 
     def conn(self, properties=None, profile=None, args=None):
         """

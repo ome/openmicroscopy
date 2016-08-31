@@ -97,6 +97,31 @@ public class SessionBean implements ISession {
 
     }
 
+    @RolesAllowed({"user", "HasPassword"})
+    public Session createToken(final long timeToLiveMilliseconds, String defaultGroup) {
+
+        final String user = currentUser();
+        if (user == null) {
+            throw new SecurityViolation("No current user");
+        }
+
+        try {
+            final Principal principal = principal(defaultGroup, user);
+            Future<Session> future = ex.submit(new Callable<Session>(){
+                public Session call() throws Exception {
+                    SessionManager.CreationRequest req = new SessionManager.CreationRequest();
+                    req.principal = principal;
+                    req.agent = "OMERO.token";
+                    req.timeToIdle = 0L;
+                    req.timeToLive = timeToLiveMilliseconds;
+                    return mgr.createFromRequest(req);
+                }});
+            return ex.get(future);
+        } catch (Exception e) {
+            throw creationExceptionHandler(e);
+        }
+    }
+
     @RolesAllowed("user" /* group owner */)
     public Session createSessionWithTimeout(@NotNull final Principal principal,
             final long milliseconds) {

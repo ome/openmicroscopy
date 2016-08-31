@@ -15,6 +15,7 @@ import omero.api.AMD_ISession_closeSession;
 import omero.api.AMD_ISession_createSession;
 import omero.api.AMD_ISession_createSessionWithTimeout;
 import omero.api.AMD_ISession_createSessionWithTimeouts;
+import omero.api.AMD_ISession_createToken;
 import omero.api.AMD_ISession_createUserSession;
 import omero.api.AMD_ISession_getInput;
 import omero.api.AMD_ISession_getInputKeys;
@@ -76,6 +77,12 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
             Principal p, String credentials, Current __current)
             throws ServerError, Glacier2.CannotCreateSessionException {
         callInvokerOnRawArgs(__cb, __current, p, credentials);
+    }
+
+    public void createToken_async(AMD_ISession_createToken __cb, long arg0,
+            String arg2, Ice.Current __current)
+            throws ServerError, Glacier2.CannotCreateSessionException {
+        callInvokerOnRawArgs(__cb, __current, arg0, arg2);
     }
 
     public void createUserSession_async(AMD_ISession_createUserSession __cb, long arg0,
