@@ -36,6 +36,12 @@ class HttpJavascriptResponseServerError(HttpResponseServerError):
             self, content, content_type="text/javascript")
 
 
+class HttpJsonResponseServerError(HttpResponseServerError):
+    def __init__(self, content):
+        HttpResponseServerError.__init__(
+            self, json.dumps(content), content_type="application/json")
+
+
 class HttpJsonResponse(HttpResponse):
     def __init__(self, content):
         HttpResponse.__init__(

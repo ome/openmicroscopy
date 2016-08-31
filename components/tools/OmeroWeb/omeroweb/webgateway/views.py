@@ -57,7 +57,8 @@ from omero.util.decorators import timeit, TimeIt
 from omeroweb.connector import Server
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError, JsonResponseForbidden, \
-    JsonResponseUnprocessable, JsonResponseNotFound
+    JsonResponseUnprocessable, JsonResponseNotFound, \
+    HttpJsonResponseServerError
 
 import glob
 
@@ -1245,17 +1246,21 @@ def jsonp(f):
             # mimetype for JSON is application/json
             # NB: rv must be a dict.
             return HttpJsonResponse(rv)
-        except omero.ServerError:
+        except omero.ServerError, ex:
+            trace = traceback.format_exc()
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpJavascriptResponseServerError(
-                '("error in call","%s")' % traceback.format_exc())
-        except:
-            logger.debug(traceback.format_exc())
+            return HttpJsonResponseServerError(
+                {"message": str(ex),
+                 "stacktrace": trace})
+        except Exception, ex:
+            trace = traceback.format_exc()
+            logger.debug(trace)
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpJavascriptResponseServerError(
-                '("error in call","%s")' % traceback.format_exc())
+            return HttpJsonResponseServerError(
+                {"message": str(ex),
+                 "stacktrace": trace})
     wrap.func_name = f.func_name
     return wrap
 
