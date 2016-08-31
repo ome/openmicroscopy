@@ -1730,7 +1730,7 @@ class OMEROGateway
                 dsFactory.getLogger().warn(
                         this,
                         "Loading *all* annotations for " + nodeType + " "
-                                + String.join(",", nodeIDs)
+                                + com.google.common.base.Joiner.on(',').join(nodeIDs)
                                 + ", avoid this where possible.");
 			return PojoMapper.asDataObjects(
 					service.loadAnnotations(PojoMapper.getModelType(nodeType).getName(),
