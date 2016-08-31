@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import ome.conditions.InternalException;
-import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -34,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 

@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -123,14 +124,27 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
     }
 
     /**
+     * Retry the work unit in case {@link ome.util.SqlAction#setCurrentEventLog(long, String)} used by
+     * {@link ome.services.eventlogs.PersistentEventLogLoader} throws an unexpected constraint violation
+     * as reported in Trac ticket #10181.
      */
+    private Object retriableExecute() {
+        try {
+            return this.executor.execute(getPrincipal(), this.work);
+        } catch (DataIntegrityViolationException e) {
+            final Object result = this.executor.execute(getPrincipal(), this.work);
+            log.warn("work unit threw exception, succeeded on second try", e);
+            return result;
+        }
+    }
+
     @Override
     public void doRun() {
         if (performProcessing) {
 
             // Single-threaded simplification
             if (numThreads == 1) {
-                executor.execute(getPrincipal(), work);
+                retriableExecute();
                 return;
             }
 
@@ -139,11 +153,9 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
 
             for (int i = 0; i < numThreads; i++) {
                 ecs.submit(new Callable<Object>(){
-                    /* Java5 does not support - @Override */
-                    public Object call()
-                        throws Exception
-                    {
-                        return executor.execute(getPrincipal(), work);
+                    @Override
+                    public Object call() {
+                        return retriableExecute();
                     }
                 });
             }
