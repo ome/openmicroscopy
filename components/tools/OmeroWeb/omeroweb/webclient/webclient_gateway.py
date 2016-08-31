@@ -1995,11 +1995,16 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         @return:    {'leaders': list L{ExperimenterWrapper}, 'colleagues': list L{ExperimenterWrapper}}
         @rtype:     dict
         """
+        
         summary = self._conn.groupSummary(self.getId())
-        self.leaders = summary["leaders"]
-        self.leaders.sort(key=lambda x: x.getLastName().lower())
-        self.colleagues = summary["colleagues"]
-        self.colleagues.sort(key=lambda x: x.getLastName().lower())
+        if settings.UI_MENU_DROPDOWN.get("LEADERS", None):
+            self.leaders = summary["leaders"]
+            self.leaders.sort(key=lambda x: x.getLastName().lower())
+        if settings.UI_MENU_DROPDOWN.get("COLLEAGUES", None):
+            self.colleagues = summary["colleagues"]
+            self.colleagues.sort(key=lambda x: x.getLastName().lower())
+        if settings.UI_MENU_DROPDOWN.get("ALL", None):
+            self.all = True
 
     def getOwners(self):
         for gem in self.copyGroupExperimenterMap():
