@@ -174,6 +174,10 @@ class TableBuilder(object):
                 raise KeyError("%s not in %s" % (k, self.headers))
             idx = self.headers.index(k)
             self.results[idx][-1] = by_name[self.headers[idx]]
+            # Now fill any empty values with "" for consistency with col()
+            for idx in range(len(self.headers)):
+                if self.results[idx][-1] is None:
+                    self.results[idx][-1] = ""
 
     def build(self):
         columns = []
