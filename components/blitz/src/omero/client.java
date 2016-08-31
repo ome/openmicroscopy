@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2008-2014 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,14 @@ package omero;
 import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +41,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.commons.lang.StringUtils;
 
 import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -140,7 +146,7 @@ public class client {
 
     /**
      * Single communicator for this {@link omero.client}. Nullness is used as a
-     * test of what state the client is in, therefore all access is sychronized
+     * test of what state the client is in, therefore all access is synchronized
      * by {@link #lock}
      */
     private volatile Ice.Communicator __ic;
@@ -317,7 +323,7 @@ public class client {
 
         // Setting default block size
         String blockSize = id.properties.getProperty("omero.block_size");
-        if (blockSize == null || blockSize.length() == 0) {
+        if (StringUtils.isBlank(blockSize)) {
             id.properties.setProperty("omero.block_size", Integer
                     .toString(omero.constants.DEFAULTBLOCKSIZE.value));
         }
@@ -326,14 +332,14 @@ public class client {
         // and none is set.
         if (Ice.Util.intVersion() >= 30500) {
             String encoding = id.properties.getProperty("Ice.Default.EncodingVersion");
-            if (encoding == null || encoding.length() == 0) {
+            if (StringUtils.isBlank(encoding)) {
                 id.properties.setProperty("Ice.Default.EncodingVersion", "1.0");
             }
         }
 
         // Setting MessageSizeMax
         String messageSize = id.properties.getProperty("Ice.MessageSizeMax");
-        if (messageSize == null || messageSize.length() == 0) {
+        if (StringUtils.isBlank(messageSize)) {
             id.properties.setProperty("Ice.MessageSizeMax", Integer
                     .toString(omero.constants.MESSAGESIZEMAX.value));
         }
@@ -345,7 +351,7 @@ public class client {
         // Set large thread pool max values for all communicators
         for (String x : Arrays.asList("Client", "Server")) {
             String sizemax = id.properties.getProperty(String.format("Ice.ThreadPool.%s.SizeMax", x));
-            if (sizemax == null || sizemax.length() == 0) {
+            if (StringUtils.isBlank(sizemax)) {
                 id.properties.setProperty(String.format("Ice.ThreadPool.%s.SizeMax", x), "50");
             }
         }
@@ -356,8 +362,24 @@ public class client {
 
         // Default Router, set a default and then replace
         String router = id.properties.getProperty("Ice.Default.Router");
-        if (router == null || router.length() == 0) {
+        if (StringUtils.isBlank(router)) {
             router = omero.constants.DEFAULTROUTER.value;
+        } else {
+            //Check if the default is set
+            String h = id.properties.getProperty("omero.host");
+            if (StringUtils.isBlank(h)) { //not set
+                //parse the router
+                String[] values = router.split(" ");
+                if (values != null) {
+                    for (int i = 0; i < values.length; i++) {
+                        if (values[i].equals("-h") && (i+1) < values.length) {
+                            h = values[i+1];
+                            break;
+                        }
+                    }
+                }
+                id.properties.setProperty("omero.host", h);
+            }
         }
         String host = id.properties.getPropertyWithDefault("omero.host",
                 "<\"omero.host\" not set>");
@@ -365,9 +387,10 @@ public class client {
         router = router.replaceAll("@omero.host@", host);
         id.properties.setProperty("Ice.Default.Router", router);
 
+        
         // Dump properties
         String dump = id.properties.getProperty("omero.dump");
-        if (dump != null && dump.length() > 0) {
+        if (StringUtils.isNotBlank(dump)) {
             Map<String, String> propertyMap = getPropertyMap(id.properties);
             for (String key : propertyMap.keySet()) {
                 System.out.println(String.format("%s=%s", key,
@@ -382,8 +405,11 @@ public class client {
         try {
             __ic = Ice.Util.initialize(id);
         } catch (Ice.EndpointParseException epe) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            epe.printStackTrace(pw);
             throw new ClientError("No host specified. " +
-                "Use omero.client(HOSTNAME), ICE_CONFIG, or similar.");
+                "Use omero.client(HOSTNAME), ICE_CONFIG, or similar."+ sw.toString());
         }
 
 
@@ -395,7 +421,7 @@ public class client {
         new ModelObjectFactoryRegistry().setIceCommunicator(__ic, this);
         new rtypes.RTypeObjectFactoryRegistry().setIceCommunicator(__ic);
 
-        // Define our unique identifer (used during close/detach)
+        // Define our unique identifier (used during close/detach)
         __uuid = UUID.randomUUID().toString();
         Ice.ImplicitContext ctx = __ic.getImplicitContext();
         if (ctx == null) {
@@ -426,7 +452,7 @@ public class client {
     /**
      * Sets the {@link omero.model.Session#getUserAgent() user agent} string for
      * this client. Every session creation will be passed this argument. Finding
-     * open sesssions with the same agent can be done via
+     * open sessions with the same agent can be done via
      * {@link omero.api.ISessionPrx#getMyOpenAgentSessions(String)}.
      */
     public void setAgent(String agent) {
@@ -460,7 +486,7 @@ public class client {
         if (!secure) {
             String insecure = getSession().getConfigService().getConfigValue(
                     "omero.router.insecure");
-            if (insecure != null && insecure.length() != 0) {
+            if (StringUtils.isNotBlank(insecure)) {
                 props.put("Ice.Default.Router", insecure);
             } else {
                 getCommunicator().getLogger().warning("Could not retrieve \"omero.router.insecure\"");
@@ -665,7 +691,7 @@ public class client {
         // Check the required properties
         if (username == null) {
             username = getProperty("omero.user");
-            if (username == null || "".equals(username)) {
+            if (StringUtils.isBlank(username)) {
                 throw new ClientError("No username specified");
             }
         }
@@ -748,6 +774,18 @@ public class client {
             throw new RuntimeException(e);
         }
 
+        try {
+            String insecure = getSession().getConfigService().getConfigValue(
+                    "omero.router.insecure");
+            if (StringUtils.isNotBlank(insecure)) {
+                String host = getPropertyMap().get("omero.host");
+                insecure = insecure.replaceAll("@omero.host@", host);
+                getSession().getConfigService().setConfigValue(
+                        "omero.router.insecure", insecure);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         // Set the session uuid in the implicit context
         getImplicitContext().put(omero.constants.SESSIONUUID.value, getSessionId());
         return this.__sf;
