@@ -515,15 +515,22 @@ class TestProjects(IWebTest):
         project_url = reverse('api_project', kwargs={'api_version': version,
                                                      'pid': project.id.val})
         # 1) Get Project, update and save back
-        prJson = _get_response_json(django_client, project_url, {})
-        assert prJson['Name'] == 'test_project_update'
-        prJson['Name'] = 'new name'
-        rsp = _csrf_put_response_json(django_client, project_url, prJson)
+        project_json = _get_response_json(django_client, project_url, {})
+        assert project_json['Name'] == 'test_project_update'
+        project_json['Name'] = 'new name'
+        rsp = _csrf_put_response_json(django_client, project_url, project_json)
         assert rsp['@id'] == project.id.val
         assert rsp['Name'] == 'new name'    # Name has changed
         assert rsp['Description'] == 'Test update'  # No change
+
         # 2) Put from scratch (will delete empty fields, E.g. Description)
-        payload = {'Name': 'updated name'}
+        payload = {'Name': 'updated name',
+                   '@id': project.id.val}
+        # Test error message if we don't pass @type:
+        rsp = _csrf_put_response_json(django_client, project_url, payload)
+        assert rsp['message'] == 'Need to specify @type attribute'
+        # Add @type and try again
+        payload['@type'] = project_json['@type']
         rsp = _csrf_put_response_json(django_client, project_url, payload)
         assert rsp['@id'] == project.id.val
         assert rsp['Name'] == 'updated name'
@@ -557,10 +564,6 @@ class TestProjects(IWebTest):
         # Get should now return 404
         rsp = _get_response_json(django_client, project_url, {},
                                  status_code=404)
-        assert rsp['message'] == 'Project %s not found' % project.id.val
-        # Put should also return 404
-        rsp = _csrf_put_response_json(django_client, project_url, {},
-                                      status_code=404)
         assert rsp['message'] == 'Project %s not found' % project.id.val
         # Delete (again) should return 404
         rsp = _csrf_delete_response_json(django_client, project_url, {},
