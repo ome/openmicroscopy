@@ -195,7 +195,8 @@ class TestDownload(CLITest):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    def testImageMultipleGroups(self, tmpdir):
+    @py.test.mark.parametrize('repeat', xrange(0, 10))
+    def testImageMultipleGroups(self, repeat, tmpdir):
         user, group1, group2 = self.setup_user_and_two_groups()
         client = self.new_client(user=user)
         filename = self.OmeroPy / ".." / ".." / ".." / \
