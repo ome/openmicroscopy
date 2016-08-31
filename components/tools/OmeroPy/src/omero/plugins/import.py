@@ -171,7 +171,10 @@ class ImportControl(BaseControl):
             if arg_value:
                 login_args.append(arg_name)
                 if isinstance(arg_value, (str, unicode)):
-                    login_args.append(arg_value)
+                    if arg_name[:2] == "--":
+                        login_args[-1] += "=" + arg_value
+                    else:
+                        login_args.append(arg_value)
 
         a = self.COMMAND + login_args + args.arg
         p = omero.java.popen(
