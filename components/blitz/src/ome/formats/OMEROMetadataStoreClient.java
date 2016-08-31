@@ -2141,10 +2141,17 @@ public class OMEROMetadataStoreClient
     public Screen addScreen(String screenName, String screenDescription)
     {
         Screen screen = new ScreenI();
+
+        log.info("screenName: " + screenName);
+        log.info("screenDescription: " + screenDescription);
+
         if (screenName.length() != 0)
             screen.setName(toRType(screenName));
         if (screenDescription.length() != 0)
             screen.setDescription(toRType(screenDescription));
+
+        log.info("screen.getName(): " + screen.getName());
+        log.info("screen.getDescription(): " + screen.getDescription());
 
         try
         {

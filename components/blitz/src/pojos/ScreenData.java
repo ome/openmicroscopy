@@ -35,6 +35,11 @@ import omero.model.Screen;
 import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
 
+// simleo debug
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 /**
  * The data that makes up an <i>OME</i> Screen along with links to its
  * contained Plates and the Experimenter that owns this Screen.
@@ -48,6 +53,8 @@ import omero.model.ScreenPlateLink;
  * @since 3.0-Beta3
  */
 public class ScreenData extends DataObject {
+
+    private Logger log = LoggerFactory.getLogger(ScreenData.class);
 
     /** Identifies the {@link Screen#NAME} field. */
     public final static String NAME = ScreenI.NAME;
@@ -85,6 +92,9 @@ public class ScreenData extends DataObject {
             throw new IllegalArgumentException("Object cannot null.");
         }
         setValue(screen);
+
+        log.info("screen.getName(): " + screen.getName());
+
     }
 
     /**
