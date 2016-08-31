@@ -112,7 +112,7 @@ class TestInputs(lib.ITest):
                     count -= 1
                     assert count != 0
                 rc = process.poll()
-                results = process.getResults(0)
+                results = process.getResults(1)
                 self.output(results, "stdout")
                 self.output(results, "stderr")
                 assert rc is not None
