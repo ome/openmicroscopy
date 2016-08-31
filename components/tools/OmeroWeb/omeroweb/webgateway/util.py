@@ -26,15 +26,69 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# helper method
 def getIntOrDefault(request, name, default):
+    """
+    Helper method for parsing query string parameters from http request.
+    Returns the named value or a default value or None.
+
+    @param request:     http request
+    @param name:        name of parameter
+    @param default:     value to return if not found in request
+    @return:            Integer or None
+    """
+
     try:
         index = request.GET.get(name, request.POST.get(name, default))
         if index is not None:
             index = int(index)
     except ValueError:
-        index = 0
+        msg = "Invalid value '%s' for parameter '%s'" % (index, name)
+        raise ValueError(msg)
     return index
+
+
+def getBoolOrDefault(request, name, default):
+    """
+    Helper method for parsing query string parameters from http request.
+    Returns the named value as a boolean.
+
+    @param request:     http request
+    @param name:        name of parameter
+    @param default:     value to return if not found in request
+    @return:            Boolean
+    """
+
+    rv = default
+    try:
+        value = request.GET.get(name, request.POST.get(name, None))
+        if value is not None:
+            if value.lower() == 'true':
+                rv = True
+            elif value.lower() != 'false' and int(value) == 1:
+                rv = True
+    except ValueError:
+        msg = "Invalid value '%s' for parameter '%s'" % (value, name)
+        raise ValueError(msg)
+    return rv
+
+
+def getLongs(request, name):
+    """
+    Retrieves parameters from the request. If the parameters are not present
+    an empty list is returned
+
+    This does not catch exceptions as it makes sense to throw exceptions if
+    the arguments provided do not pass basic type validation
+
+    @param request:     http request
+    @param name:        name of parameter
+    @return:            List of Longs
+    """
+    vals = []
+    vals_raw = request.GET.getlist(name)
+    for val_raw in vals_raw:
+        vals.append(long(val_raw))
+    return vals
 
 
 def zip_archived_files(images, temp, zipName, buf=2621440):

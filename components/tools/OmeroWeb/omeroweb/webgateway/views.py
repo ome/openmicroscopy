@@ -15,11 +15,20 @@
 
 import re
 import json
+import logging
+import os
+import traceback
+import time
+import zipfile
+import shutil
+
 import omero
 import omero.clients
 
+from Ice import Exception as IceException
 from django.http import HttpResponse, HttpResponseServerError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
+from django.http import HttpResponseBadRequest
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse
@@ -32,6 +41,16 @@ from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal, rgb_int2rgba
+from api_marshal import omero_marshal_groups, \
+    omero_marshal_experimenters, \
+    marshal_projects, omero_marshal_projects, \
+    marshal_datasets, omero_marshal_datasets, \
+    marshal_images, marshal_screens, marshal_plates, \
+    marshal_plate_acquisitions, marshal_orphaned, \
+    marshal_tags, marshal_tagged, \
+    marshal_shares, marshal_discussions, \
+    marshal_experimenters, marshal_experimenter, marshal_groups, \
+    omero_marshal_images
 
 try:
     from hashlib import md5
@@ -41,7 +60,7 @@ except:
 from cStringIO import StringIO
 import tempfile
 
-from omero import ApiUsageException
+from omero import ApiUsageException, ServerError, CmdError
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError
@@ -52,20 +71,12 @@ import glob
 # from models import StoredConnection
 
 from webgateway_cache import webgateway_cache, CacheBase, webgateway_tempfile
-
-cache = CacheBase()
-
-import logging
-import os
-import traceback
-import time
-import zipfile
-import shutil
-
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
-from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
+from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault, \
+    getBoolOrDefault, getLongs
 
+cache = CacheBase()
 logger = logging.getLogger(__name__)
 
 try:
@@ -1059,8 +1070,8 @@ def render_ome_tiff(request, ctx, cid, conn=None, **kwargs):
         except:
             logger.debug(traceback.format_exc())
             raise
-        return HttpResponseRedirect(settings.STATIC_URL + 'webgateway/tfiles/'
-                                    + rpath)
+        return HttpResponseRedirect(settings.STATIC_URL +
+                                    'webgateway/tfiles/' + rpath)
 
 
 @login_required()
@@ -1310,6 +1321,629 @@ def render_col_plot(request, iid, z, t, x, w=1, conn=None, **kwargs):
         raise Http404
     rsp = HttpResponse(gif_data, content_type='image/gif')
     return rsp
+
+
+@login_required()
+@jsonp
+def api_group_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        member_id = getIntOrDefault(request, 'member', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the groups
+        groups = marshal_groups(conn=conn,
+                                member_id=member_id,
+                                page=page,
+                                limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'groups': groups}
+
+
+@login_required()
+@jsonp
+def api_groups(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        member_id = getIntOrDefault(request, 'member', None)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the groups
+        groups = omero_marshal_groups(conn=conn,
+                                      member=member_id,
+                                      page=page,
+                                      limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return groups
+
+
+@login_required()
+@jsonp
+def api_experimenter_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the experimenters
+        experimenters = marshal_experimenters(conn=conn,
+                                              group_id=group_id,
+                                              page=page,
+                                              limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'experimenters': experimenters}
+
+
+@login_required()
+@jsonp
+def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
+    # Validate parameter
+    try:
+        experimenter_id = long(experimenter_id)
+    except ValueError:
+        return HttpResponseBadRequest('Invalid experimenter id')
+
+    try:
+        # Get the experimenter
+        experimenter = marshal_experimenter(
+            conn=conn, experimenter_id=experimenter_id)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    if experimenter is None:
+        raise Http404("experimenter not found")
+    return {'experimenter': experimenter}
+
+
+@login_required()
+@jsonp
+def api_experimenters(request, conn=None, **kwargs):
+    # Validate parameter
+    try:
+        group = getIntOrDefault(request, 'group', None)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    # try:
+    print "api_experimenters"
+        # Get the experimenters
+    experimenters = omero_marshal_experimenters(conn=conn, group=group)
+    # except ApiUsageException as e:
+    #     return HttpResponseBadRequest(e.serverStackTrace)
+    # except ServerError as e:
+    #     return HttpResponseServerError(e.serverStackTrace)
+    # except IceException as e:
+    #     return HttpResponseServerError(e.message)
+
+    return experimenters
+
+
+@login_required()
+@jsonp
+def api_container_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    # While this interface does support paging, it does so in a
+    # very odd way. The results per page is enforced per query so this
+    # will actually get the limit for projects, datasets (without
+    # parents), screens and plates (without parents). This is fine for
+    # the first page, but the second page may not be what is expected.
+
+    try:
+        # Get the projects
+        projects = marshal_projects(conn=conn,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    page=page,
+                                    limit=limit)
+
+        # Get the orphaned datasets (without project parents)
+        datasets = marshal_datasets(conn=conn,
+                                    orphaned=True,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    page=page,
+                                    limit=limit)
+
+        # # Get the screens for the current user
+        screens = marshal_screens(conn=conn,
+                                  group_id=group_id,
+                                  experimenter_id=experimenter_id,
+                                  page=page,
+                                  limit=limit)
+
+        # # Get the orphaned plates (without project parents)
+        plates = marshal_plates(conn=conn,
+                                orphaned=True,
+                                group_id=group_id,
+                                experimenter_id=experimenter_id,
+                                page=page,
+                                limit=limit)
+
+        # # Get the orphaned images container (just has childCount)
+        orphaned = marshal_orphaned(conn=conn,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    page=page,
+                                    limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'projects': projects,
+            'datasets': datasets,
+            'screens': screens,
+            'plates': plates,
+            'orphaned': orphaned
+            }
+
+
+@login_required()
+@jsonp
+def api_project_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        projects = marshal_projects(conn=conn,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    page=page,
+                                    limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'projects': projects}
+
+
+@login_required()
+@jsonp
+def api_projects(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        # group_id = getIntOrDefault(request, 'group', -1)
+        # experimenter_id = getIntOrDefault(request, 'owner', -1)
+        normalize = request.REQUEST.get('normalize', False)
+        normalize = not not normalize
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the projects
+        n = time.time()
+        projects = omero_marshal_projects(conn,
+                                          childCount=True,
+                                          page=page,
+                                          limit=limit,
+                                          normalize=normalize)
+        print time.time() - n, 'api_projects (omero-marshal)', len(projects)
+
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return projects
+
+
+@login_required()
+@jsonp
+def api_dataset_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
+        project_id = getIntOrDefault(request, 'project', None)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the datasets
+        n = time.time()
+        datasets = marshal_datasets(conn=conn,
+                                    project_id=project_id,
+                                    group_id=group_id,
+                                    experimenter_id=experimenter_id,
+                                    childCount=True,
+                                    page=page,
+                                    limit=limit)
+        print time.time() - n, 'api_dataset_list (projection)', len(datasets)
+
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'datasets': datasets}
+
+
+@login_required()
+@jsonp
+def api_datasets(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        # group_id = getIntOrDefault(request, 'group', -1)
+        # experimenter_id = getIntOrDefault(request, 'owner', -1)
+        project_id = getIntOrDefault(request, 'project', None)
+        normalize = request.REQUEST.get('normalize', False)
+        normalize = not not normalize
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the datasets
+        n = time.time()
+        datasets = omero_marshal_datasets(conn,
+                                          project_id=project_id,
+                                          childCount=True,
+                                          page=page,
+                                          limit=limit,
+                                          normalize=normalize)
+        print time.time() - n, 'api_datasets (omero-marshal)', len(datasets)
+
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return datasets
+
+
+@login_required()
+@jsonp
+def api_image_list(request, conn=None, **kwargs):
+    ''' Get a list of images
+        Specifiying dataset_id will return only images in that dataset
+        Specifying experimenter_id will return orpahned images for that
+        user
+        The orphaned images will include images which belong to the user
+        but are not in any dataset belonging to the user
+        Currently specifying both, experimenter_id will be ignored
+
+    '''
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        dataset_id = getIntOrDefault(request, 'id', None)
+        orphaned = getBoolOrDefault(request, 'orphaned', False)
+        load_pixels = getBoolOrDefault(request, 'sizeXYZ', False)
+        thumb_version = getBoolOrDefault(request, 'thumbVersion', False)
+        date = getBoolOrDefault(request, 'date', False)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    # Share ID is in kwargs from api/share_images/<id>/ which will create
+    # a share connection in @login_required.
+    # We don't support ?share_id in query string since this would allow a
+    # share connection to be created for ALL urls, instead of just this one.
+    share_id = 'share_id' in kwargs and long(kwargs['share_id']) or None
+
+    try:
+        # Get the images
+        images = marshal_images(conn=conn,
+                                orphaned=orphaned,
+                                experimenter_id=experimenter_id,
+                                dataset_id=dataset_id,
+                                share_id=share_id,
+                                load_pixels=load_pixels,
+                                group_id=group_id,
+                                page=page,
+                                date=date,
+                                thumb_version=thumb_version,
+                                limit=limit)
+        images = omero_marshal_images(conn=conn,
+                                      dataset_id=dataset_id,
+                                      page=page,
+                                      limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'images': images}
+
+
+@login_required()
+@jsonp
+def api_screen_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the screens
+        screens = marshal_screens(conn=conn,
+                                  group_id=group_id,
+                                  experimenter_id=experimenter_id,
+                                  page=page,
+                                  limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'screens': screens}
+
+
+@login_required()
+@jsonp
+def api_plate_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        screen_id = getIntOrDefault(request, 'id', None)
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get the plates
+        plates = marshal_plates(conn=conn,
+                                screen_id=screen_id,
+                                group_id=group_id,
+                                experimenter_id=experimenter_id,
+                                page=page,
+                                limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'plates': plates}
+
+
+@login_required()
+@jsonp
+def api_plate_acquisition_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        plate_id = getIntOrDefault(request, 'id', None)
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    # Orphaned PlateAcquisitions are not possible so querying without a
+    # plate is an error
+    if plate_id is None:
+        return HttpResponseBadRequest('id (plate) must be specified')
+
+    try:
+        # Get the plate acquisitions
+        plate_acquisitions = marshal_plate_acquisitions(
+            conn=conn,
+            plate_id=plate_id,
+            page=page,
+            limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'acquisitions': plate_acquisitions}
+
+
+@login_required()
+@jsonp
+def api_tags_and_tagged_list(request, conn=None, **kwargs):
+    if request.method == 'GET':
+        return api_tags_and_tagged_list_GET(request, conn, **kwargs)
+    elif request.method == 'DELETE':
+        return api_tags_and_tagged_list_DELETE(request, conn, **kwargs)
+
+
+def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
+    ''' Get a list of tags
+        Specifiying tag_id will return any sub-tags, sub-tagsets and
+        objects tagged with that id
+        If no tagset_id is specifed it will return tags which have no
+        parent
+    '''
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        group_id = getIntOrDefault(request, 'group', -1)
+        experimenter_id = getIntOrDefault(request, 'owner', -1)
+        tag_id = getIntOrDefault(request, 'id', None)
+        orphaned = getBoolOrDefault(request, 'orphaned', False)
+        load_pixels = getBoolOrDefault(request, 'sizeXYZ', False)
+        date = getBoolOrDefault(request, 'date', False)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    try:
+        # Get ALL data (all owners) under specified tags
+        # Projects, Datasets, Images, Screens, Plates etc
+        if tag_id is not None:
+            tagged = marshal_tagged(conn=conn,
+                                    experimenter_id=experimenter_id,
+                                    tag_id=tag_id,
+                                    group_id=group_id,
+                                    page=page,
+                                    load_pixels=load_pixels,
+                                    date=date,
+                                    limit=limit)
+        else:
+            tagged = {}
+
+        # Get orphaned Tags, or Tags under Tagset if tag_id is not None
+        tagged['tags'] = marshal_tags(conn=conn,
+                                      orphaned=orphaned,
+                                      experimenter_id=experimenter_id,
+                                      tag_id=tag_id,
+                                      group_id=group_id,
+                                      page=page,
+                                      limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return tagged
+
+
+def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
+    ''' Delete the listed tags by ids
+
+    '''
+    # Get parameters
+    try:
+        tag_ids = getLongs(request, 'id')
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    if len(tag_ids) == 0:
+        return HttpResponseBadRequest(
+            "Must specify tags to delete with 'id' query parameter")
+    dcs = list()
+
+    handle = None
+    try:
+        for tag_id in tag_ids:
+            dcs.append(omero.cmd.Delete('/Annotation', tag_id))
+        doall = omero.cmd.DoAll()
+        doall.requests = dcs
+        handle = conn.c.sf.submit(doall, conn.SERVICE_OPTS)
+
+        try:
+            conn._waitOnCmd(handle)
+        finally:
+            handle.close()
+
+    except CmdError as e:
+        return HttpResponseBadRequest(e.message)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return HttpJsonResponse('')
+
+
+@login_required()
+@jsonp
+def api_share_list(request, conn=None, **kwargs):
+    # Get parameters
+    try:
+        page = getIntOrDefault(request, 'page', 1)
+        limit = getIntOrDefault(request, 'limit', settings.PAGE)
+        member_id = getIntOrDefault(request, 'member_id', -1)
+        owner_id = getIntOrDefault(request, 'owner', -1)
+    except ValueError as ex:
+        return HttpResponseBadRequest(str(ex))
+
+    # Like with api_container_list, this is a combination of
+    # results which will each be able to return up to the limit in page
+    # size
+
+    try:
+        # Get the shares
+        shares = marshal_shares(conn=conn,
+                                member_id=member_id,
+                                owner_id=owner_id,
+                                page=page,
+                                limit=limit)
+        # Get the discussions
+        discussions = marshal_discussions(conn=conn,
+                                          member_id=member_id,
+                                          owner_id=owner_id,
+                                          page=page,
+                                          limit=limit)
+    except ApiUsageException as e:
+        return HttpResponseBadRequest(e.serverStackTrace)
+    except ServerError as e:
+        return HttpResponseServerError(e.serverStackTrace)
+    except IceException as e:
+        return HttpResponseServerError(e.message)
+
+    return {'shares': shares, 'discussions': discussions}
 
 
 @login_required()
@@ -1711,8 +2345,8 @@ def list_compatible_imgs_json(request, iid, conn=None, **kwargs):
                 return False
             pp = i.getPrimaryPixels()
             if (pp is None or
-                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype
-                    or i.getSizeC() != img_ccount):
+                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype or
+                    i.getSizeC() != img_ccount):
                 return False
             ew = [x.getLabel() for x in i.getChannels()]
             ew.sort()

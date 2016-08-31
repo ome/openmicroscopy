@@ -14,6 +14,7 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 from django.conf.urls import url, patterns
+from omeroweb.webgateway import views
 
 webgateway = url(r'^$', 'webgateway.views.index', name="webgateway")
 """
@@ -413,6 +414,126 @@ Get a json dict of original file paths.
 'client' is a list of paths for original files on the client when imported
 """
 
+api_group_list = url(r'^api/p/groups/$', views.api_group_list,
+                     name='api_group_list')
+"""
+List all groups.
+To filter groups that a user is member of, use 'member' query parameter.
+"""
+
+api_groups = url(r'^api/m/groups/$', views.api_groups,
+                 name='api_groups')
+"""
+List all groups. Uses omero-marshal to generate json.
+To filter groups that a user is member of, use 'member' query parameter.
+"""
+
+api_experimenter_list = url(r'^api/p/experimenters/$',
+                            views.api_experimenter_list,
+                            name='api_experimenter_list')
+"""
+List all experimenters.
+To show experimenters in a single group, use 'group' query parameter.
+"""
+
+api_experimenters = url(r'^api/m/experimenters/$', views.api_experimenters,
+                        name='api_experimenters')
+"""
+List all experimenters. Uses omero-marshal to create json.
+To show experimenters in a single group, use 'group' query parameter.
+"""
+
+api_experimenter_detail = url(
+    r'^api/experimenters/(?P<experimenter_id>[0-9]+)/$',
+    views.api_experimenter_detail,
+    name='api_experimenter')
+"""
+Get detail for an experimenter
+"""
+
+# Generic container list. This is necessary as an experimenter may have
+# datasets/etc which do not belong to any project
+api_container_list = url(r'^api/containers/$', views.api_container_list,
+                         name='api_containers')
+"""
+List all 'top level' containers: Projects, orphaned Datasets, Screens,
+orphaned Plates and an 'Orphaned' images container with image count.
+Filter by 'group' or 'owner' ids in query.
+Also supports 'page' and 'limit' parameters for pagination.
+"""
+
+api_project_list = url(r'^api/p/projects/$', views.api_project_list,
+                       name='api_project_list')
+"""
+List all projects.
+"""
+
+api_projects = url(r'^api/m/projects/$', views.api_projects,
+                   name='api_projects')
+"""
+List all projects, using omero-marshal to generate json.
+"""
+
+api_dataset_list = url(r'^api/p/datasets/$', views.api_dataset_list,
+                       name='api_dataset_list')
+"""
+List all datasets.  To list datasets within a Project, use ?id=projectId
+"""
+
+api_datasets = url(r'^api/m/datasets/$', views.api_datasets,
+                   name='api_datasets')
+"""
+List all datasets, using omero-marshal to generate json.
+To list datasets within a Project, use ?id=projectId
+"""
+
+api_image_list = url(r'^api/images/$', views.api_image_list,
+                     name='api_images')
+"""
+List all images.  To list images within a Dataset, use ?id=datasetId
+"""
+
+api_screen_list = url(r'^api/screens/$', views.api_screen_list,
+                      name='api_screens')
+"""
+List all screens.
+"""
+
+api_plate_list = url(r'^api/plates/$', views.api_plate_list,
+                     name='api_plates')
+"""
+List all plates.  To list plates within a Screen, use ?id=screenId
+"""
+
+api_plate_acquisition_list = url(r'^api/plate_acquisitions/$',
+                                 views.api_plate_acquisition_list,
+                                 name='api_plate_acquisitions')
+"""
+List Plate Aquisitions (Runs) under a plate.
+Specify Plate in query with ?id=plateId
+"""
+
+api_tags_and_tagged = url(r'^api/tags/$',
+                          views.api_tags_and_tagged_list,
+                          name='api_tags_and_tagged')
+"""
+List tags with a GET request or delete specified tags with DELETE.
+For listing tagged data, use 'id' to specify tag. This returns all
+the 'projects', 'datasets' etc as well as any 'tags' (e.g. if the
+tag is a TagSet).
+Or with no id, this will list all tags.
+"""
+
+api_shares = url(r'^api/shares/$',
+                 views.api_share_list,
+                 name='api_shares')
+"""
+List all shares and discussions.
+To filter by those that you are a member of (including owner)
+use 'member_id'. To list those that you own, use the
+'owner' parameter as for other urls.
+"""
+
 urlpatterns = patterns(
     '',
     webgateway,
@@ -462,6 +583,26 @@ urlpatterns = patterns(
     annotations,
     table_query,
     object_table_query,
+
+    # api
+    api_group_list,
+    api_experimenter_list,
+    api_experimenter_detail,
+    api_container_list,
+    api_project_list,
+    api_dataset_list,
+    api_image_list,
+    api_screen_list,
+    api_plate_list,
+    api_plate_acquisition_list,
+    api_tags_and_tagged,
+    api_shares,
+
+    # api omero-marshal
+    api_groups,
+    api_experimenters,
+    api_projects,
+    api_datasets
 
     # Debug stuff
 
