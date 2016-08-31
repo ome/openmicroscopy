@@ -1298,7 +1298,7 @@ class OMEROGateway
 		Connector c = null;
 		OMEROMetadataStoreClient prx = null;
 		try {
-			c = getConnector(ctx, true, false);
+		    c = getConnector(ctx, true, false);
 			c = c.getConnector(userName);
 			prx = c.getImportStore();
 		} catch (Throwable e) {
@@ -6698,17 +6698,18 @@ class OMEROGateway
 	        status.setFilesetData(new FilesetData(fs));
 	        return library.createCallback(proc, handle, ic);
 		} catch (Throwable e) {
-			try {
-				if (reader != null) reader.close();
-			} catch (Exception ex) {}
-
 			handleConnectionException(e);
 			if (close) closeImport(ctx, userName);
             return new ImportException(e);
 		} finally {
 			try {
 				if (reader != null) reader.close();
-			} catch (Exception ex) {}
+			} catch (Exception ex) {
+			    LogMessage msg = new LogMessage();
+                msg.print("Error closing the reader");
+                msg.print(ex);
+			    dsFactory.getLogger().error(this,msg);
+			}
 			if (omsc != null && close)
 				closeImport(ctx, userName);
 		}
@@ -8544,18 +8545,20 @@ class OMEROGateway
 	 * Shuts down the connectors created while creating/importing data for
 	 * other users.
 	 *
-	 * @param ctx
+	 * @param ctx The security context.
+	 * @param userName The username the connection is for.
 	 * @throws Exception Thrown if the connector cannot be closed.
 	 */
-	void shutDownDerivedConnector(SecurityContext ctx)
+	void shutDownDerivedConnector(SecurityContext ctx, String userName)
 		throws Exception
 	{
 		Connector c = getConnector(ctx, true, true);
 		if (c == null) return;
 		try {
+		    c = c.getConnector(userName);
 			c.closeDerived(networkup.get());
 		} catch (Throwable e) {
-			new Exception("Cannot close the derived connectors", e);
+			new Exception("Cannot close the derived connector", e);
 		}
 	}
 
