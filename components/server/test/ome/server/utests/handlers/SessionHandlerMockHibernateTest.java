@@ -416,42 +416,4 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         }
     }
 
-    private InvokedRecorder exactly(int count) {
-        return new InvokedRecorder(count);
-    }
-
-    // TODO refactor out to ome.testing
-    private class InvokedRecorder implements InvocationMatcher {
-        private int actual = 0;
-
-        private int expected = 0;
-
-        public InvokedRecorder(int expected) {
-            this.expected = expected;
-        }
-
-        public boolean matches(Invocation invocation) {
-            return true;
-        }
-
-        public void invoked(Invocation invocation) {
-            actual++;
-        }
-
-        public void verify() {
-            Assert.assertTrue("expected method was not called " + expected
-                    + " rather " + actual + " times.", actual == expected);
-        }
-
-        public boolean hasDescription() {
-            return true;
-        }
-
-        public StringBuffer describeTo(StringBuffer buffer) {
-            buffer.append("expected " + expected + " times");
-            buffer.append(" and has been invoked " + actual + " times");
-            return buffer;
-        }
-    }
-
 }
