@@ -304,6 +304,10 @@
 --
 -- Indexes
 --
+  CREATE INDEX i_aliasannotationlink_owner ON aliasannotationlink(owner_id);
+  CREATE INDEX i_aliasannotationlink_group ON aliasannotationlink(group_id);
+  CREATE INDEX i_AliasAnnotationLink_parent ON aliasannotationlink(parent);
+  CREATE INDEX i_AliasAnnotationLink_child ON aliasannotationlink(child);
   CREATE INDEX i_annotation_owner ON annotation(owner_id);
   CREATE INDEX i_annotation_group ON annotation(group_id);
   CREATE INDEX i_annotationannotationlink_owner ON annotationannotationlink(owner_id);
@@ -792,6 +796,8 @@ BEGIN
 END;' LANGUAGE plpgsql;
 
 CREATE SEQUENCE seq_acquisitionmode; INSERT INTO _lock_ids (name, id) SELECT 'seq_acquisitionmode', nextval('_lock_seq');
+CREATE SEQUENCE seq_alias; INSERT INTO _lock_ids (name, id) SELECT 'seq_alias', nextval('_lock_seq');
+CREATE SEQUENCE seq_aliasannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_aliasannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotation; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotation', nextval('_lock_seq');
 CREATE SEQUENCE seq_annotationannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_annotationannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_arctype; INSERT INTO _lock_ids (name, id) SELECT 'seq_arctype', nextval('_lock_seq');
@@ -991,6 +997,14 @@ CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
     BEGIN
         SELECT INTO eid _current_or_new_event();
  
+        FOR pid IN SELECT DISTINCT parent FROM aliasannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Alias', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Alias' AND ua.entity_id = pid);
+        END LOOP;
+
         FOR pid IN SELECT DISTINCT parent FROM annotationannotationlink WHERE child = new.id
         LOOP
             INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
@@ -1236,6 +1250,14 @@ CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
     END;'
 LANGUAGE plpgsql;
 
+CREATE TRIGGER alias_annotation_link_event_trigger
+        AFTER UPDATE ON aliasannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Alias');
+CREATE TRIGGER alias_annotation_link_event_trigger_insert
+        AFTER INSERT ON aliasannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_event_trigger('ome.model.meta.Alias');
 CREATE TRIGGER annotation_annotation_link_event_trigger
         AFTER UPDATE ON annotationannotationlink
         FOR EACH ROW
@@ -1472,6 +1494,10 @@ CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS "trigger"
     END;'
 LANGUAGE plpgsql;
 
+CREATE TRIGGER alias_annotation_link_delete_trigger
+        BEFORE DELETE ON aliasannotationlink
+        FOR EACH ROW
+        EXECUTE PROCEDURE annotation_link_delete_trigger('ome.model.meta.Alias');
 CREATE TRIGGER annotation_annotation_link_delete_trigger
         BEFORE DELETE ON annotationannotationlink
         FOR EACH ROW
@@ -1729,7 +1755,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1',  1,    'OMERO5.1',   0,             'Initializing');
+             values ('OMERO5.1',  2,    'OMERO5.1',   1,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -3031,9 +3057,9 @@ ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1' and
-        currentPatch = 1 and
+        currentPatch = 2 and
         previousVersion = 'OMERO5.1' and
-        previousPatch = 0;
+        previousPatch = 1;
 
 COMMIT;
 
