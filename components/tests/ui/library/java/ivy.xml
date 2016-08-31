@@ -13,7 +13,7 @@
   <dependencies defaultconfmapping="build,client->default">
     <dependency org="robot-framework" name="swinglibrary" rev="${versions.robotframework.swinglibrary}"/>
     <dependency org="insight" name="swingx" rev="${versions.swingx}"/>
-    <dependency org="google" name="guava-jdk5" rev="${versions.guava}"/>
+    <dependency org="google" name="guava" rev="${versions.guava}"/>
     <dependency org="testng" name="testng" rev="${versions.testng}"/>
   </dependencies>
 </ivy-module>
