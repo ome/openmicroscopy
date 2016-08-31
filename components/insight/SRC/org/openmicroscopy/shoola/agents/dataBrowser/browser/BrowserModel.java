@@ -555,31 +555,29 @@ class BrowserModel
 	 */
 	public void setSelectedNodes(List<DataObject> nodes)
 	{
+		Set<ImageDisplay> oldValue = null;
+		if (selectedDisplays != null)
+			oldValue = new HashSet<ImageDisplay>(selectedDisplays);
 		if (nodes == null || nodes.isEmpty()) {
-			if (selectedDisplays == null) return;
-			List<ImageDisplay> l = new ArrayList<ImageDisplay>(selectedDisplays);
-			selectedDisplays.clear();
-			setNodesColor(null, l);
+			if (selectedDisplays != null) selectedDisplays.clear();
+			setNodesColor(null, oldValue);
 			return;
 		}
 		NodesFinder finder = new NodesFinder(nodes);
 		rootDisplay.accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
-		//to reset color if parent is selected.
-		Collection<ImageDisplay> selected = getSelectedDisplays();
-		setNodesColor(found, selected);
 		if (found.size() == 0) {
+			Collection<ImageDisplay> selected = getSelectedDisplays();
 			if (selected == null || selected.size() == 0) {
 				setNodesColor(null, getRootNodes());
 			}
 			setSelectedDisplay(null, false, false);
 			return;
 		}
-		
-		boolean b = found.size() > 1;
-		Iterator<ImageDisplay> i = found.iterator();
-		while (i.hasNext()) 
-			setSelectedDisplay(i.next(), b, false);
+		thumbSelected = false;
+		this.multiSelection = found.size() > 1;
+		setSelectedDisplays(found);
+		setNodesColor(found, oldValue);
 	}
 	
 	/**
