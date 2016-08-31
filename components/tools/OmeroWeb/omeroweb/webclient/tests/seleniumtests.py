@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,112 +19,151 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import omero
 from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
-from omero.gateway.scripts import dbhelpers
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from random import random
+import os, time
 
 import sys
 
 
 class WebClientTestBase (SeleniumTestBase):
 
-        
-    def login (self, u, p):
-        sel = self.selenium
-        if self.selenium.is_element_present('link=Log out'):
-            self.logout()
-        sel.open("/webclient/login")
-        sel.type("id_username", u)
-        sel.type("id_password", p)
-        sel.click("//input[@value='Connect']")
-        
-    def logout (self):
-        self.selenium.open("/webclient/logout")
-        self.selenium.wait_for_page_to_load("30000")
-        self.waitForElementPresence("//input[@value='Connect']")
-        
-    
-    def import_image(self, filename = None):
-        """
-        This code from OmeroPy/tests/integration/library.py
-        TODO: Trying to find a way to do import from here, but no luck yet. 
-        """
-        #server = self.client.getProperty("omero.host")
-        #port = self.client.getProperty("omero.port")
-        #key = self.client.getSessionId()
-        server = 'localhost'
-        port = '4064'
-        key = ''
-        
-        if filename is None:
-            filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / "tinyTest.d3d.dv"
+    pass
 
-        # Search up until we find "OmeroPy"
-        dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
-        args = [sys.executable]
-        args.append(str(path(".") / "bin" / "omero"))
-        args.extend(["-s", server, "-k", key, "-p", port, "import", filename])
-        popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = popen.communicate()
-        rc = popen.wait()
-        if rc != 0:
-            raise Exception("import failed: [%r] %s\n%s" % (args, rc, err))
-        pix_ids = []
-        for x in out.split("\n"):
-            if x and x.find("Created") < 0 and x.find("#") < 0:
-                try:    # if the line has an image ID...
-                    imageId = str(long(x.strip()))
-                    pix_ids.append(imageId)
-                except: pass
-        return pix_ids
-        
-        
+
 class WebClientTests (WebClientTestBase):
-    
-    from omero.gateway.scripts import dbhelpers
-    
-    def setUp(self):
-        super(WebClientTests, self).setUp()
-        #dbhelpers.refreshConfig()
-        #user = dbhelpers.ROOT.name
-        #password = dbhelpers.ROOT.passwd
-        #print user, password    # seems to always be 'root', 'ome' 
-        self.login('will', 'ome')
-        
-        
-    def testMetadata (self):
-        """
-        Displays the metadata page for an image.
-        """
-        
-        #print "testMetadata"
-        
-        sel = self.selenium
-        sel.open("/webclient/metadata_details/image/4183")
-        #sel.click("link=Metadata")     # Making metadata 'visible' to user is unecessary for tests below
-        self.assertEqual("480 x 480 x 46 x 1", sel.get_table("//div[@id='metadata_tab']/table[2].0.1"))
-        
-        # Check channel names...
-        self.failUnless(sel.is_text_present("DAPI"))    # anywhere on page
-        # more specific (too fragile?)
-        self.assertEqual("DAPI", sel.get_text("//div[@id='metadata_tab']/h1[5]/span"))
-        self.assertEqual("FITC", sel.get_text("//div[@id='metadata_tab']/h1[6]/span"))
-        self.assertEqual("RD-TR-PE", sel.get_text("//div[@id='metadata_tab']/h1[7]/span"))
-        self.assertEqual("CY-5", sel.get_text("//div[@id='metadata_tab']/h1[8]/span"))
-        
-        # check value of Channel inputs.
-        self.assertEqual("DAPI", sel.get_value("//div[@id='metadata_tab']/div[4]/table/tbody/tr[1]/td[2]/input"))   # Name
-        self.assertEqual("360", sel.get_value("//div[@id='metadata_tab']/div[4]/table/tbody/tr[2]/td[2]/input"))   # Excitation
-        self.assertEqual("457", sel.get_value("//div[@id='metadata_tab']/div[4]/table/tbody/tr[3]/td[2]/input"))   # Excitation
-        
-        # using id='id_name' gets us the FIRST element with that id (currently 1 per channel)
-        self.assertEqual("DAPI", sel.get_value("//input[@id='id_name']"))
-        
 
-    def tearDown(self):
-        self.logout()
-        super(WebClientTests, self).tearDown()
 
+    def createObject(self, dtype="project"):
+
+        driver = self.driver
+
+        # Launch dialog and Simply fill the name field
+        self.startStep()
+        driver.find_element_by_id("add"+dtype+"Button").click()
+        nameInput = driver.find_element_by_css_selector("#new-container-form input[name='name']")
+        nameInput.send_keys("Selenium-testCreate-"+dtype)
+
+        # submit
+        self.startStep()
+        nameInput.submit()
+
+        # wait for right panel to load, and get ProjectId
+        self.startStep()
+        time.sleep(1)       # For some reason this is makes the subsequent jsTree queries work better!?!?!
+        WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_css_selector('.data_heading_id'))
+        newId = driver.find_element_by_css_selector(".data_heading_id strong").text
+
+        # get the jsTree node by ID
+        newNode = driver.find_element_by_id(dtype+"-"+newId)
+        # confirms Project node is selected
+        newLeaf = driver.find_element_by_css_selector("#"+dtype+"-"+newId+" a.jstree-clicked")
+        return newId
+
+
+    def testCreateProjectAndDataset(self):
+        #self.stepPause = 3;
+        driver = self.driver
+
+        eid = self.createUserAndLogin()
+
+        # Test Project creation
+        self.getRelativeUrl("/webclient/")
+        self.createObject("project")
+
+        # Refresh page - test Dataset creation independently
+        self.getRelativeUrl("/webclient/")
+        self.createObject("dataset")
+
+        # Refresh again - Now test Project AND Dataset creation
+        self.getRelativeUrl("/webclient/")
+        pid = self.createObject("project")
+        # At this point, Project is selected, Dataset should be created under it.
+        did = self.createObject("dataset")
+        # Check that parent of the Dataset is Project
+        parentId = driver.execute_script("return $('#dataset-%s').parent().parent().attr('id')" % did)
+        self.assertEqual(parentId, "project-%s" % pid, "Dataset parentId %s should be project-%s" % (parentId, pid))
+
+
+    def testCreateContainersEnabled(self):
+        #self.stepPause = 3;
+        driver = self.driver
+
+        eid = self.createUserAndLogin()
+        self.getRelativeUrl("/webclient/")
+
+        def assertButtonEnabled(buttonId, enabled):
+            state = driver.find_element_by_id(buttonId).is_enabled()
+            self.assertEqual(state, enabled, "Button %s should be enabled: %s" % (buttonId, enabled))
+
+        # Tried to do a right-click via Selenium without success. (failed with jquery too)
+        # def rightClick(elementId):
+        #     # from selenium.webdriver.common.action_chains import ActionChains
+        #     # ac = ActionChains(driver)
+        #     # element = driver.find_element_by_css_selector(selector)
+        #     # ac.context_click(on_element=element)
+
+        #     from selenium.webdriver.remote.command import Command
+        #     from selenium.webdriver.common.keys import Keys
+        #     driver.execute(Command.MOVE_TO, {'element': elementId})
+        #     driver.execute(Command.CLICK, {'button': 2})
+
+        def selectNode(cssSelector):
+            #driver.execute_script("$('#dataTree').jstree('select_node', '%s')" % cssSelector)
+            driver.find_element_by_css_selector("%s>a" % cssSelector).click()
+
+        def assertContextMenuEnabled(rel, enabled):
+            # works on the currently selected node
+            driver.execute_script("$('#dataTree').jstree('show_contextmenu')")
+            disabled = driver.execute_script("return $('#vakata-contextmenu a[rel=\"%s\"]').parent().hasClass('jstree-contextmenu-disabled')" % rel)
+            self.assertNotEqual(disabled, enabled, "Context menu %s should be enabled: %s" % (rel, enabled))
+
+        # Start with Experimenter selected in jsTree: P/D buttons disabled.
+        self.startStep()
+        assertButtonEnabled("addprojectButton", True)
+        assertButtonEnabled("adddatasetButton", True)
+        assertButtonEnabled("addscreenButton", True)
+        assertContextMenuEnabled("project", True)
+        assertContextMenuEnabled("dataset", True)
+        assertContextMenuEnabled("screen", True)
+        assertContextMenuEnabled("delete", False)
+
+        # Create a Project (selected)...
+        self.startStep()
+        self.createObject("project")
+        assertButtonEnabled("addprojectButton", True)
+        assertButtonEnabled("adddatasetButton", True)
+        assertButtonEnabled("addscreenButton", True)
+        assertContextMenuEnabled("project", False)
+        assertContextMenuEnabled("dataset", True)
+        assertContextMenuEnabled("screen", False)
+        assertContextMenuEnabled("delete", True)
+
+        # Create a Dataset (selected)...
+        self.startStep()
+        self.createObject("dataset")
+        assertButtonEnabled("addprojectButton", False)
+        assertButtonEnabled("adddatasetButton", False)
+        assertButtonEnabled("addscreenButton", False)
+        assertContextMenuEnabled("project", False)
+        assertContextMenuEnabled("dataset", False)
+        assertContextMenuEnabled("screen", False)
+        assertContextMenuEnabled("delete", True)
+
+        # Create a Screen (selected)...
+        self.startStep()
+        selectNode("#experimenter-0")
+        self.createObject("screen")
+        assertButtonEnabled("addprojectButton", True)
+        assertButtonEnabled("adddatasetButton", False)
+        assertButtonEnabled("addscreenButton", True)
+        assertContextMenuEnabled("project", False)
+        assertContextMenuEnabled("dataset", False)
+        assertContextMenuEnabled("screen", False)
+        assertContextMenuEnabled("delete", True)
 
 if __name__ == "__main__":
    Utils.runAsScript('webadmin')

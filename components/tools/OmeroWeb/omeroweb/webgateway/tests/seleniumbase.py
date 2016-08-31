@@ -42,8 +42,13 @@ The values above are just examples.
 """ 
 __docformat__='epytext' 
 
-from selenium import selenium
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import unittest, time, urllib2, cookielib
+from random import random
+import omero
+import os
 
 class SeleniumTestServer (object):
     def __init__ (self, base='webgateway', url='http://localhost:8000', host='localhost', port=4444, browser='*firefox'):
@@ -52,14 +57,14 @@ class SeleniumTestServer (object):
         self.port = port
         self.browser = browser
         self.url = url
-        self.selenium = None
+        self.driver = None
 
     def __del__ (self):
         if self.selenium is not None:
             self.selenium.stop()
 
-    def getSelenium (self):
-        if self.selenium is None:
+    def getDriver (self):
+        if self.driver is None:
             if self.host.find(':') >= 0:
                 host = self.host.split(':')
                 try:
@@ -68,26 +73,16 @@ class SeleniumTestServer (object):
                         self.host = host[0]
                 except:
                     pass
-            self.selenium = selenium(self.host, self.port, self.browser, self.url)
-        self.selenium.start()
-        self.selenium.open("/%s" % self.base)
-        script = urllib2.urlopen("%s/static/3rdparty/jquery-1.7.2.js" % (self.url))
-        r = script.read()
-        self.selenium.run_script(r)
-        script.close()
-        self.selenium.add_location_strategy("jquery",
-'''
-  if (inWindow.jQuery.expr[':'].containsExactly === undefined) {
-    inWindow.jQuery.expr[':'].containsExactly = function (a,i,m) { return inWindow.jQuery(a).text() == m[3];};
-  }
-  var found = inWindow.jQuery(inDocument).find(locator);
-  if(found.length >= 1 ){
-    return found.get(0);
-  }else{
-    return null;
-  }
-''')
-        return self.selenium
+            # NB: Safari not supported by webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp#backing-webdriver-with-selenium
+            # IE can only be run on Windows machines
+            if self.browser == "firefox":
+                self.driver = webdriver.Firefox()
+            elif self.browser == "chrome":      # Needs ChromeDriver on your PATH https://code.google.com/p/chromedriver/downloads/list
+                self.driver = webdriver.Chrome()
+            else:
+                raise Exception("No support for browser %s" % self.browser)
+
+        return self.driver
         
 class Utils:
     @staticmethod
@@ -133,12 +128,101 @@ class SeleniumTestBase (unittest.TestCase):
     All tests will have the C{self.selenium} attr with a selenium client ready for usage.
     """
     SERVER = None
+    stepPause = 0
 
     def setUp (self):
         self.verificationErrors = []
         if self.SERVER is None:
             self.SERVER = SeleniumTestServer()
-        self.selenium = self.SERVER.getSelenium()
+        self.driver = self.SERVER.getDriver()
+
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        try:
+            root_password = c.ic.getProperties().getProperty('omero.rootpass')
+            omero_host = c.ic.getProperties().getProperty('omero.host')
+        finally:
+            c.__del__()
+
+        from omeroweb.connector import Server
+        server_id = Server.find(host=omero_host)[0].id
+        self.login('root', root_password, server_id)
+
+    def getRelativeUrl (self, relativeUrl):
+        """ Since Selenium 2 doesn't support relative URLs, we do that ourselves """
+        url = self.SERVER.url + relativeUrl
+        self.driver.get(url)
+
+    def startStep (self):
+        """ May want to do various operations here. E.g. getScreenshot or Pause (for viewing) """
+        if self.stepPause > 0:
+            print "stepPause", self.stepPause
+            time.sleep(self.stepPause)
+
+    def login (self, u, p, sid=1): #sid
+        driver = self.driver
+        self.getRelativeUrl("/webclient/login/")
+        postJs = '$.post("/webclient/login/", {"username":"%s", "password":"%s", "server":%s})' % (u, p, sid)
+        driver.execute_script(postJs)
+
+    def logout (self):
+        driver = self.driver
+        self.getRelativeUrl("/webclient/logout/")
+        WebDriverWait(driver, 10).until(EC.title_contains("Login"))
+
+
+    def createGroup (self, groupName, perms=1):
+        """
+        Helper method for creating a new group with the given name.
+        Must be on a page that has jQuery $ and be logged in as Admin.
+        Creates a private group by default
+        Returns groupId if creation sucessful (the groups page displays new group name)
+        Otherwise returns None
+        
+        @param groupName:   Name of new group
+        @param perms:       1 = private, 2 = read-only, 3 = read-annotate
+        """
+        driver = self.driver
+        createGroupJs = '$.post("/webadmin/group/create/", {"name":"%s", "permissions":"%s"})' % (groupName, perms)
+        driver.execute_script(createGroupJs)
+        self.getRelativeUrl("/webadmin/groups/")
+        tdText = driver.execute_script("return $('td:contains(\"%s\")').prev().text()" % groupName)
+        if len(tdText) > 0:
+            return long(tdText)
+
+
+    def createExperimenter(self, omeName, groupId, password="ome", firstName="Selenium", lastName="Test"):
+        """
+        Helper method for creating an experimenter in the specified existing group
+        Returns the expId if experimenter created successfully (omeName is found in table of experimenters)
+        Otherwise returns None
+        """
+        driver = self.driver
+        createUserJs = '$.post("/webadmin/experimenter/create/", \
+                        {"omename":"%s", "password":"%s", "confirmation":"%s", \
+                        "first_name":"%s", "last_name":"%s", "other_groups":%s, "active":"true"})' % (omeName, password, password, firstName, lastName, groupId)
+        driver.execute_script(createUserJs)
+        self.getRelativeUrl("/webadmin/experimenters/")
+        self.assertTrue(len(driver.find_elements_by_xpath('//td[contains(text(), "%s")]' % omeName)) > 0, "New username not in Users table")
+        eId = driver.execute_script("return $('td:contains(\"%s\")').prev().prev().text()" % omeName)
+        if len(eId) > 0:
+            return long(eId)
+
+
+    def createUserAndLogin(self, omeName=None, gid=None):
+        """
+        Creates a new user in the specified group (or new group).
+        Then logs in as the new user.
+        """
+        if omeName is None:
+            omeName = "SeleniumTest%s" % random()
+        if gid is None:
+            groupName = "SeleniumTestGroup%s" % random()
+            gid = self.createGroup(groupName)
+        eid = self.createExperimenter(omeName, gid)
+        self.logout()
+        self.login(omeName, "ome")
+        return eid
+
 
     def waitForElementPresence (self, element, present=True):
         """
@@ -166,5 +250,8 @@ class SeleniumTestBase (unittest.TestCase):
         else: self.fail("time out")
 
     def tearDown(self):
-        self.selenium.stop()
+        self.startStep()
+        self.logout()
+        self.driver.quit()
+        self.SERVER.driver = None
         self.assertEqual([], self.verificationErrors)
