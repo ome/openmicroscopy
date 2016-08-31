@@ -1,9 +1,6 @@
 /*
- *   $Id$
- *
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2011-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
- *
  */
 
 #ifndef OMERO_CMD_GRAPHS_ICE
@@ -141,6 +138,23 @@ module omero {
 
         };
 
+        class Chgrp2 extends Request {
+            long groupId;
+            omero::api::IObjectList targetObjects;
+        };
+
+        class Chgrp2Response extends OK {
+            omero::api::IObjectList includedObjects;
+            omero::api::IObjectList deletedObjects;
+        };
+
+        class Delete2 extends Request {
+            omero::api::IObjectList targetObjects;
+        };
+
+        class Delete2Response extends OK {
+            omero::api::IObjectList deletedObjects;
+        };
     };
 };
 

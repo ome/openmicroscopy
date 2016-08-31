@@ -3,9 +3,7 @@
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+# Copyright 2006-2014 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -36,6 +34,20 @@
     for proper functioning. To prevent this circular dependency, we do a
     form of lazy loading.
     </description>
+  </bean>
+
+  <bean id="graphPathBean" class="ome.services.graphs.GraphPathBean" lazy-init="false">
+    <description>
+    The graph path bean reflects upon the Hibernate model object mapping
+    and provides information that assists in traversing it.
+    </description>
+    <property name="additionalNotNullable">
+      <!-- not null is set in psql-footer.vm -->
+      <list>
+        <value>ome.model.meta.Event.experimenterGroup</value>
+        <value>ome.model.meta.Event.type</value>
+      </list>
+    </property>
   </bean>
 
   <bean id="hibernateProperties"

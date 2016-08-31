@@ -366,7 +366,18 @@
       <constructor-arg ref="aclVoter"/>
       <constructor-arg ref="roles"/>
       <constructor-arg ref="/OMERO/Pixels"/>
+      <constructor-arg ref="graphRequestFactory"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
+
+  <bean id="graphRequestFactory" class="omero.cmd.graphs.GraphRequestFactory">
+      <constructor-arg ref="graphPathBean"/>
+      <constructor-arg>
+          <map>
+              <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpRules"/>
+              <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteRules"/>
+          </map>
+      </constructor-arg>
   </bean>
 
   <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"

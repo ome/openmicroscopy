@@ -1,5 +1,5 @@
 /*
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2011-2014 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -14,13 +14,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import ome.io.nio.AbstractFileSystemService;
 import ome.io.nio.PixelsService;
 import ome.security.ACLVoter;
 import ome.security.ChmodStrategy;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
-import ome.services.delete.DeleteStepFactory;
 import ome.services.delete.Deletion;
 import ome.system.OmeroContext;
 import ome.system.Roles;
@@ -32,9 +30,12 @@ import omero.cmd.basic.TimingI;
 import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.graphs.ChgrpI;
+import omero.cmd.graphs.Chgrp2I;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.DeleteI;
+import omero.cmd.graphs.Delete2I;
+import omero.cmd.graphs.GraphRequestFactory;
 import omero.cmd.graphs.GraphSpecListI;
 
 /**
@@ -55,18 +56,21 @@ public class RequestObjectFactoryRegistry extends
 
     private final PixelsService pixelsService;
 
+    private final GraphRequestFactory graphRequestFactory;
+
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
             ACLVoter voter,
             Roles roles,
-            PixelsService pixelsService) {
+            PixelsService pixelsService,
+            GraphRequestFactory graphRequestFactory) {
 
         this.em = em;
         this.voter = voter;
         this.roles = roles;
         this.pixelsService = pixelsService;
-
+        this.graphRequestFactory = graphRequestFactory;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -120,6 +124,14 @@ public class RequestObjectFactoryRegistry extends
                     }
 
                 });
+        factories.put(Chgrp2I.ice_staticId(),
+                new ObjectFactory(Chgrp2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(Chgrp2I.class);
+                    }
+
+                });
         factories.put(ChmodI.ice_staticId(),
                 new ObjectFactory(ChmodI.ice_staticId()) {
                     @Override
@@ -148,6 +160,14 @@ public class RequestObjectFactoryRegistry extends
                         Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
                         return new DeleteI(ic, d);
                     }
+                });
+        factories.put(Delete2I.ice_staticId(),
+                new ObjectFactory(Delete2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(Delete2I.class);
+                    }
+
                 });
         factories.put(OriginalMetadataRequestI.ice_staticId(),
                 new ObjectFactory(OriginalMetadataRequestI.ice_staticId()) {
