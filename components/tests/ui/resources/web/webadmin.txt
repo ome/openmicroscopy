@@ -55,7 +55,7 @@ Page Should Be Open
 Page Should Contain Input Field
     [Arguments]                     ${label}  ${value}
     Page Should Contain             ${label}
-    Page Should Contain Textfield   name=${value}
+    Page Should Contain Textfield   ${value}
 
 Page Should Contain Choice Field
     [Arguments]                     ${label}  ${name}

@@ -51,16 +51,16 @@ Check User Form
     Page Should Contain                     New User
     Page Should Contain                     Fields marked in red are mandatory.
     
-    Page Should Contain Input Field         Username        omename
-    Page Should Contain Password Field      Password        password
-    Page Should Contain Password Field      Confirmation    confirmation
-    Page Should Contain Input Field         First name      first_name
-    Page Should Contain Input Field         Middle name     middle_name
-    Page Should Contain Input Field         Last name       last_name
-    Page Should Contain Input Field         Email           email
-    Page Should Contain Input Field         Institution     institution
+    Page Should Contain Input Field         Username        id_omename
+    Page Should Contain Password Field      Password        xpath=//input[@name='omename']
+    Page Should Contain Password Field      Confirmation    id_confirmation
+    Page Should Contain Input Field         First name      id_first_name
+    Page Should Contain Input Field         Middle name     id_middle_name
+    Page Should Contain Input Field         Last name       id_last_name
+    Page Should Contain Input Field         Email           id_email
+    Page Should Contain Input Field         Institution     id_institution
     
-    Page Should Contain Checkbox Field      Administrator   administrator
+    Page Should Contain Checkbox Field      Administrator   id_administrator
     Page Should Contain Checkbox Field      Active          active          selected=${True}
     
     Page Should Contain Choice Field        Group           Type group names to add...
