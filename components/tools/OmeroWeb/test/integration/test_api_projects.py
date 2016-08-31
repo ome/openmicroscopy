@@ -511,6 +511,27 @@ class TestProjects(IWebTest):
         p = decoder.decode(project_json)
         conn.getUpdateService().saveObject(p)
 
+    def test_validation_exception(self, projects_userA_groupA, userA):
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        project1 = projects_userA_groupA[0]
+        project2 = projects_userA_groupA[1]
+        project_url = reverse('api_project', kwargs={'api_version': version,
+                                                     'pid': project1.id.val})
+        p1_json = _get_response_json(django_client, project_url, {})
+        project_url = reverse('api_project', kwargs={'api_version': version,
+                                                     'pid': project2.id.val})
+        p2_json = _get_response_json(django_client, project_url, {})
+        # Make something invalid. E.g. Project as Datasets!
+        p2_json['Datasets'] = p1_json
+        rsp = _csrf_put_response_json(django_client, project_url, p2_json)
+        assert 'message' in rsp
+        assert rsp['message'] == "string indices must be integers"
+        assert rsp['stacktrace'].startswith(
+            'Traceback (most recent call last):')
+
     def test_project_update(self, userA):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
