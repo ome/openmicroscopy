@@ -546,6 +546,10 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
         <gitdescribe select="\2"> </gitdescribe>
 
+        <exec executable="bash" failonerror="true" dir="${sphinx.dir}">
+            <arg line="sync_images"/>
+        </exec>
+
         <exec executable="make" failonerror="true" dir="${sphinx.dir}">
             <env key="SOURCE_BRANCH" value="v.${version.describe}"/>
             <env key="OMERO_RELEASE" value="${version.describe}"/>
