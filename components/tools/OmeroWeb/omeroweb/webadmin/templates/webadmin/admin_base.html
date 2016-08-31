@@ -1,0 +1,44 @@
+{% extends "webadmin/base.html" %}
+{% load i18n %}
+{% load webadmin_tags %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% block center_details %}
+  <div id="admin_tabs">
+    <ul id="webadmin_main_tabs">
+      <li id="experimenters_tab"><a href="{% url 'waexperimenters' %}" title="Edit Users">{% trans "Users" %}</a></li>
+      <li id="groups_tab"><a href="{% url 'wagroups' %}" title="Edit Groups">{% trans "Groups" %}</a></li>
+      <li id="drivespace_tab"><a href="{% url 'wastats' %}" title="Statistics">{% trans "Statistics" %}</a></li>
+    </ul>
+  </div>
+
+  {# Select this page based on its name #}
+  <script type="text/javascript">
+    $(document).ready(function()
+    {
+      var pathparts = location.pathname.split("/");
+      // Get the 2nd last component as the last component will be an empty string after the trailing '/'
+      $('#webadmin_main_tabs a[href*="' + pathparts[pathparts.length-2] + '"]').addClass('selected_admin_tab');
+    });
+  </script>
+
+{% endblock %}

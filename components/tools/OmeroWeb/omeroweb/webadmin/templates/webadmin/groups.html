@@ -1,4 +1,4 @@
-{% extends "webadmin/base.html" %}
+{% extends "webadmin/admin_base.html" %}
 {% load i18n %}
 {% load common_tags %}
 
@@ -30,11 +30,11 @@
     <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
     
-	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
-	<![endif]-->
-	
-	
+<!--[if lte IE 8]>
+	<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
+<![endif]-->
+
+
 {% endblock %}
 
 {% block script %}
@@ -44,7 +44,7 @@
     <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
     
     <script type="text/javascript">
-        $(document).ready(function() 
+        $(document).ready(function()
             { 
                 $("#groupTable").tablesorter( {
                     //sortList: [[1,0]]
@@ -54,17 +54,6 @@
                     'delay': 300,
                     'loader': 'span.loading'
                 });
-                $("#admin_tabs").tabs({
-                    selected : 1,
-                    select: function(event, ui) {
-                        var url = $.data(ui.tab, 'load.tabs');
-                        if( url ) {
-                            location.href = url;
-                            return false;
-                        }
-                        return true;
-                    }
-                });
         })
     </script>
     
@@ -72,88 +61,69 @@
 
 {% block center_details %}
 {{ block.super }}
+    
+<div id="Group_content">
 
-<div id="admin_tabs">
-    
-    <ul id="webadmin_main_tabs">
-        <li id="experimenters_tab"><a href='{% url 'waexperimenters' %}' title="Edit Users">{% trans "Users" %}</a></li>
-        <li id="groups_tab"><a href="#Group_content" title="Edit Group">{% trans "Groups" %}</a></li>
-        <li id="drivespace_tab"><a href="{% url 'wastats' %}" title="Statistics">{% trans "Statistics" %}</a></li>
-    </ul>
-    
-    <div id="Group_content">
-    
-    {% if groups %}
-	
-	
-	<div class="one_column_header">
-        <form class="search filtersearch" id="filtersearch" action="#">
-			<input type="text" id="id_search">
-			<input type="submit" value="Go" /> 
-			<span class="loading">
-				<img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
-			</span>
-		</form>
-		
-		<div class="btn blue"><a href="{% url 'wamanagegroupid' "new" %}"><span>{% trans "Add new Group" %}</span></a></div>
-		
-	</div>
-	
-	
+{% if groups %}
 
-    <table id="groupTable" class="tablesorter tablesorter_basic"> 
-        <thead> 
-            <tr> 
-                <th>{% trans "ID" %}</th>
-                <th>{% trans "Group Name" %}</th> 
-				<th>{% trans "Permission" %}</th>
-                <th>{% trans "Description" %}</th>
-                <th></th>
-            </tr> 
-        </thead> 
-        <tbody>
-        {% for group in groups %}
-            <tr>
-                <td>
-                    {{ group.id }}
-                </td>
-                
-                <td>
-					{{ group.name }}
-				</td>
-                <td>
-					{{ group.getPermissions }} ({{ group.details.permissions }})
-				</td>
-                <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
-				<td>
-                    {% if group.isEditable %}
-                        <a href="{% url 'wamanagegroupid' "edit" group.id %}" class="btn silver btn_edit">
-                        	<span></span>
-                        </a>
-                    {% else %}
-                        
-					{% endif %}
-                </td>
-				
-            </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<div class="one_column_header">
+    <form class="search filtersearch" id="filtersearch" action="#">
+        <input type="text" id="id_search">
+        <input type="submit" value="Go" />
+        <span class="loading">
+            <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+        </span>
+    </form>
 
-    {% else %}
-    <p>{% trans "No groups in OMERO." %}</p>
-    {% endif %}
-    
-    </div>
+	<div class="btn blue"><a href="{% url 'wamanagegroupid' "new" %}"><span>{% trans "Add new Group" %}</span></a></div>
+
 </div>
 
-    <div id="metadata_details" class="overflow">
-        <p>{% trans "<strong>Private (rw----)</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</p>
+<table id="groupTable" class="tablesorter tablesorter_basic">
+    <thead>
+        <tr>
+            <th>{% trans "ID" %}</th>
+            <th>{% trans "Group Name" %}</th>
+            <th>{% trans "Permission" %}</th>
+            <th>{% trans "Description" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for group in groups %}
+        <tr>
+            <td>{{ group.id }}</td>
+            <td>{{ group.name }}</td>
+            <td>{{ group.getPermissions }} ({{ group.details.permissions }})</td>
+            <td>{{ group.description|default:"-"|truncatewords:"5" }}</td>
+            <td>
+                {% if group.isEditable %}
+                    <a href="{% url 'wamanagegroupid' "edit" group.id %}" class="btn silver btn_edit">
+                      <span></span>
+                    </a>
+                {% else %}
 
-        <p>{% trans "<strong>Read-Only (rwr---)</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
+        {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
-        <p>{% trans "<strong>Read-Annotate (rwra--)</strong>: Users in a Read-Annotate group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
-        
-    <div>
+{% else %}
+<p>{% trans "No groups in OMERO." %}</p>
+{% endif %}
+
+</div>
+
+
+<div id="metadata_details" class="overflow">
+    <p>{% trans "<strong>Private (rw----)</strong>: All data in this group is only visible to the user who owns it and the group owner. Other users cannot see who else is in the group or view their data. The group owner can view the data for other group members but not make any edits (same as read-only behaviour)." %}</p>
+
+    <p>{% trans "<strong>Read-Only (rwr---)</strong>: Users in groups with this permission setting can view each others' data, but cannot edit or annotate another user's data. You can view another users' images but not comment, rate or tag their images." %}</p>
+
+    <p>{% trans "<strong>Read-Annotate (rwra--)</strong>: Users in a Read-Annotate group can view and annotate the data belonging to other users. You can tag another user's images or use their tags to annotate your own images. You can add comments to their images and save your own rendering settings for each image. However, you cannot edit the names of their images, projects, datasets or tags etc." %}</p>
+
+<div>
         
 {% endblock %}

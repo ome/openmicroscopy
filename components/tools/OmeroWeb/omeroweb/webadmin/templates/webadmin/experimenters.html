@@ -1,4 +1,4 @@
-{% extends "webadmin/base.html" %}
+{% extends "webadmin/admin_base.html" %}
 {% load i18n %}
 {% load common_tags %}
 
@@ -53,17 +53,6 @@
                     'delay': 300,
                     'loader': 'span.loading'
                 });
-                $("#admin_tabs").tabs({
-                    selected : 0,
-                    select: function(event, ui) {
-                        var url = $.data(ui.tab, 'load.tabs');
-                        if( url ) {
-                            location.href = url;
-                            return false;
-                        }
-                        return true;
-                    }
-                });
             })
     </script>
     
@@ -73,77 +62,67 @@
 {% block center_details %}
 {{ block.super }}
 
-<div id="admin_tabs">
+<div id="experimenters_content">
 
-    <ul id="webadmin_main_tabs">
-        <li id="experimenters_tab"><a href="#experimenters_content" title="Edit Users">{% trans "Users" %}</a></li>
-        <li id="groups_tab"><a href="{% url 'wagroups' %}" title="Edit Groups">{% trans "Groups" %}</a></li>
-        <li id="drivespace_tab"><a href="{% url 'wastats' %}" title="Statistics">{% trans "Statistics" %}</a></li>
-    </ul>
+{% if experimenterList %}
 
-    <div id="experimenters_content">
-        
-    {% if experimenterList %}
-        
-    <div class="one_column_header">
-        <form class="search filtersearch" id="filtersearch" action="#">
-            <input type="text" id="id_search">
-            <input type="submit" value="Go" /> 
-            <span class="loading">
-                <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
-            </span>
-        </form>
-        
-        <div class="btn blue"><a href="{% url 'wamanageexperimenterid' "new" %}"><span>{% trans "Add new User" %}</span></a></div>
-        
-    </div>
-   
+<div class="one_column_header">
+    <form class="search filtersearch" id="filtersearch" action="#">
+        <input type="text" id="id_search">
+        <input type="submit" value="Go" />
+        <span class="loading">
+            <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">
+        </span>
+    </form>
 
-    <table id="experimenterTable" class="tablesorter tablesorter_basic">
-        <thead> 
-            <tr>
-                <th>{% trans "ID" %}</th>
-                <th>{% trans "Full name" %}</th> 
-                <th>{% trans "Username" %}</th>
-                <th>{% trans "Institution" %}</th>
-                <th>{% trans "Roles" %}</th>
-                <th></th>
-            </tr> 
-        </thead> 
-        <tbody>
-        {% for experimenter in experimenterList %}
-            <tr>
-                <td>
-                    {{ experimenter.id }}
-                </td>
-                <td>{{ experimenter.getFullName }}</td>
-                <td>{{ experimenter.omeName }}</td>
-                <td>{{ experimenter.institution|default:"-"|truncatewords:"3" }}</td>
-                <td>
-                      {% if experimenter.isAdmin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
-                      {% if experimenter.isGuest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}
-                      {% if experimenter.isLdapUser %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
-                      {% if experimenter.isActive %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
-                </td>
-                <td>
-                    {% if experimenter.isEditable %}
-                    <a href="{% url 'wamanageexperimenterid' "edit" experimenter.id %}" title="Edit User" class="btn silver btn_edit">
-                        <span></span>
-                    </a>
-                    {% endif %}
-                </td>
-                
-            </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    
-    {% else %}
-    <p>{% trans "No scientists in OMERO." %}</p>
-    {% endif %}
-    </div>
+    <div class="btn blue"><a href="{% url 'wamanageexperimenterid' "new" %}"><span>{% trans "Add new User" %}</span></a></div>
 
 </div>
+
+
+<table id="experimenterTable" class="tablesorter tablesorter_basic">
+    <thead>
+        <tr>
+            <th>{% trans "ID" %}</th>
+            <th>{% trans "Full name" %}</th>
+            <th>{% trans "Username" %}</th>
+            <th>{% trans "Institution" %}</th>
+            <th>{% trans "Roles" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for experimenter in experimenterList %}
+        <tr>
+            <td>
+                {{ experimenter.id }}
+            </td>
+            <td>{{ experimenter.getFullName }}</td>
+            <td>{{ experimenter.omeName }}</td>
+            <td>{{ experimenter.institution|default:"-"|truncatewords:"3" }}</td>
+            <td>
+                  {% if experimenter.isAdmin %}<img src="{% static "webadmin/image/admin.png" %}" alt="admin" title="admin"> {% endif %}
+                  {% if experimenter.isGuest %}<img src="{% static "webadmin/image/guest.png" %}" alt="guest" title="guest"> {% endif %}
+                  {% if experimenter.isLdapUser %}<img src="{% static "webadmin/image/ldap.png" %}" alt="ldap" title="ldap"> {% endif %}
+                  {% if experimenter.isActive %}<img src="{% static "webadmin/image/active.png" %}" alt="active" title="active">{% else %}<img src="{% static "webadmin/image/notactive.png" %}" alt="inactive" title="inactive">{% endif %}
+            </td>
+            <td>
+                {% if experimenter.isEditable %}
+                <a href="{% url 'wamanageexperimenterid' "edit" experimenter.id %}" title="Edit User" class="btn silver btn_edit">
+                    <span></span>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+<p>{% trans "No scientists in OMERO." %}</p>
+{% endif %}
+</div>
+
 {% endblock %}
 
 {% block metadata_details %}

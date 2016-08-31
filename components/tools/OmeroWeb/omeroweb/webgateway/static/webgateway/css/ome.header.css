@@ -1043,6 +1043,12 @@ li.menu_back a {
 
 
 
+/* Admin navigation bar */
+
+.selected_admin_tab {
+	background-color: rgb(219,222,226) !important;
+}
+
 /* Content */
 
 #content {
