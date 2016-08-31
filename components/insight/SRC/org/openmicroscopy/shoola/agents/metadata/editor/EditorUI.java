@@ -48,6 +48,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
@@ -909,7 +910,24 @@ class EditorUI
 	 * @return See above.
 	 */
 	Object getRefObject() { return model.getRefObject(); }
-	
+
+	/**
+     * Returns the parent of the object of reference.
+     * 
+     * @return See above.
+     */
+    Object getParentRootObject() { return model.getParentRootObject(); }
+    
+    /**
+     * Returns the parent of the object of reference.
+     * 
+     * @return See above.
+     */
+    Object getGrandParentRootObject()
+    {
+        return model.getGrandParentRootObject();
+    }
+
 	/** Cleans up the view or adds the components
 	 * 
 	 * @param cleanup 	Pass <code>true</code> to clean up, <code>false</code>

@@ -92,8 +92,7 @@ public class MeasurementsLoader
      */
     public void load()
     {
-        long userID = ImViewerAgent.getUserDetails().getId();
-        handle = mhView.loadROIMeasurement(ctx, object, userID, this);
+        handle = mhView.loadROIMeasurement(ctx, object, -1, this);
     }
 
     /**

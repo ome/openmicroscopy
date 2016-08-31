@@ -586,7 +586,9 @@ class DataBrowserControl
         } else if (Browser.MAIN_VIEW_DISPLAY_PROPERTY.equals(name)) {
             ImageDisplay node = (ImageDisplay) evt.getNewValue();
             Object ho = node.getHierarchyObject();
-            if (ho instanceof ImageData) model.viewDisplay(node, true);
+            if (ho instanceof ImageData || ho instanceof WellSampleData) {
+                model.viewDisplay(node, true);
+            }
         }
     }
 

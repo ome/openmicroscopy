@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -57,6 +58,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -1251,7 +1253,7 @@ class RendererComponent
 	 */
 	public void viewImage()
 	{
-		ImageData image = model.getRefImage();
+		DataObject image = model.getObject();
 		if (image == null) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		if (MetadataViewerAgent.runAsPlugin() == LookupNames.IMAGE_J) {

@@ -25,9 +25,11 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
@@ -35,7 +37,9 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Action to view an image or a collection of images.
@@ -70,7 +74,8 @@ public class ViewAction
             setEnabled(false);
             return;
         }
-    	setEnabled(node.getHierarchyObject() instanceof ImageData);
+    	Object ho = node.getHierarchyObject();
+    	setEnabled(ho instanceof ImageData || ho instanceof WellSampleData);
     }
     
 	/**
