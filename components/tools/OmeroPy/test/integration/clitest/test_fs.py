@@ -19,9 +19,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from test.integration.clitest.cli import CLITest
+from test.integration.clitest.cli import CLITest, RootCLITest
 from omero.cli import NonZeroReturnCode
 from omero.plugins.fs import FsControl
+from omero.util import long_to_path
+
+from path import path
 
 import pytest
 
@@ -110,3 +113,33 @@ class TestFS(CLITest):
             self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
+
+
+class TestFSRoot(RootCLITest):
+
+    def setup_method(self, method):
+        super(TestFSRoot, self).setup_method(method)
+        self.cli.register("fs", FsControl, "TEST")
+        self.args += ["fs"]
+
+    def testFixPyramid(self, capsys):
+        """Test fs fixpyramid"""
+
+        cfg = self.root.sf.getConfigService()
+        pixels_dir = path(cfg.getConfigValue("omero.data.dir")) / "Pixels"
+        iid = self.importSingleImage().id.val
+        subdir = path(long_to_path(iid, root=pixels_dir)).parent
+        subdir.makedirs_p()
+        pyramid_file = subdir / ("%s_pyramid" % iid)
+        pyramid_file.touch()
+        assert pyramid_file.exists()
+        self.args += ["fixpyramid", "Image:%s" % iid]
+        self.cli.invoke(self.args, strict=True)
+        assert not pyramid_file.exists()
+
+    def testFixPyramidWrongType(self):
+        """Test fs fixpyramid with incorrect argument type"""
+
+        self.args += ["fixpyramid", "Fileset:1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
