@@ -46,19 +46,25 @@ logger = logging.getLogger(__name__)
 # Debuging mode.
 # A boolean that turns on/off debug mode.
 # handler404 and handler500 works only when False
-if os.environ.has_key('OMERO_HOME'):
-    OMERO_HOME =os.environ.get('OMERO_HOME') 
-else:
-    OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
-    OMERO_HOME = os.path.normpath(OMERO_HOME)
 
-INSIGHT_JARS = os.path.join(OMERO_HOME, "lib", "insight").replace('\\','/')
+# We may be running omeroweb from 2 possible locations
+# ...OMERO/components/tools/OmeroWeb/omeroweb       (development)
+# OR ...OMERO/dist/lib/python/omeroweb              (production)
+# Need to traverse to the OMERO 'dist' directory
+pwd = os.path.dirname(__file__)
+if 'OmeroWeb' in pwd:
+    OMERO_DIST = os.path.join(pwd, '..', '..', '..','..', 'dist')
+else:
+    OMERO_DIST = os.path.join(pwd, '..', '..', '..')
+OMERO_DIST = os.path.normpath(OMERO_DIST)
+
+INSIGHT_JARS = os.path.join(OMERO_DIST, "lib", "insight").replace('\\','/')
 WEBSTART = False
 if os.path.isdir(INSIGHT_JARS):
     WEBSTART = True
 
 # Logging
-LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
+LOGDIR = os.path.join(OMERO_DIST, 'var', 'log').replace('\\','/')
 
 if not os.path.isdir(LOGDIR):
     try:
@@ -128,7 +134,7 @@ LOGGING = {
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
 from omero.util.concurrency import get_event
-CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
+CONFIG_XML = os.path.join(OMERO_DIST, 'etc', 'grid', 'config.xml')
 count = 10
 event = get_event("websettings")
 
