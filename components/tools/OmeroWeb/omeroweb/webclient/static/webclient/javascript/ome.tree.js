@@ -390,7 +390,7 @@ $(function() {
             'data' : function(node, callback, payload) {
                 // Get the data for this query
                 if (payload === undefined) {
-                    var payload = {};
+                    payload = {};
                 }
                 // We always use the parent id to fitler. E.g. experimenter id, project id etc.
                 // Exception to this for orphans as in the case of api_images, id is a dataset
@@ -439,9 +439,7 @@ $(function() {
 
                 // Disable paging for node without counter
                 var nopageTypes = ['project', 'screen', 'plate', 'tagset', 'tag'];
-                if (node.data && node.data.obj.childCount === undefined) {
-                    payload['page'] = 0;
-                } else if (nopageTypes.indexOf(node.type) > -1) {
+                if (nopageTypes.indexOf(node.type) > -1) {
                     // TODO: temporary workaround to not paginate datasets,
                     // plates and acquisitions
                     // see center_plugin.thumbs.js.html
@@ -449,10 +447,7 @@ $(function() {
                 } else {
                     // Attempt to get the current page desired if there is one
                     var page = inst.get_page(node);
-                    if (page) {
-                        payload['page'] = page;
-                        // Otherwise, no 'page' will give us default, first page
-                    }
+                    payload['page'] = page;
                 }
 
                 // Specify that orphans are specifically sought
@@ -499,8 +494,8 @@ $(function() {
                     url = WEBCLIENT.URLS.api_images;
                 } else if (node.id === '#') {
                     // Here we handle root of jsTree
-                    // Either show a single experimenters's data...
-                    url = WEBCLIENT.URLS.api_experimenters;   // url includes 
+                    // Experimenhter ID is set for user ID or -1 for entire group
+                    url = WEBCLIENT.URLS.api_experimenter;
                 }
 
                 if (url === undefined) {

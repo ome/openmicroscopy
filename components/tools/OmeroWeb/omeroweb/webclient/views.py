@@ -342,7 +342,7 @@ def fake_experimenter(request, default_name='All members'):
         'id': -1,
         'omeName': label,
         'firstName': label,
-        'lastName': ''
+        'lastName': '',
     }
 
 
