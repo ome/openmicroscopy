@@ -66,6 +66,7 @@ urlpatterns = patterns('',
     (r'(?i)^feedback/', include('omeroweb.feedback.urls')),
     
     (r'(?i)^webtest/', include('omeroweb.webtest.urls')),
+    (r'(?i)^webgallery/', include('omeroweb.webgallery.urls')),
 
 )
 

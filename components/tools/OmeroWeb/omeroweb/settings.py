@@ -258,7 +258,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
             '"/omero/setup_scripts/FLIM_initialise.py", "/omero/import_scripts/Populate_ROI.py"]', parse_paths],
     
     # Add links to the top header: links are ['Link Text', 'link'], where the url is reverse("link") OR simply 'link' (for external urls)
-    "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
+    "omero.web.ui.top_links": ["TOP_LINKS", '[["Gallery", "webgallery_index"]]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'
     
     # Add plugins to the right-hand & center panels: plugins are ['Label', 'include.js', 'div_id']. The javascript loads data into $('#div_id').
     "omero.web.ui.right_plugins": ["RIGHT_PLUGINS", '[["Acquisition", "webclient/data/includes/right_plugin.acquisition.js.html", "metadata_tab"],'\
@@ -452,6 +452,7 @@ INSTALLED_APPS = (
     'omeroweb.webtest',
     'omeroweb.webredirect',
     'omeroweb.webstart',
+    'omeroweb.webgallery',
     
 )
 

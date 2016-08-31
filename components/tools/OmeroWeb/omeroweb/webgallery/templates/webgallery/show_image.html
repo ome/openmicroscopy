@@ -1,0 +1,83 @@
+{% extends "webgallery/base/base.html" %}
+
+{% block title %}
+    {{ image.getName }}
+{% endblock %}
+
+
+{% block body %}
+
+    <div>
+        <a href="{% url webgallery_index %}">Home</a>
+        Logged in as: {{ ome.user.getFullName }}
+    </div>
+
+    <hr>
+
+    {% if image.getParent %}
+    {% with p=image.getParent %}
+        Back to: <a href="{% url webgallery_show_dataset p.id %}">{{ p.getName }}</a>
+    {% endwith %}
+    {% endif %}
+
+    <h2>{{ image.getName }}</h2>
+
+    <p>{{ image.getDescription }}</p>
+
+    <hr>
+
+    <!--<img src="{% url webgateway.views.render_image image.id %}" style="float: left"/>-->
+    <div id="img_viewer" style="width:512px; height:512px; float: left"></div>
+
+    <table>
+        <tr>
+            <th>Dimensions (XY):</th>
+            <td>{{ image.getSizeX }} x {{ image.getSizeY }}</td>
+        </tr>
+        <tr>
+            <th>Pixels Type:</th>
+            <td>{{ image.getPixelsType }}</td>
+        </tr>
+        <tr>
+            <th>Pixels Size (XYZ) (&#181m):</th>
+            <td>
+                {{ image.getPixelSizeX|floatformat:4 }} x {{ image.getPixelSizeY|floatformat:4 }}
+                    {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ|floatformat:4 }} {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Z-sections/Timepoints:</th>
+            <td>{{ image.getSizeZ }} x {{ image.getSizeT }}</td>
+        </tr>
+        <tr>
+            <th>Channels:</th>
+            <td id='channel_names'>
+                {% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel }}</span>{% endfor %}
+            </td>
+        </tr>
+
+        <tr>
+            <th>Tags:</th>
+            <td>
+                {% for t in tags %}{% if not forloop.first %}, {% endif %}<span>{{ t.getTextValue }}</span>{% endfor %}
+            </td>
+        </tr>
+    </table>
+
+    <!-- Adding Scripts - First we link to the 'current' jQuery used by OMERO.web -->
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    <script type="text/javascript" src="{% static "webgateway/js/ome.viewport.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.viewportImage.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_slider.js" %}"></script>
+    <script type="text/javascript" src="{% static "webgateway/js/ome.gs_utils.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.mousewheel.js" %}"></script>
+
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.gs_slider.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.viewport.css" %}" type="text/css" media="screen"/>
+
+    <script>
+        var viewport = $.WeblitzViewport("#img_viewer", "{% url webgateway %}", {'mediaroot': '{{ STATIC_URL }}' } );
+        viewport.load({{ image.id }});
+    </script>
+
+{% endblock %}
