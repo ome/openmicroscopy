@@ -448,31 +448,29 @@ class GeneralPaneUI extends JPanel
             }
             
             propertiesUI.buildUI();
-            boolean visible = true;
             Object ho = model.getRefObject();
-            if ((ho instanceof TagAnnotationData) ||
-                    (ho instanceof FileAnnotationData)) {
-                visible = false;
-                tagsTaskPane.setVisible(false);
-                roiTaskPane.setVisible(false);
-                mapTaskPane.setVisible(false);
-                attachmentTaskPane.setVisible(false);
-                ratingTaskPane.setVisible(false);
-                commentTaskPane.setVisible(false);
-                otherTaskPane.setVisible(false);
-            } else {
+            boolean visible = !(ho instanceof TagAnnotationData) ||
+                    (ho instanceof FileAnnotationData);
+
+            tagsTaskPane.setVisible(visible);
+            roiTaskPane.setVisible(visible);
+            mapTaskPane.setVisible(visible && !multi);
+            attachmentTaskPane.setVisible(visible);
+            ratingTaskPane.setVisible(visible);
+            commentTaskPane.setVisible(visible);
+            otherTaskPane.setVisible(visible
+                    && !model.getAllOtherAnnotations().isEmpty());
+    
+            if (visible) {
                 tagsTaskPane.refreshUI();
                 roiTaskPane.refreshUI();
                 mapTaskPane.refreshUI();
                 attachmentTaskPane.refreshUI();
                 ratingTaskPane.refreshUI();
                 commentTaskPane.refreshUI();
-
-                otherTaskPane.setVisible(
-                        !model.getAllOtherAnnotations().isEmpty());
                 otherTaskPane.refreshUI();
             }
-
+            
             propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
            
             boolean showBrowser = false;
@@ -506,9 +504,7 @@ class GeneralPaneUI extends JPanel
             namePane.setVisible(!multi);
             idLabel.setVisible(!multi);
             propertiesTaskPane.setVisible(!multi);
-            if (visible) {
-                mapTaskPane.setVisible(!multi);
-            }
+ 
             revalidate();
         }
 	
@@ -595,6 +591,8 @@ class GeneralPaneUI extends JPanel
 	 */
 	void setRootObject(Object oldObject)
 	{
+	    System.out.println(System.currentTimeMillis()+" setRootObject "+oldObject);
+	    
 		if (!init) {
 			buildGUI();
 			init = true;
