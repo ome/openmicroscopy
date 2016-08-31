@@ -488,8 +488,8 @@ class TestProjects(IWebTest):
         Project is encoded to dict then decoded back to Project
         and saved.
         No exception is seen if the original Project is simply
-        saved without encode & decode OR if the omero:details are
-        removed from the dict before decoding back to Project.
+        saved without encode & decode OR if the details are unloaded
+        before saving
         """
         conn = get_connection(userA)
         project = ProjectI()
@@ -506,9 +506,9 @@ class TestProjects(IWebTest):
         with pytest.raises(ValidationException):
             conn.getUpdateService().saveObject(p)
 
-        # Removing details before decode allows Save without exception
-        del project_json['omero:details']
         p = decoder.decode(project_json)
+        # Unloading details allows Save without exception
+        p.unloadDetails()
         conn.getUpdateService().saveObject(p)
 
     def test_validation_exception(self, projects_userA_groupA, userA):
