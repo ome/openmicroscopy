@@ -1980,7 +1980,7 @@ class BrowserComponent
 	 */
 	public void reActivate()
 	{
-		model.setSelectedDisplay(null, true);
+	    model.clear();
 		view.reActivate();
 		if (model.isSelected() &&
 			model.getBrowserType() == Browser.ADMIN_EXPLORER) {

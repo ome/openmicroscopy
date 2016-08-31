@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -108,12 +108,9 @@ import pojos.TagAnnotationData;
  * results of data loadings, feeds them back to this class and fires state
  * transitions as appropriate.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
- * </small>
  * @since OME2.2
  */
 class TreeViewerModel
@@ -184,10 +181,7 @@ class TreeViewerModel
     
     /** Scripts with a UI. */
 	private List<ScriptObject> scriptsWithUI;
-	
-	/** The security context for the administrator.*/
-    private SecurityContext adminContext;
-    
+
     /** The id of the group the currently selected node is in.*/
     private long selectedGroupId;
     
@@ -1179,10 +1173,8 @@ class TreeViewerModel
 	 * @return See above
 	 */
 	SecurityContext getAdminContext()
-	{ 
-		if (adminContext == null) 
-			adminContext = TreeViewerAgent.getAdminContext();
-		return adminContext; 
+	{
+		return TreeViewerAgent.getAdminContext();
 	}
 	
 	/**
@@ -1212,10 +1204,14 @@ class TreeViewerModel
 	}
 	
 	/** Clears the result.*/
-	void clearImportResult()
+	void clear()
 	{
 		importFailureCount = 0;
 		importSuccessCount = 0;
+		state = TreeViewer.NEW;
+        recycled = false;
+        refImage = null;
+        importing = false;
 	}
 	
 	/**
