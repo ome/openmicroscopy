@@ -2693,29 +2693,22 @@ class ProjectView(View):
         return encoder.encode(project._obj)
 
     def put(self, request, pid, conn=None, **kwargs):
-        try:
-            project = conn.getQueryService().get('Project', long(pid))
-        except ValidationException:
-            return JsonResponseNotFound(
-                {'message': 'Project %s not found' % pid})
-        project_json = json.loads(request.body)
+        object_json = json.loads(request.body)
         # If owner was unloaded (E.g. from get() above) or if missing
         # ome.model.meta.Experimenter.ldap (not supported by omero_marshel)
         # then saveObject() will give ValidationException.
         # Therefore we ignore any details for now:
-        if 'omero:details' in project_json:
-            del project_json['omero:details']
+        if 'omero:details' in object_json:
+            del object_json['omero:details']
         decoder = None
-        if '@type' in project_json:
-            decoder = get_decoder(project_json['@type'])
+        if '@type' not in object_json:
+            return {'message': 'Need to specify @type attribute'}
+        objType = object_json['@type']
+        decoder = get_decoder(objType)
         # If we are passed incomplete object, or decoder couldn't be found...
         if decoder is None:
-            encoder = get_encoder(project.__class__)
-            decoder = get_decoder(encoder.TYPE)
-        # If we are passed incomplete object, we need to populate @id
-        if '@id' not in project_json:
-            project_json['@id'] = long(pid)
-        project = decoder.decode(project_json)
+            return {'message': 'No decoder found for type: %s' % objType}
+        project = decoder.decode(object_json)
         project = conn.getUpdateService().saveAndReturnObject(project)
         encoder = get_encoder(project.__class__)
         return encoder.encode(project)
