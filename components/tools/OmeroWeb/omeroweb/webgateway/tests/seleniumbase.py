@@ -42,7 +42,7 @@ The values above are just examples.
 """ 
 __docformat__='epytext' 
 
-from selenium import selenium
+from selenium import webdriver
 import unittest, time, urllib2, cookielib
 
 class SeleniumTestServer (object):
@@ -52,14 +52,14 @@ class SeleniumTestServer (object):
         self.port = port
         self.browser = browser
         self.url = url
-        self.selenium = None
+        self.driver = None
 
     def __del__ (self):
         if self.selenium is not None:
             self.selenium.stop()
 
-    def getSelenium (self):
-        if self.selenium is None:
+    def getDriver (self):
+        if self.driver is None:
             if self.host.find(':') >= 0:
                 host = self.host.split(':')
                 try:
@@ -68,26 +68,16 @@ class SeleniumTestServer (object):
                         self.host = host[0]
                 except:
                     pass
-            self.selenium = selenium(self.host, self.port, self.browser, self.url)
-        self.selenium.start()
-        self.selenium.open("/%s" % self.base)
-        script = urllib2.urlopen("%s/static/3rdparty/jquery-1.7.2.js" % (self.url))
-        r = script.read()
-        self.selenium.run_script(r)
-        script.close()
-        self.selenium.add_location_strategy("jquery",
-'''
-  if (inWindow.jQuery.expr[':'].containsExactly === undefined) {
-    inWindow.jQuery.expr[':'].containsExactly = function (a,i,m) { return inWindow.jQuery(a).text() == m[3];};
-  }
-  var found = inWindow.jQuery(inDocument).find(locator);
-  if(found.length >= 1 ){
-    return found.get(0);
-  }else{
-    return null;
-  }
-''')
-        return self.selenium
+            # NB: Safari not supported by webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp#backing-webdriver-with-selenium
+            # IE can only be run on Windows machines
+            if self.browser == "firefox":
+                self.driver = webdriver.Firefox()
+            elif self.browser == "chrome":      # Needs ChromeDriver on your PATH https://code.google.com/p/chromedriver/downloads/list
+                self.driver = webdriver.Chrome()
+            else:
+                raise Exception("No support for browser %s" % self.browser)
+
+        return self.driver
         
 class Utils:
     @staticmethod
@@ -138,7 +128,12 @@ class SeleniumTestBase (unittest.TestCase):
         self.verificationErrors = []
         if self.SERVER is None:
             self.SERVER = SeleniumTestServer()
-        self.selenium = self.SERVER.getSelenium()
+        self.driver = self.SERVER.getDriver()
+
+    def getRelativeUrl (self, relativeUrl):
+        """ Since Selenium 2 doesn't support relative URLs, we do that ourselves """
+        url = self.SERVER.url + relativeUrl
+        self.driver.get(url)
 
     def waitForElementPresence (self, element, present=True):
         """
@@ -166,5 +161,6 @@ class SeleniumTestBase (unittest.TestCase):
         else: self.fail("time out")
 
     def tearDown(self):
-        self.selenium.stop()
+        self.driver.quit()
+        self.SERVER.driver = None
         self.assertEqual([], self.verificationErrors)
