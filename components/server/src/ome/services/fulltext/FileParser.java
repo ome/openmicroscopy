@@ -13,8 +13,9 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.lang.Runtime;
 
-import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.services.messages.ParserOpenFileMessage;
 import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
@@ -39,9 +40,21 @@ public class FileParser implements ApplicationContextAware {
 
     protected OmeroContext context;
 
+    protected long maxFileSize;
+
     public void setApplicationContext(ApplicationContext arg0)
             throws BeansException {
         context = (OmeroContext) arg0;
+    }
+
+    public void setMaxFileSize(Long size) {
+        if (size.floatValue() / Runtime.getRuntime().maxMemory() > 0.5) {
+            log.warn("Indexer maximum file size is set to more than half of "
+                    + "total heap size. Excessively large text files may "
+                    + "cause search index corruption. Consider decreasing the "
+                    + "maximum file size or increasing the Indexer heap size.");
+        }
+        this.maxFileSize = size;
     }
 
     /**
@@ -96,6 +109,12 @@ public class FileParser implements ApplicationContextAware {
             return EMPTY;
         }
 
+        if (file.length() > this.maxFileSize) {
+            log.info("File too large for indexing. Skipping: "
+                    + file.getAbsoluteFile());
+            return EMPTY;
+        }
+
         try {
             Iterable<Reader> it = doParse(file);
             if (it == null) {
@@ -130,7 +149,7 @@ public class FileParser implements ApplicationContextAware {
     public Iterable<Reader> doParse(File file) throws Exception {
         FileReader reader = new FileReader(file);
         BufferedReader buffered = new BufferedReader(reader);
-        context.publishEvent(new RegisterServiceCleanupMessage(this, buffered) {
+        context.publishEvent(new ParserOpenFileMessage(this, buffered) {
             @Override
             public void close() {
                 try {

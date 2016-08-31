@@ -66,8 +66,12 @@
     </constructor-arg>
   </bean>
   
-  <bean id="fileParser" class="ome.services.fulltext.FileParser"/>
-  <bean id="pdfParser" class="ome.services.fulltext.PdfParser"/>
+  <bean id="fileParser" class="ome.services.fulltext.FileParser">
+    <property name="maxFileSize" value="${omero.search.max_file_size}"/>
+  </bean>
+  <bean id="pdfParser" class="ome.services.fulltext.PdfParser">
+    <property name="maxFileSize" value="${omero.search.max_file_size}"/>
+  </bean>
 
   <alias name="persistentEventLogLoader" alias="eventLogLoader"/>
 
@@ -83,10 +87,13 @@
   <bean id="fullTextThreadRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="fullTextThread" />
     <property name="targetMethod" value="run" />
-    <!-- FullTextThread now handles locking properly itself, so we will allow
-    concurrent execution. Quartz will now let multiple jobs through and each 
-    FullTextThread can discard itself as it sees fit (via construction) -->
-    <property name="concurrent" value="true" />
+    <!-- FullTextThread now handles locking properly itself, however when Quartz
+         runs multiple threads concurrently and one or more experiences a fatal
+         error (e.g. OOM) it seems that we can still get into a deadlock
+         situation. Since we can only perform actual indexing work on one thread
+         at a time anyway, we will disable concurrency until the deadlock issue
+         can be resolved. -->
+    <property name="concurrent" value="false" />
   </bean>
 
   <!-- FullText trigger moved to indexer.xml for running as separate process -->

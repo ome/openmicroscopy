@@ -12,7 +12,7 @@ import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.io.Reader;
 
-import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.services.messages.ParserOpenFileMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +33,7 @@ public class PdfParser extends FileParser {
     public Iterable<Reader> doParse(File file) throws Exception {
 
         final PdfThread pdfThread = new PdfThread(file);
-        this.context.publishEvent(new RegisterServiceCleanupMessage(this,
+        this.context.publishEvent(new ParserOpenFileMessage(this,
                 pdfThread) {
             @Override
             public void close() {
