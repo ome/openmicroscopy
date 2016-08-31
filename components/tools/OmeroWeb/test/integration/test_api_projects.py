@@ -569,3 +569,7 @@ class TestProjects(IWebTest):
         rsp = _csrf_delete_response_json(django_client, project_url, {},
                                          status_code=404)
         assert rsp['message'] == 'Project %s not found' % project.id.val
+        # Try to save deleted object - creates a new object
+        rsp = _csrf_put_response_json(django_client, project_url, prJson,
+                                      status_code=404)
+        assert rsp['@id'] != project.id.val     # New ID
