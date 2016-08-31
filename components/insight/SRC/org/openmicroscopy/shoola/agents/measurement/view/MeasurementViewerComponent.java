@@ -1100,4 +1100,11 @@ class MeasurementViewerComponent
 		view.displayAnalysisResults();
 	}
 
+        /**
+         * Implemented as specified by the {@link MeasurementViewer} interface.
+         * @see MeasurementViewer#exportGraph()
+         */
+        public void exportGraph() {
+            view.exportGraph();
+        }
 }

@@ -27,27 +27,25 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -60,8 +58,6 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrap
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
-import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -70,8 +66,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -87,7 +81,7 @@ import pojos.ChannelData;
  * @version 3.0
  * @since OME3.0
  */
-class GraphPane
+public class GraphPane
 	extends JPanel 
 	implements TabPaneInterface, PropertyChangeListener, ChangeListener
 {
@@ -109,6 +103,9 @@ class GraphPane
 	
 	/** Reference to the model. */
 	private MeasurementViewerModel model;
+	
+	/** Reference to the controller. */
+	private MeasurementViewerControl controller;
 
 	/** The map of <ROIShape, ROIStats> .*/
 	private Map ROIStats;
@@ -157,7 +154,7 @@ class GraphPane
 
 	/** Button to save the graph as JPEG or PNG.*/
 	private JButton export;
-
+	
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
 	 * @see TabPaneInterface#getIndex()
@@ -249,7 +246,7 @@ class GraphPane
 	 * @param file The file where to save the graph
 	 * @param type The format to save into.
 	 */
-	private void saveGraph(File file, int type)
+	public void saveGraph(File file, int type)
 	{
 	    try {
 	        if (lineProfileChart != null) {
@@ -269,33 +266,8 @@ class GraphPane
 	/** Initializes the component composing the display. */
 	private void initComponents()
 	{
-	    export = new JButton("Export...");
-	    export.setToolTipText("Export the graph as JPEG or PNG.");
-	    export.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                List<FileFilter> filterList = new ArrayList<FileFilter>();
-                filterList.add(new JPEGFilter());
-                filterList.add(new PNGFilter());
-                FileChooser chooser =
-                        new FileChooser(view, FileChooser.SAVE, "Save Graph",
-                                "Save the graph as JPEG or PNG", filterList);
-                try {
-                    File f = UIUtilities.getDefaultFolder();
-                    if (f != null) chooser.setCurrentDirectory(f);
-                } catch (Exception ex) {}
-                if (chooser.showDialog() != JFileChooser.APPROVE_OPTION) return;
-                File  file = chooser.getFormattedSelectedFile();
-                FileFilter filter = chooser.getSelectedFilter();
+	        export = new JButton(controller.getAction(MeasurementViewerControl.EXPORT_GRAPH));
 
-                if (filter instanceof JPEGFilter) {
-                    saveGraph(file, ChartObject.SAVE_AS_JPEG);
-                } else if (filter instanceof PNGFilter) {
-                    saveGraph(file, ChartObject.SAVE_AS_PNG);
-                }
-            }
-        });
 		zSlider = new OneKnobSlider();
 		zSlider.setOrientation(JSlider.VERTICAL);
 		zSlider.setPaintTicks(false);
@@ -349,7 +321,7 @@ class GraphPane
 		histogramChart = drawHistogram("Histogram", new ArrayList<String>(),
 				new ArrayList<double[]>(), new ArrayList<Color>(), 1001);
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(histogramChart.getChart(), BorderLayout.CENTER);
+		mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)controller.getAction(MeasurementViewerControl.EXPORT_GRAPH))), BorderLayout.CENTER);
 	}
 	
 	/**
@@ -471,14 +443,14 @@ class GraphPane
 		if (lineProfileChart == null && histogramChart !=null)
 		{
 			mainPanel.setLayout(new BorderLayout());
-			mainPanel.add(histogramChart.getChart(), BorderLayout.CENTER);
+			mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)controller.getAction(MeasurementViewerControl.EXPORT_GRAPH))), BorderLayout.CENTER);
 		}
 		
 		if (lineProfileChart != null && histogramChart !=null)
 		{
 			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-			mainPanel.add(lineProfileChart.getChart());
-			mainPanel.add(histogramChart.getChart());
+			mainPanel.add(lineProfileChart.getChart(Collections.singletonList((AbstractAction)controller.getAction(MeasurementViewerControl.EXPORT_GRAPH))));
+			mainPanel.add(histogramChart.getChart(Collections.singletonList((AbstractAction)controller.getAction(MeasurementViewerControl.EXPORT_GRAPH))));
 		}
 		mainPanel.validate();
 		mainPanel.repaint();
@@ -544,6 +516,7 @@ class GraphPane
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
 		this.view = view;
+		this.controller = controller;
 		initComponents();
 		buildGUI();
 	}

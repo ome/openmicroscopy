@@ -402,4 +402,8 @@ public interface MeasurementViewer
 	 */
 	public void onUpdatedChannels(List<ChannelData> channels);
 
+	/**
+	 * Exports the graph as JPEG or PNG.
+	 */
+	public void exportGraph();
 }

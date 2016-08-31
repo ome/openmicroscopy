@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.DeleteROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.KeywordSelectionAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.ExportGraphAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
@@ -163,6 +164,9 @@ class MeasurementViewerControl
     /** Identifies the <code>DELETE</code> action in the menu. */
     static final Integer     DELETE = Integer.valueOf(13);
 
+    /** Identifies the <code>EXPORT_GRAPH</code> action in the menu. */
+    static final Integer     EXPORT_GRAPH = Integer.valueOf(14);
+    
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
      * in this context, is regarded as the Model.
@@ -194,6 +198,7 @@ class MeasurementViewerControl
     	actionsMap.put(CREATE_WORKFLOW, new WorkflowAction(model, true));
     	actionsMap.put(KEYWORD_SELECTION, new KeywordSelectionAction(model));
     	actionsMap.put(DELETE, new DeleteROIAction(model));
+    	actionsMap.put(EXPORT_GRAPH, new ExportGraphAction(model));
     }
 
 	/**
@@ -598,6 +603,10 @@ class MeasurementViewerControl
 	 */
 	public void selectionChanged(FigureSelectionEvent evt)
 	{	
+	        // ignore events if viewer is 'closed'
+	        if (!view.isVisible()) 
+	            return;
+	        
 		Collection<Figure> figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
 		final List<ROIShape> shapeList = new ArrayList<ROIShape>();
