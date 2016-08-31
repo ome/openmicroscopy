@@ -470,6 +470,24 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
             depends="release-src-embed,release-src-git"/>
 
+    <target name="release-docker">
+        <property name="docker.cmd" value="docker"/>
+        <property name="docker.img" value="omero-dist"/>
+        <property name="docker.tag" value="latest"/>
+        <copy todir="${target.dir}/Docker">
+            <fileset dir="Docker" includes="*"/>
+        </copy>
+        <copy todir="${target.dir}/Docker">
+            <fileset dir="${target.dir}" includes="openmicroscopy*zip"/>
+        </copy>
+        <exec executable="${docker.cmd}" failonerror="true">
+            <arg value="build"/>
+            <arg value="-t"/>
+            <arg value="${docker.img}:${docker.tag}"/>
+            <arg value="${target.dir}/Docker"/>
+        </exec>
+    </target>
+
     <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
@@ -490,7 +508,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="components/tools/OmeroM/target/matlab/" prefix="OMERO.matlab-${omero.version}" includes="**/*"/>
         </zip>
 
-	<copy todir="target">
+        <copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
             <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
         </copy>
