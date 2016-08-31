@@ -53,7 +53,7 @@ ROIControl.prototype.viewerMoved = function(e) {
     this.updateDOMElements();
     
     //notify the viewer
-    var vp = $.WeblitzViewport('#weblitz-viewport');
+    var vp = $.WeblitzViewport($(this.dom_element).closest('.weblitz-viewport-top').parent());
     var theT = vp.getTPos();
     var theZ = vp.getZPos();
     
