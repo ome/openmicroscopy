@@ -1,0 +1,422 @@
+
+    body {
+        padding: 0;
+    }
+    header {
+        background: gray;
+        height: 30px;
+        width: 100%;
+        position: fixed;
+        top: 0;
+    }
+
+    main {
+        position: fixed;
+        top: 47px;
+        bottom: 30px;
+        width: 100%;
+        overflow: auto;
+        background-color: #bbb;
+    }
+
+    #canvas_wrapper {
+        overflow: hidden;
+        position: relative;
+        margin: auto;
+    }
+
+    #canvas_wrapper svg {
+        z-index: 10;
+    }
+
+    #canvas {
+        z-index: 1;
+        background-color: #EFF1F4;
+        position: absolute;
+        /* Try to show images in their original pixelated form Although 'pixelated' isn't 
+        supported yet: https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering */
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -o-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        -ms-interpolation-mode: nearest-neighbor;
+    }
+
+    #paper {
+        position: absolute;
+        border: solid gray 2px;
+        background: white;
+    }
+
+    #paper .imagePanel {
+        position: absolute;
+        background: #ddd;
+    }
+
+    .img_panel{
+        position: absolute;
+    }
+
+    footer {
+        background: gray;
+        height: 30px;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+    }
+
+    footer input {
+        position: absolute;
+        left: 250px;
+        top: 3px;
+    }
+
+    footer .ui-slider {
+        border: 1px solid #aaa;
+        height: 6px;
+        left: 15px;
+        position: absolute;
+        top: 11px;
+        width: 220px;
+        background: #bbb;
+    }
+    #zoom_slider .ui-slider-handle {
+        background: #ddd;
+        border: 1px solid white;
+        height: 14px;
+        border-radius: 5px;
+    }
+    .toggle_channel {
+        border-radius: 6px 6px 6px 6px;
+        margin: 2px;
+        padding: 4px 4px 4px 6px;
+    }
+    .ch-btn-down {
+        background-image: url("../images/button-down.png")
+    }
+    .ch-btn-up {
+        background-image: url("../images/button-up.png")
+    }
+    .ch-btn-flat {
+        background-image: url("../images/button-flat.png")
+    }
+
+    .pixel_size_div {
+        position: absolute;
+        top: -27px;
+        left: 100px;
+    }
+
+    .pixel_size_display {
+        cursor: pointer;
+    }
+
+    .new-label-form .input-group {
+        width:160px;
+        margin-right: 4px;
+    }
+
+    .scalebar_form .input-group {
+        width:50px;
+        margin-right: 4px;
+    }
+
+    .edit-label-form .input-group {
+        width:140px;
+        margin-right: 4px;
+    }
+
+    .form-inline .close {
+        color: #FF0000;
+        left: 3px;
+        top: 2px;
+        margin-left: 4px;
+        opacity: 0.5;
+        position: relative;
+    }
+    .label_layout {
+        position:absolute;
+    }
+    .label_layout div {
+        margin: 2px 5px;
+        font-size: 12px;
+    }
+    .label_middle, .label_middle table, .label_middle td {
+        height:100%;
+        width:10000px;
+    }
+    .label_middle td {
+        vertical-align: middle;
+    }
+
+    .left_vlabels{
+        position: absolute;
+        height: 100%;
+        right: 100%;
+        width:400px;
+        text-align: center;
+        transform: rotate(-90deg);
+    }
+    .left_vlabels>div {
+        position: absolute;
+        bottom:0;
+        width:100%;
+    }
+    /* Classes here are generated in templates from 'top' etc See labelicon classes below */
+    .label_top {
+        bottom: 100%;
+        width: 100%;
+        text-align:center;
+    }
+    .label_bottom {
+        top: 100%;
+        width: 100%;
+        text-align:center;
+    }
+    .label_left {
+        right: 100%;
+        text-align: right;
+    }
+    .label_right {
+        left: 100%;
+        text-align: left;
+        width: 100%;
+    }
+    .label_topleft {
+        top: 0;
+        left: 0;
+        text-align: left;
+    }
+    .label_topright {
+        top: 0;
+        right: 0;
+        text-align: right;
+    }
+    .label_bottomleft {
+        bottom: 0;
+        left: 0;
+        text-align: left;
+    }
+    .label_bottomright {
+        bottom: 0;
+        right: 0;
+        text-align: right;
+    }
+
+    /* Transformation to font-based icons - These are split('-') to get position: 'top' etc */
+    .labelicon-topleft {
+        -webkit-transform: rotate(-90deg);
+        transform: rotate(-90deg)
+    }
+    .labelicon-bottomleft {
+        -webkit-transform: rotate(-180deg);
+        transform: rotate(-180deg);
+        position: relative;
+        top: 5px;
+    }
+    .labelicon-bottomright {
+        -webkit-transform: rotate(90deg);
+        transform: rotate(90deg);
+    }
+    .labelicon-top {
+        -webkit-transform: rotate(-90deg);
+        transform: rotate(-90deg);
+    }
+    .labelicon-left {
+        position: relative;
+        top: 5px;
+        -webkit-transform: rotate(-180deg);
+        transform: rotate(-180deg)
+    }
+    .labelicon-leftvert {
+        position: relative;
+        top: 5px;
+        -webkit-transform: rotate(-180deg);
+        transform: rotate(-180deg)
+    }
+    .labelicon-right {
+    }
+    .labelicon-bottom {
+        -webkit-transform: rotate(90deg);
+        transform: rotate(90deg);
+    }
+
+    .imageViewer {
+        height: 270px;
+    }
+    .vp_img {
+        position:absolute;
+    }
+    .vp_frame {
+        position: absolute;
+        left: 20px;
+        overflow: hidden;
+        border: solid black 1px;
+        background: #ddd;
+    }
+    #vp_z_label {
+        position:absolute;
+        top: 0;
+        left: 0;
+        padding: 0 2px;
+    }
+    #vp_z_value {
+        position: absolute;
+        bottom: 20px;
+        right: 95%;
+    }
+    #vp_t_label {
+        position: absolute;
+        left: 20px;
+        bottom: 0;
+    }
+    #vp_t_value {
+        position: absolute;
+        left: 240px;
+        bottom: 0;
+    }
+    #vp_deltaT {
+        position: absolute;
+        right: 100px;
+        bottom: -19px;
+    }
+    .no-padding {
+        padding: 0;
+    }
+    .tab-footer {
+        border-top: solid #dddddd 1px;
+        margin-top:15px;
+    }
+    .tab-pane .ui-slider {
+        margin: 15px 5px 6px;
+        background: none repeat scroll 0 0 #BBBBBB;
+        border: 4px solid #fff;
+        cursor: pointer;
+    }
+    .tab-pane .ui-slider-handle {
+        background: none repeat scroll 0 0 #DDDDDD;
+        border: 1px solid #aaa;
+        height: 14px;
+    }
+    .tab-pane .ui-slider-horizontal {
+        height: 10px;
+        width: 150px;
+    }
+    .tab-pane .ui-slider-horizontal .ui-slider-handle {
+        top: -6px;
+    }
+    .tab-pane .ui-slider-vertical {
+        width: 10px;
+        height: 198px;
+        margin-right: 10px;
+        margin-top: 25px;
+    }
+    .tab-pane .ui-slider-vertical .ui-slider-handle {
+        left: -7px;
+    }
+    #channel_sliders>div{
+        position: relative;
+    }
+    .ch_slider {
+        height: 11px !important;
+        width: 245px !important;
+        top: 5px;
+        left: 35px;
+    }
+    .ch_start, .ch_end {
+        position: absolute;
+        top: 0px;
+    }
+    .ch_start {
+        left: 10px;
+    }
+    .ch_end {
+        right: 10px;
+    }
+    .ui-slider-disabled a {
+        display: none;
+    }
+    #vp_t_slider {
+        position: absolute;
+        bottom: -1px;
+        left: 35px;
+        width: 190px;
+    }
+    /* Over-riding Bootstrap Styles */
+    .modal-dialog {
+        left: 0;
+    }
+    .modal-header {
+        padding: 10px;
+    }
+    .modal-body {
+        padding: 15px;
+        max-height: 450px;
+        overflow-y: auto;
+    }
+    .non-modal-dialog {
+        position:relative;
+        left:auto;
+        margin-right:20px;
+        padding-top:0;
+        top:55px;
+        width:375px;
+        z-index:50;
+    }
+    .tab-pane {
+        padding: 10px;
+    }
+    .btn-group > .btn.dropdown-toggle, .input-group-btn > .btn.dropdown-toggle {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+    .navbar-brand {
+        padding: 12px;
+    }
+    .navbar-nav > li > a {
+        padding-bottom: 12px;
+        padding-top: 12px;
+    }
+    .navbar-fixed-top {
+        z-index:100;
+    }
+    .navbar {
+        min-height: 40px;
+    }
+    .navbar>div.container {
+        max-width: 100%;
+    }
+    /** Add my class to boost size of font icons **/
+    .icon-buttons {
+        margin-right: 20px;
+    }
+    .icon-buttons .glyphicon {
+        font-size: 14px;
+    }
+    .icon-buttons .btn-sm {
+        padding: 4px 9px;
+    }
+    .rotate-font .glyphicon {
+        -webkit-transform: rotate(-90deg);
+        -moz-transform: rotate(-90deg);
+        -ms-transform: rotate(-90deg);
+        -o-transform: rotate(-90deg);
+        transform: rotate(-90deg);
+        filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    }
+    .rotate-font.btn-sm {
+        padding: 6px 11px 2px 7px;
+    }
+
+    .navbar-left .btn-sm {
+        font-size: 14px;
+        padding: 4px 8px;
+    }
+
+    .colorpicker span, .label-color span:first-child {
+        border: solid 1px #bbb;
+    }
+
+    .small-thumb {
+        max-width: 40px;
+        max-height: 40px;
+    }
