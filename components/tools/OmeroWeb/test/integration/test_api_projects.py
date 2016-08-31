@@ -26,6 +26,7 @@ from weblibrary import IWebTest, _get_response_json, _get_response, \
     _csrf_delete_response_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.test import Client
 import pytest
 
 from omero.gateway import BlitzGateway
@@ -257,6 +258,16 @@ class TestProjects(IWebTest):
         images.sort(cmp_name_insensitive)
 
         return projects + datasets + images
+
+    def test_marshal_projects_not_logged_in(self, userA):
+        """
+        Test marshalling projects without log-in
+        """
+        django_client = Client()
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        request_url = reverse('api_projects', kwargs={'api_version': version})
+        rsp = _get_response_json(django_client, request_url, {}, status_code=403)
+        assert rsp['message'] == "Not logged in"
 
     def test_marshal_projects_no_results(self, userA):
         """
