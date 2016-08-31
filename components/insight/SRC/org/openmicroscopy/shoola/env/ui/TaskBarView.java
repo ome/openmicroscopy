@@ -194,15 +194,6 @@ class TaskBarView
     private JMenu getHelpMenu()
     {
         JMenu menu = createHelpMenu();
-        Component[] comps = menus[HELP_MENU].getPopupMenu().getComponents();
-        for (int i = 0; i < comps.length; i++) {
-            if (comps[i] instanceof JMenu) 
-                menu.add(copyItemsFromMenu((JMenu) comps[i]));
-            else if (comps[i] instanceof JMenuItem)
-                menu.add(copyItem((JMenuItem) comps[i]));
-            else if (comps[i] instanceof JSeparator)
-                menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        }
         helpMenus.add(menu);
         return menu;
     }
@@ -344,12 +335,12 @@ class TaskBarView
 	{
 		JMenu help = new JMenu("Help");
 		help.setMnemonic(KeyEvent.VK_H);
-		help.add(buttons[HELP_MI]);
-		help.add(buttons[FORUM_MI]);
-		help.add(buttons[COMMENT_MI]);
+		help.add(copyItem((JMenuItem) buttons[HELP_MI]));
+		help.add(copyItem((JMenuItem) buttons[FORUM_MI]));
+		help.add(copyItem((JMenuItem) buttons[COMMENT_MI]));
 		help.add(new JSeparator(JSeparator.HORIZONTAL));
-		help.add(buttons[LOG_FILE_MI]);
-		help.add(buttons[UPDATES_MI]);
+		help.add(copyItem((JMenuItem) buttons[LOG_FILE_MI]));
+		help.add(copyItem((JMenuItem) buttons[UPDATES_MI]));
 		return help;
 	}
 
