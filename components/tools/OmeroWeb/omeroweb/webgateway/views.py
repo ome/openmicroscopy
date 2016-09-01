@@ -31,7 +31,7 @@ from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from django.middleware import csrf
 from django.utils.decorators import method_decorator
-from omero.rtypes import rlong, unwrap, rstring
+from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from omero.util.ROI_utils import pointsStringToXYlist, xyListToBbox
 from plategrid import PlateGrid
@@ -57,8 +57,7 @@ from omero.util.decorators import timeit, TimeIt
 from omeroweb.connector import Server
 from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
     HttpJavascriptResponseServerError, JsonResponseForbidden, \
-    JsonResponseUnprocessable, JsonResponseNotFound, \
-    HttpJsonResponseServerError
+    JsonResponseNotFound, HttpJsonResponseServerError
 
 import glob
 
@@ -2697,27 +2696,6 @@ class ProjectView(View):
         encoder = get_encoder(project._obj.__class__)
         return encoder.encode(project._obj)
 
-    def put(self, request, pid, conn=None, **kwargs):
-        object_json = json.loads(request.body)
-        # If owner was unloaded (E.g. from get() above) or if missing
-        # ome.model.meta.Experimenter.ldap (not supported by omero_marshel)
-        # then saveObject() will give ValidationException.
-        # Therefore we ignore any details for now:
-        if 'omero:details' in object_json:
-            del object_json['omero:details']
-        decoder = None
-        if '@type' not in object_json:
-            return {'message': 'Need to specify @type attribute'}
-        objType = object_json['@type']
-        decoder = get_decoder(objType)
-        # If we are passed incomplete object, or decoder couldn't be found...
-        if decoder is None:
-            return {'message': 'No decoder found for type: %s' % objType}
-        project = decoder.decode(object_json)
-        project = conn.getUpdateService().saveAndReturnObject(project)
-        encoder = get_encoder(project.__class__)
-        return encoder.encode(project)
-
     def delete(self, request, pid, conn=None, **kwargs):
         try:
             project = conn.getQueryService().get('Project', long(pid))
@@ -2772,19 +2750,23 @@ class ProjectsView(View):
     def post(self, request, conn=None, **kwargs):
 
         conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
-        form = ContainerForm(data=request.POST.copy())
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            description = form.cleaned_data['description']
-            pr = omero.model.ProjectI()
-            pr.name = rstring(str(name))
-            if description is not None and description != "":
-                pr.description = rstring(str(description))
-            pr = conn.saveAndReturnObject(pr)._obj
-            encoder = get_encoder(pr.__class__)
-            return encoder.encode(pr)
-        else:
-            errorsString = form.errors.as_json()
-            rsp = {'message': 'Validation Failed',
-                   'errors': json.loads(errorsString)}
-            return JsonResponseUnprocessable(rsp)
+
+        object_json = json.loads(request.body)
+        # If owner was unloaded (E.g. from get() above) or if missing
+        # ome.model.meta.Experimenter.ldap (not supported by omero_marshel)
+        # then saveObject() will give ValidationException.
+        # Therefore we ignore any details for now:
+        if 'omero:details' in object_json:
+            del object_json['omero:details']
+        decoder = None
+        if '@type' not in object_json:
+            return {'message': 'Need to specify @type attribute'}
+        objType = object_json['@type']
+        decoder = get_decoder(objType)
+        # If we are passed incomplete object, or decoder couldn't be found...
+        if decoder is None:
+            return {'message': 'No decoder found for type: %s' % objType}
+        project = decoder.decode(object_json)
+        project = conn.getUpdateService().saveAndReturnObject(project)
+        encoder = get_encoder(project.__class__)
+        return encoder.encode(project)
