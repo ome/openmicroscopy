@@ -214,6 +214,27 @@ public class LoggingImportMonitor implements IObserver
         }
 
         /**
+         * Displays a list of other imported objects IDs on standard error.
+         *
+         * @param fid  the Fileset ID.
+         * @param collect  a map of classes and IDs.
+         */
+        void otherImportedObjects(long fid, ListMultimap<String, Long> collect) {
+
+            System.err.println("Other imported objects:");
+            System.err.print("Fileset:");
+            System.err.println(fid);
+            for (String kls : collect.keySet()) {
+                List<Long> ids = collect.get(kls);
+                for (Long id : ids) {
+                    System.err.print(kls);
+                    System.err.print(":");
+                    System.err.println(id);
+                }
+            }
+        }
+
+        /**
          * Displays a list of successfully imported Pixels IDs on standard
          * output.
          *
@@ -228,18 +249,8 @@ public class LoggingImportMonitor implements IObserver
                 System.out.println(p.getId().getValue());
             }
 
-            System.err.println("Other imported objects:");
-            System.err.print("Fileset:");
-            System.err.println(ev.fileset.getId().getValue());
             ListMultimap<String, Long> collect = getObjectIdMap(ev);
-            for (String kls : collect.keySet()) {
-                List<Long> ids = collect.get(kls);
-                for (Long id : ids) {
-                    System.err.print(kls);
-                    System.err.print(":");
-                    System.err.println(id);
-                }
-            }
+            otherImportedObjects(ev.fileset.getId().getValue(), collect);
         }
 
         /**
@@ -287,6 +298,8 @@ public class LoggingImportMonitor implements IObserver
             System.out.print(kls);
             System.out.print(":");
             System.out.println(Joiner.on(",").join(ids));
+
+            otherImportedObjects(ev.fileset.getId().getValue(), collect);
         }
     }
 }
