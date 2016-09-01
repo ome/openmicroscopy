@@ -14,10 +14,6 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 from django.conf.urls import url, patterns
-from omeroweb.webgateway import views
-from omeroweb.webgateway.views import LoginView, jsonp
-from django.conf import settings
-import re
 
 webgateway = url(r'^$', 'webgateway.views.index', name="webgateway")
 """
@@ -411,44 +407,6 @@ Get a json dict of original file paths.
 """
 
 
-versions = '|'.join([re.escape(v)
-                    for v in settings.WEBGATEWAY_API_VERSIONS])
-
-api_versions = url(r'^api/$', views.api_versions, name='api_versions')
-
-api_base = url(r'^api/v(?P<api_version>' + versions + ')/$',
-               views.api_base,
-               name='api_base')
-
-api_token = url(r'^api/v(?P<api_version>' + versions + ')/token/$',
-                views.api_token,
-                name='api_token')
-
-api_servers = url(r'^api/v(?P<api_version>' + versions + ')/servers/$',
-                  views.api_servers,
-                  name='api_servers')
-
-api_login = url(r'^api/v(?P<api_version>' + versions + ')/login/$',
-                jsonp(LoginView.as_view()),
-                name='api_login')
-
-api_save = url(r'^api/v(?P<api_version>' + versions + ')/m/save/$',
-               views.SaveView.as_view(),
-               name='api_save')
-
-api_projects = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/$',
-                   views.ProjectsView.as_view(),
-                   name='api_projects')
-
-api_project = url(
-    r'^api/v(?P<api_version>' + versions + ')/m/projects/(?P<pid>[0-9]+)/$',
-    views.ProjectView.as_view(),
-    name='api_project')
-
-"""
-List all projects, using omero-marshal to generate json.
-"""
-
 urlpatterns = patterns(
     '',
     webgateway,
@@ -497,15 +455,5 @@ urlpatterns = patterns(
     annotations,
     table_query,
     object_table_query,
-
-    # api omero-marshal
-    api_versions,
-    api_base,
-    api_token,
-    api_servers,
-    api_login,
-    api_save,
-    api_projects,
-    api_project,
 
 )
