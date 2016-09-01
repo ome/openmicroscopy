@@ -2547,6 +2547,7 @@ def api_base(request, api_version=None, **kwargs):
           'token_url': build_url(request, 'api_token', v),
           'servers_url': build_url(request, 'api_servers', v),
           'login_url': build_url(request, 'api_login', v),
+          'save_url': build_url(request, 'api_save', v),
           'schema_url': OME_SCHEMA_URL}
     return rv
 
@@ -2755,11 +2756,33 @@ class SaveView(View):
     def dispatch(self, *args, **kwargs):
         return super(SaveView, self).dispatch(*args, **kwargs)
 
-    def post(self, request, conn=None, **kwargs):
-
-        conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
-
+    def put(self, request, conn=None, **kwargs):
+        """
+        PUT handles saving of existing objects.
+        Therefore '@id' should be set.
+        """
         object_json = json.loads(request.body)
+        if '@id' not in object_json:
+            return {'message':
+                    "No '@id' attribute. Use POST to create new objects"}
+        return self._save_object(request, conn, object_json, **kwargs)
+
+    def post(self, request, conn=None, **kwargs):
+        """
+        POST handles saving of NEW objects.
+        Therefore '@id' should not be set.
+        """
+        object_json = json.loads(request.body)
+        if '@id' in object_json:
+            return {'message':
+                    "Object has '@id' attribute. Use PUT to update objects"}
+        return self._save_object(request, conn, object_json, **kwargs)
+
+    def _save_object(self, request, conn, object_json, **kwargs):
+        """
+        Here we handle the saving for PUT and POST
+        """
+        conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
         # If owner was unloaded (E.g. from get() above) or if missing
         # ome.model.meta.Experimenter.ldap (not supported by omero_marshel)
         # then saveObject() will give ValidationException.

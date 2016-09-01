@@ -122,11 +122,11 @@ def _csrf_post_response_json(django_client, request_url,
 
 
 def _csrf_post_json(django_client, request_url, data,
-                    status_code=200, content_type=MULTIPART_CONTENT):
+                    status_code=200, content_type='application/json'):
     csrf_token = django_client.cookies['csrftoken'].value
     extra = {'HTTP_X_CSRFTOKEN': csrf_token}
     rsp = django_client.post(request_url, json.dumps(data),
-                             status_code=status_code, content_type='application/json',
+                             status_code=status_code, content_type=content_type,
                              **extra)
     print rsp
     assert rsp.get('Content-Type') == 'application/json'

@@ -469,7 +469,8 @@ class TestProjects(IWebTest):
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
         schema_url = rsp['schema_url']
-        save_url = reverse('api_save', kwargs={'api_version': version})
+        save_url = rsp['save_url']
+        projects_url = rsp['projects_url']
         projectName = 'test_api_projects'
         payload = {'Name': projectName,
                    '@type': schema_url + '#Project'}
@@ -480,8 +481,7 @@ class TestProjects(IWebTest):
         projectId = rsp['@id']
 
         # Read Project
-        project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': projectId})
+        project_url = "%s%s/" % (projects_url, projectId)
         rsp = _get_response_json(django_client, project_url, {})
         assert rsp['@id'] == projectId
         conn = BlitzGateway(client_obj=self.root)
@@ -533,7 +533,7 @@ class TestProjects(IWebTest):
         p2_json = _get_response_json(django_client, project_url, {})
         # Make something invalid. E.g. Project as Datasets!
         p2_json['Datasets'] = p1_json
-        rsp = _csrf_post_json(django_client, save_url, p2_json)
+        rsp = _csrf_put_response_json(django_client, save_url, p2_json)
         assert 'message' in rsp
         assert rsp['message'] == "string indices must be integers"
         assert rsp['stacktrace'].startswith(
@@ -558,7 +558,7 @@ class TestProjects(IWebTest):
         project_json = _get_response_json(django_client, project_url, {})
         assert project_json['Name'] == 'test_project_update'
         project_json['Name'] = 'new name'
-        rsp = _csrf_post_json(django_client, save_url, project_json)
+        rsp = _csrf_put_response_json(django_client, save_url, project_json)
         assert rsp['@id'] == project.id.val
         assert rsp['Name'] == 'new name'    # Name has changed
         assert rsp['Description'] == 'Test update'  # No change
@@ -567,11 +567,11 @@ class TestProjects(IWebTest):
         payload = {'Name': 'updated name',
                    '@id': project.id.val}
         # Test error message if we don't pass @type:
-        rsp = _csrf_post_json(django_client, save_url, payload)
+        rsp = _csrf_put_response_json(django_client, save_url, payload)
         assert rsp['message'] == 'Need to specify @type attribute'
         # Add @type and try again
         payload['@type'] = project_json['@type']
-        rsp = _csrf_post_json(django_client, save_url, payload)
+        rsp = _csrf_put_response_json(django_client, save_url, payload)
         assert rsp['@id'] == project.id.val
         assert rsp['Name'] == 'updated name'
         # Description should be None, but is an empty string
@@ -611,5 +611,6 @@ class TestProjects(IWebTest):
                                          status_code=404)
         assert rsp['message'] == 'Project %s not found' % project.id.val
         # Try to save deleted object - creates a new object
-        rsp = _csrf_post_json(django_client, save_url, prJson, status_code=404)
+        rsp = _csrf_put_response_json(django_client, save_url, prJson,
+                                      status_code=404)
         assert rsp['@id'] != project.id.val     # New ID
