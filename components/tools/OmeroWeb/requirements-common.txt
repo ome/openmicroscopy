@@ -1,4 +1,7 @@
 # Common requirements file used by all others
 # ===========================================
 #
-https://github.com/openmicroscopy/omero-marshal/tarball/master
+# https://github.com/openmicroscopy/omero-marshal/tarball/master
+
+# Test Seb's PR
+https://github.com/sbesson/omero-marshal/tarball/5.3.0
