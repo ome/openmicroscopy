@@ -281,6 +281,9 @@ class FsControl(CmdControl):
         logfile.add_argument(
             "filename",  nargs="?", default="-",
             help="Local filename to be saved to. '-' for stdout")
+        logfile.add_argument(
+            "--name", action="store_true",
+            help="return only the name of the logfile")
 
         usage = parser.add(sub, self.usage)
         usage.set_args_unsorted()
@@ -718,20 +721,23 @@ Examples:
         query = client.sf.getQueryService()
         log = get_logfile(query, args.fileset.id.val)
         if log is not None:
-            target_file = str(args.filename)
-            try:
-                if target_file == "-":
-                    client.download(log, filehandle=sys.stdout)
-                    sys.stdout.flush()
-                else:
-                    client.download(log, target_file)
-            except ValidationException, ve:
-                # This should effectively be handled by None being returned
-                # from the logfile query above.
-                self.ctx.die(115, "ValidationException: %s" % ve.message)
-            except ResourceError, re:
-                # ID exists in DB, but not on FS
-                self.ctx.die(116, "ResourceError: %s" % re.message)
+            if args.name:
+                self.ctx.out(log.path.val + log.name.val)
+            else:
+                target_file = str(args.filename)
+                try:
+                    if target_file == "-":
+                        client.download(log, filehandle=sys.stdout)
+                        sys.stdout.flush()
+                    else:
+                        client.download(log, target_file)
+                except ValidationException, ve:
+                    # This should effectively be handled by None being
+                    # returned from the logfile query above.
+                    self.ctx.die(115, "ValidationException: %s" % ve.message)
+                except ResourceError, re:
+                    # ID exists in DB, but not on FS
+                    self.ctx.die(116, "ResourceError: %s" % re.message)
         else:
             self.ctx.die(
                 117,
