@@ -103,6 +103,7 @@ public class OmeroReader extends FormatReader {
     private String sessionID;
     private String group;
     private Long groupID = null;
+    private boolean isUseRenderingSettings = false;
     private boolean encrypted = true;
 
     private omero.client client;
@@ -148,6 +149,15 @@ public class OmeroReader extends FormatReader {
 
     public void setGroupID(Long groupID) {
         this.groupID = groupID;
+    }
+
+    /**
+     * If rendering settings should be used to complement other metadata, e.g., for channel color.
+     * Defaults to {@code false}.
+     * @param isUseRenderingSettings if to use rendering settings
+     */
+    public void setUseRenderingSettings(boolean isUseRenderingSettings) {
+        this.isUseRenderingSettings = isUseRenderingSettings;
     }
 
     // -- IFormatReader methods --
