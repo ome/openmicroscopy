@@ -219,17 +219,20 @@ public class LoggingImportMonitor implements IObserver
          * @param fid  the Fileset ID.
          * @param collect  a map of classes and IDs.
          */
-        void otherImportedObjects(long fid, ListMultimap<String, Long> collect) {
+        void otherImportedObjects(long fid, ListMultimap<String, Long> collect,
+                String exclude) {
 
             System.err.println("Other imported objects:");
             System.err.print("Fileset:");
             System.err.println(fid);
             for (String kls : collect.keySet()) {
-                List<Long> ids = collect.get(kls);
-                for (Long id : ids) {
-                    System.err.print(kls);
-                    System.err.print(":");
-                    System.err.println(id);
+                if (exclude == null || !kls.equals(exclude)) {
+                    List<Long> ids = collect.get(kls);
+                    for (Long id : ids) {
+                        System.err.print(kls);
+                        System.err.print(":");
+                        System.err.println(id);
+                    }
                 }
             }
         }
@@ -250,7 +253,7 @@ public class LoggingImportMonitor implements IObserver
             }
 
             ListMultimap<String, Long> collect = getObjectIdMap(ev);
-            otherImportedObjects(ev.fileset.getId().getValue(), collect);
+            otherImportedObjects(ev.fileset.getId().getValue(), collect, null);
         }
 
         /**
@@ -299,7 +302,7 @@ public class LoggingImportMonitor implements IObserver
             System.out.print(":");
             System.out.println(Joiner.on(",").join(ids));
 
-            otherImportedObjects(ev.fileset.getId().getValue(), collect);
+            otherImportedObjects(ev.fileset.getId().getValue(), collect, kls);
         }
     }
 }
