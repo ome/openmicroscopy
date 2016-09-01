@@ -470,7 +470,7 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @param w The channel to add the context to.
      * @see #removeCodomainMapFromChannel(CodomainMapContext, int)
      */
-    public void addCodomainMapForChannel(CodomainMapContext mapCtx, int w);
+    public void addCodomainMapToChannel(CodomainMapContext mapCtx, int w);
 
     /**
      * Updates the specified context. The codomain chain already contains the

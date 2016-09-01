@@ -412,10 +412,11 @@ public interface RenderingControl
      * managing the codomain transformations is rebuilt. 
      *
      * @param mapCtx The context to add.
+     * @param w The channel to add the context to.
      * @throws RenderingServiceException If an error occurred while setting the value.
      * @throws DSOutOfServiceException If the connection is broken.
      */
-    public void addCodomainMap(CodomainMapContext mapCtx)
+    public void addCodomainMap(CodomainMapContext mapCtx, int w)
             throws RenderingServiceException, DSOutOfServiceException;
     
     /**
@@ -435,10 +436,11 @@ public interface RenderingControl
      * transformations.
      * 
      * @param mapCtx The context to remove.
+     * @param w The channel to remove the context from.
      * @throws RenderingServiceException If an error occurred while setting the value.
      * @throws DSOutOfServiceException If the connection is broken.
      */
-    public void removeCodomainMap(CodomainMapContext mapCtx)
+    public void removeCodomainMap(CodomainMapContext mapCtx, int w)
             throws RenderingServiceException, DSOutOfServiceException;
 
     /**

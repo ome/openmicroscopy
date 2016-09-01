@@ -1258,12 +1258,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     @RolesAllowed("user")
+    @Deprecated
     public void updateCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
 
         try {
             errorIfInvalidState();
-            renderer.getCodomainChain().update(mapCtx.copy());
+            for (int i = 0; i < pixelsObj.getSizeC(); i++) {
+                renderer.getCodomainChain(i).update(mapCtx.copy());
+            }
         } finally {
             rwl.writeLock().unlock();
         }
