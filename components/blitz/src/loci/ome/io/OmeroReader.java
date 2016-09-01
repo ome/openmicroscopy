@@ -61,6 +61,7 @@ import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Channel;
+import omero.model.ChannelBinding;
 import omero.model.EllipseI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
@@ -76,6 +77,7 @@ import omero.model.PolygonI;
 import omero.model.PolylineI;
 import omero.model.RectangleI;
 import omero.model.MaskI;
+import omero.model.RenderingDef;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.Time;
@@ -407,13 +409,36 @@ public class OmeroReader extends FormatReader {
                 store.setPixelsTimeIncrement(t2, 0);
             }
 
+            final RenderingDef renderingSettings;
+            if (isUseRenderingSettings) {
+                renderingSettings = iPixels.retrieveRndSettings(pixelsId);
+            } else {
+                renderingSettings = null;
+            }
+            final List<ChannelBinding> channelBindings;
+            if (renderingSettings != null) {
+                channelBindings = renderingSettings.copyWaveRendering();
+            } else {
+                channelBindings = null;
+            }
+
             List<Channel> channels = pix.copyChannels();
             for (int c=0; c<channels.size(); c++) {
                 final Channel channel = channels.get(c);
-                final RInt red = channel.getRed();
-                final RInt green = channel.getGreen();
-                final RInt blue = channel.getBlue();
-                final RInt alpha = channel.getAlpha();
+
+                final RInt red, green, blue, alpha;
+                if (channelBindings == null) {
+                    red = channel.getRed();
+                    green = channel.getGreen();
+                    blue = channel.getBlue();
+                    alpha = channel.getAlpha();
+                } else {
+                    final ChannelBinding waveRendering = channelBindings.get(c);
+                    red = waveRendering.getRed();
+                    green = waveRendering.getGreen();
+                    blue = waveRendering.getBlue();
+                    alpha = waveRendering.getAlpha();
+                }
                 if (red != null && green != null && blue != null) {
                     final Color color;
                     if (alpha == null) {
