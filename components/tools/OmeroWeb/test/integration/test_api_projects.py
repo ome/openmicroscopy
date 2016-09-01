@@ -469,11 +469,11 @@ class TestProjects(IWebTest):
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
         schema_url = rsp['schema_url']
-        request_url = reverse('api_projects', kwargs={'api_version': version})
+        save_url = reverse('api_save', kwargs={'api_version': version})
         projectName = 'test_api_projects'
         payload = {'Name': projectName,
                    '@type': schema_url + '#Project'}
-        rsp = _csrf_post_json(django_client, request_url, payload,
+        rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=200)
         # We get the complete new Project returned
         assert rsp['Name'] == projectName
@@ -525,7 +525,7 @@ class TestProjects(IWebTest):
         project2 = projects_userA_groupA[1]
         project_url = reverse('api_project', kwargs={'api_version': version,
                                                      'pid': project1.id.val})
-        save_url = reverse('api_projects', kwargs={'api_version': version})
+        save_url = reverse('api_save', kwargs={'api_version': version})
 
         p1_json = _get_response_json(django_client, project_url, {})
         project_url = reverse('api_project', kwargs={'api_version': version,
@@ -553,7 +553,7 @@ class TestProjects(IWebTest):
         version = settings.WEBGATEWAY_API_VERSIONS[-1]
         project_url = reverse('api_project', kwargs={'api_version': version,
                                                      'pid': project.id.val})
-        save_url = reverse('api_projects', kwargs={'api_version': version})
+        save_url = reverse('api_save', kwargs={'api_version': version})
         # 1) Get Project, update and save back
         project_json = _get_response_json(django_client, project_url, {})
         assert project_json['Name'] == 'test_project_update'
@@ -596,7 +596,7 @@ class TestProjects(IWebTest):
         version = settings.WEBGATEWAY_API_VERSIONS[-1]
         project_url = reverse('api_project', kwargs={'api_version': version,
                                                      'pid': project.id.val})
-        save_url = reverse('api_projects', kwargs={'api_version': version})
+        save_url = reverse('api_save', kwargs={'api_version': version})
         # Before delete, we can read
         prJson = _get_response_json(django_client, project_url, {})
         assert prJson['Name'] == 'test_project_delete'
@@ -611,6 +611,5 @@ class TestProjects(IWebTest):
                                          status_code=404)
         assert rsp['message'] == 'Project %s not found' % project.id.val
         # Try to save deleted object - creates a new object
-        rsp = _csrf_post_json(django_client, save_url, prJson,
-                                      status_code=404)
+        rsp = _csrf_post_json(django_client, save_url, prJson, status_code=404)
         assert rsp['@id'] != project.id.val     # New ID

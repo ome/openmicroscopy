@@ -2747,6 +2747,14 @@ class ProjectsView(View):
 
         return projects
 
+
+class SaveView(View):
+
+    @method_decorator(api_login_required(useragent='OMERO.webapi'))
+    @method_decorator(jsonp)
+    def dispatch(self, *args, **kwargs):
+        return super(SaveView, self).dispatch(*args, **kwargs)
+
     def post(self, request, conn=None, **kwargs):
 
         conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
@@ -2766,7 +2774,7 @@ class ProjectsView(View):
         # If we are passed incomplete object, or decoder couldn't be found...
         if decoder is None:
             return {'message': 'No decoder found for type: %s' % objType}
-        project = decoder.decode(object_json)
-        project = conn.getUpdateService().saveAndReturnObject(project)
-        encoder = get_encoder(project.__class__)
-        return encoder.encode(project)
+        obj = decoder.decode(object_json)
+        obj = conn.getUpdateService().saveAndReturnObject(obj)
+        encoder = get_encoder(obj.__class__)
+        return encoder.encode(obj)

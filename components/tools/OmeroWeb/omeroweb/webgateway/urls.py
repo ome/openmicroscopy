@@ -432,6 +432,10 @@ api_login = url(r'^api/v(?P<api_version>' + versions + ')/login/$',
                 jsonp(LoginView.as_view()),
                 name='api_login')
 
+api_save = url(r'^api/v(?P<api_version>' + versions + ')/m/save/$',
+               views.SaveView.as_view(),
+               name='api_save')
+
 api_projects = url(r'^api/v(?P<api_version>' + versions + ')/m/projects/$',
                    views.ProjectsView.as_view(),
                    name='api_projects')
@@ -500,6 +504,7 @@ urlpatterns = patterns(
     api_token,
     api_servers,
     api_login,
+    api_save,
     api_projects,
     api_project,
 
