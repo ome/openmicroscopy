@@ -676,7 +676,7 @@ public class TreeViewerTranslator
         Entry entry;
         Iterator i = set.iterator();
         TreeImageDisplay node;
-        Set results;
+        Collection results;
         Iterator j;
         DataObject ho;
         Set<TreeImageDisplay> converted;
@@ -684,7 +684,7 @@ public class TreeViewerTranslator
             entry = (Entry) i.next();
             node = (TreeImageDisplay) entry.getKey();
             if (node instanceof TreeImageTimeSet) {
-                results = (Set) entry.getValue();
+                results = (Collection) entry.getValue();
                 converted = new HashSet<TreeImageDisplay>(results.size());
                 j = results.iterator();
                 while (j.hasNext()) {
@@ -694,7 +694,7 @@ public class TreeViewerTranslator
                 }
                 r.put(((TreeImageTimeSet) node).getIndex(), converted);
             } else if (node instanceof TreeFileSet) {
-                results = (Set) entry.getValue();
+                results = (Collection) entry.getValue();
                 converted = new HashSet<TreeImageDisplay>(results.size());
                 j = results.iterator();
                 while (j.hasNext()) {
