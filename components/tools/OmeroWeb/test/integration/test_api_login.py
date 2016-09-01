@@ -26,6 +26,7 @@ from weblibrary import IWebTest, _get_response_json, _post_response_json, \
     _csrf_post_response_json
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
+from omero_marshal import OME_SCHEMA_URL
 
 
 class TestLogin(IWebTest):
@@ -57,6 +58,7 @@ class TestLogin(IWebTest):
         assert 'servers_url' in rsp
         assert 'login_url' in rsp
         assert 'projects_url' in rsp
+        assert rsp['schema_url'] == OME_SCHEMA_URL
 
     def test_base_url_versions_404(self):
         """
