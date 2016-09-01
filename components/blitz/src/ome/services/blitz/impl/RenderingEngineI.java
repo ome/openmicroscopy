@@ -27,6 +27,7 @@ import omero.api.AMD_RenderingEngine_getChannelNoiseReduction;
 import omero.api.AMD_RenderingEngine_getChannelStats;
 import omero.api.AMD_RenderingEngine_getChannelWindowEnd;
 import omero.api.AMD_RenderingEngine_getChannelWindowStart;
+import omero.api.AMD_RenderingEngine_getCodomainMapContext;
 import omero.api.AMD_RenderingEngine_getCompressionLevel;
 import omero.api.AMD_RenderingEngine_getDefaultT;
 import omero.api.AMD_RenderingEngine_getDefaultZ;
@@ -459,5 +460,12 @@ public class RenderingEngineI extends AbstractPyramidServant implements
             AMD_RenderingEngine_setChannelLookupTable __cb, int w,
             String lookup, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, w, lookup);
+    }
+
+    @Override
+    public void getCodomainMapContext_async(
+            AMD_RenderingEngine_getCodomainMapContext __cb, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 }

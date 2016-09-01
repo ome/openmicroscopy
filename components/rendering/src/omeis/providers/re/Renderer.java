@@ -619,7 +619,11 @@ public class Renderer {
         return (ChannelBinding[]) bindings.toArray(new ChannelBinding[bindings
                 .size()]);
     }
-    
+
+    public List getCodomainMapContexts() {
+        return rndDef.collectSpatialDomainEnhancement(null);
+    }
+
     /**
      * Returns a list containing the channel bindings. The dimension of the
      * array equals the number of channels.

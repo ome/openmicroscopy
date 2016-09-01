@@ -447,7 +447,8 @@ public interface RenderingControl
      * 
      * @return See above.
      */
-    public List getCodomainMaps();
+    public List getCodomainMaps()
+        throws RenderingServiceException, DSOutOfServiceException;
 
     /**
      * Returns a list of string representing the mapping families supported by

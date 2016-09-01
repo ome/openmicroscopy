@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1534,6 +1535,23 @@ public class RenderingBean implements RenderingEngine, Serializable {
         }
     }
 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#getCodomainMapContexts()
+     */
+    @RolesAllowed("user")
+    public List getCodomainMapContext() {
+        rwl.readLock().lock();
+
+        try {
+            errorIfInvalidState();
+            return renderer.getCodomainMapContexts();
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+    
     /**
      * Validates the plane definition.
      * @param pd Plane definition to validate.

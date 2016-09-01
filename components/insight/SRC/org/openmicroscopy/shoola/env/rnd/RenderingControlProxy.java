@@ -42,6 +42,7 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
 import omero.model.CodomainMapContext;
 import omero.model.Family;
+import omero.model.IObject;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Pixels;
@@ -1309,8 +1310,15 @@ class RenderingControlProxy
      * @see RenderingControl#getCodomainMaps()
      */
     public List getCodomainMaps()
+            throws RenderingServiceException, DSOutOfServiceException
     {
-        // TODO Auto-generated method stub
+        isSessionAlive();
+        try {
+            return servant.getCodomainMapContext();
+        } catch (Exception e) {
+            e.printStackTrace();
+            handleException(e, "Cannot load the map context.");
+        }
         return new ArrayList(0);
     }
     

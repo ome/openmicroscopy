@@ -504,6 +504,7 @@ module omero {
                  */
                 idempotent double getPixelsTypeLowerBound(int w) throws ServerError;
 
+                idempotent IObjectList getCodomainMapContext() throws ServerError;
             };
     };
 };
