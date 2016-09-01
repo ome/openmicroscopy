@@ -55,6 +55,7 @@ import omero.RString;
 import omero.RTime;
 import omero.ServerError;
 import omero.api.IAdminPrx;
+import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -320,7 +321,8 @@ public class OmeroReader extends FormatReader {
 
             long pixelsId = img.getPixels(0).getId().getValue();
 
-            pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
+            final IPixelsPrx iPixels = serviceFactory.getPixelsService();
+            pix = iPixels.retrievePixDescription(pixelsId);
             store.setPixelsId(pixelsId, false);
 
             final int sizeX = pix.getSizeX().getValue();
