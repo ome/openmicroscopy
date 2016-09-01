@@ -507,18 +507,6 @@ class RendererModel
 	*/
 
 	/**
-	 * Returns a read-only list of {@link CodomainMapContext}s using during
-	 * the mapping process in the device space.
-	 *
-	 * @return See above.
-	 */
-	List getCodomainMaps()
-	{ 
-		if (rndControl == null) return new ArrayList();
-		return rndControl.getCodomainMaps();
-	}
-
-	/**
 	 * Removes the codomain map identified by the class from the chain of 
 	 * codomain transformations.
 	 * 
