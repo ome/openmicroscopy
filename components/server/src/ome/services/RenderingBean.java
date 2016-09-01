@@ -1,5 +1,5 @@
 /*
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -834,16 +834,17 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb.setNoiseReduction(binding.getNoiseReduction());
                 cb.setLookupTable(binding.getLookupTable());
                 //binding.setFamily(unloadedFamily);
+              //Codomain save
+                //only reverse supported
+                cb.clearSpatialDomainEnhancement();
+                if (renderer.getCodomainChain(index).hasMapContext()) {
+                    ReverseIntensityContext r = new ReverseIntensityContext();
+                    r.setReverse(true);
+                    cb.addCodomainMapContext(r);
+                }
                 index++;
             }
-            //Codomain save
-            //only reverse supported
-            rendDefObj.clearSpatialDomainEnhancement();
-            if (renderer.getCodomainChain().hasMapContext()) {
-                ReverseIntensityContext r = new ReverseIntensityContext();
-                r.setReverse(true);
-                rendDefObj.addCodomainMapContext(r);
-            }
+            
             // Actually save the rendering settings
             Long id = (Long) ex.execute(/*ex*/null/*principal*/,
                     new Executor.SimpleWork(this,"saveCurrentSettings"){

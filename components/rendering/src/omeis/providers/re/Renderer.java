@@ -118,7 +118,7 @@ public class Renderer {
      * Defines the sequence of spatial transformations to apply to quantized
      * data.
      */
-    private CodomainChain codomainChain;
+    private List<CodomainChain> codomainChains;
 
     /**
      * Takes care of the actual rendering, using this <code>Renderer</code> as
@@ -375,20 +375,26 @@ public class Renderer {
         quantumManager.initStrategies(qd, cBindings);
 
         // Create and configure the codomain chain.
-        List<ome.model.display.CodomainMapContext> l = rndDef.<ome.model.display.CodomainMapContext>
-        collectSpatialDomainEnhancement(null);
-        List<CodomainMapContext> nl = new ArrayList<CodomainMapContext>();
-        if (l != null && l.size() > 0) {
-            Iterator<ome.model.display.CodomainMapContext> i = l.iterator();
-            while (i.hasNext()) {
-                CodomainMapContext ctx = convert(i.next());
-                if (ctx != null) {
-                    nl.add(ctx);
+        
+        codomainChains = new ArrayList<CodomainChain>();
+        ChannelBinding cb;
+        for (int i = 0; i < cBindings.length; i++) {
+            cb = cBindings[i];
+            List<ome.model.display.CodomainMapContext> l = cb.<ome.model.display.CodomainMapContext>
+            collectSpatialDomainEnhancement(null);
+            List<CodomainMapContext> nl = new ArrayList<CodomainMapContext>();
+            if (l != null && l.size() > 0) {
+                Iterator<ome.model.display.CodomainMapContext> j = l.iterator();
+                while (j.hasNext()) {
+                    CodomainMapContext ctx = convert(j.next());
+                    if (ctx != null) {
+                        nl.add(ctx);
+                    }
                 }
             }
+            codomainChains.add(new CodomainChain(qd.getCdStart().intValue(),
+                    qd.getCdEnd().intValue(), nl));
         }
-        codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd
-                .getCdEnd().intValue(), nl);
 
         // Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
@@ -620,8 +626,12 @@ public class Renderer {
                 .size()]);
     }
 
+    /**
+     * Returns the list of codomain map contexts. One per channel.
+     * @return See above.
+     */
     public List getCodomainMapContexts() {
-        return rndDef.collectSpatialDomainEnhancement(null);
+        return null;//rndDef.collectSpatialDomainEnhancement(null);
     }
 
     /**
@@ -683,13 +693,24 @@ public class Renderer {
     }
 
     /**
-     * Returns the object that defines the sequence of spatial transformations
-     * to be applied to quantized data.
+     * Returns the objects that defines the sequence of spatial transformations
+     * to be applied to quantized data. One object per channel
      * 
      * @return See above.
      */
-    public CodomainChain getCodomainChain() {
-        return codomainChain;
+    public List<CodomainChain> getCodomainChains() {
+        return codomainChains;
+    }
+
+    /**
+     * Returns the object that defines the sequence of spatial transformations
+     * to be applied to quantized data.
+     * 
+     * @param channel
+     * @return See above.
+     */
+    public CodomainChain getCodomainChain(int channel) {
+        return codomainChains.get(channel);
     }
 
     /**
@@ -739,8 +760,11 @@ public class Renderer {
      *            The upper bound of the interval.
      */
     public void setCodomainInterval(int start, int end) {
-        CodomainChain chain = getCodomainChain();
-        chain.setInterval(start, end);
+        List<CodomainChain> chains = getCodomainChains();
+        Iterator<CodomainChain> i = chains.iterator();
+        while (i.hasNext()) {
+             i.next().setInterval(start, end);
+        }
         /*
          * RenderingDef rd = getRenderingDef(); QuantumDef qd =
          * rd.getQuantization(), newQd; newQd = new QuantumDef();

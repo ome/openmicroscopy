@@ -2,7 +2,6 @@
  *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re;
 
 import java.awt.Color;
@@ -262,8 +261,6 @@ class HSBStrategy extends RenderingStrategy {
     private RenderingTask[] makeRenderingTasks(PlaneDef def, RGBBuffer buf) {
         List<RenderHSBRegionTask> tasks = new ArrayList<RenderHSBRegionTask>();
 
-        // Get all objects we need to create the tasks.
-        CodomainChain cc = renderer.getCodomainChain();
         //RenderingStats performanceStats = renderer.getStats();
         List<Plane2D> wData = getWavelengthData(def);
         List<int[]> colors = getColors();
@@ -279,7 +276,8 @@ class HSBStrategy extends RenderingStrategy {
         for (int i = 0; i < taskCount; i++) {
             x2Start = i*delta;
             x2End = (i+1)*delta;
-            tasks.add(new RenderHSBRegionTask(buf, wData, strategies, cc,
+            tasks.add(new RenderHSBRegionTask(buf, wData, strategies,
+                    renderer.getCodomainChains(),
                     colors, renderer.getOptimizations(),
                     x1Start, x1End, x2Start, x2End, readers));
         }
