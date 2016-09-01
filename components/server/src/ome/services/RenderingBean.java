@@ -1208,7 +1208,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfInvalidState();
-            //renderer.getCodomainChain().add(mapCtx.copy());
+            for (int i = 0; i < pixelsObj.getSizeC(); i++) {
+              renderer.getCodomainChain(i).add(mapCtx.copy());
+            }
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1234,7 +1236,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
-            //renderer.getCodomainChain().remove(mapCtx.copy());
+            for (int i = 0; i < pixelsObj.getSizeC(); i++) {
+                renderer.getCodomainChain(i).remove(mapCtx.copy());
+            }
         } finally {
             rwl.writeLock().unlock();
         }
