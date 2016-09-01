@@ -434,23 +434,29 @@ class GeneralPaneUI extends JPanel
             
             String ownerName = model.getOwnerName();
             ownerLabel.setText("");
-            if(multi) {
-                // on multiselection 'misuse' the owner label to indicate
-                // that the user can still annotate the objects
-                StringBuffer buffer = new StringBuffer();
-                buffer.append("Annotate the selected ");
-                buffer.append(model.getObjectTypeAsString(refObject));
-                buffer.append("s");
-                ownerLabel.setText(buffer.toString());
+            filterButton.setVisible(true);
+            if (multi) {
+                if (!(refObject instanceof TagAnnotationData)) {
+                    // on multiselection 'misuse' the owner label to indicate
+                    // that the user can still annotate the objects
+                    StringBuffer buffer = new StringBuffer();
+                    buffer.append("Annotate the selected ");
+                    buffer.append(model.getObjectTypeAsString(refObject));
+                    buffer.append("s");
+                    ownerLabel.setText(buffer.toString());
+                }
+                else {
+                    filterButton.setVisible(false);
+                }
+                
             }
             else if (ownerName != null && ownerName.length() > 0) {
                 ownerLabel.setText(OWNER_TEXT+ownerName);
             }
             
             propertiesUI.buildUI();
-            Object ho = model.getRefObject();
-            boolean visible = !(ho instanceof TagAnnotationData) ||
-                    (ho instanceof FileAnnotationData);
+            boolean visible = !(refObject instanceof TagAnnotationData) ||
+                    (refObject instanceof FileAnnotationData);
 
             tagsTaskPane.setVisible(visible);
             roiTaskPane.setVisible(visible);
@@ -591,8 +597,6 @@ class GeneralPaneUI extends JPanel
 	 */
 	void setRootObject(Object oldObject)
 	{
-	    System.out.println(System.currentTimeMillis()+" setRootObject "+oldObject);
-	    
 		if (!init) {
 			buildGUI();
 			init = true;
