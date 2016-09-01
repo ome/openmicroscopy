@@ -32,7 +32,7 @@ import pytest
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI
 from omero.rtypes import unwrap, rstring
-from omero_marshal import get_encoder, get_decoder
+from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 from omero import ValidationException
 
 
@@ -486,6 +486,24 @@ class TestProjects(IWebTest):
         assert rsp['@id'] == projectId
         conn = BlitzGateway(client_obj=self.root)
         assert_objects(conn, [rsp], [projectId])
+
+    def test_project_create_other_group(self, userA):
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        projectName = 'test_project_create_group'
+        payload = {'Name': projectName,
+                   '@type': OME_SCHEMA_URL + '#Project'}
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=200)
+        projectId = rsp['@id']
+        # Read Project
+        project_url = reverse('api_project', kwargs={'api_version': version,
+                                                     'pid': projectId})
+        rsp = _get_response_json(django_client, project_url, {})
+        assert rsp['@id'] == projectId
 
     def test_project_validation(self, userA):
         """
