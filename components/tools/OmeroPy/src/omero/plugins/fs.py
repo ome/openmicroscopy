@@ -281,9 +281,13 @@ class FsControl(CmdControl):
         logfile.add_argument(
             "filename",  nargs="?", default="-",
             help="Local filename to be saved to. '-' for stdout")
-        logfile.add_argument(
+        logopts = logfile.add_mutually_exclusive_group()
+        logopts.add_argument(
             "--name", action="store_true",
-            help="return only the name of the logfile")
+            help="return the path of the logfile within the ManagedRepository")
+        logopts.add_argument(
+            "--size", action="store_true",
+            help="return the size of the logfile in bytes")
 
         usage = parser.add(sub, self.usage)
         usage.set_args_unsorted()
@@ -723,6 +727,8 @@ Examples:
         if log is not None:
             if args.name:
                 self.ctx.out(log.path.val + log.name.val)
+            elif args.size:
+                self.ctx.out(log.size.val)
             else:
                 target_file = str(args.filename)
                 try:
