@@ -2783,12 +2783,6 @@ class SaveView(View):
         Here we handle the saving for PUT and POST
         """
         conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
-        # If owner was unloaded (E.g. from get() above) or if missing
-        # ome.model.meta.Experimenter.ldap (not supported by omero_marshel)
-        # then saveObject() will give ValidationException.
-        # Therefore we ignore any details for now:
-        if 'omero:details' in object_json:
-            del object_json['omero:details']
         decoder = None
         if '@type' not in object_json:
             return {'message': 'Need to specify @type attribute'}
@@ -2798,6 +2792,11 @@ class SaveView(View):
         if decoder is None:
             return {'message': 'No decoder found for type: %s' % objType}
         obj = decoder.decode(object_json)
+        # If owner was unloaded (E.g. from get() above) or if missing
+        # ome.model.meta.Experimenter.ldap (not supported by omero_marshal)
+        # then saveObject() will give ValidationException.
+        # Therefore we ignore any details for now:
+        obj.unloadDetails()
         obj = conn.getUpdateService().saveAndReturnObject(obj)
         encoder = get_encoder(obj.__class__)
         return encoder.encode(obj)
