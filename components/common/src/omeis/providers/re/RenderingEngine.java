@@ -1,10 +1,7 @@
 /*
- * omeis.providers.re.RenderingEngine
- *
- *   Copyright 2006-2014 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re;
 
 import java.util.List;
@@ -459,7 +456,21 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @see #updateCodomainMap(CodomainMapContext)
      * @see #removeCodomainMap(CodomainMapContext)
      */
+    @Deprecated
     public void addCodomainMap(CodomainMapContext mapCtx);
+
+    /**
+     * Adds the context to the mapping chain. Only one context of the same type
+     * can be added to the chain. The codomain transformations are functions
+     * from the device space to device space. Each time a new context is added,
+     * the second LUT is rebuilt.
+     * 
+     * @param mapCtx
+     *            The context to add.
+     * @param w The channel to add the context to.
+     * @see #removeCodomainMapFromChannel(CodomainMapContext, int)
+     */
+    public void addCodomainMapForChannel(CodomainMapContext mapCtx, int w);
 
     /**
      * Updates the specified context. The codomain chain already contains the
@@ -471,6 +482,7 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @see #addCodomainMap(CodomainMapContext)
      * @see #removeCodomainMap(CodomainMapContext)
      */
+    @Deprecated
     public void updateCodomainMap(CodomainMapContext mapCtx);
 
     /**
@@ -482,7 +494,18 @@ public interface RenderingEngine extends StatefulServiceInterface {
      * @see #addCodomainMap(CodomainMapContext)
      * @see #updateCodomainMap(CodomainMapContext)
      */
+    @Deprecated
     public void removeCodomainMap(CodomainMapContext mapCtx);
+
+    /**
+     * Removes the specified context from the chain. Each time a new context is
+     * removed, the second LUT is rebuilt.
+     * 
+     * @param mapCtx
+     *            The context to remove.
+     * @see #addCodomainMapToChannel(CodomainMapContext, int)
+     */
+    public void removeCodomainMapFromChannel(CodomainMapContext mapCtx, int w);
 
     /** Saves the current rendering settings in the database. */
     public void saveCurrentSettings();

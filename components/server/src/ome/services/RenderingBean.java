@@ -1202,12 +1202,13 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     @RolesAllowed("user")
+    @Deprecated
     public void addCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
 
         try {
             errorIfInvalidState();
-            renderer.getCodomainChain().add(mapCtx.copy());
+            //renderer.getCodomainChain().add(mapCtx.copy());
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1215,11 +1216,37 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
     @RolesAllowed("user")
+    public void addCodomainMapToChannel(CodomainMapContext mapCtx, int w) {
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            renderer.getCodomainChain(w).add(mapCtx.copy());
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    @RolesAllowed("user")
+    @Deprecated
     public void removeCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
-            renderer.getCodomainChain().remove(mapCtx.copy());
+            //renderer.getCodomainChain().remove(mapCtx.copy());
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
+    /** Implemented as specified by the {@link RenderingEngine} interface. */
+    @RolesAllowed("user")
+    public void removeCodomainMapFromChannel(CodomainMapContext mapCtx, int w) {
+        rwl.writeLock().lock();
+        try {
+            errorIfInvalidState();
+            renderer.getCodomainChain(w).remove(mapCtx.copy());
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1547,7 +1574,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfInvalidState();
-            return renderer.getCodomainMapContexts();
+            return null;//renderer.getCodomainMapContexts();
         } finally {
             rwl.writeLock().unlock();
         }
