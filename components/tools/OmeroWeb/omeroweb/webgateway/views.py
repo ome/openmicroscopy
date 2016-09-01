@@ -41,8 +41,7 @@ from api_query import query_projects
 from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
-from omeroweb.webclient.forms import ContainerForm
-from omero_marshal import get_encoder, get_decoder
+from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
 
 try:
     from hashlib import md5
@@ -2547,7 +2546,8 @@ def api_base(request, api_version=None, **kwargs):
     rv = {'projects_url': build_url(request, 'api_projects', v),
           'token_url': build_url(request, 'api_token', v),
           'servers_url': build_url(request, 'api_servers', v),
-          'login_url': build_url(request, 'api_login', v)}
+          'login_url': build_url(request, 'api_login', v),
+          'schema_url': OME_SCHEMA_URL}
     return rv
 
 
