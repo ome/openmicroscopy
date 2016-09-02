@@ -2756,6 +2756,10 @@ class SaveView(View):
     def dispatch(self, *args, **kwargs):
         return super(SaveView, self).dispatch(*args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        return {"message":
+                "POST or PUT only with object json encoded in content body"}
+
     def put(self, request, conn=None, **kwargs):
         """
         PUT handles saving of existing objects.
