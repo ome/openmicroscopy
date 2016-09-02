@@ -7474,6 +7474,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         rp = self._conn.createRawPixelsStore()
         rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
         pmax = 2 ** (8 * rp.getByteWidth())
+        rp.close()
         if rp.isSigned():
             return (-(pmax / 2), pmax / 2 - 1)
         else:
