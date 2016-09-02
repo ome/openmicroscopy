@@ -942,7 +942,9 @@ public class client {
         try {
             if (oldSf != null && !fast) {
                 oldSf = ServiceFactoryPrxHelper.uncheckedCast(oldSf.ice_oneway());
-                getRouter(oldIc).destroySession();
+                if (oldIc != null) {
+                    getRouter(oldIc).destroySession();
+                }
             }
         } catch (Ice.ConnectionLostException cle) {
             // ok. Exception will always be thrown
