@@ -562,7 +562,8 @@ class TestProjects(IWebTest):
         p2_json = _get_response_json(django_client, project_url, {})
         # Make something invalid. E.g. Project as Datasets!
         p2_json['Datasets'] = p1_json
-        rsp = _csrf_put_response_json(django_client, save_url, p2_json)
+        rsp = _csrf_put_response_json(django_client, save_url, p2_json,
+                                      status_code=500)
         assert 'message' in rsp
         assert rsp['message'] == "string indices must be integers"
         assert rsp['stacktrace'].startswith(
@@ -639,7 +640,7 @@ class TestProjects(IWebTest):
         rsp = _csrf_delete_response_json(django_client, project_url, {},
                                          status_code=404)
         assert rsp['message'] == 'Project %s not found' % project.id.val
-        # Try to save deleted object - creates a new object
+        # Try to save deleted object - should return 404
         rsp = _csrf_put_response_json(django_client, save_url, prJson,
                                       status_code=404)
-        assert rsp['@id'] != project.id.val     # New ID
+        assert rsp['message'] == 'Project %s not found' % project.id.val

@@ -129,6 +129,7 @@ def _csrf_post_json(django_client, request_url, data,
                              status_code=status_code, content_type=content_type,
                              **extra)
     print rsp
+    assert rsp.status_code == status_code
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
 
@@ -143,6 +144,7 @@ def _csrf_put_response_json(django_client, request_url, data,
                             status_code=status_code, content_type=content_type,
                             **extra)
     print rsp
+    assert rsp.status_code == status_code
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
 
