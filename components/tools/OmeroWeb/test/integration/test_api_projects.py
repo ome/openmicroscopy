@@ -487,23 +487,34 @@ class TestProjects(IWebTest):
         conn = BlitzGateway(client_obj=self.root)
         assert_objects(conn, [rsp], [projectId])
 
-    def test_project_create_other_group(self, userA):
+    def test_project_create_other_group(self, userA, projects_userA_groupB):
+        """
+        Test saving to non-default group
+        """
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
         version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        # We're only using projects_userA_groupB to get groupB id
+        groupBid = projects_userA_groupB[0].getDetails().group.id.val
+        # This seems to be the minimum details needed to pass group ID
+        groupBdetails = {'group': {'@id': groupBid,
+                                   '@type': OME_SCHEMA_URL + '#ExperimenterGroup'},
+                         '@type': 'TBD#Details'}
         save_url = reverse('api_save', kwargs={'api_version': version})
         projectName = 'test_project_create_group'
         payload = {'Name': projectName,
-                   '@type': OME_SCHEMA_URL + '#Project'}
+                   '@type': OME_SCHEMA_URL + '#Project',
+                   'omero:details': groupBdetails}
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=200)
-        projectId = rsp['@id']
+        newProjectId = rsp['@id']
+        assert rsp['omero:details']['group']['@id'] == groupBid
         # Read Project
         project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': projectId})
+                                                     'pid': newProjectId})
         rsp = _get_response_json(django_client, project_url, {})
-        assert rsp['@id'] == projectId
+        assert rsp['omero:details']['group']['@id'] == groupBid
 
     def test_project_validation(self, userA):
         """
