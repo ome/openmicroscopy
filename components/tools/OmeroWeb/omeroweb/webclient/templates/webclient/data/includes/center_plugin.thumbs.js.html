@@ -811,6 +811,7 @@ $(document).ready(function() {
         $("div#page").removeData('page');
         $contentDetails.removeData('field');
     };
+    // Allows other web apps to access this method
     OME.clearThumbnailsPanel = clearThumbnailsPanel;
 
     var setThumbnailsPanel = function(type, id, path, page, field) {
