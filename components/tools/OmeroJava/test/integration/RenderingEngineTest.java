@@ -13,6 +13,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
+import java.awt.image.Raster;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
@@ -61,8 +62,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.Assert;
-
-import sun.awt.image.IntegerInterleavedRaster;
 
 /**
  * Collection of tests for the <code>RenderingEngine</code>.
@@ -229,7 +228,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         DataBuffer j2DBuf = new DataBufferInt(buf, sizeX * sizeY);
         SinglePixelPackedSampleModel sampleModel = new SinglePixelPackedSampleModel(
                 DataBuffer.TYPE_INT, sizeX, sizeY, sizeX, RGB);
-        WritableRaster raster = new IntegerInterleavedRaster(sampleModel,
+        WritableRaster raster = Raster.createWritableRaster(sampleModel,
                 j2DBuf, new Point(0, 0));
 
         ColorModel colorModel = new DirectColorModel(bits, RGB[0], RGB[1],
