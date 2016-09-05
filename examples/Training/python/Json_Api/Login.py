@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2016 University of Dundee & Open Microscopy Environment.
 #                    All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -12,9 +12,9 @@ import requests
 session = requests.Session()
 
 # Start by getting supported versions from the base url...
-r = session.get('http://localhost:4080/webgateway/api/')
+r = session.get('http://localhost:4080/api/')
 # we get a list of versions
-versions = r.json()['versions']
+versions = r.json()['data']
 print 'Versions', versions
 
 # use most recent version...
@@ -27,10 +27,12 @@ urls = r.json()
 servers_url = urls['servers_url']
 login_url = urls['login_url']
 projects_url = urls['projects_url']
+save_url = urls['save_url']
+schema_url = urls['schema_url']
 
 # To login we need to get CSRF token
 token_url = urls['token_url']
-token = session.get(token_url).json()['token']
+token = session.get(token_url).json()['data']
 print 'CSRF token', token
 # We add this to our session header
 # Needed for all POST, PUT, DELETE requests
@@ -38,7 +40,7 @@ session.headers.update({'X-CSRFToken': token,
                         'Referer': login_url})
 
 # List the servers available to connect to
-servers = session.get(servers_url).json()['servers']
+servers = session.get(servers_url).json()['data']
 print 'Servers:'
 for s in servers:
     print '-id:', s['id']
@@ -52,8 +54,8 @@ if len(servers) < 1:
 server = servers[0]
 
 # Login with username, password and token
-payload = {'username': 'will',
-           'password': 'ome',
+payload = {'username': 'ben',
+           'password': 'secret',
            'server': server['id']}
            # 'csrfmiddlewaretoken': token}
 r = session.post(login_url, data=payload)
@@ -71,13 +73,15 @@ print 'eventContext', eventContext
 # Limit number of projects per page
 payload = {'limit': 2}
 data = session.get(projects_url, params=payload).json()
-assert len(data['projects']) < 3
+assert len(data['data']) < 3
 print "Projects:"
-for p in data['projects']:
+for p in data['data']:
     print '  ', p['@id'], p['Name']
 
 # Create a project:
-r = session.post(projects_url, {'name': 'API TEST'})
+projType = schema_url + '#Project'
+r = session.post(save_url, json={'name': 'API TEST foo',
+                                 '@type': projType})
 assert r.status_code == 200
 project = r.json()
 project_id = project['@id']
@@ -91,7 +95,7 @@ print project
 
 # Update a project
 project['Name'] = 'API test updated'
-r = session.put(project_url, json=project)
+r = session.put(save_url, json=project)
 
 # Delete a project:
 r = session.delete(project_url)
