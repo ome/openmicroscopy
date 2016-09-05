@@ -10,6 +10,10 @@ insert into acquisitionmode (id,permissions,value)
         select 1 from acquisitionmode where value = 'WideField') limit 1;
 
 insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'BrightField' from acquisitionmode where not exists(
+        select 1 from acquisitionmode where value = 'BrightField') limit 1;
+
+insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'LaserScanningConfocalMicroscopy' from acquisitionmode where not exists(
         select 1 from acquisitionmode where value = 'LaserScanningConfocalMicroscopy') limit 1;
 
@@ -20,6 +24,10 @@ insert into acquisitionmode (id,permissions,value)
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'SlitScanConfocal' from acquisitionmode where not exists(
         select 1 from acquisitionmode where value = 'SlitScanConfocal') limit 1;
+
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SweptFieldConfocal' from acquisitionmode where not exists(
+        select 1 from acquisitionmode where value = 'SweptFieldConfocal') limit 1;
 
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'MultiPhotonMicroscopy' from acquisitionmode where not exists(
@@ -80,6 +88,10 @@ insert into acquisitionmode (id,permissions,value)
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'LCM' from acquisitionmode where not exists(
         select 1 from acquisitionmode where value = 'LCM') limit 1;
+
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SPIM' from acquisitionmode where not exists(
+        select 1 from acquisitionmode where value = 'SPIM') limit 1;
 
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'Other' from acquisitionmode where not exists(

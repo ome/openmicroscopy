@@ -2110,11 +2110,15 @@ alter table pixelstype alter column bitsize drop not null;
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'WideField';
 insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'BrightField';
+insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'LaserScanningConfocalMicroscopy';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'SpinningDiskConfocal';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'SlitScanConfocal';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'SweptFieldConfocal';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'MultiPhotonMicroscopy';
 insert into acquisitionmode (id,permissions,value)
@@ -2145,6 +2149,8 @@ insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'FSM';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'LCM';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'SPIM';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'Other';
 insert into acquisitionmode (id,permissions,value)
