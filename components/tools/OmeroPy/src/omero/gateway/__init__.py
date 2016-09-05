@@ -7783,8 +7783,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                 plot = array.array(key, (axis == 'h'
                                    and rp.getRow(pos, z, c, t)
                                    or rp.getCol(pos, z, c, t)))
-                plot.byteswap()  # TODO: Assuming ours is a little endian system
-                # now move data into the windowMin..windowMax range
+                plot.byteswap()  # TODO: Assuming ours is a little endian
+                # system now move data into the windowMin..windowMax range
                 offset = -chw[c][0]
                 if offset != 0:
                     plot = map(lambda x: x+offset, plot)
