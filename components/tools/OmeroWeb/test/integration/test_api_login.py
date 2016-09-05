@@ -26,7 +26,9 @@ from weblibrary import IWebTest, _get_response_json, _post_response_json, \
     _csrf_post_response_json
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.conf import settings
+from django.test import Client
 from omero_marshal import OME_SCHEMA_URL
+import json
 
 
 class TestLogin(IWebTest):
@@ -120,3 +122,56 @@ class TestLogin(IWebTest):
         rsp = _csrf_post_response_json(django_client, request_url, data,
                                        status_code=403)
         assert rsp['message'] == message
+
+    def test_login_example(self):
+        """
+        Example of successful login as user would do for real,
+        starting at base url and getting all other urls and info from there.
+        """
+        # Create test user and get username & password for use below
+        user = self.new_user()
+        username = password = user.getOmeName().val
+
+        # Django client, not logged in yet
+        django_client = Client()
+        # Start at the /api/ url to list versions...
+        request_url = reverse('api_versions')
+        rsp = _get_response_json(django_client, request_url, {})
+        # Pick the last version
+        version = rsp['versions'][-1]
+        base_url = version['base_url']
+        # Base url will give a bunch of other urls
+        base_rsp = _get_response_json(django_client, base_url, {})
+        login_url = base_rsp['login_url']
+        servers_url = base_rsp['servers_url']
+        login_url = base_rsp['login_url']
+        token_url = base_rsp['token_url']
+        # See what servers we can log in to
+        servers_rsp = _get_response_json(django_client, servers_url, {})
+        server_id = servers_rsp['servers'][0]['id']
+        # Need a CSRF token
+        token_rsp = _get_response_json(django_client, token_url, {})
+        token = token_rsp['token']
+        # Can also get this from our session cookies
+        csrf_token = django_client.cookies['csrftoken'].value
+        assert token == csrf_token
+        # Now we have all info we need for login.
+        # Set the header, so we don't need to do this for every POST/PUT/DELETE
+        # OR we could add it to each POST as 'csrfmiddlewaretoken'
+        django_client = Client(HTTP_X_CSRFTOKEN=token)
+        data = {
+            'username': username,
+            'password': password,
+            'server': server_id,
+            # 'csrfmiddlewaretoken': token,
+        }
+        login_rsp = django_client.post(login_url, data)
+        login_json = json.loads(login_rsp.content)
+        eventContext = login_json['eventContext']
+        # eventContext gives a bunch of info
+        memberOfGroups = eventContext['memberOfGroups']
+        currentGroup = eventContext['groupId']
+        userId = eventContext['userId']
+        assert len(memberOfGroups) == 2      # includes 'user' group
+        assert currentGroup in memberOfGroups
+        assert userId > 0

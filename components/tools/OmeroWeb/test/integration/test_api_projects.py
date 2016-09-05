@@ -259,7 +259,7 @@ class TestProjects(IWebTest):
 
         return projects + datasets + images
 
-    def test_marshal_projects_not_logged_in(self, userA):
+    def test_marshal_projects_not_logged_in(self):
         """
         Test marshalling projects without log-in
         """
