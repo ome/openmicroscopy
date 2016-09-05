@@ -43,7 +43,7 @@ class TestLogin(IWebTest):
         django_client = self.django_root_client
         request_url = reverse('api_versions')
         rsp = _get_response_json(django_client, request_url, {})
-        versions = rsp['versions']
+        versions = rsp['data']
         assert len(versions) == len(settings.WEBGATEWAY_API_VERSIONS)
         for v in versions:
             assert v['version'] in settings.WEBGATEWAY_API_VERSIONS
@@ -138,7 +138,7 @@ class TestLogin(IWebTest):
         request_url = reverse('api_versions')
         rsp = _get_response_json(django_client, request_url, {})
         # Pick the last version
-        version = rsp['versions'][-1]
+        version = rsp['data'][-1]
         base_url = version['base_url']
         # Base url will give a bunch of other urls
         base_rsp = _get_response_json(django_client, base_url, {})
@@ -148,10 +148,10 @@ class TestLogin(IWebTest):
         token_url = base_rsp['token_url']
         # See what servers we can log in to
         servers_rsp = _get_response_json(django_client, servers_url, {})
-        server_id = servers_rsp['servers'][0]['id']
+        server_id = servers_rsp['data'][0]['id']
         # Need a CSRF token
         token_rsp = _get_response_json(django_client, token_url, {})
-        token = token_rsp['token']
+        token = token_rsp['data']
         # Can also get this from our session cookies
         csrf_token = django_client.cookies['csrftoken'].value
         assert token == csrf_token
@@ -167,6 +167,7 @@ class TestLogin(IWebTest):
         }
         login_rsp = django_client.post(login_url, data)
         login_json = json.loads(login_rsp.content)
+        assert login_json['success']
         eventContext = login_json['eventContext']
         # eventContext gives a bunch of info
         memberOfGroups = eventContext['memberOfGroups']

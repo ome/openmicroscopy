@@ -2534,7 +2534,7 @@ def api_versions(request, **kwargs):
             'version': v,
             'base_url': build_url(request, 'api_base', v)
         })
-    return {'versions': versions}
+    return {'data': versions}
 
 
 @jsonp
@@ -2558,7 +2558,7 @@ def api_token(request, api_version, **kwargs):
     Provides CSRF token for current session
     """
     token = csrf.get_token(request)
-    return {'token': token}
+    return {'data': token}
 
 
 @jsonp
@@ -2575,7 +2575,7 @@ def api_servers(request, api_version, **kwargs):
         if obj.server is not None:
             s['server'] = obj.server
         servers.append(s)
-    return {'servers': servers}
+    return {'data': servers}
 
 
 class LoginView(View):
