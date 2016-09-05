@@ -530,7 +530,13 @@ module omero {
                  */
                 idempotent double getPixelsTypeLowerBound(int w) throws ServerError;
 
-                idempotent IObjectList getCodomainMapContext() throws ServerError;
+                /**
+                 * Returns the list of codomain contexts for the specified
+                 * channel.
+                 *
+                 * @param w The channel index.
+                 */
+                idempotent omero::romio::CodomainMapContextList getCodomainMapContext(int w) throws ServerError;
             };
     };
 };
