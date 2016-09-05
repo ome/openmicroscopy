@@ -7501,8 +7501,11 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     def requiresPixelsPyramid(self):
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        return rp.requiresPixelsPyramid()
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            return rp.requiresPixelsPyramid()
+        finally:
+            rp.close()
 
     @assert_pixels
     def getPrimaryPixels(self):
