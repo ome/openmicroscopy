@@ -436,7 +436,8 @@ class GeneralPaneUI extends JPanel
             ownerLabel.setText("");
             filterButton.setVisible(true);
             if (multi) {
-                if (!(refObject instanceof TagAnnotationData)) {
+                if (!(refObject instanceof TagAnnotationData) && 
+                        !(refObject instanceof FileAnnotationData)) {
                     // on multiselection 'misuse' the owner label to indicate
                     // that the user can still annotate the objects
                     StringBuffer buffer = new StringBuffer();
@@ -455,8 +456,8 @@ class GeneralPaneUI extends JPanel
             }
             
             propertiesUI.buildUI();
-            boolean visible = !(refObject instanceof TagAnnotationData) ||
-                    (refObject instanceof FileAnnotationData);
+            boolean visible = !(refObject instanceof TagAnnotationData) &&
+                    !(refObject instanceof FileAnnotationData);
 
             tagsTaskPane.setVisible(visible);
             roiTaskPane.setVisible(visible);
