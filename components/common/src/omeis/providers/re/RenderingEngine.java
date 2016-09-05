@@ -585,5 +585,13 @@ public interface RenderingEngine extends StatefulServiceInterface {
 
     public String getChannelLookupTable(int w);
 
+    /**
+     * Returns the list of codomain contexts associated to the specified
+     * channel.
+     *
+     * @param w The channel the contexts are associated to.
+     * @return see above.
+     */
+    public List<CodomainMapContext> getCodomainMapContext(int w);
 }
 

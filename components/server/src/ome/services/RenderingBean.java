@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,6 +55,7 @@ import ome.util.ShallowCopy;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
+import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
@@ -1576,12 +1577,13 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @see RenderingEngine#getCodomainMapContexts()
      */
     @RolesAllowed("user")
-    public List getCodomainMapContext() {
+    public List<CodomainMapContext> getCodomainMapContext(int w) {
         rwl.readLock().lock();
 
         try {
             errorIfInvalidState();
-            return null;//renderer.getCodomainMapContexts();
+            CodomainChain cc = renderer.getCodomainChain(w);
+            return cc.getContexts();
         } finally {
             rwl.writeLock().unlock();
         }
