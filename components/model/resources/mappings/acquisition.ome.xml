@@ -717,9 +717,11 @@
 <!-- Channel Entity -->
 	<enum id="ome.model.enums.AcquisitionMode">
 		<entry name="WideField"/>
+		<entry name="BrightField"/>
 		<entry name="LaserScanningConfocalMicroscopy"/>
 		<entry name="SpinningDiskConfocal"/>
 		<entry name="SlitScanConfocal"/>
+		<entry name="SweptFieldConfocal"/>
 		<entry name="MultiPhotonMicroscopy"/>
 		<entry name="StructuredIllumination"/>
 		<entry name="SingleMoleculeImaging"/>
@@ -735,6 +737,7 @@
 		<entry name="TIRF"/>
 		<entry name="FSM"/>
 		<entry name="LCM"/>
+		<entry name="SPIM"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
