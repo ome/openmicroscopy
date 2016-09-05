@@ -7487,13 +7487,15 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        pmax = 2 ** (8 * rp.getByteWidth())
-        rp.close()
-        if rp.isSigned():
-            return (-(pmax / 2), pmax / 2 - 1)
-        else:
-            return (0, pmax-1)
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            pmax = 2 ** (8 * rp.getByteWidth())
+            if rp.isSigned():
+                return (-(pmax / 2), pmax / 2 - 1)
+            else:
+                return (0, pmax-1)
+        finally:
+            rp.close()
 
     @assert_pixels
     def requiresPixelsPyramid(self):
