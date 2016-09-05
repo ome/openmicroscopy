@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -662,6 +663,9 @@ public class RenderingEngineTest extends AbstractServerTest {
             }
             color.add(rgba);
             re.setRGBA(i, rgba[0], rgba[1], rgba[2], rgba[3]);
+            //reverse intensity
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(c, i);
         }
         //save settings
         re.saveCurrentSettings();
@@ -680,6 +684,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         Assert.assertNotNull(new_model);
         Assert.assertEquals(re.getModel().getValue().getValue(),
                 new_model.getValue().getValue());
+        List<omero.romio.CodomainMapContext> contextList;
         for (int i = 0; i < sizeC; i++) {
             Assert.assertEquals(re.isActive(i), active.get(i).booleanValue());
             Assert.assertEquals(re.getChannelLookupTable(i), lut.get(i));
@@ -692,6 +697,11 @@ public class RenderingEngineTest extends AbstractServerTest {
             Assert.assertEquals(re.getChannelFamily(i).getId().getValue(),
                     new_families.get(i).getId().getValue());
             Assert.assertTrue(Arrays.equals(color.get(i), re.getRGBA(i)));
+            contextList = re.getCodomainMapContext(i);
+            Assert.assertNotNull(contextList);
+            Assert.assertEquals(contextList.size(), 1);
+            Assert.assertEquals(contextList.get(0).getClass(),
+                    omero.romio.ReverseIntensityMapContext.class);
         }
         re.close();
     }
