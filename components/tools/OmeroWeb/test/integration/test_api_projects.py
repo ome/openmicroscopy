@@ -279,7 +279,7 @@ class TestProjects(IWebTest):
         version = settings.WEBGATEWAY_API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
-        assert rsp['projects'] == []
+        assert rsp['data'] == []
 
     def test_marshal_projects_user(self, userA, projects_userA_groupA):
         """
@@ -293,7 +293,7 @@ class TestProjects(IWebTest):
         rsp = _get_response_json(django_client, request_url, {})
         # Reload projects with group '-1' to get same 'canLink' perms
         # on owner and group permissions
-        assert_objects(conn, rsp['projects'], projects_userA_groupA)
+        assert_objects(conn, rsp['data'], projects_userA_groupA)
 
     def test_marshal_projects_another_user(self, userA, userB,
                                            projects_userB_groupA):
@@ -308,7 +308,7 @@ class TestProjects(IWebTest):
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         # userA reloads userB's projects
-        assert_objects(conn, rsp['projects'], projects_userB_groupA)
+        assert_objects(conn, rsp['data'], projects_userB_groupA)
 
     def test_marshal_projects_another_group(self, userA, groupB,
                                             projects_userA_groupB):
@@ -326,7 +326,7 @@ class TestProjects(IWebTest):
         # userA reloads projects with group '-1' so that permissions on owner
         # are same as owner's default group Group A (rwra--) instead of
         # group that the data is in Group B (rwr--)
-        assert_objects(conn, rsp['projects'], projects_userA_groupB)
+        assert_objects(conn, rsp['data'], projects_userA_groupB)
 
     def test_marshal_projects_all_groups(self, userA, groupA, groupB,
                                          projects_userA):
@@ -342,15 +342,15 @@ class TestProjects(IWebTest):
 
         # All groups
         rsp = _get_response_json(django_client, request_url, {})
-        assert_objects(conn, rsp['projects'], projects_userA)
+        assert_objects(conn, rsp['data'], projects_userA)
         # Filter by group A...
         gid = groupA.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
-        assert_objects(conn, rsp['projects'], projects_userA, group=gid)
+        assert_objects(conn, rsp['data'], projects_userA, group=gid)
         # ...and group B
         gid = groupB.id.val
         rsp = _get_response_json(django_client, request_url, {'group': gid})
-        assert_objects(conn, rsp['projects'], projects_userA, group=gid)
+        assert_objects(conn, rsp['data'], projects_userA, group=gid)
 
     def test_marshal_projects_all_users(self, userA, userB,
                                         projects_userA_groupA,
@@ -369,15 +369,15 @@ class TestProjects(IWebTest):
 
         # Both users
         rsp = _get_response_json(django_client, request_url, {})
-        assert_objects(conn, rsp['projects'], projects)
+        assert_objects(conn, rsp['data'], projects)
 
         eid = userA[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
-        assert_objects(conn, rsp['projects'], projects_userA_groupA)
+        assert_objects(conn, rsp['data'], projects_userA_groupA)
 
         eid = userB[1].id.val
         rsp = _get_response_json(django_client, request_url, {'owner': eid})
-        assert_objects(conn, rsp['projects'], projects_userB_groupA)
+        assert_objects(conn, rsp['data'], projects_userB_groupA)
 
     def test_marshal_projects_pagination(self, userA, userB,
                                          projects_userA_groupA,
@@ -396,14 +396,14 @@ class TestProjects(IWebTest):
         # First page, just 2 projects. Page = 1 by default
         limit = 2
         rsp = _get_response_json(django_client, request_url, {'limit': limit})
-        assert len(rsp['projects']) == limit
-        assert_objects(conn, rsp['projects'], projects[0:limit])
+        assert len(rsp['data']) == limit
+        assert_objects(conn, rsp['data'], projects[0:limit])
 
         # Check that page 2 gives next 2 projects
         page = 2
         payload = {'limit': limit, 'page': page}
         rsp = _get_response_json(django_client, request_url, payload)
-        assert_objects(conn, rsp['projects'], projects[limit:limit * page])
+        assert_objects(conn, rsp['data'], projects[limit:limit * page])
 
     def test_marshal_projects_params(self, userA, userB,
                                      projects_userA_groupA,
@@ -422,13 +422,13 @@ class TestProjects(IWebTest):
         # Test 'childCount' parameter
         payload = {'childCount': True}
         rsp = _get_response_json(django_client, request_url, payload)
-        childCounts = [p['omero:childCount'] for p in rsp['projects']]
+        childCounts = [p['omero:childCount'] for p in rsp['data']]
         assert childCounts == [0, 0, 0, 2, 1]
 
         # make dict of owners and groups to use in next test...
         owners = {}
         groups = {}
-        for p in rsp['projects']:
+        for p in rsp['data']:
             details = p['omero:details']
             owner = details['owner']
             group = details['group']
@@ -438,7 +438,7 @@ class TestProjects(IWebTest):
         # Test 'normalize' parameter.
         payload = {'normalize': True}
         rsp = _get_response_json(django_client, request_url, payload)
-        for p in rsp['projects']:
+        for p in rsp['data']:
             details = p['omero:details']
             owner = details['owner']
             group = details['group']
@@ -450,7 +450,7 @@ class TestProjects(IWebTest):
         for o in rsp['experimenters']:
             rsp_owners[o['@id']] = o
         rsp_groups = {}
-        for g in rsp['groups']:
+        for g in rsp['experimenterGroups']:
             rsp_groups[g['@id']] = g
         assert owners == rsp_owners
         assert groups == rsp_groups
