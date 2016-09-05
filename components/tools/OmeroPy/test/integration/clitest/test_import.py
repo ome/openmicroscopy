@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -128,11 +128,18 @@ class TestImport(CLITest):
         self.args = ["import", "-s", host, "-p",  port]
         self.add_client_dir()
 
-    def do_import(self, capfd):
+    def do_import(self, capfd, strip_logs=True):
         # Temporary fix to pass current tests by getting legacy output
         self.args += ["--output", "legacy"]
         try:
             self.cli.invoke(self.args, strict=True)
+            o, e = capfd.readouterr()
+            if strip_logs:
+                clean_o = ""
+                for line in o.splitlines(True):
+                    if not re.search(r'^\d\d:\d\d:\d\d.*', line):
+                        clean_o += line
+                o = clean_o
         except NonZeroReturnCode:
             o, e = capfd.readouterr()
             print "O" * 40
@@ -140,7 +147,7 @@ class TestImport(CLITest):
             print "E" * 40
             print e
             raise
-        return capfd.readouterr()
+        return o, e
 
     def add_client_dir(self):
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
@@ -801,7 +808,7 @@ class TestImport(CLITest):
             self.args += [prefix]
         self.args += ['--debug=%s' % level]
         # Invoke CLI import command and retrieve stdout/stderr
-        out, err = self.do_import(capfd)
+        out, err = self.do_import(capfd, strip_logs=False)
         levels, loggers = self.parse_debug_levels(out)
         expected_levels = debug_levels[debug_levels.index(level):]
         assert set(levels) <= set(expected_levels), out
