@@ -476,8 +476,8 @@ public class RenderingEngineI extends AbstractPyramidServant implements
 
     @Override
     public void getCodomainMapContext_async(
-            AMD_RenderingEngine_getCodomainMapContext __cb, Current __current)
+            AMD_RenderingEngine_getCodomainMapContext __cb, int w, Current __current)
             throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current, w);
     }
 }
