@@ -1,10 +1,11 @@
 /*
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package omeis.providers.re.codomain;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -326,6 +327,20 @@ public class CodomainChain {
         return !chain.isEmpty();
     }
 
+    /**
+     * Returns a copy of the codomain context if any.
+     *
+     * @return See above.
+     */
+    public List<CodomainMapContext> getContexts()
+    {
+        Iterator<CodomainMapContext> i = chain.iterator();
+        List<CodomainMapContext> contexts = new ArrayList<CodomainMapContext>();
+        while (i.hasNext()) {
+            contexts.add(i.next().copy());
+        }
+        return contexts;
+    }
     /**
      * Overrides the toString method.
      * 
