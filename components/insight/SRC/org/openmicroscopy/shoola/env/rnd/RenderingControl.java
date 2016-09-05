@@ -18,7 +18,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.rnd;
 
 import java.awt.Color;
@@ -446,10 +445,11 @@ public interface RenderingControl
     /**
      * Returns a read-only list of <code>CodomainMapContext</code>s using during
      * the mapping process in the device space.
-     * 
+     *
+     * @param w The channel
      * @return See above.
      */
-    public List getCodomainMaps()
+    public List<CodomainMapContext> getCodomainMaps(int w)
         throws RenderingServiceException, DSOutOfServiceException;
 
     /**

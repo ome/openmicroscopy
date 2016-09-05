@@ -42,7 +42,6 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
 import omero.model.CodomainMapContext;
 import omero.model.Family;
-import omero.model.IObject;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Pixels;
@@ -1308,19 +1307,29 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getCodomainMaps()
      */
-    public List getCodomainMaps()
+    public List<CodomainMapContext> getCodomainMaps(int w)
             throws RenderingServiceException, DSOutOfServiceException
     {
         isSessionAlive();
+        isSessionAlive();
+        List<CodomainMapContext> l = new ArrayList<CodomainMapContext>();
         try {
-            return servant.getCodomainMapContext();
+            List<omero.romio.CodomainMapContext> m = servant.getCodomainMapContext(w);
+            Iterator<omero.romio.CodomainMapContext> i = m.iterator();
+            omero.romio.CodomainMapContext c;
+            while (i.hasNext()) {
+                c = i.next();
+                if (c instanceof omero.romio.ReverseIntensityMapContext) {
+                    l.add(new ReverseIntensityContextI());
+                }
+            }
+            invalidateCache();
         } catch (Exception e) {
-            e.printStackTrace();
-            handleException(e, "Cannot load the map context.");
+            handleException(e, ERROR+"cannot set the map context.");
         }
-        return new ArrayList(0);
+        return l;
     }
-    
+
     /** 
      * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#saveCurrentSettings()
