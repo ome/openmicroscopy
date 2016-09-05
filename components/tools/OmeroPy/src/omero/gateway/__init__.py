@@ -7770,34 +7770,37 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         rv = []
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
-        rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
-        for c in channels:
-            bw = rp.getByteWidth()
-            key = self.LINE_PLOT_DTYPES.get(
-                (bw, rp.isFloat(), rp.isSigned()), None)
-            if key is None:
-                logger.error(
-                    "Unknown data type: "
-                    + str((bw, rp.isFloat(), rp.isSigned())))
-            plot = array.array(key, (axis == 'h'
-                               and rp.getRow(pos, z, c, t)
-                               or rp.getCol(pos, z, c, t)))
-            plot.byteswap()  # TODO: Assuming ours is a little endian system
-            # now move data into the windowMin..windowMax range
-            offset = -chw[c][0]
-            if offset != 0:
-                plot = map(lambda x: x+offset, plot)
-            try:
-                normalize = 1.0/chw[c][1]*(range-1)
-            except ZeroDivisionError:
-                # This channel has zero sized window, no plot here
-                continue
-            if normalize != 1.0:
-                plot = map(lambda x: x*normalize, plot)
-            if isinstance(plot, array.array):
-                plot = plot.tolist()
-            rv.append(plot)
-        return rv
+        try:
+            rp.setPixelsId(pixels_id, True, self._conn.SERVICE_OPTS)
+            for c in channels:
+                bw = rp.getByteWidth()
+                key = self.LINE_PLOT_DTYPES.get(
+                    (bw, rp.isFloat(), rp.isSigned()), None)
+                if key is None:
+                    logger.error(
+                        "Unknown data type: "
+                        + str((bw, rp.isFloat(), rp.isSigned())))
+                plot = array.array(key, (axis == 'h'
+                                   and rp.getRow(pos, z, c, t)
+                                   or rp.getCol(pos, z, c, t)))
+                plot.byteswap()  # TODO: Assuming ours is a little endian system
+                # now move data into the windowMin..windowMax range
+                offset = -chw[c][0]
+                if offset != 0:
+                    plot = map(lambda x: x+offset, plot)
+                try:
+                    normalize = 1.0/chw[c][1]*(range-1)
+                except ZeroDivisionError:
+                    # This channel has zero sized window, no plot here
+                    continue
+                if normalize != 1.0:
+                    plot = map(lambda x: x*normalize, plot)
+                if isinstance(plot, array.array):
+                    plot = plot.tolist()
+                rv.append(plot)
+            return rv
+        finally:
+            rp.close()
 
     def getRow(self, z, t, y, channels=None, range=None):
         """
