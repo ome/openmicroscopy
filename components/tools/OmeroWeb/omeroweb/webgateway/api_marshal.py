@@ -38,7 +38,7 @@ def normalize_objects(objects):
         objs.append(o)
     experimenters = experimenters.values()
     groups = groups.values()
-    return objs, {'experimenters': experimenters, 'groups': groups}
+    return objs, {'experimenters': experimenters, 'experimenterGroups': groups}
 
 
 def marshal_projects(projects, extras=None, normalize=False):
@@ -52,7 +52,7 @@ def marshal_projects(projects, extras=None, normalize=False):
         marshalled.append(p)
 
     if not normalize:
-        return {'projects': marshalled}
+        return {'data': marshalled}
     projects, objects = normalize_objects(marshalled)
-    objects['projects'] = projects
+    objects['data'] = projects
     return objects
