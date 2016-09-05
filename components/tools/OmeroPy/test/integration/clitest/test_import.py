@@ -130,7 +130,7 @@ class TestImport(CLITest):
 
     def do_import(self, capfd, strip_logs=True):
         # Temporary fix to pass current tests by getting legacy output
-        self.args += ["--output", "legacy"]
+        # self.args += ["--output", "legacy"]
         try:
             self.cli.invoke(self.args, strict=True)
             o, e = capfd.readouterr()
@@ -248,6 +248,12 @@ class TestImport(CLITest):
                 levels.append(splitline[2])
                 loggers.append(splitline[3])
         return levels, loggers
+
+    def parse_imported_objects(self, out):
+        """Parse the output from stderr or stdout
+           regarding Imported objects"""
+
+        return out.strip('\n').split('\n')
 
     def parse_summary(self, err):
         """Parse the summary output from stderr"""
@@ -814,13 +820,33 @@ class TestImport(CLITest):
         expected_levels = debug_levels[debug_levels.index(level):]
         assert set(levels) <= set(expected_levels), out
 
-    def testImportSummary(self, tmpdir, capfd):
-        """Test import summary output"""
+    def testImportOutput(self, tmpdir, capfd):
+        """Test import output"""
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
         self.args += [str(fakefile)]
         o, e = self.do_import(capfd)
+
+        # Check the contents of "o",
+        # and the existence of the newly created image
+        assert len(self.parse_imported_objects(o)) == 1
+        image = self.get_object(o, 'Image')
+        assert image
+        assert self.parse_imported_objects(o)[0] == "Image:%s" % image.id.val
+
+        # Check the contents of "e"
+        # and the existence of the newly created Fileset
+        e_lines = self.parse_imported_objects(e)
+        assert len(e_lines) == 5
+        assert e_lines[0] == "Other imported objects:"
+        fileset = self.get_object(e, 'Fileset')
+        assert fileset
+        assert e_lines[1] == "Fileset:%s" % fileset.id.val
+        assert e_lines[2] == ''
+        assert e_lines[3] == "==> Summary"
+
+        # Parse and check the summary of the import output
         summary = self.parse_summary(e)
         assert summary
         assert len(summary) == 5
