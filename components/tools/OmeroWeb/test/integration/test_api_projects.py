@@ -264,7 +264,7 @@ class TestProjects(IWebTest):
         Test marshalling projects without log-in
         """
         django_client = Client()
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {}, status_code=403)
         assert rsp['message'] == "Not logged in"
@@ -276,7 +276,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         assert rsp['data'] == []
@@ -288,7 +288,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         # Reload projects with group '-1' to get same 'canLink' perms
@@ -304,7 +304,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         # userA reloads userB's projects
@@ -318,7 +318,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
 
@@ -337,7 +337,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # All groups
@@ -364,7 +364,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Both users
@@ -390,7 +390,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # First page, just 2 projects. Page = 1 by default
@@ -416,7 +416,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Test 'childCount' parameter
@@ -464,7 +464,7 @@ class TestProjects(IWebTest):
 
     def test_project_create_read(self):
         django_client = self.django_root_client
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         # Need to get the Schema url to create @type
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
@@ -494,7 +494,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         # We're only using projects_userA_groupB to get groupB id
         groupBid = projects_userA_groupB[0].getDetails().group.id.val
         # This seems to be the minimum details needed to pass group ID
@@ -549,7 +549,7 @@ class TestProjects(IWebTest):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         project1 = projects_userA_groupA[0]
         project2 = projects_userA_groupA[1]
         project_url = reverse('api_project', kwargs={'api_version': version,
@@ -580,7 +580,7 @@ class TestProjects(IWebTest):
         project = get_update_service(userA).saveAndReturnObject(project)
 
         # Update Project in 2 ways...
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         project_url = reverse('api_project', kwargs={'api_version': version,
                                                      'pid': project.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})
@@ -623,7 +623,7 @@ class TestProjects(IWebTest):
         project.name = rstring('test_project_delete')
         project.description = rstring('Test update')
         project = get_update_service(userA).saveAndReturnObject(project)
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         project_url = reverse('api_project', kwargs={'api_version': version,
                                                      'pid': project.id.val})
         save_url = reverse('api_save', kwargs={'api_version': version})

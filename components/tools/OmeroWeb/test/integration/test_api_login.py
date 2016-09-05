@@ -44,9 +44,9 @@ class TestLogin(IWebTest):
         request_url = reverse('api_versions')
         rsp = _get_response_json(django_client, request_url, {})
         versions = rsp['data']
-        assert len(versions) == len(settings.WEBGATEWAY_API_VERSIONS)
+        assert len(versions) == len(settings.API_VERSIONS)
         for v in versions:
-            assert v['version'] in settings.WEBGATEWAY_API_VERSIONS
+            assert v['version'] in settings.API_VERSIONS
 
     def test_base_url(self):
         """
@@ -54,7 +54,7 @@ class TestLogin(IWebTest):
         """
         django_client = self.django_root_client
         # test the most recent version
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         assert 'servers_url' in rsp
@@ -76,7 +76,7 @@ class TestLogin(IWebTest):
         Tests that we get a suitable message if we try to GET login_url
         """
         django_client = self.django_root_client
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, request_url, {})
         assert (rsp['message'] ==
@@ -88,7 +88,7 @@ class TestLogin(IWebTest):
         """
         django_client = self.django_root_client
         # test the most recent version
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
         rsp = _post_response_json(django_client, request_url, {},
                                   status_code=403)
@@ -115,7 +115,7 @@ class TestLogin(IWebTest):
         """
         django_client = self.django_root_client
         # test the most recent version
-        version = settings.WEBGATEWAY_API_VERSIONS[-1]
+        version = settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
         data = credentials[0]
         message = credentials[1]

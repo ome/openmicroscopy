@@ -26,7 +26,7 @@ from django.conf import settings
 import re
 
 versions = '|'.join([re.escape(v)
-                    for v in settings.WEBGATEWAY_API_VERSIONS])
+                    for v in settings.API_VERSIONS])
 
 api_versions = url(r'^$', views.api_versions, name='api_versions')
 

@@ -2529,7 +2529,7 @@ def api_versions(request, **kwargs):
     Base url of the webgateway json api.
     """
     versions = []
-    for v in settings.WEBGATEWAY_API_VERSIONS:
+    for v in settings.API_VERSIONS:
         versions.append({
             'version': v,
             'base_url': build_url(request, 'api_base', v)

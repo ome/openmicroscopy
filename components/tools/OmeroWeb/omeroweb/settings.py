@@ -1139,10 +1139,10 @@ CSRF_FAILURE_VIEW = "omeroweb.feedback.views.csrf_failure"
 # FEEDBACK_APP: 6 = OMERO.web
 FEEDBACK_APP = 6
 
-# For any given release of webgateway api, we may support
+# For any given release of api, we may support
 # one or more versions of the api.
-# E.g. webgateway/api/v1.0/
-WEBGATEWAY_API_VERSIONS = ['1.0']
+# E.g. /api/v1.0/
+API_VERSIONS = ['0.1']
 
 # IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')
