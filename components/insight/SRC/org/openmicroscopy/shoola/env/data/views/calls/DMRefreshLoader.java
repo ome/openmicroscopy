@@ -100,7 +100,7 @@ public class DMRefreshLoader
         Class klass;
         Map topNodes;
         DataObject child, parent;
-        Set s;
+        Collection s;
         Entry<SecurityContext, List> entry;
         SecurityContext ctx;
         TimeRefObject ref;
@@ -115,8 +115,8 @@ public class DMRefreshLoader
         		result = os.loadContainerHierarchy(ctx, rootNodeType, null, 
                 		false, ctx.getExperimenter());
         		if (mapResult.containsKey(ctx)) {
-        			s = (Set) mapResult.get(userID);
-        			s.addAll((Set) result);
+        			s = (Collection) mapResult.get(userID);
+        			s.addAll((Collection) result);
         		} else {
         			mapResult.put(ctx, result);
         		}

@@ -393,6 +393,7 @@ class EditorUI
 			metadata = acquisitionPane.prepareDataToSave();
 
 		model.fireAnnotationSaving(object, metadata, async);
+		toolBar.setStatus(true);
 	}
 
 	/** Shows the image's info. */
@@ -612,7 +613,9 @@ class EditorUI
 	 */
 	void handleObjectsSelection(Class<?> type, Collection objects)
 	{
-		if (objects == null) return;
+		if (objects == null)
+		    return;
+		
 		List<Object> selection = new ArrayList<Object>();
 		if (CollectionUtils.isNotEmpty(objects)) {
 		    selection.addAll(objects);
