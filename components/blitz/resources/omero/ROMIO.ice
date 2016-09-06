@@ -85,9 +85,6 @@ module romio
     {
     };
 
-    ["java:type:java.util.ArrayList<omero.romio.CodomainMapContext>:java.util.List<omero.romio.CodomainMapContext>"]
-    sequence<CodomainMapContext> CodomainMapContextList;
-
 };
 
 };
