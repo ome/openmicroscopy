@@ -2790,16 +2790,6 @@ class SaveView(View):
         if '@id' not in object_json:
             return {'message':
                     "No '@id' attribute. Use POST to create new objects"}
-        # Check object exists
-        if '@type' in object_json:
-            obj_id = long(object_json['@id'])
-            obj_type = object_json['@type'].split('#')[1]
-            try:
-                conn.getQueryService().get(obj_type, obj_id)
-            except ValidationException:
-                return JsonResponseNotFound(
-                    {'message': '%s %s not found' % (obj_type, obj_id)})
-
         return self._save_object(request, conn, object_json, **kwargs)
 
     def post(self, request, conn=None, **kwargs):
