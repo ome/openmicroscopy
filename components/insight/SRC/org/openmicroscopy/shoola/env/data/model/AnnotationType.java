@@ -109,7 +109,8 @@ public enum AnnotationType {
     public static AnnotationType getAnnotationType(
             Class<? extends DataObject> pojoClass) {
         for (AnnotationType type : AnnotationType.values()) {
-            if (type.getPojoClass().equals(pojoClass))
+            if (type.getPojoClass() != null 
+                    && type.getPojoClass().equals(pojoClass))
                 return type;
         }
         return OTHER;
