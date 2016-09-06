@@ -137,7 +137,8 @@ class TestImport(CLITest):
             if strip_logs:
                 clean_o = ""
                 for line in o.splitlines(True):
-                    if not re.search(r'^\d\d:\d\d:\d\d.*', line):
+                    if not (re.search(r'^\d\d:\d\d:\d\d.*', line)
+                            or re.search(r'.*\w\.\w.*', line)):
                         clean_o += line
                 o = clean_o
         except NonZeroReturnCode:
