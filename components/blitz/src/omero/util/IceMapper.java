@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1227,6 +1228,22 @@ public class IceMapper extends ome.util.ModelMapper implements
             return map(new ArrayList((Set) o)); // Necessary since Ice
             // doesn't support Sets.
         } else if (Collection.class.isAssignableFrom(type)) {
+            Collection l = (Collection) o;
+            //not part of the model so map "manually"
+            if (l.size() > 0) {
+                Object ho = l.iterator().next();
+                if (ho instanceof CodomainMapContext) {
+                    List result = new ArrayList();
+                    Iterator i = l.iterator();
+                    while (i.hasNext()) {
+                        Object t = reverse((CodomainMapContext) i.next());
+                        if (t != null) {
+                            result.add(t);
+                        }
+                    }
+                    return result;
+                }
+            }
             return map((Collection) o);
         } else if (IObject.class.isAssignableFrom(type)) {
             return map((Filterable) o);
@@ -1238,6 +1255,14 @@ public class IceMapper extends ome.util.ModelMapper implements
             throw new ApiUsageException(null, null, "Can't handle output "
                     + type);
         }
+    }
+
+    private omero.model.CodomainMapContext reverse(CodomainMapContext ctx)
+    {
+        if (ctx instanceof ReverseIntensityContext) {
+            return new omero.model.ReverseIntensityContextI();
+        }
+        return null;
     }
 
     /**
