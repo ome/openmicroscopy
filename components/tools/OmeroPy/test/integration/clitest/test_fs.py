@@ -131,6 +131,7 @@ class TestFSRoot(RootCLITest):
         self.cli.register("fs", FsControl, "TEST")
         self.args += ["fs"]
 
+    @pytest.mark.broken(reason="Passes locally but fails on CI")
     def testFixPyramid(self, capsys):
         """Test fs fixpyramid"""
 
