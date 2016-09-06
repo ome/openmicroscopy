@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -42,6 +41,7 @@ import omero.model.ProjectionTypeI;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.RenderingModel;
+import omero.model.ReverseIntensityContext;
 import omero.romio.PlaneDef;
 import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
@@ -684,7 +684,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         Assert.assertNotNull(new_model);
         Assert.assertEquals(re.getModel().getValue().getValue(),
                 new_model.getValue().getValue());
-        List<omero.romio.CodomainMapContext> contextList;
+        List<IObject> contextList;
         for (int i = 0; i < sizeC; i++) {
             Assert.assertEquals(re.isActive(i), active.get(i).booleanValue());
             Assert.assertEquals(re.getChannelLookupTable(i), lut.get(i));
@@ -700,8 +700,8 @@ public class RenderingEngineTest extends AbstractServerTest {
             contextList = re.getCodomainMapContext(i);
             Assert.assertNotNull(contextList);
             Assert.assertEquals(contextList.size(), 1);
-            Assert.assertEquals(contextList.get(0).getClass(),
-                    omero.romio.ReverseIntensityMapContext.class);
+            IObject ho = contextList.get(0);
+            Assert.assertTrue(ho instanceof ReverseIntensityContext);
         }
         re.close();
     }
