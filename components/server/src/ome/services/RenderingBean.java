@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1579,13 +1578,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public List<CodomainMapContext> getCodomainMapContext(int w) {
         rwl.readLock().lock();
-
         try {
             errorIfInvalidState();
             CodomainChain cc = renderer.getCodomainChain(w);
             return cc.getContexts();
         } finally {
-            rwl.writeLock().unlock();
+            rwl.readLock().unlock();
         }
     }
     
