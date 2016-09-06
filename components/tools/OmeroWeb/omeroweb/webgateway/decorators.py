@@ -24,7 +24,7 @@ Decorators for use with the webgateway application.
 """
 
 import omeroweb.decorators
-from omeroweb.http import JsonResponseForbidden
+from django.http import JsonResponse
 
 
 class login_required(omeroweb.decorators.login_required):
@@ -36,4 +36,5 @@ class login_required(omeroweb.decorators.login_required):
         """
         Used for json api methods
         """
-        return JsonResponseForbidden({'message': 'Not logged in'})
+        return JsonResponse({'message': 'Not logged in'},
+                            status=403)

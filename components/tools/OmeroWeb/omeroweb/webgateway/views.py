@@ -19,7 +19,7 @@ import omero
 import omero.clients
 
 from Ice import Exception as IceException
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError, JsonResponse
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.http import HttpResponseBadRequest
 from django.template import loader as template_loader
@@ -54,9 +54,8 @@ import tempfile
 from omero import ApiUsageException, ServerError, ValidationException
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.connector import Server
-from omeroweb.http import HttpJavascriptResponse, HttpJsonResponse, \
-    HttpJavascriptResponseServerError, JsonResponseForbidden, \
-    JsonResponseNotFound, HttpJsonResponseServerError
+from omeroweb.http import HttpJavascriptResponse, \
+    HttpJavascriptResponseServerError
 
 import glob
 
@@ -1243,22 +1242,21 @@ def jsonp(f):
                 return rv
             # mimetype for JSON is application/json
             # NB: rv must be a dict.
-            return HttpJsonResponse(rv)
+            return JsonResponse(rv)
         except omero.ServerError, ex:
             trace = traceback.format_exc()
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpJsonResponseServerError(
-                {"message": str(ex),
-                 "stacktrace": trace})
+            return JsonResponse(
+                {"message": str(ex), "stacktrace": trace})
         except Exception, ex:
             trace = traceback.format_exc()
             logger.debug(trace)
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            return HttpJsonResponseServerError(
-                {"message": str(ex),
-                 "stacktrace": trace})
+            return JsonResponse(
+                {"message": str(ex), "stacktrace": trace},
+                status=500)
     wrap.func_name = f.func_name
     return wrap
 
@@ -2266,7 +2264,7 @@ def get_shape_json(request, roiId, shapeId, conn=None, **kwargs):
     if shape is None:
         logger.debug('No such shape: %r' % shapeId)
         raise Http404
-    return HttpJsonResponse(shapeMarshal(shape))
+    return JsonResponse(shapeMarshal(shape))
 
 
 @login_required()
@@ -2641,7 +2639,7 @@ class LoginView(View):
             error = " ".join(formErrors)
         # Since @jsonp decorator can't return a 403,
         # we do it manually. NB: this won't return jsonp 'callback()'
-        return JsonResponseForbidden({"message": error})
+        return JsonResponse({"message": error}, status=403)
 
     def post(self, request, *args, **kwargs):
         error = None
@@ -2713,8 +2711,9 @@ class ProjectView(View):
     def get(self, request, pid, conn=None, **kwargs):
         project = conn.getObject("Project", pid)
         if project is None:
-            return JsonResponseNotFound(
-                {'message': 'Project %s not found' % pid})
+            return JsonResponse(
+                {'message': 'Project %s not found' % pid},
+                status=404)
         encoder = get_encoder(project._obj.__class__)
         return encoder.encode(project._obj)
 
@@ -2722,8 +2721,9 @@ class ProjectView(View):
         try:
             project = conn.getQueryService().get('Project', long(pid))
         except ValidationException:
-            return JsonResponseNotFound(
-                {'message': 'Project %s not found' % pid})
+            return JsonResponse(
+                {'message': 'Project %s not found' % pid},
+                status=404)
         encoder = get_encoder(project.__class__)
         json = encoder.encode(project)
         conn.deleteObject(project)

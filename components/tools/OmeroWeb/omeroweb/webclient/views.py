@@ -46,7 +46,8 @@ from omero.gateway.utils import toBoolean
 
 from django.conf import settings
 from django.template import loader as template_loader
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, \
+    JsonResponse
 from django.http import HttpResponseServerError, HttpResponseBadRequest
 from django.template import RequestContext as Context
 from django.utils.http import urlencode
@@ -80,7 +81,6 @@ from omeroweb.webgateway.marshal import chgrpMarshal
 
 from omeroweb.feedback.views import handlerInternalError
 
-from omeroweb.http import HttpJsonResponse
 from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 from omeroweb.webclient.show import Show, IncorrectMenuError, \
@@ -502,7 +502,7 @@ def api_group_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'groups': groups})
+    return JsonResponse({'groups': groups})
 
 
 @login_required()
@@ -528,7 +528,7 @@ def api_experimenter_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'experimenters': experimenters})
+    return JsonResponse({'experimenters': experimenters})
 
 
 @login_required()
@@ -550,7 +550,7 @@ def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'experimenter': experimenter})
+    return JsonResponse({'experimenter': experimenter})
 
 
 @login_required()
@@ -631,7 +631,7 @@ def api_container_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse(r)
+    return JsonResponse(r)
 
 
 @login_required()
@@ -659,7 +659,7 @@ def api_dataset_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'datasets': datasets})
+    return JsonResponse({'datasets': datasets})
 
 
 @login_required()
@@ -714,7 +714,7 @@ def api_image_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'images': images})
+    return JsonResponse({'images': images})
 
 
 @login_required()
@@ -742,7 +742,7 @@ def api_plate_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'plates': plates})
+    return JsonResponse({'plates': plates})
 
 
 @login_required()
@@ -771,7 +771,7 @@ def api_plate_acquisition_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'acquisitions': plate_acquisitions})
+    return JsonResponse({'acquisitions': plate_acquisitions})
 
 
 def get_object_links(conn, parent_type, parent_id, child_type, child_ids):
@@ -930,7 +930,7 @@ def _api_links_POST(conn, json_data, **kwargs):
                     pass
             response['success'] = True
 
-    return HttpJsonResponse(response)
+    return JsonResponse(response)
 
 
 def _api_links_DELETE(conn, json_data):
@@ -981,7 +981,7 @@ def _api_links_DELETE(conn, json_data):
     # If we got here, DELETE was OK
     response['success'] = True
 
-    return HttpJsonResponse(response)
+    return JsonResponse(response)
 
 
 @login_required()
@@ -1024,7 +1024,7 @@ def api_paths_to_object(request, conn=None, **kwargs):
         paths = paths_to_object(conn, experimenter_id, project_id,
                                 dataset_id, image_id, screen_id, plate_id,
                                 acquisition_id, well_id, group_id)
-    return HttpJsonResponse({'paths': paths})
+    return JsonResponse({'paths': paths})
 
 
 @login_required()
@@ -1083,7 +1083,7 @@ def api_tags_and_tagged_list_GET(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse(tagged)
+    return JsonResponse(tagged)
 
 
 def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
@@ -1118,7 +1118,7 @@ def api_tags_and_tagged_list_DELETE(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse('')
+    return JsonResponse('')
 
 
 @login_required()
@@ -1143,7 +1143,7 @@ def api_annotations(request, conn=None, **kwargs):
                                           run_ids=run_ids,
                                           ann_type=ann_type)
 
-    return HttpJsonResponse({'annotations': anns, 'experimenters': exps})
+    return JsonResponse({'annotations': anns, 'experimenters': exps})
 
 
 @login_required()
@@ -1181,7 +1181,7 @@ def api_share_list(request, conn=None, **kwargs):
     except IceException as e:
         return HttpResponseServerError(e.message)
 
-    return HttpJsonResponse({'shares': shares, 'discussions': discussions})
+    return JsonResponse({'shares': shares, 'discussions': discussions})
 
 
 @login_required()
@@ -2107,7 +2107,7 @@ def annotate_file(request, conn=None, **kwargs):
                 newFileId = manager.createFileAnnotations(
                     fileupload, oids, well_index=index)
                 added_files.append(newFileId)
-            return HttpJsonResponse({'fileIds': added_files})
+            return JsonResponse({'fileIds': added_files})
         else:
             return HttpResponse(form_file.errors)
 
@@ -2137,7 +2137,7 @@ def annotate_rating(request, conn=None, **kwargs):
             o.setRating(rating)
 
     # return a summary of ratings
-    return HttpJsonResponse({'success': True})
+    return JsonResponse({'success': True})
 
 
 @login_required()
@@ -2433,9 +2433,9 @@ def annotate_tags(request, conn=None, **kwargs):
                     "%s-%s" % (dtype, obj.id)
                     for dtype, objs in oids.items()
                     for obj in objs], index, tag_owner_id=self_id)
-            return HttpJsonResponse({'added': tags,
-                                     'removed': removed,
-                                     'new': new_tags})
+            return JsonResponse({'added': tags,
+                                 'removed': removed,
+                                 'new': new_tags})
         else:
             # TODO: handle invalid form error
             return HttpResponse(str(form_tags.errors))
@@ -2545,13 +2545,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 description = form.cleaned_data['description']
                 oid = manager.createDataset(name, description)
                 rdict = {'bad': 'false', 'id': oid}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         elif o_type == "tagset" and o_id > 0:
             form = ContainerForm(data=request.POST.copy())
             if form.is_valid():
@@ -2559,13 +2559,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 description = form.cleaned_data['description']
                 oid = manager.createTag(name, description)
                 rdict = {'bad': 'false', 'id': oid}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         elif request.POST.get('folder_type') in ("project", "screen",
                                                  "dataset", "tag", "tagset"):
             # No parent specified. We can create orphaned 'project', 'dataset'
@@ -2585,13 +2585,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     oid = getattr(manager, "create" +
                                   folder_type.capitalize())(name, description)
                 rdict = {'bad': 'false', 'id': oid}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'add':
@@ -2715,13 +2715,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     manager.image = manager.well.getWellSample(index).image()
                     o_type = "image"
                 manager.updateName(o_type, name)
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'editdescription':
@@ -2752,13 +2752,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                     o_type = "image"
                 manager.updateDescription(o_type, description)
                 rdict = {'bad': 'false'}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
                     d.update({e[0]: unicode(e[1])})
                 rdict = {'bad': 'true', 'errs': d}
-                return HttpJsonResponse(rdict)
+                return JsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'remove':
@@ -2771,10 +2771,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad': 'true', 'errs': str(x)}
-            return HttpJsonResponse(rdict)
+            return JsonResponse(rdict)
 
         rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
+        return JsonResponse(rdict)
     elif action == 'removefromshare':
         image_id = request.POST.get('source')
         try:
@@ -2782,9 +2782,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad': 'true', 'errs': str(x)}
-            return HttpJsonResponse(rdict)
+            return JsonResponse(rdict)
         rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
+        return JsonResponse(rdict)
     elif action == 'delete':
         # Handles delete of a file attached to object.
         child = toBoolean(request.POST.get('child'))
@@ -2808,7 +2808,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             rdict = {'bad': 'true', 'errs': str(x)}
         else:
             rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
+        return JsonResponse(rdict)
     elif action == 'deletemany':
         # Handles multi-delete from jsTree.
         object_ids = {
@@ -2854,7 +2854,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             raise
         else:
             rdict = {'bad': 'false'}
-        return HttpJsonResponse(rdict)
+        return JsonResponse(rdict)
     context['template'] = template
     return context
 
@@ -3475,7 +3475,7 @@ def activities(request, conn=None, **kwargs):
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
-        return HttpJsonResponse(rv)  # json
+        return JsonResponse(rv)  # json
 
     jobs = []
     new_errors = False
@@ -3528,7 +3528,7 @@ def activities_update(request, action, **kwargs):
                 rv['removed'] = True
             else:
                 rv['removed'] = False
-            return HttpJsonResponse(rv)
+            return JsonResponse(rv)
         else:
             for key, data in request.session['callback'].items():
                 if data['status'] != "in progress":
@@ -4234,7 +4234,7 @@ def chgrp(request, conn=None, **kwargs):
                            request.session.get('user_id'))
 
     # return HttpResponse("OK")
-    return HttpJsonResponse({'update': update})
+    return JsonResponse({'update': update})
 
 
 @login_required(setGroupContext=True)
@@ -4255,7 +4255,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
             # Delegate to run_script() for handling 'No processor available'
             rsp = run_script(
                 request, conn, sId, inputMap, scriptName='Script')
-            return HttpJsonResponse(rsp)
+            return JsonResponse(rsp)
         else:
             raise
     params = scriptService.getParams(sId)
@@ -4363,7 +4363,7 @@ def script_run(request, scriptId, conn=None, **kwargs):
     except:
         pass
     rsp = run_script(request, conn, sId, inputMap, scriptName)
-    return HttpJsonResponse(rsp)
+    return JsonResponse(rsp)
 
 
 @require_POST
@@ -4389,7 +4389,7 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     inputMap['Format'] = wrap('OME-TIFF')
     rsp = run_script(
         request, conn, sId, inputMap, scriptName='Create OME-TIFF')
-    return HttpJsonResponse(rsp)
+    return JsonResponse(rsp)
 
 
 def run_script(request, conn, sId, inputMap, scriptName='Script'):

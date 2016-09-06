@@ -19,8 +19,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import json
-
 from django.http import HttpResponse, HttpResponseServerError
 
 
@@ -36,42 +34,6 @@ class HttpJavascriptResponseServerError(HttpResponseServerError):
             self, content, content_type="text/javascript")
 
 
-class HttpJsonResponseServerError(HttpResponseServerError):
-    def __init__(self, content):
-        HttpResponseServerError.__init__(
-            self, json.dumps(content), content_type="application/json")
-
-
-class HttpJsonResponse(HttpResponse):
-    def __init__(self, content):
-        HttpResponse.__init__(
-            self, json.dumps(content), content_type="application/json")
-
-
 class HttpJPEGResponse(HttpResponse):
     def __init__(self, content):
         HttpResponse.__init__(self, content, content_type="image/jpeg")
-
-
-class JsonResponseForbidden(HttpJsonResponse):
-    """ Response 403 when for unauthorised """
-    status_code = 403
-
-    def __init__(self, *args, **kwargs):
-        HttpJsonResponse.__init__(self, *args, **kwargs)
-
-
-class JsonResponseNotFound(HttpJsonResponse):
-    """ Response 404 when for unauthorised """
-    status_code = 404
-
-    def __init__(self, *args, **kwargs):
-        HttpJsonResponse.__init__(self, *args, **kwargs)
-
-
-class JsonResponseUnprocessable(HttpJsonResponse):
-    """ Response 422 when client submits invalid data """
-    status_code = 422
-
-    def __init__(self, *args, **kwargs):
-        HttpJsonResponse.__init__(self, *args, **kwargs)

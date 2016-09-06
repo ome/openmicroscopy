@@ -35,7 +35,7 @@ import logging
 
 from django.conf import settings
 from django.template import loader as template_loader
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.http import HttpResponseServerError, HttpResponseNotFound
 from django.template import RequestContext
 from django.views.defaults import page_not_found
@@ -46,7 +46,6 @@ from django.utils.encoding import force_text
 
 from omeroweb.feedback.sendfeedback import SendFeedback
 from omeroweb.feedback.forms import ErrorForm, CommentForm
-from omeroweb.http import JsonResponseForbidden
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +136,7 @@ def csrf_failure(request, reason=""):
     since this is accepted by browser and API users
     """
     error = "CSRF Error. You need to include 'X-CSRFToken' in header"
-    return JsonResponseForbidden({"message": error})
+    return JsonResponse({"message": error}, status=403)
 
 
 def handler500(request):
