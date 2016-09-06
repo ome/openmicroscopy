@@ -24,16 +24,16 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.jstree_theme.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% static 'webgateway/css/ome.jstree_theme.css'|add:url_suffix %}" type="text/css" />
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.jstree-3.0.8/jstree.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.locate_plugin.js"|add:url_suffix %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.conditionalselect_plugin.js"|add:url_suffix %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.ometools_plugin.js"|add:url_suffix %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.jstree.truncatetext_plugin.js"|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.jstree-3.0.8/jstree.js' %}"></script>
+    <script type="text/javascript" src="{% static 'webclient/javascript/jquery.jstree.locate_plugin.js'|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static 'webclient/javascript/jquery.jstree.conditionalselect_plugin.js'|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static 'webclient/javascript/jquery.jstree.ometools_plugin.js'|add:url_suffix %}"></script>
+    <script type="text/javascript" src="{% static 'webclient/javascript/jquery.jstree.truncatetext_plugin.js'|add:url_suffix %}"></script>
 
     <script type="text/javascript">
 

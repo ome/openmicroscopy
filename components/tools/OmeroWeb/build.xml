@@ -72,7 +72,9 @@
     </target>
 
     <target name="findbugs">
-        <echo>Not yet implemented</echo>
+        <exec executable="python" failonerror="true">
+            <arg line="${basedir}/omeroweb_validator.py" />
+        </exec>
     </target>
 
 </project>
