@@ -58,7 +58,7 @@ class TestFS(CLITest):
             ids.append(line.split(',')[3])
         return ids
 
-    @pytest.mark.skipif(True, reason="Temporarily excluding")
+    @pytest.mark.skipif(True, reason="Temporarily excluding for test on breaking")
     def testRepos(self, capsys):
         """Test fs repos subcommand"""
 
@@ -74,7 +74,7 @@ class TestFS(CLITest):
 
         assert set(self.parse_repos(o)) == set(repos)
 
-    @pytest.mark.skipif(True, reason="Temporarily excluding")
+    @pytest.mark.skipif(True, reason="Temporarily excluding for test on breaking")
     def testSetsWithTransfer(self, capsys):
         """Test --with-transfer option of fs sets subcommand"""
 
@@ -98,7 +98,7 @@ class TestFS(CLITest):
             assert set(self.parse_ids(o)) == \
                 set([x.id.val for (k, x) in f.iteritems() if k == transfer])
 
-    @pytest.mark.skipif(True, reason="Temporarily excluding")
+    @pytest.mark.skipif(True, reason="Temporarily excluding for test on breaking")
     def testSetsAdminOnly(self, capsys):
         """Test fs sets --check is admin-only"""
 
@@ -108,7 +108,7 @@ class TestFS(CLITest):
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
 
-    @pytest.mark.skipif(True, reason="Temporarily excluding")
+    @pytest.mark.skipif(True, reason="Temporarily excluding for test on breaking")
     def testRenameAdminOnly(self, capsys):
         """Test fs rename is admin-only"""
 
@@ -118,7 +118,7 @@ class TestFS(CLITest):
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
 
-    @pytest.mark.skipif(True, reason="Temporarily excluding")
+    @pytest.mark.skipif(True, reason="Temporarily excluding for test on breaking")
     def testFixPyramidAdminOnly(self, capsys):
         """Test fs fixpyramid is admin-only"""
 
@@ -151,7 +151,7 @@ class TestFSRoot(RootCLITest):
         self.cli.invoke(self.args, strict=True)
         assert not pyramid_file.exists()
 
-    @pytest.mark.skipif(True, reason="Temporarily excluding")
+    @pytest.mark.skipif(True, reason="Temporarily excluding for test on breaking")
     def testFixPyramidWrongType(self):
         """Test fs fixpyramid with incorrect argument type"""
 
