@@ -3,7 +3,7 @@
 #
 #
 #
-# Copyright (c) 2008-2011 University of Dundee.
+# Copyright (c) 2008-2016 University of Dundee.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -69,15 +69,11 @@ urlpatterns = patterns(
         name="activities_update"),
 
     # loading data
-    url(r'^load_data/(?:(?P<o1_type>'
-        r'((?i)project|dataset|image|screen|plate|well|orphaned))/)'
-        r'?(?:(?P<o1_id>[0-9]+)/)'
-        r'?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)'
-        r'?(?:(?P<o2_id>[0-9]+)/)'
-        r'?(?:(?P<o3_type>((?i)image|well))/)'
-        r'?(?:(?P<o3_id>[0-9]+)/)?$',
-        views.load_data,
-        name="load_data"),
+    url(r'^load_plate/(?:(?P<o1_type>'
+        r'((?i)plate|acquisition))/)'
+        r'?(?:(?P<o1_id>[0-9]+)/)?$',
+        views.load_plate,
+        name="load_plate"),
 
     # chgrp. Load potential target groups, then load target P/D within chosen
     # group
@@ -98,10 +94,6 @@ urlpatterns = patterns(
     # load search
     url(r'^load_searching/(?:(?P<form>((?i)form))/)?$', views.load_searching,
         name="load_searching"),
-
-    # load public
-    url(r'^load_public/(?:(?P<share_id>[0-9]+)/)?$', views.load_public,
-        name="load_public"),
 
     # metadata
     url(r'^metadata_details/(?:(?P<c_type>[a-zA-Z]+)/'
@@ -180,6 +172,9 @@ urlpatterns = patterns(
     url(r'^(?:(?P<share_id>[0-9]+)/)?copyImgRDef/$',
         webgateway.copy_image_rdef_json,
         name="copy_image_rdef_json"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?luts/$',
+        webgateway.listLuts_json,
+        name="web_list_luts"),
 
 
     # Fileset query (for delete or chgrp dialogs) obj-types and ids in REQUEST
@@ -226,10 +221,6 @@ urlpatterns = patterns(
     url(r'^download_orig_metadata/(?P<imageId>[0-9]+)/$',
         views.download_orig_metadata,
         name="download_orig_metadata"),
-
-    url(r'^load_data_by_tag/',
-        views.load_data_by_tag,
-        name="load_data_by_tag"),
 
     url(r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
 

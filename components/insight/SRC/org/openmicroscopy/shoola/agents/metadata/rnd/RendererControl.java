@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,6 +53,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPickerUtil;
 
 /** 
  * The Renderer's controller.
@@ -146,6 +148,9 @@ class RendererControl
     /** Index of the channel invoking the color picker. */
 	private int         			colorPickerIndex;
 	
+	/** Reference to the color picker dialog */
+	private ColourPicker colorPicker;
+	
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
@@ -220,14 +225,21 @@ class RendererControl
     {
 		colorPickerIndex = channel;
 		Color c = view.getChannelColor(channel);
+		String lut = view.getLookupTable(channel);
+		Collection<String> luts = view.getAvailableLookupTables();
+		MetadataViewerAgent.getAvailableUserGroups();
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		ColourPicker dialog = new ColourPicker(f, c);
-		dialog.setPreviewVisible(true);
-		dialog.addPropertyChangeListener(this);
-		if (location == null)
-		    UIUtilities.centerAndShow(dialog);
-		else
-		    UIUtilities.showOnScreen(dialog, location);
+		if(colorPicker == null) {
+    		colorPicker = new ColourPicker(f, c, luts, lut);
+    		colorPicker.setPreviewVisible(true);
+    		colorPicker.addPropertyChangeListener(this);
+		}
+		if (!colorPicker.isShowing()) {
+    		if (location == null)
+    		    UIUtilities.centerAndShow(colorPicker);
+    		else
+    		    UIUtilities.showOnScreen(colorPicker, location);
+		}
     }
     
     /** 
@@ -429,19 +441,43 @@ class RendererControl
         } else if (Renderer.RANGE_INPUT_PROPERTY.equals(name)) {
         	Boolean b = (Boolean) evt.getNewValue();
             view.setInputRange(b.booleanValue());
-        } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) { 
-			Color c = (Color) evt.getNewValue();
-			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c, false);
-			}
-        } else if (ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) { 
-			Color c = (Color) evt.getNewValue();
-			if (colorPickerIndex != -1) {
-				model.setChannelColor(colorPickerIndex, c, true);
-			}
-		} else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
-			model.setChannelColor(colorPickerIndex, null, true);
-		} else if (Renderer.Z_SELECTED_PROPERTY.equals(name)) {
+        } else if (ColourPicker.COLOUR_PROPERTY.equals(name)
+                || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)
+                || ColourPicker.LUT_PROPERTY.equals(name)
+                || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) {
+            if (colorPickerIndex != -1) {
+                
+                Color newColor = model.getChannelColor(colorPickerIndex);
+                Color oldColor = model.getChannelColor(colorPickerIndex);
+                String newLut = model.getLookupTable(colorPickerIndex);
+                String oldLut = model.getLookupTable(colorPickerIndex);
+
+                if (ColourPicker.COLOUR_PROPERTY.equals(name)
+                        || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(name)) {
+                    newColor = (Color) evt.getNewValue();
+                } else if (ColourPicker.LUT_PROPERTY.equals(name)
+                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name)) {
+                    newLut = (String) evt.getNewValue();
+                }
+
+                boolean preview = ColourPicker.COLOUR_PREVIEW_PROPERTY
+                        .equals(name)
+                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(name);
+
+                handleColorPicker(false, preview, colorPickerIndex, newColor,
+                        oldColor, newLut, oldLut);
+            }
+        } else if (ColourPicker.CANCEL_PROPERTY.equals(name)) {
+            if (colorPickerIndex != -1) {
+                handleColorPicker(true, false, colorPickerIndex, null, null,
+                        null, null);
+            }
+            colorPicker.dispose();
+            colorPicker = null;
+		} else if (ColourPicker.CLOSE.equals(name)) {
+            colorPicker.dispose();
+            colorPicker = null;
+        } else if (Renderer.Z_SELECTED_PROPERTY.equals(name)) {
 			view.setZSection(((Integer) evt.getNewValue()).intValue());
 		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
 			view.setTimepoint(((Integer) evt.getNewValue()).intValue());
@@ -459,4 +495,29 @@ class RendererControl
         actionsMap.get(PASTE).setEnabled(pasteEnabled);
     }
 
+    /**
+     * Handle color picker settings
+     * @param reset Flag to indicate to reset the preview settings again
+     * @param preview Flag to indicate to preview the settings 
+     * @param index The channel index
+     * @param newColor The new Color
+     * @param oldColor The previous Color
+     * @param newLut The new lookup table
+     * @param oldLut The previous lookup table
+     */
+    private void handleColorPicker(boolean reset, boolean preview, int index,
+            Color newColor, Color oldColor, String newLut, String oldLut) {
+        if (reset) {
+            model.resetLookupTable(index);
+            model.setChannelColor(index, null, true);
+        } else {
+            if (!ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
+                model.setLookupTable(index, newLut, preview);
+            } else if (!ColourPickerUtil.sameColor(newColor, oldColor)) {
+                model.setLookupTable(index, null, preview);
+                model.setChannelColor(index, newColor, preview);
+            } 
+        }
+    }
+    
 }

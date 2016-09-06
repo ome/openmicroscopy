@@ -2901,7 +2901,11 @@ class EditorModel
 				ChannelData data;
 				while (i.hasNext()) {
 					data = i.next();
-					m.put(data, renderer.getChannelColor(data.getIndex()));
+                    if (CommonsLangUtils.isNotEmpty(renderer
+                            .getLookupTable(data.getIndex())))
+                        m.put(data, renderer.getLookupTable(data.getIndex()));
+                    else
+                        m.put(data, renderer.getChannelColor(data.getIndex()));
 				}
 				return m;
 			}
@@ -3575,7 +3579,7 @@ class EditorModel
 	/**
          * Reloads the {@link RenderingControl} for the given pixelsID
          * (Note: This is a blocking method, for asynchronous call use 
-         *   {@link fireRenderingControlLoading(long, int)} instead
+         *   {@link #fireRenderingControlLoading(long, int)} instead
          * @param pixelsID The id of the pixels set.
          */
         void loadRenderingControl(long pixelsID) {
@@ -3728,6 +3732,12 @@ class EditorModel
 		return renderer.getChannelColor(index);
 	}
 
+	String getLookupTable(int index) {
+	    if(renderer == null)
+	        return null;
+	    return renderer.getLookupTable(index);
+	}
+	
 	/**
 	 * Returns <code>true</code> if it is an image with a lot of channels.
 	 * <code>false</code> otherwise.

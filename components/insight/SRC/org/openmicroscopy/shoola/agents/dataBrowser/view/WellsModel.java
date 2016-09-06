@@ -232,7 +232,7 @@ class WellsModel
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 */
-	WellsModel(SecurityContext ctx, Object parent, Set<WellData> wells, 
+	WellsModel(SecurityContext ctx, Object parent, Collection<WellData> wells, 
 			boolean withThumbnails)
 	{
 		super(ctx);

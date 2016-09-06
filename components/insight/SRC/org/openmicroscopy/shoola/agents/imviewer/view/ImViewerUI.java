@@ -1144,7 +1144,12 @@ class ImViewerUI
 		while (i.hasNext()) {
 			d = i.next();
 			index = d.getIndex();
-			comp = new PlaneInfoComponent(model.getChannelColor(index));
+            boolean lut = CommonsLangUtils.isNotEmpty(model
+                    .getLookupTable(index));
+            if (lut)
+                comp = new PlaneInfoComponent(model.getLookupTable(index));
+            else
+                comp = new PlaneInfoComponent(model.getChannelColor(index));
 			comp.addPropertyChangeListener(
 					PlaneInfoComponent.PLANE_INFO_PROPERTY, controller);
 			planes.put(index, comp);
@@ -1423,7 +1428,14 @@ class ImViewerUI
 	        if (info != null) {
 	            details = EditorUtil.transformPlaneInfo(info);
 	            notSet = (List<String>) details.get(EditorUtil.NOT_SET);
-	            comp.setColor(colors.get(index));
+	            String lut = model.getLookupTable(index);
+	            if(CommonsLangUtils.isEmpty(lut)) {
+	                    comp.setColor(colors.get(index));
+	                    comp.setLookupTable(null);
+	            }
+	            else {
+	                comp.setLookupTable(lut);
+	            }
 	            if (!notSet.contains(EditorUtil.DELTA_T)) {
 	                if(details.get(EditorUtil.DELTA_T) instanceof BigResult) {
 	                    ImViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T), EditorUtil.DELTA_T);
@@ -1499,18 +1511,35 @@ class ImViewerUI
 	 */
 	void playChannelMovie(boolean enabled) { tabs.setEnabled(enabled); }
 	
-	/** 
-	 * Sets the color of the specified channel. 
-	 * 
-	 * @param index The channel index. 
-	 * @param c     The color to set.
-	 */
-	void setChannelColor(int index, Color c)
-	{
-		PlaneInfoComponent comp = planes.get(index);
-		if (comp != null) comp.setColor(c);
-		controlPane.setChannelColor(index, c);
-	}
+    /**
+     * Sets the color of the specified channel.
+     * 
+     * @param index
+     *            The channel index.
+     * @param c
+     *            The color to set.
+     */
+    void setChannelColor(int index, Color c) {
+        PlaneInfoComponent comp = planes.get(index);
+        if (comp != null)
+            comp.setColor(c);
+        controlPane.setChannelColor(index, c);
+    }
+
+    /**
+     * Sets the lookup table of the specified channel.
+     * 
+     * @param index
+     *            The channel index.
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int index, String lut) {
+        PlaneInfoComponent comp = planes.get(index);
+        if (comp != null)
+            comp.setLookupTable(lut);
+        controlPane.setLookupTable(index, lut);
+    }
 
 	/** Resets the defaults. */
 	void resetDefaults() { controlPane.resetRndSettings(); }
@@ -1759,9 +1788,13 @@ class ImViewerUI
 				while (i.hasNext()) {
 					d = i.next();
 					index = d.getIndex();
-					item = new ChannelColorMenuItem(
-							d.getChannelLabeling(), 
-							model.getChannelColor(index), index);
+                    String lut = model.getLookupTable(index);
+                    if (CommonsLangUtils.isNotEmpty(lut))
+                        item = new ChannelColorMenuItem(d.getChannelLabeling(),
+                                lut, index);
+                    else
+                        item = new ChannelColorMenuItem(d.getChannelLabeling(),
+                                model.getChannelColor(index), index);
 					menu.add(item);
 					item.addPropertyChangeListener(controller);
 				}

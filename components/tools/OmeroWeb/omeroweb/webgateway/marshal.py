@@ -43,7 +43,7 @@ def channelMarshal(channel):
     @return:            Dict
     """
 
-    return {'emissionWave': channel.getEmissionWave(),
+    chan = {'emissionWave': channel.getEmissionWave(),
             'label': channel.getLabel(),
             'color': channel.getColor().getHtml(),
             'window': {'min': channel.getWindowMin(),
@@ -51,6 +51,10 @@ def channelMarshal(channel):
                        'start': channel.getWindowStart(),
                        'end': channel.getWindowEnd()},
             'active': channel.isActive()}
+    lut = channel.getLut()
+    if lut and len(lut) > 0:
+        chan['lut'] = lut
+    return chan
 
 
 def imageMarshal(image, key=None, request=None):

@@ -990,6 +990,17 @@ class ImViewerModel
 	}
 
 	/**
+     * Return the lookup table for the given channel
+     * @param index The channel index
+     * @return See above
+     */
+	String getLookupTable(int index) {
+	    Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null) return null;
+        return rnd.getLookupTable(index);
+	}
+	
+	/**
 	 * Returns <code>true</code> if the channel is mapped, <code>false</code>
 	 * otherwise.
 	 * 
@@ -1224,6 +1235,21 @@ class ImViewerModel
 		if (rnd == null) return;
 		rnd.setChannelColor(index, c, false);
 	}
+	
+    /**
+     * Sets the lookup table for the specified channel.
+     * 
+     * @param index
+     *            The channel's index.
+     * @param lut
+     *            The lookup table
+     */
+    void setLookupTable(int index, String lut) {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return;
+        rnd.setLookupTable(index, lut, false);
+    }
 
 	/**
 	 * Sets the channel active.
@@ -1931,6 +1957,18 @@ class ImViewerModel
 		return rnd.getCompressionLevel();
 	}
 	
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above.
+     */
+    public Collection<String> getAvailableLookupTables() {
+        Renderer rnd = metadataViewer.getRenderer();
+        if (rnd == null)
+            return null;
+        return rnd.getRenderingControls().get(0).getAvailableLookupTables();
+    }
+
 	/**
 	 * Fires an asynchronous retrieval of the rendering settings 
 	 * linked to the currently viewed set of pixels.
@@ -2024,13 +2062,17 @@ class ImViewerModel
 	{ 
 		if (!metadataLoaded) {
 			metadataLoaded = true;
-			Map<ChannelData, Color> m = new LinkedHashMap<ChannelData, Color>();
+			Map<ChannelData, Object> m = new LinkedHashMap<ChannelData, Object>();
 			List<ChannelData> sorted = getChannelData();
 			Iterator<ChannelData> i = sorted.iterator();
 			ChannelData channel;
 			while (i.hasNext()) {
 				channel = i.next();
-				m.put(channel, getChannelColor(channel.getIndex()));
+                if (CommonsLangUtils.isNotEmpty(getLookupTable(channel
+                        .getIndex())))
+                    m.put(channel, getLookupTable(channel.getIndex()));
+                else
+                    m.put(channel, getChannelColor(channel.getIndex()));
 			}
 			metadataViewer.activate(m); 
 		}

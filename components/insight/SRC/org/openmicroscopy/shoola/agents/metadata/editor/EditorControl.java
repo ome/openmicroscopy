@@ -608,7 +608,10 @@ class EditorControl
 				view.handleObjectsSelection(type, 
 						(Collection) entry.getValue());
 			}
-		} else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
+		} else if (SelectionWizard.CANCEL_SELECTION_PROPERTY.equals(name)) {
+		    view.setStatus(false);
+		}
+		else if (MetadataViewer.SETTINGS_APPLIED_PROPERTY.equals(name)) {
 			model.loadRenderingControl(RenderingControlLoader.RELOAD);
 			view.onSettingsApplied(true);
 		} else if (MetadataViewer.ACTIVITY_OPTIONS_PROPERTY.equals(name)) {

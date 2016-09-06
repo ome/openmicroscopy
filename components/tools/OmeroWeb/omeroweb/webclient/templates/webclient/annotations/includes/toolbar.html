@@ -33,10 +33,12 @@
                     $(this).css('visibility', 'hidden');
                 }).hide();
 
+                {% if link_string %}
+                $("#link_info_popup_string").val(location.protocol + "//" + location.host + "{{ webclient_path }}?show={{ link_string }}");
+                {% endif %}
 
                 // We do this here and in batch_annotate panel
                 OME.initToolbarDropdowns();
-
             });
             
     </script>
@@ -54,11 +56,7 @@
         <table>
           <tr><td>
             <!-- In 'batch_annotate' panel we have 'link_string'. In 'metadata_general' we use js to get value -->
-            <input type="text" size="30"
-              {% if link_string %}
-              value="{{ webclient_path }}?show={{ link_string }}"
-              {% endif %}
-              />
+            <input type="text" size="30" id="link_info_popup_string" />
           </td><td>
             <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
           </td></tr>

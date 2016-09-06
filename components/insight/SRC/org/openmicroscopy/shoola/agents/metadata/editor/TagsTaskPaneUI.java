@@ -324,5 +324,13 @@ public class TagsTaskPaneUI extends AnnotationTaskPaneUI {
         addTagsButton.setEnabled(model.canAddAnnotationLink());
         removeTagsButton.setEnabled(model.canDeleteAnnotationLink());
     }
-    
+
+    @Override
+    int getUnfilteredAnnotationCount() {
+        if (model.isMultiSelection()) {
+            return model.getAllTags().size();
+        } else {
+            return model.getTags().size();
+        }
+    }
 }

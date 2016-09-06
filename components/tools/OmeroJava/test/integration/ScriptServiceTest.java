@@ -20,14 +20,17 @@
  */
 package integration;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import omero.api.IScriptPrx;
+import omero.api.RawFileStorePrx;
 import omero.grid.JobParams;
 import omero.model.IObject;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -48,7 +51,7 @@ import org.testng.annotations.Test;
 public class ScriptServiceTest extends AbstractServerTest {
 
     /** The mimetype of the lookup table files.*/
-    private static final String LUT_MIMETYPE = "text/x-lut";
+    static final String LUT_MIMETYPE = "text/x-lut";
 
     /**
      * Tests to make sure that a new entry for the same file is not added
@@ -66,7 +69,7 @@ public class ScriptServiceTest extends AbstractServerTest {
         String sql = "select f from OriginalFile as f "
                 + "where f.mimetype = :m";
         List<IObject> values = iQuery.findAllByQuery(sql, param);
-        Assert.assertEquals(n, values.size());
+        Assert.assertEquals(values.size(), n);
     }
 
     /**
@@ -91,6 +94,7 @@ public class ScriptServiceTest extends AbstractServerTest {
                 Assert.fail("Lut should not be returned.");
             }
         }
+        //do it twice since we had initially a bug in loading
         scripts = svc.getScripts();
         Assert.assertNotNull(scripts);
         Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
@@ -123,7 +127,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             f = i.next();
             Assert.assertNotNull(f);
             String mimetype = f.getMimetype().getValue();
-            Assert.assertEquals(LUT_MIMETYPE, mimetype);
+            Assert.assertEquals(mimetype, LUT_MIMETYPE);
         }
         scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
         i = scripts.iterator();
@@ -131,7 +135,7 @@ public class ScriptServiceTest extends AbstractServerTest {
             f = i.next();
             Assert.assertNotNull(f);
             String mimetype = f.getMimetype().getValue();
-            Assert.assertEquals(LUT_MIMETYPE, mimetype);
+            Assert.assertEquals(mimetype, LUT_MIMETYPE);
         }
     }
     
@@ -166,20 +170,20 @@ public class ScriptServiceTest extends AbstractServerTest {
      */
     @Test
     public void testUploadOfficialScript() throws Exception {
-        StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
-        for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
-        }
-        String folder = "officialTestFolder";
+        newUserAndGroup("rwr---");
         IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScripts();
+        OriginalFile f = scripts.get(0);
         int n = svc.getScripts().size();
+        //read the script. This is tested elsewhere
+        String str = readScript(f);
+        String folder = f.getName().getValue();
         try {
-            svc.uploadOfficialScript(folder, buf.toString());
+            svc.uploadOfficialScript(folder, str);
             Assert.fail("Only administrators can upload official script.");
         } catch (Exception e) {
         }
-        Assert.assertEquals(n, svc.getScripts().size());
+        Assert.assertEquals(svc.getScripts().size(), n);
     }
 
     /**
@@ -192,18 +196,39 @@ public class ScriptServiceTest extends AbstractServerTest {
     @Test
     public void testUploadOfficialScriptAsRoot() throws Exception {
         logRootIntoGroup();
-        StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
-        for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
-        }
-        String folder = "officialTestFolder";
         IScriptPrx svc = factory.getScriptService();
-        try {
-            long id = svc.uploadOfficialScript(folder, buf.toString());
-            Assert.assertTrue(id > 0);
-        } catch (Exception e) {
-        }
+        List<OriginalFile> scripts = svc.getScripts();
+        OriginalFile f = scripts.get(0);
+        //read the script. This is tested elsewhere
+        String str = readScript(f);
+        String folder = f.getName().getValue();
+        long id = svc.uploadOfficialScript(folder, str);
+        Assert.assertTrue(id > 0);
+        Assert.assertEquals(svc.getScripts().size(), scripts.size()+1);
+        deleteScript(id);
+    }
+
+    /**
+     * Tests to upload an official script by a user who is an administrator,
+     * this method uses the <code>deleteScript</code>.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteScriptAsRoot() throws Exception {
+        logRootIntoGroup();
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScripts();
+        OriginalFile f = scripts.get(0);
+        //read the script. This is tested elsewhere
+        String str = readScript(f);
+        String folder = f.getName().getValue();
+        long id = svc.uploadOfficialScript(folder, str);
+        deleteScript(id);
+        Assert.assertEquals(svc.getScripts().size(), scripts.size());
+        //Check that the entry has been removed from DB
+        assertDoesNotExist(new OriginalFileI(id, false));
     }
 
     /**
@@ -214,14 +239,13 @@ public class ScriptServiceTest extends AbstractServerTest {
      */
     @Test
     public void testUploadScript() throws Exception {
-        StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
-        for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
-        }
-        String folder = "scriptTestFolder";
         IScriptPrx svc = factory.getScriptService();
-        long id = svc.uploadScript(folder, buf.toString());
+        List<OriginalFile> scripts = svc.getScripts();
+        OriginalFile f = scripts.get(0);
+        //read the script. This is tested elsewhere
+        String str = readScript(f);
+        String folder = f.getName().getValue();
+        long id = svc.uploadScript(folder, str);
         Assert.assertTrue(id > 0);
     }
 
@@ -235,22 +259,45 @@ public class ScriptServiceTest extends AbstractServerTest {
     @Test
     public void testUploadOfficialLUTAsRoot() throws Exception {
         logRootIntoGroup();
-        StringBuffer buf = new StringBuffer("");
-        String[] values = { "a", "b", "c" };
-        for (int i = 0; i < values.length; i++) {
-            buf.append(values[i].charAt(0));
-        }
-        String uuid = UUID.randomUUID().toString();
-        String folder = "officialTestFolder"+uuid+".lut";
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScriptsByMimetype(LUT_MIMETYPE);
         int n = scripts.size();
-        try {
-            long id = svc.uploadOfficialScript(folder, buf.toString());
-            Assert.assertTrue(id > 0);
-        } catch (Exception e) {
-        }
-        Assert.assertEquals(n+1, svc.getScriptsByMimetype(LUT_MIMETYPE).size());
+        OriginalFile f = scripts.get(0);
+        String str = readScript(f);
+        String folder = f.getName().getValue();
+        long id = svc.uploadOfficialScript(folder, str);
+        Assert.assertTrue(id > 0);
+        Assert.assertEquals(svc.getScriptsByMimetype(LUT_MIMETYPE).size(),
+                n+1);
+        deleteScript(id);
     }
 
+    /**
+     * Delete the uploaded script.
+     *
+     * @param id The identifier of the script.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void deleteScript(long id) throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        svc.deleteScript(id);
+    }
+
+
+    /**
+     * Reads the specified script as a string.
+     *
+     * @param f The script to read.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private String readScript(OriginalFile f) throws Exception {
+        RawFileStorePrx store;
+        byte[] values;
+        store = factory.createRawFileStore();
+        store.setFileId(f.getId().getValue());
+        values = store.read(0, (int) f.getSize().getValue());
+        store.close();
+        return new String(values, StandardCharsets.UTF_8);
+    }
 }

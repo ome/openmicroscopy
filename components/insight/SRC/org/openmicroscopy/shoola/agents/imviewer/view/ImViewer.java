@@ -370,6 +370,28 @@ public interface ImViewer
 	 */
 	public void setChannelColor(int index, Color c, boolean preview);
 
+    /**
+     * Reset the lookup table for the given channel
+     * 
+     * @param index
+     *            The channel index
+     */
+    public void resetLookupTable(int index);
+	
+    /**
+     * Sets the lookup table of the specified channel depending on the current
+     * color model.
+     * 
+     * @param index
+     *            The OME index of the channel.
+     * @param lut
+     *            The lookup table to set.
+     * @param preview
+     *            Pass <code>true</code> to indicate that it is a color preview,
+     *            <code>false</code> otherwise.
+     */
+    public void setLookupTable(int index, String lut, boolean preview);
+    
 	/**
 	 * Selects or deselects the specified channel.
 	 * The selection process depends on the currently selected color model.
@@ -422,6 +444,13 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public String getImageName();
+	
+    /**
+     * Get the image ID
+     * 
+     * @return See above
+     */
+    public long getImageID();
 
 	/**
 	 * Returns the currently selected color model.
@@ -550,6 +579,22 @@ public interface ImViewer
 	 */
 	public Color getChannelColor(int index);
 
+    /**
+     * Get the lookup table for the given channel
+     * 
+     * @param index
+     *            The channel index
+     * @return See above
+     */
+    public String getLookupTable(int index);
+
+    /**
+     * Get all available lookup tables
+     * 
+     * @return See above
+     */
+    public Collection<String> getAvailableLookupTables();
+	
 	/**
 	 * Sets the size of the unit bar in microns.
 	 * 
@@ -1085,13 +1130,6 @@ public interface ImViewer
 	 * 				   <code>false</code> otherwise.
 	 */
 	public void renderOverlays(int index, boolean selected);
-	
-	/**
-	 * Indicates that the color of the channel has changed.
-	 * 
-	 * @param index The index of the channel.
-	 */
-	public void onChannelColorChanged(int index);
 	
 	/**
 	 * Returns <code>true</code> if the image is a large image,

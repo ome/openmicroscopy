@@ -1140,18 +1140,19 @@ OMERO Diagnostics %s
                 if not p.exists():
                     self.ctx.out("n/a")
                 else:
+                    warn_regex = ('(-! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                                  'warn(i(ng:)?)?\s')
+                    err_regex = ('(!! )?[\d\-/]+\s+[\d:,.]+\s+([\w.]+:\s+)?'
+                                 'error:?\s')
                     warn = 0
                     err = 0
                     for l in p.lines():
                         # ensure errors/warnings search is case-insensitive
                         lcl = l.lower()
-                        found_err = lcl.find("error") >= 0
-                        found_warn = lcl.find("warn") >= 0
-
-                        if found_err:
-                            err += 1
-                        elif found_warn:
+                        if re.match(warn_regex, lcl):
                             warn += 1
+                        elif re.match(err_regex, lcl):
+                            err += 1
                     msg = ""
                     if warn or err:
                         msg = " errors=%-4s warnings=%-4s" % (err, warn)

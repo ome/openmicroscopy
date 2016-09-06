@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -169,6 +170,17 @@ class RendererUI
         pane.setChannelColor(index);
     }
 
+    /**
+     * Sets the lookup table of the specified channel.
+     *
+     * @param index The channel's index.
+     */
+    void setLookUpTable(int index)
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.setLookupTable(index);
+    }
+    
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
@@ -241,6 +253,17 @@ class RendererUI
     Color getChannelColor(int channel)
     { 
         return model.getChannelColor(channel);
+    }
+
+    /**
+     * Returns the lookup table associated to the channel.
+     *
+     * @param channel
+     *            The index of the channel.
+     * @return See above.
+     */
+    String getLookupTable(int channel) {
+        return model.getLookupTable(channel);
     }
 
     /**
@@ -345,5 +368,14 @@ class RendererUI
     {
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         return pane.getSelectedDef();
+    }
+
+    /**
+     * Returns all available lookup tables
+     * 
+     * @return See above
+     */
+    Collection<String> getAvailableLookupTables() {
+        return model.getAvailableLookupTables();
     }
 }

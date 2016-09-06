@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__8.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__10.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  8,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  10,            'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1861,6 +1861,60 @@ CREATE TRIGGER experimenter_config_map_entry_delete_trigger
 CREATE INDEX experimenter_config_name ON experimenter_config(name);
 CREATE INDEX experimenter_config_value ON experimenter_config(value);
 
+-- ... up to patch 9:
+
+ALTER TABLE projectiondef ADD stepping positive_int;
+
+-- ... up to patch 10:
+
+ALTER TABLE codomainmapcontext DROP CONSTRAINT FKcodomainmapcontext_renderingDef_renderingdef;
+ALTER TABLE codomainmapcontext DROP renderingdef;
+ALTER TABLE codomainmapcontext DROP renderingdef_index;
+
+DROP TRIGGER codomainmapcontext_renderingDef_index_trigger ON codomainmapcontext;
+DROP FUNCTION codomainmapcontext_renderingDef_index_move();
+
+ALTER TABLE codomainmapcontext ADD channelBinding int8 NOT NULL;
+ALTER TABLE codomainmapcontext ADD channelBinding_index int4 NOT NULL;
+
+ALTER TABLE codomainmapcontext ADD UNIQUE (channelBinding, channelBinding_index);
+
+
+ALTER TABLE codomainmapcontext
+ADD CONSTRAINT FKcodomainmapcontext_channelBinding_channelbinding
+FOREIGN KEY (channelBinding)
+REFERENCES channelbinding;
+
+CREATE OR REPLACE FUNCTION codomainmapcontext_channelBinding_index_move() RETURNS "trigger" AS '
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.channelBinding = old.channelBinding AND new.channelBinding_index = old.channelBinding_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM codomainmapcontext
+       WHERE channelBinding = new.channelBinding AND channelBinding_index = new.channelBinding_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE ''Remapping codomainmapcontext %% via (-1 - oldvalue )'', duplicate;
+          UPDATE codomainmapcontext SET channelBinding_index = -1 - channelBinding_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;' LANGUAGE plpgsql;
+
+CREATE TRIGGER codomainmapcontext_channelBinding_index_trigger
+    BEFORE UPDATE ON codomainmapcontext
+    FOR EACH ROW EXECUTE PROCEDURE codomainmapcontext_channelBinding_index_move ();
+
+CREATE INDEX i_CodomainMapContext_channelBinding ON codomainmapcontext(channelBinding);
 
 --
 -- FINISHED
@@ -1868,10 +1922,10 @@ CREATE INDEX experimenter_config_value ON experimenter_config(value);
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 8             AND
+          currentPatch    = 10             AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__8'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__10'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

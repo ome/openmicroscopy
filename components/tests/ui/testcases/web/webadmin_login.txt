@@ -54,3 +54,14 @@ Invalid Login
     Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
     Page Should Contain     This field is required.
 
+Guest Login
+
+    Go To                   ${LOGIN URL}
+    # Check that 'g' is not mistaken for 'guest' https://github.com/openmicroscopy/openmicroscopy/pull/4686
+    Log In As               g                               secret                  ${SERVER_ID}
+    Page Should Be Open     ${LOGIN URL}                    OMERO.web - Login
+    Page Should Contain     Error: Connection not available, please check your user name and password.
+    Go To                   ${LOGIN URL}
+    Log In As               guest                           secret                  ${SERVER_ID}
+    Page Should Be Open     ${LOGIN URL}                    OMERO.web - Login
+    Page Should Contain     Guest account is not supported.
