@@ -321,10 +321,15 @@ public class DataManagerFacilityTest extends GatewayTest {
     @Test(dependsOnMethods = { "testSaveAndReturnObject" })
     public void testPerformanceAttachFile() throws Exception {
         long start = System.currentTimeMillis();
-        Future<FileAnnotationData> f = datamanagerFacility.attachFile(rootCtx,
-                attachments[0], "application/octet-stream", "test", null, ds);
-        f.get();
-        long singleUploadDuration = System.currentTimeMillis() - start;
+
+        for (File file : attachments) {
+            Future<FileAnnotationData> f = datamanagerFacility
+                    .attachFile(rootCtx, file, "application/octet-stream",
+                            "test", null, ds);
+            f.get();
+        }
+        long duration = System.currentTimeMillis() - start;
+        long avgSingleUploadDuration = duration / attachments.length;
 
         start = System.currentTimeMillis();
         Future<FileAnnotationData>[] futures = new Future[attachments.length];
@@ -347,14 +352,15 @@ public class DataManagerFacilityTest extends GatewayTest {
                 break;
             Thread.sleep(100);
         }
-        long duration = System.currentTimeMillis() - start;
-        long durationPerFile = duration / attachments.length;
+        duration = System.currentTimeMillis() - start;
+        long avgParallelUploadDurationPerFile = duration / attachments.length;
 
-        Assert.assertTrue(durationPerFile < singleUploadDuration
-                * multipleAttachmentUploadThreshold,
+        Assert.assertTrue(
+                avgParallelUploadDurationPerFile < avgSingleUploadDuration
+                        * multipleAttachmentUploadThreshold,
                 "Parallel file attachment upload is significantly slower than single upload ("
-                        + durationPerFile + " vs " + singleUploadDuration
-                        + " ms)");
+                        + avgParallelUploadDurationPerFile + " vs "
+                        + avgSingleUploadDuration + " ms per file)");
     }
     
     @Test
