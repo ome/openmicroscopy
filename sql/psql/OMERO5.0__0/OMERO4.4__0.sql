@@ -413,7 +413,7 @@ CREATE FUNCTION filesetentry_fileset_index_move() RETURNS "trigger" AS '
        LIMIT 1;
 
       IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping filesetentry %% via (-1 - oldvalue )'', duplicate;
+          RAISE NOTICE ''Remapping filesetentry % via (-1 - oldvalue )'', duplicate;
           UPDATE filesetentry SET fileset_index = -1 - fileset_index WHERE id = duplicate;
       END IF;
 
@@ -442,7 +442,7 @@ CREATE FUNCTION filesetjoblink_parent_index_move() RETURNS "trigger" AS '
        LIMIT 1;
 
       IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping filesetjoblink %% via (-1 - oldvalue )'', duplicate;
+          RAISE NOTICE ''Remapping filesetjoblink % via (-1 - oldvalue )'', duplicate;
           UPDATE filesetjoblink SET parent_index = -1 - parent_index WHERE id = duplicate;
       END IF;
 
@@ -466,7 +466,7 @@ CREATE FUNCTION _fs_dir_delete() RETURNS "trigger" AS $_fs_dir_delete$
                            LIMIT 1) THEN
 
                     -- CANCEL DELETE
-                    RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+                    RAISE EXCEPTION '%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
 
                 END IF;
             END IF;
@@ -514,7 +514,7 @@ CREATE TRIGGER _fs_log_delete
 CREATE FUNCTION _fs_directory_mimetype() RETURNS "trigger" AS $$
     BEGIN
         IF OLD.mimetype = 'Directory' AND NEW.mimetype != 'Directory' THEN
-            RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
+            RAISE EXCEPTION '%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
         END IF;
         RETURN NEW;
     END;
