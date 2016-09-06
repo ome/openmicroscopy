@@ -42,6 +42,7 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ResolutionDescription;
 import omero.model.CodomainMapContext;
 import omero.model.Family;
+import omero.model.IObject;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Pixels;
@@ -1311,17 +1312,12 @@ class RenderingControlProxy
             throws RenderingServiceException, DSOutOfServiceException
     {
         isSessionAlive();
-        isSessionAlive();
         List<CodomainMapContext> l = new ArrayList<CodomainMapContext>();
         try {
-            List<omero.romio.CodomainMapContext> m = servant.getCodomainMapContext(w);
-            Iterator<omero.romio.CodomainMapContext> i = m.iterator();
-            omero.romio.CodomainMapContext c;
+            List<IObject> ll = servant.getCodomainMapContext(w);
+            Iterator<IObject> i = ll.iterator();
             while (i.hasNext()) {
-                c = i.next();
-                if (c instanceof omero.romio.ReverseIntensityMapContext) {
-                    l.add(new ReverseIntensityContextI());
-                }
+                l.add((CodomainMapContext) i.next());
             }
             invalidateCache();
         } catch (Exception e) {
