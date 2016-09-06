@@ -54,7 +54,86 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.3DEV',  11,           'OMERO5.3DEV',   10);
 
--- TODO
+CREATE OR REPLACE FUNCTION codomainmapcontext_channelbinding_index_move() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.channelBinding = old.channelBinding AND new.channelBinding_index = old.channelBinding_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM codomainmapcontext
+       WHERE channelBinding = new.channelBinding AND channelBinding_index = new.channelBinding_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping codomainmapcontext % via (-1 - oldvalue )', duplicate;
+          UPDATE codomainmapcontext SET channelBinding_index = -1 - channelBinding_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+CREATE OR REPLACE FUNCTION filesetentry_fileset_index_move() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.fileset = old.fileset AND new.fileset_index = old.fileset_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM filesetentry
+       WHERE fileset = new.fileset AND fileset_index = new.fileset_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping filesetentry % via (-1 - oldvalue )', duplicate;
+          UPDATE filesetentry SET fileset_index = -1 - fileset_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+CREATE OR REPLACE FUNCTION filesetjoblink_parent_index_move() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.parent = old.parent AND new.parent_index = old.parent_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM filesetjoblink
+       WHERE parent = new.parent AND parent_index = new.parent_index
+       OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping filesetjoblink % via (-1 - oldvalue )', duplicate;
+          UPDATE filesetjoblink SET parent_index = -1 - parent_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
 
 
 --
