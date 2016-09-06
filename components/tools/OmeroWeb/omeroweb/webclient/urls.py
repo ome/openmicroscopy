@@ -172,6 +172,9 @@ urlpatterns = patterns(
     url(r'^(?:(?P<share_id>[0-9]+)/)?copyImgRDef/$',
         webgateway.copy_image_rdef_json,
         name="copy_image_rdef_json"),
+    url(r'^(?:(?P<share_id>[0-9]+)/)?luts/$',
+        webgateway.listLuts_json,
+        name="web_list_luts"),
 
 
     # Fileset query (for delete or chgrp dialogs) obj-types and ids in REQUEST

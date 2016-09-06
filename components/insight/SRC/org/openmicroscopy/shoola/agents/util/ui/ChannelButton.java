@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.ChannelButton 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +40,6 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
 import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -254,6 +254,38 @@ public class ChannelButton
      * 
      * @param text The text of the button. The text should correspond to
      *             the label of the channel.
+     * @param img The background image of the button. Corresponds to the
+     *              lookup table associated to the channel.
+     * @param index The channel index.
+     * @param selected Pass <code>true</code> to select the channel (i.e.
+     *                 the channel is rendered), <code>false</code> otherwise
+     *                 (i.e. the channel is not rendered.)
+     * @param trimEnd  Pass <code>true</code> if the end of the text should be trimmed,
+     *                 if it is too large to display; <code>false</code> to trim at
+     *                 the beginning.
+     */
+    public ChannelButton(String text, BufferedImage img, int index, boolean selected, boolean trimEnd)
+    {
+        super(text, img);
+        originalFont = getFont();
+        setTextValue(text);
+        //Need to parse the String.
+        this.index = index;
+        rightClickSupported = true;
+        this.trimEnd = trimEnd;
+        setSelected(selected);
+        addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) { onClick(e); }
+            public void mouseReleased(MouseEvent e) { onReleased(e); }
+        });
+        setPreferredSize(setComponentSize(DEFAULT_MAX_SIZE.width));
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param text The text of the button. The text should correspond to
+     *             the label of the channel.
      * @param color The background color of the button. Corresponds to the
      *              color associated to the channel.
      * @param index The channel index.
@@ -266,6 +298,23 @@ public class ChannelButton
         this(text, color, index, selected, true);
     }
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param text The text of the button. The text should correspond to
+     *             the label of the channel.
+     * @param img The background image of the button. Corresponds to the
+     *              LUT associated to the channel.
+     * @param index The channel index.
+     * @param selected Pass <code>true</code> to select the channel (i.e.
+     *                 the channel is rendered), <code>false</code> otherwise
+     *                 (i.e. the channel is not rendered.)
+     */
+    public ChannelButton(String text, BufferedImage img, int index, boolean selected)
+    {
+        this(text, img, index, selected, true);
+    }
+    
     /**
      * Creates a deselected button.
      *
@@ -280,6 +329,20 @@ public class ChannelButton
         this(text, color, index, false);
     }
 
+    /**
+     * Creates a deselected button.
+     *
+     * @param text The text of the button. The text should correspond to
+     *             the label of the channel.
+     * @param img The background image of the button. Corresponds to the
+     *              LUT associated to the channel.
+     * @param index The channel index.
+     */
+    public ChannelButton(String text,BufferedImage img, int index)
+    {
+        this(text, img, index, false);
+    }
+    
     /**
      * Sets the overlay flag.
      * 

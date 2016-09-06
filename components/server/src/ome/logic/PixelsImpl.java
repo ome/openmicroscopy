@@ -59,7 +59,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		"left outer join fetch rdef.model " +
 		"left outer join fetch rdef.waveRendering as cb " +
 		"left outer join fetch cb.family " +
-		"left outer join fetch rdef.spatialDomainEnhancement " +
+		"left outer join fetch cb.spatialDomainEnhancement " +
 		"left outer join fetch rdef.projections as proj " +
 		"left outer join fetch proj.axis " +
 		"left outer join fetch proj.type where ";

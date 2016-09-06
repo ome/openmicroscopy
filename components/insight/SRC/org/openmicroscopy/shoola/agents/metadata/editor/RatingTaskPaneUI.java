@@ -204,4 +204,12 @@ public class RatingTaskPaneUI extends AnnotationTaskPaneUI implements
         rating.setEnabled(model.canAddAnnotationLink());
     }
 
+    @Override
+    int getUnfilteredAnnotationCount() {
+        if (model.isMultiSelection()) {
+            return model.getRatingCount(EditorModel.ME);
+        } else {
+            return model.getRatingCount(EditorModel.ALL);
+        }
+    }
 }

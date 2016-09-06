@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.colourpicker.RGBModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,14 +23,9 @@
 
 package org.openmicroscopy.shoola.util.ui.colourpicker;
 
-//Java imports
 import java.awt.Color;
-
+import java.util.Collection;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * The model of the RGB slider.
@@ -71,6 +66,16 @@ class RGBModel
 	
 	/** Alpha component of the model, as float between [0..1]. */
 	private float 		alpha; 
+	
+	/** All available lookup tables */
+	private Collection<String> availableLUTs;
+	
+	/** The original lookup table */
+    private String originalLut;
+    
+	/** The lookup table */
+	private String lut;
+	
 	
     /**
      * Sets the value of the model to v without firing an event.
@@ -124,17 +129,22 @@ class RGBModel
 	 * @param g  green channel.
 	 * @param b  blue channel.
 	 * @param a  alpha channel.
+	 * @param lut lookup table
+	 * @param availableLUTs available lookup tables
 	 */
-	RGBModel(float r, float g, float b, float a)
+	RGBModel(float r, float g, float b, float a, String lut, Collection<String> availableLUTs)
 	{
 		originalRed = r;
 		originalGreen = g;
 		originalBlue = b;
 		originalAlpha = a;
+		originalLut = lut;
 		red = r;
 		green = g;
 		blue = b;
 		alpha = a;
+		this.lut = lut;
+		this.availableLUTs = availableLUTs;
 	}
 	
 	/**
@@ -466,6 +476,7 @@ class RGBModel
 		green = originalGreen;
 		blue = originalBlue;
 		alpha = originalAlpha;
+		lut = originalLut;
 	}
 	
 	/**
@@ -484,6 +495,57 @@ class RGBModel
                 c.getAlpha() == color.getAlpha());
 	}
 	
+    /**
+     * Set the lookup table
+     * 
+     * @param lut
+     *            The lookup table
+     */
+    void setLUT(String lut) {
+        this.lut = lut;
+    }
+
+    /**
+     * Get the lookup table
+     * 
+     * @return See above
+     */
+    String getLUT() {
+        return lut;
+    }
+
+    /**
+     * Get the original lookup table
+     * 
+     * @return See above
+     */
+    String getOriginalLUT() {
+        return originalLut;
+    }
+
+    /**
+     * Check if the provided lookup table is the same as the original lookup
+     * table
+     * 
+     * @param The
+     *            lookup table
+     * @return <code>true</code> if it is, <code>false</code> if it is not
+     */
+    boolean isOriginalLut(String lut) {
+        // treat null and empty Strings the same
+        if (lut == null)
+            lut = "";
+        if (originalLut == null)
+            originalLut = "";
+        return lut.equals(originalLut);
+    }
+
+    /**
+     * Get all available lookup tables
+     */
+    Collection<String> getAvailableLookupTables() {
+        return availableLUTs;
+    }
 }
 
 
