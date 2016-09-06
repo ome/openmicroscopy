@@ -536,7 +536,7 @@ module omero {
                  *
                  * @param w The channel index.
                  */
-                idempotent omero::romio::CodomainMapContextList getCodomainMapContext(int w) throws ServerError;
+                idempotent IObjectList getCodomainMapContext(int w) throws ServerError;
             };
     };
 };
