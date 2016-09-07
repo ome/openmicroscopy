@@ -21,8 +21,7 @@
 Tests querying & editing Projects with webgateway json api
 """
 
-from weblibrary import IWebTest, \
-    _csrf_post_json, _csrf_put_response_json
+from weblibrary import IWebTest, _csrf_post_json, _csrf_put_json
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from omero.gateway import BlitzGateway
@@ -102,8 +101,7 @@ class TestErrors(IWebTest):
                          },
                          '@type': 'TBD#Details'}
         pr_json['omero:details'] = groupBdetails
-        rsp = _csrf_put_response_json(django_client, save_url, pr_json,
-                                      status_code=403)
+        rsp = _csrf_put_json(django_client, save_url, pr_json, status_code=403)
         assert 'message' in rsp
         msg = "Cannot read ome.model.containers.Project:Id_%s" % projectId
         assert msg in rsp['message']
