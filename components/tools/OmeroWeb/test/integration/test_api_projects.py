@@ -498,8 +498,10 @@ class TestProjects(IWebTest):
         # We're only using projects_userA_groupB to get groupB id
         groupBid = projects_userA_groupB[0].getDetails().group.id.val
         # This seems to be the minimum details needed to pass group ID
-        groupBdetails = {'group': {'@id': groupBid,
-                                   '@type': OME_SCHEMA_URL + '#ExperimenterGroup'},
+        groupBdetails = {'group': {
+                         '@id': groupBid,
+                         '@type': OME_SCHEMA_URL + '#ExperimenterGroup'
+                         },
                          '@type': 'TBD#Details'}
         save_url = reverse('api_save', kwargs={'api_version': version})
         projectName = 'test_project_create_group'
@@ -545,29 +547,83 @@ class TestProjects(IWebTest):
         p.unloadDetails()
         conn.getUpdateService().saveObject(p)
 
-    def test_validation_exception(self, projects_userA_groupA, userA):
+    def test_marshal_validation(self):
+        django_client = self.django_root_client
+        version = settings.API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        payload = {'Name': 'test_type_error',
+                   '@type': OME_SCHEMA_URL + '#Project',
+                   'omero:details': {'@type': 'foo'}}
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=400)
+        assert rsp['message'] == "'NoneType' object has no attribute 'decode'"
+        assert rsp['stacktrace'].startswith(
+            'Traceback (most recent call last):')
+
+    def test_security_violation(self, projects_userA_groupA,
+                                projects_userA_groupB, userA):
         conn = get_connection(userA)
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
         version = settings.API_VERSIONS[-1]
-        project1 = projects_userA_groupA[0]
-        project2 = projects_userA_groupA[1]
+        projectId = projects_userA_groupA[0].id.val
+        groupBid = projects_userA_groupB[0].getDetails().group.id.val
         project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': project1.id.val})
+                                                     'pid': projectId})
         save_url = reverse('api_save', kwargs={'api_version': version})
 
-        p1_json = _get_response_json(django_client, project_url, {})
-        project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': project2.id.val})
-        p2_json = _get_response_json(django_client, project_url, {})
-        # Make something invalid. E.g. Project as Datasets!
-        p2_json['Datasets'] = p1_json
-        rsp = _csrf_put_response_json(django_client, save_url, p2_json,
-                                      status_code=500)
+        pr_json = _get_response_json(django_client, project_url, {})
+        # Set different group in details
+        groupBdetails = {'group': {
+                         '@id': groupBid,
+                         '@type': OME_SCHEMA_URL + '#ExperimenterGroup'
+                         },
+                         '@type': 'TBD#Details'}
+        pr_json['omero:details'] = groupBdetails
+        rsp = _csrf_put_response_json(django_client, save_url, pr_json,
+                                      status_code=403)
         assert 'message' in rsp
-        assert rsp['message'] == "string indices must be integers"
+        msg = "Cannot read ome.model.containers.Project:Id_%s" % projectId
+        assert msg in rsp['message']
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
+
+    def test_validation_exception(self):
+        django_client = self.django_root_client
+        version = settings.API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        payload = {'Name': 'test_type_error',
+                   '@type': OME_SCHEMA_URL + '#Project',
+                   'omero:details': {'@type': 'foo'}}
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=400)
+        assert rsp['message'] == "'NoneType' object has no attribute 'decode'"
+        assert rsp['stacktrace'].startswith(
+            'Traceback (most recent call last):')
+
+    # def test_validation_exception(self, projects_userA_groupA, userA):
+    #     conn = get_connection(userA)
+    #     userName = conn.getUser().getName()
+    #     django_client = self.new_django_client(userName, userName)
+    #     version = settings.API_VERSIONS[-1]
+    #     project1 = projects_userA_groupA[0]
+    #     project2 = projects_userA_groupA[1]
+    #     project_url = reverse('api_project', kwargs={'api_version': version,
+    #                                                  'pid': project1.id.val})
+    #     save_url = reverse('api_save', kwargs={'api_version': version})
+
+    #     p1_json = _get_response_json(django_client, project_url, {})
+    #     project_url = reverse('api_project', kwargs={'api_version': version,
+    #                                                  'pid': project2.id.val})
+    #     p2_json = _get_response_json(django_client, project_url, {})
+    #     # Make something invalid. E.g. Project as Datasets!
+    #     p2_json['Datasets'] = p1_json
+    #     rsp = _csrf_put_response_json(django_client, save_url, p2_json,
+    #                                   status_code=404)
+    #     assert 'message' in rsp
+    #     assert rsp['message'] == "string indices must be integers"
+    #     assert rsp['stacktrace'].startswith(
+    #         'Traceback (most recent call last):')
 
     def test_project_update(self, userA):
         conn = get_connection(userA)
