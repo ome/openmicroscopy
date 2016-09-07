@@ -28,12 +28,10 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.test import Client
 import pytest
-
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI
 from omero.rtypes import unwrap, rstring
-from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
-from omero import ValidationException
+from omero_marshal import get_encoder, OME_SCHEMA_URL
 
 
 def get_update_service(user):
@@ -517,113 +515,6 @@ class TestProjects(IWebTest):
                                                      'pid': newProjectId})
         rsp = _get_response_json(django_client, project_url, {})
         assert rsp['omero:details']['group']['@id'] == groupBid
-
-    def test_project_validation(self, userA):
-        """
-        This test illustrates the ValidationException we see when
-        Project is encoded to dict then decoded back to Project
-        and saved.
-        No exception is seen if the original Project is simply
-        saved without encode & decode OR if the details are unloaded
-        before saving
-        """
-        conn = get_connection(userA)
-        project = ProjectI()
-        project.name = rstring('test_project_validation')
-        project = get_update_service(userA).saveAndReturnObject(project)
-
-        # Saving original Project directly is OK
-        conn.getUpdateService().saveObject(project)
-
-        # encode and decode before Save raises Validation Exception
-        project_json = get_encoder(project.__class__).encode(project)
-        decoder = get_decoder(project_json['@type'])
-        p = decoder.decode(project_json)
-        with pytest.raises(ValidationException):
-            conn.getUpdateService().saveObject(p)
-
-        p = decoder.decode(project_json)
-        # Unloading details allows Save without exception
-        p.unloadDetails()
-        conn.getUpdateService().saveObject(p)
-
-    def test_marshal_validation(self):
-        django_client = self.django_root_client
-        version = settings.API_VERSIONS[-1]
-        save_url = reverse('api_save', kwargs={'api_version': version})
-        payload = {'Name': 'test_type_error',
-                   '@type': OME_SCHEMA_URL + '#Project',
-                   'omero:details': {'@type': 'foo'}}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=400)
-        assert rsp['message'] == "'NoneType' object has no attribute 'decode'"
-        assert rsp['stacktrace'].startswith(
-            'Traceback (most recent call last):')
-
-    def test_security_violation(self, projects_userA_groupA,
-                                projects_userA_groupB, userA):
-        conn = get_connection(userA)
-        userName = conn.getUser().getName()
-        django_client = self.new_django_client(userName, userName)
-        version = settings.API_VERSIONS[-1]
-        projectId = projects_userA_groupA[0].id.val
-        groupBid = projects_userA_groupB[0].getDetails().group.id.val
-        project_url = reverse('api_project', kwargs={'api_version': version,
-                                                     'pid': projectId})
-        save_url = reverse('api_save', kwargs={'api_version': version})
-
-        pr_json = _get_response_json(django_client, project_url, {})
-        # Set different group in details
-        groupBdetails = {'group': {
-                         '@id': groupBid,
-                         '@type': OME_SCHEMA_URL + '#ExperimenterGroup'
-                         },
-                         '@type': 'TBD#Details'}
-        pr_json['omero:details'] = groupBdetails
-        rsp = _csrf_put_response_json(django_client, save_url, pr_json,
-                                      status_code=403)
-        assert 'message' in rsp
-        msg = "Cannot read ome.model.containers.Project:Id_%s" % projectId
-        assert msg in rsp['message']
-        assert rsp['stacktrace'].startswith(
-            'Traceback (most recent call last):')
-
-    def test_marshal_exception(self):
-        django_client = self.django_root_client
-        version = settings.API_VERSIONS[-1]
-        save_url = reverse('api_save', kwargs={'api_version': version})
-        payload = {'Name': 'test_type_error',
-                   '@type': OME_SCHEMA_URL + '#Project',
-                   'omero:details': {'@type': 'foo'}}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=400)
-        assert rsp['message'] == "'NoneType' object has no attribute 'decode'"
-        assert rsp['stacktrace'].startswith(
-            'Traceback (most recent call last):')
-
-    def test_validation_exception(self, userA):
-        conn = get_connection(userA)
-        userName = conn.getUser().getName()
-        django_client = self.new_django_client(userName, userName)
-        version = settings.API_VERSIONS[-1]
-        save_url = reverse('api_save', kwargs={'api_version': version})
-
-        # Create Tag
-        tag = {'Value': 'test_tag',
-               '@type': OME_SCHEMA_URL + '#TagAnnotation'}
-        tag_rsp = _csrf_post_json(django_client, save_url, tag)
-
-        # Add Tag twice to Project to get Validation Exception
-        del tag_rsp['omero:details']
-        payload = {'Name': 'test_validation',
-                   '@type': OME_SCHEMA_URL + '#Project',
-                   'Annotations': [tag_rsp, tag_rsp]}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=404)
-        # NB: message contains whole stack trace
-        assert "ValidationException" in rsp['message']
-        assert rsp['stacktrace'].startswith(
-            'Traceback (most recent call last):')
 
     def test_project_update(self, userA):
         conn = get_connection(userA)
