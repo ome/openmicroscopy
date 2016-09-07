@@ -5,7 +5,6 @@
 package omeis.providers.re.codomain;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -318,9 +317,10 @@ public class CodomainChain {
     }
 
     /**
-     * Returns <code>true</code> if some transformations need to be applied
+     * Returns <code>true</code> if some transformations need to be applied,
+     * <code>false</code> otherwise.
      * 
-     * @return
+     * @return See above.
      */
     public boolean hasMapContext()
     {

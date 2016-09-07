@@ -1573,7 +1573,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
-     * @see RenderingEngine#getCodomainMapContexts()
+     * @see RenderingEngine#getCodomainMapContext(int)
      */
     @RolesAllowed("user")
     public List<CodomainMapContext> getCodomainMapContext(int w) {
