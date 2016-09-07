@@ -588,7 +588,7 @@ class TestProjects(IWebTest):
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
 
-    def test_validation_exception(self):
+    def test_marshal_exception(self):
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
@@ -601,29 +601,29 @@ class TestProjects(IWebTest):
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
 
-    # def test_validation_exception(self, projects_userA_groupA, userA):
-    #     conn = get_connection(userA)
-    #     userName = conn.getUser().getName()
-    #     django_client = self.new_django_client(userName, userName)
-    #     version = settings.API_VERSIONS[-1]
-    #     project1 = projects_userA_groupA[0]
-    #     project2 = projects_userA_groupA[1]
-    #     project_url = reverse('api_project', kwargs={'api_version': version,
-    #                                                  'pid': project1.id.val})
-    #     save_url = reverse('api_save', kwargs={'api_version': version})
+    def test_validation_exception(self, userA):
+        conn = get_connection(userA)
+        userName = conn.getUser().getName()
+        django_client = self.new_django_client(userName, userName)
+        version = settings.API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
 
-    #     p1_json = _get_response_json(django_client, project_url, {})
-    #     project_url = reverse('api_project', kwargs={'api_version': version,
-    #                                                  'pid': project2.id.val})
-    #     p2_json = _get_response_json(django_client, project_url, {})
-    #     # Make something invalid. E.g. Project as Datasets!
-    #     p2_json['Datasets'] = p1_json
-    #     rsp = _csrf_put_response_json(django_client, save_url, p2_json,
-    #                                   status_code=404)
-    #     assert 'message' in rsp
-    #     assert rsp['message'] == "string indices must be integers"
-    #     assert rsp['stacktrace'].startswith(
-    #         'Traceback (most recent call last):')
+        # Create Tag
+        tag = {'Value': 'test_tag',
+               '@type': OME_SCHEMA_URL + '#TagAnnotation'}
+        tag_rsp = _csrf_post_json(django_client, save_url, tag)
+
+        # Add Tag twice to Project to get Validation Exception
+        del tag_rsp['omero:details']
+        payload = {'Name': 'test_validation',
+                   '@type': OME_SCHEMA_URL + '#Project',
+                   'Annotations': [tag_rsp, tag_rsp]}
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=404)
+        # NB: message contains whole stack trace
+        assert "ValidationException" in rsp['message']
+        assert rsp['stacktrace'].startswith(
+            'Traceback (most recent call last):')
 
     def test_project_update(self, userA):
         conn = get_connection(userA)
