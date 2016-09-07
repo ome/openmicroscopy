@@ -1243,26 +1243,20 @@ def jsonp(f):
             # mimetype for JSON is application/json
             # NB: rv must be a dict.
             return JsonResponse(rv)
-        # except omero.ServerError, ex:
-        #     trace = traceback.format_exc()
-        #     if kwargs.get('_raw', False) or kwargs.get('_internal', False):
-        #         raise
-        #     return JsonResponse(
-        #         {"message": str(ex), "stacktrace": trace})
         except Exception, ex:
-            print type(ex), isinstance(ex, omero.SecurityViolation)
-            status = 500
+            # Default status is 400 'Bad request' unless we
+            # know that error comes from server
+            status = 400
             if isinstance(ex, omero.SecurityViolation):
                 status = 403
             elif isinstance(ex, omero.ValidationException):
                 status = 404
-            # elif isinstance(ex, omero.ServerError):
-            #     status = 500
+            elif isinstance(ex, omero.ServerError):
+                status = 500
             trace = traceback.format_exc()
             logger.debug(trace)
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
-            print 'status', status
             return JsonResponse(
                 {"message": str(ex), "stacktrace": trace},
                 status=status)
@@ -2822,14 +2816,10 @@ class SaveView(View):
             return {'message': 'Need to specify @type attribute'}
         objType = object_json['@type']
         decoder = get_decoder(objType)
-        # If we are passed incomplete object, or decoder couldn't be found...
-        try:
-            # If any child objects are invalid, may get AttributeError etc
-            obj = decoder.decode(object_json)
-        except Exception, ex:
-            trace = traceback.format_exc()
-            return JsonResponse({"message": str(ex), "stacktrace": trace},
-                                status=400)
+
+        # Any errors here handled by @jsonp with status=400
+        obj = decoder.decode(object_json)
+
         try:
             groupId = obj.getDetails().group.id.val
         except AttributeError:
