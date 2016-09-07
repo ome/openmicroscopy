@@ -1243,20 +1243,29 @@ def jsonp(f):
             # mimetype for JSON is application/json
             # NB: rv must be a dict.
             return JsonResponse(rv)
-        except omero.ServerError, ex:
-            trace = traceback.format_exc()
-            if kwargs.get('_raw', False) or kwargs.get('_internal', False):
-                raise
-            return JsonResponse(
-                {"message": str(ex), "stacktrace": trace})
+        # except omero.ServerError, ex:
+        #     trace = traceback.format_exc()
+        #     if kwargs.get('_raw', False) or kwargs.get('_internal', False):
+        #         raise
+        #     return JsonResponse(
+        #         {"message": str(ex), "stacktrace": trace})
         except Exception, ex:
+            print type(ex), isinstance(ex, omero.SecurityViolation)
+            status = 500
+            if isinstance(ex, omero.SecurityViolation):
+                status = 403
+            elif isinstance(ex, omero.ValidationException):
+                status = 404
+            # elif isinstance(ex, omero.ServerError):
+            #     status = 500
             trace = traceback.format_exc()
             logger.debug(trace)
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
                 raise
+            print 'status', status
             return JsonResponse(
                 {"message": str(ex), "stacktrace": trace},
-                status=500)
+                status=status)
     wrap.func_name = f.func_name
     return wrap
 
@@ -2814,10 +2823,13 @@ class SaveView(View):
         objType = object_json['@type']
         decoder = get_decoder(objType)
         # If we are passed incomplete object, or decoder couldn't be found...
-        if decoder is None:
-            return {'message': 'No decoder found for type: %s' % objType}
-        obj = decoder.decode(object_json)
-
+        try:
+            # If any child objects are invalid, may get AttributeError etc
+            obj = decoder.decode(object_json)
+        except Exception, ex:
+            trace = traceback.format_exc()
+            return JsonResponse({"message": str(ex), "stacktrace": trace},
+                                status=400)
         try:
             groupId = obj.getDetails().group.id.val
         except AttributeError:
@@ -2829,6 +2841,7 @@ class SaveView(View):
         obj.unloadDetails()
 
         conn.SERVICE_OPTS.setOmeroGroup(groupId)
-        obj = conn.getUpdateService().saveAndReturnObject(obj, conn.SERVICE_OPTS)
+        obj = conn.getUpdateService().saveAndReturnObject(obj,
+                                                          conn.SERVICE_OPTS)
         encoder = get_encoder(obj.__class__)
         return encoder.encode(obj)
