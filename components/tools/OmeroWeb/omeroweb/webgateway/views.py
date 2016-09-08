@@ -1785,11 +1785,11 @@ def reset_rdef_json(request, toOwners=False, conn=None, **kwargs):
         conn.SERVICE_OPTS.setOmeroGroup(gid)
 
     if toOwners:
-        rv = rss.resetDefaultsByOwnerInSet(to_type, toids, conn.SERVICE_OPTS)
+        iIds = rss.resetDefaultsByOwnerInSet(to_type, toids, conn.SERVICE_OPTS)
     else:
-        rv = rss.resetDefaultsInSet(to_type, toids, conn.SERVICE_OPTS)
+        iIds = rss.resetDefaultsInSet(to_type, toids, conn.SERVICE_OPTS)
 
-    return rv
+    return {'imageIds': iIds}
 
 
 @login_required()
@@ -1829,7 +1829,7 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         request.session['fromid'] = fromid
         if request.session.get('rdef') is not None:
             del request.session['rdef']
-        return True
+        return {'success': True}
 
     # If we've got an rdef encoded in request instead of ImageId...
     r = request.GET or request.POST
@@ -1856,7 +1856,7 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
             # remove any previous rdef we may have via 'fromId'
             if request.session.get('fromid') is not None:
                 del request.session['fromid']
-            return True
+            return {'success': True}
 
     # Check session for 'fromid'
     if fromid is None:
@@ -2329,7 +2329,7 @@ def su(request, user, conn=None, **kwargs):
         request.session['connector'] = connector
         conn.revertGroupForSession()
         conn.seppuku()
-        return True
+        return {'success': True}
     else:
         context = {
             'url': reverse('webgateway_su', args=[user]),
