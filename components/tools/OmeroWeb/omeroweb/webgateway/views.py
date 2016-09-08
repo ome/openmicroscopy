@@ -2807,7 +2807,11 @@ class SaveView(View):
         if '@id' in object_json:
             return {'message':
                     "Object has '@id' attribute. Use PUT to update objects"}
-        return self._save_object(request, conn, object_json, **kwargs)
+        rsp = self._save_object(request, conn, object_json, **kwargs)
+        if isinstance(rsp, HttpResponse):
+            return rsp
+        # If no error thrown, return 201 ('Created')
+        return JsonResponse(rsp, status=201)
 
     def _save_object(self, request, conn, object_json, **kwargs):
         """
