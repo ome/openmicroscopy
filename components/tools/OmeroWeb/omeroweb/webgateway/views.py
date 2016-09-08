@@ -2810,7 +2810,8 @@ class SaveView(View):
         """
         Here we handle the saving for PUT and POST
         """
-        groupId = conn.getEventContext().groupId
+        # Try to get group from request, OR from details below...
+        group = getIntOrDefault(request, 'group', None)
         decoder = None
         if '@type' not in object_json:
             return {'message': 'Need to specify @type attribute'}
@@ -2820,17 +2821,23 @@ class SaveView(View):
         # Any errors here handled by @jsonp with status=400
         obj = decoder.decode(object_json)
 
-        try:
-            groupId = obj.getDetails().group.id.val
-        except AttributeError:
-            pass   # group might be None or unloaded
+        if group is None:
+            try:
+                # group might be None or unloaded
+                group = obj.getDetails().group.id.val
+            except AttributeError:
+                # Instead of default stack trace, give nicer message:
+                msg = ("Specify Group in omero:details or "
+                       "query parameters ?group=:id")
+                return JsonResponse({'message': msg}, status=400)
+
         # If owner was unloaded (E.g. from get() above) or if missing
         # ome.model.meta.Experimenter.ldap (not supported by omero_marshal)
         # then saveObject() will give ValidationException.
         # Therefore we ignore any details for now:
         obj.unloadDetails()
 
-        conn.SERVICE_OPTS.setOmeroGroup(groupId)
+        conn.SERVICE_OPTS.setOmeroGroup(group)
         obj = conn.getUpdateService().saveAndReturnObject(obj,
                                                           conn.SERVICE_OPTS)
         encoder = get_encoder(obj.__class__)
