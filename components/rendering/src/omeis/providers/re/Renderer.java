@@ -1,8 +1,7 @@
 /*
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package omeis.providers.re;
 
 import java.awt.Dimension;
@@ -698,8 +697,8 @@ public class Renderer {
      * 
      * @return See above.
      */
-    public List<CodomainChain> getCodomainChains() {
-        return codomainChains;
+    List<CodomainChain> getCodomainChains() {
+        return Collections.unmodifiableList(codomainChains);
     }
 
     /**
@@ -760,10 +759,10 @@ public class Renderer {
      *            The upper bound of the interval.
      */
     public void setCodomainInterval(int start, int end) {
-        List<CodomainChain> chains = getCodomainChains();
-        Iterator<CodomainChain> i = chains.iterator();
-        while (i.hasNext()) {
-             i.next().setInterval(start, end);
+        CodomainChain c;
+        for (int i = 0; i < getPixels().getSizeC(); i++) {
+            c = getCodomainChain(i);
+            c.setInterval(start, end);
         }
         /*
          * RenderingDef rd = getRenderingDef(); QuantumDef qd =
@@ -776,15 +775,6 @@ public class Renderer {
         QuantumDef qd = rd.getQuantization();
         qd.setCdStart(Integer.valueOf(start));
         qd.setCdEnd(Integer.valueOf(end));
-        ome.model.display.CodomainMapContext mapCtx;
-        /*
-        Iterator<ome.model.display.CodomainMapContext> i = rd.iterateSpatialDomainEnhancement();
-        while (i.hasNext()) {
-            mapCtx = i.next();
-            throw new UnsupportedOperationException("BROKEN");
-            // XXX What is supposed to happen here? mapCtx.setCodomain(start, end);
-        }
-        */
         //need to rebuild the look up table
         updateQuantumManager();
     }
