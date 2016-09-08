@@ -94,7 +94,8 @@ class TestErrors(IWebTest):
         payload = {'Name': 'test_security_violation',
                    '@type': OME_SCHEMA_URL + '#Project'}
         save_url_grpA = save_url + '?group=' + str(groupAid)
-        pr_json = _csrf_post_json(django_client, save_url_grpA, payload)
+        pr_json = _csrf_post_json(django_client, save_url_grpA, payload,
+                                  status_code=201)
         projectId = pr_json['@id']
         # Try to save again into group B
         save_url_grpB = save_url + '?group=' + str(groupBid)
@@ -131,7 +132,7 @@ class TestErrors(IWebTest):
         # Create Tag
         tag = {'Value': 'test_tag',
                '@type': OME_SCHEMA_URL + '#TagAnnotation'}
-        tag_rsp = _csrf_post_json(django_client, save_url, tag)
+        tag_rsp = _csrf_post_json(django_client, save_url, tag, status_code=201)
 
         # Add Tag twice to Project to get Validation Exception
         del tag_rsp['omero:details']
