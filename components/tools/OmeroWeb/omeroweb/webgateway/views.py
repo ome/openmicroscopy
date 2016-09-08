@@ -1241,8 +1241,11 @@ def jsonp(f):
             if kwargs.get('_internal', False):
                 return rv
             # mimetype for JSON is application/json
-            # NB: rv must be a dict.
-            return JsonResponse(rv)
+            # NB: To support old api E.g. /get_rois_json/
+            # We need to support lists
+            # TODO: Have /api/ not use @jsonp.
+            safe = type(rv) is dict
+            return JsonResponse(rv, safe=safe)
         except Exception, ex:
             # Default status is 400 'Bad request' unless we
             # know that error comes from server
