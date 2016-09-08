@@ -283,7 +283,7 @@ class WebControl(BaseControl):
         if server == "apache":
             server = "apache22"
         if server in ("apache22", "apache24"):
-            self.ctx.err(("WARNING: Apache and mod_wsgi is deprecated."
+            self.ctx.err(("WARNING: Apache and mod_wsgi are deprecated."
                           " Please use nginx."))
         if args.http:
             port = args.http
