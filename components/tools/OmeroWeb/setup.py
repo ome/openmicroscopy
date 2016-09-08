@@ -51,5 +51,5 @@ OmeroWeb is the container of the web clients for OMERO."
       packages=[''],
       test_suite='test.suite',
       cmdclass={'test': PyTest},
-      tests_require=['pytest'],
+      tests_require=['pytest<3.0.0'],
       )
