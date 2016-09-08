@@ -455,25 +455,28 @@ class TestProjects(IWebTest):
 
         # Test 'callback' parameter
         payload = {'callback': 'callback'}
-        rsp = _get_response(django_client, request_url, payload,
-                            status_code=200)
+        rsp = _get_response(django_client, request_url, payload)
         assert rsp.get('Content-Type') == 'application/javascript'
         assert rsp.content.startswith('callback(')
 
     def test_project_create_read(self):
+        """
+        Tests creation by POST to /save and reading with GET of /project/:id/
+        """
         django_client = self.django_root_client
+        group = self.ctx.groupId
         version = settings.API_VERSIONS[-1]
         # Need to get the Schema url to create @type
         base_url = reverse('api_base', kwargs={'api_version': version})
         rsp = _get_response_json(django_client, base_url, {})
         schema_url = rsp['schema_url']
-        save_url = rsp['save_url']
+        # specify group via query params
+        save_url = "%s?group=%s" % (rsp['save_url'], group)
         projects_url = rsp['projects_url']
         projectName = 'test_api_projects'
         payload = {'Name': projectName,
                    '@type': schema_url + '#Project'}
-        rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=200)
+        rsp = _csrf_post_json(django_client, save_url, payload)
         # We get the complete new Project returned
         assert rsp['Name'] == projectName
         projectId = rsp['@id']
@@ -504,10 +507,15 @@ class TestProjects(IWebTest):
         save_url = reverse('api_save', kwargs={'api_version': version})
         projectName = 'test_project_create_group'
         payload = {'Name': projectName,
-                   '@type': OME_SCHEMA_URL + '#Project',
-                   'omero:details': groupBdetails}
+                   '@type': OME_SCHEMA_URL + '#Project'}
+        # Saving fails with NO group specified
         rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=200)
+                              status_code=400)
+        assert rsp['message'] == ("Specify Group in omero:details or "
+                                  "query parameters ?group=:id")
+        # Add group details and try again
+        payload['omero:details'] = groupBdetails
+        rsp = _csrf_post_json(django_client, save_url, payload)
         newProjectId = rsp['@id']
         assert rsp['omero:details']['group']['@id'] == groupBid
         # Read Project

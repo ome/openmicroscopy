@@ -84,6 +84,7 @@ class TestErrors(IWebTest):
 
     def test_security_violation(self, groupB, userA):
         conn = get_connection(userA)
+        groupAid = conn.getEventContext().groupId
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
         version = settings.API_VERSIONS[-1]
@@ -92,16 +93,13 @@ class TestErrors(IWebTest):
         # Create project in groupA (default group)
         payload = {'Name': 'test_security_violation',
                    '@type': OME_SCHEMA_URL + '#Project'}
-        pr_json = _csrf_post_json(django_client, save_url, payload)
+        save_url_grpA = save_url + '?group=' + str(groupAid)
+        pr_json = _csrf_post_json(django_client, save_url_grpA, payload)
         projectId = pr_json['@id']
-        # Set different group in details
-        groupBdetails = {'group': {
-                         '@id': groupBid,
-                         '@type': OME_SCHEMA_URL + '#ExperimenterGroup'
-                         },
-                         '@type': 'TBD#Details'}
-        pr_json['omero:details'] = groupBdetails
-        rsp = _csrf_put_json(django_client, save_url, pr_json, status_code=403)
+        # Try to save again into group B
+        save_url_grpB = save_url + '?group=' + str(groupBid)
+        rsp = _csrf_put_json(django_client, save_url_grpB, pr_json,
+                             status_code=403)
         assert 'message' in rsp
         msg = "Cannot read ome.model.containers.Project:Id_%s" % projectId
         assert msg in rsp['message']
@@ -123,10 +121,12 @@ class TestErrors(IWebTest):
 
     def test_validation_exception(self, userA):
         conn = get_connection(userA)
+        group = conn.getEventContext().groupId
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
         version = settings.API_VERSIONS[-1]
         save_url = reverse('api_save', kwargs={'api_version': version})
+        save_url += '?group=' + str(group)
 
         # Create Tag
         tag = {'Value': 'test_tag',
