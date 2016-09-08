@@ -2,7 +2,6 @@
  *   Copyright 2006-2016 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-
 package ome.services;
 
 import java.awt.Dimension;
@@ -12,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,7 +38,7 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.display.ReverseIntensityContext;
+//import ome.model.display.ReverseIntensityContext;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.roi.Mask;
@@ -56,6 +56,7 @@ import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
+import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
@@ -834,13 +835,13 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb.setNoiseReduction(binding.getNoiseReduction());
                 cb.setLookupTable(binding.getLookupTable());
                 //binding.setFamily(unloadedFamily);
-              //Codomain save
-                //only reverse supported
+                //Codomain save
                 cb.clearSpatialDomainEnhancement();
-                if (renderer.getCodomainChain(index).hasMapContext()) {
-                    ReverseIntensityContext r = new ReverseIntensityContext();
-                    r.setReverse(true);
-                    cb.addCodomainMapContext(r);
+                Collection<ome.model.display.CodomainMapContext> ctx =
+                        binding.unmodifiableSpatialDomainEnhancement();
+                Iterator<ome.model.display.CodomainMapContext> i = ctx.iterator();
+                while (i.hasNext()) {
+                    cb.addCodomainMapContext(i.next());
                 }
                 index++;
             }
@@ -1224,9 +1225,27 @@ public class RenderingBean implements RenderingEngine, Serializable {
         try {
             errorIfInvalidState();
             renderer.getCodomainChain(w).add(mapCtx.copy());
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            cb[w].addCodomainMapContext(convert(mapCtx));
         } finally {
             rwl.writeLock().unlock();
         }
+    }
+
+    /**
+     * Converts the codomain context into the corresponding ome.model object.
+     *
+     * @param mapCtx The context to convert.
+     * @return See above.
+     */
+    private ome.model.display.CodomainMapContext convert(CodomainMapContext mapCtx)
+    {
+        if (mapCtx instanceof ReverseIntensityContext) {
+            ome.model.display.ReverseIntensityContext c = new ome.model.display.ReverseIntensityContext();
+            c.setReverse(true);
+            return c;
+        }
+        return null;
     }
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
