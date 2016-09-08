@@ -455,7 +455,8 @@ class TestProjects(IWebTest):
 
         # Test 'callback' parameter
         payload = {'callback': 'callback'}
-        rsp = _get_response(django_client, request_url, payload)
+        rsp = _get_response(django_client, request_url, payload,
+                            status_code=200)
         assert rsp.get('Content-Type') == 'application/javascript'
         assert rsp.content.startswith('callback(')
 
@@ -526,6 +527,7 @@ class TestProjects(IWebTest):
 
     def test_project_update(self, userA):
         conn = get_connection(userA)
+        group = conn.getEventContext().groupId
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
 
@@ -549,6 +551,7 @@ class TestProjects(IWebTest):
         assert rsp['Description'] == 'Test update'  # No change
 
         # 2) Put from scratch (will delete empty fields, E.g. Description)
+        save_url += '?group=' + str(group)
         payload = {'Name': 'updated name',
                    '@id': project.id.val}
         # Test error message if we don't pass @type:
