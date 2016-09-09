@@ -48,6 +48,13 @@
      <constructor-arg ref="preferenceContext"/>
   </bean>
 
+  <bean id="ensureEnum"
+     class="ome.services.util.EnsureEnum">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="uuid"/>
+     <constructor-arg ref="roles"/>
+  </bean>
+
   <bean id="dbUnicodeUnitsCheck" depends-on="dbPatchCheck"
      class="ome.services.util.DBUnicodeUnitsCheck"
      init-method="start" lazy-init="false">
