@@ -238,15 +238,13 @@ public class CodomainChain {
      * 
      * @param mapCtx
      *            The context to add. Mustn't be <code>null</code>.
-     * @throws IllegalArgumentException
-     *             If the context is already defined.
      */
     public void add(CodomainMapContext mapCtx) {
         if (mapCtx == null) {
             throw new NullPointerException("No context.");
         }
         if (chain.contains(mapCtx)) {
-            throw new IllegalArgumentException("Context already defined.");
+            return;
         }
         mapCtx = mapCtx.copy(); // Get memento and discard original object.
         mapCtx.setCodomain(intervalStart, intervalEnd);
