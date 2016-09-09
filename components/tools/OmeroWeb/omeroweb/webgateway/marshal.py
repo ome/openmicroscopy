@@ -300,8 +300,15 @@ def shapeMarshal(shape):
         set_if('fontStyle', shape.getFontStyle())
         set_if('fontFamily', shape.getFontFamily())
 
-    set_if('transform', shape.getTransform(),
-           func=lambda a: a is not None and a != 'None')
+    if shape.getTransform() is not None:
+        transform = shape.getTransform()
+        tm = [unwrap(transform.a00),
+              unwrap(transform.a10),
+              unwrap(transform.a01),
+              unwrap(transform.a11),
+              unwrap(transform.a02),
+              unwrap(transform.a12)]
+        rv['transform'] = 'matrix(%s)' % (' '.join([str(t) for t in tm]))
     fill_color = unwrap(shape.getFillColor())
     if fill_color is not None:
         rv['fillColor'], rv['fillAlpha'] = rgb_int2css(fill_color)
