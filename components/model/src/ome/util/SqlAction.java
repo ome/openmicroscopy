@@ -332,8 +332,6 @@ public interface SqlAction {
 
     long countFormat(String name);
 
-    int insertFormat(String name);
-
     int closeSessions(String uuid);
 
     int closeNodeSessions(String uuid);

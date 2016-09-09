@@ -127,14 +127,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
         return _jdbc().queryForLong(_lookup("count_format"), name); //$NON-NLS-1$
     }
 
-    // Copied from data.vm
-    public final static String insertFormatSql = PsqlStrings
-            .getString("sql_action.insert_format"); //$NON-NLS-1$
-
-    public int insertFormat(String name) {
-        return _jdbc().update(insertFormatSql, name);
-    }
-
     public int closeSessions(String uuid) {
         return _jdbc().update(_lookup("update_session"), uuid); //$NON-NLS-1$
     }
