@@ -66,6 +66,7 @@ import omero.util.Resources;
 import omero.util.Resources.Entry;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
+import Glacier2.SessionNotExistException;
 import Ice.Current;
 
 /**
@@ -931,6 +932,9 @@ public class client {
         try {
             if (oldSf != null && !fast) {
                 oldSf = ServiceFactoryPrxHelper.uncheckedCast(oldSf.ice_oneway());
+                if (oldIc != null) {
+                    getRouter(oldIc).destroySession();
+                }
             }
         } catch (Ice.ConnectionLostException cle) {
             // ok. Exception will always be thrown
@@ -942,6 +946,8 @@ public class client {
             // ok. client is having network issues
         } catch (Ice.SocketException se) {
             // ok. client is having network issues
+        } catch (SessionNotExistException e) {
+            // ok. we don't want the session to exist
         } finally {
             try {
                 if (oldIc != null && !fast) {

@@ -1,6 +1,4 @@
 /*
- *   $Id$
- *
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -23,6 +21,8 @@ import omero.sys.EventContext;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import Ice.UserException;
 
 /**
  * Various uses of the {@link omero.client} object. All configuration comes from
@@ -155,8 +155,11 @@ public class ClientUsageTest extends AbstractServerTest {
         sf.setSecurityContext(new omero.model.ExperimenterGroupI(1L, false));
     }
 
+    /**
+     * Test that {@link client#joinSession(String)} fails after the client is disconnected.
+     * @throws Exception unexpected
+     */
     public void testJoinSession() throws Exception {
-        
         //create a new user.
         EventContext ec = newUserAndGroup("rw----", true);
         String session = ec.sessionUuid;
@@ -165,14 +168,9 @@ public class ClientUsageTest extends AbstractServerTest {
         client c = new client();
         try {
             c.joinSession(session);
-            if (Ice.Util.intVersion() >= 30600) {
-                Assert.fail("The session should have been deleted");
-            }
-        } catch (Exception e) {
-            if (Ice.Util.intVersion() < 30600) {
-                Assert.fail("Ice 3.5 do not close the session."
-                        + "An error should not have been thrown");
-            }
+            Assert.fail("The session should have been deleted");
+        } catch (UserException e) {
+            /* expected because the client is disconnected */
         }
     }
 }
