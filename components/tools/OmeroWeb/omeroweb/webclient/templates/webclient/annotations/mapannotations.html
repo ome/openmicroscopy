@@ -92,7 +92,7 @@
 
             var annId = $table.attr('data-annId'),
                 url = "{% url 'annotate_map' %}",
-                data = {"{{ manager.obj_type }}": {{ manager.obj_id }} },
+                data = {"{{ manager.obj_type }}": "{{ manager.obj_id }}" },
                 $mapAnnotationSpinner = $(".mapAnnotationSpinner", $table.parent()),
                 tableData = [];
 
