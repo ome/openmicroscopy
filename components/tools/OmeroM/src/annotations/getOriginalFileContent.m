@@ -42,7 +42,7 @@ store.setFileId(originalFile.getId().getValue(), context);
 % Read data and cast into int8
 fid = fopen(path, 'w');
 byteArr  = store.read(0,originalFile.getSize().getValue());
-fwrite(fid,byteArr,'*uint8');
+fwrite(fid,byteArr,'int8');
 fclose(fid);
 
 % Close the file store
