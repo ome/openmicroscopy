@@ -2234,4 +2234,57 @@ public class RenderingEngineTest extends AbstractServerTest {
         byte[] buffer = re.renderCompressed(pDef);
         Assert.assertTrue(Arrays.equals(ref, buffer));
     }
+
+    /**
+     * Tests reverse intensity
+     * @throws Exception
+     */
+    @Test
+    public void testReverseIntensity() throws Exception {
+        //First import an image
+        File f = File.createTempFile("testReverseIntensity", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        int end = re.getQuantumDef().getCdEnd().getValue();
+        //color model: greyscale
+        for (int k = 0; k < channels.size(); k++) {
+            int[] before = re.renderAsPackedInt(pDef);
+            re.addCodomainMapToChannel(new omero.romio.ReverseIntensityMapContext(), k);
+            int[] after = re.renderAsPackedInt(pDef);
+            for (int i = 0; i < before.length; i++) {
+                //get the discrete value w/o codomain map
+                int bp = before[i] & 0x0ff;
+                //get the discrete value with codomain map
+                int ap = after[i] & 0x0ff;
+                //check that the reverse intensity was applied
+                Assert.assertEquals(ap, (end-bp));
+            }
+        }
+    }
+
 }
