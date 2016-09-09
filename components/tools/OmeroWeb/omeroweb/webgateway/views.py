@@ -206,10 +206,16 @@ def _split_channel_info(rchannels):
     channels = []
     windows = []
     colors = []
+    reverses = []
     for chan in rchannels.split(','):
+        # chan  1|12:1386r$0000FF
         chan = chan.split('|', 1)
+        # chan ['1', '12:1386r$0000FF']
         t = chan[0].strip()
+        # t = '1'
         color = None
+        rev = None
+        # Not normally used...
         if t.find('$') >= 0:
             t, color = t.split('$')
         try:
@@ -217,8 +223,18 @@ def _split_channel_info(rchannels):
             ch_window = (None, None)
             if len(chan) > 1:
                 t = chan[1].strip()
+                # t = '12:1386r$0000FF'
                 if t.find('$') >= 0:
                     t, color = t.split('$', 1)
+                    # color = '0000FF'
+                    # t = 12:1386r
+                # Optional flag to enable/disable reverse codomain
+                if t.endswith('-r'):
+                    rev = False
+                    t = t[:-2]
+                elif t.endswith('r'):
+                    rev = True
+                    t = t[:-1]
                 t = t.split(':')
                 if len(t) == 2:
                     try:
@@ -227,10 +243,11 @@ def _split_channel_info(rchannels):
                         pass
             windows.append(ch_window)
             colors.append(color)
+            reverses.append(rev)
         except ValueError:
             pass
     logger.debug(str(channels)+","+str(windows)+","+str(colors))
-    return channels, windows, colors
+    return channels, windows, colors, reverses
 
 
 def getImgDetailsFromReq(request, as_string=False):
@@ -754,8 +771,8 @@ def _get_prepared_image(request, iid, server_id=None, conn=None,
         return
     if 'c' in r:
         logger.debug("c="+r['c'])
-        channels, windows, colors = _split_channel_info(r['c'])
-        if not img.setActiveChannels(channels, windows, colors):
+        channels, windows, colors, reverses = _split_channel_info(r['c'])
+        if not img.setActiveChannels(channels, windows, colors, reverses):
             logger.debug(
                 "Something bad happened while setting the active channels...")
     if r.get('m', None) == 'g':
@@ -1858,9 +1875,9 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         return rv
 
     def applyRenderingSettings(image, rdef):
-        channels, windows, colors = _split_channel_info(rdef['c'])
+        channels, windows, colors, reverse = _split_channel_info(rdef['c'])
         # also prepares _re
-        image.setActiveChannels(channels, windows, colors)
+        image.setActiveChannels(channels, windows, colors, reverse)
         if rdef['m'] == 'g':
             image.setGreyscaleRenderingModel()
         else:
