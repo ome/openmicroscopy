@@ -244,6 +244,7 @@ public class CodomainChain {
             throw new NullPointerException("No context.");
         }
         if (chain.contains(mapCtx)) {
+            update(mapCtx);
             return;
         }
         mapCtx = mapCtx.copy(); // Get memento and discard original object.
