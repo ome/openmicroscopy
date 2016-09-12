@@ -160,12 +160,16 @@ public class CodomainChain {
             CodomainMapContext ctx;
             while (i.hasNext()) {
                 ctx = (CodomainMapContext) i.next();
-                if (chain.contains(ctx)) {
-                    throw new IllegalArgumentException(
-                            "Context already defined.");
+                if (!chain.contains(ctx)) {
+                    ctx = ctx.copy();
+                    chain.add(ctx);
+                } else {
+                    int j = chain.indexOf(ctx);
+                    if (j != -1) {
+                        ctx = ctx.copy();
+                        chain.set(j, ctx);
+                    }
                 }
-                ctx = ctx.copy();
-                chain.add(ctx);
             }
         }
         setInterval(start, end);
