@@ -125,4 +125,11 @@ abstract class BaseDBCheck {
     protected String getCheckDone() {
         return "done";
     }
+
+    /**
+     * @return a string representing the version and patch of this server
+     */
+    protected String getOmeroVersion() {
+        return version + "__" + patch;
+    }
 }
