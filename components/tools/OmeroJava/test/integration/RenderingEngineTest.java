@@ -29,6 +29,7 @@ import omero.api.IPixelsPrx;
 import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
+import omero.model.CodomainMapContext;
 import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
@@ -2437,5 +2438,77 @@ public class RenderingEngineTest extends AbstractServerTest {
         for (int k = 0; k < channels.size(); k++) {
             Assert.assertEquals(re.getCodomainMapContext(k).size(), 1);
         }
+    }
+
+    /**
+     * Tests save the codomain and restart the rendering engine.
+     * @throws Exception
+     */
+    @Test
+    public void testAddRemoveChainAndSave() throws Exception {
+        //First import an image
+        File f = File.createTempFile("testAddRemoveChainAndSave", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def.copyWaveRendering();
+        List<CodomainMapContext> l;
+        for (int k = 0; k < channels.size(); k++) {
+            l = channels.get(k).copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 1);
+        }
+        //with context
+        int[] before = re.renderAsPackedInt(pDef);
+        //remove context
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.removeCodomainMapFromChannel(ctx, k);
+        }
+        //w/o context
+        int[] after = re.renderAsPackedInt(pDef);
+        Assert.assertFalse(Arrays.equals(after, before));
+        //save the settings
+        re.saveCurrentSettings();
+        //Check that the context is not saved
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def.copyWaveRendering();
+        for (int k = 0; k < channels.size(); k++) {
+            l = channels.get(k).copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 0);
+        }
+        // check binary w/o context
+        int[] afterSave = re.renderAsPackedInt(pDef);
+        Assert.assertTrue(Arrays.equals(afterSave, after));
     }
 }
