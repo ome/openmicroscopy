@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- *  Copyright 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
@@ -12,11 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import omero.api.IRenderingSettingsPrx;
+import omero.api.IScriptPrx;
+import omero.api.RenderingEnginePrx;
 import omero.cmd.Chmod2;
 import omero.gateway.util.Requests;
 import omero.model.ChannelBinding;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.RenderingDef;
 import omero.sys.EventContext;
@@ -375,7 +376,28 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         prx.setOriginalSettingsInSet(Image.class.getName(), ids);
 
         // method already tested
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> luts = svc.getScriptsByMimetype(
+                ScriptServiceTest.LUT_MIMETYPE);
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(c, k);
+            re.setChannelLookupTable(k, luts.get(0).getName().getValue());
+        }
+        re.saveCurrentSettings();
+        // method already tested
+        re.close();
+        def = factory.getPixelsService().retrieveRndSettings(id);
         long pix2 = image2.getPrimaryPixels().getId().getValue();
         long pix3 = image3.getPrimaryPixels().getId().getValue();
         ChannelBinding cb = def.getChannelBinding(0);
