@@ -24,8 +24,8 @@ $.fn.colorbtn = function(cfg) {
     };
     var that = this;
 
-    var colors = ["FF0000", "00FF00", "0000FF", "FFFFFF", "FFFF00", "EE82EE"];
-    var colorNames = ["red", "green", "blue", "white", "yellow", "magenta"];
+    var colors = ["FF0000", "00FF00", "0000FF", "FFFFFF", "FFFF00", "EE00EE", "00FFFF"];
+    var colorNames = ["red", "green", "blue", "white", "yellow", "magenta", "cyan"];
     var picker = null;
 
     /* The basic setup */
