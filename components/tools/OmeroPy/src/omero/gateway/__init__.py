@@ -7979,6 +7979,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             waves = rdef.iterateWaveRendering()
             d['c'] = []
             for w in waves:
+                reverse = False
+                for c in w.copySpatialDomainEnhancement():
+                    if isinstance(c, omero.model.ReverseIntensityContext):
+                        reverse = True
                 color = ColorHolder.fromRGBA(
                     w.getRed().val, w.getGreen().val, w.getBlue().val, 255)
                 d['c'].append({
@@ -7986,6 +7990,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     'start': w.getInputStart().val,
                     'end': w.getInputEnd().val,
                     'color': color.getHtml(),
+                    'reverseIntensity': reverse,
                     'rgb': {'red': w.getRed().val,
                             'green': w.getGreen().val,
                             'blue': w.getBlue().val}
