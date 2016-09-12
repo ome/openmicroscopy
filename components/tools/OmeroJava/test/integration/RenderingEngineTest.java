@@ -132,6 +132,9 @@ public class RenderingEngineTest extends AbstractServerTest {
     }
 
     private void assertRendering(List<Pixels> pixels) throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> luts = svc.getScriptsByMimetype(
+                ScriptServiceTest.LUT_MIMETYPE);
         Pixels p = pixels.get(0);
         long id = p.getId().getValue();
         RenderingEnginePrx re = factory.createRenderingEngine();
@@ -144,11 +147,28 @@ public class RenderingEngineTest extends AbstractServerTest {
         int t = re.getDefaultT();
         int v = t + 1;
         re.setDefaultT(v);
+        //
+        int sizeC = re.getPixels().getSizeC().getValue();
+
+        for (int k = 0; k < sizeC; k++) {
+            omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(c, k);
+            re.setChannelLookupTable(k, luts.get(0).getName().getValue());
+        }
         re.saveCurrentSettings();
         Assert.assertEquals(re.getDefaultT(), v);
+        re.close();
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         Assert.assertEquals(def.getDefaultT().getValue(), v);
-        re.close();
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        Iterator<ChannelBinding> j = channels.iterator();
+        ChannelBinding b;
+        while (j.hasNext()) {
+            b = j.next();
+            Assert.assertNotNull(b.getLookupTable().getValue());
+            List<CodomainMapContext> cl = b.copySpatialDomainEnhancement();
+            Assert.assertTrue(cl.size() > 0);
+        }
     }
 
     /**
