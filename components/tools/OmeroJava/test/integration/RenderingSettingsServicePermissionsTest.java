@@ -388,7 +388,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
         }
         re.load();
         List<ChannelBinding> channels = def.copyWaveRendering();
-        
+
         for (int k = 0; k < channels.size(); k++) {
             omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
             re.addCodomainMapToChannel(c, k);
