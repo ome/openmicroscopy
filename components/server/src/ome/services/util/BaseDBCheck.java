@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2016 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,9 +41,7 @@ abstract class BaseDBCheck {
     private final String version;
     private final int patch;
 
-    private final String configKey = "DB check " + getClass().getSimpleName();
-    private final String configValue = getCheckDone();
-    private final String configKeyValue = configKey + ": " + configValue;
+    private final String configKey, configValue, configKeyValue;
 
     /**
      * @param executor executor to use for configuration map check
@@ -52,6 +50,11 @@ abstract class BaseDBCheck {
         this.executor = executor;
         this.version = preferences.getProperty("omero.db.version");
         this.patch = Integer.parseInt(preferences.getProperty("omero.db.patch"));
+
+        /* these values may depend upon version and patch above */
+        configKey = "DB check " + getClass().getSimpleName();
+        configValue = getCheckDone();
+        configKeyValue = configKey + ": " + configValue;
     }
 
     /**
