@@ -42,8 +42,10 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
+import ome.model.display.CodomainMapContext;
 import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
+import ome.model.display.ReverseIntensityContext;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.screen.PlateAcquisition;
@@ -942,7 +944,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         }
         return cbs;
     }
-    
+
+    /**
+     * Copies the context.
+     *
+     * @param ctx The context to copy.
+     * @return See above.
+     */
+    private CodomainMapContext copyContext(CodomainMapContext ctx)
+    {
+        if (ctx instanceof ReverseIntensityContext) {
+            ReverseIntensityContext nc =  new ReverseIntensityContext();
+            nc.setReverse(((ReverseIntensityContext) ctx).getReverse());
+            return nc;
+        }
+        return null;
+    }
+
     /**
      * Applies rendering settings from a source set of pixels and settings to
      * a destination set of pixels and settings.
@@ -1003,6 +1021,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         Iterator<ChannelBinding> i = settingsFrom.iterateWaveRendering();
         Iterator<ChannelBinding> iTo = settingsTo.iterateWaveRendering();
         ChannelBinding binding, bindingTo;
+        CodomainMapContext ctx;
         while (i.hasNext())
         {
             binding = i.next();
@@ -1027,8 +1046,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             bindingTo.setRed(binding.getRed());
             // lut used
             bindingTo.setLookupTable(binding.getLookupTable());
+            Iterator<CodomainMapContext> j = binding.iterateSpatialDomainEnhancement();
+            while (j.hasNext()) {
+                ctx = copyContext(j.next());
+                if (ctx != null) {
+                    bindingTo.addCodomainMapContext(ctx);
+                }
+            }
         }
-        
+
         // Increment the version of the rendering settings so that we 
         // can have some notification that either the RenderingDef 
         // object itself or one of its children in the object graph has 
