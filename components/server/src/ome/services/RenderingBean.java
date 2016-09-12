@@ -1255,8 +1255,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
+            ChannelBinding[] cb = renderer.getChannelBindings();
             for (int i = 0; i < pixelsObj.getSizeC(); i++) {
                 renderer.getCodomainChain(i).remove(mapCtx.copy());
+                List<CodomainMapContext> l = getCodomainMapContext(i);
+                Iterator<CodomainMapContext> j = l.iterator();
+                while (j.hasNext()) {
+                    cb[i].addCodomainMapContext(convert(j.next()));
+                }
             }
         } finally {
             rwl.writeLock().unlock();
@@ -1270,6 +1276,13 @@ public class RenderingBean implements RenderingEngine, Serializable {
         try {
             errorIfInvalidState();
             renderer.getCodomainChain(w).remove(mapCtx.copy());
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            cb[w].clearSpatialDomainEnhancement();
+            List<CodomainMapContext> l = getCodomainMapContext(w);
+            Iterator<CodomainMapContext> i = l.iterator();
+            while (i.hasNext()) {
+                cb[w].addCodomainMapContext(convert(i.next()));
+            }
         } finally {
             rwl.writeLock().unlock();
         }
