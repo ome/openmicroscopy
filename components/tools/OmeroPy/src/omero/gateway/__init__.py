@@ -6788,6 +6788,23 @@ class _ChannelWrapper (BlitzObjectWrapper):
                 return None
         return si.getGlobalMax().val
 
+    def isReverseIntensity(self):
+        """
+        Returns True if this channel has ReverseIntensityContext
+        set on it.
+
+        :return:    True if ReverseIntensityContext found
+        :rtype:     Boolean
+        """
+        if self._re is None:
+            return None
+        ctx = self._re.getCodomainMapContext(self._idx)
+        reverse = False
+        for c in ctx:
+            if isinstance(c, omero.model.ReverseIntensityContext):
+                reverse = True
+        return reverse
+
 ChannelWrapper = _ChannelWrapper
 
 
@@ -7917,22 +7934,6 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         # If we want to reverse, add it to the channel (again)
         if reverse:
             self._re.addCodomainMapToChannel(r, channelIndex)
-
-    @assert_re()
-    def isReverseIntensity(self, channelIndex):
-        """
-        Returns True if the specified channel has ReverseIntensityContext
-        set on it.
-
-        :return:    True if ReverseIntensityContext found
-        :rtype:     Boolean
-        """
-        ctx = self._re.getCodomainMapContext(channelIndex)
-        reverse = False
-        for c in ctx:
-            if isinstance(c, omero.model.ReverseIntensityContext):
-                reverse = True
-        return reverse
 
     @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):
