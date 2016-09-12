@@ -210,6 +210,10 @@
                 $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
                 $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
         }
+        // Colorpicker buttons store 'reverse-intensity' with .data() to populate colorbtn dialog
+        $(".picker").each(function(i, pickerBtn) {
+            $(pickerBtn).data('data-reverse-intensity', channels[i].reverseIntensity);
+        });
         hidePicker();
 
         updateUndoRedo(viewport);

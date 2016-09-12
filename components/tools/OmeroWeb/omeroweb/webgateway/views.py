@@ -228,13 +228,12 @@ def _split_channel_info(rchannels):
                     t, color = t.split('$', 1)
                     # color = '0000FF'
                     # t = 12:1386r
-                # Optional flag to enable/disable reverse codomain
-                if t.endswith('-r'):
-                    rev = False
-                    t = t[:-2]
-                elif t.endswith('r'):
+                # Optional flag to enable reverse codomain
+                if t.endswith('r'):
                     rev = True
                     t = t[:-1]
+                else:
+                    rev = False
                 t = t.split(':')
                 if len(t) == 2:
                     try:

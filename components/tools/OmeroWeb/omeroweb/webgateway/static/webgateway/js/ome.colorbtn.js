@@ -138,20 +138,20 @@ $.fn.colorbtn = function(cfg) {
             lutHtml += (lut.name.replace('.lut', '')) + '</label></div>';
             return lutHtml;
           });
-          var reverseIntensityHtml = '<div><input id="reverseIntensity" type="checkbox" checked="' + reverse_intensity + '"></input>';
+          var reverseIntensityHtml = '<div><input id="reverseIntensity" type="checkbox"></input>';
           reverseIntensityHtml += '<label for="reverseIntensity" style="font-size:15px;">Reverse Intensity</label></div>';
           reverseIntensityHtml += '<div style="clear:both"></div>';
           var html = '<div>' + reverseIntensityHtml + colorRows.join("") + lutRows.join("") + '</div>';
           $luts.html(html);
+          $('#reverseIntensity').prop('checked', reverse_intensity);
         });
-      } else {
-        $('#reverseIntensity').prop('checked', reverse_intensity);
       }
 
       // reset showing of LUTs and hiding of colorpicker
       $('.cpickerPane').hide();
       $luts.show();
       $('.showColorPicker a').html('Show Color Picker');
+      $('#reverseIntensity').prop('checked', reverse_intensity);
 
       // bind appropriate handler (wraps ref to button)
       $("#cbpicker-OK-btn").unbind('click').bind('click', ok_callback)
