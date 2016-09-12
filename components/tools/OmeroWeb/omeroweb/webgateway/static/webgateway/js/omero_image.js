@@ -243,9 +243,12 @@
         if (on_batchCopyRDefs) {
             return batchCopyRDefs_action('ok');
         }
+        var revInt;
         for (var i=0; i<viewport.getCCount(); i++) {
             viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
             viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').attr('data-color'), true);
+            revInt = $('#wblitz-ch'+i+'-color').data('data-reverse-intensity');
+            if (revInt !== undefined) {viewport.setChannelReverseIntensity(i, revInt, true);}
             var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
             viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
         }
@@ -514,6 +517,10 @@
 
 
         /* Prepare color picker buttons */
+        $(".picker").each(function(i, pickerBtn) {
+            console.log(this, channels[i].reverseIntensity);
+            $(pickerBtn).data('data-reverse-intensity', channels[i].reverseIntensity);
+        });
         $(".picker")
             .colorbtn({'server': viewport.viewport_server})
             .bind('showing', function () {

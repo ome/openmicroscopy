@@ -631,6 +631,17 @@ jQuery._WeblitzViewport = function (container, server, options) {
     this.setChannelActive(idx, !_this.loadedImg.channels[idx].active);
   };
 
+  this.setChannelReverseIntensity = function (idx, reverse, noreload) {
+    console.log('setChannelReverseIntensity', idx, reverse);
+    if (_this.loadedImg.channels[idx].reverseIntensity !== reverse) {
+      _this.loadedImg.channels[idx].reverseIntensity = reverse;
+      _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
+      if (!noreload) {
+        _load();
+      }
+    }
+  };
+
   this.getCCount = function () {
     return _this.loadedImg.size.c;
   };
@@ -1063,11 +1074,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
     /* Channels (verbose as IE7 does not support Array.filter */
     var chs = [];
     var channels = this.loadedImg.channels;
+    console.log(channels);
     for (var i=0; i<channels.length; i++) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
+      ch += channels[i].reverseIntensity ? 'r' : '-r';
       ch += '$' + OME.rgbToHex(channels[i].color);
+      console.log('ch', i, ch);
       chs.push(ch);
     }
     query.push('c=' + chs.join(','));

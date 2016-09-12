@@ -39,9 +39,14 @@ $.fn.colorbtn = function(cfg) {
     var ok_callback = function () {
       // On 'OK' we get the color saved by 'callback' above and apply it to the color-btn, then trigger
       var data_color = self.attr('data-picked-color');
+      var reverse_intensity = self.data('data-reverse-intensity');
       // data_color could be 'FF0000' or 'cool.lut'
+      console.log('data_color', data_color, 'reverse_intensity', reverse_intensity);
       if (data_color) {
         self.attr('data-color', data_color);
+        self.trigger('changed');
+      } else if (reverse_intensity !== undefined) {
+        self.data('data-reverse-intensity', reverse_intensity);
         self.trigger('changed');
       }
     };
@@ -99,6 +104,9 @@ $.fn.colorbtn = function(cfg) {
     }
 
     this.show_picker = function () {
+      // 'data-reverse-intensity' is a string in template, not boolean.
+      var reverse_intensity = self.data('data-reverse-intensity');
+      console.log('show_picker', reverse_intensity);
       if (!picker) {
         if (jQuery('#'+this.cfg.prefix+'-box').length === 0) {
           this._prepare_picker();
@@ -107,7 +115,7 @@ $.fn.colorbtn = function(cfg) {
         }
       }
 
-      // lookup LUTs
+      // lookup LUTs & build list with other colors
       var $luts = $("#" + this.cfg.prefix + "-luts");
       if ($luts.is(':empty')) {
         $.getJSON(cfg.server + '/luts/', function(data){
@@ -130,9 +138,14 @@ $.fn.colorbtn = function(cfg) {
             lutHtml += (lut.name.replace('.lut', '')) + '</label></div>';
             return lutHtml;
           });
-          var html = '<div>' + colorRows.join("") + lutRows.join("") + '</div>';
+          var reverseIntensityHtml = '<div><input id="reverseIntensity" type="checkbox" checked="' + reverse_intensity + '"></input>';
+          reverseIntensityHtml += '<label for="reverseIntensity" style="font-size:15px;">Reverse Intensity</label></div>';
+          reverseIntensityHtml += '<div style="clear:both"></div>';
+          var html = '<div>' + reverseIntensityHtml + colorRows.join("") + lutRows.join("") + '</div>';
           $luts.html(html);
         });
+      } else {
+        $('#reverseIntensity').prop('checked', reverse_intensity);
       }
 
       // reset showing of LUTs and hiding of colorpicker
@@ -146,7 +159,12 @@ $.fn.colorbtn = function(cfg) {
           jQuery("#"+that.cfg.prefix+"-box").hide();
         });
       $('#' + this.cfg.prefix + '-luts').off("click").on( "click", "input", function() {
-        self.attr('data-picked-color', this.value);
+        console.log(this, this.checked);
+        if (this.id === 'reverseIntensity') {
+          self.data('data-reverse-intensity', this.checked);
+        } else {
+          self.attr('data-picked-color', this.value);
+        }
         ok_callback();
       });
       self.removeAttr('data-picked-color');
