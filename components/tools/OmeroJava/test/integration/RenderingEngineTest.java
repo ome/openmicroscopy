@@ -2380,4 +2380,62 @@ public class RenderingEngineTest extends AbstractServerTest {
             Assert.assertEquals(map.size(), 1);
         }
     }
+
+    /**
+     * Tests save the codomain and restart the rendering engine.
+     * @throws Exception
+     */
+    @Test
+    public void testSaveCodomainAndRestart() throws Exception {
+        //First import an image
+        File f = File.createTempFile("testSaveCodomainAndRestart", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        re.close();
+        //restart the rendering engine
+        re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def.copyWaveRendering();
+        Assert.assertTrue(!channels.isEmpty());
+        for (int k = 0; k < channels.size(); k++) {
+            Assert.assertEquals(re.getCodomainMapContext(k).size(), 1);
+        }
+    }
 }
