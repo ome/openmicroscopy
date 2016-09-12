@@ -185,6 +185,25 @@ class HSBStrategy extends RenderingStrategy {
     }
 
     /**
+     * Returns the collection of chains.
+     *
+     * @return See above.
+     */
+    private List<CodomainChain> getChains()
+    {
+        List<CodomainChain> chains = renderer.getCodomainChains();
+        ChannelBinding[] channelBindings = renderer.getChannelBindings();
+        List<CodomainChain> list = new ArrayList<CodomainChain>();
+        for (int w = 0; w < channelBindings.length; w++) {
+            ChannelBinding cb = channelBindings[w];
+            if (cb.getActive()) {
+                list.add(chains.get(w));
+            }
+        }
+        return list;
+    }
+
+    /**
      * Retrieves the color for each active channels.
      * 
      * @return the active channel color data.
@@ -277,8 +296,7 @@ class HSBStrategy extends RenderingStrategy {
             x2Start = i*delta;
             x2End = (i+1)*delta;
             tasks.add(new RenderHSBRegionTask(buf, wData, strategies,
-                    renderer.getCodomainChains(),
-                    colors, renderer.getOptimizations(),
+                    getChains(), colors, renderer.getOptimizations(),
                     x1Start, x1End, x2Start, x2End, readers));
         }
 
