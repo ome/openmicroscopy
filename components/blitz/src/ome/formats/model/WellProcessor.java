@@ -95,15 +95,28 @@ public class WellProcessor implements ModelProcessor {
     Plate plate = (Plate) container.sourceObject;
     String userSpecifiedPlateName = store.getUserSpecifiedName();
     String userSpecifiedPlateDescription = store.getUserSpecifiedDescription();
+
+    // precedence order for plate naming:
+    //
+    // 1. user specified, if not default name of imported file
+    // 2. reader supplied, if not null
+    // 3. user specified (name of imported file)
+    // 4. "Plate"
     if (userSpecifiedPlateName != null) {
-      plate.setName(rstring(userSpecifiedPlateName));
-    }
-    if (userSpecifiedPlateDescription != null) {
-      plate.setDescription(rstring(userSpecifiedPlateDescription));
+      String currentFile = store.getReader().getCurrentFile();
+      if (!currentFile.endsWith(userSpecifiedPlateName) ||
+        plate.getName() == null)
+      {
+        plate.setName(rstring(userSpecifiedPlateName));
+      }
     }
     if (plate.getName() == null) {
       log.warn("Missing plate name for: " + container.LSID);
       plate.setName(rstring("Plate"));
+    }
+
+    if (userSpecifiedPlateDescription != null) {
+      plate.setDescription(rstring(userSpecifiedPlateDescription));
     }
     if (plate.getRows() == null) {
       plate.setRows(rint(1));
