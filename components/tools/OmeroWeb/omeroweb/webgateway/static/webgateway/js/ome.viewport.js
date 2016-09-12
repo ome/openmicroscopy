@@ -632,7 +632,6 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.setChannelReverseIntensity = function (idx, reverse, noreload) {
-    console.log('setChannelReverseIntensity', idx, reverse);
     if (_this.loadedImg.channels[idx].reverseIntensity !== reverse) {
       _this.loadedImg.channels[idx].reverseIntensity = reverse;
       _this.self.trigger('channelChange', [_this, idx, _this.loadedImg.channels[idx]]);
@@ -961,6 +960,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
             e1.channels[i].color == e2.channels[i].color &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
             e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
+            e1.channels[i].reverseIntensity == e2.channels[i].reverseIntensity &&
             e1.channels[i].metalabel == e2.channels[i].metalabel)) {
         return false;
       }
@@ -977,6 +977,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
                      color: channels[i].color,
                      windowStart: channels[i].window.start,
                      windowEnd: channels[i].window.end,
+                     reverseIntensity: channels[i].reverseIntensity,
                      metalabel: channels[i].metalabel};
       entry.channels.push(channel);
     }
@@ -1002,6 +1003,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
         this.setChannelColor(i, entry.channels[i].color, true);
         this.setChannelActive(i, entry.channels[i].active, true);
         this.setChannelLabel(i, entry.channels[i].metalabel, true);
+        this.setChannelReverseIntensity(i, entry.channels[i].reverseIntensity, true);
       }
       _load();
     }
@@ -1074,14 +1076,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
     /* Channels (verbose as IE7 does not support Array.filter */
     var chs = [];
     var channels = this.loadedImg.channels;
-    console.log(channels);
     for (var i=0; i<channels.length; i++) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
       ch += channels[i].reverseIntensity ? 'r' : '-r';
       ch += '$' + OME.rgbToHex(channels[i].color);
-      console.log('ch', i, ch);
       chs.push(ch);
     }
     query.push('c=' + chs.join(','));
