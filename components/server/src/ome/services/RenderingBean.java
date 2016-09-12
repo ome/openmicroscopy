@@ -773,6 +773,22 @@ public class RenderingBean implements RenderingEngine, Serializable {
         internalSave(!requestedRenderingDef && !settingsBelongToCurrentUser());
     }
 
+    /**
+     * Copies the context.
+     *
+     * @param ctx The context to copy.
+     * @return See above.
+     */
+    private ome.model.display.CodomainMapContext copyContext(ome.model.display.CodomainMapContext ctx)
+    {
+        if (ctx instanceof ome.model.display.ReverseIntensityContext) {
+            ome.model.display.ReverseIntensityContext nc =  new ome.model.display.ReverseIntensityContext();
+            nc.setReverse(((ome.model.display.ReverseIntensityContext) ctx).getReverse());
+            return nc;
+        }
+        return null;
+    }
+
     private long internalSave(boolean saveAs) {
 
         rwl.writeLock().lock();
@@ -840,8 +856,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 Collection<ome.model.display.CodomainMapContext> ctx =
                         binding.unmodifiableSpatialDomainEnhancement();
                 Iterator<ome.model.display.CodomainMapContext> i = ctx.iterator();
+                ome.model.display.CodomainMapContext nc;
                 while (i.hasNext()) {
-                    cb.addCodomainMapContext(i.next());
+                    nc = copyContext(i.next());
+                    if (nc != null) {
+                        cb.addCodomainMapContext(nc);
+                    }
                 }
                 index++;
             }
