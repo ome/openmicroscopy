@@ -78,7 +78,8 @@ class TestErrors(IWebTest):
                    'omero:details': {'@type': 'foo'}}
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=400)
-        assert rsp['message'] == "'NoneType' object has no attribute 'decode'"
+        assert (rsp['message'] ==
+                "Error in decode of json data by omero_marshal")
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
 
@@ -116,7 +117,8 @@ class TestErrors(IWebTest):
                    'omero:details': {'@type': 'foo'}}
         rsp = _csrf_post_json(django_client, save_url, payload,
                               status_code=400)
-        assert rsp['message'] == "'NoneType' object has no attribute 'decode'"
+        assert (rsp['message'] ==
+                "Error in decode of json data by omero_marshal")
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
 
@@ -141,7 +143,7 @@ class TestErrors(IWebTest):
                    '@type': OME_SCHEMA_URL + '#Project',
                    'Annotations': [tag_rsp, tag_rsp]}
         rsp = _csrf_post_json(django_client, save_url, payload,
-                              status_code=404)
+                              status_code=400)
         # NB: message contains whole stack trace
         assert "ValidationException" in rsp['message']
         assert rsp['stacktrace'].startswith(
