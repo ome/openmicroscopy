@@ -57,7 +57,7 @@ server = servers[0]
 payload = {'username': 'ben',
            'password': 'secret',
            'server': server['id']}
-           # 'csrfmiddlewaretoken': token}
+
 r = session.post(login_url, data=payload)
 login_rsp = r.json()
 assert r.status_code == 200

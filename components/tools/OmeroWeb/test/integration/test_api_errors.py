@@ -132,7 +132,8 @@ class TestErrors(IWebTest):
         # Create Tag
         tag = {'Value': 'test_tag',
                '@type': OME_SCHEMA_URL + '#TagAnnotation'}
-        tag_rsp = _csrf_post_json(django_client, save_url, tag, status_code=201)
+        tag_rsp = _csrf_post_json(django_client, save_url, tag,
+                                  status_code=201)
 
         # Add Tag twice to Project to get Validation Exception
         del tag_rsp['omero:details']

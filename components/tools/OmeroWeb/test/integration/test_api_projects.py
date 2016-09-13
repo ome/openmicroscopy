@@ -477,7 +477,8 @@ class TestProjects(IWebTest):
         projectName = 'test_api_projects'
         payload = {'Name': projectName,
                    '@type': schema_url + '#Project'}
-        rsp = _csrf_post_json(django_client, save_url, payload, status_code=201)
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=201)
         # We get the complete new Project returned
         assert rsp['Name'] == projectName
         projectId = rsp['@id']
@@ -516,7 +517,8 @@ class TestProjects(IWebTest):
                                   "query parameters ?group=:id")
         # Add group details and try again
         payload['omero:details'] = groupBdetails
-        rsp = _csrf_post_json(django_client, save_url, payload, status_code=201)
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=201)
         newProjectId = rsp['@id']
         assert rsp['omero:details']['group']['@id'] == groupBid
         # Read Project
