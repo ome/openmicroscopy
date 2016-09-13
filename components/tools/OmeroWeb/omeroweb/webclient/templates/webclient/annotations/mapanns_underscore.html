@@ -1,6 +1,6 @@
 <% _.each(anns, function(ann) { %>
 
-<table <% if (ann.id) { %>
+<table <% if (ann.id && ann.addedBy) { %>
             data-annId="<%= ann.id %>"
             data-added-by="<% print (ann.addedBy.join(',')) %>"
         <% } else { %>
@@ -17,9 +17,13 @@
 
                 <span class="tooltip_html" style='display:none'>
                     <b>ID:</b> <%= ann.id %><br />
-                    <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
-                    <b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %><br />
-                    <b>On:</b> <% print(OME.formatDate(ann.link.date)) %>
+                    <% if (ann.owner) { %>
+                        <b>Owner:</b> <%= ann.owner.firstName %> <%= ann.owner.lastName %><br />
+                    <% } %>
+                    <% if (ann.link) { %>
+                        <b>Linked by:</b> <%= ann.link.owner.firstName %> <%= ann.link.owner.lastName %><br />
+                        <b>On:</b> <% print(OME.formatDate(ann.link.date)) %>
+                    <% } %>
                 </span>
             <% } %>
           </th>

@@ -1382,17 +1382,24 @@ class OmeroImageServiceImpl
 	 */
 	public FileFilter[] getSupportedFileFormats()
 	{
-		if (filters != null) return filters;
-		//improve that code.
-		ImageReader reader = new ImageReader();
-		FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
-		if (array != null) {
-			filters = new FileFilter[array.length];
-			System.arraycopy(array, 0, filters, 0, array.length);
-		} else filters = new FileFilter[0];
+	    if (filters != null) return filters;
+	    try {
+	        ImageReader reader = new ImageReader();
+	        FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
+	        if (array != null) {
+	            filters = new FileFilter[array.length];
+	            System.arraycopy(array, 0, filters, 0, array.length);
+	        } else filters = new FileFilter[0];
+	    } catch (Exception e) {
+	        LogMessage msg = new LogMessage();
+            msg.print("Cannot retrieve the list of supported formats.");
+            msg.print(e);
+            context.getLogger().error(this, msg);
+	        filters = new FileFilter[0];
+	    }
 		return filters;
 	}
-	
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createMovie(SecurityContext, long, long, List,

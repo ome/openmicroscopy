@@ -294,6 +294,22 @@ def switch_active_group(request, active_group=None):
         request.session['active_group'] = active_group
 
 
+def fake_experimenter(request, default_name='All members'):
+    """
+    Marshal faked experimenter when id is -1
+    Load omero.client.ui.menu.dropdown.everyone.label as username
+    """
+    label = request.session.get('server_settings').get('ui', {}) \
+        .get('menu', {}).get('dropdown', {}).get('everyone', {}) \
+        .get('label', default_name)
+    return {
+        'id': -1,
+        'omeName': label,
+        'firstName': label,
+        'lastName': '',
+    }
+
+
 @login_required(login_redirect='webindex')
 def logout(request, conn=None, **kwargs):
     """
@@ -521,14 +537,13 @@ def api_experimenter_list(request, conn=None, **kwargs):
                                                    group_id=group_id,
                                                    page=page,
                                                    limit=limit)
+        return JsonResponse({'experimenters': experimenters})
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
         return HttpResponseServerError(e.serverStackTrace)
     except IceException as e:
         return HttpResponseServerError(e.message)
-
-    return JsonResponse({'experimenters': experimenters})
 
 
 @login_required()
@@ -541,16 +556,20 @@ def api_experimenter_detail(request, experimenter_id, conn=None, **kwargs):
 
     try:
         # Get the experimenter
-        experimenter = tree.marshal_experimenter(
-            conn=conn, experimenter_id=experimenter_id)
+        if experimenter_id < 0:
+            experimenter = fake_experimenter(request)
+        else:
+            # Get the experimenter
+            experimenter = tree.marshal_experimenter(
+                conn=conn, experimenter_id=experimenter_id)
+        return JsonResponse({'experimenter': experimenter})
+
     except ApiUsageException as e:
         return HttpResponseBadRequest(e.serverStackTrace)
     except ServerError as e:
         return HttpResponseServerError(e.serverStackTrace)
     except IceException as e:
         return HttpResponseServerError(e.message)
-
-    return JsonResponse({'experimenter': experimenter})
 
 
 @login_required()

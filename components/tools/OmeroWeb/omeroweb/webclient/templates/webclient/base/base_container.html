@@ -187,10 +187,7 @@
             WEBCLIENT.URLS.tree_top_level = WEBCLIENT.URLS.api_containers;
         {% endifequal %}
 
-        {% if active_user %}
-        WEBCLIENT.active_user = {'id': {{ active_user.id }} };
-        WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' active_user.id %}";
-        {% endif %}
+        WEBCLIENT.URLS.api_experimenter = "{% url 'api_experimenter' ome.user_id %}";
 
         WEBCLIENT.UI = {};
         WEBCLIENT.UI.TREE = {};
@@ -222,11 +219,7 @@
         // The shown user's ID. This is located here because static javascript files
         // are not preprocessed by django
         function activeUserId() {
-            {% if active_user.id %}
-                return {{ active_user.id }}
-            {% else %}
-                return -1;
-            {% endif %}
+            return {{ ome.user_id }};
         };
 
         // The currently logged in user ID
