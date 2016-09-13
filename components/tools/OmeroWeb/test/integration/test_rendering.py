@@ -35,10 +35,6 @@ class TestRendering(IWebTest):
     Tests copying and pasting of rendering settings from one image to another
     """
 
-    def assert_no_leaked_rendering_engines(self):
-        for v in self.client.getSession().activeServices():
-            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
-
     def test_copy_past_rendering_settings_from_image(self):
         # Create 2 images with 2 channels each
         iid1 = self.createTestImage(sizeC=2, session=self.sf).id.val
@@ -153,6 +149,16 @@ class TestRendering(IWebTest):
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
         assert image2.isGreyscaleRenderingModel() is False
+
+
+class TestRenderImageRegion(IWebTest):
+    """
+    Tests rendering of image regions
+    """
+
+    def assert_no_leaked_rendering_engines(self):
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
 
     def test_render_image_region_incomplete_request(self):
         image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
