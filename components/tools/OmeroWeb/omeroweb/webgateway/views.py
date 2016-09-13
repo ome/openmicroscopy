@@ -1247,13 +1247,13 @@ def jsonp(f):
             safe = type(rv) is dict
             return JsonResponse(rv, safe=safe)
         except Exception, ex:
-            # Default status is 400 'Bad request' unless we
-            # know that error comes from server
-            status = 400
+            # Default status is 500 'server error'
+            # But we try to handle all 'expected' errors appropriately
+            status = 500
             if isinstance(ex, omero.SecurityViolation):
                 status = 403
             elif isinstance(ex, omero.ValidationException):
-                status = 404
+                status = 400
             elif isinstance(ex, omero.ServerError):
                 status = 500
             trace = traceback.format_exc()
@@ -2824,9 +2824,20 @@ class SaveView(View):
             return {'message': 'Need to specify @type attribute'}
         objType = object_json['@type']
         decoder = get_decoder(objType)
+        # If we are passed incomplete object, or decoder couldn't be found...
+        if decoder is None:
+            return JsonResponse(
+                {'message': 'No decoder found for type: %s' % objType},
+                status=400)
 
-        # Any errors here handled by @jsonp with status=400
-        obj = decoder.decode(object_json)
+        # Any marshal errors most likely due to invalid input. status=400
+        try:
+            obj = decoder.decode(object_json)
+        except Exception:
+            return JsonResponse(
+                {'message': 'Error in decode of json data by omero_marshal',
+                 'stacktrace': traceback.format_exc()},
+                status=400)
 
         if group is None:
             try:
