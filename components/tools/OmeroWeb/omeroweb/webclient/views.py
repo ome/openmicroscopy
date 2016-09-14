@@ -2435,6 +2435,8 @@ def annotate_tags(request, conn=None, **kwargs):
         selected_tags.append(
             (tag['id'], self_id, ownerName, canDelete, created, linkOwned))
 
+    # selected_tags is really a list of tag LINKS.
+    # May be several links per tag.id
     selected_tags.sort(key=lambda x: x[0])
 
     initial = {
@@ -2458,7 +2460,8 @@ def annotate_tags(request, conn=None, **kwargs):
             # filter down previously selected tags to the ones linked by
             # current user
             selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
-            # added_tags = [stag[0] for stag in selected_tags if not stag[5]]
+            # Remove duplicates from tag IDs
+            selected_tag_ids = list(set(selected_tag_ids))
             post_tags = form_tags.cleaned_data['tags']
             tags = [tag for tag in post_tags
                     if tag not in selected_tag_ids]
