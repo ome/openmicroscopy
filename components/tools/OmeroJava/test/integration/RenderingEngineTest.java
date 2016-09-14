@@ -26,8 +26,10 @@ import javax.imageio.ImageIO;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 import omero.api.IPixelsPrx;
+import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
+import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.CodomainMapContext;
 import omero.model.Family;
@@ -47,6 +49,7 @@ import omero.romio.PlaneDef;
 import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
 import omero.sys.EventContext;
+import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.testng.annotations.Test;
@@ -2530,5 +2533,77 @@ public class RenderingEngineTest extends AbstractServerTest {
         // check binary w/o context
         int[] afterSave = re.renderAsPackedInt(pDef);
         Assert.assertTrue(Arrays.equals(afterSave, after));
+    }
+
+    /**
+     * Tests to check the rendering settings have correctly been reset.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testResetDefault() throws Exception {
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> luts = svc.getScriptsByMimetype(
+                ScriptServiceTest.LUT_MIMETYPE);
+        Assert.assertNotNull(luts);
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        Image image = createBinaryImage();
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        ParametersI param = new ParametersI();
+        param.addId(id);
+        String sql = "select pix from Pixels as pix " +
+            "join fetch pix.image " +
+            "join fetch pix.pixelsType " +
+            "join fetch pix.channels as c " +
+            "join fetch c.logicalChannel " +
+            "where pix.id = :id";
+        List<IObject> ll = iQuery.findAllByQuery(sql, param);
+        pixels = (Pixels) ll.get(0);
+
+        // Image
+        prx.setOriginalSettingsInSet(Image.class.getName(),
+                Arrays.asList(image.getId().getValue()));
+        RenderingDef def1 = factory.getPixelsService().retrieveRndSettings(id);
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        List<ChannelBinding> channels = def1.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+            re.setChannelLookupTable(k, luts.get(0).getName().getValue());
+        }
+        re.saveCurrentSettings();
+        // method already tested
+        //re.close();
+        def1 = factory.getPixelsService().retrieveRndSettings(id);
+        //reset and save
+        re.resetDefaultSettings(true);
+        RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(id);
+        //Check that lut has been removed since we won't have one at import
+        //Check that the list of codomain context is empty
+        channels = def1.copyWaveRendering();
+        ChannelBinding cb1, cb2;
+        List<ChannelBinding> channels2 = def2.copyWaveRendering();
+        List<Channel> l = pixels.copyChannels();
+        Channel c;
+        for (int k = 0; k < channels.size(); k++) {
+            cb1 = channels.get(k);
+            cb2 = channels2.get(k);
+            c = l.get(k);
+            Assert.assertNotNull(c);
+            Assert.assertNull(c.getLookupTable());
+            Assert.assertEquals(cb1.copySpatialDomainEnhancement().size(), 1);
+            Assert.assertTrue(cb2.copySpatialDomainEnhancement().isEmpty());
+            Assert.assertNotNull(cb1.getLookupTable());
+            Assert.assertNull(cb2.getLookupTable());
+        }
     }
 }
