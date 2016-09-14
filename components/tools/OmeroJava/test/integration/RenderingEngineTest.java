@@ -2586,6 +2586,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         def1 = factory.getPixelsService().retrieveRndSettings(id);
         //reset and save
         re.resetDefaultSettings(true);
+        re.close();
         RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(id);
         //Check that lut has been removed since we won't have one at import
         //Check that the list of codomain context is empty
