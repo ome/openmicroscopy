@@ -806,6 +806,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             channelBinding.setNoiseReduction(false);
             //Set the lookuptable if set during import
             channelBinding.setLookupTable(channel.getLookupTable());
+            channelBinding.clearSpatialDomainEnhancement();
             i++;
         }
         if (count > 0 && count != m.size()) {
