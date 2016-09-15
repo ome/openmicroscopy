@@ -25,6 +25,9 @@ import javax.imageio.ImageIO;
 
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
+import omero.RBool;
+import omero.RInt;
+import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
@@ -32,6 +35,7 @@ import omero.api.RenderingEnginePrx;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.CodomainMapContext;
+import omero.model.Details;
 import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
@@ -45,6 +49,7 @@ import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.RenderingModel;
 import omero.model.ReverseIntensityContext;
+import omero.model.ReverseIntensityContextI;
 import omero.romio.PlaneDef;
 import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
@@ -56,6 +61,7 @@ import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
+import Ice.Current;
 import sun.awt.image.IntegerInterleavedRaster;
 
 /**
@@ -2677,5 +2683,74 @@ public class RenderingEngineTest extends AbstractServerTest {
             Assert.assertTrue(StringUtils.isBlank(re.getChannelLookupTable(k)));
         }
         re.close();
+    }
+
+    /**
+     * Tests to rendering settings with multiple codomain can be saved
+     * This test does not use the rendering engine but directly the update
+     * service.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testMultipleCodomainTestNotFromRE() throws Exception {
+        Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
+                ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
+                ModelMockFactory.SIZE_T,
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        // Pixels first
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(pixels.getId().getValue()));
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            ChannelBinding c = channels.get(k);
+            ReverseIntensityContext ctx = new ReverseIntensityContextI();
+            ctx.setReverse(omero.rtypes.rbool(true));
+            c.addCodomainMapContext(ctx);
+        }
+        def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+    }
+
+    /**
+     * Tests to rendering settings with multiple codomain can be saved
+     * using the rendering engine.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testMultipleCodomainTest() throws Exception {
+        Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
+                ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
+                ModelMockFactory.SIZE_T,
+                ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        // Pixels first
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(pixels.getId().getValue()));
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+
+        for (int k = 0; k < channels.size(); k++) {
+            ChannelBinding c = channels.get(k);
+            ReverseIntensityContext ctx = new ReverseIntensityContextI();
+            ctx.setReverse(omero.rtypes.rbool(true));
+            c.addCodomainMapContext(ctx);
+        }
+        def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+        channels = def.copyWaveRendering();
+        for (int k = 0; k < channels.size(); k++) {
+            ChannelBinding c = channels.get(k);
+            List<CodomainMapContext> l  = c.copySpatialDomainEnhancement();
+            Assert.assertEquals(l.size(), 1);
+        }
     }
 }
