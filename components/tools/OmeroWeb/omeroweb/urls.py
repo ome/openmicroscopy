@@ -80,8 +80,13 @@ for app in settings.ADDITIONAL_APPS:
         urlmodule = 'omeroweb.%s.urls' % app
     else:
         urlmodule = '%s.urls' % app
-    regex = '^(?i)%s/' % label
-    urlpatterns += patterns('', (regex, include(urlmodule)),)
+    try:
+        __import__(urlmodule)
+    except ImportError:
+        pass
+    else:
+        regex = '^(?i)%s/' % label
+        urlpatterns += patterns('', (regex, include(urlmodule)),)
 
 urlpatterns += patterns(
     '',
