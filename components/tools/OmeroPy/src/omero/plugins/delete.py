@@ -30,6 +30,8 @@ Examples:
 
     # Delete three images and two datasets including their contents
     omero delete  omero delete Image:101,102,103 Dataset:201,202
+    # Delete five images and four datasets including their contents
+    omero delete  omero delete Image:106-110 Dataset:203-205,207
     # Delete a project excluding contained datasets and linked annotations
     omero delete Project:101 --exclude Dataset,Annotation
 
