@@ -174,20 +174,40 @@
                 var wellIds = $selected.map(function(i, $w){
                     return $w.id.split('-')[1];
                 });
+                var wellLabels = $selected.map(function(i, $w){
+                    return $w.children('.wellLabel').text();
+                });
 
-
-                [].forEach.call(wellIds, function(wellId) {
+                $('#wellImages').empty();
+                [].forEach.call(wellIds, function(wellId, i) {
+                    // create placeholders for each Well
+                    var label = wellLabels[i];
+                    $('#wellImages').append("<div id='wellImages-" + wellId + "'><h1>" + label + "</h1></div>");
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     $.getJSON(url, function(data){
-                        console.log(data);
+                        var html = data.reduce(function(html, w){
+                            return html + '<img src="' + w.thumb_url + '" />';
+                        }, "<div>");
+                        $('#wellImages-' + wellId).html(html);
                     });
                 });
             }
         });
 
     </script>
+
+    <style type="text/css">
+        #content_details>div {
+            position: absolute;
+            left: 0px;
+            right: 0px;
+            overflow: auto;
+        }
+    </style>
     
     <!--content-->
+<!-- We add/remove class .showWellImages to #content_details expose #wellImages panel -->
+<div style="top: 0px; height: 29px">
     <div id="fields">
         <form action="" method="POST" class="align_left">
         <table>
@@ -203,7 +223,12 @@
             <button style="margin: -4px 8px;" id="showWellImages">Show Images in Well</button>
         </div>
     </div>
-    
+</div>
+<div style="top: 29px; bottom: 100px">
+
     <div id="spw"></div>
 
-    <div id="wellImages"></div>
+</div>
+<div id="wellImages" class="wellImages" style="bottom: 0px; height: 100px">
+    WELL
+</div>   
