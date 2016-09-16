@@ -173,8 +173,6 @@ def custom_index(request, conn=None, **kwargs):
 ##############################################################################
 # views
 
-# from omeroweb.webgateway import LoginView
-
 
 class WebclientLoginView(webgateway_views.LoginView):
     """
@@ -195,7 +193,12 @@ class WebclientLoginView(webgateway_views.LoginView):
     def get(self, request, *args, **kwargs):
         return self._handleNotLoggedIn(request, *args, **kwargs)
 
-    def _handleLoggedIn(self, request, conn, connector, *args, **kwargs):
+    def handle_logged_in(self, request, conn, connector, *args, **kwargs):
+        """
+        Override this to provide webclient-specific functionality
+        such as cleaning up any previous sessions (if user didn't logout)
+        and redirect to specified url or webclient index page.
+        """
 
         # webclient has various state that needs cleaning up...
         # if 'active_group' remains in session from previous
@@ -222,7 +225,7 @@ class WebclientLoginView(webgateway_views.LoginView):
                 url = reverse("webindex")
         return HttpResponseRedirect(url)
 
-    def _handleNotLoggedIn(self, request, error=None, form=None, **kwargs):
+    def handle_not_logged_in(self, request, error=None, form=None, **kwargs):
         """
         Returns a response for failed login.
         Reason for failure may be due to server 'error' or because

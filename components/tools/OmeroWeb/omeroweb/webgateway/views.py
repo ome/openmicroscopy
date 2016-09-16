@@ -2615,7 +2615,7 @@ class LoginView(View):
         return {"message":
                 "POST only with username, password, server and csrftoken"}
 
-    def _handleLoggedIn(self, request, conn, connector, *args, **kwargs):
+    def handle_logged_in(self, request, conn, connector, *args, **kwargs):
         """ Returns a response for successful login """
         c = conn.getEventContext()
         ctx = {}
@@ -2626,7 +2626,7 @@ class LoginView(View):
                 ctx[a] = getattr(c, a)
         return {"success": True, "eventContext": ctx}
 
-    def _handleNotLoggedIn(self, request, error, form, **kwargs):
+    def handle_not_logged_in(self, request, error, form, **kwargs):
         """
         Returns a response for failed login.
         Reason for failure may be due to server 'error' or because
