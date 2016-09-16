@@ -1,4 +1,9 @@
-# Common requirements file used by all others
-# ===========================================
+# Python installation requirements for OMERO.web
+# ==============================================
+#
+#     pip install -r requirements-common.txt
+#
 
-https://github.com/openmicroscopy/omero-marshal/tarball/master
+Django>=1.8,<1.9
+django-pipeline==1.3.20
+git+git://github.com/openmicroscopy/omero-marshal.git@v0.4.0#egg=omero-marshal
