@@ -779,10 +779,24 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @param ctx The context to copy.
      * @return See above.
      */
-    private ome.model.display.CodomainMapContext copyContext(ome.model.display.CodomainMapContext ctx)
+    private ome.model.display.CodomainMapContext copyContext(ome.model.display.CodomainMapContext ctx,
+            Collection<ome.model.display.CodomainMapContext> saved)
     {
+        if (ctx == null) {
+            return null;
+        }
         if (ctx.getId() != null && ctx.getId().longValue() >= 0) {
             return ctx;
+        }
+        if (saved != null) {
+            Iterator<ome.model.display.CodomainMapContext> j = saved.iterator();
+            ome.model.display.CodomainMapContext cmc;
+            while (j.hasNext()) {
+                cmc = j.next();
+                if (cmc.getClass().equals(ctx.getClass())) {
+                    return cmc;
+                }
+            }
         }
         if (ctx instanceof ome.model.display.ReverseIntensityContext) {
             ome.model.display.ReverseIntensityContext nc =  new ome.model.display.ReverseIntensityContext();
@@ -804,6 +818,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // itself or one of its children in the object graph has been
             // updated. FIXME: This should be implemented using IUpdate.touch()
             // or similar once that functionality exists.
+            RenderingDef saved = retrieveRndSettings(pixelsObj.getId());
             RenderingDef old = rendDefObj;
             rendDefObj = createNewRenderingDef(pixelsObj);
             if (!saveAs) {
@@ -835,8 +850,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // headaches.
             Family family;
             int index = 0;
-            ChannelBinding cb;
-            for (ChannelBinding binding : old.unmodifiableWaveRendering()) {
+            ChannelBinding cb, scb;
+            Collection<ChannelBinding> bindings = old.unmodifiableWaveRendering();
+            ChannelBinding[] savedBindings = new ChannelBinding[bindings.size()];
+            if (saved != null) {
+                savedBindings = (ChannelBinding[]) saved.unmodifiableWaveRendering().toArray(
+                        new ChannelBinding[bindings.size()]);
+            }
+            for (ChannelBinding binding : bindings) {
+                scb = savedBindings[index];
                 family = new Family(binding.getFamily().getId(), false);
                 cb = rendDefObj.getChannelBinding(index);
                 cb.setFamily(family);
@@ -858,14 +880,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb.clearSpatialDomainEnhancement();
                 Collection<ome.model.display.CodomainMapContext> ctx =
                         binding.unmodifiableSpatialDomainEnhancement();
-                if (!ctx.isEmpty()) {
-                    Iterator<ome.model.display.CodomainMapContext> i = ctx.iterator();
-                    ome.model.display.CodomainMapContext nc;
-                    while (i.hasNext()) {
-                        nc = copyContext(i.next());
-                        if (nc != null) {
-                            cb.addCodomainMapContext(nc);
-                        }
+                Collection<ome.model.display.CodomainMapContext> octx = null;
+                if (scb != null) {
+                    octx = scb.unmodifiableSpatialDomainEnhancement();
+                }
+                Iterator<ome.model.display.CodomainMapContext> i = ctx.iterator();
+                ome.model.display.CodomainMapContext nc;
+                while (i.hasNext()) {
+                    nc = copyContext(i.next(), octx);
+                    if (nc != null) {
+                        cb.addCodomainMapContext(nc);
                     }
                 }
                 index++;
