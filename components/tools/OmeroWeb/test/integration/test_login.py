@@ -32,21 +32,22 @@ class TestLogin(IWebTest):
     Tests login
     """
 
-    @pytest.mark.parametrize("login", [['guest', 'guest'],
-                                       ['g', str(random())]])
-    def test_guest_login_not_supported(self, login):
-        """
-        Test that guest login is not permitted and login as 'g' is not
-        confused as 'guest':
-        https://trello.com/c/U47AiD1R/682-weird-guest-login
-        """
+    @pytest.mark.parametrize("credentials", [
+        [{'username': 'guest', 'password': 'fake', 'server': 1},
+            "Guest account is not supported."],
+        [{'username': 'nobody', 'password': '', 'server': 1},
+            "This field is required."],
+        [{'password': 'fake'},
+            "This field is required."],
+        [{'username': 'g', 'password': str(random()), 'server': 1},
+            "please check your user name and password."]
+        ])
+    def test_login_errors(self, credentials):
         django_client = self.django_root_client
         request_url = reverse('weblogin')
-        data = {'username': login[0], 'password': login[1], 'server': 1}
+        data = credentials[0]
+        data['server'] = 1
+        message = credentials[1]
         rsp = _csrf_post_response(django_client, request_url, data,
                                   status_code=200)
-        if login[0] == 'guest':
-            assert "Guest account is not supported." in rsp.content
-        else:
-            assert "Guest account is not supported." not in rsp.content
-            assert "please check your user name and password" in rsp.content
+        assert message in rsp.content
