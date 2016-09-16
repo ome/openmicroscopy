@@ -67,4 +67,4 @@ setup(
         'omero.gateway': ['pilfonts/*'],
         'omero.gateway.scripts': ['imgs/*']},
     cmdclass={'test': PyTest},
-    tests_require=['pytest<3.0.0'])
+    tests_require=['pytest != 3.0.0, != 3.0.1, != 3.0.2'])
