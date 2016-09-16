@@ -157,10 +157,21 @@ class TestRenderImageRegion(IWebTest):
     """
 
     def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
         for v in self.client.getSession().activeServices():
             assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
 
     def test_render_image_region_incomplete_request(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  If `c` is also passed, the rendering
+        engine will also be initialised.  This test ensure that the correct
+        HTTP status code is used and that consequently, any and all
+        rendering engines that were created servicing the request are closed.
+        """
         image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
 
         request_url = reverse(
@@ -177,6 +188,13 @@ class TestRenderImageRegion(IWebTest):
             self.assert_no_leaked_rendering_engines()
 
     def test_render_image_region_malformed_tile_argument(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  This test ensure that if a malformed `tile`
+        is requested the correct HTTP status code is used and that
+        consequently, any and all rendering engines that were created
+        servicing the request are closed.
+        """
         image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
 
         request_url = reverse(
@@ -193,6 +211,13 @@ class TestRenderImageRegion(IWebTest):
             self.assert_no_leaked_rendering_engines()
 
     def test_render_image_region_malformed_region_argument(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  This test ensure that if a malformed
+        `region` is requested the correct HTTP status code is used and that
+        consequently, any and all rendering engines that were created
+        servicing the request are closed.
+        """
         image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
 
         request_url = reverse(
