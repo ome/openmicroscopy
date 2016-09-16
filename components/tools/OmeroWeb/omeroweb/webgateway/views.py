@@ -2684,10 +2684,10 @@ class LoginView(View):
                             upgrades_url = conn.getUpgradesUrl()
                         upgradeCheck(url=upgrades_url)
 
-                        return self._handleLoggedIn(request, conn, connector)
+                        return self.handle_logged_in(request, conn, connector)
                     else:
                         error = "This user is not active."
-                        return self._handleNotLoggedIn(self, request, error,
+                        return self.handle_not_logged_in(self, request, error,
                                                        **kwargs)
             # Once here, we are not logged in...
             # Need correct error message
@@ -2704,7 +2704,7 @@ class LoginView(View):
                 else:
                     error = ("Connection not available, please check your"
                              " user name and password.")
-        return self._handleNotLoggedIn(request, error, form, *args, **kwargs)
+        return self.handle_not_logged_in(request, error, form, *args, **kwargs)
 
 
 class ProjectView(View):
