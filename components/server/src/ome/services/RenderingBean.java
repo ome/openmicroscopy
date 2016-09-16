@@ -781,10 +781,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     private ome.model.display.CodomainMapContext copyContext(ome.model.display.CodomainMapContext ctx)
     {
+        if (ctx.getId() != null && ctx.getId().longValue() >= 0) {
+            return ctx;
+        }
         if (ctx instanceof ome.model.display.ReverseIntensityContext) {
-            if (ctx.getId() != null) {
-                return ctx;
-            }
             ome.model.display.ReverseIntensityContext nc =  new ome.model.display.ReverseIntensityContext();
             nc.setReverse(((ome.model.display.ReverseIntensityContext) ctx).getReverse());
             return nc;
