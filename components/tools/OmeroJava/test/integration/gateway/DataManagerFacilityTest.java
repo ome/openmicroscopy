@@ -318,7 +318,8 @@ public class DataManagerFacilityTest extends GatewayTest {
      * 
      * @throws Exception
      */
-    @Test(dependsOnMethods = { "testSaveAndReturnObject" })
+    @Test(groups = "broken") // marked as 'broken', works fine locally, but flaky on CI
+    //@Test(dependsOnMethods = { "testSaveAndReturnObject" })
     public void testPerformanceAttachFile() throws Exception {
         long start = System.currentTimeMillis();
 
