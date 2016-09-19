@@ -2613,6 +2613,7 @@ class LoginView(View):
     useragent = 'OMERO.webapi'
 
     def get(self, request, api_version=None):
+        """ Simply return a message to say GET not supported """
         return JsonResponse({"message":
                             ("POST only with username, password, "
                              "server and csrftoken")})
@@ -2651,6 +2652,10 @@ class LoginView(View):
         return JsonResponse({"message": error}, status=403)
 
     def post(self, request, api_version=None):
+        """
+        Here we handle the main login logic, creating a connection to OMERO
+        and storing that on the request.session OR handling login failures
+        """
         error = None
         form = self.form_class(request.POST.copy())
         if form.is_valid():
