@@ -2675,27 +2675,17 @@ class LoginView(View):
                 conn = connector.create_connection(
                     self.useragent, username, password,
                     userip=get_client_ip(request))
-                # TODO: conn is None if user is INACTIVE (not in user group)...
                 if conn is not None:
-                    # Check if user is in "user" group
-                    roles = conn.getAdminService().getSecurityRoles()
-                    userGroupId = roles.userGroupId
-                    # ... so this will ALWAYS be True
-                    if userGroupId in conn.getEventContext().memberOfGroups:
-                        request.session['connector'] = connector
-                        # UpgradeCheck URL should be loaded from the server or
-                        # loaded omero.web.upgrades.url allows to customize web
-                        # only
-                        try:
-                            upgrades_url = settings.UPGRADES_URL
-                        except:
-                            upgrades_url = conn.getUpgradesUrl()
-                        upgradeCheck(url=upgrades_url)
-
-                        return self.handle_logged_in(request, conn, connector)
-                    else:
-                        error = "This user is not active."
-                        return self.handle_not_logged_in(self, request, error)
+                    request.session['connector'] = connector
+                    # UpgradeCheck URL should be loaded from the server or
+                    # loaded omero.web.upgrades.url allows to customize web
+                    # only
+                    try:
+                        upgrades_url = settings.UPGRADES_URL
+                    except:
+                        upgrades_url = conn.getUpgradesUrl()
+                    upgradeCheck(url=upgrades_url)
+                    return self.handle_logged_in(request, conn, connector)
             # Once here, we are not logged in...
             # Need correct error message
             if not connector.is_server_up(self.useragent):
