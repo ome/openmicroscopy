@@ -21,11 +21,13 @@
 Tests webclient login
 """
 
-from weblibrary import IWebTest, _csrf_post_response
+from weblibrary import IWebTest, _csrf_post_response, _get_response
 from django.core.urlresolvers import reverse
+from django.test import Client
 from random import random
 import pytest
 
+tag_url = reverse('load_template', kwargs={'menu': 'usertags'})
 
 class TestLogin(IWebTest):
     """
@@ -43,6 +45,10 @@ class TestLogin(IWebTest):
             "please check your user name and password."]
         ])
     def test_login_errors(self, credentials):
+        """
+        Tests handling of various login errors.
+        E.g. missing fields, invalid credentials and guest login
+        """
         django_client = self.django_root_client
         request_url = reverse('weblogin')
         data = credentials[0]
@@ -51,3 +57,30 @@ class TestLogin(IWebTest):
         rsp = _csrf_post_response(django_client, request_url, data,
                                   status_code=200)
         assert message in rsp.content
+
+    def test_get_login_page(self):
+        """
+        Simply test if a GET of the login url returns login page
+        """
+        django_client = Client()
+        request_url = reverse('weblogin')
+        rsp = _get_response(django_client, request_url, {}, status_code=200)
+        assert 'OMERO.web - Login' in rsp.content
+
+    @pytest.mark.parametrize("redirect", ['', tag_url])
+    def test_login_redirect(self, redirect):
+        """
+        Test that a successful login redirects to /webclient/
+        or to specified url
+        """
+        django_client = self.django_root_client
+        # redirect = reverse('load_template', kwargs={'menu': 'usertags'})
+        request_url = "%s?url=%s" % (reverse('weblogin'), redirect)
+        data = {'username': self.ctx.userName,
+                'password': self.ctx.userName,
+                'server': 1}
+        rsp = _csrf_post_response(django_client, request_url, data,
+                                  status_code=302)
+        if len(redirect) == 0:
+            redirect = reverse('webindex')
+        assert rsp['Location'].endswith(redirect)

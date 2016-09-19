@@ -2688,7 +2688,7 @@ class LoginView(View):
                     else:
                         error = "This user is not active."
                         return self.handle_not_logged_in(self, request, error,
-                                                       **kwargs)
+                                                         **kwargs)
             # Once here, we are not logged in...
             # Need correct error message
             if not connector.is_server_up(self.useragent):
