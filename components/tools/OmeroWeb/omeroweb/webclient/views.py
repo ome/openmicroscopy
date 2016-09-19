@@ -191,6 +191,9 @@ class WebclientLoginView(webgateway_views.LoginView):
     useragent = 'OMERO.web'
 
     def get(self, request, *args, **kwargs):
+        """
+        GET simply returns the login page
+        """
         return self.handle_not_logged_in(request, *args, **kwargs)
 
     def handle_logged_in(self, request, conn, connector, *args, **kwargs):
