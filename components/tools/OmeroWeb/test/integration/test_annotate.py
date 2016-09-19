@@ -24,6 +24,7 @@ Tests adding & removing annotations
 import omero
 import json
 import omero.clients
+from time import sleep
 
 from weblibrary import IWebTest
 from weblibrary import _csrf_post_response, _get_response
@@ -110,6 +111,9 @@ class TestTagging(IWebTest):
         # E.g. move from Right to Left column in the UI
         self.annotate_dataset(django_client1, ds.id.val, [tag2.id.val])
 
+        # Since tag link deletion is async, we need to wait to be sure that
+        # tag is removed.
+        sleep(1)
         rsp = _get_response_json(django_client1, request_url, data)
         tagIds = [t['id'] for t in rsp['annotations']]
         assert tag.id.val not in tagIds
