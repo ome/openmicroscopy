@@ -76,6 +76,9 @@ class ChannelBindingsProxy
     /** The lookup table */
     private String lookupTable;
     
+    /** The reverse intensity flag */
+    private boolean revInt;
+    
     /** Creates a new instance. */
     ChannelBindingsProxy()
     {
@@ -235,6 +238,7 @@ class ChannelBindingsProxy
     			this.isNoiseReduction());
     	copy.setRGBA(this.getRGBA());
     	copy.setLookupTable(this.getLookupTable());
+    	copy.setReverseIntensity(this.getReverseIntensity());
     	return copy;
     }
 
@@ -243,7 +247,7 @@ class ChannelBindingsProxy
      * 
      * @return See above
      */
-    public String getLookupTable() {
+    String getLookupTable() {
         return lookupTable;
     }
 
@@ -253,9 +257,27 @@ class ChannelBindingsProxy
      * @param lookupTable
      *            The lookup table
      */
-    public void setLookupTable(String lookupTable) {
+    void setLookupTable(String lookupTable) {
         this.lookupTable = lookupTable;
     }
-       
-    
+     
+    /**
+     * Get the reverse intensity flag
+     * 
+     * @return See above
+     */
+    boolean getReverseIntensity() {
+        return revInt;
+    }
+
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param revInt
+     *            The reverse intensity flag
+     */
+    void setReverseIntensity(boolean revInt) {
+        this.revInt = revInt;
+    }
+
 }

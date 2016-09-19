@@ -877,4 +877,25 @@ public interface RenderingControl
      *            The lookup tables
      */
     void setAvailableLookupTables(Collection<String> lookupTables);
+
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param w
+     *            The channel index
+     * @param revInt
+     *            The reverse intensity flag
+     */
+    void setReverseIntensity(int w, boolean revInt)
+            throws RenderingServiceException, DSOutOfServiceException;
+
+    /**
+     * Get the reverse intensity flag
+     * 
+     * @param w
+     *            The channel index
+     * @return See above
+     */
+    boolean getReverseIntensity(int w);
+
 }

@@ -49,9 +49,9 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
 import omero.model.ReverseIntensityContext;
-import omero.model.ReverseIntensityContextI;
 import omero.model.enums.UnitsLength;
 import omero.romio.PlaneDef;
+import omero.romio.ReverseIntensityMapContext;
 
 import org.openmicroscopy.shoola.env.LookupNames;
 
@@ -486,6 +486,15 @@ class RenderingControlProxy
     			cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
     			cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
     			cb.setLookupTable(servant.getChannelLookupTable(i));
+    			
+                cb.setReverseIntensity(false);
+                List<IObject> cdctx = servant.getCodomainMapContext(i);
+                for (IObject cd : cdctx) {
+                    if (cd instanceof ReverseIntensityContext) {
+                        cb.setReverseIntensity(true);
+                        break;
+                    }
+                }
     		}
     		tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
@@ -760,6 +769,15 @@ class RenderingControlProxy
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
                     cb.setLookupTable(servant.getChannelLookupTable(i));
+                    
+                    cb.setReverseIntensity(false);
+                    List<IObject> cdctx = servant.getCodomainMapContext(i);
+                    for (IObject cd : cdctx) {
+                        if (cd instanceof ReverseIntensityContext) {
+                            cb.setReverseIntensity(true);
+                            break;
+                        }
+                    }
                 }
             }
             tmpSolutionForNoiseReduction();
@@ -844,6 +862,15 @@ class RenderingControlProxy
                     cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
                     cb.setLookupTable(servant.getChannelLookupTable(i));
+                    
+                    cb.setReverseIntensity(false);
+                    List<IObject> cdctx = servant.getCodomainMapContext(i);
+                    for (IObject cd : cdctx) {
+                        if (cd instanceof ReverseIntensityContext) {
+                            cb.setReverseIntensity(true);
+                            break;
+                        }
+                    }
                 }
             }
 		} catch (Exception e) {
@@ -1570,6 +1597,7 @@ class RenderingControlProxy
 			if (c != null) {
 				setRGBA(i, c.getRGBA());
 				setLookupTable(i, c.getLookupTable());
+				setReverseIntensity(i, c.getReverseIntensity());
 				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
 				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(),
 									c.isNoiseReduction());
@@ -2117,6 +2145,61 @@ class RenderingControlProxy
         return channel.getLookupTable();
     }
 
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#getReverseIntensity(int)
+     */
+    @Override
+    public boolean getReverseIntensity(int w) {
+        ChannelBindingsProxy channel = rndDef.getChannel(w);
+        if (channel == null)
+            return false;
+        return channel.getReverseIntensity();
+    }
+
+    /**
+     * Implemented as specified by {@link RenderingControl}.
+     * 
+     * @see RenderingControl#setReverseIntensity(int, boolean)
+     */
+    @Override
+    public void setReverseIntensity(int w, boolean revInt)
+            throws RenderingServiceException, DSOutOfServiceException {
+        isSessionAlive();
+        try {
+            boolean currentRevInt = false;
+            List<IObject> cdctx = servant.getCodomainMapContext(w);
+            for (IObject cd : cdctx) {
+                if (cd instanceof ReverseIntensityContext) {
+                    currentRevInt = true;
+                    break;
+                }
+            }
+
+            if (currentRevInt == revInt)
+                return;
+
+            if (revInt)
+                servant.addCodomainMapToChannel(
+                        new ReverseIntensityMapContext(), w);
+            else
+                servant.removeCodomainMapFromChannel(
+                        new ReverseIntensityMapContext(), w);
+
+            Iterator<RenderingControl> i = slaves.iterator();
+            while (i.hasNext())
+                i.next().setReverseIntensity(w, revInt);
+            invalidateCache();
+            ChannelBindingsProxy channel = rndDef.getChannel(w);
+            if (channel != null)
+                channel.setReverseIntensity(revInt);
+        } catch (Exception e) {
+            handleException(e, ERROR
+                    + " setting reverse intensity for channel: " + w + ".");
+        }
+    }
+    
     /**
      * Implemented as specified by {@link RenderingControl}.
      * 
