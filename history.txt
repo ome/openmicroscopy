@@ -1,6 +1,21 @@
 OMERO version history
 =====================
 
+5.2.6 (September 2016)
+----------------------
+
+This is a bug-fix release focusing on services closure and a DB upgrade fix.
+Improvements include:
+
+-  fixed closure of session in Java when using Ice 3.5
+-  fixed memory leak where services were not correctly closed
+-  added a DB upgrade patch to fix errors only affecting DBs that have been
+   upgraded from OMERO 4.4
+-  fixed a MATLAB regression introduced in 5.2.2
+
+Apache has also been deprecated in preparation for removing support in OMERO
+5.3.
+
 5.2.5 (August 2016)
 -------------------
 
