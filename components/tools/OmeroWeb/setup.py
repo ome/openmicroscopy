@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+   Copyright 2008-2016 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -51,5 +51,5 @@ OmeroWeb is the container of the web clients for OMERO."
       packages=[''],
       test_suite='test.suite',
       cmdclass={'test': PyTest},
-      tests_require=['pytest'],
+      tests_require=['pytest != 3.0.0, != 3.0.1, != 3.0.2'],
       )
