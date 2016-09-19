@@ -332,6 +332,7 @@ public interface SqlAction {
 
     long countFormat(String name);
 
+    @Deprecated  // use ome.services.util.EnsureEnum
     int insertFormat(String name);
 
     int closeSessions(String uuid);
