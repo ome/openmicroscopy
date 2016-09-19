@@ -209,7 +209,13 @@ class TabbedPaneUI
         
         revIntButton = new JCheckBox("Reverse Intensity");
         revIntButton.setToolTipText("Reverse this channel's intensity");
-        
+        revIntButton.setSelected(control.getReverseIntensity());
+        revIntButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                control.setReverseIntensity(revIntButton.isSelected());
+            }
+        });
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.LINE_AXIS));
@@ -416,7 +422,10 @@ class TabbedPaneUI
 		if (fieldDescription == null) return null;
 		String text = fieldDescription.getText();
 		if (text == null) return null;
-		return text.trim();
+		text = text.trim();
+		if(text.length()==0)
+		    return null;
+		return text;
 	}
 	
 	/** 
@@ -465,12 +474,14 @@ class TabbedPaneUI
 			swatchPane.refresh();
 		if (fieldDescription == null)
 			setButtonsEnabled(!control.isOriginalColour()
-			        || !control.isOriginalLut());
+			        || !control.isOriginalLut() 
+			        || !control.isOriginalRevInt());
 		else {
 			String text = fieldDescription.getText();
 			setButtonsEnabled(!text.equals(originalDescription) 
 					|| !control.isOriginalColour() 
-					|| !control.isOriginalLut());
+					|| !control.isOriginalLut() 
+					|| !control.isOriginalRevInt());
 		}
 	}
 

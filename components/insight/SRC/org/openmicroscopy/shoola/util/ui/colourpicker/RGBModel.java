@@ -76,6 +76,11 @@ class RGBModel
 	/** The lookup table */
 	private String lut;
 	
+	/** The reverse intensity flag */
+	private boolean revInt;
+	
+	/** The original reverse intensity flag */
+	private boolean originalRevInt;
 	
     /**
      * Sets the value of the model to v without firing an event.
@@ -131,8 +136,9 @@ class RGBModel
 	 * @param a  alpha channel.
 	 * @param lut lookup table
 	 * @param availableLUTs available lookup tables
+	 * @param revInt reverse intensity flag
 	 */
-	RGBModel(float r, float g, float b, float a, String lut, Collection<String> availableLUTs)
+	RGBModel(float r, float g, float b, float a, String lut, Collection<String> availableLUTs, boolean revInt)
 	{
 		originalRed = r;
 		originalGreen = g;
@@ -145,6 +151,8 @@ class RGBModel
 		alpha = a;
 		this.lut = lut;
 		this.availableLUTs = availableLUTs;
+		this.revInt = revInt;
+		this.originalRevInt = revInt;
 	}
 	
 	/**
@@ -523,6 +531,34 @@ class RGBModel
         return originalLut;
     }
 
+    /**
+     * Set the reverse intensity flag
+     * 
+     * @param revInt
+     *            The reverse intensity flag
+     */
+    void setReverseIntensity(boolean revInt) {
+        this.revInt = revInt;
+    }
+
+    /**
+     * Get the reverse intensity flag
+     * 
+     * @return See above
+     */
+    boolean getReversetIntensity() {
+        return revInt;
+    }
+
+    /**
+     * Get the original reverse intensity flag
+     * 
+     * @return See above
+     */
+    boolean getOriginalReversetIntensity() {
+        return originalRevInt;
+    }
+    
     /**
      * Check if the provided lookup table is the same as the original lookup
      * table

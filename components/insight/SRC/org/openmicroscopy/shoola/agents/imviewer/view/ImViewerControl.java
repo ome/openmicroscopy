@@ -108,6 +108,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPickerUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -738,10 +739,11 @@ class ImViewerControl
 		colorPickerIndex = index;
 		Color c = model.getChannelColor(index);
 		String lut = model.getLookupTable(index);
+		boolean revInt = model.getReverseIntensity(index);
         Collection<String> luts = model.getAvailableLookupTables();
         
 		if(colorPicker == null) {
-            colorPicker = new ColourPicker(view, c, luts, lut);
+            colorPicker = new ColourPicker(view, c, luts, lut, revInt);
             colorPicker.setPreviewVisible(true);
             colorPicker.addPropertyChangeListener(this);
         }
@@ -984,31 +986,13 @@ class ImViewerControl
 			ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			if (view.isSourceDisplayed(pce.getSource()))
 				model.showColorPicker(((Integer) pce.getNewValue()).intValue());
-		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)
-                || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)
-                || ColourPicker.LUT_PROPERTY.equals(pName)
-                || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName)) {
+		} else if (ColourPicker.ACCEPT_PROPERTY.equals(pName)) {
             if (colorPickerIndex != -1) {
 
-                Color newColor = model.getChannelColor(colorPickerIndex);
-                Color oldColor = model.getChannelColor(colorPickerIndex);
-                String newLut = model.getLookupTable(colorPickerIndex);
-                String oldLut = model.getLookupTable(colorPickerIndex);
-
-                if (ColourPicker.COLOUR_PROPERTY.equals(pName)
-                        || ColourPicker.COLOUR_PREVIEW_PROPERTY.equals(pName)) {
-                    newColor = (Color) pce.getNewValue();
-                } else if (ColourPicker.LUT_PROPERTY.equals(pName)
-                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName)) {
-                    newLut = (String) pce.getNewValue();
-                }
-
-                boolean preview = ColourPicker.COLOUR_PREVIEW_PROPERTY
-                        .equals(pName)
-                        || ColourPicker.LUT_PREVIEW_PROPERTY.equals(pName);
-
-                handleColorPicker(false, preview, colorPickerIndex, newColor,
-                        oldColor, newLut, oldLut);
+                ColourObject co = (ColourObject) pce.getNewValue();
+                ColourObject old = (ColourObject) pce.getOldValue();
+                handleColorPicker(false, co.preview, colorPickerIndex, co.color,
+                        old != null ? old.color : null, co.lut, old != null ? old.lut : null);
             }
         } else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
 			double v = ((Double) pce.getNewValue()).doubleValue();
@@ -1217,9 +1201,9 @@ class ImViewerControl
             model.resetLookupTable(index);
             model.setChannelColor(index, null, true);
         } else {
-            if (!ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
+            if (newLut != null && !ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
                 model.setLookupTable(index, newLut, preview);
-            } else if (!ColourPickerUtil.sameColor(newColor, oldColor)) {
+            } else if (newColor != null && !ColourPickerUtil.sameColor(newColor, oldColor)) {
                 model.setLookupTable(index, null, preview);
                 model.setChannelColor(index, newColor, preview);
             } 

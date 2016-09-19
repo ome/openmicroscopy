@@ -336,12 +336,42 @@ class RGBControl
     }
 
     /**
+     * Set the reverse intensity
+     * 
+     * @param revInt
+     *            The reverse intensity
+     */
+    void setReverseIntensity(boolean revInt) {
+        model.setReverseIntensity(revInt);
+        fireChangeEvent(true);
+    }
+
+    /**
+     * Get the reverse intensity
+     * 
+     * @return See above
+     */
+    boolean getReverseIntensity() {
+        return model.getReversetIntensity();
+    }
+
+    
+    /**
      * Check if the lookup table has been changed
      * 
      * @return <code>true</code> if it has not, <code>false</code> if it has
      */
     boolean isOriginalLut() {
         return model.isOriginalLut(getLUT());
+    }
+    
+    /**
+     * Check if the reverse intensity has been changed
+     * 
+     * @return <code>true</code> if it has not, <code>false</code> if it has
+     */
+    boolean isOriginalRevInt() {
+        return model.getOriginalReversetIntensity() == getReverseIntensity();
     }
 
     /**

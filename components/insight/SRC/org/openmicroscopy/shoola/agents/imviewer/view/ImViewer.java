@@ -589,6 +589,15 @@ public interface ImViewer
     public String getLookupTable(int index);
 
     /**
+     * Get the reverse intensity flag for the given channel
+     * 
+     * @param index
+     *            The channel index
+     * @return See above
+     */
+    boolean getReverseIntensity(int index);
+    
+    /**
      * Get all available lookup tables
      * 
      * @return See above

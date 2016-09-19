@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -279,27 +279,33 @@ class WellsModel
 			if (cMap.containsKey(column)) {
 				co = cMap.get(column);
 				color = createColor(data);
-				if (!UIUtilities.isSameColors(co.getColor(), color, true) ||
-						!isSameDescription(co.getDescription(), type)) {
-					co.setColor(null);
-					co.setDescription(null);
+				if (!UIUtilities.isSameColors(co.color, color, true) ||
+						!isSameDescription(co.description, type)) {
+					co.color = null;
+					co.description = null;
 					cMap.put(column, co);
 				}
 			} else {
-				cMap.put(column, new ColourObject(createColor(data), type));
+			    ColourObject newco = new ColourObject();
+			    newco.color = createColor(data);
+			    newco.description = type;
+				cMap.put(column, newco);
 			}
 			
 			if (rMap.containsKey(row)) {
 				co = rMap.get(row);
 				color = createColor(data);
-				if (!UIUtilities.isSameColors(co.getColor(), color, true) ||
-						!isSameDescription(co.getDescription(), type)) {
-					co.setColor(null);
-					co.setDescription(null);
+				if (!UIUtilities.isSameColors(co.color, color, true) ||
+						!isSameDescription(co.description, type)) {
+					co.color = null;
+					co.description = null;
 					rMap.put(row, co);
 				}
 			} else {
-				rMap.put(row, new ColourObject(createColor(data), type));
+			    ColourObject newco = new ColourObject();
+                newco.color = createColor(data);
+                newco.description = type;
+				rMap.put(row, newco);
 			}
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
@@ -362,8 +368,8 @@ class WellsModel
 			cell = new CellDisplay(k-1, columnSequence);
 			co = cMap.get(k-1);
 			if (co != null) {
-				cell.setHighlight(co.getColor());
-				cell.setDescription(co.getDescription());
+				cell.setHighlight(co.color);
+				cell.setDescription(co.description != null ? co.description : "");
 			}
 			//if (!isMac)
 			//samples.add(cell);
@@ -379,8 +385,8 @@ class WellsModel
 			cell = new CellDisplay(k-1, rowSequence, CellDisplay.TYPE_VERTICAL);
 			co = rMap.get(k-1);
 			if (co != null) {
-				cell.setHighlight(co.getColor());
-				cell.setDescription(co.getDescription());
+				cell.setHighlight(co.color);
+				cell.setDescription(co.description != null ? co.description : "");
 			}
 			//if (!isMac)
 			//samples.add(cell);

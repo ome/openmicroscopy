@@ -1753,6 +1753,16 @@ class ImViewerComponent
     
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getReverseIntensity(int)
+     */
+    public boolean getReverseIntensity(int index) {
+        if (model.getState() == DISCARDED)
+            return false;
+        return model.getReverseIntensity(index);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#getAvailableLookupTables()
      */
     public Collection<String> getAvailableLookupTables() {
