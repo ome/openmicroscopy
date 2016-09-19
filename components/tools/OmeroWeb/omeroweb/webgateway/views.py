@@ -2611,11 +2611,12 @@ class LoginView(View):
     form_class = LoginForm
     useragent = 'OMERO.webapi'
 
-    def get(self, request, *args, **kwargs):
-        return {"message":
-                "POST only with username, password, server and csrftoken"}
+    def get(self, request, api_version=None):
+        return JsonResponse({"message":
+                            ("POST only with username, password, "
+                             "server and csrftoken")})
 
-    def handle_logged_in(self, request, conn, connector, *args, **kwargs):
+    def handle_logged_in(self, request, conn, connector):
         """ Returns a response for successful login """
         c = conn.getEventContext()
         ctx = {}
@@ -2624,9 +2625,9 @@ class LoginView(View):
                   'memberOfGroups', 'leaderOfGroups']:
             if (hasattr(c, a)):
                 ctx[a] = getattr(c, a)
-        return {"success": True, "eventContext": ctx}
+        return JsonResponse({"success": True, "eventContext": ctx})
 
-    def handle_not_logged_in(self, request, error, form, **kwargs):
+    def handle_not_logged_in(self, request, error, form):
         """
         Returns a response for failed login.
         Reason for failure may be due to server 'error' or because
@@ -2647,7 +2648,7 @@ class LoginView(View):
         # we do it manually. NB: this won't return jsonp 'callback()'
         return JsonResponse({"message": error}, status=403)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, api_version=None):
         error = None
         form = self.form_class(request.POST.copy())
         if form.is_valid():
@@ -2687,8 +2688,7 @@ class LoginView(View):
                         return self.handle_logged_in(request, conn, connector)
                     else:
                         error = "This user is not active."
-                        return self.handle_not_logged_in(self, request, error,
-                                                         **kwargs)
+                        return self.handle_not_logged_in(self, request, error)
             # Once here, we are not logged in...
             # Need correct error message
             if not connector.is_server_up(self.useragent):
@@ -2704,7 +2704,7 @@ class LoginView(View):
                 else:
                     error = ("Connection not available, please check your"
                              " user name and password.")
-        return self.handle_not_logged_in(request, error, form, *args, **kwargs)
+        return self.handle_not_logged_in(request, error, form)
 
 
 class ProjectView(View):

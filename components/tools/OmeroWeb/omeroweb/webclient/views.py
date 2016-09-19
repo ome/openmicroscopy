@@ -190,15 +190,15 @@ class WebclientLoginView(webgateway_views.LoginView):
     template = "webclient/login.html"
     useragent = 'OMERO.web'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         """
         GET simply returns the login page
         """
-        return self.handle_not_logged_in(request, *args, **kwargs)
+        return self.handle_not_logged_in(request)
 
-    def handle_logged_in(self, request, conn, connector, *args, **kwargs):
+    def handle_logged_in(self, request, conn, connector):
         """
-        Override this to provide webclient-specific functionality
+        We override this to provide webclient-specific functionality
         such as cleaning up any previous sessions (if user didn't logout)
         and redirect to specified url or webclient index page.
         """
@@ -228,7 +228,7 @@ class WebclientLoginView(webgateway_views.LoginView):
                 url = reverse("webindex")
         return HttpResponseRedirect(url)
 
-    def handle_not_logged_in(self, request, error=None, form=None, **kwargs):
+    def handle_not_logged_in(self, request, error=None, form=None):
         """
         Returns a response for failed login.
         Reason for failure may be due to server 'error' or because

@@ -21,7 +21,7 @@
 
 from django.conf.urls import url, patterns
 from omeroweb.webgateway import views
-from omeroweb.webgateway.views import LoginView, jsonp
+from omeroweb.webgateway.views import LoginView
 from django.conf import settings
 import re
 
@@ -53,7 +53,7 @@ GET list of available OMERO servers to login to.
 """
 
 api_login = url(r'^v(?P<api_version>' + versions + ')/login/$',
-                jsonp(LoginView.as_view()),
+                LoginView.as_view(),
                 name='api_login')
 """
 Login to OMERO. POST with 'username', 'password' and 'server' index
