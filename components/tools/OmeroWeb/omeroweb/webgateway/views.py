@@ -2705,6 +2705,9 @@ class LoginView(View):
 
 
 class ProjectView(View):
+    """
+    Handles access to an individual Project to GET or DELETE it
+    """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
     @method_decorator(jsonp)
@@ -2712,6 +2715,7 @@ class ProjectView(View):
         return super(ProjectView, self).dispatch(*args, **kwargs)
 
     def get(self, request, pid, conn=None, **kwargs):
+        """ Simply GET a single Project and marshal it or 404 if not found """
         project = conn.getObject("Project", pid)
         if project is None:
             return JsonResponse(
@@ -2721,6 +2725,10 @@ class ProjectView(View):
         return encoder.encode(project._obj)
 
     def delete(self, request, pid, conn=None, **kwargs):
+        """
+        Deletes the Project and returns marshal of deleted Project or
+        returns 404 if not found
+        """
         try:
             project = conn.getQueryService().get('Project', long(pid))
         except ValidationException:
@@ -2734,22 +2742,27 @@ class ProjectView(View):
 
 
 class ProjectsView(View):
+    """
+    Handles GET for /projects/ to list available Projects
+    """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
     @method_decorator(jsonp)
     def dispatch(self, *args, **kwargs):
+        """ Use dispatch to add decorators to class methods """
         return super(ProjectsView, self).dispatch(*args, **kwargs)
 
     def get(self, request, conn=None, **kwargs):
-        # Get parameters
+        """
+        GET a list of Projects, filtering by various request parameters
+        """
         try:
             page = getIntOrDefault(request, 'page', 1)
             limit = getIntOrDefault(request, 'limit', settings.PAGE)
             group = getIntOrDefault(request, 'group', -1)
             owner = getIntOrDefault(request, 'owner', -1)
-            childCount = not not request.GET.get('childCount', False)
-            normalize = request.GET.get('normalize', False)
-            normalize = not not normalize
+            childCount = request.GET.get('childCount', False) == 'true'
+            normalize = request.GET.get('normalize', False) == 'true'
         except ValueError as ex:
             return HttpResponseBadRequest(str(ex))
 
@@ -2774,13 +2787,19 @@ class ProjectsView(View):
 
 
 class SaveView(View):
+    """
+    This view provides 'Save' functionality for all types of objects
+    POST to create a new Object and PUT to replace existing one.
+    """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
     @method_decorator(jsonp)
     def dispatch(self, *args, **kwargs):
+        """ Apply decorators for class methods below """
         return super(SaveView, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
+        """ Return a placeholder error message since GET is not supported """
         return {"message":
                 "POST or PUT only with object json encoded in content body"}
 
