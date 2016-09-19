@@ -1251,13 +1251,12 @@ def jsonp(f):
         except Exception, ex:
             # Default status is 500 'server error'
             # But we try to handle all 'expected' errors appropriately
+            # TODO: handle omero.ConcurrencyException
             status = 500
             if isinstance(ex, omero.SecurityViolation):
                 status = 403
-            elif isinstance(ex, omero.ValidationException):
+            elif isinstance(ex, omero.ApiUsageException):
                 status = 400
-            elif isinstance(ex, omero.ServerError):
-                status = 500
             trace = traceback.format_exc()
             logger.debug(trace)
             if kwargs.get('_raw', False) or kwargs.get('_internal', False):
