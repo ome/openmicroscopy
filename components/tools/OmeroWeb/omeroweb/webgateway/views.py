@@ -2627,7 +2627,7 @@ class LoginView(View):
                 ctx[a] = getattr(c, a)
         return JsonResponse({"success": True, "eventContext": ctx})
 
-    def handle_not_logged_in(self, request, error, form):
+    def handle_not_logged_in(self, request, error=None, form=None):
         """
         Returns a response for failed login.
         Reason for failure may be due to server 'error' or because
@@ -2637,15 +2637,16 @@ class LoginView(View):
         @param error:       Error message
         @param form:        Instance of Login Form, populated with data
         """
-        if error is None:
+        if error is None and form is not None:
             # If no error from server, maybe form wasn't valid
             formErrors = []
             for field in form:
                 for e in field.errors:
                     formErrors.append("%s: %s" % (field.label, e))
             error = " ".join(formErrors)
-        # Since @jsonp decorator can't return a 403,
-        # we do it manually. NB: this won't return jsonp 'callback()'
+        else:
+            # Just in case no error or invalid from is given
+            error = "Login failed. Reason unknown."
         return JsonResponse({"message": error}, status=403)
 
     def post(self, request, api_version=None):
