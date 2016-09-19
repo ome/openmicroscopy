@@ -35,6 +35,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -52,7 +53,6 @@ import info.clearthought.layout.TableLayout;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -114,6 +114,9 @@ class TabbedPaneUI
 	
 	/** Button to choose colour swatch panel. */
 	private JToggleButton		colourSwatchButton;
+	
+	/** Button to reverse intensity. */
+	private JCheckBox           revIntButton;
 	
 	/** Accept the current colour choice. */
 	private JButton				acceptButton;
@@ -203,11 +206,17 @@ class TabbedPaneUI
             }
         };
         colourSwatchButton.addActionListener(action);
-                
+        
+        revIntButton = new JCheckBox("Reverse Intensity");
+        revIntButton.setToolTipText("Reverse this channel's intensity");
+        
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.LINE_AXIS));
         toolbar.add(colourSwatchButton);
         toolbar.add(colourWheelButton);
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(revIntButton);
     }
     
     /** 
@@ -281,7 +290,7 @@ class TabbedPaneUI
                 
         JPanel container = new JPanel();
         container.setLayout(new BorderLayout());
-        container.add(toolbar, BorderLayout.WEST);
+        container.add(toolbar, BorderLayout.CENTER);
           
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(container);
@@ -410,6 +419,16 @@ class TabbedPaneUI
 		return text.trim();
 	}
 	
+	/** 
+     * Returns the reverse intensity.
+     * 
+     * @return See above.
+     */
+    boolean getReverseIntensity()
+    {
+        return revIntButton.isSelected();
+    }
+    
 	/**
 	 * Sets the description associated to the color.
 	 * 
