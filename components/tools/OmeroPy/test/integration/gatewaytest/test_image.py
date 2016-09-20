@@ -59,6 +59,12 @@ class TestImage (object):
         thumb.verify()  # Raises if invalid
         assert thumb.format == 'JPEG'
         assert thumb.size == (64, 64)
+        # Projection
+        self.image.setProjection('intmax')
+        pThumb = self.image.getThumbnail()
+        ptfile = StringIO(pThumb)
+        pthumb = Image.open(ptfile)  # Raises if invalid
+        pthumb.verify()  # Raises if invalid
 
     def testRenderingModels(self):
         # default is color model
