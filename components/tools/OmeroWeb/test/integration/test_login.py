@@ -29,6 +29,7 @@ import pytest
 
 tag_url = reverse('load_template', kwargs={'menu': 'usertags'})
 
+
 class TestLogin(IWebTest):
     """
     Tests login
