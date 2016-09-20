@@ -543,6 +543,25 @@ class Dataset2Images(Fixture):
                 assert typ == 'Treatment'
 
 
+class Dataset2Images1Missing(Dataset2Images):
+
+    def __init__(self):
+        super(Dataset2Images1Missing, self).__init__()
+        self.annCount = 1
+
+    def get_target(self):
+        """
+        Temporarily alter self.names so that the super
+        invocation creates fewer images than are expected.
+        """
+        old = self.names
+        try:
+            self.names = old[0:-1]  # Skip last
+            return super(Dataset2Images1Missing, self).get_target()
+        finally:
+            self.names = old
+
+
 class Dataset101Images(Dataset2Images):
 
     def __init__(self):
@@ -664,6 +683,7 @@ class TestPopulateMetadata(lib.ITest):
         Screen2Plates(),
         Plate2Wells(),
         Dataset2Images(),
+        Dataset2Images1Missing(),
         Dataset101Images(),
         Project2Datasets(),
         GZIP(),
