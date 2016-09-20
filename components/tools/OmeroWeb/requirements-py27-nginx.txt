@@ -6,4 +6,3 @@
 
 -r requirements-common.txt
 gunicorn>=19.3
--r requirements-common.txt
