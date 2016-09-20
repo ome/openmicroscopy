@@ -262,7 +262,7 @@ class TestDownload(CLITest):
         assert cfg in [x.cfg for x in self.POLICY_FIXTURES]
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
-                             ids=POLICY_FIXTURES)
+                             ids=[str(x) for x in POLICY_FIXTURES])
     def testPolicyGlobalRestriction(self, tmpdir, fixture):
         # Skip f this isn't a check for this particular
         # config, then skip.
