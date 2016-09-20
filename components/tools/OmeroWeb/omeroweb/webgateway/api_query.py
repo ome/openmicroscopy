@@ -62,12 +62,13 @@ def query_projects(conn, childCount=False,
             """ % (withChildCount, where_clause)
 
     projects = []
-    extras = []
+    extras = {}
     if childCount:
         result = qs.projection(query, params, ctx)
         for p in result:
-            projects.append(unwrap(p[0]))
-            extras.append({'omero:childCount': unwrap(p[1])})
+            project = unwrap(p[0])
+            projects.append(project)
+            extras[project.id.val] = {'omero:childCount': unwrap(p[1])}
     else:
         extras = None
         result = qs.findAllByQuery(query, params, ctx)

@@ -49,16 +49,16 @@ def marshal_objects(objects, extras=None, normalize=False):
     """
     Marshals a list of OMERO.model objects using omero_marshal
 
-    @param extras:      A list of dicts to add extra data to each object in turn
+    @param extras:      A dict of id:dict to add extra data to each object
     @param normalize:   If true, normalize groups and owners into separate lists
     """
 
     marshalled = []
-    for i, o in enumerate(objects):
+    for o in objects:
         encoder = get_encoder(o.__class__)
         m = encoder.encode(o)
-        if extras is not None and i < len(extras):
-            m.update(extras[i])
+        if extras is not None and o.id.val in extras:
+            m.update(extras[o.id.val])
         marshalled.append(m)
 
     if not normalize:
