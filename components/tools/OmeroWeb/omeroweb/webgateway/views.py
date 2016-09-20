@@ -2676,8 +2676,8 @@ class LoginView(View):
                 for e in field.errors:
                     formErrors.append("%s: %s" % (field.label, e))
             error = " ".join(formErrors)
-        else:
-            # Just in case no error or invalid from is given
+        elif error is None:
+            # Just in case no error or invalid form is given
             error = "Login failed. Reason unknown."
         return JsonResponse({"message": error}, status=403)
 

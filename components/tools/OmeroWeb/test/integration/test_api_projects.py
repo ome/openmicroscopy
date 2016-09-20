@@ -418,7 +418,7 @@ class TestProjects(IWebTest):
         request_url = reverse('api_projects', kwargs={'api_version': version})
 
         # Test 'childCount' parameter
-        payload = {'childCount': True}
+        payload = {'childCount': 'true'}
         rsp = _get_response_json(django_client, request_url, payload)
         childCounts = [p['omero:childCount'] for p in rsp['data']]
         assert childCounts == [0, 0, 0, 2, 1]
@@ -434,7 +434,7 @@ class TestProjects(IWebTest):
             groups[group['@id']] = group
 
         # Test 'normalize' parameter.
-        payload = {'normalize': True}
+        payload = {'normalize': 'true'}
         rsp = _get_response_json(django_client, request_url, payload)
         for p in rsp['data']:
             details = p['omero:details']
