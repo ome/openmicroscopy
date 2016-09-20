@@ -1256,14 +1256,10 @@ def jsonp(f):
     def wrap(request, *args, **kwargs):
         logger.debug('jsonp')
         try:
-            # Seems we only use 'server_id' to create cache keys...
             server_id = kwargs.get('server_id', None)
             if server_id is None:
-                # ... so we only need it if we're logged in
-                if 'connector' in request.session:
-                    server_id = request.session['connector'].server_id
-            if server_id is not None:
-                kwargs['server_id'] = server_id
+                server_id = request.session['connector'].server_id
+            kwargs['server_id'] = server_id
             rv = f(request, *args, **kwargs)
             if kwargs.get('_raw', False):
                 return rv
