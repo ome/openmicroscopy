@@ -42,6 +42,7 @@ from omeroweb.webadmin.forms import LoginForm
 from omeroweb.decorators import get_client_ip
 from omeroweb.webadmin.webadmin_utils import upgradeCheck
 from omero_marshal import get_encoder, get_decoder, OME_SCHEMA_URL
+from functools import wraps
 
 try:
     from hashlib import md5
@@ -1209,6 +1210,40 @@ def debug(f):
     return wrap
 
 
+def json_response(f):
+    """
+    Decorator for wrapping response in JsonResponse if needed and
+    error handling
+
+    @param f:       The function to wrap
+    @return:        The wrapped function, which will return json
+    """
+    @wraps(f)
+    def wrap(request, *args, **kwargs):
+        logger.debug('json_response')
+        try:
+            rv = f(request, *args, **kwargs)
+            if isinstance(rv, HttpResponse):
+                return rv
+            return JsonResponse(rv)
+        except Exception, ex:
+            # Default status is 500 'server error'
+            # But we try to handle all 'expected' errors appropriately
+            # TODO: handle omero.ConcurrencyException
+            status = 500
+            if isinstance(ex, omero.SecurityViolation):
+                status = 403
+            elif isinstance(ex, omero.ApiUsageException):
+                status = 400
+            trace = traceback.format_exc()
+            logger.debug(trace)
+            return JsonResponse(
+                {"message": str(ex), "stacktrace": trace},
+                status=status)
+    wrap.func_name = f.func_name
+    return wrap
+
+
 def jsonp(f):
     """
     Decorator for adding connection debugging and returning function result as
@@ -1245,7 +1280,6 @@ def jsonp(f):
             # mimetype for JSON is application/json
             # NB: To support old api E.g. /get_rois_json/
             # We need to support lists
-            # TODO: Have /api/ not use @jsonp.
             safe = type(rv) is dict
             return JsonResponse(rv, safe=safe)
         except Exception, ex:
@@ -2549,7 +2583,7 @@ def build_url(request, name, api_version, **kwargs):
         reverse(name, kwargs=kwargs))
 
 
-@jsonp
+@json_response
 def api_versions(request, **kwargs):
     """
     Base url of the webgateway json api.
@@ -2563,7 +2597,7 @@ def api_versions(request, **kwargs):
     return {'data': versions}
 
 
-@jsonp
+@json_response
 def api_base(request, api_version=None, **kwargs):
     """
     Base url of the webgateway json api for a specified version.
@@ -2578,7 +2612,7 @@ def api_base(request, api_version=None, **kwargs):
     return rv
 
 
-@jsonp
+@json_response
 def api_token(request, api_version, **kwargs):
     """
     Provides CSRF token for current session
@@ -2587,7 +2621,7 @@ def api_token(request, api_version, **kwargs):
     return {'data': token}
 
 
-@jsonp
+@json_response
 def api_servers(request, api_version, **kwargs):
     """
     Lists the available servers to connect to
@@ -2710,7 +2744,7 @@ class ProjectView(View):
     """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(jsonp)
+    @method_decorator(json_response)
     def dispatch(self, *args, **kwargs):
         return super(ProjectView, self).dispatch(*args, **kwargs)
 
@@ -2747,7 +2781,7 @@ class ProjectsView(View):
     """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(jsonp)
+    @method_decorator(json_response)
     def dispatch(self, *args, **kwargs):
         """ Use dispatch to add decorators to class methods """
         return super(ProjectsView, self).dispatch(*args, **kwargs)
@@ -2793,7 +2827,7 @@ class SaveView(View):
     """
 
     @method_decorator(api_login_required(useragent='OMERO.webapi'))
-    @method_decorator(jsonp)
+    @method_decorator(json_response)
     def dispatch(self, *args, **kwargs):
         """ Apply decorators for class methods below """
         return super(SaveView, self).dispatch(*args, **kwargs)

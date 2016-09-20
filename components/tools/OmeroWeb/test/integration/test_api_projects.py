@@ -453,13 +453,6 @@ class TestProjects(IWebTest):
         assert owners == rsp_owners
         assert groups == rsp_groups
 
-        # Test 'callback' parameter
-        payload = {'callback': 'callback'}
-        rsp = _get_response(django_client, request_url, payload,
-                            status_code=200)
-        assert rsp.get('Content-Type') == 'application/javascript'
-        assert rsp.content.startswith('callback(')
-
     def test_project_create_read(self):
         """
         Tests creation by POST to /save and reading with GET of /project/:id/
