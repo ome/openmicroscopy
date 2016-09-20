@@ -24,7 +24,7 @@ import omero
 from omero.rtypes import unwrap, rlong
 from django.conf import settings
 
-from api_marshal import marshal_projects
+from api_marshal import marshal_objects
 from copy import deepcopy
 
 
@@ -74,4 +74,4 @@ def query_projects(conn, childCount=False,
         for p in result:
             projects.append(p)
 
-    return marshal_projects(projects, extras=extras, normalize=normalize)
+    return marshal_objects(projects, extras=extras, normalize=normalize)
