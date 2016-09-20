@@ -30,14 +30,14 @@ versions = '|'.join([re.escape(v)
 
 api_versions = url(r'^$', views.api_versions, name='api_versions')
 
-api_base = url(r'^v(?P<api_version>' + versions + ')/$',
+api_base = url(r'^v(?P<api_version>%s)/$' % versions,
                views.api_base,
                name='api_base')
 """
 GET various urls listed below
 """
 
-api_token = url(r'^v(?P<api_version>' + versions + ')/token/$',
+api_token = url(r'^v(?P<api_version>%s)/token/$' % versions,
                 views.api_token,
                 name='api_token')
 """
@@ -45,21 +45,21 @@ GET the CSRF token for this session. Needs to be included
 in header with all POST, PUT & DELETE requests
 """
 
-api_servers = url(r'^v(?P<api_version>' + versions + ')/servers/$',
+api_servers = url(r'^v(?P<api_version>%s)/servers/$' % versions,
                   views.api_servers,
                   name='api_servers')
 """
 GET list of available OMERO servers to login to.
 """
 
-api_login = url(r'^v(?P<api_version>' + versions + ')/login/$',
+api_login = url(r'^v(?P<api_version>%s)/login/$' % versions,
                 LoginView.as_view(),
                 name='api_login')
 """
 Login to OMERO. POST with 'username', 'password' and 'server' index
 """
 
-api_save = url(r'^v(?P<api_version>' + versions + ')/m/save/$',
+api_save = url(r'^v(?P<api_version>%s)/m/save/$' % versions,
                views.SaveView.as_view(),
                name='api_save')
 """
@@ -67,7 +67,7 @@ POST to create a new object or PUT to update existing object.
 In both cases content body encodes json data.
 """
 
-api_projects = url(r'^v(?P<api_version>' + versions + ')/m/projects/$',
+api_projects = url(r'^v(?P<api_version>%s)/m/projects/$' % versions,
                    views.ProjectsView.as_view(),
                    name='api_projects')
 """
@@ -75,7 +75,7 @@ GET all projects, using omero-marshal to generate json
 """
 
 api_project = url(
-    r'^v(?P<api_version>' + versions + ')/m/projects/(?P<pid>[0-9]+)/$',
+    r'^v(?P<api_version>%s)/m/projects/(?P<pid>[0-9]+)/$' % versions,
     views.ProjectView.as_view(),
     name='api_project')
 """
