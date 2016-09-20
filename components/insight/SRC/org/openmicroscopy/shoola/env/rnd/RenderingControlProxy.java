@@ -1925,6 +1925,9 @@ class RenderingControlProxy
 			if (rgba[1] != color.getGreen()) return false;
 			if (rgba[2] != color.getBlue()) return false;
 			if (rgba[3] != color.getAlpha()) return false;
+			
+            if (channel.getReverseIntensity() != getReverseIntensity(i))
+                return false;
 		}
 		return true;
 	}

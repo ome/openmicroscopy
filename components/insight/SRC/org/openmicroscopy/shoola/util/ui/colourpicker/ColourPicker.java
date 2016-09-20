@@ -37,6 +37,7 @@ import javax.swing.WindowConstants;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -181,6 +182,22 @@ public class ColourPicker
         oldColor.revInt = model.getOriginalReversetIntensity();
         
     	firePropertyChange(ACCEPT_PROPERTY, null,oldColor);
+    }
+    
+    /**
+     * Reinitializes the ColourPicker with the given values
+     * @param c The color
+     * @param desc The description
+     * @param lut The lookup table
+     * @param revInt The reverse intensity flag
+     */
+    public void reinit(Color c, String desc, String lut, boolean revInt) {
+        this.model.setColour(c, true);
+        if (desc != null)
+            tabbedPane.setColorDescription(desc);
+        this.model.setLUT(lut, true);
+        this.model.setReverseIntensity(revInt, true);
+        tabbedPane.stateChanged(null);
     }
     
 	/** 

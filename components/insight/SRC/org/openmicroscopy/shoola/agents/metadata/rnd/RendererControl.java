@@ -236,6 +236,9 @@ class RendererControl
     		colorPicker.setPreviewVisible(true);
     		colorPicker.addPropertyChangeListener(this);
 		}
+		else {
+		    colorPicker.reinit(c, null, lut, revInt);
+		}
 		if (!colorPicker.isShowing()) {
     		if (location == null)
     		    UIUtilities.centerAndShow(colorPicker);

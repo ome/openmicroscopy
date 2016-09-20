@@ -747,6 +747,10 @@ class ImViewerControl
             colorPicker.setPreviewVisible(true);
             colorPicker.addPropertyChangeListener(this);
         }
+		else {
+		    colorPicker.reinit(c, null, lut, revInt);
+		}
+		
         if (!colorPicker.isShowing()) {
             UIUtilities.setLocationRelativeToAndShow(view, colorPicker);
         }
@@ -992,7 +996,7 @@ class ImViewerControl
                 ColourObject co = (ColourObject) pce.getNewValue();
                 ColourObject old = (ColourObject) pce.getOldValue();
                 handleColorPicker(false, co.preview, colorPickerIndex, co.color,
-                        old != null ? old.color : null, co.lut, old != null ? old.lut : null);
+                        old != null ? old.color : null, co.lut, old != null ? old.lut : null, co.revInt);
             }
         } else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
 			double v = ((Double) pce.getNewValue()).doubleValue();
@@ -1194,9 +1198,10 @@ class ImViewerControl
      * @param oldColor The previous Color
      * @param newLut The new lookup table
      * @param oldLut The previous lookup table
+     * @param revInt The reverse intensity flag
      */
     private void handleColorPicker(boolean reset, boolean preview, int index,
-            Color newColor, Color oldColor, String newLut, String oldLut) {
+            Color newColor, Color oldColor, String newLut, String oldLut, boolean revInt) {
         if (reset) {
             model.resetLookupTable(index);
             model.setChannelColor(index, null, true);
@@ -1207,6 +1212,7 @@ class ImViewerControl
                 model.setLookupTable(index, null, preview);
                 model.setChannelColor(index, newColor, preview);
             } 
+            model.setReverseIntensity(index, revInt, preview);
         }
     }
 }
