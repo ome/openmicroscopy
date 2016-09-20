@@ -25,9 +25,6 @@ import javax.imageio.ImageIO;
 
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
-import omero.RBool;
-import omero.RInt;
-import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
@@ -35,7 +32,6 @@ import omero.api.RenderingEnginePrx;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.CodomainMapContext;
-import omero.model.Details;
 import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
@@ -61,7 +57,6 @@ import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
-import Ice.Current;
 import sun.awt.image.IntegerInterleavedRaster;
 
 /**
@@ -123,14 +118,19 @@ public class RenderingEngineTest extends AbstractServerTest {
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
         }
-
+        long userId = ctx.userId;
+        long originalOwnerId = -1;
+        boolean saveAs = false;
         if (preload) {
-            assertRendering(pixels); // View as owner
+            originalOwnerId = ctx.userId;
+            saveAs = true;
+            assertRendering(pixels, userId, originalOwnerId, false); // View as owner
         }
 
         disconnect();
         // login as another user.
         EventContext ctx2 = newUserInGroup(ctx);
+        userId = ctx2.userId;
         switch (role) {
             case ADMIN:
                 logRootIntoGroup(ctx2);
@@ -138,10 +138,10 @@ public class RenderingEngineTest extends AbstractServerTest {
             case GROUP_OWNER:
                 makeGroupOwner();
         }
-        assertRendering(pixels);
+        assertRendering(pixels, userId, originalOwnerId, saveAs);
     }
 
-    private void assertRendering(List<Pixels> pixels) throws Exception {
+    private void assertRendering(List<Pixels> pixels, long userId, long originalOwnerId, boolean saveAs) throws Exception {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> luts = svc.getScriptsByMimetype(
                 ScriptServiceTest.LUT_MIMETYPE);
@@ -149,26 +149,38 @@ public class RenderingEngineTest extends AbstractServerTest {
         long id = p.getId().getValue();
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
+
         if (!(re.lookupRenderingDef(id))) {
             re.resetDefaultSettings(true);
             re.lookupRenderingDef(id);
         }
         re.load();
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        if (saveAs) {
+            //check that we are doing a "saveAs" is done
+            Assert.assertNotEquals(userId, originalOwnerId);
+            Assert.assertEquals(def.getDetails().getOwner().getId().getValue(), originalOwnerId);
+        }
         int t = re.getDefaultT();
         int v = t + 1;
         re.setDefaultT(v);
         //
         int sizeC = re.getPixels().getSizeC().getValue();
-
+        String lutName = luts.get(0).getName().getValue();
         for (int k = 0; k < sizeC; k++) {
             omero.romio.ReverseIntensityMapContext c = new omero.romio.ReverseIntensityMapContext();
             re.addCodomainMapToChannel(c, k);
-            re.setChannelLookupTable(k, luts.get(0).getName().getValue());
+            re.setChannelLookupTable(k, lutName);
         }
+        //Save the settings for the user currently logged in.
         re.saveCurrentSettings();
         Assert.assertEquals(re.getDefaultT(), v);
         re.close();
-        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        if (saveAs) {
+            //original data and other user not the same
+            Assert.assertEquals(def.getDetails().getOwner().getId().getValue(), userId);
+        }
         Assert.assertEquals(def.getDefaultT().getValue(), v);
         List<ChannelBinding> channels = def.copyWaveRendering();
         Iterator<ChannelBinding> j = channels.iterator();
@@ -176,8 +188,19 @@ public class RenderingEngineTest extends AbstractServerTest {
         while (j.hasNext()) {
             b = j.next();
             Assert.assertNotNull(b.getLookupTable().getValue());
+            Assert.assertEquals(b.getLookupTable().getValue(), lutName);
             List<CodomainMapContext> cl = b.copySpatialDomainEnhancement();
-            Assert.assertTrue(cl.size() > 0);
+            Assert.assertEquals(cl.size(), 1);
+            CodomainMapContext ctx;
+            if (saveAs) {
+                Iterator<CodomainMapContext> k = cl.iterator();
+                while (k.hasNext()) {
+                    ctx = k.next();
+                    Assert.assertNotNull(ctx);
+                    //make sure that the codomain contexts are not shared.
+                    Assert.assertEquals(ctx.getDetails().getOwner().getId().getValue(), userId);
+                }
+            }
         }
     }
 
