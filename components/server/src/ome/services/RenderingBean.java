@@ -780,12 +780,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @return See above.
      */
     private ome.model.display.CodomainMapContext copyContext(ome.model.display.CodomainMapContext ctx,
-            Collection<ome.model.display.CodomainMapContext> saved)
+            Collection<ome.model.display.CodomainMapContext> saved, boolean saveAs)
     {
         if (ctx == null) {
             return null;
         }
-        if (ctx.getId() != null && ctx.getId().longValue() >= 0) {
+        if (!saveAs && ctx.getId() != null && ctx.getId().longValue() >= 0) {
             return ctx;
         }
         if (saved != null) {
@@ -818,7 +818,10 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // itself or one of its children in the object graph has been
             // updated. FIXME: This should be implemented using IUpdate.touch()
             // or similar once that functionality exists.
-            RenderingDef saved = retrieveRndSettings(pixelsObj.getId());
+            RenderingDef saved = null;
+            if (!saveAs) {
+                saved = retrieveRndSettings(pixelsObj.getId());
+            }
             RenderingDef old = rendDefObj;
             rendDefObj = createNewRenderingDef(pixelsObj);
             if (!saveAs) {
@@ -881,14 +884,17 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 Collection<ome.model.display.CodomainMapContext> ctx =
                         binding.unmodifiableSpatialDomainEnhancement();
                 Collection<ome.model.display.CodomainMapContext> octx = null;
-                if (scb != null) {
+                if (!saveAs) {
                     octx = scb.unmodifiableSpatialDomainEnhancement();
                 }
                 Iterator<ome.model.display.CodomainMapContext> i = ctx.iterator();
                 ome.model.display.CodomainMapContext nc;
+                cb.clearSpatialDomainEnhancement();
+                List<Class<?>> types = new ArrayList<Class<?>>();
                 while (i.hasNext()) {
-                    nc = copyContext(i.next(), octx);
-                    if (nc != null) {
+                    nc = copyContext(i.next(), octx, saveAs);
+                    if (nc != null && !types.contains(nc.getClass())) {
+                        types.add(nc.getClass());
                         cb.addCodomainMapContext(nc);
                     }
                 }
@@ -1661,8 +1667,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.readLock().lock();
         try {
             errorIfInvalidState();
-            CodomainChain cc = renderer.getCodomainChain(w);
-            return cc.getContexts();
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            return cb[w].collectSpatialDomainEnhancement(null);
         } finally {
             rwl.readLock().unlock();
         }
