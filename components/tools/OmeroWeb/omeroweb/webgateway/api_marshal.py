@@ -50,7 +50,7 @@ def marshal_objects(objects, extras=None, normalize=False):
     Marshals a list of OMERO.model objects using omero_marshal
 
     @param extras:      A dict of id:dict to add extra data to each object
-    @param normalize:   If true, normalize groups and owners into separate lists
+    @param normalize:   If true, normalize groups & owners into separate lists
     """
 
     marshalled = []
