@@ -23,6 +23,8 @@
 # Version: 1.0
 #
 
+import logging
+import django
 from django.conf import settings
 from django.conf.urls import url, patterns, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -32,6 +34,8 @@ from django.core.urlresolvers import reverse
 from django.utils.functional import lazy
 from django.views.generic import RedirectView
 from django.views.decorators.cache import never_cache
+
+logger = logging.getLogger(__name__)
 
 # error handler
 handler404 = "omeroweb.feedback.views.handler404"
@@ -83,15 +87,38 @@ urlpatterns = patterns(
 
 urlpatterns += redirect_urlpatterns()
 
+
+def remove_prefix(appname, prefix="omero_"):
+    if appname.startswith(prefix):
+        return appname[len(prefix):]
+    return appname
+
 for app in settings.ADDITIONAL_APPS:
+    if django.VERSION > (1, 7):
+        from django.apps import AppConfig
+        if isinstance(app, AppConfig):
+            app_config = app
+        else:
+            app_config = AppConfig.create(app)
+        label = app_config.label
+    else:
+        logger.warn(
+            ("Django %s does not support AppConfig. Some OMERO.web plugins "
+             "may not work correctly.") % django.get_version())
+        label = remove_prefix(app)
     # Depending on how we added the app to INSTALLED_APPS in settings.py,
     # include the urls the same way
     if 'omeroweb.%s' % app in settings.INSTALLED_APPS:
         urlmodule = 'omeroweb.%s.urls' % app
     else:
         urlmodule = '%s.urls' % app
-    regex = '^(?i)%s/' % app
-    urlpatterns += patterns('', (regex, include(urlmodule)),)
+    try:
+        __import__(urlmodule)
+    except ImportError:
+        pass
+    else:
+        regex = '^(?i)%s/' % label
+        urlpatterns += patterns('', (regex, include(urlmodule)),)
 
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()
