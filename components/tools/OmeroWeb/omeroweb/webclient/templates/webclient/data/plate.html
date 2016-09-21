@@ -99,6 +99,19 @@
         
         $(document).ready(function() {
 
+            // Drag to resize #wellImages bottom panel
+            $(".verticalDragHandle").draggable({ axis: "y" })
+            .bind("dragstart", function(event, ui) {
+                var wellImgs_h = $("#wellImages").height();
+                $(this).data({'dragstart': ui.offset.top, 'wellImgs_h': wellImgs_h});
+            })
+            .bind("drag", function(event, ui) {
+                var dy = ui.offset.top - $(this).data('dragstart');
+                var newH = $(this).data('wellImgs_h') - dy;
+                $("#wellImages").css('height', newH + 'px');
+                $("#spwContainer").css('bottom', newH + 'px');
+            });
+
             var syncTreeSelection = function(selected, idx, perms) {
                 // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
                 var datatree = $.jstree.reference('#dataTree');
@@ -171,24 +184,27 @@
                     return;
                 }
                 var $selected = $('td.ui-selected', wpv.self);
-                var wellIds = $selected.map(function(i, $w){
-                    return $w.id.split('-')[1];
-                });
-                var wellLabels = $selected.map(function(i, $w){
-                    return $w.children('.wellLabel').text();
-                });
+                // var wellIds = $selected.map(function(i, w){
+                //     return w.id.split('-')[1];
+                // });
+                // var wellLabels = $selected.map(function(i, w){
+                //     return $(w).children('.wellLabel').text();
+                // });
 
                 $('#wellImages').empty();
-                [].forEach.call(wellIds, function(wellId, i) {
+                // [].forEach.call(wellIds, function(wellId, i) {
+                $selected.each(function(i, w){
+                    var wellId = w.id.split('-')[1];
+                    var label = $(w).children('.wellLabel').text();
+                    console.log(wellId, label);
                     // create placeholders for each Well
-                    var label = wellLabels[i];
                     $('#wellImages').append("<div id='wellImages-" + wellId + "'><h1>" + label + "</h1></div>");
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     $.getJSON(url, function(data){
                         var html = data.reduce(function(html, w){
                             return html + '<img src="' + w.thumb_url + '" />';
                         }, "<div>");
-                        $('#wellImages-' + wellId).html(html);
+                        $('#wellImages-' + wellId).append(html);
                     });
                 });
             }
@@ -202,6 +218,13 @@
             left: 0px;
             right: 0px;
             overflow: auto;
+        }
+        .wellImages {
+            border-top: solid #ddd 1px;
+        }
+        .wellImages img {
+            max-width: 50px;
+            margin: 2px;
         }
     </style>
     
@@ -224,10 +247,13 @@
         </div>
     </div>
 </div>
-<div style="top: 29px; bottom: 100px">
+<div id="spwContainer" style="top: 29px; bottom: 100px">
 
     <div id="spw"></div>
 
+</div>
+<div id="wellImagesDragHandle" style="bottom: 100px; overflow: visible">
+    <div class="verticalDragHandle"></div>
 </div>
 <div id="wellImages" class="wellImages" style="bottom: 0px; height: 100px">
     WELL

@@ -143,9 +143,8 @@ label {
 }
 
 .toolbar_noborder {
-    height:20px;
-    padding:5px;
-    width: 100%; 
+    height:19px;
+    padding:5px; 
 }
 .align_left {
     float:left;

@@ -1130,6 +1130,31 @@ li.menu_back a {
     height: 25px;
 }
 
+.verticalDragHandle {
+	z-index: 100;
+	width: 20px;
+	height: 5px;
+	left: 49%;
+	position: absolute;
+	cursor: row-resize
+}
+/* we want to rotate the backgroud, so we use a 'before' element */
+.verticalDragHandle:before {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: -8px;
+    left: 0;
+    background: url(../img/drag_handle_5.png) 50% 50% no-repeat;
+    /* -webkit-transform: rotate(90deg); */
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+    transform-origin: center;
+}
+
 #dragLeft {
     cursor: col-resize;
     position:absolute;
