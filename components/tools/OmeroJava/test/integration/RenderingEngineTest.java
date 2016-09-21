@@ -29,9 +29,13 @@ import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IScriptPrx;
 import omero.api.RenderingEnginePrx;
+import omero.cmd.Chgrp2;
+import omero.cmd.Delete2;
+import omero.gateway.util.Requests;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
 import omero.model.CodomainMapContext;
+import omero.model.ExperimenterGroup;
 import omero.model.Family;
 import omero.model.IObject;
 import omero.model.Image;
@@ -2979,5 +2983,116 @@ public class RenderingEngineTest extends AbstractServerTest {
             Assert.assertEquals(l.size(), 1);
         }
         re.close();
+    }
+
+    /**
+     * Tests to delete an image with rendering settings and codomain context
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImageWithCodomainMap() throws Exception {
+        int sizeC = 3;
+        Image image = createBinaryImage(1, 1, 1, 1, sizeC);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        // Pixels first
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(pixels.getId().getValue()));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        Assert.assertEquals(channels.size(), sizeC);
+        for (int k = 0; k < sizeC; k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        re.close();
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        //delete the image
+        Delete2 dc = Requests.delete().target(image).build();
+        callback(true, client, dc);
+
+        ParametersI param = new ParametersI();
+        param.addId(image.getId().getValue());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("select i from Image i ");
+        sb.append("where i.id = :id");
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+        //Check that the rendering def is delete
+        sb = new StringBuilder();
+        sb.append("select i from RenderingDef i ");
+        sb.append("where i.id = :id");
+        param = new ParametersI();
+        param.addId(def.getId().getValue());
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+    }
+
+    /**
+     * Tests to delete an image with rendering settings and codomain context
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveImageWithCodomainMap() throws Exception {
+        int sizeC = 3;
+        String perms = "rw----";
+        EventContext ec = newUserAndGroup(perms);
+        ExperimenterGroup g = newGroupAddUser(perms, ec.userId);
+        iAdmin.getEventContext(); // Refresh
+        Image image = createBinaryImage(1, 1, 1, 1, sizeC);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        // Pixels first
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(pixels.getId().getValue()));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        Assert.assertEquals(channels.size(), sizeC);
+        for (int k = 0; k < sizeC; k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        re.close();
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        final Chgrp2 dc = Requests.chgrp().target(image).toGroup(g).build();
+        callback(true, client, dc);
+        // Now check that the image is no longer in group
+        ParametersI param = new ParametersI();
+        param.addId(image.getId().getValue());
+
+        Assert.assertNotEquals(g.getId().getValue(), ec.groupId);
+        StringBuilder sb = new StringBuilder();
+        sb.append("select i from Image i ");
+        sb.append("where i.id = :id");
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+
+        EventContext ec2 = loginUser(g);
+        Assert.assertEquals(g.getId().getValue(), ec2.groupId);
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        sb = new StringBuilder();
+        sb.append("select i from RenderingDef i ");
+        sb.append("where i.id = :id");
+        param = new ParametersI();
+        param.addId(def.getId().getValue());
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 }
