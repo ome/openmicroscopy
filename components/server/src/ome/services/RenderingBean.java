@@ -55,6 +55,7 @@ import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.codomain.CodomainChain;
+import omeis.providers.re.codomain.CodomainMap;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
@@ -1264,8 +1265,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfInvalidState();
+            ChannelBinding[] cb = renderer.getChannelBindings();
             for (int i = 0; i < pixelsObj.getSizeC(); i++) {
-              renderer.getCodomainChain(i).add(mapCtx.copy());
+              boolean b = renderer.getCodomainChain(i).add(mapCtx);
+              if (b) {
+                  cb[i].addCodomainMapContext(convert(mapCtx));
+              }
             }
         } finally {
             rwl.writeLock().unlock();
@@ -1279,9 +1284,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfInvalidState();
-            renderer.getCodomainChain(w).add(mapCtx.copy());
-            ChannelBinding[] cb = renderer.getChannelBindings();
-            cb[w].addCodomainMapContext(convert(mapCtx));
+            boolean b = renderer.getCodomainChain(w).add(mapCtx);
+            if (b) {
+                ChannelBinding[] cb = renderer.getChannelBindings();
+                cb[w].addCodomainMapContext(convert(mapCtx));
+            }
         } finally {
             rwl.writeLock().unlock();
         }
@@ -1312,11 +1319,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
             errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
             for (int i = 0; i < pixelsObj.getSizeC(); i++) {
-                renderer.getCodomainChain(i).remove(mapCtx.copy());
-                List<CodomainMapContext> l = getCodomainMapContext(i);
-                Iterator<CodomainMapContext> j = l.iterator();
-                while (j.hasNext()) {
-                    cb[i].addCodomainMapContext(convert(j.next()));
+                boolean b = renderer.getCodomainChain(i).remove(mapCtx.copy());
+                if (b) {
+                    cb[i].clearSpatialDomainEnhancement();
+                    CodomainChain chain = renderer.getCodomainChain(i);
+                    List<CodomainMapContext> l = chain.getContexts();
+                    Iterator<CodomainMapContext> j = l.iterator();
+                    while (j.hasNext()) {
+                        cb[i].addCodomainMapContext(convert(j.next()));
+                    }
                 }
             }
         } finally {
@@ -1330,13 +1341,17 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
-            renderer.getCodomainChain(w).remove(mapCtx.copy());
-            ChannelBinding[] cb = renderer.getChannelBindings();
-            cb[w].clearSpatialDomainEnhancement();
-            List<CodomainMapContext> l = getCodomainMapContext(w);
-            Iterator<CodomainMapContext> i = l.iterator();
-            while (i.hasNext()) {
-                cb[w].addCodomainMapContext(convert(i.next()));
+            boolean b = renderer.getCodomainChain(w).remove(mapCtx.copy());
+            if (b) {
+                ChannelBinding[] cb = renderer.getChannelBindings();
+                cb[w].clearSpatialDomainEnhancement();
+
+                CodomainChain chain = renderer.getCodomainChain(w);
+                List<CodomainMapContext> l = chain.getContexts();
+                Iterator<CodomainMapContext> i = l.iterator();
+                while (i.hasNext()) {
+                    cb[w].addCodomainMapContext(convert(i.next()));
+                }
             }
         } finally {
             rwl.writeLock().unlock();

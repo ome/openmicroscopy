@@ -242,20 +242,23 @@ public class CodomainChain {
      * 
      * @param mapCtx
      *            The context to add. Mustn't be <code>null</code>.
+     * @return Return <code>true</code> if the context was added,
+     *                <code>false</code> otherwise.
      */
-    public void add(CodomainMapContext mapCtx) {
+    public boolean add(CodomainMapContext mapCtx) {
         if (mapCtx == null) {
             throw new NullPointerException("No context.");
         }
         if (chain.contains(mapCtx)) {
             update(mapCtx);
-            return;
+            return false;
         }
         mapCtx = mapCtx.copy(); // Get memento and discard original object.
         mapCtx.setCodomain(intervalStart, intervalEnd);
         mapCtx.buildContext();
         chain.add(mapCtx);
         buildLUT();
+        return true;
     }
 
     /**
@@ -296,13 +299,17 @@ public class CodomainChain {
      * 
      * @param mapCtx
      *            The context to remove.
+     * @return Returns <code>true</code> if the chain was removed,
+     *         <code>false</code> otherwise.
      */
-    public void remove(CodomainMapContext mapCtx) {
+    public boolean remove(CodomainMapContext mapCtx) {
         if (mapCtx != null && chain.contains(mapCtx)) { // Recall equals() is
                                                         // overridden.
             chain.remove(mapCtx);
             buildLUT();
+            return true;
         }
+        return false;
     }
 
     /**
