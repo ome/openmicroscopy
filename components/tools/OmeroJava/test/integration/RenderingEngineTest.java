@@ -5,6 +5,7 @@
 package integration;
 
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -2342,6 +2343,7 @@ public class RenderingEngineTest extends AbstractServerTest {
                 int ap = after[i] & 0x0ff;
                 //check that the reverse intensity was applied
                 Assert.assertEquals(ap, (end-bp));
+                System.err.println(bp);
             }
         }
     }
@@ -3276,5 +3278,111 @@ public class RenderingEngineTest extends AbstractServerTest {
         param = new ParametersI();
         param.addId(def.getId().getValue());
         Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
+    }
+
+    /**
+     * Tests reverse intensity with Lut
+     * @throws Exception
+     */
+    @Test
+    public void testReverseIntensityWithLut() throws Exception {
+        //First import an image
+        Image image = createBinaryImage(1, 1, 1, 1, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        int end = re.getQuantumDef().getCdEnd().getValue();
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(
+                ScriptServiceTest.LUT_MIMETYPE);
+        Assert.assertNotNull(scripts);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
+        OriginalFile of = scripts.get(0);
+        RenderingModel model = re.getModel();
+        List<IObject> models = factory.getPixelsService().getAllEnumerations(
+                RenderingModel.class
+                .getName());
+        Iterator<IObject> j = models.iterator();
+        RenderingModel m;
+        // Change the color model so it is not grey scale.
+        while (j.hasNext()) {
+            m = (RenderingModel) j.next();
+            if (m.getId().getValue() != model.getId().getValue())
+                re.setModel(m);
+        }
+        for (int k = 0; k < channels.size(); k++) {
+            re.setChannelLookupTable(k, of.getName().getValue());
+            byte[] before = re.renderCompressed(pDef);
+            re.addCodomainMapToChannel(new omero.romio.ReverseIntensityMapContext(), k);
+            byte[] after = re.renderCompressed(pDef);
+            Assert.assertFalse(Arrays.equals(after, before));
+        }
+    }
+
+    /**
+     * Tests reverse intensity with color
+     * @throws Exception
+     */
+    @Test
+    public void testReverseIntensityWithColor() throws Exception {
+        //First import an image
+        Image image = createBinaryImage(1, 1, 1, 1, 1);
+        Pixels p = image.getPrimaryPixels();
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        PlaneDef pDef = new PlaneDef();
+        pDef.t = re.getDefaultT();
+        pDef.z = re.getDefaultZ();
+        pDef.slice = omero.romio.XY.value;
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        IScriptPrx svc = factory.getScriptService();
+        List<OriginalFile> scripts = svc.getScriptsByMimetype(
+                ScriptServiceTest.LUT_MIMETYPE);
+        Assert.assertNotNull(scripts);
+        Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
+        
+        RenderingModel model = re.getModel();
+        List<IObject> models = factory.getPixelsService().getAllEnumerations(
+                RenderingModel.class
+                .getName());
+        Iterator<IObject> j = models.iterator();
+        RenderingModel m;
+        // Change the color model so it is not grey scale.
+        while (j.hasNext()) {
+            m = (RenderingModel) j.next();
+            if (m.getId().getValue() != model.getId().getValue())
+                re.setModel(m);
+        }
+        Color color = Color.CYAN;
+        for (int k = 0; k < channels.size(); k++) {
+            re.setRGBA(k, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+            byte[] before = re.renderCompressed(pDef);
+            re.addCodomainMapToChannel(new omero.romio.ReverseIntensityMapContext(), k);
+            byte[] after = re.renderCompressed(pDef);
+            Assert.assertFalse(Arrays.equals(after, before));
+        }
     }
 }
