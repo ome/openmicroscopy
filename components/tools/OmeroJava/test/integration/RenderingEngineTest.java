@@ -134,6 +134,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         switch (role) {
             case ADMIN:
                 logRootIntoGroup(ctx2);
+                userId = iAdmin.getEventContext().userId;
                 break;
             case GROUP_OWNER:
                 makeGroupOwner();
