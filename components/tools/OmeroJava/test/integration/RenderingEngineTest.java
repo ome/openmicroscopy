@@ -3095,4 +3095,186 @@ public class RenderingEngineTest extends AbstractServerTest {
         param.addId(def.getId().getValue());
         Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
+
+    /**
+     * Tests to delete an image with rendering settings and codomain context.
+     * The image has settings saved by owner and other user.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImageWithCodomainMapViewByOther() throws Exception {
+        String perms = "rwra--";
+        EventContext ec = newUserAndGroup(perms);
+        int sizeC = 3;
+        Image image = createBinaryImage(1, 1, 1, 1, sizeC);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(pixels.getId().getValue()));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        //Settings set by owner
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        Assert.assertEquals(channels.size(), sizeC);
+        for (int k = 0; k < sizeC; k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        re.close();
+        disconnect();
+        // login as another user.
+        EventContext ctx2 = newUserInGroup(ec);
+        makeGroupOwner();
+        re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def.copyWaveRendering();
+        Assert.assertEquals(channels.size(), sizeC);
+        for (int k = 0; k < sizeC; k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        re.close();
+        RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(id);
+        disconnect();
+        //delete the image by image owner
+        loginUser(ec);
+        Delete2 dc = Requests.delete().target(image).build();
+        callback(true, client, dc);
+
+        ParametersI param = new ParametersI();
+        param.addId(image.getId().getValue());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("select i from Image i ");
+        sb.append("where i.id = :id");
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+        //Check that the rendering def is delete
+        sb = new StringBuilder();
+        sb.append("select i from RenderingDef i ");
+        sb.append("where i.id = :id");
+        param = new ParametersI();
+        param.addId(def.getId().getValue());
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+        param = new ParametersI();
+        param.addId(def2.getId().getValue());
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+    }
+
+    /**
+     * Tests to delete an image with rendering settings and codomain context.
+     * The image has settings saved by owner and other user.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testMoveImageWithCodomainMapViewByOther() throws Exception {
+        String perms = "rwra--";
+        EventContext ec = newUserAndGroup(perms);
+        ExperimenterGroup g = newGroupAddUser(perms, ec.userId);
+        iAdmin.getEventContext(); // Refresh
+        int sizeC = 3;
+        Image image = createBinaryImage(1, 1, 1, 1, sizeC);
+        Pixels pixels = image.getPrimaryPixels();
+        long id = pixels.getId().getValue();
+        IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+        prx.setOriginalSettingsInSet(Pixels.class.getName(),
+                Arrays.asList(pixels.getId().getValue()));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        //Settings set by owner
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        List<ChannelBinding> channels = def.copyWaveRendering();
+        Assert.assertEquals(channels.size(), sizeC);
+        for (int k = 0; k < sizeC; k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        re.close();
+        disconnect();
+        // login as another user.
+        EventContext ctx2 = newUserInGroup(ec);
+        makeGroupOwner();
+        re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaultSettings(true);
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        def = factory.getPixelsService().retrieveRndSettings(id);
+        channels = def.copyWaveRendering();
+        Assert.assertEquals(channels.size(), sizeC);
+        for (int k = 0; k < sizeC; k++) {
+            omero.romio.ReverseIntensityMapContext ctx = new omero.romio.ReverseIntensityMapContext();
+            re.addCodomainMapToChannel(ctx, k);
+        }
+        re.saveCurrentSettings();
+        re.close();
+        RenderingDef def2 = factory.getPixelsService().retrieveRndSettings(id);
+        disconnect();
+        Assert.assertNotEquals(def.getId().getValue(), def2.getId().getValue());
+        //move the image by image owner
+        loginUser(ec);
+        final Chgrp2 dc = Requests.chgrp().target(image).toGroup(g).build();
+        callback(true, client, dc);
+
+        ParametersI param = new ParametersI();
+        param.addId(image.getId().getValue());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("select i from Image i ");
+        sb.append("where i.id = :id");
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+        //Check that the rendering def is delete
+        sb = new StringBuilder();
+        sb.append("select i from RenderingDef i ");
+        sb.append("where i.id = :id");
+        param = new ParametersI();
+        param.addId(def.getId().getValue());
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+        param = new ParametersI();
+        param.addId(def2.getId().getValue());
+        Assert.assertNull(iQuery.findByQuery(sb.toString(), param));
+
+        //Go to the target group
+        EventContext ec2 = loginUser(g);
+        Assert.assertEquals(g.getId().getValue(), ec2.groupId);
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        param = new ParametersI();
+        param.addId(image.getId().getValue());
+
+        //Check that the image has been moved.
+        sb = new StringBuilder();
+        sb.append("select i from Image i ");
+        sb.append("where i.id = :id");
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
+        sb = new StringBuilder();
+        sb.append("select i from RenderingDef i ");
+        sb.append("where i.id = :id");
+        param = new ParametersI();
+        param.addId(def.getId().getValue());
+        Assert.assertNotNull(iQuery.findByQuery(sb.toString(), param));
+    }
 }
