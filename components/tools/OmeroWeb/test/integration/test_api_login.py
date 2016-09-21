@@ -168,11 +168,11 @@ class TestLogin(IWebTest):
         login_rsp = django_client.post(login_url, data)
         login_json = json.loads(login_rsp.content)
         assert login_json['success']
-        eventContext = login_json['eventContext']
+        event_context = login_json['eventContext']
         # eventContext gives a bunch of info
-        memberOfGroups = eventContext['memberOfGroups']
-        currentGroup = eventContext['groupId']
-        userId = eventContext['userId']
-        assert len(memberOfGroups) == 2      # includes 'user' group
-        assert currentGroup in memberOfGroups
-        assert userId > 0
+        member_of_groups = event_context['memberOfGroups']
+        current_group = event_context['groupId']
+        user_id = event_context['user_id']
+        assert len(member_of_groups) == 2      # includes 'user' group
+        assert current_group in member_of_groups
+        assert user_id > 0

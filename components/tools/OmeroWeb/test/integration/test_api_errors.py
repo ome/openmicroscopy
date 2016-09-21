@@ -51,22 +51,22 @@ class TestErrors(IWebTest):
 
     # Create a read-annotate group
     @pytest.fixture(scope='function')
-    def groupA(self):
+    def group_A(self):
         """Returns a new read-only group."""
         return self.new_group(perms='rwra--')
 
     # Create a read-only group
     @pytest.fixture(scope='function')
-    def groupB(self):
+    def group_B(self):
         """Returns a new read-only group."""
         return self.new_group(perms='rwr---')
 
     # Create users in the read-only group
     @pytest.fixture()
-    def userA(self, groupA, groupB):
-        """Returns a new user in the groupA group and also add to groupB"""
-        user = self.new_client_and_user(group=groupA)
-        self.add_groups(user[1], [groupB])
+    def user_A(self, group_A, group_B):
+        """Returns a new user in the group_A group and also add to group_B"""
+        user = self.new_client_and_user(group=group_A)
+        self.add_groups(user[1], [group_B])
         return user
 
     def test_marshal_validation(self):
@@ -83,15 +83,15 @@ class TestErrors(IWebTest):
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
 
-    def test_security_violation(self, groupB, userA):
-        conn = get_connection(userA)
+    def test_security_violation(self, group_B, user_A):
+        conn = get_connection(user_A)
         groupAid = conn.getEventContext().groupId
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
         version = settings.API_VERSIONS[-1]
-        groupBid = groupB.id.val
+        groupBid = group_B.id.val
         save_url = reverse('api_save', kwargs={'api_version': version})
-        # Create project in groupA (default group)
+        # Create project in group_A (default group)
         payload = {'Name': 'test_security_violation',
                    '@type': OME_SCHEMA_URL + '#Project'}
         save_url_grpA = save_url + '?group=' + str(groupAid)
@@ -122,8 +122,8 @@ class TestErrors(IWebTest):
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
 
-    def test_validation_exception(self, userA):
-        conn = get_connection(userA)
+    def test_validation_exception(self, user_A):
+        conn = get_connection(user_A)
         group = conn.getEventContext().groupId
         userName = conn.getUser().getName()
         django_client = self.new_django_client(userName, userName)
@@ -149,7 +149,7 @@ class TestErrors(IWebTest):
         assert rsp['stacktrace'].startswith(
             'Traceback (most recent call last):')
 
-    def test_project_validation(self, userA):
+    def test_project_validation(self, user_A):
         """
         This test illustrates the ValidationException we see when
         Project is encoded to dict then decoded back to Project
@@ -158,7 +158,7 @@ class TestErrors(IWebTest):
         saved without encode & decode OR if the details are unloaded
         before saving
         """
-        conn = get_connection(userA)
+        conn = get_connection(user_A)
         project = ProjectI()
         project.name = rstring('test_project_validation')
         project = conn.getUpdateService().saveAndReturnObject(project)
