@@ -30,17 +30,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -58,6 +57,7 @@ import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
@@ -285,51 +285,53 @@ class MetadataViewerComponent
 		model.cancel(loaderID);
 	}
 
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setMetadata(Map<DataObject, StructuredDataResults>)
-	 */
-	public void setMetadata(Map<DataObject, StructuredDataResults> results,
-			int loaderID)
-	{
-		if (results == null || results.size() == 0) return;
-		//Need to check the size of the results map.
-		Browser browser = model.getBrowser();
-		DataObject node;
-		StructuredDataResults data;
-		Entry<DataObject, StructuredDataResults> e;
-		Iterator<Entry<DataObject, StructuredDataResults>>
-		i = results.entrySet().iterator();
-		if (results.size() == 1) { //handle the single selection
-			while (i.hasNext()) {
-				e = i.next();
-				node = e.getKey();
-				if (!model.isSameObject(node)) {
-					model.setStructuredDataResults(null, loaderID);
-					fireStateChange();
-					return;
-				}
-				data = e.getValue();
-				Object object = data.getRelatedObject();
-				if (object == model.getParentRefObject() ||
-					(object instanceof PlateData && node 
-							instanceof WellSampleData)) {
-					model.setParentDataResults(data, node, loaderID);
-					model.fireStructuredDataLoading(node);
-				} else {
-					model.setStructuredDataResults(results, loaderID);
-					browser.setParents(null, data.getParents());
-					model.getEditor().setStructuredDataResults();
-				}
-				fireStateChange();
-			}
-		} else {
-			if (model.isSameSelection(results.keySet())) {
-				model.setStructuredDataResults(results, loaderID);
-				model.getEditor().setStructuredDataResults();
-			}
-		}
-	}
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * 
+     * @see MetadataViewer#setMetadata(Map, EnumSet, int)
+     */
+    public void setMetadata(Map<DataObject, StructuredDataResults> results, EnumSet<AnnotationType> types,
+            int loaderID) {
+        if (results == null || results.size() == 0)
+            return;
+        
+        // Need to check the size of the results map.
+        Browser browser = model.getBrowser();
+        DataObject node;
+        StructuredDataResults data;
+        Entry<DataObject, StructuredDataResults> e;
+        Iterator<Entry<DataObject, StructuredDataResults>> i = results
+                .entrySet().iterator();
+        if (results.size() == 1) { // handle the single selection
+            while (i.hasNext()) {
+                e = i.next();
+                node = e.getKey();
+                if (!model.isSameObject(node)) {
+                    model.setStructuredDataResults(null, loaderID);
+                    fireStateChange();
+                    return;
+                }
+                data = e.getValue();
+                Object object = data.getRelatedObject();
+                if (object == model.getParentRefObject()
+                        || (object instanceof PlateData && node instanceof WellSampleData)) {
+                    model.setParentDataResults(data, node, loaderID);
+                    // TODO: Find a workaround, guess this loads the plate metadata for wells
+                   // model.fireStructuredDataLoading(node);
+                } else {
+                    model.setStructuredDataResults(results, loaderID);
+                    browser.setParents(null, data.getParents());
+                    model.getEditor().setStructuredDataResults(types);
+                }
+                fireStateChange();
+            }
+        } else {
+            if (model.isSameSelection(results.keySet())) {
+                model.setStructuredDataResults(results, loaderID);
+                model.getEditor().setStructuredDataResults(types);
+            }
+        }
+    }
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
@@ -417,7 +419,6 @@ class MetadataViewerComponent
 		boolean same = model.isSameObject(root);
 		model.setRootObject(root, ctx);
 		if (model.isSingleMode()) {
-			model.fireStructuredDataLoading(root);
 			fireStateChange();
 		}
 		view.setRootObject();
@@ -434,9 +435,7 @@ class MetadataViewerComponent
 	 */
 	public void refresh()
 	{
-		if (model.isSingleMode()) {
-			model.fireStructuredDataLoading(model.getRefObject());
-		} else {
+		if (!model.isSingleMode()) {
 			model.setRelatedNodes(model.getRelatedNodes());
 		}
 		fireStateChange();
@@ -1321,5 +1320,42 @@ class MetadataViewerComponent
     @Override
     public void reloadROICount() {
         model.getEditor().reloadROICount();
+    }
+    
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#loadStructuredData(EnumSet)
+     */
+    @Override
+    public void loadStructuredData(EnumSet<AnnotationType> types) {
+        boolean b = model.isSingleMode();
+        if(b) 
+            model.fireStructuredDataLoading(getRefObject(), types);
+        else
+            model.fireStructuredDataLoading(getRelatedNodes(), types);
+    }
+    
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#loadAnnotationCount()
+     */
+    @Override
+    public void loadAnnotationCount() {
+        Collection<DataObject> objs = new ArrayList<DataObject>();
+        if(isSingleMode())
+            objs.add((DataObject) getRefObject());
+        else
+            objs.addAll(getRelatedNodes());
+        model.fireAnnotationCountLoading(objs);
+    }
+    
+    /**
+     * Implemented as specified by the {@link MetadataViewer} interface.
+     * @see MetadataViewer#setAnnotationCount(Map, int)
+     */
+    @Override
+    public void setAnnotationCount(Map<AnnotationType, Long> result,
+            int loaderID) {
+        model.setAnnotationCount(result, loaderID);
     }
 }

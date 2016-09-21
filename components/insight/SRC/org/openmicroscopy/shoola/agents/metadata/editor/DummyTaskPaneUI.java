@@ -84,4 +84,10 @@ public class DummyTaskPaneUI extends AnnotationTaskPaneUI {
     int getUnfilteredAnnotationCount() {
         return 0;
     }
+    
+    @Override
+    void onCollapsed(boolean collapsed) {
+        
+    }
+    
 }

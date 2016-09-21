@@ -467,14 +467,15 @@ public class PojoMapper
     }
 
     /**
-     * Get the pojo type for a an {@link IObject} class
-     * (Reverse of {@link #getModelType(Class)})
+     * Get the pojo type for a an {@link IObject} class (Reverse of
+     * {@link #getModelType(Class)})
      * 
      * @param modelType
      *            The {@link IObject}
      * @return See above
      */
-    public static Class<? extends DataObject> getPojoType(Class<? extends IObject> modelType) {
+    public static Class<? extends DataObject> getPojoType(
+            Class<? extends IObject> modelType) {
         if (OriginalFile.class.equals(modelType))
             return FileData.class;
         else if (Project.class.equals(modelType))
@@ -483,17 +484,25 @@ public class PojoMapper
             return DatasetData.class;
         else if (Image.class.equals(modelType))
             return ImageData.class;
-        else if (BooleanAnnotation.class.equals(modelType))
+        else if (BooleanAnnotation.class.equals(modelType)
+                || ome.model.annotations.BooleanAnnotation.class
+                        .equals(modelType))
             return BooleanAnnotationData.class;
-        else if (LongAnnotation.class.equals(modelType))
+        else if (LongAnnotation.class.equals(modelType)
+                || ome.model.annotations.LongAnnotation.class.equals(modelType))
             return LongAnnotationData.class;
-        else if (TagAnnotation.class.equals(modelType))
+        else if (TagAnnotation.class.equals(modelType)
+                || ome.model.annotations.TagAnnotation.class.equals(modelType))
             return TagAnnotationData.class;
-        else if (CommentAnnotation.class.equals(modelType))
+        else if (CommentAnnotation.class.equals(modelType)
+                || ome.model.annotations.CommentAnnotation.class
+                        .equals(modelType))
             return TextualAnnotationData.class;
-        else if (FileAnnotation.class.equals(modelType))
+        else if (FileAnnotation.class.equals(modelType)
+                || ome.model.annotations.FileAnnotation.class.equals(modelType))
             return FileAnnotationData.class;
-        else if (TermAnnotation.class.equals(modelType))
+        else if (TermAnnotation.class.equals(modelType)
+                || ome.model.annotations.TermAnnotation.class.equals(modelType))
             return TermAnnotationData.class;
         else if (Screen.class.equals(modelType))
             return ScreenData.class;
@@ -509,16 +518,21 @@ public class PojoMapper
             return GroupData.class;
         else if (Experimenter.class.equals(modelType))
             return ExperimenterData.class;
-        else if (DoubleAnnotation.class.equals(modelType))
+        else if (DoubleAnnotation.class.equals(modelType)
+                || ome.model.annotations.DoubleAnnotation.class
+                        .equals(modelType))
             return DoubleAnnotationData.class;
-        else if (XmlAnnotation.class.equals(modelType))
+        else if (XmlAnnotation.class.equals(modelType)
+                || ome.model.annotations.XmlAnnotation.class.equals(modelType))
             return XMLAnnotationData.class;
         else if (Fileset.class.equals(modelType))
             return FilesetData.class;
-        else if (MapAnnotation.class.equals(modelType))
+        else if (MapAnnotation.class.equals(modelType)
+                || ome.model.annotations.MapAnnotation.class.equals(modelType))
             return MapAnnotationData.class;
 
-        throw new IllegalArgumentException(modelType.getClass().getSimpleName()+" not supported");
+        throw new IllegalArgumentException(modelType.getClass().getSimpleName()
+                + " not supported");
     }
 
     /**

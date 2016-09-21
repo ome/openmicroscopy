@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import omero.gateway.SecurityContext;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
@@ -189,7 +190,7 @@ public class ExperimenterDataLoader
     				ctx.getGroupID(), this);
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
     		handle = mhView.loadExistingAnnotations(ctx,
-    				rootNodeType, expID, this); //TO BE MODIFIED
+    				AnnotationType.ATTACHMENT, expID, this); //TO BE MODIFIED
     	} else {
     		if (viewer.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
     			//handle = dmView.loadRepositories(ctx, exp.getId(), this);

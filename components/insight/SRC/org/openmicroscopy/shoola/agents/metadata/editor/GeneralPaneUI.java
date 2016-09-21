@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,6 +38,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,11 +54,11 @@ import javax.swing.JTextField;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
-import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPane.AnnotationType;
 import org.openmicroscopy.shoola.agents.metadata.editor.AnnotationTaskPaneUI.Filter;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.env.data.model.AnnotationType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.gateway.model.AnnotationData;
@@ -249,19 +250,19 @@ class GeneralPaneUI extends JPanel
 		propertiesTaskPane.add(propertiesUI);
 		propertiesTaskPane.setCollapsed(false);
 		
-		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAGS, view, model, controller);
+		tagsTaskPane = new AnnotationTaskPane(AnnotationType.TAG, view, model, controller);
 	    
-	    roiTaskPane = new AnnotationTaskPane(AnnotationType.ROIS, view, model, controller);
+	    roiTaskPane = new AnnotationTaskPane(AnnotationType.ROI, view, model, controller);
 	    
 	    mapTaskPane = new AnnotationTaskPane(AnnotationType.MAP, view, model, controller);
 	    
-	    attachmentTaskPane = new AnnotationTaskPane(AnnotationType.ATTACHMENTS, view, model, controller);
+	    attachmentTaskPane = new AnnotationTaskPane(AnnotationType.ATTACHMENT, view, model, controller);
 	    
 	    otherTaskPane = new AnnotationTaskPane(AnnotationType.OTHER, view, model, controller);
 	    
 	    ratingTaskPane = new AnnotationTaskPane(AnnotationType.RATING, view, model, controller);
 	    
-	    commentTaskPane = new AnnotationTaskPane(AnnotationType.COMMENTS, view, model, controller); 
+	    commentTaskPane = new AnnotationTaskPane(AnnotationType.COMMENT, view, model, controller); 
 	}
 	
 	/**
@@ -376,7 +377,6 @@ class GeneralPaneUI extends JPanel
         add(browserTaskPane, c);
         c.gridy++;
         
-        otherTaskPane.setVisible(false);
         add(otherTaskPane, c);
         c.gridy++;
         
@@ -613,11 +613,21 @@ class GeneralPaneUI extends JPanel
         ratingTaskPane.clearDisplay();
         commentTaskPane.clearDisplay();
         
+        tagsTaskPane.setLoadingState();
+        roiTaskPane.setLoadingState();
+        mapTaskPane.setLoadingState();
+        attachmentTaskPane.setLoadingState();
+        otherTaskPane.setLoadingState();
+        ratingTaskPane.setLoadingState();
+        commentTaskPane.setLoadingState();
+        
     	browserTaskPane.removeAll();
     	browserTaskPane.setCollapsed(true);
     	
 		revalidate();
 		repaint();
+		
+		model.loadAnnotationCount();
 	}
 	
 	/** Shows the image's info. */
@@ -872,13 +882,45 @@ class GeneralPaneUI extends JPanel
 	void onRelatedNodesSet()
 	{
 	    nameModified = false;
-	    tagsTaskPane.onRelatedNodesSet();
-	    roiTaskPane.onRelatedNodesSet();
-	    mapTaskPane.onRelatedNodesSet();
-	    attachmentTaskPane.onRelatedNodesSet();
-	    otherTaskPane.onRelatedNodesSet();
-	    ratingTaskPane.onRelatedNodesSet();
-	    commentTaskPane.onRelatedNodesSet();
+	    
+	    EnumSet<AnnotationType> reloadAnnos = EnumSet.noneOf(AnnotationType.class);
+	    
+	    if(!tagsTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.TAG);
+	    
+	    if(!roiTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.ROI);
+	    
+	    if(!mapTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.MAP);
+	    
+	    if(!attachmentTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.ATTACHMENT);
+	    
+	    if(!otherTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.OTHER);
+	    
+	    if(!ratingTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.RATING);
+	    
+	    if(!commentTaskPane.isCollapsed()) 
+	        reloadAnnos.add(AnnotationType.COMMENT);
+	    
+	    model.loadStructuredData(reloadAnnos);
+	    model.loadAnnotationCount();
+	}
+	
+	/**
+	 * Refreshes the annotation task panes
+	 */
+	void refreshAnnotationTaskPanes() {
+	    tagsTaskPane.refreshUI();
+        roiTaskPane.refreshUI();
+        mapTaskPane.refreshUI();
+        attachmentTaskPane.refreshUI();
+        otherTaskPane.refreshUI();
+        ratingTaskPane.refreshUI();
+        commentTaskPane.refreshUI();
 	}
 	
 	/**
@@ -891,4 +933,64 @@ class GeneralPaneUI extends JPanel
 	    AttachmentsTaskPaneUI p = (AttachmentsTaskPaneUI) attachmentTaskPane.getTaskPaneUI();
 	    return p.getSelectedFileAnnotations();
 	}
+	
+    /**
+     * Get a reference to the {@link AnnotationTaskPane} which is responsible
+     * for displaying annotations of the specified type
+     * 
+     * @param type
+     *            The type of annotation
+     * @return See above
+     */
+    public AnnotationTaskPane getAnnotationTaskPane(AnnotationType type) {
+        switch (type) {
+        case ATTACHMENT:
+            return attachmentTaskPane;
+        case COMMENT:
+            return commentTaskPane;
+        case MAP:
+            return mapTaskPane;
+        case OTHER:
+            return otherTaskPane;
+        case RATING:
+            return ratingTaskPane;
+        case ROI:
+            return roiTaskPane;
+        case TAG:
+            return tagsTaskPane;
+        default:
+            return null;
+        }
+    }
+    
+    /**
+     * Get the annotation types which are currently shown
+     * 
+     * @return See above
+     */
+    public EnumSet<AnnotationType> getAnnotationTypesOnDisplay() {
+        EnumSet<AnnotationType> result = EnumSet.noneOf(AnnotationType.class);
+        if (!attachmentTaskPane.isCollapsed()) {
+            result.add(AnnotationType.ATTACHMENT);
+        }
+        if (!commentTaskPane.isCollapsed()) {
+            result.add(AnnotationType.COMMENT);
+        }
+        if (!mapTaskPane.isCollapsed()) {
+            result.add(AnnotationType.MAP);
+        }
+        if (!otherTaskPane.isCollapsed()) {
+            result.add(AnnotationType.OTHER);
+        }
+        if (!ratingTaskPane.isCollapsed()) {
+            result.add(AnnotationType.RATING);
+        }
+        if (!roiTaskPane.isCollapsed()) {
+            result.add(AnnotationType.ROI);
+        }
+        if (!tagsTaskPane.isCollapsed()) {
+            result.add(AnnotationType.TAG);
+        }
+        return result;
+    }
 }

@@ -27,11 +27,13 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import omero.gateway.model.AnnotationData;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -71,7 +73,18 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
             this.name = name;
         }
     }
+    
+    /**
+     * The state of this component, either Loading if the data has not been
+     * loaded yet or Ready when the data is available
+     */
+    enum State {
+        LOADING, READY
+    }
 
+    /** The current state */
+    State state = State.LOADING;
+    
     /** Reference to the {@link EditorModel} */
     EditorModel model;
 
@@ -84,6 +97,9 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
     /** The default {@link Filter}, set to 'show all' */
     Filter filter = Filter.SHOW_ALL;
 
+    /** Label indicating that the data has not been loaded yet */
+    final JLabel loadingLabel = new JLabel("Loading...");
+    
     /** The panel holding the actual content */
     private JPanel contentPane;
 
@@ -227,4 +243,23 @@ public abstract class AnnotationTaskPaneUI extends JPanel {
      * @return the number of annotations regardless of current filter
      */
     abstract int getUnfilteredAnnotationCount();
+    
+    /**
+     * Called when the parent {@link JXTaskPane} is collapsed/expanded
+     * 
+     * @param collapsed
+     *            <code>true</code> if the new state is collapsed,
+     *            <code>false</code> if it is expanded
+     */
+    abstract void onCollapsed(boolean collapsed);
+    
+    /**
+     * Called once the data for this component is ready; removes the loading
+     * label and refreshes the UI
+     */
+    void onLoaded() {
+        contentPane.remove(loadingLabel);
+        state = State.READY;
+        refreshUI();
+    }
 }
