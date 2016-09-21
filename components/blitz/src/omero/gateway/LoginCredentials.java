@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2015-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -86,7 +86,8 @@ public class LoginCredentials {
      * Creates a new instance with the given credentials and default port
      * 
      * @param username
-     *            The username
+     *            The username or alternatively a session ID (in which case
+     *            the password will be ignored)
      * @param password
      *            The password
      * @param host
@@ -100,7 +101,8 @@ public class LoginCredentials {
      * Creates a new instance with the given credentials
      * 
      * @param username
-     *            The username
+     *            The username or alternatively a session ID (in which case
+     *             the password will be ignored)
      * @param password
      *            The password
      * @param host
