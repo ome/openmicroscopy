@@ -115,10 +115,11 @@ public class AbstractFileSystemService {
             remaining /= 1000;
 
             if (remaining > 0) {
-                Formatter formatter = new Formatter();
-                dirno = remaining % 1000;
-                suffix = formatter.format("Dir-%03d", dirno).out().toString()
-                        + File.separator + suffix;
+                try (final Formatter formatter = new Formatter()) {
+                    dirno = remaining % 1000;
+                    suffix = formatter.format("Dir-%03d", dirno).out().toString()
+                            + File.separator + suffix;
+                }
             }
         }
         
