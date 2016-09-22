@@ -108,7 +108,7 @@
             .bind("drag", function(event, ui) {
                 var dy = ui.offset.top - $(this).data('dragstart');
                 var newH = $(this).data('wellImgs_h') - dy;
-                $("#wellImages").css('height', newH + 'px');
+                $("#wellImagesContainer").css('height', newH + 'px');
                 $("#spwContainer").css('bottom', newH + 'px');
             });
 
@@ -123,6 +123,15 @@
                     $("#spw>table").prop('class', cls);
                 }
             });
+            // Resize Images in Well
+            $("#wellImages_size_slider").slider({
+                max: 130,
+                min: 30,
+                value: 64,
+                slide: function(event, ui) {
+                    $("#wellImages").prop('class', 'fillSpace wellSize' + ui.value);
+                }
+            });
 
             var syncTreeSelection = function(selected, idx, perms) {
                 // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
@@ -135,7 +144,10 @@
                 OME.well_selection_changed(selected, idx, perms);
             };
 
-            var wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
+            var staticurl = WEBCLIENT.URLS.static_webgateway;
+            var wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}',
+                                                     staticurl: staticurl,
+                                                     useParentPrefix: false});
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {
@@ -200,7 +212,6 @@
                 $selected.each(function(i, w){
                     var wellId = w.id.split('-')[1];
                     var label = $(w).children('.wellLabel').text();
-                    console.log(wellId, label);
                     // create placeholders for each Well
                     $('#wellImages').append("<div id='wellImages-" + wellId + "'><h1>" + label + "</h1></div>");
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
@@ -227,11 +238,13 @@
             border-top: solid #ddd 1px;
         }
         .wellImages img {
-            max-width: 50px;
             margin: 2px;
         }
         .wellImages h1 {
             float: left;
+        }
+        #wellImages>div {
+            clear: both;
         }
     </style>
     
@@ -260,7 +273,7 @@
     <div class='fillSpace' style='top: 0; bottom: 0'>
         <div id="spw"></div>
     </div>
-
+    <!-- Slider -->
     <div style="position: absolute; right: 10px; bottom: 10px; width: 200px; height: 25px">
         <div id="thumb_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
     </div>
@@ -268,6 +281,12 @@
 <div id="wellImagesDragHandle" class='fillSpace' style="bottom: 100px; overflow: visible">
     <div class="verticalDragHandle"></div>
 </div>
-<div id="wellImages" class="wellImages fillSpace" style="bottom: 0px; height: 100px">
-    WELL
+<div id="wellImagesContainer" class="wellImages fillSpace" style="bottom: 0px; height: 100px">
+    <!-- Scrollable container for wellImages -->
+    <div id="wellImages" class='fillSpace' style='top: 0; bottom: 0'>
+    </div>
+    <!-- Slider -->
+    <div style="position: absolute; right: 10px; bottom: 10px; width: 200px; height: 25px">
+        <div id="wellImages_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+    </div>
 </div>   

@@ -79,7 +79,7 @@
   (
    function () {
      if (!this.WeblitzPlateview)
-	 this.WeblitzPlateview = new jQuery._WeblitzPlateview (this, options);
+   this.WeblitzPlateview = new jQuery._WeblitzPlateview (this, options);
    });
 };
 
@@ -100,6 +100,7 @@ jQuery.WeblitzPlateview = function (elm, options) {
 jQuery._WeblitzPlateview = function (container, options) {
   var opts = jQuery.extend({
       baseurl: '',
+      staticurl: '/static/webgateway/',
       width: 64,
       height: 48,
       size: 96,
@@ -113,6 +114,7 @@ jQuery._WeblitzPlateview = function (container, options) {
   this.self.html("");
   var _this = this;
   var thisid = this.self.attr('id');
+  var spacer_gif_src = opts.staticurl + 'img/spacer.gif';
 
   var _reset = function (result, data) {
     _this.self.html("");
@@ -144,12 +146,12 @@ jQuery._WeblitzPlateview = function (container, options) {
               parentPrefix = thisid+'-';
           }
           var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
-            '<div class="waiting" style="width:'+opts.width+'px;height:'+opts.height+'px;"></div>' +
+            '<img class="waiting" src="/static/webgateway/img/spacer.gif" />' +
             '<div class="wellLabel">' + data.rowlabels[i] + data.collabels[j] + '</div>' +
             '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
           $('img', td)
             .click(tclick(data.grid[i][j]))
-            .load(function() { 
+            .load(function() {
               $(this).removeClass('loading').siblings('.waiting').remove();
               _this.self.trigger('thumbLoad', [$(this).parent(), $(this)]);
             })
