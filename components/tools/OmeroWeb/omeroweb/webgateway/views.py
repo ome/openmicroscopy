@@ -2646,7 +2646,8 @@ class LoginView(View):
         """ Simply return a message to say GET not supported """
         return JsonResponse({"message":
                             ("POST only with username, password, "
-                             "server and csrftoken")})
+                             "server and csrftoken")},
+                            status=405)
 
     def handle_logged_in(self, request, conn, connector):
         """ Returns a response for successful login """
@@ -2830,8 +2831,10 @@ class SaveView(View):
 
     def get(self, request, *args, **kwargs):
         """ Return a placeholder error message since GET is not supported """
-        return {"message":
-                "POST or PUT only with object json encoded in content body"}
+        return JsonResponse({"message":
+                            ("POST or PUT only with object json encoded "
+                             "in content body")},
+                            status=405)
 
     def put(self, request, conn=None, **kwargs):
         """
