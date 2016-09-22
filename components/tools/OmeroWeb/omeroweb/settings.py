@@ -1143,7 +1143,7 @@ FEEDBACK_APP = 6
 # For any given release of api, we may support
 # one or more versions of the api.
 # E.g. /api/v1.0/
-API_VERSIONS = ['0.1']
+API_VERSIONS = ('0.1',)
 
 # IGNORABLE_404_STARTS:
 # Default: ('/cgi-bin/', '/_vti_bin', '/_vti_inf')
