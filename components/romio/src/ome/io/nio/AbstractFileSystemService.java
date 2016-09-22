@@ -122,8 +122,6 @@ public class AbstractFileSystemService {
                 }
             }
         }
-        
-        String path = FilenameUtils.concat(root, prefix + suffix + id);
-        return path;
+        return FilenameUtils.concat(root, prefix + suffix + id);
     }
 }
