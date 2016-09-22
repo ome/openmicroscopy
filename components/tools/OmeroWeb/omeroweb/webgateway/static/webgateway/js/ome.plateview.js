@@ -127,12 +127,14 @@ jQuery._WeblitzPlateview = function (container, options) {
         _this.self.trigger('thumbClick', [tdata, this]);
       };
     };
+    // Initiall wellsize. NB: don't add other classes here - will get removed on slider change.
+    table.addClass('wellSize' + opts.width);
     for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
       for (var j=0; j<data.grid[i].length; j++) {
         if (data.grid[i][j] === null) {
-        tr.append('<td class="placeholder"><div class="placeholder" style="width:'+opts.width+'px;height:'+opts.height+'px;line-height:'+opts.height+'px;">&nbsp;</div></td>');
+        tr.append('<td class="placeholder"><div class="placeholder" style="line-height:'+opts.height+'px;">&nbsp;</div></td>');
         } else {
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';
@@ -142,7 +144,7 @@ jQuery._WeblitzPlateview = function (container, options) {
           var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
             '<div class="waiting" style="width:'+opts.width+'px;height:'+opts.height+'px;"></div>' +
             '<div class="wellLabel">' + data.rowlabels[i] + data.collabels[j] + '</div>' +
-            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" style="width:'+opts.width+'px;height:'+opts.height+'px;" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
+            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
           $('img', td)
             .click(tclick(data.grid[i][j]))
             .load(function() { 

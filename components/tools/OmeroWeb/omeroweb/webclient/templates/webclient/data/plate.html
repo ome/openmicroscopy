@@ -112,6 +112,16 @@
                 $("#spwContainer").css('bottom', newH + 'px');
             });
 
+            // Resize SPW thumbnails
+            $("#thumb_size_slider").slider({
+                max: 130,
+                min: 30,
+                value: 64,
+                slide: function(event, ui) {
+                    $("#spw>table").prop('class', 'wellSize' + ui.value);
+                }
+            });
+
             var syncTreeSelection = function(selected, idx, perms) {
                 // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
                 var datatree = $.jstree.reference('#dataTree');
@@ -123,7 +133,7 @@
                 OME.well_selection_changed(selected, idx, perms);
             };
 
-            wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
+            var wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}', useParentPrefix: false});
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {
@@ -172,7 +182,7 @@
             wpv.load({{ manager.getPlateId }}, {{ index }});
 
 
-            var imagesInWellVisible = false;
+            var imagesInWellVisible = true;
             $("#showWellImages").click(function(){
                 imagesInWellVisible = !imagesInWellVisible;
                 showImagesInWell();
@@ -184,15 +194,7 @@
                     return;
                 }
                 var $selected = $('td.ui-selected', wpv.self);
-                // var wellIds = $selected.map(function(i, w){
-                //     return w.id.split('-')[1];
-                // });
-                // var wellLabels = $selected.map(function(i, w){
-                //     return $(w).children('.wellLabel').text();
-                // });
-
                 $('#wellImages').empty();
-                // [].forEach.call(wellIds, function(wellId, i) {
                 $selected.each(function(i, w){
                     var wellId = w.id.split('-')[1];
                     var label = $(w).children('.wellLabel').text();
@@ -243,7 +245,7 @@
         </table>
         </form>
         <div id="toolbar" class="toolbar_noborder">
-            <button style="margin: -4px 8px;" id="showWellImages">Show Images in Well</button>
+            <button style="margin: -4px 8px;" id="showWellImages">Hide Images in Well</button>
         </div>
     </div>
 </div>
@@ -251,6 +253,7 @@
 
     <div id="spw"></div>
 
+    <div id="thumb_size_slider" title="Zoom Plate"></div>
 </div>
 <div id="wellImagesDragHandle" style="bottom: 100px; overflow: visible">
     <div class="verticalDragHandle"></div>
