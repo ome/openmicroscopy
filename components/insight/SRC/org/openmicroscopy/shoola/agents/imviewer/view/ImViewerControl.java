@@ -1206,7 +1206,7 @@ class ImViewerControl
             model.resetLookupTable(index);
             model.setChannelColor(index, null, true);
         } else {
-            if (newLut != null && !ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
+            if (!ColourPickerUtil.sameLookuptable(newLut, oldLut)) {
                 model.setLookupTable(index, newLut, preview);
             } else if (newColor != null && !ColourPickerUtil.sameColor(newColor, oldColor)) {
                 model.setLookupTable(index, null, preview);
