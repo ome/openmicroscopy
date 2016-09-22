@@ -127,14 +127,16 @@ jQuery._WeblitzPlateview = function (container, options) {
         _this.self.trigger('thumbClick', [tdata, this]);
       };
     };
-    // Initiall wellsize. NB: don't add other classes here - will get removed on slider change.
-    table.addClass('wellSize' + opts.width);
+    // Classes added to table by thumb slider to control well size and hover wellLabel
+    // NB: don't add other classes here - will get removed on slider change.
+    table.addClass('showWellLabel wellSize' + opts.width);
+
     for (i=0; i < data.rowlabels.length; i++) {
       tr = $('<tr></tr>').appendTo(table);
       tr.append('<th>'+data.rowlabels[i]+'</th>');
       for (var j=0; j<data.grid[i].length; j++) {
         if (data.grid[i][j] === null) {
-        tr.append('<td class="placeholder"><div class="placeholder" style="line-height:'+opts.height+'px;">&nbsp;</div></td>');
+        tr.append('<td class="placeholder"><img src="' + '' + '/static/webgateway/img/spacer.gif" /></td>');
         } else {
           data.grid[i][j]._wellpos = data.rowlabels[i]+data.collabels[j];
           var parentPrefix = '';

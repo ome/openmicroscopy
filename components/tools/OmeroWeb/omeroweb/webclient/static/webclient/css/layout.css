@@ -1436,15 +1436,16 @@
 				
             }
 
-    #thumb_size_slider {
+    .thumb_size_slider {
         border: 1px solid #aaa;
         height: 6px;
-        right: 95px;
-        position: absolute;
-        top: 11px;
+        right: 25px;
+        position: absolute !important;
+        bottom: 8px;
         width: 120px;
+        background: #eee;
     }
-    #thumb_size_slider .ui-slider-handle {
+    .thumb_size_slider .ui-slider-handle {
         background: #727C86;
         border-radius: 3px;
     }
@@ -2161,7 +2162,6 @@ div.paging input.button_pagination {
 #spw table td {
     padding: 1px;
     border: 1px solid #ccc;
-    width: 25px;
 }
 #spw table td.well {
     background: #eee;
@@ -2173,14 +2173,14 @@ div.paging input.button_pagination {
 #spw table td.ui-selecting { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 #spw table td.ui-selected { border: 1px dashed #555; padding: 1px; background-color:#87ABD2;}
 
-#spw .well .wellLabel {
+.wellLabel {
     display: none;
     position: absolute;
     background: #eee;
     padding: 2px;
     color: black;
 }
-#spw .well:hover .wellLabel {
+.showWellLabel .well:hover .wellLabel {
     display: block;
 }
 

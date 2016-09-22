@@ -115,10 +115,12 @@
             // Resize SPW thumbnails
             $("#thumb_size_slider").slider({
                 max: 130,
-                min: 30,
+                min: 10,
                 value: 64,
                 slide: function(event, ui) {
-                    $("#spw>table").prop('class', 'wellSize' + ui.value);
+                    var cls = ui.value > 30 ? 'showWellLabel ' : ''
+                    cls += 'wellSize' + ui.value;
+                    $("#spw>table").prop('class', cls);
                 }
             });
 
@@ -215,7 +217,7 @@
     </script>
 
     <style type="text/css">
-        #content_details>div {
+        #content_details .fillSpace {
             position: absolute;
             left: 0px;
             right: 0px;
@@ -228,11 +230,14 @@
             max-width: 50px;
             margin: 2px;
         }
+        .wellImages h1 {
+            float: left;
+        }
     </style>
     
     <!--content-->
 <!-- We add/remove class .showWellImages to #content_details expose #wellImages panel -->
-<div style="top: 0px; height: 29px">
+<div class='fillSpace' style="top: 0px; height: 29px">
     <div id="fields">
         <form action="" method="POST" class="align_left">
         <table>
@@ -249,15 +254,20 @@
         </div>
     </div>
 </div>
-<div id="spwContainer" style="top: 29px; bottom: 100px">
+<div id="spwContainer" class='fillSpace' style="top: 29px; bottom: 100px">
 
-    <div id="spw"></div>
+    <!-- Scrollable container for spw -->
+    <div class='fillSpace' style='top: 0; bottom: 0'>
+        <div id="spw"></div>
+    </div>
 
-    <div id="thumb_size_slider" title="Zoom Plate"></div>
+    <div style="position: absolute; right: 10px; bottom: 10px; width: 200px; height: 25px">
+        <div id="thumb_size_slider" class="thumb_size_slider" title="Zoom Plate"></div>
+    </div>
 </div>
-<div id="wellImagesDragHandle" style="bottom: 100px; overflow: visible">
+<div id="wellImagesDragHandle" class='fillSpace' style="bottom: 100px; overflow: visible">
     <div class="verticalDragHandle"></div>
 </div>
-<div id="wellImages" class="wellImages" style="bottom: 0px; height: 100px">
+<div id="wellImages" class="wellImages fillSpace" style="bottom: 0px; height: 100px">
     WELL
 </div>   
