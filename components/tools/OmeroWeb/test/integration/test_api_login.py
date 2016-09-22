@@ -172,7 +172,7 @@ class TestLogin(IWebTest):
         # eventContext gives a bunch of info
         member_of_groups = event_context['memberOfGroups']
         current_group = event_context['groupId']
-        user_id = event_context['user_id']
+        user_id = event_context['userId']
         assert len(member_of_groups) == 2      # includes 'user' group
         assert current_group in member_of_groups
         assert user_id > 0
