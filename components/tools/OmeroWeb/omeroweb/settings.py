@@ -1143,6 +1143,7 @@ FEEDBACK_APP = 6
 # For any given release of api, we may support
 # one or more versions of the api.
 # E.g. /api/v1.0/
+# TODO - need to decide how this is configured, strategy for extending etc.
 API_VERSIONS = ('0.1',)
 
 # IGNORABLE_404_STARTS:
