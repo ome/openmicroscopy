@@ -49,12 +49,12 @@ public class AbstractFileSystemService {
     }
 
     /**
-     * Makes sure that for a given path, it's subpath exists. For example, given
+     * Makes sure that for a given path, its subpath exists. For example, given
      * the path "/foo/bar/foobar.txt" the method will make sure the directory
      * structure "/foo/bar" exists.
      *
      * @param path
-     *            the path to check for subpath existance.
+     *            the path to check for subpath existence.
      */
     protected void createSubpath(String path) {
         File file = new File(path);
