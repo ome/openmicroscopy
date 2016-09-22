@@ -558,7 +558,9 @@ class render_response(object):
             # allows us to return the dict as json  (NB: BlitzGateway objects
             # don't serialize)
             if template is None or template == 'json':
-                return JsonResponse(context)
+                # We still need to support non-dict data:
+                safe = type(context) is dict
+                return JsonResponse(context, safe=safe)
             else:
                 # allow additional processing of context dict
                 ctx.prepare_context(request, context, *args, **kwargs)
