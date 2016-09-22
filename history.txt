@@ -12,9 +12,10 @@ Improvements include:
 -  added a DB upgrade patch to fix errors only affecting DBs that have been
    upgraded from OMERO 4.4
 -  fixed a MATLAB regression introduced in 5.2.2
+-  fixed error in logs on getProjectedThumbnail
 
-Apache has also been deprecated in preparation for removing support in OMERO
-5.3.
+Support for OMERO.web deployment using Apache has also been deprecated and is
+likely to be removed during the 5.3.x line.
 
 5.2.5 (August 2016)
 -------------------
