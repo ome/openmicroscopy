@@ -135,6 +135,15 @@
                 }
             });
 
+            // Handle click on Wellsample Images
+            $( '#wellImages' ).on( "click", "img", function(event) {
+                var iid = $(this).attr('data-imageId');
+                var selected_objs = [{'id': 'image-' + iid}];
+                $("body")
+                    .data("selected_objects.ome", selected_objs)
+                    .trigger("selection_change.ome");
+            });
+
             var syncTreeSelection = function(selected, idx, perms) {
                 // De-select 'Run' from tree, silent 'true' so we don't trigger clear of centre panel
                 var datatree = $.jstree.reference('#dataTree');
@@ -219,7 +228,7 @@
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     $.getJSON(url, function(data){
                         var html = data.reduce(function(html, w){
-                            return html + '<img src="' + w.thumb_url + '" />';
+                            return html + '<img data-imageId="' + w.id + '" src="' + w.thumb_url + '" />';
                         }, "<div>");
                         $('#wellImages-' + wellId).append(html);
                     });
