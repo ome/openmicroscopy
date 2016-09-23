@@ -1080,7 +1080,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
-      ch += channels[i].reverseIntensity ? 'r' : '';
+      ch += channels[i].reverseIntensity ? 'r' : '-r';
       ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
     }
@@ -1150,7 +1150,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
         }
         if (t.length > 1) {
           t = t[1].split('$');
-          this.setChannelReverseIntensity(idx, t[0].endsWith('r'), true);
+          if (t[0].endsWith('-r')) {
+            this.setChannelReverseIntensity(idx, false, true);
+          } else if (t[0].endsWith('r')) {
+            this.setChannelReverseIntensity(idx, true, true);
+          }
           t[0] = t[0].replace('r', '');  // remove 'r' if present
           var range = t[0].split(':');
           if (range.length == 2) {
