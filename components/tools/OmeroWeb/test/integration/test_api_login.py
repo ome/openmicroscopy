@@ -78,7 +78,8 @@ class TestLogin(IWebTest):
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
         request_url = reverse('api_login', kwargs={'api_version': version})
-        rsp = _get_response_json(django_client, request_url, {})
+        rsp = _get_response_json(django_client, request_url, {},
+                                 status_code=405)
         assert (rsp['message'] ==
                 "POST only with username, password, server and csrftoken")
 
