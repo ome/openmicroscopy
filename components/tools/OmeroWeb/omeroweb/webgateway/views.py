@@ -18,10 +18,8 @@ import json
 import omero
 import omero.clients
 
-from Ice import Exception as IceException
 from django.http import HttpResponse, HttpResponseServerError, JsonResponse
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
-from django.http import HttpResponseBadRequest
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
 from django.views.generic import View
@@ -52,7 +50,7 @@ except:
 from cStringIO import StringIO
 import tempfile
 
-from omero import ApiUsageException, ServerError, ValidationException
+from omero import ApiUsageException, ValidationException
 from omero.util.decorators import timeit, TimeIt
 from omeroweb.connector import Server
 from omeroweb.http import HttpJavascriptResponse, \
