@@ -2849,9 +2849,8 @@ class ImViewerComponent
 	 */
 	public void setSettingsToPaste(RndProxyDef rndProxyDef)
 	{
-		if (model.getState() != PASTING)
-			throw new IllegalArgumentException("This method should be " +
-					"invoked in the PASTING state.");
+		if (!model.checkRendSettingsId(rndProxyDef)) 
+		    return;
 		try {
 			model.resetMappingSettings(rndProxyDef);
 			view.resetDefaults();

@@ -982,7 +982,15 @@ class RendererComponent
 			handleException(e);
 		}
 	}
-
+	
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#checkRendSettingsId(RndProxyDef)
+     */
+    public boolean checkRendSettingsId(RndProxyDef settings) {
+        return getRndSettingsCopy().getDataID() == settings.getDataID();
+    }
+    
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#saveCurrentSettings(boolean)
