@@ -118,7 +118,9 @@
                 min: 10,
                 value: 64,
                 slide: function(event, ui) {
-                    var cls = ui.value > 30 ? 'showWellLabel ' : ''
+                    // Since we don't want to remove previous class (don't know it),
+                    // just set new class
+                    var cls = ui.value < 30 ? 'wellLabelOffset ' : '';   // if well is small, offset the hover label
                     cls += 'wellSize' + ui.value;
                     $("#spw>table").prop('class', cls);
                 }

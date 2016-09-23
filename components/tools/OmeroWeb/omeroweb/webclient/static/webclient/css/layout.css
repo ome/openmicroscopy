@@ -2162,6 +2162,7 @@ div.paging input.button_pagination {
 #spw table td {
     padding: 1px;
     border: 1px solid #ccc;
+    position: relative;
 }
 #spw table td.well {
     background: #eee;
@@ -2179,8 +2180,18 @@ div.paging input.button_pagination {
     background: #eee;
     padding: 2px;
     color: black;
+    top: 0;
+    left: 0;
+    bottom: auto;
+    right: auto;
 }
-.showWellLabel .well:hover .wellLabel {
+.wellLabelOffset .wellLabel {
+    top: auto;
+    left: auto;
+    bottom: 100%;
+    right: 100%;
+}
+.well:hover .wellLabel {
     display: block;
 }
 
