@@ -2574,9 +2574,24 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
 
 
 def build_url(request, name, api_version, **kwargs):
+    """
+    Helper for generating urls within /api json responses
+    By default we use request.build_absolute_uri() but this
+    can be configured by setting "omero.web.api.absolute_url"
+    to a string or empty string, used to prefix relative urls.
+    Extra **kwargs are passed to reverse() function.
+
+    @param name:            Name of the url
+    @param api_version      Version string
+    """
     kwargs['api_version'] = api_version
-    return request.build_absolute_uri(
-        reverse(name, kwargs=kwargs))
+    url = reverse(name, kwargs=kwargs)
+    if settings.API_ABSOLUTE_URL is None:
+        return request.build_absolute_uri(url)
+    else:
+        # remove trailing slash
+        prefix = settings.API_ABSOLUTE_URL.rstrip('/')
+        return "%s%s" % (prefix, url)
 
 
 @json_response
