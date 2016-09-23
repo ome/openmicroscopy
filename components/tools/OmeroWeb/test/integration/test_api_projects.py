@@ -550,7 +550,7 @@ class TestProjects(IWebTest):
         payload = {'Name': 'updated name',
                    '@id': project.id.val}
         # Test error message if we don't pass @type:
-        rsp = _csrf_put_json(django_client, save_url, payload)
+        rsp = _csrf_put_json(django_client, save_url, payload, status_code=400)
         assert rsp['message'] == 'Need to specify @type attribute'
         # Add @type and try again
         payload['@type'] = project_json['@type']

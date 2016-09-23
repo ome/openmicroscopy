@@ -76,6 +76,7 @@ from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.webgateway.decorators import login_required as api_login_required
 from omeroweb.connector import Connector
 from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
+from omeroweb.webgateway.api_exceptions import BadRequestError
 
 cache = CacheBase()
 logger = logging.getLogger(__name__)
@@ -1231,15 +1232,19 @@ def json_response(f):
             # But we try to handle all 'expected' errors appropriately
             # TODO: handle omero.ConcurrencyException
             status = 500
-            if isinstance(ex, omero.SecurityViolation):
+            trace = traceback.format_exc()
+            if isinstance(ex, BadRequestError):
+                status = 400
+                trace = ex.stacktrace   # Might be None
+            elif isinstance(ex, omero.SecurityViolation):
                 status = 403
             elif isinstance(ex, omero.ApiUsageException):
                 status = 400
-            trace = traceback.format_exc()
             logger.debug(trace)
-            return JsonResponse(
-                {"message": str(ex), "stacktrace": trace},
-                status=status)
+            rsp_json = {"message": str(ex)}
+            if trace is not None:
+                rsp_json["stacktrace"] = trace
+            return JsonResponse(rsp_json, status=status)
     wrap.func_name = f.func_name
     return wrap
 
@@ -2810,24 +2815,16 @@ class ProjectsView(View):
             childCount = request.GET.get('childCount', False) == 'true'
             normalize = request.GET.get('normalize', False) == 'true'
         except ValueError as ex:
-            return HttpResponseBadRequest(str(ex))
+            raise BadRequestError(str(ex))
 
-        try:
-            # Get the projects
-            projects = query_projects(conn,
-                                      group=group,
-                                      owner=owner,
-                                      childCount=childCount,
-                                      page=page,
-                                      limit=limit,
-                                      normalize=normalize)
-
-        except ApiUsageException as e:
-            return HttpResponseBadRequest(e.serverStackTrace)
-        except ServerError as e:
-            return HttpResponseServerError(e.serverStackTrace)
-        except IceException as e:
-            return HttpResponseServerError(e.message)
+        # Get the projects
+        projects = query_projects(conn,
+                                  group=group,
+                                  owner=owner,
+                                  childCount=childCount,
+                                  page=page,
+                                  limit=limit,
+                                  normalize=normalize)
 
         return projects
 
@@ -2858,8 +2855,8 @@ class SaveView(View):
         """
         object_json = json.loads(request.body)
         if '@id' not in object_json:
-            return {'message':
-                    "No '@id' attribute. Use POST to create new objects"}
+            raise BadRequestError(
+                "No '@id' attribute. Use POST to create new objects")
         return self._save_object(request, conn, object_json, **kwargs)
 
     def post(self, request, conn=None, **kwargs):
@@ -2869,11 +2866,9 @@ class SaveView(View):
         """
         object_json = json.loads(request.body)
         if '@id' in object_json:
-            return {'message':
-                    "Object has '@id' attribute. Use PUT to update objects"}
+            raise BadRequestError(
+                "Object has '@id' attribute. Use PUT to update objects")
         rsp = self._save_object(request, conn, object_json, **kwargs)
-        if isinstance(rsp, HttpResponse):
-            return rsp
         # If no error thrown, return 201 ('Created')
         return JsonResponse(rsp, status=201)
 
@@ -2885,23 +2880,19 @@ class SaveView(View):
         group = getIntOrDefault(request, 'group', None)
         decoder = None
         if '@type' not in object_json:
-            return {'message': 'Need to specify @type attribute'}
+            raise BadRequestError('Need to specify @type attribute')
         objType = object_json['@type']
         decoder = get_decoder(objType)
         # If we are passed incomplete object, or decoder couldn't be found...
         if decoder is None:
-            return JsonResponse(
-                {'message': 'No decoder found for type: %s' % objType},
-                status=400)
+            raise BadRequestError('No decoder found for type: %s' % objType)
 
         # Any marshal errors most likely due to invalid input. status=400
         try:
             obj = decoder.decode(object_json)
         except Exception:
-            return JsonResponse(
-                {'message': 'Error in decode of json data by omero_marshal',
-                 'stacktrace': traceback.format_exc()},
-                status=400)
+            msg = 'Error in decode of json data by omero_marshal'
+            raise BadRequestError(msg, traceback.format_exc())
 
         if group is None:
             try:
@@ -2911,7 +2902,7 @@ class SaveView(View):
                 # Instead of default stack trace, give nicer message:
                 msg = ("Specify Group in omero:details or "
                        "query parameters ?group=:id")
-                return JsonResponse({'message': msg}, status=400)
+                raise BadRequestError(msg)
 
         # If owner was unloaded (E.g. from get() above) or if missing
         # ome.model.meta.Experimenter.ldap (not supported by omero_marshal)

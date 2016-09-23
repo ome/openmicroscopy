@@ -69,6 +69,42 @@ class TestErrors(IWebTest):
         self.add_groups(user[1], [group_B])
         return user
 
+    def test_save_post_no_id(self):
+        """ If POST to /save/ data shouldn't contain @id """
+        django_client = self.django_root_client
+        version = settings.API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        payload = {'Name': 'test_save_post_no_id',
+                   '@id': 1}
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=400)
+        assert (rsp['message'] ==
+                "Object has '@id' attribute. Use PUT to update objects")
+
+    def test_save_put_id(self):
+        """ If PUT to /save/ to update, data must contain @id """
+        django_client = self.django_root_client
+        version = settings.API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        payload = {'Name': 'test_save_put_id'}
+        rsp = _csrf_put_json(django_client, save_url, payload,
+                             status_code=400)
+        assert (rsp['message'] ==
+                "No '@id' attribute. Use POST to create new objects")
+
+    def test_marshal_type(self):
+        """ If no decoder found for @type, get suitable message"""
+        django_client = self.django_root_client
+        version = settings.API_VERSIONS[-1]
+        save_url = reverse('api_save', kwargs={'api_version': version})
+        objType = 'SomeInvalid#Type'
+        payload = {'Name': 'test_marshal_type',
+                   '@type': objType}
+        rsp = _csrf_post_json(django_client, save_url, payload,
+                              status_code=400)
+        assert (rsp['message'] ==
+                'No decoder found for type: %s' % objType)
+
     def test_marshal_validation(self):
         django_client = self.django_root_client
         version = settings.API_VERSIONS[-1]
