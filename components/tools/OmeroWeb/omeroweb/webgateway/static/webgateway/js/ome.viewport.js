@@ -1155,7 +1155,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
           } else if (t[0].endsWith('r')) {
             this.setChannelReverseIntensity(idx, true, true);
           }
-          t[0] = t[0].replace('r', '');  // remove 'r' if present
+          t[0] = t[0].replace('-r', '').replace('r', '');  // remove 'r' if present
           var range = t[0].split(':');
           if (range.length == 2) {
             this.setChannelWindow(idx, parseFloat(range[0], 10), parseFloat(range[1], 10), true);
