@@ -2149,6 +2149,12 @@ insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'Other';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'Unknown';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'BrightField';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'SweptFieldConfocal';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'SPIM';
 insert into arctype (id,permissions,value)
     select ome_nextval('seq_arctype'),-52,'Hg';
 insert into arctype (id,permissions,value)
