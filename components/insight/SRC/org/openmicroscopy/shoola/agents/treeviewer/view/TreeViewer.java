@@ -802,7 +802,7 @@ public interface TreeViewer
 	 * @param node The node holding the time information.
 	 * @param set  The elements to add.
 	 */
-	public void browseTimeInterval(TreeImageTimeSet node, Set set);
+	public void browseTimeInterval(TreeImageTimeSet node, Collection set);
 
 	/**
 	 * Sets the wells linked to the specified plates.
@@ -811,7 +811,7 @@ public interface TreeViewer
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 */
-	public void setPlates(Map<TreeImageSet, Set> plates, boolean withThumbnails);
+	public void setPlates(Map<TreeImageSet, Collection> plates, boolean withThumbnails);
 
 	/**
 	 * Browses the passed node.

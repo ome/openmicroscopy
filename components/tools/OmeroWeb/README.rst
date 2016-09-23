@@ -11,10 +11,11 @@ Dependencies
 
 Direct dependencies of OMERO.web are:
 
-- `OMERO`_
-- `PIL`_
-- `Matplotlib`_
-- A FastCGI capable web server
+- `OMERO.py`_
+- `ZeroC IcePy`_
+- `Pillow`_
+- `NumPy`_
+- A WSGI capable web server
 
 Installation
 ------------
@@ -65,10 +66,11 @@ OMERO.web is released under the AGPL.
 Copyright
 ---------
 
-2009-2014, The Open Microscopy Environment, Glencoe Software, Inc.
+2009-2016, The Open Microscopy Environment, Glencoe Software, Inc.
 
-.. _OMERO: http://openmicroscopy.org/
-.. _PIL: http://www.pythonware.com/products/pil/
-.. _Matplotlib: http://matplotlib.org/
+.. _OMERO.py: https://openmicroscopy.org/
+.. _ZeroC IcePy: https://zeroc.com/
+.. _Pillow: https://python-pillow.org/
+.. _NumPy: http://matplotlib.org/
 .. _Running and writing tests: http://www.openmicroscopy.org/site/support/omero5.2/developers/testing.html
 

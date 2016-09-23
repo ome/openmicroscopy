@@ -3233,9 +3233,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#browseTimeInterval(TreeImageTimeSet, Set)
+	 * @see TreeViewer#browseTimeInterval(TreeImageTimeSet, Collection)
 	 */
-	public void browseTimeInterval(TreeImageTimeSet parent, Set leaves)
+	public void browseTimeInterval(TreeImageTimeSet parent, Collection leaves)
 	{
 		if (leaves == null) return;
 		
@@ -3268,7 +3268,7 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setPlates(Map, boolean)
 	 */
-	public void setPlates(Map<TreeImageSet, Set> plates, boolean withThumbnails)
+	public void setPlates(Map<TreeImageSet, Collection> plates, boolean withThumbnails)
 	{
 		if (plates == null || plates.size() == 0) {
 			return;
@@ -3305,7 +3305,7 @@ class TreeViewerComponent
 				
 				db = DataBrowserFactory.getWellsDataBrowser(
 						model.getSecurityContext(parent), m, parentObject, 
-						(Set) entry.getValue(), withThumbnails);
+						(Collection) entry.getValue(), withThumbnails);
 			}
 		}
 		if (db != null) {

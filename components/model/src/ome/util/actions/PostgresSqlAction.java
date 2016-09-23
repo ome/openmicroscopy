@@ -128,9 +128,11 @@ public class PostgresSqlAction extends SqlAction.Impl {
     }
 
     // Copied from data.vm
+    @Deprecated  // use ome.services.util.EnsureEnum
     public final static String insertFormatSql = PsqlStrings
             .getString("sql_action.insert_format"); //$NON-NLS-1$
 
+    @Deprecated  // use ome.services.util.EnsureEnum
     public int insertFormat(String name) {
         return _jdbc().update(insertFormatSql, name);
     }
