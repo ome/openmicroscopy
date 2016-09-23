@@ -3358,12 +3358,6 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.slice = omero.romio.XY.value;
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         List<ChannelBinding> channels = def.copyWaveRendering();
-        IScriptPrx svc = factory.getScriptService();
-        List<OriginalFile> scripts = svc.getScriptsByMimetype(
-                ScriptServiceTest.LUT_MIMETYPE);
-        Assert.assertNotNull(scripts);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
-        
         RenderingModel model = re.getModel();
         List<IObject> models = factory.getPixelsService().getAllEnumerations(
                 RenderingModel.class
