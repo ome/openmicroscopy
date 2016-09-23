@@ -3305,13 +3305,6 @@ public class RenderingEngineTest extends AbstractServerTest {
         pDef.slice = omero.romio.XY.value;
         RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
         List<ChannelBinding> channels = def.copyWaveRendering();
-        int end = re.getQuantumDef().getCdEnd().getValue();
-        IScriptPrx svc = factory.getScriptService();
-        List<OriginalFile> scripts = svc.getScriptsByMimetype(
-                ScriptServiceTest.LUT_MIMETYPE);
-        Assert.assertNotNull(scripts);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(scripts));
-        OriginalFile of = scripts.get(0);
         RenderingModel model = re.getModel();
         List<IObject> models = factory.getPixelsService().getAllEnumerations(
                 RenderingModel.class
@@ -3325,7 +3318,7 @@ public class RenderingEngineTest extends AbstractServerTest {
                 re.setModel(m);
         }
         for (int k = 0; k < channels.size(); k++) {
-            re.setChannelLookupTable(k, of.getName().getValue());
+            re.setChannelLookupTable(k, "3-3-2_rgb.lut");
             byte[] before = re.renderCompressed(pDef);
             re.addCodomainMapToChannel(new omero.romio.ReverseIntensityMapContext(), k);
             byte[] after = re.renderCompressed(pDef);
