@@ -37,7 +37,7 @@ def refreshConfig():
         ru = bg.c.ic.getProperties().getProperty('omero.rootuser')
         rp = bg.c.ic.getProperties().getProperty('omero.rootpass')
     finally:
-        bg.seppuku()
+        bg.close()
 
     if ru:
         ROOT.name = ru
@@ -230,7 +230,7 @@ class UserEntry (object):
         finally:
             # Always clean up the results of login
             if admin_gateway:
-                admin_gateway.seppuku()
+                admin_gateway.close()
 
     @staticmethod
     def setGroupForSession(client, groupname, groupperms=None):
@@ -297,7 +297,7 @@ class ProjectEntry (ObjectEntry):
             try:
                 UserEntry.addGroupToUser(s, groupname, self.group_perms)
             finally:
-                s.seppuku()
+                s.close()
 
             UserEntry.setGroupForSession(client, groupname, self.group_perms)
         p = omero.gateway.ProjectWrapper(
@@ -477,7 +477,8 @@ class ImageEntry (ObjectEntry):
                 self.callback(img)
             return img
         finally:
-            newconn.seppuku()  # Always cleanup the return from clone/connect
+            # Always cleanup the return from clone/connect
+            newconn.close()
 
     def _createWithoutPixels(self, client, dataset):
         img = omero.model.ImageI()
@@ -512,7 +513,7 @@ def getImage(client, alias, forceds=None, autocreate=False):
     rv = IMAGES[alias].get(client, forceds)
     if rv is None and autocreate:
         i = IMAGES[alias].create()
-        i._conn.seppuku()
+        i._conn.close()
         rv = IMAGES[alias].get(client, forceds)
     return rv
 
@@ -529,17 +530,17 @@ def bootstrap(onlyUsers=False, skipImages=True):
             return
         for k, p in PROJECTS.items():
             p = p.create()
-            p._conn.seppuku()
+            p._conn.close()
             # print p.get(client).getDetails().getPermissions().isUserWrite()
         for k, d in DATASETS.items():
             d = d.create()
-            d._conn.seppuku()
+            d._conn.close()
         if not skipImages:
             for k, i in IMAGES.items():
                 i = i.create()
-                i._conn.seppuku()
+                i._conn.close()
     finally:
-        client.seppuku()
+        client.close()
 
 
 def cleanup():
@@ -554,11 +555,11 @@ def cleanup():
                 client._waitOnCmd(handle)
             finally:
                 handle.close()
-    client.seppuku()
+    client.close()
     client = loginAsRoot()
     for k, u in USERS.items():
         u.changePassword(client, None, ROOT.passwd)
-    client.seppuku()
+    client.close()
 
 ROOT = UserEntry('root', 'ome', admin=True)
 
