@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__10.
+--- OMERO5 development release upgrade from OMERO5.2__0 to OMERO5.3DEV__11.
 ---
 
 BEGIN;
@@ -95,7 +95,7 @@ DROP FUNCTION db_pretty_version(INTEGER);
 --
 
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
-             VALUES ('OMERO5.3DEV',  10,            'OMERO5.2',      0);
+             VALUES ('OMERO5.3DEV',  11,           'OMERO5.2',      0);
 
 -- ... up to patch 0:
 
@@ -1903,7 +1903,7 @@ CREATE OR REPLACE FUNCTION codomainmapcontext_channelBinding_index_move() RETURN
        LIMIT 1;
 
       IF duplicate IS NOT NULL THEN
-          RAISE NOTICE ''Remapping codomainmapcontext %% via (-1 - oldvalue )'', duplicate;
+          RAISE NOTICE ''Remapping codomainmapcontext % via (-1 - oldvalue )'', duplicate;
           UPDATE codomainmapcontext SET channelBinding_index = -1 - channelBinding_index WHERE id = duplicate;
       END IF;
 
@@ -1916,16 +1916,73 @@ CREATE TRIGGER codomainmapcontext_channelBinding_index_trigger
 
 CREATE INDEX i_CodomainMapContext_channelBinding ON codomainmapcontext(channelBinding);
 
+-- ... up to patch 11:
+
+CREATE OR REPLACE FUNCTION filesetentry_fileset_index_move() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.fileset = old.fileset AND new.fileset_index = old.fileset_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM filesetentry
+       WHERE fileset = new.fileset AND fileset_index = new.fileset_index
+      OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping filesetentry % via (-1 - oldvalue )', duplicate;
+          UPDATE filesetentry SET fileset_index = -1 - fileset_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+CREATE OR REPLACE FUNCTION filesetjoblink_parent_index_move() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      duplicate INT8;
+    BEGIN
+
+      -- Avoids a query if the new and old values of x are the same.
+      IF new.parent = old.parent AND new.parent_index = old.parent_index THEN
+          RETURN new;
+      END IF;
+
+      -- At most, there should be one duplicate
+      SELECT id INTO duplicate
+        FROM filesetjoblink
+       WHERE parent = new.parent AND parent_index = new.parent_index
+       OFFSET 0
+       LIMIT 1;
+
+      IF duplicate IS NOT NULL THEN
+          RAISE NOTICE 'Remapping filesetjoblink % via (-1 - oldvalue )', duplicate;
+          UPDATE filesetjoblink SET parent_index = -1 - parent_index WHERE id = duplicate;
+      END IF;
+
+      RETURN new;
+    END;$$;
+
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.3DEV' AND
-          currentPatch    = 10             AND
+          currentPatch    = 11            AND
           previousVersion = 'OMERO5.2'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__10'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.3DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
