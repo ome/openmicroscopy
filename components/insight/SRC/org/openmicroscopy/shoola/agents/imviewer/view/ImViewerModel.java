@@ -1817,20 +1817,6 @@ class ImViewerModel
 		if (rnd == null) return;
 		rnd.resetSettings(settings, true);
 	}
-	
-	/**
-     * Checks if the ID of the given {@link RndProxyDef} matches the current ID
-     * 
-     * @param settings
-     *            The {@link RndProxyDef} 's ID to check
-     * @return <code>true</code> if the ID matches
-     */
-    boolean checkRendSettingsId(RndProxyDef settings) {
-        Renderer rnd = metadataViewer.getRenderer();
-        if (rnd == null)
-            return false;
-        return rnd.checkRendSettingsId(settings);
-    }
 
 	/**
 	 * Sets the last rendering settings.
