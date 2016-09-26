@@ -149,3 +149,86 @@ class TestRendering(IWebTest):
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
         assert image2.isGreyscaleRenderingModel() is False
+
+
+class TestRenderImageRegion(IWebTest):
+    """
+    Tests rendering of image regions
+    """
+
+    def assert_no_leaked_rendering_engines(self):
+        """
+        Assert no rendering engine stateful services are left open for the
+        current session.
+        """
+        for v in self.client.getSession().activeServices():
+            assert 'RenderingEngine' not in v, 'Leaked rendering engine!'
+
+    def test_render_image_region_incomplete_request(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  If `c` is also passed, the rendering
+        engine will also be initialised.  This test ensure that the correct
+        HTTP status code is used and that consequently, any and all
+        rendering engines that were created servicing the request are closed.
+        """
+        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        data = {'c': '1|0:255$FF0000'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            _get_response(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_malformed_tile_argument(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  This test ensure that if a malformed `tile`
+        is requested the correct HTTP status code is used and that
+        consequently, any and all rendering engines that were created
+        servicing the request are closed.
+        """
+        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        data = {'tile': 'malformed'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            _get_response(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()
+
+    def test_render_image_region_malformed_region_argument(self):
+        """
+        Either `tile` or `region` is a required request argument to
+        `render_image_region()`.  This test ensure that if a malformed
+        `region` is requested the correct HTTP status code is used and that
+        consequently, any and all rendering engines that were created
+        servicing the request are closed.
+        """
+        image_id = self.createTestImage(sizeC=1, session=self.sf).id.val
+
+        request_url = reverse(
+            'webgateway.views.render_image_region',
+            kwargs={'iid': str(image_id), 'z': '0', 't': '0'}
+        )
+        data = {'region': 'malformed'}
+        django_client = self.new_django_client_from_session_id(
+            self.client.getSessionId()
+        )
+        try:
+            _get_response(django_client, request_url, data, status_code=400)
+        finally:
+            self.assert_no_leaked_rendering_engines()

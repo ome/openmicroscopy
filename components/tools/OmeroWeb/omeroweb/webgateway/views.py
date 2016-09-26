@@ -18,7 +18,8 @@ import json
 import omero
 import omero.clients
 
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseBadRequest, \
+    HttpResponseServerError
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.template import loader as template_loader
 from django.views.decorators.http import require_POST
@@ -829,9 +830,10 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             x = int(zxyt[1])*w
             y = int(zxyt[2])*h
         except:
-            logger.debug("render_image_region: tile=%s" % tile)
-            logger.debug(traceback.format_exc())
-
+            logger.debug(
+                "render_image_region: tile=%s" % tile, exc_info=True
+            )
+            return HttpResponseBadRequest('malformed tile argument')
     elif region:
         try:
             xywh = region.split(",")
@@ -841,8 +843,12 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             w = int(xywh[2])
             h = int(xywh[3])
         except:
-            logger.debug("render_image_region: region=%s" % region)
-            logger.debug(traceback.format_exc())
+            logger.debug(
+                "render_image_region: region=%s" % region, exc_info=True
+            )
+            return HttpResponseBadRequest('malformed region argument')
+    else:
+        return HttpResponseBadRequest('tile or region argument required')
 
     # region details in request are used as key for caching.
     jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
