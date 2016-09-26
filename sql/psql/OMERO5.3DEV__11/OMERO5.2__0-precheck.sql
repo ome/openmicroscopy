@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 readiness check for upgrade from OMERO5.2__0 to OMERO5.3DEV__8.
+--- OMERO5 readiness check for upgrade from OMERO5.2__0 to OMERO5.3DEV__11.
 ---
 
 BEGIN;
@@ -245,6 +245,6 @@ DROP FUNCTION parse_transform(TEXT);
 -- FINISHED
 --
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOUR DATABASE IS READY FOR UPGRADE TO VERSION OMERO5.3DEV__8'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOUR DATABASE IS READY FOR UPGRADE TO VERSION OMERO5.3DEV__11'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 ROLLBACK;

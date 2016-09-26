@@ -167,6 +167,9 @@ class ImViewerComponent
     /** The color changes preview.*/
     private Map<Integer, Color>				colorChanges;
     
+    /** The original lookup table */
+    private String origLookupTable;
+    
     /** Flag indicating that it was not possible to save the settings.*/
     private boolean failureToSave;
     
@@ -1034,9 +1037,62 @@ class ImViewerComponent
 
 		firePropertyChange(CHANNEL_COLOR_CHANGED_PROPERTY, -1, index);
 		postActiveChannelSelection(ChannelSelection.COLOR_SELECTION);
-		//if (model.isChannelActive(index)) renderXYPlane();
 	}
 
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#setLookupTable(int, String, boolean)
+     */
+    public void setLookupTable(int index, String lut, boolean preview) {
+        switch (model.getState()) {
+        case NEW:
+        case DISCARDED:
+            throw new IllegalStateException(
+                    "This method can't be invoked in the DISCARDED, "
+                            + "NEW or LOADING_RENDERING_CONTROL state.");
+        }
+        
+        if (preview)
+            origLookupTable = model.getLookupTable(index) == null ? "NONE"
+                    : model.getLookupTable(index);
+        else
+            origLookupTable = null;
+        try {
+            model.setLookupTable(index, lut);
+            view.setLookupTable(index, lut);
+            
+            if (!model.isChannelActive(index)) {
+                setChannelActive(index, true);
+                view.setChannelActive(index, ImViewerUI.ALL_VIEW);
+            }
+            if (GREY_SCALE_MODEL.equals(model.getColorModel()))
+                setColorModel(ColorModelAction.RGB_MODEL);
+        } catch (Exception e) {
+            Registry reg = ImViewerAgent.getRegistry();
+            LogMessage msg = new LogMessage();
+            msg.println("Cannot set the lut of channel " + index);
+            msg.print(e);
+            reg.getLogger().error(this, msg);
+            reg.getUserNotifier().notifyError("Set Lookup Talbe",
+                    "Cannot set the lookup table of channel " + index, e);
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#resetLookupTable(int)
+     */
+    public void resetLookupTable(int index) {
+        if (origLookupTable != null) {
+            if (origLookupTable.equals("NONE"))
+                model.setLookupTable(index, null);
+            else
+                model.setLookupTable(index, origLookupTable);
+        }
+    }
+    
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setChannelSelection(int, boolean)
@@ -1242,6 +1298,18 @@ class ImViewerComponent
 		return model.getMaxZ();
 	}
 
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getImageID()
+     */
+    public long getImageID()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method can't be invoked in the DISCARDED state.");
+        return model.getImageID();
+    }
+    
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getImageName()
@@ -1672,6 +1740,25 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED) return null;
 		return model.getChannelColor(index);
 	}
+	
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getLookupTable(int)
+     */
+    public String getLookupTable(int index)
+    {
+        if (model.getState() == DISCARDED) return null;
+        return model.getLookupTable(index);
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getAvailableLookupTables()
+     */
+    public Collection<String> getAvailableLookupTables() {
+        if (model.getState() == DISCARDED) return null;
+        return model.getAvailableLookupTables();
+    }
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -2284,6 +2371,7 @@ class ImViewerComponent
     	try {
     		model.saveRndSettings(true);
     		failureToSave = false;
+    		view.refresh();
 		} catch (Exception e) {
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Save settings", "Cannot save rendering settings. ");
@@ -2999,22 +3087,6 @@ class ImViewerComponent
 			if (selected) m = view.getSelectedOverlays();
 		} else m = view.getSelectedOverlays();
 		model.renderOverlays(m);
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#renderOverlays(int, boolean)
-	 */
-	public void onChannelColorChanged(int index)
-	{
-		switch (model.getState()) {
-			case NEW:
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED or " +
-						"NEW state.");
-		}
-		view.setChannelColor(index, model.getChannelColor(index));
 	}
 	
 	/** 

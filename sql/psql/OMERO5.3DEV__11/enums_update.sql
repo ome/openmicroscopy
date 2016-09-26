@@ -89,6 +89,18 @@ insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-35,'Unknown' from acquisitionmode where not exists(
         select 1 from acquisitionmode where value = 'Unknown') limit 1;
 
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'BrightField' from acquisitionmode where not exists(
+        select 1 from acquisitionmode where value = 'BrightField') limit 1;
+
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SweptFieldConfocal' from acquisitionmode where not exists(
+        select 1 from acquisitionmode where value = 'SweptFieldConfocal') limit 1;
+
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-35,'SPIM' from acquisitionmode where not exists(
+        select 1 from acquisitionmode where value = 'SPIM') limit 1;
+
 insert into arctype (id,permissions,value)
     select ome_nextval('seq_arctype'),-35,'Hg' from arctype where not exists(
         select 1 from arctype where value = 'Hg') limit 1;

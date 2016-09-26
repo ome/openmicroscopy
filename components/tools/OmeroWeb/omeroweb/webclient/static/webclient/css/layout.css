@@ -2256,7 +2256,11 @@ width: 250px;
     color:white;
 }
 
-.ui-tooltip h3, .ui-tooltip div { margin: 0; }
+/* tooltip plugin */
+.ui-tooltip h3, .ui-tooltip div {
+	margin: 0;
+	word-wrap: break-word;
+}
 
 
 

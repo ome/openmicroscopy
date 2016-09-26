@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,13 +22,16 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+
 import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import omero.gateway.model.ProjectData;
 
 /** 
@@ -102,7 +105,7 @@ public class ProjectsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.browseHierarchyRoots(node, (Set) result);
+        viewer.browseHierarchyRoots(node, (Collection) result);
     }
     
 }

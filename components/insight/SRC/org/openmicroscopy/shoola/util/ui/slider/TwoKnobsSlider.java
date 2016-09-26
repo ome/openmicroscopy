@@ -33,6 +33,8 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
+
 import javax.swing.JPanel;
 
 
@@ -150,6 +152,9 @@ public class TwoKnobsSlider
 
 	/** Flag indicating that the colors have been set. */
 	private boolean 			colourGradient;
+	
+	/** The background image */
+	private BufferedImage      image;
 
 	/** Computes the preferred size of this component. */
 	private void calculatePreferredSize()
@@ -705,6 +710,16 @@ public class TwoKnobsSlider
 		gradients = colors;
 	}
 	
+    /**
+     * Set the background image (takes precedence over color gradients!)
+     * 
+     * @param image
+     *            The image
+     */
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
+	
 	/**
 	 * Returns the colors of the gradient.
 	 *  
@@ -712,6 +727,9 @@ public class TwoKnobsSlider
 	 */
 	Color[] getGradientColors() { return gradients; }
 	
+	BufferedImage getImage() {
+	    return this.image;
+	}
 	
 	/**
 	 * Returns <code>True</code> if the color gradient is set,

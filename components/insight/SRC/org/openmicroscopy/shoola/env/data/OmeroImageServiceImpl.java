@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2016 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -95,12 +95,11 @@ import omero.gateway.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.Resolver;
 
-import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.exception.RenderingServiceException;
-import omero.gateway.facility.ROIFacility;
+import omero.gateway.facility.BrowseFacility;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -120,7 +119,6 @@ import omero.gateway.model.DataObject;
 import omero.gateway.model.DatasetData;
 import omero.gateway.model.ExperimenterData;
 import omero.gateway.model.FileAnnotationData;
-import omero.gateway.model.FolderData;
 import omero.gateway.model.ImageData;
 import omero.gateway.model.PixelsData;
 import omero.gateway.model.ROIData;
@@ -148,6 +146,9 @@ class OmeroImageServiceImpl
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway gateway;
+	
+	/** Lookup tables cache (they are not likely to change during a session) */
+	private static Collection<String> LOOKUP_TABLES;
 	
 	/**
 	 * Returns the number of rendering engines to initialize or reload.
@@ -514,10 +515,32 @@ class OmeroImageServiceImpl
 			
 			proxy = PixelsServicesFactory.createRenderingControl(context, ctx,
 					reList, pixels, m, compressionLevel, defs);
+			
+			proxy.setAvailableLookupTables(getLookupTables(ctx));
 		}
 		return proxy;
 	}
 
+    /**
+     * Get the lookup tables
+     * 
+     * @param ctx
+     *            The SecurityContext
+     * @return See above
+     */
+    private Collection<String> getLookupTables(SecurityContext ctx) {
+        if (OmeroImageServiceImpl.LOOKUP_TABLES != null)
+            return OmeroImageServiceImpl.LOOKUP_TABLES;
+
+        try {
+            OmeroImageServiceImpl.LOOKUP_TABLES = gateway.getGateway()
+                    .getFacility(BrowseFacility.class).getLookupTables(ctx);
+            return OmeroImageServiceImpl.LOOKUP_TABLES;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef,
@@ -689,8 +712,10 @@ class OmeroImageServiceImpl
 			for (int i = 0; i < number; i++) {
 				proxies.add(gateway.createRenderingEngine(ctx, pixelsID));
 			}
-			return PixelsServicesFactory.reloadRenderingControl(context,
+			proxy = PixelsServicesFactory.reloadRenderingControl(context,
 					pixelsID, proxies);
+			proxy.setAvailableLookupTables(getLookupTables(ctx));
+			return proxy;
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +
 					"rendering engine for : "+pixelsID, e);
@@ -721,8 +746,10 @@ class OmeroImageServiceImpl
 					LookupNames.CURRENT_USER_DETAILS);
 			RenderingDef def = gateway.getRenderingDef(ctx, pixelsID,
 					exp.getId());
-			return PixelsServicesFactory.resetRenderingControl(context,
+			proxy = PixelsServicesFactory.resetRenderingControl(context,
 					pixelsID, proxies, def);
+			proxy.setAvailableLookupTables(getLookupTables(ctx));
+			return proxy;
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +
 					"rendering engine for : "+pixelsID, e);
@@ -1355,17 +1382,24 @@ class OmeroImageServiceImpl
 	 */
 	public FileFilter[] getSupportedFileFormats()
 	{
-		if (filters != null) return filters;
-		//improve that code.
-		ImageReader reader = new ImageReader();
-		FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
-		if (array != null) {
-			filters = new FileFilter[array.length];
-			System.arraycopy(array, 0, filters, 0, array.length);
-		} else filters = new FileFilter[0];
+	    if (filters != null) return filters;
+	    try {
+	        ImageReader reader = new ImageReader();
+	        FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
+	        if (array != null) {
+	            filters = new FileFilter[array.length];
+	            System.arraycopy(array, 0, filters, 0, array.length);
+	        } else filters = new FileFilter[0];
+	    } catch (Exception e) {
+	        LogMessage msg = new LogMessage();
+            msg.print("Cannot retrieve the list of supported formats.");
+            msg.print(e);
+            context.getLogger().error(this, msg);
+	        filters = new FileFilter[0];
+	    }
 		return filters;
 	}
-	
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createMovie(SecurityContext, long, long, List,
@@ -1866,7 +1900,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroImageService#getFileSet(SecurityContext, long)
 	 */
-	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
+	public Collection<DataObject> getFileSet(SecurityContext ctx, long imageId)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		return gateway.getFileSet(ctx, Arrays.asList(imageId));

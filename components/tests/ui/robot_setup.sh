@@ -118,9 +118,8 @@ do
 done
 
 # Uplodad file and create FileAnnotation
-bin/omero upload $FILE_ANNOTATION > file_upload.log
-fileId=$(sed "s/^Uploaded $FILE_ANNOTATION as //" file_upload.log)
-bin/omero obj new FileAnnotation file=OriginalFile:$fileId
+ofile=$(bin/omero upload $FILE_ANNOTATION)
+bin/omero obj new FileAnnotation file=$ofile
 
 # Logout
 bin/omero logout

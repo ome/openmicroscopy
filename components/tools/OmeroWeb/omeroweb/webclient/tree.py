@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2008-2015 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2008-2016 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -1664,6 +1664,7 @@ def _marshal_annotation(conn, annotation, link=None):
     ownerId = annotation.details.owner.id.val
     ann['id'] = annotation.id.val
     ann['ns'] = unwrap(annotation.ns)
+    ann['description'] = unwrap(annotation.description)
     ann['owner'] = {'id': ownerId}
     creation = annotation.details.creationEvent._time
     ann['date'] = _marshal_date(unwrap(creation))
@@ -1678,9 +1679,10 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['link']['id'] = link.id.val
         ann['link']['owner'] = {'id': link.details.owner.id.val}
         # Parent (Acquisition has no Name)
-        ann['link']['parent'] = {'id': link.parent.id.val,
-                                 'name': unwrap(link.parent.name),
-                                 'class': link.parent.__class__.__name__}
+        if link.parent.isLoaded():
+            ann['link']['parent'] = {'id': link.parent.id.val,
+                                     'name': unwrap(link.parent.name),
+                                     'class': link.parent.__class__.__name__}
         linkCreation = link.details.creationEvent._time
         ann['link']['date'] = _marshal_date(unwrap(linkCreation))
         p = link.details.permissions

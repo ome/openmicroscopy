@@ -28,8 +28,8 @@
 
 
 import os.path
+import warnings
 import sys
-import platform
 import logging
 import omero
 import omero.config
@@ -41,8 +41,12 @@ import random
 import string
 
 from omero_ext import portalocker
+from omero.install.python_warning import py27_only, PYTHON_WARNING
 
 logger = logging.getLogger(__name__)
+
+if not py27_only():
+    warnings.warn("WARNING: %s" % PYTHON_WARNING, RuntimeWarning)
 
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
@@ -80,10 +84,7 @@ FULL_REQUEST_LOGFORMAT = (
     ' (proc.%(process)5.5d) %(funcName)s():%(lineno)d'
     ' HTTP %(status_code)d %(request)s')
 
-if platform.system() in ("Windows",):
-    LOGGING_CLASS = 'logging.handlers.RotatingFileHandler'
-else:
-    LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
+LOGGING_CLASS = 'omero_ext.cloghandler.ConcurrentRotatingFileHandler'
 
 LOGGING = {
     'version': 1,
@@ -584,8 +585,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
          '[]',
          json.loads,
          ("List of locations of the template source files, in search order. "
-          "Note that these paths should use Unix-style forward slashes, even"
-          " on Windows.")],
+          "Note that these paths should use Unix-style forward slashes.")],
     "omero.web.index_template":
         ["INDEX_TEMPLATE",
          None,
@@ -885,8 +885,6 @@ SITE_ID = 1
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
 # although not all variations may be possible on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
 TIME_ZONE = 'Europe/London'
 FIRST_DAY_OF_WEEK = 0     # 0-Monday, ... 6-Sunday
 
@@ -1028,12 +1026,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'omeroweb.feedback',
-    'omeroweb.webadmin',
-    'omeroweb.webclient',
-    'omeroweb.webgateway',
-    'omeroweb.webredirect',
-    'pipeline',
 )
 
 # ADDITONAL_APPS: We import any settings.py from apps. This allows them to
@@ -1059,6 +1051,15 @@ for app in ADDITIONAL_APPS:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
         report_settings(module.settings)
     except ImportError:
         logger.debug("Couldn't import settings from app: %s" % app)
+
+INSTALLED_APPS += (
+    'omeroweb.feedback',
+    'omeroweb.webadmin',
+    'omeroweb.webclient',
+    'omeroweb.webgateway',
+    'omeroweb.webredirect',
+    'pipeline',
+)
 
 logger.debug('INSTALLED_APPS=%s' % [INSTALLED_APPS])
 

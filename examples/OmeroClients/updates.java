@@ -1,5 +1,3 @@
-import static omero.rtypes.*;
-
 import omero.api.ServiceFactoryPrx;
 import omero.api.IUpdatePrx;
 import omero.model.Image;
@@ -13,7 +11,7 @@ public class updates {
 	try {
 
             Image i = new ImageI();
-            i.setName( rstring("name") );
+            i.setName(omero.rtypes.rstring("name") );
 
             ServiceFactoryPrx sf = client.createSession();
             IUpdatePrx u = sf.getUpdateService();

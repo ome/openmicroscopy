@@ -34,7 +34,6 @@
 			<optional name="name" type="string"/>
 			<optional name="compression" type="double"/>
 			<required name="quantization" type="ome.model.display.QuantumDef"/>
-			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext" inverse="renderingDef" ordered="true"/>
 			<zeromany name="projections" type="ome.model.display.ProjectionDef" inverse="renderingDef" ordered="true"/>
 		</properties>
 	</type>
@@ -61,6 +60,7 @@
 			<required name="blue" type="int"/>
 			<required name="alpha" type="int"/>
 			<optional name="lookupTable" type="string"/>
+			<zeromany name="spatialDomainEnhancement" type="ome.model.display.CodomainMapContext" inverse="channelBinding" ordered="true"/>
 		</properties>
 	</type>
 	<type id="ome.model.display.ProjectionDef">
@@ -72,6 +72,7 @@
 			<required name="active" type="boolean"/>
 			<optional name="startPlane" type="NonNegativeInteger"/>
 			<optional name="endPlane" type="NonNegativeInteger"/>
+			<optional name="stepping" type="PositiveInteger"/>
 		</properties>
 	</type>
 
@@ -83,7 +84,7 @@
 	<abstract id="ome.model.display.CodomainMapContext">
 		<!-- Note: CodomainMapContext is not in model-->
 		<properties>
-			<manyone name="renderingDef" type="ome.model.display.RenderingDef" ordered="true"/>
+			<manyone name="channelBinding" type="ome.model.display.ChannelBinding" ordered="true"/>
 		</properties>
 	</abstract>
 	<type id="ome.model.display.ReverseIntensityContext" superclass="ome.model.display.CodomainMapContext">

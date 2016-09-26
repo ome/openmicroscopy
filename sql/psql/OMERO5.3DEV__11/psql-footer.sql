@@ -68,34 +68,34 @@
         BEFORE UPDATE ON channelbinding
         FOR EACH ROW EXECUTE PROCEDURE channelbinding_renderingDef_index_move ();
 
-  CREATE OR REPLACE FUNCTION codomainmapcontext_renderingDef_index_move() RETURNS "trigger" AS '
+  CREATE OR REPLACE FUNCTION codomainmapcontext_channelBinding_index_move() RETURNS "trigger" AS '
     DECLARE
       duplicate INT8;
     BEGIN
 
       -- Avoids a query if the new and old values of x are the same.
-      IF new.renderingDef = old.renderingDef AND new.renderingDef_index = old.renderingDef_index THEN
+      IF new.channelBinding = old.channelBinding AND new.channelBinding_index = old.channelBinding_index THEN
           RETURN new;
       END IF;
 
       -- At most, there should be one duplicate
       SELECT id INTO duplicate
         FROM codomainmapcontext
-       WHERE renderingDef = new.renderingDef AND renderingDef_index = new.renderingDef_index
+       WHERE channelBinding = new.channelBinding AND channelBinding_index = new.channelBinding_index
       OFFSET 0
        LIMIT 1;
 
       IF duplicate IS NOT NULL THEN
           RAISE NOTICE ''Remapping codomainmapcontext %% via (-1 - oldvalue )'', duplicate;
-          UPDATE codomainmapcontext SET renderingDef_index = -1 - renderingDef_index WHERE id = duplicate;
+          UPDATE codomainmapcontext SET channelBinding_index = -1 - channelBinding_index WHERE id = duplicate;
       END IF;
 
       RETURN new;
     END;' LANGUAGE plpgsql;
 
-  CREATE TRIGGER codomainmapcontext_renderingDef_index_trigger
+  CREATE TRIGGER codomainmapcontext_channelBinding_index_trigger
         BEFORE UPDATE ON codomainmapcontext
-        FOR EACH ROW EXECUTE PROCEDURE codomainmapcontext_renderingDef_index_move ();
+        FOR EACH ROW EXECUTE PROCEDURE codomainmapcontext_channelBinding_index_move ();
 
   CREATE OR REPLACE FUNCTION filesetentry_fileset_index_move() RETURNS "trigger" AS '
     DECLARE
@@ -357,7 +357,7 @@
   CREATE INDEX i_ChannelBinding_family ON channelbinding(family);
   CREATE INDEX i_codomainmapcontext_owner ON codomainmapcontext(owner_id);
   CREATE INDEX i_codomainmapcontext_group ON codomainmapcontext(group_id);
-  CREATE INDEX i_CodomainMapContext_renderingDef ON codomainmapcontext(renderingDef);
+  CREATE INDEX i_CodomainMapContext_channelBinding ON codomainmapcontext(channelBinding);
   CREATE INDEX i_dataset_owner ON dataset(owner_id);
   CREATE INDEX i_dataset_group ON dataset(group_id);
   CREATE INDEX i_datasetannotationlink_owner ON datasetannotationlink(owner_id);
@@ -2042,7 +2042,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.3DEV',  8,    'OMERO5.3DEV',   0,             'Initializing');
+             values ('OMERO5.3DEV',  11,    'OMERO5.3DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2149,6 +2149,12 @@ insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'Other';
 insert into acquisitionmode (id,permissions,value)
     select ome_nextval('seq_acquisitionmode'),-52,'Unknown';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'BrightField';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'SweptFieldConfocal';
+insert into acquisitionmode (id,permissions,value)
+    select ome_nextval('seq_acquisitionmode'),-52,'SPIM';
 insert into arctype (id,permissions,value)
     select ome_nextval('seq_arctype'),-52,'Hg';
 insert into arctype (id,permissions,value)
@@ -3388,7 +3394,7 @@ CREATE TRIGGER preserve_folder_tree
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.3DEV' and
-        currentPatch = 8 and
+        currentPatch = 11 and
         previousVersion = 'OMERO5.3DEV' and
         previousPatch = 0;
 

@@ -8,6 +8,7 @@ package ome.services;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.core.Channel;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
@@ -41,6 +43,7 @@ import ome.model.enums.RenderingModel;
 import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
+import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
@@ -146,6 +149,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /** Reference to the compression service. */
     private final LocalCompress compressionSrv;
 
+    /** Reference to the helper used to retrieve luts.*/
+    private final ScriptRepoHelper helper;
+
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
 
@@ -171,13 +177,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
      *          Reference to the executor.
      * @param secSys
      *          Reference to the security system.
+     * @param helper
+     *          Reference to the script repo.
      */
     public RenderingBean(PixelsService dataService, LocalCompress compress,
-            Executor ex, SecuritySystem secSys) {
+            Executor ex, SecuritySystem secSys, ScriptRepoHelper helper) {
         this.ex = ex;
         this.secSys = secSys;
         this.pixDataSrv = dataService;
         this.compressionSrv = compress;
+        this.helper = helper;
     }
 
     @RolesAllowed("user")
@@ -404,7 +413,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // Loading last to try to ensure that the buffer will get closed.
             PixelBuffer buffer = getPixelBuffer();
             renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
-                    rendDefObj, buffer);
+                    rendDefObj, buffer, loadLuts());
         } finally {
             rwl.writeLock().unlock();
         }
@@ -821,6 +830,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 cb.setInputEnd(binding.getInputEnd());
                 cb.setCoefficient(binding.getCoefficient());
                 cb.setNoiseReduction(binding.getNoiseReduction());
+                cb.setLookupTable(binding.getLookupTable());
                 //binding.setFamily(unloadedFamily);
                 index++;
             }
@@ -1038,8 +1048,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfNullRenderingDef();
-            ChannelBinding[] cb = renderer.getChannelBindings();
-            cb[w].setLookupTable(lookup);
+            renderer.setChannelLookupTable(w, lookup);
         } finally {
             rwl.readLock().unlock();
         }
@@ -1797,6 +1806,21 @@ public class RenderingBean implements RenderingEngine, Serializable {
                         return sf.getPixelsService().loadRndSettings(rdefId);
                     }
                 });
+    }
+
+    /** Loads the lookup tables.*/
+    private List<File> loadLuts()
+    {
+        List<OriginalFile> luts = helper.loadAll(true, "text/x-lut", null);
+        Iterator<OriginalFile> i = luts.iterator();
+        File dir = new File(ScriptRepoHelper.getDefaultScriptDir());
+        List<File> files = new ArrayList<File>(luts.size());
+        while (i.hasNext()) {
+            OriginalFile f = i.next();
+            String path = (new File(f.getPath(), f.getName())).getPath();
+            files.add(new File(dir, path));
+        }
+        return files;
     }
 
     /**

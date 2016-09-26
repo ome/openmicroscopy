@@ -170,7 +170,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
         HotSwappableTargetSource swap = (HotSwappableTargetSource)
             fixture.getContext().getBean("swappable-ome.api.ThumbnailStore");
         final boolean called[] = new boolean[]{false};
-        ThumbnailBean bean = new ThumbnailBean() {
+        ThumbnailBean bean = new ThumbnailBean(false, null) {
             public void close() {
                 called[0] = true;
             }

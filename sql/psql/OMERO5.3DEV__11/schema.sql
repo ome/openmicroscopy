@@ -168,15 +168,15 @@
         id int8 not null,
         permissions int8 not null,
         version int4,
+        channelBinding int8 not null,
         creation_id int8 not null,
         external_id int8 unique,
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
-        renderingDef int8 not null,
-        renderingDef_index int4 not null,
+        channelBinding_index int4 not null,
         primary key (id),
-        unique (renderingDef, renderingDef_index)
+        unique (channelBinding, channelBinding_index)
     );;
 
     create table contrastmethod (
@@ -1993,6 +1993,7 @@
         permissions int8 not null,
         endPlane nonnegative_int,
         startPlane nonnegative_int,
+        stepping positive_int,
         version int4,
         axis int8 not null,
         creation_id int8 not null,
@@ -2725,14 +2726,14 @@
         references experimentergroup  ;;
 
     alter table codomainmapcontext 
-        add constraint FKcodomainmapcontext_renderingDef_renderingdef 
-        foreign key (renderingDef) 
-        references renderingdef  ;;
-
-    alter table codomainmapcontext 
         add constraint FKcodomainmapcontext_owner_id_experimenter 
         foreign key (owner_id) 
         references experimenter  ;;
+
+    alter table codomainmapcontext 
+        add constraint FKcodomainmapcontext_channelBinding_channelbinding 
+        foreign key (channelBinding) 
+        references channelbinding  ;;
 
     alter table contrastmethod 
         add constraint FKcontrastmethod_external_id_externalinfo 

@@ -32,7 +32,9 @@ from collections import namedtuple
 import omero
 from omero import client as Client
 from omero import CmdError
+from omero import ResourceError
 from omero import ServerError
+from omero import ValidationException
 from omero.cli import admin_only
 from omero.cli import CmdControl
 from omero.cli import CLI
@@ -136,6 +138,16 @@ def prep_directory(client, mrepo):
     return fs.templatePrefix.val
 
 
+def get_logfile(query, fid):
+    from omero.sys import ParametersI
+    q = ("select o from FilesetJobLink l "
+         "join l.parent as fs join l.child as j "
+         "join j.originalFileLinks l2 join l2.child as o "
+         "where fs.id = :id and "
+         "o.mimetype = 'application/omero-log-file'")
+    return query.findByQuery(q, ParametersI().addId(fid))
+
+
 def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     """
     Loads each OriginalFile found under orig_dir and
@@ -196,15 +208,7 @@ def rename_fileset(client, mrepo, fileset, new_dir, ctx=None):
     tosave.insert(1, link)
 
     # And now move the log file as well:
-    from omero.sys import ParametersI
-    q = ("select o from FilesetJobLink l "
-         "join l.parent as fs join l.child as j "
-         "join j.originalFileLinks l2 join l2.child as o "
-         "where fs.id = :id and "
-         "o.mimetype = 'application/omero-log-file'")
-    log = query.findByQuery(
-        q, ParametersI().addId(fileset.id.val))
-
+    log = get_logfile(query, fileset.id.val)
     if log is not None:
         target = new_parpath + new_logname
         source = orig_parpath + orig_logname
@@ -283,6 +287,19 @@ class FsControl(CmdControl):
             "--wait", type=long,
             help="Number of seconds to wait for the processing to complete "
             "(Indefinite < 0; No wait=0).", default=-1)
+
+        logfile = parser.add(sub, self.logfile)
+        logfile.add_argument("fileset", type=ProxyStringType("Fileset"))
+        logfile.add_argument(
+            "filename",  nargs="?", default="-",
+            help="Local filename to be saved to. '-' for stdout")
+        logopts = logfile.add_mutually_exclusive_group()
+        logopts.add_argument(
+            "--name", action="store_true",
+            help="return the path of the logfile within the ManagedRepository")
+        logopts.add_argument(
+            "--size", action="store_true",
+            help="return the size of the logfile in bytes")
 
         usage = parser.add(sub, self.usage)
         usage.set_args_unsorted()
@@ -713,6 +730,36 @@ Examples:
         defaultdict(list)
         for ofile in fileset.listFiles():
             print ofile.path + ofile.name
+
+    def logfile(self, args):
+        """Return the logfile associated with a fileset"""
+        client = self.ctx.conn(args)
+        query = client.sf.getQueryService()
+        log = get_logfile(query, args.fileset.id.val)
+        if log is not None:
+            if args.name:
+                self.ctx.out(log.path.val + log.name.val)
+            elif args.size:
+                self.ctx.out(log.size.val)
+            else:
+                target_file = str(args.filename)
+                try:
+                    if target_file == "-":
+                        client.download(log, filehandle=sys.stdout)
+                        sys.stdout.flush()
+                    else:
+                        client.download(log, target_file)
+                except ValidationException, ve:
+                    # This should effectively be handled by None being
+                    # returned from the logfile query above.
+                    self.ctx.die(115, "ValidationException: %s" % ve.message)
+                except ResourceError, re:
+                    # ID exists in DB, but not on FS
+                    self.ctx.die(116, "ResourceError: %s" % re.message)
+        else:
+            self.ctx.die(
+                117,
+                "Log file not accessible for Fileset:%s" % args.fileset.id.val)
 
     @admin_only
     def fixpyramid(self, args):

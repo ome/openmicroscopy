@@ -207,7 +207,7 @@ def _split_channel_info(rchannels):
     windows = []
     colors = []
     for chan in rchannels.split(','):
-        chan = chan.split('|')
+        chan = chan.split('|', 1)
         t = chan[0].strip()
         color = None
         if t.find('$') >= 0:
@@ -218,7 +218,7 @@ def _split_channel_info(rchannels):
             if len(chan) > 1:
                 t = chan[1].strip()
                 if t.find('$') >= 0:
-                    t, color = t.split('$')
+                    t, color = t.split('$', 1)
                 t = t.split(':')
                 if len(t) == 2:
                     try:
@@ -1655,6 +1655,25 @@ def save_image_rdef_json(request, iid, conn=None, **kwargs):
 
 
 @login_required()
+@jsonp
+def listLuts_json(request, conn=None, **kwargs):
+    """
+    Lists lookup tables 'LUTs' availble for rendering
+    """
+    scriptService = conn.getScriptService()
+    luts = scriptService.getScriptsByMimetype("text/x-lut")
+    rv = []
+    for l in luts:
+        rv.append({'id': l.id.val,
+                   'path': l.path.val,
+                   'name': l.name.val,
+                   'size': unwrap(l.size)
+                   })
+    rv.sort(key=lambda x: x['name'].lower())
+    return {"luts": rv}
+
+
+@login_required()
 def list_compatible_imgs_json(request, iid, conn=None, **kwargs):
     """
     Lists the images on the same project that would be viable targets for
@@ -1828,7 +1847,9 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
             act = "" if ch.isActive() else "-"
             start = ch.getWindowStart()
             end = ch.getWindowEnd()
-            color = ch.getColor().getHtml()
+            color = ch.getLut()
+            if not color or len(color) == 0:
+                color = ch.getColor().getHtml()
             chs.append("%s%s|%s:%s$%s" % (act, i+1, start, end, color))
         rv['c'] = ",".join(chs)
         rv['m'] = "g" if image.isGreyscaleRenderingModel() else "c"
@@ -2284,7 +2305,7 @@ def su(request, user, conn=None, **kwargs):
         connector.omero_session_key = conn.suConn(user, ttl=ttl)._sessionUuid
         request.session['connector'] = connector
         conn.revertGroupForSession()
-        conn.seppuku()
+        conn.close()
         return True
     else:
         context = {
