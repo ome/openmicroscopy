@@ -54,7 +54,8 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT INTO dbpatch (currentVersion, currentPatch, previousVersion, previousPatch)
              VALUES ('OMERO5.3DEV',  12,           'OMERO5.3DEV',   11);
 
--- TODO
+DELETE FROM format WHERE id NOT IN (SELECT DISTINCT format FROM image);
+
 
 --
 -- FINISHED
