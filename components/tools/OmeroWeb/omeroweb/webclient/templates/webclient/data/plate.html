@@ -58,11 +58,11 @@
         }
 
         var primaryIndex = -1;
-        var handleClickSelection = function(event, target) {
+        var handleClickSelection = function(event, target, elementsSelector) {
             
             var $clickedImage = target || $(event.target);
             
-            var thumbs = $("#spw table tbody td.well img");
+            var thumbs = $(elementsSelector);
             var selIndex = thumbs.index($clickedImage);
 
             if (event && event.shiftKey ) {
@@ -137,8 +137,12 @@
 
             // Handle click on Wellsample Images
             $( '#wellImages' ).on( "click", "img", function(event) {
-                var iid = $(this).attr('data-imageId');
-                var selected_objs = [{'id': 'image-' + iid}];
+                // Update 'ui-selected' on images, handling shift-click etc
+                handleClickSelection(event, undefined, "#wellImages img");
+                // Trigger selected (to update right panel)
+                var selected_objs = $("#wellImages li.ui-selected").map(function(){
+                    return {'id': 'image-' + this.getAttribute('data-imageId')};
+                });
                 $("body")
                     .data("selected_objects.ome", selected_objs)
                     .trigger("selection_change.ome");
@@ -162,7 +166,7 @@
             var $selected;
             // delegated click and dblclick handlers for wells
             $( '#spw' ).on( "click", "td.well img", function(event) {
-                handleClickSelection(event);
+                handleClickSelection(event, undefined, "#spw td.well img");
                 var $selected = $('td.ui-selected', wpv.self);
                 syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
                 showImagesInWell();
@@ -197,7 +201,7 @@
                         }
                     }
                     if (selected_wells.length > 0) {
-                        handleClickSelection(undefined, selected_wells.children("img"));
+                        handleClickSelection(undefined, selected_wells.children("img"), "#spw td.well img");
                         $selected = $('td.ui-selected', wpv.self);
                         syncTreeSelection($selected, {{ index }}, '{{ manager.getPermsCss }}');
                     }
@@ -228,9 +232,9 @@
                     var url = "{% url 'webgateway' %}well/" + wellId + "/children/";
                     $.getJSON(url, function(data){
                         var html = data.reduce(function(html, w){
-                            return html + '<img data-imageId="' + w.id + '" src="' + w.thumb_url + '" />';
-                        }, "<div>");
-                        $('#wellImages-' + wellId).append(html);
+                            return html + '<li data-imageId="' + w.id + '"><img src="' + w.thumb_url + '" /></li>';
+                        }, "<ul>");
+                        $('#wellImages-' + wellId).append(html + "</ul>");
                     });
                 });
             }
@@ -256,6 +260,12 @@
         }
         #wellImages>div {
             clear: both;
+        }
+        #wellImages li {
+            display: inline-block;
+        }
+        #wellImages .ui-selected {
+            background-color: #87ABD2;
         }
     </style>
     
