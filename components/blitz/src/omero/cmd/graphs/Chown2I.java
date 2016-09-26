@@ -134,7 +134,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         }
 
         this.helper = helper;
-        helper.setSteps(dryRun ? 4 : 6);
+        helper.setSteps(dryRun ? 5 : 7);
         this.graphHelper = new GraphHelper(helper, graphPathBean);
 
         /* if the current user is not an administrator then find of which groups the target user is a member */
@@ -163,25 +163,28 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         try {
             switch (step) {
             case 0:
+                // TODO
+                return null;
+            case 1:
                 final SetMultimap<String, Long> targetMultimap = graphHelper.getTargetMultimap(targetClasses, targetObjects);
                 targetObjectCount += targetMultimap.size();
                 final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> plan =
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
-            case 1:
+            case 2:
                 graphTraversal.assertNoPolicyViolations();
                 return null;
-            case 2:
+            case 3:
                 processor = graphTraversal.processTargets();
                 return null;
-            case 3:
+            case 4:
                 unlinker = graphTraversal.unlinkTargets(false);
                 graphTraversal = null;
                 return null;
-            case 4:
+            case 5:
                 unlinker.execute();
                 return null;
-            case 5:
+            case 6:
                 processor.execute();
                 return null;
             default:
@@ -206,7 +209,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     @Override
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        if (step == 0) {
+        if (step == 1) {
             /* if the results object were in terms of IObjectList then this would need IceMapper.map */
             final Entry<SetMultimap<String, Long>, SetMultimap<String, Long>> result =
                     (Entry<SetMultimap<String, Long>, SetMultimap<String, Long>>) object;
@@ -257,7 +260,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
     @Override
     public int getStepProvidingCompleteResponse() {
-        return 0;
+        return 1;
     }
 
     @Override
