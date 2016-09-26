@@ -457,7 +457,7 @@
         <!-- ANNOTATIONS "General" -->
         <div id="general_tab" class="right_tab_inner" >
            
-            {% if manager.image %}            
+        {% if manager.image %}
 
             {% with image=manager.image canDownload=manager.image.canDownload %}
                 {% include "webclient/annotations/includes/toolbar.html" %}
@@ -510,8 +510,8 @@
             </div>
 
 
-            {% else %}
-                {% if manager.dataset %}
+        {% else %}
+            {% if manager.dataset %}
 
                 {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -537,8 +537,8 @@
                     </tr>                    
                 </table>
                 </div>
-                {% else %}
-                    {% if manager.project %}
+            {% else %}
+                {% if manager.project %}
 
                     {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -564,11 +564,11 @@
                         </tr>
                     </table>
                     </div>
-                    {% endif %}
                 {% endif %}
             {% endif %}
+        {% endif %}
             
-            {% if manager.well %}            
+        {% if manager.well %}
             {% include "webclient/annotations/includes/toolbar.html" %}
 
             <!-- Image (in WellSample) Name, ID, Owner -->
@@ -576,8 +576,8 @@
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
 
-            {% else %}
-                {% if manager.acquisition %}
+        {% else %}
+            {% if manager.acquisition %}
 
                 {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -604,8 +604,8 @@
                 </table>
                 </div>
 
-                {% else %}
-                    {% if manager.plate %}
+            {% else %}
+                {% if manager.plate %}
 
                     {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -638,8 +638,8 @@
                         {% endcomment %}-->
                     </table>
                     </div>
-                    {% else %}
-                        {% if manager.screen %}
+                {% else %}
+                    {% if manager.screen %}
 
                         {% include "webclient/annotations/includes/toolbar.html" %}
 
@@ -670,10 +670,10 @@
                             </tr>
                         </table>
                         </div>
-                        {% endif %}
                     {% endif %}
                 {% endif %}
             {% endif %}
+        {% endif %}
             
             
             
