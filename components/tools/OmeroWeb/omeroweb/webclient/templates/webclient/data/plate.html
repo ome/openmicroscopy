@@ -135,17 +135,28 @@
                 }
             });
 
-            // Handle click on Wellsample Images
-            $( '#wellImages' ).on( "click", "img", function(event) {
-                // Update 'ui-selected' on images, handling shift-click etc
-                handleClickSelection(event, undefined, "#wellImages img");
-                // Trigger selected (to update right panel)
+            // Trigger Well Images selected (to update right panel)
+            var triggerWellImagesSelection = function() {
                 var selected_objs = $("#wellImages li.ui-selected").map(function(){
                     return {'id': 'image-' + this.getAttribute('data-imageId')};
                 });
                 $("body")
                     .data("selected_objects.ome", selected_objs)
                     .trigger("selection_change.ome");
+            }
+            // Handle click on Wellsample Images
+            $( '#wellImages' ).on( "click", "img", function(event) {
+                // Update 'ui-selected' on images, handling shift-click etc
+                handleClickSelection(event, undefined, "#wellImages img");
+                triggerWellImagesSelection();
+            });
+            // Drag selection on WellSample images
+            $('#wellImages').selectable({
+                filter: 'li',
+                distance: 2,
+                stop: function(){
+                    triggerWellImagesSelection();
+                }
             });
 
             var syncTreeSelection = function(selected, idx, perms) {
