@@ -737,6 +737,9 @@
 		<entry name="LCM"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
+		<entry name="BrightField"/>
+		<entry name="SweptFieldConfocal"/>
+		<entry name="SPIM"/>
 	</enum>
 <!-- Detector Settings Entity -->
 	<enum id="ome.model.enums.Binning">

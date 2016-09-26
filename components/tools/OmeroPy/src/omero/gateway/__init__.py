@@ -1043,7 +1043,7 @@ class BlitzObjectWrapper (object):
                 clone = self.__class__(newConn, self._obj)
                 ann = clone._linkAnnotation(ann)
                 if newConn != self._conn:
-                    newConn.seppuku()
+                    newConn.close()
             elif d.getGroup():
                 # Try to match group
                 # TODO: Should switch session of this object to use group from
@@ -1748,10 +1748,16 @@ class _BlitzGateway (object):
     def seppuku(self, softclose=False):  # pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the
-        session is really terminate disregarding its connection refcount.
+        session is really terminated disregarding its connection refcount.
+        If softclose is True then the connection refcount is decremented by 1.
 
         :param softclose:   Boolean
+
+        ** Deprecated ** Use :meth:`close`.
+        Our apologies for any offense caused by this previous method name.
         """
+        warnings.warn("Deprecated. Use close()",
+                      DeprecationWarning)
         self._connected = False
         oldC = self.c
         if oldC is not None:
@@ -1767,6 +1773,24 @@ class _BlitzGateway (object):
                         oldC.closeSession()
                 else:
                     self._closeSession()
+            finally:
+                oldC.__del__()
+                oldC = None
+                self.c = None
+
+        self._proxies = NoProxies()
+        logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
+
+    def close(self):  # pragma: no cover
+        """
+        Terminates connection with killSession(). The session is terminated
+        regardless of its connection refcount.
+        """
+        self._connected = False
+        oldC = self.c
+        if oldC is not None:
+            try:
+                self._closeSession()
             finally:
                 oldC.__del__()
                 oldC = None

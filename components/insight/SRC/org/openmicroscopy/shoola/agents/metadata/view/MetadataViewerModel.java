@@ -300,7 +300,7 @@ class MetadataViewerModel
 	 */
 	void discard()
 	{
-		state = MetadataViewer.DISCARDED;
+		setState(MetadataViewer.DISCARDED);
 		loaders.entrySet().iterator();
 		Iterator<Entry<Integer, MetadataLoader>>
 		i = loaders.entrySet().iterator();
@@ -459,7 +459,7 @@ class MetadataViewerModel
 					ctx, Arrays.asList((DataObject) node), loaderID);
 			loaders.put(loaderID, loader);
 			loader.load();
-			state = MetadataViewer.LOADING_METADATA;
+			setState(MetadataViewer.LOADING_METADATA);
 		}
 	}
 	
@@ -595,6 +595,9 @@ class MetadataViewerModel
      */
     void fireSaving(DataToSave object, List<Object> metadata,
             Collection<DataObject> data, boolean asynch) {
+        if(state != MetadataViewer.READY) {
+            return;
+        }
         List<AnnotationData> toAdd = null;
         List<Object> toRemove = null;
         if (object != null) {
@@ -607,7 +610,7 @@ class MetadataViewerModel
             loaderID++;
             loaders.put(loaderID, loader);
             loader.load();
-            state = MetadataViewer.SAVING;
+            setState(MetadataViewer.SAVING);
         } else {
             OmeroMetadataService os = MetadataViewerAgent.getRegistry()
                     .getMetadataService();
@@ -660,7 +663,7 @@ class MetadataViewerModel
 	            data, loaderID);
 	    loaders.put(loaderID, loader);
 	    loader.load();
-	    state = MetadataViewer.SAVING;
+	    setState(MetadataViewer.SAVING);
 	}
 	
 	/**
@@ -702,7 +705,7 @@ class MetadataViewerModel
                         data.getPermissions(), loaderID, GroupEditor.UPDATE);
                 loaders.put(loaderID, loader);
                 loader.load();
-                state = MetadataViewer.SAVING;
+                setState(MetadataViewer.SAVING);
                 break;
             case AdminObject.UPDATE_EXPERIMENTER:
                 loaderID++;
@@ -710,7 +713,7 @@ class MetadataViewerModel
                         data.getExperimenters(), loaderID);
                 loaders.put(loaderID, loader);
                 loader.load();
-                state = MetadataViewer.SAVING;
+                setState(MetadataViewer.SAVING);
         }
 	}
 	
@@ -725,7 +728,7 @@ class MetadataViewerModel
 	{
 		loaders.remove(loaderID);
 		this.data = data;
-		state = MetadataViewer.READY;
+		setState(MetadataViewer.READY);
 	}
 	
 	/**
@@ -739,7 +742,7 @@ class MetadataViewerModel
 	{
 		loaders.remove(loaderID);
 		this.parentData = parentData;
-		state = MetadataViewer.READY;
+		setState(MetadataViewer.READY);
 	}
 	
 	/**
@@ -806,7 +809,7 @@ class MetadataViewerModel
 				toSave, toAdd, toRemove, loaderID);
 		loader.load();
 		loaderID++;
-		state = MetadataViewer.BATCH_SAVING;
+		setState(MetadataViewer.BATCH_SAVING);
 	}
 	
 	/** 
@@ -852,7 +855,7 @@ class MetadataViewerModel
 	            ctx, l, loaderID);
 	    loaders.put(loaderID, loader);
 	    loader.load();
-	    state = MetadataViewer.LOADING_METADATA;
+	    setState(MetadataViewer.LOADING_METADATA);
 	}
 
 	/**
@@ -862,12 +865,17 @@ class MetadataViewerModel
 	 */
 	List<DataObject> getRelatedNodes() { return relatedNodes; }
 
-	/**
-	 * Sets the state.
-	 * 
-	 * @param state The value to set.
-	 */
-	void setState(int state) { this.state = state; }
+    /**
+     * Sets the state.
+     * 
+     * @param state
+     *            The value to set.
+     */
+    void setState(int state) {
+        this.state = state;
+        if(state==MetadataViewer.READY || state==MetadataViewer.DISCARDED)
+            editor.setStatus(false);
+    }
 
 	/**
 	 * Starts an asynchronous retrieval of the containers hosting the 

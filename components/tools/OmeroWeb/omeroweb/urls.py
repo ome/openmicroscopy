@@ -64,12 +64,23 @@ def redirect_urlpatterns():
 
 # url patterns
 
-urlpatterns = patterns(
+urlpatterns = patterns('',)
+
+for app in settings.ADDITIONAL_APPS:
+    # Depending on how we added the app to INSTALLED_APPS in settings.py,
+    # include the urls the same way
+    if 'omeroweb.%s' % app in settings.INSTALLED_APPS:
+        urlmodule = 'omeroweb.%s.urls' % app
+    else:
+        urlmodule = '%s.urls' % app
+    regex = '^(?i)%s/' % app
+    urlpatterns += patterns('', (regex, include(urlmodule)),)
+
+urlpatterns += patterns(
     '',
     (r'^favicon\.ico$',
      lambda request: redirect('%swebgateway/img/ome.ico'
                               % settings.STATIC_URL)),
-
     (r'^(?i)webgateway/', include('omeroweb.webgateway.urls')),
     (r'^(?i)webadmin/', include('omeroweb.webadmin.urls')),
     (r'^(?i)webclient/', include('omeroweb.webclient.urls')),
@@ -83,15 +94,6 @@ urlpatterns = patterns(
 
 urlpatterns += redirect_urlpatterns()
 
-for app in settings.ADDITIONAL_APPS:
-    # Depending on how we added the app to INSTALLED_APPS in settings.py,
-    # include the urls the same way
-    if 'omeroweb.%s' % app in settings.INSTALLED_APPS:
-        urlmodule = 'omeroweb.%s.urls' % app
-    else:
-        urlmodule = '%s.urls' % app
-    regex = '^(?i)%s/' % app
-    urlpatterns += patterns('', (regex, include(urlmodule)),)
 
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()

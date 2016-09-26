@@ -930,7 +930,10 @@ OME.showScriptList = function(event) {
 
             var html = "<ul class='menulist'>" + build_ul(data) + "</ul>";
 
-            $('#scriptList').append($(html));
+            // In case multiple requests are sent at once, don't duplicate menu
+            if ($("#scriptList li").length === 0) {
+                $('#scriptList').append($(html));
+            }
 
             $('#scriptList ul ul').hide();
             $scriptSpinner.hide();

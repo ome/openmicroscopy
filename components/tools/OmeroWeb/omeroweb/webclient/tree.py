@@ -1679,10 +1679,11 @@ def _marshal_annotation(conn, annotation, link=None):
         ann['link']['id'] = link.id.val
         ann['link']['owner'] = {'id': link.details.owner.id.val}
         # Parent (Well & Acquisition have no Name)
-        ann['link']['parent'] = {'id': link.parent.id.val,
-                                 'class': link.parent.__class__.__name__}
-        if hasattr(link.parent, 'name'):
-            ann['link']['parent']['name'] = unwrap(link.parent.name)
+        if link.parent.isLoaded():
+            ann['link']['parent'] = {'id': link.parent.id.val,
+                                     'class': link.parent.__class__.__name__}
+            if hasattr(link.parent, 'name'):
+                ann['link']['parent']['name'] = unwrap(link.parent.name)
         linkCreation = link.details.creationEvent._time
         ann['link']['date'] = _marshal_date(unwrap(linkCreation))
         p = link.details.permissions
