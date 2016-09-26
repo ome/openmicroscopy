@@ -571,8 +571,8 @@
         {% if manager.well %}
             {% include "webclient/annotations/includes/toolbar.html" %}
 
-            <!-- Image (in WellSample) Name, ID, Owner -->
-            {% with obj=manager.well %}
+            <!-- Well Label (not editable), ID, Owner -->
+            {% with obj=manager.well nameText=manager.well.getWellPos %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
 
