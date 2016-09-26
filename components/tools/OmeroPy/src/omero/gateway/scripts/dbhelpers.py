@@ -445,7 +445,7 @@ class ImageEntry (ObjectEntry):
                 newconn, dataset.getDetails().getGroup().getName())
             session = newconn._sessionUuid
             # print session
-            exe += ' -s %s -k %s -p %s import -d %i -n' % (
+            exe += ' -s %s -k %s -p %s import -d %i --output legacy -n' % (
                 host, session, port, dataset.getId())
             exe = exe.split() + [self.name, fpath]
             print ' '.join(exe)

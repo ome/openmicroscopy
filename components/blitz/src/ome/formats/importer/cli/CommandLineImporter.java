@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2014 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2016 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -93,8 +93,8 @@ public class CommandLineImporter {
     /** If true, then only a report on used files will be produced */
     private final boolean getUsedFiles;
 
-    /** Format which should be preferred for stdandard out messages */
-    private ImportOutput importOutput = ImportOutput.legacy;
+    /** Format which should be preferred for standard out messages */
+    private ImportOutput importOutput = ImportOutput.ids;
 
     /**
      * Legacy constructor which uses a {@link UploadFileTransfer}.
@@ -247,7 +247,7 @@ public class CommandLineImporter {
     public ImportOutput setImportOutput(ImportOutput importOutput) {
         ImportOutput old = importOutput;
         if (importOutput == null) {
-            this.importOutput = ImportOutput.legacy;
+            this.importOutput = ImportOutput.ids;
         }
         this.importOutput = importOutput;
         return old;
@@ -651,7 +651,7 @@ public class CommandLineImporter {
                                 autoCloseDeprecated
                                 });
         int a;
-        ImportOutput outputChoice = ImportOutput.legacy;
+        ImportOutput outputChoice = ImportOutput.ids;
 
         boolean doCloseCompleted = false;
         boolean doWaitCompleted = false;
