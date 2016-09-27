@@ -128,6 +128,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             final GraphUtil.ParameterReporter arguments = new GraphUtil.ParameterReporter();
             arguments.addParameter("userId", userId);
             arguments.addParameter("targetObjects", targetObjects);
+            arguments.addParameter("targetUsers", targetUsers);
             arguments.addParameter("childOptions", childOptions);
             arguments.addParameter("dryRun", dryRun);
             LOGGER.debug("request: " + arguments);
