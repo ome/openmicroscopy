@@ -142,7 +142,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         final Chgrp2 dc = Requests.chgrp().target(savedImage).toGroup(targetGroup).build();
         callback(true, client, dc);
 
-        // check if the image have been moved.
+        // check if the image has been moved.
         Image returnedSourceImage = getImageWithId(originalImageId);
         Assert.assertNull(returnedSourceImage);
 
