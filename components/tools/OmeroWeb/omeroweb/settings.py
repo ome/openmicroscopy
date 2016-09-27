@@ -543,10 +543,10 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "or other objects. Each viewer is defined as "
           "``[\"Name\", \"url\", options]``. Url is reverse(url). "
           "Selected objects are added to the url as ?image=:1&image=2"
-          "The options object is optional E.g. ``{\"objects\":[\"images\"]}`` "
+          "The options object is optional "
+          "E.g. ``{\"supported_objects\":[\"images\"]}`` "
           "to enable viewer for one or more images, "
-          "``{\"target\":\"tab\"}`` to open in new tab. "
-          "See https://github.com/openmicroscopy/openmicroscopy/pull/4630")],
+          "``{\"target\":\"_blank\"}`` to open in new tab.")],
 
     # PIPELINE 1.3.20
 

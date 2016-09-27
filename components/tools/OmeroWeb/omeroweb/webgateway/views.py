@@ -1543,7 +1543,6 @@ def open_with_options(request, **kwargs):
         viewer['supported_objects'] = ['image']
         try:
             if len(ow) > 2:
-                print ow[2]
                 if 'objects' in ow[2]:
                     viewer['supported_objects'] = ow[2]['objects']
                 if 'target' in ow[2]:
