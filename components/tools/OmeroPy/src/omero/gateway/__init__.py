@@ -6952,7 +6952,10 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
         t = unwrap(self._obj.acquisitionDate)
         if t is not None and t > 0:
-            return datetime.fromtimestamp(t/1000)
+            try:
+                return datetime.fromtimestamp(t/1000)
+            except ValueError:
+                return None
 
     def getInstrument(self):
         """
