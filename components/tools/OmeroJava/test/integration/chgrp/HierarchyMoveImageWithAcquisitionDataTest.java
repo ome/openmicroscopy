@@ -37,6 +37,7 @@ import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.LightSource;
+import omero.model.Objective;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
 
@@ -134,6 +135,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
 
         Image savedImage = (Image) iUpdate.saveAndReturnObject(sourceImage);
         long originalImageId = savedImage.getId().getValue();
+        final long objectiveId = savedImage.getObjectiveSettings().getObjective().getId().getValue();
 
         // make sure we are in the source group
         loginUser(sourceGroup);
@@ -170,6 +172,12 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
             if (lightSource instanceof Laser)
                 validateLaser((Laser) lightSource, xmlLaser);
         }
+
+        // check that the objective and settings moved
+        final Objective returnedObjective = (Objective) iQuery.findByQuery(
+                "SELECT i.objectiveSettings.objective FROM Image i WHERE i.id = :id",
+                new ParametersI().addId(originalImageId));
+        Assert.assertEquals(returnedObjective.getId().getValue(), objectiveId);
     }
 
     /**
