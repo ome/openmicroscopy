@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2014 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2016 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -36,7 +36,7 @@ public class LoggingImportMonitor implements IObserver
 
     private final ImportSummary importSummary = new ImportSummary();
 
-    private ImportOutput importOutput = ImportOutput.legacy;
+    private ImportOutput importOutput = ImportOutput.ids;
 
     /**
      * Set the current {@link ImportOutput} (defaulting to null if
@@ -48,7 +48,7 @@ public class LoggingImportMonitor implements IObserver
     public ImportOutput setImportOutput(ImportOutput importOutput) {
         ImportOutput old = importOutput;
         if (importOutput == null) {
-            this.importOutput = ImportOutput.legacy;
+            this.importOutput = ImportOutput.ids;
         }
         this.importOutput = importOutput;
         return old;
@@ -66,8 +66,11 @@ public class LoggingImportMonitor implements IObserver
                 case yaml:
                     importSummary.outputYamlResults(ev);
                     break;
+                case legacy:
+                    importSummary.outputGreppableResults(ev);
+                    break;
                 default:
-                importSummary.outputGreppableResults(ev);
+                    importSummary.outputImageOrPlateIds(ev);
             }
             importSummary.update(ev);
         } else if (event instanceof IMPORT_SUMMARY) {
@@ -190,6 +193,51 @@ public class LoggingImportMonitor implements IObserver
         }
 
         /**
+         * Returns a ListMultimap containing the class names and IDs of
+         * the imported objects
+         *
+         * @param ev the end of import event.
+         * @return See above.
+         */
+        private ListMultimap<String, Long> getObjectIdMap(IMPORT_DONE ev) {
+            ListMultimap<String, Long> collect = ArrayListMultimap.create();
+            for (IObject object : ev.objects) {
+                if (object != null && object.getId() != null) {
+                    String kls = object.getClass().getSimpleName();
+                    if (kls.endsWith("I")) {
+                        kls = kls.substring(0,kls.length()-1);
+                    }
+                    collect.put(kls, object.getId().getValue());
+                }
+            }
+            return collect;
+        }
+
+        /**
+         * Displays a list of other imported objects IDs on standard error.
+         *
+         * @param fid  the Fileset ID.
+         * @param collect  a map of classes and IDs.
+         */
+        void otherImportedObjects(long fid, ListMultimap<String, Long> collect,
+                String exclude) {
+
+            System.err.println("Other imported objects:");
+            System.err.print("Fileset:");
+            System.err.println(fid);
+            for (String kls : collect.keySet()) {
+                if (exclude == null || !kls.equals(exclude)) {
+                    List<Long> ids = collect.get(kls);
+                    for (Long id : ids) {
+                        System.err.print(kls);
+                        System.err.print(":");
+                        System.err.println(id);
+                    }
+                }
+            }
+        }
+
+        /**
          * Displays a list of successfully imported Pixels IDs on standard
          * output.
          *
@@ -204,22 +252,8 @@ public class LoggingImportMonitor implements IObserver
                 System.out.println(p.getId().getValue());
             }
 
-            System.err.println("Other imported objects:");
-            System.err.print("Fileset:");
-            System.err.println(ev.fileset.getId().getValue());
-            for (IObject object : ev.objects) {
-                if (object != null && object.getId() != null) {
-                    // Not printing to stdout since the contract at the moment
-                    // is that only pixel IDs hit stdout.
-                    String kls = object.getClass().getSimpleName();
-                    if (kls.endsWith("I")) {
-                        kls = kls.substring(0,kls.length()-1);
-                    }
-                    System.err.print(kls);
-                    System.err.print(":");
-                    System.err.println(object.getId().getValue());
-                }
-            }
+            ListMultimap<String, Long> collect = getObjectIdMap(ev);
+            otherImportedObjects(ev.fileset.getId().getValue(), collect, null);
         }
 
         /**
@@ -235,16 +269,7 @@ public class LoggingImportMonitor implements IObserver
             System.err.println("Imported objects:");
             System.out.println("---");
             System.out.println("- Fileset: " + ev.fileset.getId().getValue());
-            ListMultimap<String, Long> collect = ArrayListMultimap.create();
-            for (IObject object : ev.objects) {
-                if (object != null && object.getId() != null) {
-                    String kls = object.getClass().getSimpleName();
-                    if (kls.endsWith("I")) {
-                        kls = kls.substring(0,kls.length()-1);
-                    }
-                    collect.put(kls, object.getId().getValue());
-                }
-            }
+            ListMultimap<String, Long> collect = getObjectIdMap(ev);
             for (String kls : collect.keySet()) {
                 List<Long> ids = collect.get(kls);
                 System.out.print("  ");
@@ -253,6 +278,31 @@ public class LoggingImportMonitor implements IObserver
                 System.out.print(Joiner.on(",").join(ids));
                 System.out.println("]");
             }
+        }
+
+        /**
+         * Displays a list of successfully imported Image or Plate IDs
+         * on standard output using the Object:id format.
+         *
+         * Note that this behavior is intended for other command line tools to
+         * pipe/grep the import results, and should be kept as is.
+         *
+         * @param ev the end of import event.
+         */
+        void outputImageOrPlateIds(IMPORT_DONE ev) {
+            String kls;
+            ListMultimap<String, Long> collect = getObjectIdMap(ev);
+            if (collect.containsKey("Plate")) {
+                kls = "Plate";
+            } else {
+                kls = "Image";
+            }
+            List<Long> ids = collect.get(kls);
+            System.out.print(kls);
+            System.out.print(":");
+            System.out.println(Joiner.on(",").join(ids));
+
+            otherImportedObjects(ev.fileset.getId().getValue(), collect, kls);
         }
     }
 }

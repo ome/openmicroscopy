@@ -41,11 +41,27 @@
      lazy-init="false">
   </bean>
 
-  <bean id="dbEnumerationCheck"
+  <bean id="dbFormatEnumerationCheck"
      class="ome.services.util.DBEnumCheck"
      init-method="start" lazy-init="false">
      <constructor-arg ref="executor"/>
      <constructor-arg ref="preferenceContext"/>
+     <constructor-arg ref="ensureEnum"/>
+  </bean>
+
+  <bean id="dbMappedEnumerationCheck"
+     class="ome.services.util.DBMappedEnumCheck"
+     init-method="start" lazy-init="false">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="preferenceContext"/>
+     <constructor-arg ref="ensureEnum"/>
+  </bean>
+
+  <bean id="ensureEnum"
+     class="ome.services.util.EnsureEnum">
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="uuid"/>
+     <constructor-arg ref="roles"/>
   </bean>
 
   <bean id="dbUnicodeUnitsCheck" depends-on="dbPatchCheck"

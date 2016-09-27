@@ -513,7 +513,7 @@ implements java.io.Serializable, IObject
     *
     * will fail. Experimenter has no owner, for obvious reasons.
     *
-    * Note: subclasses of this class will return a subclasse of 
+    * Note: subclasses of this class will return a subclass of
     * the {@link ome.model.internal.Details} type.
     */
     @javax.persistence.Embedded

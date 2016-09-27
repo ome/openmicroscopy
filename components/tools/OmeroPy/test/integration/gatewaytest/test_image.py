@@ -256,6 +256,21 @@ class TestImage (object):
         assert self.image.shortname(length=20, hist=5) == ''
         self.image.name = name
 
+    def testImageDate(self):
+        """ Test getAcquisitionDate() with invalid date """
+        # This imported image has no acquisition date:
+        acq_date = self.image.getAcquisitionDate()
+        assert acq_date is None
+        # Setting date to an invalid number... (not saved)
+        t = 100000 * 265 * 24 * 60 * 60 * 1000
+        self.image._obj.setAcquisitionDate(omero.rtypes.rtime(t))
+        # Check this doesn't throw an exception
+        try:
+            acq_date = self.image.getAcquisitionDate()
+        finally:
+            # Undo change
+            self.image._obj.setAcquisitionDate(None)
+
     def testSimpleMarshal(self, gatewaywrapper):
         """ Test the call to simpleMarhal """
         m = self.image.simpleMarshal()

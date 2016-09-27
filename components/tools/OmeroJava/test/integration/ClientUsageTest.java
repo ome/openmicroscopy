@@ -165,6 +165,13 @@ public class ClientUsageTest extends AbstractServerTest {
         String session = ec.sessionUuid;
         //delete the active client
         disconnect();
+        
+        try {
+            // wait a bit before trying to join the session
+            Thread.sleep(2000);
+        } catch (Exception e1) {
+        }
+        
         client c = new client();
         try {
             c.joinSession(session);
