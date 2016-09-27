@@ -1522,6 +1522,7 @@ def projectDetail_json(request, pid, conn=None, **kwargs):
     rv = pr.simpleMarshal()
     return rv
 
+
 @jsonp
 def open_with_options(request, **kwargs):
     """

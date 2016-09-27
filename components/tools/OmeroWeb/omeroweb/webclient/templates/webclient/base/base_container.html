@@ -237,11 +237,7 @@
             // look for label in OPEN_WITH
             WEBCLIENT.OPEN_WITH.forEach(function(ow){
                 if (ow.label === label) {
-                    ow.action = function() {
-                        var args = Array.from(arguments);
-                        enabled = fn.apply(this, args);
-                        return enabled;
-                    }
+                    ow.action = fn;
                 }
             });
         };
