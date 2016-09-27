@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2016 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -98,9 +98,9 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
     /**
      * Test moving data as the data owner from a private to a private group
      *
-     * @throws Exception
+     * @throws Exception unexpected
      */
-    @Test(groups = "broken")
+    @Test
     public void moveImageRWtoRW() throws Exception {
         moveImageBetweenPermissionGroups("rw----", "rw----");
     }
@@ -201,7 +201,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         Assert.assertEquals(laser.getModel().getValue(), xml.getModel());
         Assert.assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
         Assert.assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
-        Assert.assertEquals(laser.getPower().getValue(), xml.getPower());
+        Assert.assertEquals(laser.getPower().getValue(), xml.getPower().value());
         Assert.assertEquals(laser.getType().getValue().getValue(),
                 XMLMockObjects.LASER_TYPE.getValue());
     }
