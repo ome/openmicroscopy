@@ -110,28 +110,52 @@
                 var newH = $(this).data('wellImgs_h') - dy;
                 $("#wellImagesContainer").css('height', newH + 'px');
                 $("#spwContainer").css('bottom', newH + 'px');
+            }).
+            bind("dragstop", function(event, ui) {
+                // Save the current size
+                var dy = ui.offset.top - $(this).data('dragstart');
+                var newH = $(this).data('wellImgs_h') - dy;
+                $('body').data('well_images_panel_height', newH);
             });
+            // If height has previously been set, apply this...
+            var newH = $('body').data('well_images_panel_height') || 100;
+            $("#wellImagesContainer").css('height', newH + 'px');
+            $("#spwContainer").css('bottom', newH + 'px');
+            $("#wellImagesDragHandle").css('bottom', newH + 'px');
 
             // Resize SPW thumbnails
+            var spw_thumb_size = $('body').data('spw_thumb_size') || 64;
+            function setSpwThumbSize(size) {
+                // Since we don't want to remove previous class (don't know it),
+                // just set new class
+                // if well is small, offset the hover label
+                var cls = size < 30 ? 'wellLabelOffset ' : '';
+                cls += 'wellSize' + size;
+                $("#spw>table").prop('class', cls);
+            }
             $("#thumb_size_slider").slider({
                 max: 130,
                 min: 10,
-                value: 64,
+                value: spw_thumb_size,
                 slide: function(event, ui) {
-                    // Since we don't want to remove previous class (don't know it),
-                    // just set new class
-                    var cls = ui.value < 30 ? 'wellLabelOffset ' : '';   // if well is small, offset the hover label
-                    cls += 'wellSize' + ui.value;
-                    $("#spw>table").prop('class', cls);
+                    setSpwThumbSize(ui.value);
+                },
+                stop: function(event, ui) {
+                    $('body').data('spw_thumb_size', ui.value);
                 }
             });
             // Resize Images in Well
+            var well_images_size = $('body').data('well_images_size') || 64;
+            $("#wellImages").prop('class', 'fillSpace wellSize' + well_images_size);
             $("#wellImages_size_slider").slider({
                 max: 130,
                 min: 30,
-                value: 64,
+                value: well_images_size,
                 slide: function(event, ui) {
                     $("#wellImages").prop('class', 'fillSpace wellSize' + ui.value);
+                },
+                stop: function(event, ui) {
+                    $('body').data('well_images_size', ui.value);
                 }
             });
 
@@ -172,6 +196,7 @@
 
             var staticurl = WEBCLIENT.URLS.static_webgateway;
             var wpv = $.WeblitzPlateview($('#spw'), {baseurl: '{{ baseurl }}',
+                                                     width: spw_thumb_size,
                                                      staticurl: staticurl,
                                                      useParentPrefix: false});
             var $selected;
@@ -218,6 +243,11 @@
                     }
                 });
             {% endif %}
+
+            // Need to apply correct thumb size once loaded
+            wpv.self.bind('_resetLoaded', function(){
+                setSpwThumbSize(spw_thumb_size);
+            });
 
             wpv.load({{ manager.getPlateId }}, {{ index }});
 
